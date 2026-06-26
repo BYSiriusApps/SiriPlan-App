@@ -1,0 +1,20 @@
+{
+  "name": "randevu-sistemi",
+  "displayName": "Randevu Sistemi",
+  "description": "Randevu rezervasyonu için temel sayfa yapılandırması.",
+  "type": "web-app",
+  "entry": "src/index.html",
+  "route": "/",
+  "pages": [
+    {
+      "id": "appointments",
+      "title": "Randevular",
+      "route": "/",
+      "component": "AppointmentsPage"
+    }
+  ],
+  "settings": {
+    "theme": "light",
+    "locale": "tr-TR"
+  }
+}

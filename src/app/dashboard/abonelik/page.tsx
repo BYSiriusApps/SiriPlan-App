@@ -1,0 +1,140 @@
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, CreditCard, Zap, Sparkles, Building2 } from "lucide-react";
+import { format } from "date-fns";
+import { tr } from "date-fns/locale";
+import Link from "next/link";
+
+const PLAN_DETAILS = {
+  trial: { name: "Deneme", icon: Zap, color: "text-gray-600" },
+  starter: { name: "Starter", icon: Zap, color: "text-blue-600" },
+  pro: { name: "Pro", icon: Sparkles, color: "text-primary" },
+  business: { name: "Business", icon: Building2, color: "text-purple-600" },
+};
+
+export default async function AbonelikPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/giris");
+
+  const { data: member } = await supabase
+    .from("org_members")
+    .select("org_id, organizations(*)")
+    .eq("user_id", user.id)
+    .single();
+  if (!member) redirect("/auth/kayit");
+
+  const org = (member as unknown as { org_id: string; organizations: Record<string, unknown> }).organizations as {
+    plan: string; subscription_status: string; trial_ends_at?: string;
+    max_staff: number; max_appointments_monthly: number;
+    feature_ai: boolean; feature_campaigns: boolean; feature_gamification: boolean;
+    feature_api: boolean; feature_whitelabel: boolean;
+  };
+
+  const planDetail = PLAN_DETAILS[org.plan as keyof typeof PLAN_DETAILS] || PLAN_DETAILS.trial;
+  const Icon = planDetail.icon;
+
+  return (
+    <div className="p-6 max-w-2xl space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Abonelik</h1>
+        <p className="text-muted-foreground text-sm">Plan ve fatura yönetimi</p>
+      </div>
+
+      {/* Current plan */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Mevcut Plan</CardTitle>
+            <Badge
+              variant="outline"
+              className={
+                org.subscription_status === "active" ? "bg-green-100 text-green-800 border-green-200" :
+                org.subscription_status === "past_due" ? "bg-yellow-100 text-yellow-800 border-yellow-200" :
+                "bg-red-100 text-red-800 border-red-200"
+              }
+            >
+              {org.subscription_status === "active" ? "Aktif" :
+               org.subscription_status === "past_due" ? "Ödeme Bekliyor" : "İptal Edildi"}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Icon className={`h-6 w-6 ${planDetail.color}`} />
+            </div>
+            <div>
+              <p className="text-xl font-bold">{planDetail.name} Planı</p>
+              {org.plan === "trial" && org.trial_ends_at && (
+                <p className="text-sm text-muted-foreground">
+                  Deneme {format(new Date(org.trial_ends_at), "d MMMM yyyy", { locale: tr })} tarihinde bitiyor
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Max Personel</p>
+              <p className="font-semibold">{org.max_staff === 999 ? "Sınırsız" : org.max_staff}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Max Randevu/Ay</p>
+              <p className="font-semibold">{org.max_appointments_monthly === 999999 ? "Sınırsız" : org.max_appointments_monthly}</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            {[
+              { label: "AI Asistanı", enabled: org.feature_ai },
+              { label: "Kampanya Modülü", enabled: org.feature_campaigns },
+              { label: "Gamification", enabled: org.feature_gamification },
+              { label: "API Erişimi", enabled: org.feature_api },
+              { label: "White-Label", enabled: org.feature_whitelabel },
+            ].map((f) => (
+              <div key={f.label} className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className={`h-4 w-4 ${f.enabled ? "text-green-600" : "text-muted-foreground/40"}`} />
+                <span className={f.enabled ? "" : "text-muted-foreground/60 line-through"}>{f.label}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Actions */}
+      <div className="space-y-3">
+        {org.plan === "trial" || org.plan === "starter" ? (
+          <Link
+            href="/auth/plan-sec"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+          >
+            <Sparkles className="h-4 w-4" />
+            Pro'ya Yükselt
+          </Link>
+        ) : null}
+
+        {org.plan !== "trial" && (
+          <form action="/api/stripe/portal" method="POST">
+            <button
+              type="submit"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-border font-medium hover:bg-accent transition-colors"
+            >
+              <CreditCard className="h-4 w-4" />
+              Stripe Müşteri Portalı
+            </button>
+          </form>
+        )}
+      </div>
+
+      {org.plan === "trial" && (
+        <p className="text-xs text-center text-muted-foreground">
+          Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir.
+          Plan seçmeden önce kredi kartı gerekmez.
+        </p>
+      )}
+    </div>
+  );
+}

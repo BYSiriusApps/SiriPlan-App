@@ -1,0 +1,242 @@
+{
+  "nav": {
+    "features": "Özellikler",
+    "pricing": "Fiyatlar",
+    "categories": "Kategoriler",
+    "reviews": "Yorumlar",
+    "blog": "Blog",
+    "contact": "İletişim",
+    "login": "Giriş Yap",
+    "startFree": "Ücretsiz Başla"
+  },
+  "hero": {
+    "badge": "Güzellik Sektörünün Tercih Ettiği Platform",
+    "title": "Salonunuzu A'dan Z'ye\nYönetin",
+    "subtitle": "Randevu, personel, müşteri ve ciro yönetimini tek platformda birleştirin. AI asistanı ile WhatsApp/Instagram'dan otomatik yanıt verin.",
+    "cta": "14 Gün Ücretsiz Deneyin",
+    "ctaSecondary": "Demo İzle",
+    "trial": "Kredi kartı gerekmez"
+  },
+  "stats": {
+    "businesses": "Aktif İşletme",
+    "appointments": "Aylık Randevu",
+    "satisfaction": "Memnuniyet",
+    "uptime": "Kesintisiz Çalışma"
+  },
+  "features": {
+    "title": "Her Şey Tek Yerde",
+    "subtitle": "Rakiplerinizden öne geçmenizi sağlayacak araçlar",
+    "booking": {
+      "title": "Çok Kanallı Randevu",
+      "desc": "Web, WhatsApp, Instagram ve QR kodla müşterileriniz her yerden randevu alabilir."
+    },
+    "ai": {
+      "title": "AI Asistanı",
+      "desc": "WhatsApp ve Instagram DM'lerine 7/24 otomatik, akıllı yanıt. Hiçbir müşteri karşılıksız kalmasın."
+    },
+    "crm": {
+      "title": "Müşteri Skoru",
+      "desc": "Her müşteriye 0-100 arası sadakat puanı. Değerli müşterilerinizi tanıyın ve ödüllendirin."
+    },
+    "staff": {
+      "title": "Personel Yönetimi",
+      "desc": "Komisyon takibi, vardiya planlama ve Haftanın Elemanı gamification sistemi."
+    },
+    "analytics": {
+      "title": "Gelir Analizi",
+      "desc": "Gerçek zamanlı ciro dashboard, KDV raporu ve PDF export. Verileriniz her zaman elinizin altında."
+    },
+    "migration": {
+      "title": "Kolay Veri Göçü",
+      "desc": "SalonAppy, Arvengo veya Excel'den tek tıkla tüm verilerinizi aktarın. Veri kaybı yok."
+    },
+    "campaigns": {
+      "title": "Kampanya Modülü",
+      "desc": "Doğum günü, inaktif müşteri ve özel kampanyalar. Hedefe yönelik WhatsApp/SMS mesajları."
+    },
+    "export": {
+      "title": "Verileriniz Sizindir",
+      "desc": "İstediğiniz zaman tüm verilerinizi JSON, Excel veya CSV olarak indirin. Hiçbir kilit yok."
+    }
+  },
+  "pricing": {
+    "title": "Şeffaf Fiyatlandırma",
+    "subtitle": "Aylık veya yıllık ödeme yapın, istediğiniz zaman iptal edin.",
+    "monthly": "Aylık",
+    "annual": "Yıllık",
+    "annualSave": "%18 Tasarruf",
+    "trial": "14 gün ücretsiz deneme",
+    "noCard": "Kredi kartı gerekmez",
+    "perMonth": "/ay",
+    "perYear": "/yıl",
+    "mostPopular": "En Çok Tercih Edilen",
+    "startTrial": "Ücretsiz Dene",
+    "contactUs": "Bize Ulaşın",
+    "starter": {
+      "name": "Starter",
+      "desc": "Küçük salonlar için mükemmel başlangıç",
+      "features": [
+        "1 şube, 3 personel",
+        "300 randevu/ay",
+        "Online randevu sayfası",
+        "WhatsApp hatırlatma",
+        "Sadakat kartı sistemi",
+        "Temel ciro raporu",
+        "Veri export (CSV)"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "desc": "Büyüyen salonlar için tam set",
+      "features": [
+        "1 şube, sınırsız personel",
+        "Sınırsız randevu",
+        "AI WhatsApp/IG asistanı",
+        "Kampanya modülü",
+        "Müşteri skoru sistemi",
+        "Haftanın Elemanı gamification",
+        "Google Calendar sync",
+        "Bekleme listesi",
+        "PDF rapor export",
+        "KDV hesaplama"
+      ]
+    },
+    "business": {
+      "name": "Business",
+      "desc": "Çok şubeli işletmeler için",
+      "features": [
+        "Sınırsız şube",
+        "Sınırsız personel",
+        "Tüm Pro özellikleri",
+        "Beyaz etiket (kendi domaininiz)",
+        "API erişimi",
+        "Öncelikli destek",
+        "Özel entegrasyonlar",
+        "Dedicated account manager"
+      ]
+    }
+  },
+  "addons": {
+    "title": "Ek Paketler",
+    "subtitle": "Planınıza ihtiyacınıza göre ekleyin",
+    "whatsappAI": {
+      "name": "AI WhatsApp Paketi",
+      "desc": "Gelişmiş AI asistanı — akıllı randevu önerisi, duygu analizi",
+      "price": "$29/ay"
+    },
+    "sms": {
+      "name": "SMS Paketi",
+      "desc": "1.000 SMS/ay — Twilio altyapısı, teslimat garantisi",
+      "price": "$19/ay"
+    },
+    "multiBranch": {
+      "name": "Ek Şube Paketi",
+      "desc": "Starter/Pro planına her ek şube için",
+      "price": "$29/şube/ay"
+    },
+    "premiumAnalytics": {
+      "name": "Premium Analitik",
+      "desc": "Özelleştirilebilir dashboard, personel maaş bordrosu, KPI izleme",
+      "price": "$25/ay"
+    },
+    "googleReview": {
+      "name": "Google Yorum & SEO",
+      "desc": "Otomatik Google yorum isteği, yerel SEO raporu",
+      "price": "$15/ay"
+    },
+    "dataMigration": {
+      "name": "Profesyonel Veri Göçü",
+      "desc": "Ekibimiz verilerinizi manuel olarak aktarır — garanti",
+      "price": "$99 tek seferlik"
+    }
+  },
+  "categories": {
+    "title": "Hangi Sektördesiniz?",
+    "subtitle": "Tüm güzellik ve kişisel bakım işletmeleri için özelleştirilmiş çözüm",
+    "hairdresser": "Kuaför",
+    "barber": "Berber",
+    "beauty": "Güzellik Salonu",
+    "spa": "SPA & Masaj",
+    "nail": "Nail Salon",
+    "aesthetic": "Estetik Klinik",
+    "makeup": "Makyaj Stüdyosu",
+    "tattoo": "Tattoo Studio",
+    "dietitian": "Diyetisyen",
+    "eyebrow": "Kaş & Kirpik"
+  },
+  "testimonials": {
+    "title": "İşletmeler Ne Diyor?",
+    "subtitle": "Türkiye ve dünyadan salon sahiplerinin deneyimleri"
+  },
+  "footer": {
+    "tagline": "Güzellik sektörünün akıllı yönetim platformu",
+    "product": "Ürün",
+    "company": "Şirket",
+    "legal": "Yasal",
+    "about": "Hakkımızda",
+    "careers": "Kariyer",
+    "privacy": "Gizlilik Politikası",
+    "terms": "Kullanım Koşulları",
+    "powered": "Powered by",
+    "rights": "Tüm hakları saklıdır."
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "email": "E-posta",
+    "password": "Şifre",
+    "forgotPassword": "Şifremi Unuttum",
+    "noAccount": "Hesabınız yok mu?",
+    "hasAccount": "Zaten hesabınız var mı?",
+    "orContinueWith": "veya şununla devam edin",
+    "loginWithGoogle": "Google ile Giriş",
+    "businessName": "İşletme Adı",
+    "fullName": "Ad Soyad",
+    "phone": "Telefon",
+    "businessType": "İşletme Türü",
+    "selectPlan": "Plan Seçin",
+    "createAccount": "Hesap Oluştur",
+    "trialNote": "14 gün ücretsiz, kredi kartı gerekmez"
+  },
+  "dashboard": {
+    "overview": "Genel Bakış",
+    "calendar": "Takvim",
+    "appointments": "Randevular",
+    "customers": "Müşteriler",
+    "staff": "Personel",
+    "services": "Hizmetler",
+    "campaigns": "Kampanyalar",
+    "reports": "Raporlar",
+    "dataMigration": "Veri Göçü",
+    "settings": "Ayarlar",
+    "subscription": "Abonelik",
+    "today": "Bugün",
+    "thisWeek": "Bu Hafta",
+    "thisMonth": "Bu Ay",
+    "revenue": "Ciro",
+    "appointments_count": "Randevu",
+    "newCustomers": "Yeni Müşteri",
+    "noShow": "Gelmedi",
+    "weeklyChampion": "Haftanın Elemanı",
+    "topStaff": "En İyi Performans"
+  },
+  "booking": {
+    "title": "Online Randevu",
+    "selectService": "Hizmet Seçin",
+    "selectStaff": "Uzman Seçin",
+    "selectDateTime": "Tarih & Saat",
+    "yourInfo": "Bilgileriniz",
+    "confirm": "Randevuyu Onayla",
+    "anyStaff": "Herhangi bir uzman",
+    "available": "Müsait",
+    "notAvailable": "Dolu",
+    "name": "Adınız",
+    "phone": "Telefonunuz",
+    "email": "E-postanız (isteğe bağlı)",
+    "note": "Not (isteğe bağlı)",
+    "successTitle": "Randevunuz Alındı!",
+    "successDesc": "WhatsApp'a onay mesajı gönderildi.",
+    "addToCalendar": "Takvime Ekle",
+    "cancel": "İptal Et"
+  }
+}

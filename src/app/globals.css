@@ -1,0 +1,231 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  /* BySirius brand colors */
+  --color-brand-rose: var(--brand-rose);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-plum: var(--brand-plum);
+}
+
+/* ─── BySirius Beauty Platform — Light Mode ─────────────────────────── */
+:root {
+  /* Warm rose-pink — beauty sector primary */
+  --primary: oklch(0.52 0.16 345);
+  --primary-foreground: oklch(0.99 0 0);
+
+  /* Warm white background */
+  --background: oklch(0.985 0.005 80);
+  --foreground: oklch(0.18 0.02 290);
+
+  /* Soft warm cards */
+  --card: oklch(0.99 0.003 70);
+  --card-foreground: oklch(0.18 0.02 290);
+
+  /* Popover */
+  --popover: oklch(0.99 0.003 70);
+  --popover-foreground: oklch(0.18 0.02 290);
+
+  /* Soft lavender secondary */
+  --secondary: oklch(0.93 0.02 290);
+  --secondary-foreground: oklch(0.28 0.05 290);
+
+  /* Muted warm */
+  --muted: oklch(0.95 0.01 70);
+  --muted-foreground: oklch(0.50 0.03 290);
+
+  /* Champagne gold accent */
+  --accent: oklch(0.80 0.09 70);
+  --accent-foreground: oklch(0.22 0.04 290);
+
+  /* Destructive */
+  --destructive: oklch(0.577 0.245 27.325);
+
+  /* Borders */
+  --border: oklch(0.90 0.01 290);
+  --input: oklch(0.90 0.01 290);
+  --ring: oklch(0.52 0.16 345);
+
+  /* Charts — beauty palette */
+  --chart-1: oklch(0.52 0.16 345);   /* rose */
+  --chart-2: oklch(0.72 0.10 65);    /* gold */
+  --chart-3: oklch(0.65 0.12 290);   /* lavender */
+  --chart-4: oklch(0.62 0.14 170);   /* mint */
+  --chart-5: oklch(0.58 0.13 220);   /* steel blue */
+
+  --radius: 0.75rem;
+
+  /* Sidebar — warm off-white */
+  --sidebar: oklch(0.975 0.006 70);
+  --sidebar-foreground: oklch(0.18 0.02 290);
+  --sidebar-primary: oklch(0.52 0.16 345);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.94 0.02 345);
+  --sidebar-accent-foreground: oklch(0.52 0.16 345);
+  --sidebar-border: oklch(0.90 0.01 290);
+  --sidebar-ring: oklch(0.52 0.16 345);
+
+  /* BySirius brand tokens */
+  --brand-rose: oklch(0.52 0.16 345);
+  --brand-gold: oklch(0.72 0.10 65);
+  --brand-plum: oklch(0.28 0.06 290);
+}
+
+/* ─── BySirius Beauty Platform — Dark Mode (Soft Plum, not pitch black) ── */
+.dark {
+  /* Deep plum background — warm, not pure black */
+  --background: oklch(0.17 0.03 290);
+  --foreground: oklch(0.93 0.01 70);
+
+  /* Slightly lighter plum for cards */
+  --card: oklch(0.21 0.035 290);
+  --card-foreground: oklch(0.93 0.01 70);
+
+  --popover: oklch(0.21 0.035 290);
+  --popover-foreground: oklch(0.93 0.01 70);
+
+  /* Lighter rose for dark backgrounds */
+  --primary: oklch(0.70 0.15 345);
+  --primary-foreground: oklch(0.17 0.03 290);
+
+  /* Muted plum secondary */
+  --secondary: oklch(0.26 0.04 290);
+  --secondary-foreground: oklch(0.85 0.02 70);
+
+  --muted: oklch(0.24 0.03 290);
+  --muted-foreground: oklch(0.60 0.03 290);
+
+  /* Gold accent stays warm in dark mode too */
+  --accent: oklch(0.72 0.10 65);
+  --accent-foreground: oklch(0.17 0.03 290);
+
+  --destructive: oklch(0.704 0.191 22.216);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.70 0.15 345);
+
+  /* Charts — dark mode beauty palette */
+  --chart-1: oklch(0.70 0.15 345);   /* rose */
+  --chart-2: oklch(0.78 0.10 65);    /* gold */
+  --chart-3: oklch(0.70 0.10 290);   /* lavender */
+  --chart-4: oklch(0.68 0.12 170);   /* mint */
+  --chart-5: oklch(0.65 0.12 220);   /* steel blue */
+
+  /* Sidebar — slightly lighter plum */
+  --sidebar: oklch(0.20 0.035 290);
+  --sidebar-foreground: oklch(0.93 0.01 70);
+  --sidebar-primary: oklch(0.70 0.15 345);
+  --sidebar-primary-foreground: oklch(0.17 0.03 290);
+  --sidebar-accent: oklch(0.26 0.04 290);
+  --sidebar-accent-foreground: oklch(0.70 0.15 345);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.70 0.15 345);
+
+  /* BySirius brand tokens — dark */
+  --brand-rose: oklch(0.70 0.15 345);
+  --brand-gold: oklch(0.78 0.10 65);
+  --brand-plum: oklch(0.93 0.01 70);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  /* RTL support for Arabic */
+  [dir="rtl"] {
+    direction: rtl;
+  }
+}
+
+/* ─── BySirius Signature Styles ─────────────────────────────────────── */
+.bysirius-watermark {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 40px,
+    oklch(0.52 0.16 345 / 0.03) 40px,
+    oklch(0.52 0.16 345 / 0.03) 80px
+  );
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, oklch(0.52 0.16 345), oklch(0.65 0.12 290));
+}
+
+.brand-gradient-text {
+  background: linear-gradient(135deg, oklch(0.52 0.16 345), oklch(0.58 0.12 290));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar — rose accent */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.52 0.16 345 / 0.4);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.52 0.16 345 / 0.7);
+}

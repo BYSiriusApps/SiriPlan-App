@@ -1,0 +1,242 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "categories": "Categories",
+    "reviews": "Reviews",
+    "blog": "Blog",
+    "contact": "Contact",
+    "login": "Log In",
+    "startFree": "Start Free"
+  },
+  "hero": {
+    "badge": "The Platform Trusted by Beauty Industry",
+    "title": "Manage Your Salon\nFrom A to Z",
+    "subtitle": "Combine appointment, staff, customer and revenue management in one platform. Auto-reply via WhatsApp/Instagram with AI assistant.",
+    "cta": "Try Free for 14 Days",
+    "ctaSecondary": "Watch Demo",
+    "trial": "No credit card required"
+  },
+  "stats": {
+    "businesses": "Active Businesses",
+    "appointments": "Monthly Appointments",
+    "satisfaction": "Satisfaction Rate",
+    "uptime": "Uptime"
+  },
+  "features": {
+    "title": "Everything in One Place",
+    "subtitle": "Tools that will put you ahead of your competitors",
+    "booking": {
+      "title": "Multi-Channel Booking",
+      "desc": "Customers can book via Web, WhatsApp, Instagram and QR code from anywhere."
+    },
+    "ai": {
+      "title": "AI Assistant",
+      "desc": "24/7 automatic, smart replies to WhatsApp and Instagram DMs. Never miss a customer."
+    },
+    "crm": {
+      "title": "Customer Score",
+      "desc": "Loyalty score 0-100 for each customer. Know and reward your most valuable customers."
+    },
+    "staff": {
+      "title": "Staff Management",
+      "desc": "Commission tracking, shift planning and Staff of the Week gamification system."
+    },
+    "analytics": {
+      "title": "Revenue Analytics",
+      "desc": "Real-time revenue dashboard, VAT reports and PDF export. Your data always at hand."
+    },
+    "migration": {
+      "title": "Easy Data Migration",
+      "desc": "Import all your data from SalonAppy, Arvengo or Excel in one click. No data loss."
+    },
+    "campaigns": {
+      "title": "Campaign Module",
+      "desc": "Birthday, inactive customer and special campaigns. Targeted WhatsApp/SMS messages."
+    },
+    "export": {
+      "title": "Your Data Belongs to You",
+      "desc": "Download all your data as JSON, Excel or CSV at any time. No lock-in."
+    }
+  },
+  "pricing": {
+    "title": "Transparent Pricing",
+    "subtitle": "Pay monthly or annually, cancel anytime.",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "annualSave": "Save 18%",
+    "trial": "14-day free trial",
+    "noCard": "No credit card required",
+    "perMonth": "/mo",
+    "perYear": "/yr",
+    "mostPopular": "Most Popular",
+    "startTrial": "Start Free Trial",
+    "contactUs": "Contact Us",
+    "starter": {
+      "name": "Starter",
+      "desc": "Perfect starting point for small salons",
+      "features": [
+        "1 location, 3 staff",
+        "300 appointments/month",
+        "Online booking page",
+        "WhatsApp reminders",
+        "Loyalty card system",
+        "Basic revenue report",
+        "Data export (CSV)"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "desc": "Full suite for growing salons",
+      "features": [
+        "1 location, unlimited staff",
+        "Unlimited appointments",
+        "AI WhatsApp/IG assistant",
+        "Campaign module",
+        "Customer score system",
+        "Staff of the Week gamification",
+        "Google Calendar sync",
+        "Waiting list",
+        "PDF report export",
+        "VAT calculation"
+      ]
+    },
+    "business": {
+      "name": "Business",
+      "desc": "For multi-location businesses",
+      "features": [
+        "Unlimited locations",
+        "Unlimited staff",
+        "All Pro features",
+        "White label (your own domain)",
+        "API access",
+        "Priority support",
+        "Custom integrations",
+        "Dedicated account manager"
+      ]
+    }
+  },
+  "addons": {
+    "title": "Add-on Packages",
+    "subtitle": "Customize your plan as needed",
+    "whatsappAI": {
+      "name": "AI WhatsApp Package",
+      "desc": "Advanced AI assistant — smart booking suggestions, sentiment analysis",
+      "price": "$29/mo"
+    },
+    "sms": {
+      "name": "SMS Package",
+      "desc": "1,000 SMS/month — Twilio infrastructure, delivery guarantee",
+      "price": "$19/mo"
+    },
+    "multiBranch": {
+      "name": "Additional Branch",
+      "desc": "For each additional branch on Starter/Pro plan",
+      "price": "$29/branch/mo"
+    },
+    "premiumAnalytics": {
+      "name": "Premium Analytics",
+      "desc": "Customizable dashboard, staff payroll, KPI tracking",
+      "price": "$25/mo"
+    },
+    "googleReview": {
+      "name": "Google Review & SEO",
+      "desc": "Automated Google review requests, local SEO reports",
+      "price": "$15/mo"
+    },
+    "dataMigration": {
+      "name": "Professional Data Migration",
+      "desc": "Our team manually migrates your data — guaranteed",
+      "price": "$99 one-time"
+    }
+  },
+  "categories": {
+    "title": "What's Your Business?",
+    "subtitle": "Customized solution for all beauty and personal care businesses",
+    "hairdresser": "Hair Salon",
+    "barber": "Barber Shop",
+    "beauty": "Beauty Salon",
+    "spa": "SPA & Massage",
+    "nail": "Nail Salon",
+    "aesthetic": "Aesthetic Clinic",
+    "makeup": "Makeup Studio",
+    "tattoo": "Tattoo Studio",
+    "dietitian": "Dietitian",
+    "eyebrow": "Brow & Lash"
+  },
+  "testimonials": {
+    "title": "What Businesses Say",
+    "subtitle": "Experiences from salon owners in Turkey and worldwide"
+  },
+  "footer": {
+    "tagline": "The smart management platform for the beauty industry",
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "about": "About Us",
+    "careers": "Careers",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "powered": "Powered by",
+    "rights": "All rights reserved."
+  },
+  "auth": {
+    "login": "Log In",
+    "register": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "orContinueWith": "or continue with",
+    "loginWithGoogle": "Continue with Google",
+    "businessName": "Business Name",
+    "fullName": "Full Name",
+    "phone": "Phone",
+    "businessType": "Business Type",
+    "selectPlan": "Select Plan",
+    "createAccount": "Create Account",
+    "trialNote": "14 days free, no credit card required"
+  },
+  "dashboard": {
+    "overview": "Overview",
+    "calendar": "Calendar",
+    "appointments": "Appointments",
+    "customers": "Customers",
+    "staff": "Staff",
+    "services": "Services",
+    "campaigns": "Campaigns",
+    "reports": "Reports",
+    "dataMigration": "Data Migration",
+    "settings": "Settings",
+    "subscription": "Subscription",
+    "today": "Today",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "revenue": "Revenue",
+    "appointments_count": "Appointments",
+    "newCustomers": "New Customers",
+    "noShow": "No Show",
+    "weeklyChampion": "Staff of the Week",
+    "topStaff": "Top Performance"
+  },
+  "booking": {
+    "title": "Online Booking",
+    "selectService": "Select Service",
+    "selectStaff": "Select Specialist",
+    "selectDateTime": "Date & Time",
+    "yourInfo": "Your Information",
+    "confirm": "Confirm Booking",
+    "anyStaff": "Any specialist",
+    "available": "Available",
+    "notAvailable": "Booked",
+    "name": "Your Name",
+    "phone": "Your Phone",
+    "email": "Your Email (optional)",
+    "note": "Note (optional)",
+    "successTitle": "Booking Confirmed!",
+    "successDesc": "A confirmation has been sent to your WhatsApp.",
+    "addToCalendar": "Add to Calendar",
+    "cancel": "Cancel"
+  }
+}

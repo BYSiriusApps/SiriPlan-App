@@ -1,0 +1,126 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
+
+const CreateSchema = z.object({
+  org_id: z.string().uuid(),
+  customer_name: z.string().min(2).max(100),
+  customer_phone: z.string().min(10).max(20),
+  customer_email: z.string().email().optional(),
+  staff_id: z.string().uuid(),
+  service_id: z.string().uuid(),
+  appointment_at: z.string(), // ISO string
+  note: z.string().optional(),
+  source: z.enum(["web", "whatsapp", "instagram", "telefon", "yuzyuze"]).default("web"),
+});
+
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const parsed = CreateSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
+
+  const data = parsed.data;
+  const supabase = await createClient();
+
+  // Get service for price/duration
+  const { data: service } = await supabase
+    .from("services")
+    .select("price, duration_minutes, name")
+    .eq("id", data.service_id)
+    .eq("org_id", data.org_id)
+    .single();
+
+  if (!service) {
+    return NextResponse.json({ error: "Service not found" }, { status: 404 });
+  }
+
+  // Find or create customer
+  let customerId: string | null = null;
+  const { data: existingCustomer } = await supabase
+    .from("customers")
+    .select("id")
+    .eq("org_id", data.org_id)
+    .eq("phone", data.customer_phone)
+    .single();
+
+  if (existingCustomer) {
+    customerId = existingCustomer.id;
+  } else {
+    const { data: newCustomer } = await supabase
+      .from("customers")
+      .insert({
+        org_id: data.org_id,
+        full_name: data.customer_name,
+        phone: data.customer_phone,
+        email: data.customer_email,
+        source: data.source,
+      })
+      .select("id")
+      .single();
+    if (newCustomer) customerId = newCustomer.id;
+  }
+
+  // Create appointment
+  const { data: appt, error } = await supabase
+    .from("appointments")
+    .insert({
+      org_id: data.org_id,
+      customer_id: customerId,
+      customer_name: data.customer_name,
+      customer_phone: data.customer_phone,
+      staff_id: data.staff_id,
+      service_id: data.service_id,
+      appointment_at: data.appointment_at,
+      duration_minutes: service.duration_minutes,
+      price: service.price,
+      source: data.source,
+      note: data.note,
+      status: "onaylandi",
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ appointment: appt }, { status: 201 });
+}
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data: member } = await supabase
+    .from("org_members")
+    .select("org_id")
+    .eq("user_id", user.id)
+    .single();
+  if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+
+  const status = searchParams.get("status");
+  const date = searchParams.get("date");
+
+  let query = supabase
+    .from("appointments")
+    .select("*, staff(full_name), service:services(name)")
+    .eq("org_id", member.org_id)
+    .order("appointment_at", { ascending: false })
+    .limit(200);
+
+  if (status) query = query.eq("status", status);
+  if (date) {
+    query = query
+      .gte("appointment_at", `${date}T00:00:00`)
+      .lte("appointment_at", `${date}T23:59:59`);
+  }
+
+  const { data, error } = await query;
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ appointments: data });
+}
