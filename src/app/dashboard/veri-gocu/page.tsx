@@ -28,7 +28,7 @@ export default function VeriGocuPage() {
       const a = document.createElement("a");
       a.href = url;
       a.download = format === "json"
-        ? `randevupro-export-${new Date().toISOString().slice(0, 10)}.json`
+        ? `siriplan-export-${new Date().toISOString().slice(0, 10)}.json`
         : `musteriler-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);

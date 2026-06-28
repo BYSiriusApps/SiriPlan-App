@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(JSON.stringify(exportData, null, 2), {
       headers: {
         "Content-Type": "application/json",
-        "Content-Disposition": `attachment; filename="randevupro-export-${new Date().toISOString().slice(0, 10)}.json"`,
+        "Content-Disposition": `attachment; filename="siriplan-export-${new Date().toISOString().slice(0, 10)}.json"`,
       },
     });
   }

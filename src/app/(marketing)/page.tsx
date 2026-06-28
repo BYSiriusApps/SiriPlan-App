@@ -164,7 +164,7 @@ const testimonials = [
     name: "Ayşe Kaya",
     role: "Elegans Kuaför — İstanbul",
     avatar: "AK",
-    text: "Eski sistemimiz sürekli çöküyordu. RandevuPro'ya geçtik, verilerimizi 20 dakikada aktardık. Artık WhatsApp'tan gelen sorulara AI yanıt veriyor, ben sadece hizmetimi sunuyorum.",
+    text: "Eski sistemimiz sürekli çöküyordu. Siriplan'a geçtik, verilerimizi 20 dakikada aktardık. Artık WhatsApp'tan gelen sorulara AI yanıt veriyor, ben sadece hizmetimi sunuyorum.",
     stars: 5,
   },
   {
@@ -194,18 +194,22 @@ export default function HomePage() {
         <div className="container mx-auto px-4 text-center relative z-10">
           <Badge variant="secondary" className="mb-6 gap-1.5 px-3 py-1 text-xs font-medium">
             <Sparkles className="w-3 h-3 text-primary" />
-            Güzellik Sektörünün Tercih Ettiği Platform
+            10+ Sektörde Güvenilen Randevu Platformu
           </Badge>
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 max-w-4xl mx-auto">
-            Salonunuzu{" "}
-            <span className="brand-gradient-text">A&apos;dan Z&apos;ye</span>
+            İşletmenizi{" "}
+            <span className="brand-gradient-text">Akıllıca</span>
             {" "}Yönetin
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-muted-foreground mb-3 max-w-2xl mx-auto leading-relaxed">
             Randevu, personel, müşteri ve ciro yönetimini tek platformda birleştirin.
             AI asistanı ile WhatsApp/Instagram&apos;dan otomatik yanıt verin.
+          </p>
+
+          <p className="text-base font-semibold text-primary mb-8">
+            Her sektöre özel — sınırsız randevu, sıfır karmaşa.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -430,7 +434,7 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-2">
               <Zap className="w-4 h-4 text-primary" />
-              <span>Vercel + Supabase Altyapısı</span>
+              <span>BY Sirius Group Altyapısı</span>
             </div>
           </div>
         </div>

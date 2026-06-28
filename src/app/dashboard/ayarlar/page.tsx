@@ -194,7 +194,7 @@ export default function AyarlarPage() {
           </div>
           <div className="p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground">
             WhatsApp Business API entegrasyonu için{" "}
-            <a href="mailto:destek@randevupro.com" className="text-primary hover:underline">destek ekibi</a>
+            <a href="mailto:destek@bysirius.com" className="text-primary hover:underline">destek ekibi</a>
             {" "}ile iletişime geçin.
           </div>
         </CardContent>

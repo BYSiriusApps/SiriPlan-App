@@ -42,11 +42,11 @@ export function Footer() {
                 <Sparkles className="w-3.5 h-3.5 text-white" />
               </div>
               <span className="font-bold text-base">
-                Randevu<span className="text-primary">Pro</span>
+                Siri<span className="text-primary">plan</span>
               </span>
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-              Güzellik sektörünün akıllı yönetim platformu. AI destekli, çok kanallı, kesintisiz.
+              Her sektöre özel akıllı randevu yönetimi. AI destekli, çok kanallı, kesintisiz.
             </p>
             <BySiriusBadge variant="footer" />
           </div>
@@ -110,12 +110,10 @@ export function Footer() {
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} RandevuPro. Tüm hakları saklıdır.
+            © {new Date().getFullYear()} BY Sirius Group Ai & Technology Co Ltd. Tüm hakları saklıdır.
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>🇹🇷 Türkiye</span>
-            <span>·</span>
-            <span>Vercel + Supabase</span>
             <span>·</span>
             <BySiriusBadge variant="footer" />
           </div>

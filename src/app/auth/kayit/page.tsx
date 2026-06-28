@@ -25,6 +25,8 @@ const BUSINESS_TYPES = [
   { value: "kas_kirpik", label: "👁️ Kaş & Kirpik Stüdyosu" },
 ];
 
+const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
 function slugify(text: string) {
   return text
     .toLowerCase()
@@ -37,7 +39,8 @@ function slugify(text: string) {
     .replace(/[üÜ]/g, "u")
     .replace(/[^a-z0-9-]/g, "")
     .replace(/-+/g, "-")
-    .slice(0, 40);
+    .replace(/^-|-$/g, "")
+    .slice(0, 35);
 }
 
 export default function KayitPage() {
@@ -51,20 +54,39 @@ export default function KayitPage() {
     phone: "",
     password: "",
   });
+  const [emailError, setEmailError] = useState("");
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
+    if (field === "email") setEmailError("");
+  }
+
+  function validateEmail(email: string) {
+    if (!EMAIL_RE.test(email)) {
+      setEmailError("Geçerli bir e-posta adresi girin (örn: ad@ornek.com)");
+      return false;
+    }
+    setEmailError("");
+    return true;
   }
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!validateEmail(form.email)) return;
     if (form.password.length < 8) {
       toast.error("Şifre en az 8 karakter olmalı.");
       return;
     }
+    if (!form.salonName.trim()) {
+      toast.error("İşletme adı zorunludur.");
+      return;
+    }
+
     setLoading(true);
     const supabase = createClient();
 
+    // 1. Create auth user
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
@@ -80,19 +102,25 @@ export default function KayitPage() {
       return;
     }
 
+    // 2. Create organization + org_member via server API (bypasses RLS)
     const slug = slugify(form.salonName) + "-" + Math.random().toString(36).slice(2, 6);
-
-    const { error: orgError } = await supabase.from("organizations").insert({
-      slug,
-      name: form.salonName,
-      type: form.type,
-      phone: form.phone,
-      email: form.email,
-      plan: "trial",
+    const res = await fetch("/api/auth/complete-registration", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: authData.user.id,
+        salonName: form.salonName.trim(),
+        type: form.type,
+        phone: form.phone,
+        email: form.email,
+        fullName: form.fullName.trim(),
+        slug,
+      }),
     });
 
-    if (orgError) {
-      toast.error("İşletme oluşturulamadı: " + orgError.message);
+    if (!res.ok) {
+      const err = await res.json();
+      toast.error("İşletme oluşturulamadı: " + (err.error || "Bilinmeyen hata"));
       setLoading(false);
       return;
     }
@@ -133,6 +161,8 @@ export default function KayitPage() {
                 value={form.salonName}
                 onChange={(e) => set("salonName", e.target.value)}
                 required
+                minLength={2}
+                maxLength={60}
               />
             </div>
           </div>
@@ -158,13 +188,19 @@ export default function KayitPage() {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="email"
-                  placeholder="ornek@example.com"
-                  className="pl-9"
+                  inputMode="email"
+                  placeholder="ad@ornek.com"
+                  className={`pl-9 ${emailError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                   value={form.email}
                   onChange={(e) => set("email", e.target.value)}
+                  onBlur={() => form.email && validateEmail(form.email)}
                   required
+                  autoComplete="email"
                 />
               </div>
+              {emailError && (
+                <p className="text-xs text-red-500 mt-0.5">{emailError}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label>Telefon</Label>
@@ -193,13 +229,14 @@ export default function KayitPage() {
                 onChange={(e) => set("password", e.target.value)}
                 minLength={8}
                 required
+                autoComplete="new-password"
               />
             </div>
           </div>
 
           <Button type="submit" className="w-full mt-2" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Ücretsiz Hesap Oluştur
+            {loading ? "Hesap oluşturuluyor..." : "Ücretsiz Hesap Oluştur"}
           </Button>
 
           <p className="text-center text-xs text-muted-foreground pt-2">

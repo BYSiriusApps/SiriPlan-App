@@ -1,0 +1,67 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data: member } = await supabase
+    .from("org_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+  if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+
+  const { data: campaign, error: fetchErr } = await supabase
+    .from("campaigns")
+    .select("*")
+    .eq("id", id)
+    .eq("org_id", member.org_id)
+    .single();
+
+  if (fetchErr || !campaign) return NextResponse.json({ error: "Kampanya bulunamadı" }, { status: 404 });
+  if (campaign.status === "sent") return NextResponse.json({ error: "Zaten gönderildi" }, { status: 400 });
+
+  // Build customer segment
+  let custQuery = supabase
+    .from("customers")
+    .select("id, full_name, phone")
+    .eq("org_id", member.org_id);
+
+  const seg = campaign.segment_json as Record<string, unknown>;
+  if (seg.min_score) custQuery = custQuery.gte("score", seg.min_score as number);
+  if (seg.max_score) custQuery = custQuery.lte("score", seg.max_score as number);
+  if (seg.inactive_days) {
+    const cutoff = new Date(Date.now() - Number(seg.inactive_days) * 24 * 60 * 60 * 1000).toISOString();
+    custQuery = custQuery.or(`last_visit_at.lt.${cutoff},last_visit_at.is.null`);
+  }
+
+  const { data: customers } = await custQuery.limit(500);
+  const sentCount = customers?.length || 0;
+
+  // Log each recipient
+  if (customers && customers.length > 0) {
+    await supabase.from("campaign_logs").insert(
+      customers.map((c) => ({
+        campaign_id: id,
+        customer_id: c.id,
+        status: "queued",
+        sent_at: new Date().toISOString(),
+      }))
+    );
+  }
+
+  // Mark campaign as sent
+  await supabase
+    .from("campaigns")
+    .update({ status: "sent", sent_count: sentCount, sent_at: new Date().toISOString() })
+    .eq("id", id);
+
+  return NextResponse.json({ success: true, sent_count: sentCount });
+}

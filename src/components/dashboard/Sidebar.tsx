@@ -40,10 +40,10 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial" }: SidebarProps)
       <div className="p-5 border-b border-border">
         <Link href="/dashboard" className="flex items-center gap-3 group">
           <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-            <span className="text-white font-bold">R</span>
+            <span className="text-white font-bold">S</span>
           </div>
           <div>
-            <p className="font-semibold text-sm leading-none">RandevuPro</p>
+            <p className="font-semibold text-sm leading-none">Siriplan</p>
             <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-[130px]">{orgName}</p>
           </div>
         </Link>

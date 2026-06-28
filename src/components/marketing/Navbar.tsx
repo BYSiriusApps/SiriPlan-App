@@ -32,7 +32,7 @@ export function Navbar() {
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-lg tracking-tight">
-            Randevu<span className="text-primary">Pro</span>
+            Siri<span className="text-primary">plan</span>
           </span>
           <span className="hidden md:inline text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
             by BySirius

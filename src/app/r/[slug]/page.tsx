@@ -380,8 +380,8 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
 
       {/* Powered by */}
       <div className="text-center py-4">
-        <a href="https://randevupro.com" className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
-          RandevuPro ile güçlendirilmiştir
+        <a href="https://bysirius.com" className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
+          Siriplan ile güçlendirilmiştir · BY Sirius Group
         </a>
       </div>
     </div>

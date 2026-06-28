@@ -1,5 +1,5 @@
 -- ============================================================
--- RandevuPro — Initial Schema
+-- Siriplan — Initial Schema
 -- Multi-tenant beauty salon management SaaS
 -- ============================================================
 
