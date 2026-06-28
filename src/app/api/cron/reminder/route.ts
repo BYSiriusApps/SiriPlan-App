@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { format, addHours, subHours } from "date-fns";
+import { sendReminderEmail } from "@/lib/email/send";
+import { format, addHours } from "date-fns";
 import { tr } from "date-fns/locale";
 
 export const runtime = "nodejs";
@@ -30,28 +31,22 @@ export async function POST(req: NextRequest) {
   const supabase = await createAdminClient();
   const now = new Date();
 
-  // Find appointments in next 24h that haven't been reminded
-  const window24Start = now.toISOString();
-  const window24End = addHours(now, 25).toISOString();
-
+  // Appointments in next 24h not yet reminded
   const { data: upcoming } = await supabase
     .from("appointments")
-    .select("*, organizations(wa_token, wa_phone_number_id, name), staff(full_name), service:services(name)")
-    .gte("appointment_at", window24Start)
-    .lte("appointment_at", window24End)
+    .select("*, organizations(wa_token, wa_phone_number_id, name, email), staff(full_name), service:services(name)")
+    .gte("appointment_at", now.toISOString())
+    .lte("appointment_at", addHours(now, 25).toISOString())
     .eq("status", "onaylandi")
     .is("reminder_sent_at", null)
     .limit(500);
 
-  // Find appointments in next 2h that haven't had second reminder
-  const window2Start = now.toISOString();
-  const window2End = addHours(now, 2.5).toISOString();
-
+  // Appointments in next 2h that got first reminder but not second
   const { data: imminent } = await supabase
     .from("appointments")
-    .select("*, organizations(wa_token, wa_phone_number_id, name), staff(full_name), service:services(name)")
-    .gte("appointment_at", window2Start)
-    .lte("appointment_at", window2End)
+    .select("*, organizations(wa_token, wa_phone_number_id, name, email), staff(full_name), service:services(name)")
+    .gte("appointment_at", now.toISOString())
+    .lte("appointment_at", addHours(now, 2.5).toISOString())
     .eq("status", "onaylandi")
     .is("reminder2_sent_at", null)
     .not("reminder_sent_at", "is", null)
@@ -60,44 +55,93 @@ export async function POST(req: NextRequest) {
   let sent24 = 0;
   let sent2 = 0;
 
-  for (const appt of (upcoming || [])) {
-    const org = (appt as { organizations: { wa_token?: string; wa_phone_number_id?: string; name: string } }).organizations;
-    if (!org?.wa_token || !org?.wa_phone_number_id) continue;
+  type ApptWithRelations = {
+    id: string;
+    customer_name: string;
+    customer_phone: string;
+    customer_id?: string;
+    appointment_at: string;
+    cancel_token?: string;
+    organizations: { wa_token?: string; wa_phone_number_id?: string; name: string; email?: string };
+    staff?: { full_name: string };
+    service?: { name: string };
+  };
 
-    const apptDate = format(new Date(appt.appointment_at), "d MMMM yyyy", { locale: tr });
-    const apptTime = format(new Date(appt.appointment_at), "HH:mm");
-    const message = `Merhaba ${appt.customer_name}! 👋
-
-📅 Yarın ${apptDate} saat ${apptTime} için ${org.name}'de randevunuz var.
-
-💇 Hizmet: ${(appt as { service?: { name: string } }).service?.name}
-👤 Personel: ${(appt as { staff?: { full_name: string } }).staff?.full_name}
-
-Gelemeseniz lütfen önceden iptal edin: ${process.env.NEXT_PUBLIC_APP_URL}/r/iptal/${appt.cancel_token}
-
-İyi günler! ✨`;
-
-    try {
-      await sendWhatsApp(appt.customer_phone, message, org.wa_token, org.wa_phone_number_id);
-      await supabase.from("appointments").update({ reminder_sent_at: new Date().toISOString() }).eq("id", appt.id);
-      sent24++;
-    } catch {}
+  // Helper: get customer email from customers table
+  async function getCustomerEmail(customerId?: string): Promise<string | null> {
+    if (!customerId) return null;
+    const { data } = await supabase
+      .from("customers")
+      .select("email")
+      .eq("id", customerId)
+      .single();
+    return (data as { email?: string } | null)?.email ?? null;
   }
 
-  for (const appt of (imminent || [])) {
-    const org = (appt as { organizations: { wa_token?: string; wa_phone_number_id?: string; name: string } }).organizations;
-    if (!org?.wa_token || !org?.wa_phone_number_id) continue;
-
+  for (const appt of (upcoming || []) as ApptWithRelations[]) {
+    const org = appt.organizations;
+    const apptDate = format(new Date(appt.appointment_at), "d MMMM yyyy", { locale: tr });
     const apptTime = format(new Date(appt.appointment_at), "HH:mm");
-    const message = `⏰ Hatırlatma! Bugün saat ${apptTime} için ${org.name}'deki randevunuz 2 saat sonra.
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
 
-Hazır olun, sizi bekliyoruz! 💅`;
+    // WhatsApp
+    if (org.wa_token && org.wa_phone_number_id) {
+      const message = `Merhaba ${appt.customer_name}! 👋\n\n📅 Yarın ${apptDate} saat ${apptTime} için ${org.name}'de randevunuz var.\n\n💇 Hizmet: ${appt.service?.name ?? ""}\n👤 Personel: ${appt.staff?.full_name ?? ""}\n\nGelemeseniz lütfen önceden iptal edin: ${appUrl}/r/iptal/${appt.cancel_token}\n\nİyi günler! ✨`;
+      try {
+        await sendWhatsApp(appt.customer_phone, message, org.wa_token, org.wa_phone_number_id);
+      } catch {}
+    }
 
-    try {
-      await sendWhatsApp(appt.customer_phone, message, org.wa_token, org.wa_phone_number_id);
-      await supabase.from("appointments").update({ reminder2_sent_at: new Date().toISOString() }).eq("id", appt.id);
-      sent2++;
-    } catch {}
+    // Email
+    const customerEmail = await getCustomerEmail(appt.customer_id);
+    if (customerEmail) {
+      try {
+        await sendReminderEmail({
+          to: customerEmail,
+          customerName: appt.customer_name,
+          orgName: org.name,
+          serviceName: appt.service?.name ?? "",
+          staffName: appt.staff?.full_name ?? "",
+          appointmentAt: new Date(appt.appointment_at),
+          cancelToken: appt.cancel_token,
+        }, 24);
+      } catch {}
+    }
+
+    await supabase.from("appointments").update({ reminder_sent_at: new Date().toISOString() }).eq("id", appt.id);
+    sent24++;
+  }
+
+  for (const appt of (imminent || []) as ApptWithRelations[]) {
+    const org = appt.organizations;
+    const apptTime = format(new Date(appt.appointment_at), "HH:mm");
+
+    // WhatsApp
+    if (org.wa_token && org.wa_phone_number_id) {
+      const message = `⏰ Hatırlatma! Bugün saat ${apptTime} için ${org.name}'deki randevunuz 2 saat sonra.\n\nHazır olun, sizi bekliyoruz! 💅`;
+      try {
+        await sendWhatsApp(appt.customer_phone, message, org.wa_token, org.wa_phone_number_id);
+      } catch {}
+    }
+
+    // Email
+    const customerEmail = await getCustomerEmail(appt.customer_id);
+    if (customerEmail) {
+      try {
+        await sendReminderEmail({
+          to: customerEmail,
+          customerName: appt.customer_name,
+          orgName: org.name,
+          serviceName: appt.service?.name ?? "",
+          staffName: appt.staff?.full_name ?? "",
+          appointmentAt: new Date(appt.appointment_at),
+          cancelToken: appt.cancel_token,
+        }, 2);
+      } catch {}
+    }
+
+    await supabase.from("appointments").update({ reminder2_sent_at: new Date().toISOString() }).eq("id", appt.id);
+    sent2++;
   }
 
   return NextResponse.json({ sent_24h: sent24, sent_2h: sent2 });

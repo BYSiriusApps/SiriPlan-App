@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Calendar, BookOpen, Users, UserCog,
   Scissors, Megaphone, BarChart3, Import, Settings,
-  CreditCard, ChevronRight, ExternalLink
+  CreditCard, ChevronRight, ExternalLink, Wallet
 } from "lucide-react";
 import { BySiriusBadge } from "@/components/layout/BySiriusBadge";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/hizmetler", icon: Scissors, label: "Hizmetler" },
   { href: "/dashboard/kampanyalar", icon: Megaphone, label: "Kampanyalar", badge: "Pro" },
   { href: "/dashboard/raporlar", icon: BarChart3, label: "Raporlar" },
+  { href: "/dashboard/gelir-gider", icon: Wallet, label: "Gelir & Gider" },
   { href: "/dashboard/veri-gocu", icon: Import, label: "Veri Göçü" },
   { href: "/dashboard/ayarlar", icon: Settings, label: "Ayarlar" },
   { href: "/dashboard/abonelik", icon: CreditCard, label: "Abonelik" },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { sendConfirmationEmail } from "@/lib/email/send";
 import { z } from "zod";
 
 const CreateSchema = z.object({
@@ -84,6 +85,31 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Send confirmation email
+  if (data.customer_email) {
+    const { data: org } = await supabase
+      .from("organizations")
+      .select("name")
+      .eq("id", data.org_id)
+      .single();
+    const { data: staffRow } = await supabase
+      .from("staff")
+      .select("full_name")
+      .eq("id", data.staff_id)
+      .single();
+    if (org) {
+      sendConfirmationEmail({
+        to: data.customer_email,
+        customerName: data.customer_name,
+        orgName: (org as { name: string }).name,
+        serviceName: service.name,
+        staffName: (staffRow as { full_name: string } | null)?.full_name ?? "",
+        appointmentAt: new Date(data.appointment_at),
+        cancelToken: (appt as { cancel_token?: string }).cancel_token,
+      }).catch(() => {});
+    }
   }
 
   return NextResponse.json({ appointment: appt }, { status: 201 });

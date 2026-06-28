@@ -1,10 +1,6 @@
 {
   "crons": [
     {
-      "path": "/api/cron/reminder",
-      "schedule": "0 */2 * * *"
-    },
-    {
       "path": "/api/cron/weekly-champion",
       "schedule": "0 6 * * 1"
     },
@@ -19,10 +15,6 @@
     {
       "path": "/api/cron/birthday",
       "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/noshow",
-      "schedule": "*/15 * * * *"
     }
   ]
 }
