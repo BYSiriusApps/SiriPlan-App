@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import { sendWelcomeEmail } from "@/lib/email/send";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +63,13 @@ export async function POST(req: NextRequest) {
     role: "Salon Sahibi",
     is_active: true,
   });
+
+  // Send welcome email (fire and forget — don't block the response)
+  sendWelcomeEmail({
+    to: email,
+    salonName,
+    ownerName: fullName || email.split("@")[0],
+  }).catch(() => {/* ignore email errors */});
 
   return NextResponse.json({ orgId: org.id, slug });
 }

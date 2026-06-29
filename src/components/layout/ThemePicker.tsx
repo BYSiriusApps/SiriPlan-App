@@ -42,6 +42,20 @@ const THEMES = [
     swatch: "bg-slate-800",
     swatchColor: "#1e293b",
   },
+  {
+    value: "sunset",
+    label: "Turuncu Gün Batımı",
+    sectors: "Tattoo · Makyaj · Nail",
+    swatch: "bg-orange-500",
+    swatchColor: "#f97316",
+  },
+  {
+    value: "midnight",
+    label: "Gece Yarısı Mor",
+    sectors: "Premium · VIP · Lüks",
+    swatch: "bg-violet-600",
+    swatchColor: "#7c3aed",
+  },
 ] as const;
 
 export function ThemePicker() {

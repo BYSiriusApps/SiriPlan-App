@@ -8,7 +8,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     <NextThemesProvider
       attribute="class"
       defaultTheme="light"
-      themes={["light", "dark", "ocean", "sage"]}
+      themes={["light", "dark", "ocean", "sage", "sunset", "midnight"]}
       enableSystem={false}
       disableTransitionOnChange={false}
     >

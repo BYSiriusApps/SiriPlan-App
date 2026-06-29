@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemePicker } from "@/components/layout/ThemePicker";
@@ -9,6 +10,7 @@ import { ThemePicker } from "@/components/layout/ThemePicker";
 const navLinks = [
   { href: "/ozellikler", label: "Özellikler" },
   { href: "/fiyatlar", label: "Fiyatlar" },
+  { href: "/sss", label: "SSS" },
   { href: "/blog", label: "Blog" },
   { href: "/iletisim", label: "İletişim" },
 ];
@@ -20,8 +22,31 @@ const locales = [
   { code: "ar", label: "AR" },
 ];
 
+function getActiveLocale(): string {
+  if (typeof document === "undefined") return "tr";
+  const match = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/);
+  return match ? match[1] : "tr";
+}
+
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [activeLocale, setActiveLocale] = useState<string>("tr");
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  function switchLocale(code: string) {
+    document.cookie = `NEXT_LOCALE=${code};path=/;max-age=31536000;samesite=lax`;
+    setActiveLocale(code);
+    startTransition(() => {
+      router.refresh();
+    });
+  }
+
+  // Read from cookie on mount
+  if (typeof window !== "undefined" && activeLocale === "tr") {
+    const detected = getActiveLocale();
+    if (detected !== activeLocale) setActiveLocale(detected);
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
@@ -55,11 +80,17 @@ export function Navbar() {
         {/* Right side */}
         <div className="flex items-center gap-2">
           {/* Locale switcher */}
-          <div className="hidden md:flex items-center gap-1 bg-muted rounded-lg p-1">
+          <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-1">
             {locales.map((l) => (
               <button
                 key={l.code}
-                className="px-2 py-0.5 text-xs font-medium rounded-md hover:bg-background hover:shadow-sm transition-all text-muted-foreground hover:text-foreground"
+                onClick={() => switchLocale(l.code)}
+                disabled={isPending}
+                className={`px-2 py-0.5 text-xs font-medium rounded-md transition-all ${
+                  activeLocale === l.code
+                    ? "bg-background shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/60"
+                }`}
               >
                 {l.label}
               </button>
@@ -102,6 +133,25 @@ export function Navbar() {
               {l.label}
             </Link>
           ))}
+          {/* Mobile locale switcher */}
+          <div className="pt-2 pb-1">
+            <p className="text-[10px] text-muted-foreground mb-2 uppercase tracking-wide">Dil / Language</p>
+            <div className="flex gap-1.5">
+              {locales.map((l) => (
+                <button
+                  key={l.code}
+                  onClick={() => { switchLocale(l.code); setOpen(false); }}
+                  className={`px-3 py-1 text-xs font-medium rounded-md border transition-all ${
+                    activeLocale === l.code
+                      ? "border-primary text-primary bg-primary/5"
+                      : "border-border text-muted-foreground hover:border-primary/40"
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="pt-3 flex gap-2">
             <Link href="/auth/giris" className="flex-1">
               <Button variant="outline" size="sm" className="w-full">

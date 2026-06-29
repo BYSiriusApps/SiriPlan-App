@@ -121,6 +121,50 @@ export async function sendConfirmationEmail(data: AppointmentEmailData) {
   });
 }
 
+export async function sendWelcomeEmail(data: { to: string; salonName: string; ownerName: string }) {
+  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes("placeholder")) return;
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
+
+  const content = `
+    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Hoş Geldiniz! 🎉</h2>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
+      Merhaba <strong>${data.ownerName}</strong>, <strong>${data.salonName}</strong> adına Siriplan'a hoş geldiniz!
+    </p>
+
+    <p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">
+      14 günlük ücretsiz deneme süreniz başladı. Bu sürede Pro planın tüm özelliklerini keşfedebilirsiniz.
+    </p>
+
+    <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;">
+      <tr><td style="padding:6px 0;">
+        <span style="font-size:13px;font-weight:600;color:#111827;">✅ Yapabileceğiniz ilk adımlar:</span>
+      </td></tr>
+      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">• Hizmetlerinizi ve personellerinizi tanımlayın</td></tr>
+      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">• WhatsApp randevu linkini müşterilerinizle paylaşın</td></tr>
+      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">• Mevcut verilerinizi Excel'den aktarın</td></tr>
+    </table>
+
+    <a href="${appUrl}/dashboard"
+       style="display:inline-block;padding:12px 28px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+      Dashboard'a Git →
+    </a>
+
+    <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
+      Herhangi bir sorunuz için <a href="mailto:destek@siriplan.com" style="color:#e11d48;text-decoration:none;">destek@siriplan.com</a> adresinden veya
+      <a href="https://wa.me/905355032634" style="color:#25D366;text-decoration:none;">WhatsApp</a> üzerinden ulaşabilirsiniz.<br/>
+      İyi çalışmalar! ✨
+    </p>
+  `;
+
+  await getResend().emails.send({
+    from: `Siriplan <${FROM}>`,
+    to: data.to,
+    subject: `Hoş Geldiniz ${data.salonName}! Siriplan'da 14 günlük ücretsiz denemeniz başladı`,
+    html: baseLayout(content, "Siriplan"),
+  });
+}
+
 export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: number) {
   if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes("placeholder")) return;
 

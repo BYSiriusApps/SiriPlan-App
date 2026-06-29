@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -114,9 +117,78 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#e11d48" />
         <meta name="msapplication-tap-highlight" content="no" />
         <link rel="mask-icon" href="/icons/icon.svg" color="#e11d48" />
+        {/* JSON-LD: Organization + SoftwareApplication */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://siriplan.com/#organization",
+                  name: "Siriplan",
+                  url: "https://siriplan.com",
+                  logo: "https://siriplan.com/icons/icon-192x192.png",
+                  sameAs: ["https://bysirius.com"],
+                  contactPoint: {
+                    "@type": "ContactPoint",
+                    telephone: "+90-535-503-2634",
+                    contactType: "customer support",
+                    availableLanguage: ["Turkish", "English"],
+                  },
+                },
+                {
+                  "@type": "SoftwareApplication",
+                  "@id": "https://siriplan.com/#software",
+                  name: "Siriplan",
+                  applicationCategory: "BusinessApplication",
+                  operatingSystem: "Web, iOS, Android",
+                  offers: {
+                    "@type": "Offer",
+                    price: "39",
+                    priceCurrency: "USD",
+                    description: "Starter plan — 14 days free trial",
+                  },
+                  description: "AI destekli randevu ve işletme yönetim platformu",
+                  url: "https://siriplan.com",
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://siriplan.com/#website",
+                  url: "https://siriplan.com",
+                  name: "Siriplan",
+                  inLanguage: ["tr", "en"],
+                  potentialAction: {
+                    "@type": "SearchAction",
+                    target: "https://siriplan.com/blog?q={search_term_string}",
+                    "query-input": "required name=search_term_string",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>{children}</ThemeProvider>
+        {/* Google Analytics 4 */}
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_ID}', { page_path: window.location.pathname });
+              `}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );

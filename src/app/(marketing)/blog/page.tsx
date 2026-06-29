@@ -2,56 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { blogPosts as posts } from "@/lib/blog-posts";
 
 export const metadata: Metadata = {
   title: "Blog",
   description: "Siriplan blog — salon yönetimi, dijital dönüşüm ve sektör haberleri.",
 };
-
-const posts = [
-  {
-    category: "İpuçları",
-    title: "Salonunuzda Randevu Doluluk Oranını %40 Artırmanın 7 Yolu",
-    excerpt: "Müşteri hatırlatmaları, online rezervasyon ve akıllı kampanyalarla salonunuzu nasıl dolduracağınızı keşfedin.",
-    date: "15 Haziran 2026",
-    readTime: "5 dk",
-  },
-  {
-    category: "AI & Teknoloji",
-    title: "WhatsApp AI Asistanı ile Mesai Saatleri Dışında Randevu Alma",
-    excerpt: "7/24 çalışan yapay zeka asistanınız müşteri sorularını yanıtlar, randevu alır ve ön ödeme toplar.",
-    date: "8 Haziran 2026",
-    readTime: "4 dk",
-  },
-  {
-    category: "Müşteri Yönetimi",
-    title: "Sadakat Programı ile Müşteri Kaybını Nasıl Önlersiniz?",
-    excerpt: "Puanlama sistemi, doğum günü kampanyaları ve kişiselleştirilmiş tekliflerle müşteri bağlılığını artırın.",
-    date: "1 Haziran 2026",
-    readTime: "6 dk",
-  },
-  {
-    category: "KVKK & Hukuk",
-    title: "Güzellik Salonları İçin KVKK Uyum Rehberi 2026",
-    excerpt: "Müşteri verilerini nasıl toplamalı, saklayıp işlemeli ve pazarlama mesajları için nasıl onay almalısınız?",
-    date: "22 Mayıs 2026",
-    readTime: "8 dk",
-  },
-  {
-    category: "Büyüme",
-    title: "Instagram'dan Otomatik Randevu: Tam Kurulum Rehberi",
-    excerpt: "Instagram DM'lerinizi otomatik yanıtlayın, randevu alın ve satışlarınızı artırın. Adım adım kurulum.",
-    date: "14 Mayıs 2026",
-    readTime: "7 dk",
-  },
-  {
-    category: "Ciro",
-    title: "Salonunuzda KDV ve Komisyon Raporlamasını Otomatikleştirin",
-    excerpt: "Personel bazlı komisyon takibi, KDV beyanı için hazır raporlar ve tek tıkla PDF export.",
-    date: "5 Mayıs 2026",
-    readTime: "4 dk",
-  },
-];
 
 const CATEGORY_COLORS: Record<string, string> = {
   "İpuçları": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
@@ -87,8 +43,9 @@ export default function BlogPage() {
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="grid gap-8">
             {posts.map((post) => (
-              <article
+              <Link
                 key={post.title}
+                href={`/blog/${post.slug}`}
                 className="group flex flex-col sm:flex-row gap-6 p-6 bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="flex-1 min-w-0">
@@ -112,7 +69,7 @@ export default function BlogPage() {
                     Oku <ArrowRight className="w-3 h-3" />
                   </span>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
 
