@@ -187,23 +187,125 @@
   }
 }
 
+/* ─── Ocean Theme — Klinik, Diş, Diyetisyen ────────────────────────── */
+.ocean {
+  --primary: oklch(0.44 0.13 195);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --background: oklch(0.99 0.005 210);
+  --foreground: oklch(0.14 0.025 215);
+
+  --card: oklch(0.995 0.003 210);
+  --card-foreground: oklch(0.14 0.025 215);
+
+  --popover: oklch(0.995 0.003 210);
+  --popover-foreground: oklch(0.14 0.025 215);
+
+  --secondary: oklch(0.93 0.025 210);
+  --secondary-foreground: oklch(0.24 0.05 215);
+
+  --muted: oklch(0.95 0.015 210);
+  --muted-foreground: oklch(0.48 0.04 210);
+
+  --accent: oklch(0.91 0.04 200);
+  --accent-foreground: oklch(0.14 0.025 215);
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: oklch(0.87 0.02 210);
+  --input: oklch(0.87 0.02 210);
+  --ring: oklch(0.44 0.13 195);
+
+  --chart-1: oklch(0.44 0.13 195);
+  --chart-2: oklch(0.60 0.12 235);
+  --chart-3: oklch(0.56 0.11 260);
+  --chart-4: oklch(0.65 0.12 170);
+  --chart-5: oklch(0.68 0.10 200);
+
+  --radius: 0.75rem;
+
+  --sidebar: oklch(0.975 0.007 210);
+  --sidebar-foreground: oklch(0.14 0.025 215);
+  --sidebar-primary: oklch(0.44 0.13 195);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.91 0.04 200);
+  --sidebar-accent-foreground: oklch(0.44 0.13 195);
+  --sidebar-border: oklch(0.87 0.02 210);
+  --sidebar-ring: oklch(0.44 0.13 195);
+
+  --brand-rose: oklch(0.44 0.13 195);
+  --brand-gold: oklch(0.72 0.09 225);
+  --brand-plum: oklch(0.24 0.05 215);
+}
+
+/* ─── Sage Theme — Kuaför, Berber, Spa, Wellness ───────────────────── */
+.sage {
+  --primary: oklch(0.43 0.115 150);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --background: oklch(0.985 0.008 140);
+  --foreground: oklch(0.15 0.025 150);
+
+  --card: oklch(0.99 0.005 140);
+  --card-foreground: oklch(0.15 0.025 150);
+
+  --popover: oklch(0.99 0.005 140);
+  --popover-foreground: oklch(0.15 0.025 150);
+
+  --secondary: oklch(0.93 0.025 145);
+  --secondary-foreground: oklch(0.25 0.05 150);
+
+  --muted: oklch(0.95 0.012 140);
+  --muted-foreground: oklch(0.50 0.04 145);
+
+  --accent: oklch(0.91 0.035 140);
+  --accent-foreground: oklch(0.15 0.025 150);
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: oklch(0.89 0.016 145);
+  --input: oklch(0.89 0.016 145);
+  --ring: oklch(0.43 0.115 150);
+
+  --chart-1: oklch(0.43 0.115 150);
+  --chart-2: oklch(0.60 0.11 115);
+  --chart-3: oklch(0.56 0.12 175);
+  --chart-4: oklch(0.68 0.10 80);
+  --chart-5: oklch(0.60 0.09 200);
+
+  --radius: 0.75rem;
+
+  --sidebar: oklch(0.975 0.007 140);
+  --sidebar-foreground: oklch(0.15 0.025 150);
+  --sidebar-primary: oklch(0.43 0.115 150);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.91 0.035 140);
+  --sidebar-accent-foreground: oklch(0.43 0.115 150);
+  --sidebar-border: oklch(0.89 0.016 145);
+  --sidebar-ring: oklch(0.43 0.115 150);
+
+  --brand-rose: oklch(0.43 0.115 150);
+  --brand-gold: oklch(0.73 0.10 100);
+  --brand-plum: oklch(0.25 0.05 150);
+}
+
 /* ─── BySirius Signature Styles ─────────────────────────────────────── */
 .bysirius-watermark {
   background-image: repeating-linear-gradient(
     -45deg,
     transparent,
     transparent 40px,
-    oklch(0.52 0.16 345 / 0.03) 40px,
-    oklch(0.52 0.16 345 / 0.03) 80px
+    color-mix(in oklch, var(--primary) 6%, transparent) 40px,
+    color-mix(in oklch, var(--primary) 6%, transparent) 80px
   );
 }
 
 .brand-gradient {
-  background: linear-gradient(135deg, oklch(0.52 0.16 345), oklch(0.65 0.12 290));
+  background: linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--primary) 65%, oklch(0.50 0.15 280)));
 }
 
 .brand-gradient-text {
-  background: linear-gradient(135deg, oklch(0.52 0.16 345), oklch(0.58 0.12 290));
+  background: linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--primary) 65%, oklch(0.50 0.15 280)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -223,9 +325,9 @@ html {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.52 0.16 345 / 0.4);
+  background: color-mix(in oklch, var(--primary) 40%, transparent);
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.52 0.16 345 / 0.7);
+  background: color-mix(in oklch, var(--primary) 70%, transparent);
 }

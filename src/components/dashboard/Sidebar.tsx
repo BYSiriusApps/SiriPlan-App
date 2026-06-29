@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { BySiriusBadge } from "@/components/layout/BySiriusBadge";
 import { Badge } from "@/components/ui/badge";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { ThemePicker } from "@/components/layout/ThemePicker";
 
 const NAV_ITEMS = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Genel Bakış" },
@@ -97,9 +97,9 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial" }: SidebarProps)
           href="https://bysirius.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 p-3 rounded-lg bg-gradient-to-r from-rose-50 to-fuchsia-50 dark:from-rose-950/30 dark:to-fuchsia-950/30 border border-rose-100 dark:border-rose-900/50 group hover:shadow-sm transition-all"
+          className="flex items-center gap-2 p-3 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/15 group hover:shadow-sm transition-all"
         >
-          <div className="w-8 h-8 rounded-md bg-gradient-to-br from-primary to-fuchsia-600 flex items-center justify-center shadow-sm">
+          <div className="w-8 h-8 rounded-md bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-sm">
             <span className="text-white text-xs font-bold">BY</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -111,7 +111,7 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial" }: SidebarProps)
 
         <div className="flex items-center justify-between px-1">
           <BySiriusBadge variant="sidebar" />
-          <ThemeToggle />
+          <ThemePicker />
         </div>
       </div>
     </aside>

@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard, Calendar, BookOpen, Users, Settings
-} from "lucide-react";
+import { LayoutDashboard, Calendar, BookOpen, Users, Settings } from "lucide-react";
+import { ThemePicker } from "@/components/layout/ThemePicker";
 
 const MOBILE_NAV = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Özet" },
@@ -22,7 +21,8 @@ export function MobileNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden bg-card border-t border-border safe-bottom">
       {MOBILE_NAV.map((item) => {
         const Icon = item.icon;
-        const isActive = pathname === item.href ||
+        const isActive =
+          pathname === item.href ||
           (item.href !== "/dashboard" && pathname.startsWith(item.href));
         return (
           <Link
@@ -38,6 +38,12 @@ export function MobileNav() {
           </Link>
         );
       })}
+
+      {/* Tema seçici */}
+      <div className="flex-1 flex flex-col items-center justify-center py-1">
+        <ThemePicker />
+        <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Tema</span>
+      </div>
     </nav>
   );
 }

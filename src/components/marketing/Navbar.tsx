@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { ThemePicker } from "@/components/layout/ThemePicker";
 
 const navLinks = [
   { href: "/ozellikler", label: "Özellikler" },
@@ -66,7 +66,7 @@ export function Navbar() {
             ))}
           </div>
 
-          <ThemeToggle />
+          <ThemePicker />
 
           <Link href="/auth/giris" className="hidden md:block">
             <Button variant="ghost" size="sm">
