@@ -79,6 +79,9 @@ export const metadata: Metadata = {
     description: "Kuaför, berber, güzellik salonu ve spa için AI destekli randevu platformu",
     images: ["/og-image.png"],
   },
+  verification: {
+    google: "tPF2cy7cKBikzsx38Q-N9o1SAbXi7LjJLFwUBZME5LE",
+  },
   robots: {
     index: true,
     follow: true,
