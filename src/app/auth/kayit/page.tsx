@@ -270,8 +270,8 @@ export default function KayitPage() {
 
           <p className="text-center text-xs text-muted-foreground pt-2">
             Kayıt olarak{" "}
-            <Link href="/gizlilik" className="text-primary hover:underline">Gizlilik Politikası</Link>'nı ve{" "}
-            <Link href="/kullanim-kosullari" className="text-primary hover:underline">Kullanım Koşulları</Link>'nı kabul etmiş olursunuz.
+            <Link href="/gizlilik" className="text-primary hover:underline">Gizlilik Politikası</Link>&apos;nı ve{" "}
+            <Link href="/kosullar" className="text-primary hover:underline">Kullanım Koşulları</Link>&apos;nı kabul etmiş olursunuz.
           </p>
 
           <p className="text-center text-sm text-muted-foreground">
