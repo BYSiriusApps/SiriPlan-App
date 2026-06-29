@@ -110,7 +110,7 @@ export function Footer() {
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} BY Sirius Group Ai & Technology Co Ltd. Tüm hakları saklıdır.
+            © {new Date().getFullYear()} BY Sirius Group AI and Technology Co. Ltd. Tüm hakları saklıdır.
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>🇹🇷 Türkiye</span>
