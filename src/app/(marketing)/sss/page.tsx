@@ -98,7 +98,7 @@ const categories = [
       },
       {
         q: "Mevcut sistemdeki verileri aktarabilir miyim?",
-        a: "Evet. SalonAppy, Arvengo, Treatwell veya Excel'den tek tıkla veri aktarımı desteklenmektedir. Profesyonel Veri Göçü hizmetimizle ekibimiz bunu sizin için yapabilir.",
+        a: "Evet. Kullandığınız randevu yazılımından veya Excel'den tek tıkla veri aktarımı desteklenmektedir. Profesyonel Veri Göçü hizmetimizle ekibimiz bunu sizin için yapabilir.",
       },
       {
         q: "KVKK uyumlu mu?",

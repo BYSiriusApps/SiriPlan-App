@@ -1,24 +1,84 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import {
+  format,
+  startOfDay, endOfDay,
+  startOfWeek, endOfWeek,
+  startOfMonth, endOfMonth,
+  subDays, differenceInCalendarDays,
+} from "date-fns";
 import { tr } from "date-fns/locale";
 import {
-  TrendingUp, Calendar, Users, Star, Clock, AlertCircle, CheckCircle2
+  TrendingUp, Calendar, Users, Star, Clock,
+  AlertCircle, CheckCircle2, MessageSquare, Sparkles,
+  MoreHorizontal, ArrowUpRight, Zap, BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
 import Link from "next/link";
+import { GlassCard3D } from "@/components/ui/GlassCard3D";
+import { LiveClock } from "@/components/ui/LiveClock";
 
-const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  talep:      { label: "Talep",      className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" },
-  onaylandi:  { label: "Onaylandı",  className: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
-  tamamlandi: { label: "Tamamlandı", className: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" },
-  iptal:      { label: "İptal",      className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" },
-  gelmedi:    { label: "Gelmedi",    className: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300" },
+/* ─── Status helpers ──────────────────────────────────────────────────── */
+const STATUS_DOT: Record<string, string> = {
+  talep:      "pending",
+  onaylandi:  "active",
+  tamamlandi: "done",
+  iptal:      "cancelled",
+  gelmedi:    "cancelled",
 };
 
+const STATUS_LABELS: Record<string, string> = {
+  talep:      "Bekliyor",
+  onaylandi:  "Onaylı",
+  tamamlandi: "Tamamlandı",
+  iptal:      "İptal",
+  gelmedi:    "Gelmedi",
+};
+
+/* ─── Mini sparkline SVG ──────────────────────────────────────────────── */
+function Sparkline({ data, color = "var(--primary)" }: { data: number[]; color?: string }) {
+  if (data.length < 2) return null;
+  const max = Math.max(...data, 1);
+  const W = 140, H = 40;
+  const pts = data
+    .map((v, i) => `${(i / (data.length - 1)) * W},${H - (v / max) * (H - 4) - 2}`)
+    .join(" ");
+
+  /* Area fill */
+  const first = `0,${H}`;
+  const last  = `${W},${H}`;
+  const area  = `${first} ${pts} ${last}`;
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
+      <defs>
+        <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={area} fill="url(#sg)" />
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* last dot */}
+      <circle
+        cx={W}
+        cy={H - (data[data.length - 1] / max) * (H - 4) - 2}
+        r="3"
+        fill={color}
+      />
+    </svg>
+  );
+}
+
+/* ─── Page ────────────────────────────────────────────────────────────── */
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -26,28 +86,30 @@ export default async function DashboardPage() {
 
   const { data: member } = await supabase
     .from("org_members")
-    .select("org_id")
+    .select("org_id, organizations(name)")
     .eq("user_id", user.id)
     .single();
 
   if (!member) redirect("/auth/kayit");
   const orgId = member.org_id;
+  const orgName = (member as { org_id: string; organizations?: { name?: string } }).organizations?.name ?? "İşletmeniz";
 
   const now = new Date();
-  const todayStart = startOfDay(now).toISOString();
-  const todayEnd = endOfDay(now).toISOString();
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 }).toISOString();
-  const weekEnd = endOfWeek(now, { weekStartsOn: 1 }).toISOString();
-  const monthStart = startOfMonth(now).toISOString();
-  const monthEnd = endOfMonth(now).toISOString();
+  const todayStart  = startOfDay(now).toISOString();
+  const todayEnd    = endOfDay(now).toISOString();
+  const weekStart   = startOfWeek(now, { weekStartsOn: 1 }).toISOString();
+  const weekEnd     = endOfWeek(now, { weekStartsOn: 1 }).toISOString();
+  const monthStart  = startOfMonth(now).toISOString();
+  const monthEnd    = endOfMonth(now).toISOString();
+  const day7Start   = startOfDay(subDays(now, 6)).toISOString();
 
-  // Parallel fetches
   const [
     { data: todayAppts },
     { data: weekAppts },
     { data: monthRevAppts },
     { data: newCustomers },
     { data: champion },
+    { data: last7 },
   ] = await Promise.all([
     supabase
       .from("appointments")
@@ -68,7 +130,7 @@ export default async function DashboardPage() {
 
     supabase
       .from("appointments")
-      .select("price, tip, status")
+      .select("price, tip")
       .eq("org_id", orgId)
       .gte("appointment_at", monthStart)
       .lte("appointment_at", monthEnd)
@@ -88,208 +150,514 @@ export default async function DashboardPage() {
       .order("week_start", { ascending: false })
       .limit(1)
       .single(),
+
+    supabase
+      .from("appointments")
+      .select("appointment_at, price")
+      .eq("org_id", orgId)
+      .gte("appointment_at", day7Start)
+      .lte("appointment_at", todayEnd)
+      .eq("status", "tamamlandi"),
   ]);
 
   type ApptRow = { price: number; tip?: number; status: string };
+  type Last7Row = { appointment_at: string; price: number };
 
-  const todayRevenue = (todayAppts || [])
-    .filter((a: ApptRow) => a.status === "tamamlandi")
-    .reduce((s: number, a: ApptRow) => s + Number(a.price) + Number(a.tip || 0), 0);
+  const toApptRows = (arr: unknown[] | null): ApptRow[] =>
+    (arr ?? []) as unknown as ApptRow[];
 
-  const weekRevenue = (weekAppts || [])
-    .filter((a: ApptRow) => a.status === "tamamlandi")
-    .reduce((s: number, a: ApptRow) => s + Number(a.price), 0);
+  /* Revenue calcs */
+  const todayRows = toApptRows(todayAppts);
+  const weekRows  = toApptRows(weekAppts);
+  const monthRows = toApptRows(monthRevAppts);
 
-  const monthRevenue = (monthRevAppts || [])
-    .reduce((s: number, a: ApptRow) => s + Number(a.price), 0);
+  const todayRevenue = todayRows
+    .filter((a) => a.status === "tamamlandi")
+    .reduce((s, a) => s + Number(a.price) + Number(a.tip ?? 0), 0);
 
-  const pendingAppts = (todayAppts || []).filter((a: ApptRow) => a.status === "talep").length;
+  const weekRevenue = weekRows
+    .filter((a) => a.status === "tamamlandi")
+    .reduce((s, a) => s + Number(a.price), 0);
 
-  const stats = [
-    {
-      title: "Bugünkü Ciro",
-      value: `₺${todayRevenue.toLocaleString("tr-TR")}`,
-      icon: TrendingUp,
-      description: `${(todayAppts || []).length} randevu bugün`,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50 dark:bg-emerald-900/20",
-    },
-    {
-      title: "Haftalık Ciro",
-      value: `₺${weekRevenue.toLocaleString("tr-TR")}`,
-      icon: Calendar,
-      description: `${(weekAppts || []).length} randevu bu hafta`,
-      color: "text-blue-600",
-      bg: "bg-blue-50 dark:bg-blue-900/20",
-    },
-    {
-      title: "Aylık Ciro",
-      value: `₺${monthRevenue.toLocaleString("tr-TR")}`,
-      icon: TrendingUp,
-      description: "Bu ay tamamlanan",
-      color: "text-purple-600",
-      bg: "bg-purple-50 dark:bg-purple-900/20",
-    },
-    {
-      title: "Yeni Müşteri",
-      value: String((newCustomers as unknown as { count: number } | null)?.count || 0),
-      icon: Users,
-      description: "Bu ay kayıt olan",
-      color: "text-primary",
-      bg: "bg-rose-50 dark:bg-rose-900/20",
-    },
-  ];
+  const monthRevenue = monthRows
+    .reduce((s, a) => s + Number(a.price), 0);
+
+  const pendingCount = todayRows.filter((a) => a.status === "talep").length;
+
+  /* Last 7 days sparkline data */
+  const dailyRev: number[] = Array(7).fill(0);
+  ((last7 as unknown as Last7Row[]) ?? []).forEach((a) => {
+    const diff = differenceInCalendarDays(new Date(a.appointment_at), subDays(now, 6));
+    if (diff >= 0 && diff < 7) dailyRev[diff] += Number(a.price);
+  });
+  const sparkData = dailyRev;
+
+  const completedThisWeek = weekRows.filter((a) => a.status === "tamamlandi").length;
+
+  const newCustCount = (newCustomers as unknown as { count: number } | null)?.count ?? 0;
+
+  type FullAppt = Appointment & {
+    staff?: { full_name: string; avatar_url?: string };
+    service?: { name: string; duration_minutes: number };
+  };
+  const displayAppts = (todayAppts ?? []).slice(0, 5) as FullAppt[];
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Genel Bakış</h1>
-          <p className="text-muted-foreground text-sm">
-            {format(now, "d MMMM yyyy, EEEE", { locale: tr })}
-          </p>
+    <div className="flex flex-col min-h-screen" style={{ background: "var(--background)" }}>
+      {/* ── Dashboard Header ─────────────────────────────────────────── */}
+      <header
+        className="flex items-center justify-between px-6 py-4 shrink-0"
+        style={{
+          borderBottom: "1px solid color-mix(in oklch, var(--border) 60%, transparent)",
+          background: "color-mix(in oklch, var(--card) 80%, transparent)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
+        <div className="flex items-center gap-3">
+          {/* Live pulse */}
+          <span
+            className="w-2 h-2 rounded-full pulse-live"
+            style={{ background: "#10b981", boxShadow: "0 0 8px #10b98180" }}
+          />
+          <div>
+            <h1 className="text-base font-bold tracking-tight leading-none text-foreground uppercase">
+              {orgName}
+            </h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {format(now, "d MMMM yyyy, EEEE", { locale: tr })}
+            </p>
+          </div>
         </div>
-        {pendingAppts > 0 && (
-          <Badge className="gap-1 bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300">
-            <AlertCircle className="h-3 w-3" />
-            {pendingAppts} onay bekliyor
-          </Badge>
-        )}
-      </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={stat.title} className="border-0 shadow-sm">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{stat.title}</p>
-                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
-                  </div>
-                  <div className={cn("p-2.5 rounded-xl", stat.bg)}>
-                    <Icon className={cn("h-5 w-5", stat.color)} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+        <div className="flex items-center gap-4">
+          {pendingCount > 0 && (
+            <Link
+              href="/dashboard/randevular"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+              style={{
+                background: "rgba(245,158,11,0.12)",
+                border: "1px solid rgba(245,158,11,0.3)",
+                color: "#f59e0b",
+              }}
+            >
+              <AlertCircle className="h-3.5 w-3.5" />
+              {pendingCount} onay bekliyor
+            </Link>
+          )}
+          <div
+            className="text-2xl font-bold tabular-nums"
+            style={{ color: "var(--primary)" }}
+          >
+            <LiveClock />
+          </div>
+        </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Today's appointments */}
-        <div className="lg:col-span-2">
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Bugünkü Randevular</CardTitle>
-                <Link href="/dashboard/randevular" className="text-xs text-primary hover:underline">
-                  Tümünü gör →
-                </Link>
+      {/* ── 4-Panel Grid ────────────────────────────────────────────── */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-5 p-5">
+
+        {/* Panel 1 — Aktif Randevular */}
+        <GlassCard3D className="glass-card" glow intensity={5}>
+          {/* Header */}
+          <div className="panel-header">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{ background: "color-mix(in oklch, var(--primary) 15%, transparent)" }}
+              >
+                <Calendar className="h-3.5 w-3.5" style={{ color: "var(--primary)" }} />
               </div>
-            </CardHeader>
-            <CardContent>
-              {!todayAppts || todayAppts.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Calendar className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">Bugün randevu yok</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {(todayAppts as (Appointment & { staff?: { full_name: string; avatar_url?: string }; service?: { name: string; duration_minutes: number } })[]).map((appt) => (
-                    <Link
-                      key={appt.id}
-                      href={`/dashboard/randevular/${appt.id}`}
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors group"
-                    >
-                      <div className="text-center w-14 shrink-0">
-                        <p className="text-sm font-semibold text-primary">
-                          {format(new Date(appt.appointment_at), "HH:mm")}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {appt.duration_minutes}dk
-                        </p>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{appt.customer_name}</p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {appt.service?.name} • {appt.staff?.full_name}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">₺{Number(appt.price).toLocaleString("tr-TR")}</span>
-                        <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium", STATUS_LABELS[appt.status]?.className)}>
-                          {STATUS_LABELS[appt.status]?.label}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+              <span className="text-sm font-semibold text-foreground">Aktif Randevular</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/dashboard/randevular"
+                className="text-[11px] font-medium flex items-center gap-0.5 hover:opacity-80 transition-opacity"
+                style={{ color: "var(--primary)" }}
+              >
+                Tümü <ArrowUpRight className="h-3 w-3" />
+              </Link>
+              <button className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-muted-foreground">
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
 
-        {/* Right column */}
-        <div className="space-y-4">
-          {/* Champion of the week */}
-          {champion && (
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                  <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">Haftanın Elemanı</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow">
-                    <span className="text-white font-bold text-sm">
-                      {(champion as StaffPerformanceWeekly & { staff?: { full_name: string } }).staff?.full_name?.[0] || "?"}
-                    </span>
+          {/* Big counter */}
+          <div className="px-5 pt-4 pb-2 flex items-end gap-3">
+            <span className="stat-number" style={{ color: "var(--primary)" }}>
+              {(todayAppts ?? []).length}
+            </span>
+            <div className="pb-1">
+              <p className="text-xs text-muted-foreground font-medium">randevu bugün</p>
+              <p className="text-xs text-muted-foreground">
+                ₺{todayRevenue.toLocaleString()} ciro
+              </p>
+            </div>
+          </div>
+
+          {/* Appointments list */}
+          <div className="px-3 pb-4 space-y-1">
+            {displayAppts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                <Calendar className="h-8 w-8 mb-2 opacity-20" />
+                <p className="text-sm">Bugün randevu yok</p>
+              </div>
+            ) : (
+              displayAppts.map((appt) => (
+                <Link
+                  key={appt.id}
+                  href={`/dashboard/randevular/${appt.id}`}
+                  className="flex items-center gap-3 px-2.5 py-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                >
+                  <span className={cn("status-dot", STATUS_DOT[appt.status] ?? "done")} />
+                  <div className="w-12 shrink-0 text-center">
+                    <p className="text-xs font-bold tabular-nums text-foreground">
+                      {format(new Date(appt.appointment_at), "HH:mm")}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">{appt.duration_minutes}dk</p>
                   </div>
-                  <div>
-                    <p className="font-semibold text-sm">{(champion as StaffPerformanceWeekly & { staff?: { full_name: string } }).staff?.full_name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {(champion as StaffPerformanceWeekly).appointments_done} randevu • ₺{Number((champion as StaffPerformanceWeekly).total_revenue).toLocaleString("tr-TR")}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate leading-none text-foreground">
+                      {appt.customer_name}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                      {appt.service?.name}
+                      {appt.staff?.full_name ? ` • ${appt.staff.full_name}` : ""}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-xs font-semibold text-foreground">
+                      ₺{Number(appt.price).toLocaleString()}
+                    </p>
+                    <p
+                      className="text-[10px] font-medium"
+                      style={{
+                        color:
+                          appt.status === "talep" ? "#f59e0b"
+                          : appt.status === "onaylandi" ? "#10b981"
+                          : appt.status === "tamamlandi" ? "#6366f1"
+                          : "#ef4444",
+                      }}
+                    >
+                      {STATUS_LABELS[appt.status] ?? appt.status}
+                    </p>
+                  </div>
+                </Link>
+              ))
+            )}
+            {(todayAppts ?? []).length > 5 && (
+              <Link
+                href="/dashboard/randevular"
+                className="flex items-center justify-center gap-1 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                +{(todayAppts ?? []).length - 5} daha →
+              </Link>
+            )}
+          </div>
+        </GlassCard3D>
+
+        {/* Panel 2 — Haftalık Özet + Sparkline */}
+        <GlassCard3D className="glass-card" glow intensity={5}>
+          <div className="panel-header">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{ background: "rgba(16,185,129,0.15)" }}
+              >
+                <TrendingUp className="h-3.5 w-3.5" style={{ color: "#10b981" }} />
+              </div>
+              <span className="text-sm font-semibold text-foreground">Gelir Özeti</span>
+            </div>
+            <button className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-muted-foreground">
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="px-5 pt-4 pb-3">
+            {/* Main stat */}
+            <div className="flex items-end gap-3 mb-4">
+              <span className="stat-number" style={{ color: "#10b981" }}>
+                ₺{weekRevenue.toLocaleString()}
+              </span>
+              <div className="pb-1">
+                <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold px-1.5 py-0.5 rounded-md"
+                  style={{ background: "rgba(16,185,129,0.12)", color: "#10b981" }}>
+                  <ArrowUpRight className="h-3 w-3" />
+                  Bu Hafta
+                </span>
+              </div>
+            </div>
+
+            {/* Sparkline */}
+            <div className="mb-4">
+              <Sparkline data={sparkData} color="#10b981" />
+              <div className="flex justify-between mt-1">
+                {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((d, i) => (
+                  <span key={i} className="text-[9px] text-muted-foreground">{d}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Sub-stats grid */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Aylık Ciro", value: `₺${monthRevenue.toLocaleString()}`, color: "#6366f1" },
+                { label: "Bu Hafta",   value: `${completedThisWeek} randevu`,              color: "#f59e0b" },
+                { label: "Yeni Müşteri", value: `${newCustCount}`,                        color: "var(--primary)" },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-xl p-3"
+                  style={{ background: "color-mix(in oklch, var(--muted) 60%, transparent)" }}
+                >
+                  <p className="text-[10px] text-muted-foreground font-medium mb-1">{s.label}</p>
+                  <p className="text-sm font-bold truncate" style={{ color: s.color }}>{s.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </GlassCard3D>
+
+        {/* Panel 3 — Hızlı İşlemler */}
+        <GlassCard3D className="glass-card" glow intensity={5}>
+          <div className="panel-header">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{ background: "rgba(99,102,241,0.15)" }}
+              >
+                <Zap className="h-3.5 w-3.5" style={{ color: "#6366f1" }} />
+              </div>
+              <span className="text-sm font-semibold text-foreground">Hızlı İşlemler</span>
+            </div>
+            <button className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-muted-foreground">
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="px-4 py-4 space-y-2.5">
+            {[
+              {
+                href:  "/dashboard/randevular?new=1",
+                icon:  CheckCircle2,
+                label: "Yeni Randevu",
+                desc:  "Randevu oluştur",
+                color: "var(--primary)",
+                bg:    "color-mix(in oklch, var(--primary) 12%, transparent)",
+              },
+              {
+                href:  "/dashboard/musteriler?new=1",
+                icon:  Users,
+                label: "Müşteri Ekle",
+                desc:  "Yeni kayıt",
+                color: "#6366f1",
+                bg:    "rgba(99,102,241,0.12)",
+              },
+              {
+                href:  "/dashboard/takvim",
+                icon:  Calendar,
+                label: "Takvim",
+                desc:  "Görünüm",
+                color: "#10b981",
+                bg:    "rgba(16,185,129,0.12)",
+              },
+              {
+                href:  "/dashboard/kampanyalar",
+                icon:  MessageSquare,
+                label: "Kampanyalar",
+                desc:  "Mesaj gönder",
+                color: "#f59e0b",
+                bg:    "rgba(245,158,11,0.12)",
+              },
+              {
+                href:  "/dashboard/raporlar",
+                icon:  TrendingUp,
+                label: "Raporlar",
+                desc:  "Analiz & İstatistik",
+                color: "#ec4899",
+                bg:    "rgba(236,72,153,0.12)",
+              },
+              {
+                href:  "/dashboard/ayarlar",
+                icon:  Sparkles,
+                label: "Ayarlar",
+                desc:  "İşletme ayarları",
+                color: "#8b5cf6",
+                bg:    "rgba(139,92,246,0.12)",
+              },
+            ].map((action) => {
+              const Icon = action.icon;
+              return (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group"
+                  style={{ border: "1px solid transparent" }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.background = action.bg;
+                    el.style.borderColor = `color-mix(in oklch, ${action.color} 25%, transparent)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.background = "transparent";
+                    el.style.borderColor = "transparent";
+                  }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: action.bg }}
+                  >
+                    <Icon className="h-4 w-4" style={{ color: action.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground leading-none">{action.label}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{action.desc}</p>
+                  </div>
+                  <ArrowUpRight
+                    className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors shrink-0"
+                  />
+                </Link>
+              );
+            })}
+          </div>
+        </GlassCard3D>
+
+        {/* Panel 4 — Haftanın Elemanı + Bekleyenler */}
+        <GlassCard3D className="glass-card" glow intensity={5}>
+          <div className="panel-header">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{ background: "rgba(245,158,11,0.15)" }}
+              >
+                <Star className="h-3.5 w-3.5 fill-amber-400" style={{ color: "#f59e0b" }} />
+              </div>
+              <span className="text-sm font-semibold text-foreground">Performans</span>
+            </div>
+            <button className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-muted-foreground">
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="px-5 py-4 space-y-4">
+            {/* Champion */}
+            {champion ? (
+              <div
+                className="rounded-2xl p-4 relative overflow-hidden"
+                style={{
+                  background: "linear-gradient(135deg, rgba(245,158,11,0.12), rgba(251,191,36,0.06))",
+                  border: "1px solid rgba(245,158,11,0.2)",
+                }}
+              >
+                <p className="text-[10px] font-bold text-amber-400/80 uppercase tracking-widest mb-3">
+                  ⭐ Haftanın Elemanı
+                </p>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shrink-0"
+                    style={{
+                      background: "linear-gradient(135deg, #f59e0b, #fbbf24)",
+                      boxShadow: "0 4px 16px rgba(245,158,11,0.4)",
+                    }}
+                  >
+                    {(champion as StaffPerformanceWeekly & { staff?: { full_name: string } })
+                      .staff?.full_name?.[0] ?? "?"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-foreground text-base leading-tight truncate">
+                      {(champion as StaffPerformanceWeekly & { staff?: { full_name: string } }).staff?.full_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {(champion as StaffPerformanceWeekly).appointments_done} randevu •{" "}
+                      ₺{Number((champion as StaffPerformanceWeekly).total_revenue).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-[10px] text-amber-400/70 font-medium uppercase tracking-wide">Ciro</p>
+                    <p className="text-sm font-bold" style={{ color: "#f59e0b" }}>
+                      ₺{Number((champion as StaffPerformanceWeekly).total_revenue).toLocaleString()}
                     </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            ) : (
+              <div
+                className="rounded-2xl p-4 text-center"
+                style={{
+                  background: "color-mix(in oklch, var(--muted) 50%, transparent)",
+                  border: "1px dashed color-mix(in oklch, var(--border) 60%, transparent)",
+                }}
+              >
+                <Star className="h-6 w-6 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="text-xs text-muted-foreground">Henüz performans verisi yok</p>
+              </div>
+            )}
 
-          {/* Quick actions */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Hızlı İşlemler</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
+            {/* Quick stats */}
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Bugün Durum
+              </p>
               {[
-                { href: "/dashboard/randevular?new=1", icon: CheckCircle2, label: "Randevu Ekle", color: "text-primary" },
-                { href: "/dashboard/musteriler?new=1", icon: Users, label: "Müşteri Ekle", color: "text-blue-600" },
-                { href: "/dashboard/takvim", icon: Clock, label: "Takvimi Gör", color: "text-purple-600" },
-              ].map((action) => {
-                const Icon = action.icon;
+                {
+                  icon: Clock,
+                  label: "Bekleyen",
+                  value: pendingCount,
+                  color: "#f59e0b",
+                  bg: "rgba(245,158,11,0.1)",
+                },
+                {
+                  icon: CheckCircle2,
+                  label: "Tamamlanan",
+                  value: (todayAppts ?? []).filter((a: ApptRow) => a.status === "tamamlandi").length,
+                  color: "#10b981",
+                  bg: "rgba(16,185,129,0.1)",
+                },
+                {
+                  icon: Users,
+                  label: "Toplam Bugün",
+                  value: (todayAppts ?? []).length,
+                  color: "var(--primary)",
+                  bg: "color-mix(in oklch, var(--primary) 10%, transparent)",
+                },
+              ].map((stat) => {
+                const Icon = stat.icon;
                 return (
-                  <Link
-                    key={action.href}
-                    href={action.href}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-accent transition-colors group"
+                  <div
+                    key={stat.label}
+                    className="flex items-center gap-3 p-2.5 rounded-xl"
+                    style={{ background: stat.bg, border: `1px solid ${stat.color}20` }}
                   >
-                    <Icon className={cn("h-4 w-4", action.color)} />
-                    <span className="text-sm font-medium">{action.label}</span>
-                    <span className="ml-auto text-muted-foreground group-hover:text-foreground">→</span>
-                  </Link>
+                    <Icon className="h-4 w-4 shrink-0" style={{ color: stat.color }} />
+                    <span className="text-sm text-foreground flex-1">{stat.label}</span>
+                    <span className="text-sm font-bold tabular-nums" style={{ color: stat.color }}>
+                      {stat.value}
+                    </span>
+                  </div>
                 );
               })}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+
+            {/* Go to reports */}
+            <Link
+              href="/dashboard/raporlar"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 w-full"
+              style={{
+                background: "color-mix(in oklch, var(--primary) 10%, transparent)",
+                border: "1px solid color-mix(in oklch, var(--primary) 20%, transparent)",
+                color: "var(--primary)",
+              }}
+            >
+              <BarChart3 className="h-4 w-4" />
+              Detaylı Raporları Gör
+            </Link>
+          </div>
+        </GlassCard3D>
+
       </div>
     </div>
   );
 }
+

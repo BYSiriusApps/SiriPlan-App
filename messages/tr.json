@@ -48,7 +48,7 @@
     },
     "migration": {
       "title": "Kolay Veri Göçü",
-      "desc": "SalonAppy, Arvengo veya Excel'den tek tıkla tüm verilerinizi aktarın. Veri kaybı yok."
+      "desc": "Mevcut randevu yazılımınızdan veya Excel'den tek tıkla tüm verilerinizi aktarın. Veri kaybı yok."
     },
     "campaigns": {
       "title": "Kampanya Modülü",

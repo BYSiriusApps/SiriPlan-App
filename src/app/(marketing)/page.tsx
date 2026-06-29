@@ -59,7 +59,7 @@ const features = [
   {
     icon: Upload,
     title: "Kolay Veri Göçü",
-    desc: "SalonAppy, Arvengo veya Excel'den tek tıkla tüm verilerinizi aktarın. Veri kaybı asla yaşanmaz.",
+    desc: "Mevcut randevu yazılımınızdan veya Excel'den tek tıkla tüm verilerinizi aktarın. Veri kaybı asla yaşanmaz.",
     color: "text-teal-500",
     bg: "bg-teal-50 dark:bg-teal-950/30",
   },
@@ -459,7 +459,7 @@ export default function HomePage() {
               },
               {
                 q: "Mevcut sistemdeki verilerimi taşıyabilir miyim?",
-                a: "Evet. SalonAppy, Arvengo ve Excel'den tek tıkla veri aktarımı yapabilirsiniz. Ekibimizin yapacağı Profesyonel Veri Göçü hizmeti de mevcuttur.",
+                a: "Evet. Kullandığınız randevu yazılımından ve Excel'den tek tıkla veri aktarımı yapabilirsiniz. Ekibimizin yapacağı Profesyonel Veri Göçü hizmeti de mevcuttur.",
               },
               {
                 q: "WhatsApp AI asistanı nasıl çalışıyor?",

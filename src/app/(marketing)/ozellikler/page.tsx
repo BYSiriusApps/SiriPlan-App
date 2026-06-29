@@ -161,7 +161,7 @@ const featureGroups = [
       {
         icon: Upload,
         title: "Kolay Veri Göçü",
-        desc: "SalonAppy, Arvengo veya Excel'den tek tıkla aktarım. Veri kaybı asla yaşanmaz.",
+        desc: "Mevcut randevu yazılımınızdan veya Excel'den tek tıkla aktarım. Veri kaybı asla yaşanmaz.",
         badge: "Tüm Planlar",
       },
       {

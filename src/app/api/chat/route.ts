@@ -22,7 +22,7 @@ Ana özellikler:
 - PDF/Excel rapor export
 - KVKK uyumlu veri saklama
 - Çok dil desteği: TR, EN, RU, AR
-- SalonAppy, Arvengo, Excel'den kolay veri aktarımı
+- Mevcut randevu yazılımından ve Excel'den kolay veri aktarımı
 
 Kayıt sayfası: siriplan.com/auth/kayit
 Demo: siriplan.com/demo

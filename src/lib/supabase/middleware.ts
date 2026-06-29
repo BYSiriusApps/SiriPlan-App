@@ -27,13 +27,21 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  if (pathname.includes("/dashboard") && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth/giris";
-    return NextResponse.redirect(url);
+  if (pathname.includes("/dashboard")) {
+    if (!user) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/giris";
+      return NextResponse.redirect(url);
+    }
+    // Block unverified users from dashboard
+    if (!user.email_confirmed_at) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/dogrula";
+      return NextResponse.redirect(url);
+    }
   }
 
-  if (user && (pathname.includes("/auth/giris") || pathname.includes("/auth/kayit"))) {
+  if (user && user.email_confirmed_at && (pathname.includes("/auth/giris") || pathname.includes("/auth/kayit"))) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);

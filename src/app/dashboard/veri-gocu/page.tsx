@@ -8,8 +8,8 @@ import { toast } from "sonner";
 import { Download, Upload, FileText, CheckCircle2, Loader2, ArrowRight } from "lucide-react";
 
 const IMPORT_SOURCES = [
-  { id: "salonappy", name: "SalonAppy", icon: "💆", color: "border-orange-200 dark:border-orange-800" },
-  { id: "arvengo", name: "Arvengo", icon: "📅", color: "border-blue-200 dark:border-blue-800" },
+  { id: "salonappy", name: "Randevu Programı", icon: "💆", color: "border-orange-200 dark:border-orange-800" },
+  { id: "arvengo", name: "Diğer Yazılım", icon: "📅", color: "border-blue-200 dark:border-blue-800" },
   { id: "excel", name: "Excel / CSV", icon: "📊", color: "border-green-200 dark:border-green-800" },
 ];
 
@@ -139,8 +139,8 @@ export default function VeriGocuPage() {
               <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
                 <p className="text-xs text-amber-800 dark:text-amber-300">
                   <strong>Not:</strong>{" "}
-                  {selectedSource === "salonappy" && "SalonAppy'den CSV olarak veri dışa aktarın: Ayarlar → Veri Dışa Aktar"}
-                  {selectedSource === "arvengo" && "Arvengo'dan dışa aktarın: Panel → Raporlar → Excel İndir"}
+                  {selectedSource === "salonappy" && "Randevu programınızdan CSV olarak veri dışa aktarın: Ayarlar → Veri Dışa Aktar"}
+                  {selectedSource === "arvengo" && "Mevcut yazılımınızdan dışa aktarın: Panel → Raporlar → Excel veya CSV İndir"}
                   {selectedSource === "excel" && "İlk sütun: Ad Soyad, İkinci: Telefon, Üçüncü: E-posta (opsiyonel)"}
                 </p>
               </div>

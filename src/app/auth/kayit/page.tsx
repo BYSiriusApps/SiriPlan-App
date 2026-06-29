@@ -111,13 +111,21 @@ export default function KayitPage() {
     setLoading(true);
     const supabase = createClient();
 
-    // 1. Create auth user
+    const slug = slugify(form.salonName) + "-" + Math.random().toString(36).slice(2, 6);
+
+    // Create auth user — org is created AFTER email verification in /auth/callback
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
       options: {
-        data: { full_name: form.fullName },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: {
+          full_name: form.fullName.trim(),
+          salon_name: form.salonName.trim(),
+          business_type: form.type,
+          phone: normalizePhone(form.phone),
+          pending_slug: slug,
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/auth/plan-sec`,
       },
     });
 
@@ -127,31 +135,8 @@ export default function KayitPage() {
       return;
     }
 
-    // 2. Create organization + org_member via server API (bypasses RLS)
-    const slug = slugify(form.salonName) + "-" + Math.random().toString(36).slice(2, 6);
-    const res = await fetch("/api/auth/complete-registration", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: authData.user.id,
-        salonName: form.salonName.trim(),
-        type: form.type,
-        phone: normalizePhone(form.phone),
-        email: form.email,
-        fullName: form.fullName.trim(),
-        slug,
-      }),
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      toast.error("İşletme oluşturulamadı: " + (err.error || "Bilinmeyen hata"));
-      setLoading(false);
-      return;
-    }
-
-    toast.success("Hesabınız oluşturuldu! E-postanızı doğrulayın 📬");
-    router.push("/auth/plan-sec");
+    toast.success("E-posta doğrulama linki gönderildi! Lütfen gelen kutunuzu kontrol edin.");
+    router.push("/auth/dogrula");
   }
 
   return (

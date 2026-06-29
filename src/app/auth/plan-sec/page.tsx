@@ -44,7 +44,7 @@ const PLANS = [
       "Müşteri skorlama",
       "Gamification (Haftanın Elemanı)",
       "Google Calendar sync",
-      "Veri göçü (SalonAppy/Arvengo)",
+      "Veri göçü (mevcut sistemden)",
     ],
   },
   {

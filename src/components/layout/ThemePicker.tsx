@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -83,9 +84,11 @@ export function ThemePicker() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="text-xs font-medium text-muted-foreground pb-1">
-          Renk Teması
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-xs font-medium text-muted-foreground pb-1">
+            Renk Teması
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
 
         {THEMES.map((t) => {
