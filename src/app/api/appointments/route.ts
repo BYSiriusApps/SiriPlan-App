@@ -3,6 +3,13 @@ import { createClient } from "@/lib/supabase/server";
 import { sendConfirmationEmail } from "@/lib/email/send";
 import { z } from "zod";
 
+const ExtraServiceSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  price: z.number(),
+  duration_minutes: z.number(),
+});
+
 const CreateSchema = z.object({
   org_id: z.string().uuid(),
   customer_name: z.string().min(2).max(100),
@@ -10,7 +17,10 @@ const CreateSchema = z.object({
   customer_email: z.string().email().optional(),
   staff_id: z.string().uuid(),
   service_id: z.string().uuid(),
-  appointment_at: z.string(), // ISO string
+  extra_services_json: z.array(ExtraServiceSchema).optional().default([]),
+  total_price_override: z.number().optional(),
+  total_duration_override: z.number().optional(),
+  appointment_at: z.string(),
   note: z.string().optional(),
   source: z.enum(["web", "whatsapp", "instagram", "telefon", "yuzyuze"]).default("web"),
 });
@@ -63,7 +73,10 @@ export async function POST(req: NextRequest) {
     if (newCustomer) customerId = newCustomer.id;
   }
 
-  // Create appointment
+  // Create appointment — use overrides when multiple services selected
+  const finalPrice = data.total_price_override ?? service.price;
+  const finalDuration = data.total_duration_override ?? service.duration_minutes;
+
   const { data: appt, error } = await supabase
     .from("appointments")
     .insert({
@@ -73,9 +86,10 @@ export async function POST(req: NextRequest) {
       customer_phone: data.customer_phone,
       staff_id: data.staff_id,
       service_id: data.service_id,
+      extra_services_json: data.extra_services_json,
       appointment_at: data.appointment_at,
-      duration_minutes: service.duration_minutes,
-      price: service.price,
+      duration_minutes: finalDuration,
+      price: finalPrice,
       source: data.source,
       note: data.note,
       status: "onaylandi",

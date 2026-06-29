@@ -26,6 +26,15 @@ const BUSINESS_TYPES = [
 ];
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+// Accepts: 05xx xxx xxxx | 5xx xxx xxxx | +90 5xx ... (11 digits starting with 05 or +905)
+const PHONE_RE = /^(\+90|0090|90)?[- ]?5\d{2}[- ]?\d{3}[- ]?\d{2}[- ]?\d{2}$/;
+
+function normalizePhone(raw: string) {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("90") && digits.length === 12) return "0" + digits.slice(2);
+  if (digits.length === 10 && digits.startsWith("5")) return "0" + digits;
+  return digits.length === 11 ? digits : raw;
+}
 
 function slugify(text: string) {
   return text
@@ -55,10 +64,12 @@ export default function KayitPage() {
     password: "",
   });
   const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
     if (field === "email") setEmailError("");
+    if (field === "phone") setPhoneError("");
   }
 
   function validateEmail(email: string) {
@@ -70,10 +81,24 @@ export default function KayitPage() {
     return true;
   }
 
+  function validatePhone(phone: string) {
+    if (!phone.trim()) {
+      setPhoneError("Telefon numarası zorunludur.");
+      return false;
+    }
+    if (!PHONE_RE.test(phone.trim())) {
+      setPhoneError("Geçerli bir Türkiye numarası girin (örn: 0532 123 45 67)");
+      return false;
+    }
+    setPhoneError("");
+    return true;
+  }
+
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
 
     if (!validateEmail(form.email)) return;
+    if (!validatePhone(form.phone)) return;
     if (form.password.length < 8) {
       toast.error("Şifre en az 8 karakter olmalı.");
       return;
@@ -111,7 +136,7 @@ export default function KayitPage() {
         userId: authData.user.id,
         salonName: form.salonName.trim(),
         type: form.type,
-        phone: form.phone,
+        phone: normalizePhone(form.phone),
         email: form.email,
         fullName: form.fullName.trim(),
         slug,
@@ -203,17 +228,21 @@ export default function KayitPage() {
               )}
             </div>
             <div className="space-y-1.5">
-              <Label>Telefon</Label>
+              <Label>Telefon <span className="text-red-500">*</span></Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="tel"
+                  inputMode="tel"
                   placeholder="05xx xxx xxxx"
-                  className="pl-9"
+                  className={`pl-9 ${phoneError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                   value={form.phone}
                   onChange={(e) => set("phone", e.target.value)}
+                  onBlur={() => form.phone && validatePhone(form.phone)}
+                  required
                 />
               </div>
+              {phoneError && <p className="text-xs text-red-500 mt-0.5">{phoneError}</p>}
             </div>
           </div>
 

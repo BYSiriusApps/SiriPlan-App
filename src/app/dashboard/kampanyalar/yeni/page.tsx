@@ -40,6 +40,7 @@ export default function YeniKampanyaPage() {
     inactive_days: "60",
     scheduled_at: "",
   });
+  const [kvkkConsent, setKvkkConsent] = useState(false);
 
   function handleTypeChange(type: string) {
     setForm((f) => ({
@@ -57,6 +58,7 @@ export default function YeniKampanyaPage() {
     e.preventDefault();
     if (!form.name.trim()) return toast.error("Kampanya adı zorunlu");
     if (!form.message_template.trim()) return toast.error("Mesaj şablonu zorunlu");
+    if (!kvkkConsent) return toast.error("KVKK onayı zorunludur. Müşterilerin rızasını doğrulayın.");
 
     const segment: Record<string, unknown> = {};
     if (form.type === "inactive") {
@@ -206,7 +208,20 @@ export default function YeniKampanyaPage() {
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        {/* KVKK Consent */}
+        <label className="flex items-start gap-3 p-4 rounded-xl border-2 border-orange-200 bg-orange-50 dark:border-orange-900/50 dark:bg-orange-950/20 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={kvkkConsent}
+            onChange={(e) => setKvkkConsent(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded accent-orange-600 shrink-0"
+          />
+          <span className="text-sm text-orange-800 dark:text-orange-300">
+            <strong>KVKK Onayı:</strong> Mesaj göndereceğim müşterilerin ticari elektronik ileti almaya ve kişisel verilerinin bu amaçla işlenmesine açık rıza gösterdiğini onaylıyorum. İşletmem gerekli KVKK metnini müşterilere sunmuş ve onay almıştır.
+          </span>
+        </label>
+
+        <Button type="submit" className="w-full" disabled={loading || !kvkkConsent}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
           Kampanya Oluştur
         </Button>
