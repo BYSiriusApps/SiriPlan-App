@@ -13,20 +13,19 @@ import { Loader2, Building2, Mail, Lock, Phone, User } from "lucide-react";
 import { toast } from "sonner";
 
 const BUSINESS_TYPES = [
-  { value: "kuafor", label: "💇 Kuaför / Saç Salonu" },
-  { value: "berber", label: "✂️ Berber" },
-  { value: "guzellik", label: "💄 Güzellik Merkezi" },
-  { value: "spa", label: "🧖 Spa & Masaj" },
-  { value: "nail", label: "💅 Nail Salon / Tırnak" },
-  { value: "estetik", label: "✨ Estetik Klinik" },
-  { value: "makyaj", label: "🎨 Makyaj Stüdyosu" },
-  { value: "tattoo", label: "🖋️ Tattoo Stüdyosu" },
-  { value: "diyetisyen", label: "🥗 Diyetisyen" },
-  { value: "kas_kirpik", label: "👁️ Kaş & Kirpik Stüdyosu" },
+  { value: "kuafor",    label: "💇 Kuaför / Saç Salonu" },
+  { value: "berber",    label: "✂️ Berber" },
+  { value: "guzellik",  label: "💄 Güzellik Merkezi" },
+  { value: "spa",       label: "🧖 Spa & Masaj" },
+  { value: "nail",      label: "💅 Nail Salon / Tırnak" },
+  { value: "estetik",   label: "✨ Estetik Klinik" },
+  { value: "makyaj",    label: "🎨 Makyaj Stüdyosu" },
+  { value: "tattoo",    label: "🖋️ Tattoo Stüdyosu" },
+  { value: "diyetisyen",label: "🥗 Diyetisyen" },
+  { value: "kas_kirpik",label: "👁️ Kaş & Kirpik Stüdyosu" },
 ];
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
-// Accepts: 05xx xxx xxxx | 5xx xxx xxxx | +90 5xx ... (11 digits starting with 05 or +905)
 const PHONE_RE = /^(\+90|0090|90)?[- ]?5\d{2}[- ]?\d{3}[- ]?\d{2}[- ]?\d{2}$/;
 
 function normalizePhone(raw: string) {
@@ -36,32 +35,12 @@ function normalizePhone(raw: string) {
   return digits.length === 11 ? digits : raw;
 }
 
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[çÇ]/g, "c")
-    .replace(/[ğĞ]/g, "g")
-    .replace(/[ıİ]/g, "i")
-    .replace(/[öÖ]/g, "o")
-    .replace(/[şŞ]/g, "s")
-    .replace(/[üÜ]/g, "u")
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 35);
-}
-
 export default function KayitPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    salonName: "",
-    type: "kuafor",
-    fullName: "",
-    email: "",
-    phone: "",
-    password: "",
+    salonName: "", type: "kuafor", fullName: "",
+    email: "", phone: "", password: "",
   });
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
@@ -82,10 +61,7 @@ export default function KayitPage() {
   }
 
   function validatePhone(phone: string) {
-    if (!phone.trim()) {
-      setPhoneError("Telefon numarası zorunludur.");
-      return false;
-    }
+    if (!phone.trim()) { setPhoneError("Telefon numarası zorunludur."); return false; }
     if (!PHONE_RE.test(phone.trim())) {
       setPhoneError("Geçerli bir Türkiye numarası girin (örn: 0532 123 45 67)");
       return false;
@@ -96,47 +72,56 @@ export default function KayitPage() {
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
-
     if (!validateEmail(form.email)) return;
     if (!validatePhone(form.phone)) return;
-    if (form.password.length < 8) {
-      toast.error("Şifre en az 8 karakter olmalı.");
-      return;
-    }
-    if (!form.salonName.trim()) {
-      toast.error("İşletme adı zorunludur.");
-      return;
-    }
+    if (form.password.length < 8) { toast.error("Şifre en az 8 karakter olmalı."); return; }
+    if (!form.salonName.trim()) { toast.error("İşletme adı zorunludur."); return; }
 
     setLoading(true);
-    const supabase = createClient();
 
-    const slug = slugify(form.salonName) + "-" + Math.random().toString(36).slice(2, 6);
-
-    // Create auth user — org is created AFTER email verification in /auth/callback
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
-      options: {
-        data: {
-          full_name: form.fullName.trim(),
-          salon_name: form.salonName.trim(),
-          business_type: form.type,
+    try {
+      // Server-side registration — confirms email instantly, no verification email needed
+      const res = await fetch("/api/auth/quick-register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          salonName: form.salonName.trim(),
+          fullName: form.fullName.trim(),
           phone: normalizePhone(form.phone),
-          pending_slug: slug,
-        },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/auth/plan-sec`,
-      },
-    });
+          businessType: form.type,
+        }),
+      });
 
-    if (authError || !authData.user) {
-      toast.error(authError?.message || "Kayıt başarısız.");
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        toast.error(data.error || "Kayıt başarısız. Lütfen tekrar deneyin.");
+        setLoading(false);
+        return;
+      }
+
+      // Now sign in with the created credentials
+      const supabase = createClient();
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
+
+      if (signInErr) {
+        toast.error("Hesap oluşturuldu ancak giriş yapılamadı: " + signInErr.message);
+        router.push("/auth/giris");
+        return;
+      }
+
+      toast.success("Hesabınız oluşturuldu! Dashboard'a yönlendiriliyorsunuz...");
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      toast.error("Bir hata oluştu. Lütfen tekrar deneyin.");
       setLoading(false);
-      return;
     }
-
-    toast.success("E-posta doğrulama linki gönderildi! Lütfen gelen kutunuzu kontrol edin.");
-    router.push("/auth/dogrula");
   }
 
   return (
@@ -150,9 +135,7 @@ export default function KayitPage() {
           <div className="space-y-1.5">
             <Label>İşletme Türü</Label>
             <Select value={form.type} onValueChange={(v) => set("type", v ?? "kuafor")}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {BUSINESS_TYPES.map((t) => (
                   <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
@@ -165,15 +148,8 @@ export default function KayitPage() {
             <Label>Salon / İşletme Adı</Label>
             <div className="relative">
               <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Salon Adınız"
-                className="pl-9"
-                value={form.salonName}
-                onChange={(e) => set("salonName", e.target.value)}
-                required
-                minLength={2}
-                maxLength={60}
-              />
+              <Input placeholder="Salon Adınız" className="pl-9" value={form.salonName}
+                onChange={(e) => set("salonName", e.target.value)} required minLength={2} maxLength={60} />
             </div>
           </div>
 
@@ -181,13 +157,8 @@ export default function KayitPage() {
             <Label>Adınız Soyadınız</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Ad Soyad"
-                className="pl-9"
-                value={form.fullName}
-                onChange={(e) => set("fullName", e.target.value)}
-                required
-              />
+              <Input placeholder="Ad Soyad" className="pl-9" value={form.fullName}
+                onChange={(e) => set("fullName", e.target.value)} required />
             </div>
           </div>
 
@@ -196,36 +167,22 @@ export default function KayitPage() {
               <Label>E-posta</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="email"
-                  inputMode="email"
-                  placeholder="ad@ornek.com"
-                  className={`pl-9 ${emailError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
-                  value={form.email}
-                  onChange={(e) => set("email", e.target.value)}
+                <Input type="email" inputMode="email" placeholder="ad@ornek.com"
+                  className={`pl-9 ${emailError ? "border-red-500" : ""}`}
+                  value={form.email} onChange={(e) => set("email", e.target.value)}
                   onBlur={() => form.email && validateEmail(form.email)}
-                  required
-                  autoComplete="email"
-                />
+                  required autoComplete="email" />
               </div>
-              {emailError && (
-                <p className="text-xs text-red-500 mt-0.5">{emailError}</p>
-              )}
+              {emailError && <p className="text-xs text-red-500 mt-0.5">{emailError}</p>}
             </div>
             <div className="space-y-1.5">
               <Label>Telefon <span className="text-red-500">*</span></Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="tel"
-                  inputMode="tel"
-                  placeholder="05xx xxx xxxx"
-                  className={`pl-9 ${phoneError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
-                  value={form.phone}
-                  onChange={(e) => set("phone", e.target.value)}
-                  onBlur={() => form.phone && validatePhone(form.phone)}
-                  required
-                />
+                <Input type="tel" inputMode="tel" placeholder="05xx xxx xxxx"
+                  className={`pl-9 ${phoneError ? "border-red-500" : ""}`}
+                  value={form.phone} onChange={(e) => set("phone", e.target.value)}
+                  onBlur={() => form.phone && validatePhone(form.phone)} required />
               </div>
               {phoneError && <p className="text-xs text-red-500 mt-0.5">{phoneError}</p>}
             </div>
@@ -235,16 +192,9 @@ export default function KayitPage() {
             <Label>Şifre</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="password"
-                placeholder="En az 8 karakter"
-                className="pl-9"
-                value={form.password}
-                onChange={(e) => set("password", e.target.value)}
-                minLength={8}
-                required
-                autoComplete="new-password"
-              />
+              <Input type="password" placeholder="En az 8 karakter" className="pl-9"
+                value={form.password} onChange={(e) => set("password", e.target.value)}
+                minLength={8} required autoComplete="new-password" />
             </div>
           </div>
 
@@ -261,9 +211,7 @@ export default function KayitPage() {
 
           <p className="text-center text-sm text-muted-foreground">
             Zaten hesabınız var mı?{" "}
-            <Link href="/auth/giris" className="text-primary font-medium hover:underline">
-              Giriş yapın
-            </Link>
+            <Link href="/auth/giris" className="text-primary font-medium hover:underline">Giriş yapın</Link>
           </p>
         </form>
       </CardContent>

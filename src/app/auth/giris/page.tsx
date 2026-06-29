@@ -8,27 +8,39 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Mail, Lock } from "lucide-react";
+import { Loader2, Mail, Lock, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 export default function GirisPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  async function doLogin(e: string, p: string) {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({ email: e, password: p });
+    if (error) {
+      toast.error("Giriş başarısız: " + error.message);
+      return false;
+    }
+    router.push("/dashboard");
+    router.refresh();
+    return true;
+  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      toast.error("Giriş başarısız: " + error.message);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
-    }
+    await doLogin(email, password);
     setLoading(false);
+  }
+
+  async function handleDemoLogin() {
+    setDemoLoading(true);
+    const ok = await doLogin("demo@siriplan.com", "Demo1234!");
+    if (!ok) setDemoLoading(false);
   }
 
   return (
@@ -38,6 +50,36 @@ export default function GirisPage() {
         <CardDescription>Hesabınıza giriş yapın</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Demo quick-login */}
+        <Button
+          type="button"
+          className="w-full gap-2 font-semibold"
+          style={{
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            border: "none",
+            color: "white",
+          }}
+          onClick={handleDemoLogin}
+          disabled={demoLoading || loading}
+        >
+          {demoLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Zap className="h-4 w-4" />
+          )}
+          Demo Dashboard'ı Gör
+        </Button>
+
+        {/* Separator */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">veya hesabınızla giriş yapın</span>
+          </div>
+        </div>
+
         <form onSubmit={handleLogin} className="space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="email">E-posta</Label>
@@ -74,38 +116,11 @@ export default function GirisPage() {
               />
             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || demoLoading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             Giriş Yap
           </Button>
         </form>
-
-        {/* Demo hızlı giriş */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">veya</span>
-          </div>
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full gap-2 border-primary/30 text-primary hover:bg-primary/5"
-          onClick={() => {
-            setEmail("demo@siriplan.com");
-            setPassword("Demo1234!");
-          }}
-        >
-          <span className="text-base">🚀</span>
-          Demo Hesabıyla Giriş
-        </Button>
-
-        <p className="text-center text-[11px] text-muted-foreground">
-          Demo: <span className="font-mono">demo@siriplan.com</span> / <span className="font-mono">Demo1234!</span>
-        </p>
 
         <p className="text-center text-sm text-muted-foreground">
           Hesabınız yok mu?{" "}

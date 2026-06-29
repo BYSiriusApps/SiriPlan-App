@@ -1,0 +1,111 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[çÇ]/g, "c").replace(/[ğĞ]/g, "g")
+    .replace(/[ıİiİ]/g, "i").replace(/[öÖ]/g, "o")
+    .replace(/[şŞ]/g, "s").replace(/[üÜ]/g, "u")
+    .replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-")
+    .replace(/^-|-$/g, "").slice(0, 35);
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.json().catch(() => null);
+  if (!body) return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+
+  const { email, password, salonName, fullName, phone, businessType } = body as {
+    email: string; password: string; salonName: string;
+    fullName: string; phone: string; businessType: string;
+  };
+
+  if (!email || !password || !salonName || !fullName) {
+    return NextResponse.json({ error: "Eksik alanlar" }, { status: 400 });
+  }
+
+  // Use admin client (service role) — bypasses email confirmation
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
+  // 1. Create user with email already confirmed
+  const { data: newUser, error: createErr } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: fullName, salon_name: salonName },
+  });
+
+  if (createErr) {
+    const msg = createErr.message.includes("already registered")
+      ? "Bu e-posta zaten kayıtlı."
+      : createErr.message;
+    return NextResponse.json({ error: msg }, { status: 400 });
+  }
+
+  const userId = newUser.user.id;
+
+  // 2. Create organization
+  const slug = slugify(salonName) + "-" + Math.random().toString(36).slice(2, 6);
+  const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: org, error: orgErr } = await admin
+    .from("organizations")
+    .insert({
+      slug,
+      name: salonName,
+      type: businessType || "kuafor",
+      phone: phone || null,
+      email,
+      plan: "trial",
+      subscription_status: "active",
+      trial_ends_at: trialEndsAt,
+    })
+    .select("id")
+    .single();
+
+  if (orgErr) {
+    // Clean up user
+    await admin.auth.admin.deleteUser(userId);
+    return NextResponse.json({ error: "İşletme oluşturulamadı." }, { status: 500 });
+  }
+
+  // 3. Create org_member + staff record
+  await Promise.all([
+    admin.from("org_members").insert({ org_id: org.id, user_id: userId, role: "owner" }),
+    admin.from("staff").insert({ org_id: org.id, full_name: fullName, role: "Salon Sahibi", is_active: true }),
+  ]);
+
+  // 4. Send welcome email via Resend (fire-and-forget)
+  const resendKey = process.env.RESEND_API_KEY;
+  if (resendKey) {
+    fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM_EMAIL || "noreply@siriplan.com",
+        to: email,
+        subject: `Hoş geldiniz, ${fullName}! Siriplan hesabınız hazır 🎉`,
+        html: `
+          <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px;">
+            <h2 style="color:#e11d48;">Hoş geldiniz! 👋</h2>
+            <p>Merhaba <strong>${fullName}</strong>,</p>
+            <p><strong>${salonName}</strong> için Siriplan hesabınız oluşturuldu.</p>
+            <p>14 günlük ücretsiz deneme süreniz başladı.</p>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard"
+               style="display:inline-block;margin-top:16px;padding:12px 24px;background:#e11d48;color:white;border-radius:8px;text-decoration:none;font-weight:600;">
+              Dashboard'a Git →
+            </a>
+            <p style="margin-top:24px;color:#666;font-size:13px;">BySirius tarafından güçlendirilmiştir.</p>
+          </div>
+        `,
+      }),
+    }).catch(() => {});
+  }
+
+  return NextResponse.json({ success: true });
+}
