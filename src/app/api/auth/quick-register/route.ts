@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+const VALID_BUSINESS_TYPES = new Set([
+  "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik",
+]);
+
+const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
+function escapeHtml(str: string) {
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
 function slugify(text: string) {
   return text
     .toLowerCase()
@@ -24,6 +34,17 @@ export async function POST(req: NextRequest) {
   if (!email || !password || !salonName || !fullName) {
     return NextResponse.json({ error: "Eksik alanlar" }, { status: 400 });
   }
+
+  if (!EMAIL_RE.test(email)) {
+    return NextResponse.json({ error: "Geçersiz e-posta adresi." }, { status: 400 });
+  }
+  if (password.length < 8) {
+    return NextResponse.json({ error: "Şifre en az 8 karakter olmalı." }, { status: 400 });
+  }
+  if (salonName.trim().length < 2 || salonName.length > 60) {
+    return NextResponse.json({ error: "İşletme adı 2-60 karakter olmalı." }, { status: 400 });
+  }
+  const safeBusinessType = VALID_BUSINESS_TYPES.has(businessType) ? businessType : "kuafor";
 
   // Use admin client (service role) — bypasses email confirmation
   const admin = createClient(
@@ -58,7 +79,7 @@ export async function POST(req: NextRequest) {
     .insert({
       slug,
       name: salonName,
-      type: businessType || "kuafor",
+      type: safeBusinessType,
       phone: phone || null,
       email,
       plan: "trial",
@@ -89,12 +110,12 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         from: process.env.RESEND_FROM_EMAIL || "noreply@siriplan.com",
         to: email,
-        subject: `Hoş geldiniz, ${fullName}! Siriplan hesabınız hazır 🎉`,
+        subject: `Hoş geldiniz, ${escapeHtml(fullName)}! Siriplan hesabınız hazır 🎉`,
         html: `
           <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px;">
             <h2 style="color:#e11d48;">Hoş geldiniz! 👋</h2>
-            <p>Merhaba <strong>${fullName}</strong>,</p>
-            <p><strong>${salonName}</strong> için Siriplan hesabınız oluşturuldu.</p>
+            <p>Merhaba <strong>${escapeHtml(fullName)}</strong>,</p>
+            <p><strong>${escapeHtml(salonName)}</strong> için Siriplan hesabınız oluşturuldu.</p>
             <p>14 günlük ücretsiz deneme süreniz başladı.</p>
             <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard"
                style="display:inline-block;margin-top:16px;padding:12px 24px;background:#e11d48;color:white;border-radius:8px;text-decoration:none;font-weight:600;">

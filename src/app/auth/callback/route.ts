@@ -5,7 +5,9 @@ import { sendWelcomeEmail } from "@/lib/email/send";
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") || "/dashboard";
+  const rawNext = searchParams.get("next") || "/dashboard";
+  // Only allow relative paths — prevent open redirect to external URLs
+  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/dashboard";
 
   if (!code) {
     return NextResponse.redirect(`${origin}/auth/giris?error=no_code`);
