@@ -57,11 +57,18 @@ export default async function KampanyalarPage() {
     );
   }
 
-  const { data: campaigns } = await supabase
-    .from("campaigns")
-    .select("*")
-    .eq("org_id", member.org_id)
-    .order("created_at", { ascending: false });
+  const [{ data: campaigns }, { count: marketingCount }] = await Promise.all([
+    supabase
+      .from("campaigns")
+      .select("*")
+      .eq("org_id", member.org_id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", member.org_id)
+      .eq("marketing_consent", true),
+  ]);
 
   return (
     <div className="p-6 space-y-6">
@@ -75,6 +82,21 @@ export default async function KampanyalarPage() {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
         >
           + Kampanya Oluştur
+        </Link>
+      </div>
+
+      {/* Marketing reach info */}
+      <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
+        <Megaphone className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
+        <div className="flex-1 text-sm">
+          <span className="font-semibold text-green-700 dark:text-green-400">{marketingCount ?? 0} müşteri</span>
+          <span className="text-muted-foreground"> kampanya bildirimi onayı verdi — bunlara e-posta / SMS gönderebilirsiniz.</span>
+        </div>
+        <Link
+          href="/dashboard/musteriler?kampanya=1"
+          className="shrink-0 text-xs text-green-700 dark:text-green-400 hover:underline font-medium"
+        >
+          Listeyi gör →
         </Link>
       </div>
 

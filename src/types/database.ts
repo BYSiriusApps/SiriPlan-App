@@ -102,6 +102,10 @@ export interface Customer {
   referred_by_customer_id: string | null;
   referral_count: number;
   source: string;
+  kvkk_consent: boolean;
+  kvkk_consent_at: string | null;
+  marketing_consent: boolean;
+  marketing_consent_at: string | null;
   created_at: string;
   updated_at: string;
 }

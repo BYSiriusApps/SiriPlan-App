@@ -5,7 +5,7 @@ import { tr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { ArrowLeft, Phone, Mail, Star, Calendar, CreditCard, Gift } from "lucide-react";
+import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Customer, Appointment } from "@/types/database";
 
@@ -95,6 +95,36 @@ export default async function MusteriDetailPage({
             {c.notes && (
               <p className="text-muted-foreground text-xs pt-1 border-t">{c.notes}</p>
             )}
+
+            {/* KVKK & Kampanya onayları */}
+            <div className="pt-2 mt-1 border-t space-y-1.5">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className={cn("h-4 w-4 shrink-0", c.kvkk_consent ? "text-green-500" : "text-muted-foreground/40")} />
+                <span className={cn("text-xs", c.kvkk_consent ? "text-foreground" : "text-muted-foreground")}>
+                  KVKK onayı{" "}
+                  {c.kvkk_consent
+                    ? c.kvkk_consent_at
+                      ? `verildi (${format(new Date(c.kvkk_consent_at), "d MMM yyyy", { locale: tr })})`
+                      : "verildi"
+                    : "yok"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {c.marketing_consent ? (
+                  <Megaphone className="h-4 w-4 shrink-0 text-green-500" />
+                ) : (
+                  <MegaphoneOff className="h-4 w-4 shrink-0 text-muted-foreground/40" />
+                )}
+                <span className={cn("text-xs", c.marketing_consent ? "text-green-700 dark:text-green-400 font-medium" : "text-muted-foreground")}>
+                  Kampanya bildirimi{" "}
+                  {c.marketing_consent
+                    ? c.marketing_consent_at
+                      ? `onaylı (${format(new Date(c.marketing_consent_at), "d MMM yyyy", { locale: tr })})`
+                      : "onaylı"
+                    : "— onay verilmedi"}
+                </span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 

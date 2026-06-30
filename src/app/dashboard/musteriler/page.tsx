@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Users, Phone, Star, Calendar } from "lucide-react";
+import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import type { Customer } from "@/types/database";
@@ -24,7 +24,7 @@ function scoreEmoji(score: number) {
 export default async function MusterilerPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; sort?: string }>;
+  searchParams: Promise<{ q?: string; sort?: string; kampanya?: string }>;
 }) {
   const params = await searchParams;
   const supabase = await createClient();
@@ -47,6 +47,9 @@ export default async function MusterilerPage({
   if (params.q) {
     query = query.ilike("full_name", `%${params.q}%`);
   }
+  if (params.kampanya === "1") {
+    query = query.eq("marketing_consent", true);
+  }
 
   const sortBy = params.sort || "last_visit";
   if (sortBy === "score") query = query.order("score", { ascending: false });
@@ -55,6 +58,8 @@ export default async function MusterilerPage({
   else query = query.order("last_visit_at", { ascending: false, nullsFirst: false });
 
   const { data: customers } = await query;
+
+  const onayliSayisi = customers?.filter((c) => c.marketing_consent).length ?? 0;
 
   const sorts = [
     { value: "last_visit", label: "Son Ziyaret" },
@@ -68,7 +73,14 @@ export default async function MusterilerPage({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold">Müşteriler</h1>
-          <p className="text-muted-foreground text-sm">{customers?.length || 0} müşteri</p>
+          <p className="text-muted-foreground text-sm">
+            {customers?.length || 0} müşteri
+            {onayliSayisi > 0 && (
+              <span className="ml-2 text-green-600 dark:text-green-400 font-medium">
+                · {onayliSayisi} kampanya onaylı
+              </span>
+            )}
+          </p>
         </div>
         <Link
           href="/dashboard/musteriler/yeni"
@@ -88,19 +100,36 @@ export default async function MusterilerPage({
             className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </form>
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap">
           {sorts.map((s) => (
             <Link
               key={s.value}
-              href={`/dashboard/musteriler?sort=${s.value}${params.q ? `&q=${params.q}` : ""}`}
+              href={`/dashboard/musteriler?sort=${s.value}${params.q ? `&q=${params.q}` : ""}${params.kampanya === "1" ? "&kampanya=1" : ""}`}
               className={cn(
                 "px-3 py-2 rounded-lg text-xs font-medium border transition-colors",
-                sortBy === s.value ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-accent"
+                sortBy === s.value && params.kampanya !== "1" ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-accent"
               )}
             >
               {s.label}
             </Link>
           ))}
+          <Link
+            href={
+              params.kampanya === "1"
+                ? `/dashboard/musteriler?sort=${sortBy}${params.q ? `&q=${params.q}` : ""}`
+                : `/dashboard/musteriler?sort=${sortBy}&kampanya=1${params.q ? `&q=${params.q}` : ""}`
+            }
+            title="Kampanya bildirimi onaylı müşterileri göster"
+            className={cn(
+              "px-3 py-2 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5",
+              params.kampanya === "1"
+                ? "bg-green-600 text-white border-green-600"
+                : "border-border hover:bg-accent"
+            )}
+          >
+            <Megaphone className="h-3.5 w-3.5" />
+            Kampanya Onaylı
+          </Link>
         </div>
       </div>
 
@@ -129,9 +158,20 @@ export default async function MusterilerPage({
                         </p>
                       </div>
                     </div>
-                    <Badge variant="outline" className={cn("text-xs", scoreColor(cust.score))}>
-                      {scoreEmoji(cust.score)} {cust.score}
-                    </Badge>
+                    <div className="flex items-center gap-1.5">
+                      {cust.marketing_consent ? (
+                        <span title="Kampanya bildirimi onaylı">
+                          <Megaphone className="h-3.5 w-3.5 text-green-500" />
+                        </span>
+                      ) : (
+                        <span title="Kampanya bildirimi onayı yok">
+                          <MegaphoneOff className="h-3.5 w-3.5 text-muted-foreground/40" />
+                        </span>
+                      )}
+                      <Badge variant="outline" className={cn("text-xs", scoreColor(cust.score))}>
+                        {scoreEmoji(cust.score)} {cust.score}
+                      </Badge>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center">
