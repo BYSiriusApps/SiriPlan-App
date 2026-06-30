@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { toast } from "sonner";
 import {
   TrendingUp, TrendingDown, Wallet, Plus, Trash2, Loader2,
-  DollarSign, ArrowUpCircle, ArrowDownCircle
+  DollarSign, ArrowUpCircle, ArrowDownCircle, RefreshCw, Pencil,
+  ToggleLeft, ToggleRight, RepeatIcon, ChevronDown, ChevronUp,
 } from "lucide-react";
 
 type Expense = {
@@ -24,6 +25,17 @@ type Expense = {
   date: string;
   payment_method: string;
   created_at: string;
+};
+
+type RecurringExpense = {
+  id: string;
+  type: "gelir" | "gider";
+  category: string;
+  amount: number;
+  description: string;
+  payment_method: string;
+  note?: string;
+  is_active: boolean;
 };
 
 const CATEGORIES_GELIR = [
@@ -51,6 +63,25 @@ const MONTHS = [
 
 const fmt = (n: number) => `₺${n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+const EMPTY_FORM = {
+  type: "gider" as "gelir" | "gider",
+  category: "diger",
+  amount: "",
+  description: "",
+  note: "",
+  date: new Date().toISOString().slice(0, 10),
+  payment_method: "nakit",
+};
+
+const EMPTY_RECURRING = {
+  type: "gider" as "gelir" | "gider",
+  category: "diger",
+  amount: "",
+  description: "",
+  payment_method: "nakit",
+  note: "",
+};
+
 export default function GelirGiderPage() {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -61,15 +92,17 @@ export default function GelirGiderPage() {
   const [saving, setSaving] = useState(false);
   const [filterType, setFilterType] = useState<"all" | "gelir" | "gider">("all");
 
-  const [form, setForm] = useState({
-    type: "gider" as "gelir" | "gider",
-    category: "diger",
-    amount: "",
-    description: "",
-    note: "",
-    date: now.toISOString().slice(0, 10),
-    payment_method: "nakit",
-  });
+  // Recurring expenses state
+  const [recurring, setRecurring] = useState<RecurringExpense[]>([]);
+  const [recurringLoading, setRecurringLoading] = useState(false);
+  const [showRecurring, setShowRecurring] = useState(false);
+  const [showRecurringForm, setShowRecurringForm] = useState(false);
+  const [editingRecurring, setEditingRecurring] = useState<RecurringExpense | null>(null);
+  const [applyingTemplates, setApplyingTemplates] = useState(false);
+  const [recurringForm, setRecurringForm] = useState(EMPTY_RECURRING);
+  const [savingRecurring, setSavingRecurring] = useState(false);
+
+  const [form, setForm] = useState(EMPTY_FORM);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -78,11 +111,19 @@ export default function GelirGiderPage() {
     setLoading(false);
   }, [year, month]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  const fetchRecurring = useCallback(async () => {
+    setRecurringLoading(true);
+    const res = await fetch("/api/recurring-expenses");
+    if (res.ok) setRecurring(await res.json());
+    setRecurringLoading(false);
+  }, []);
 
-  const totalGelir  = entries.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
-  const totalGider  = entries.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
-  const netKar      = totalGelir - totalGider;
+  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchRecurring(); }, [fetchRecurring]);
+
+  const totalGelir = entries.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
+  const totalGider = entries.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
+  const netKar = totalGelir - totalGider;
 
   const visible = entries.filter((e) => filterType === "all" || e.type === filterType);
 
@@ -100,7 +141,7 @@ export default function GelirGiderPage() {
     if (res.ok) {
       toast.success("Kayıt eklendi");
       setShowForm(false);
-      setForm({ type: "gider", category: "diger", amount: "", description: "", note: "", date: now.toISOString().slice(0, 10), payment_method: "nakit" });
+      setForm(EMPTY_FORM);
       fetchData();
     } else {
       toast.error("Kayıt eklenemedi");
@@ -114,10 +155,103 @@ export default function GelirGiderPage() {
     else toast.error("Silinemedi");
   }
 
+  // Apply all active templates to the selected month
+  async function handleApplyTemplates() {
+    const activeCount = recurring.filter((r) => r.is_active).length;
+    if (activeCount === 0) {
+      toast.error("Aktif şablon yok — önce şablon ekleyin");
+      return;
+    }
+    setApplyingTemplates(true);
+    const res = await fetch("/api/recurring-expenses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "apply", year, month }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      toast.success(`${data.inserted} sabit gider ${MONTHS[month - 1]} ${year}'e eklendi`);
+      fetchData();
+    } else {
+      toast.error(data.error ?? "Uygulama başarısız");
+    }
+    setApplyingTemplates(false);
+  }
+
+  async function handleSaveRecurring() {
+    if (!recurringForm.amount || !recurringForm.description) {
+      toast.error("Tutar ve açıklama zorunlu");
+      return;
+    }
+    setSavingRecurring(true);
+
+    if (editingRecurring) {
+      const res = await fetch("/api/recurring-expenses", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editingRecurring.id, ...recurringForm }),
+      });
+      if (res.ok) {
+        toast.success("Şablon güncellendi");
+        setShowRecurringForm(false);
+        setEditingRecurring(null);
+        setRecurringForm(EMPTY_RECURRING);
+        fetchRecurring();
+      } else {
+        toast.error("Güncellenemedi");
+      }
+    } else {
+      const res = await fetch("/api/recurring-expenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(recurringForm),
+      });
+      if (res.ok) {
+        toast.success("Şablon eklendi");
+        setShowRecurringForm(false);
+        setRecurringForm(EMPTY_RECURRING);
+        fetchRecurring();
+      } else {
+        toast.error("Eklenemedi");
+      }
+    }
+    setSavingRecurring(false);
+  }
+
+  async function handleToggleActive(r: RecurringExpense) {
+    const res = await fetch("/api/recurring-expenses", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: r.id, is_active: !r.is_active }),
+    });
+    if (res.ok) fetchRecurring();
+  }
+
+  async function handleDeleteRecurring(id: string) {
+    const res = await fetch(`/api/recurring-expenses?id=${id}`, { method: "DELETE" });
+    if (res.ok) { toast.success("Şablon silindi"); fetchRecurring(); }
+    else toast.error("Silinemedi");
+  }
+
+  function openEditRecurring(r: RecurringExpense) {
+    setEditingRecurring(r);
+    setRecurringForm({
+      type: r.type,
+      category: r.category,
+      amount: String(r.amount),
+      description: r.description,
+      payment_method: r.payment_method,
+      note: r.note ?? "",
+    });
+    setShowRecurringForm(true);
+  }
+
   const categoryLabel = (type: string, cat: string) => {
     const list = type === "gelir" ? CATEGORIES_GELIR : CATEGORIES_GIDER;
     return list.find((c) => c.value === cat)?.label ?? cat;
   };
+
+  const activeTemplates = recurring.filter((r) => r.is_active);
 
   return (
     <div className="p-4 md:p-6 space-y-5 max-w-5xl">
@@ -127,11 +261,194 @@ export default function GelirGiderPage() {
           <h1 className="text-2xl font-bold">Gelir & Gider</h1>
           <p className="text-muted-foreground text-sm">Finansal kayıtlarınızı takip edin</p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="gap-2 shrink-0">
-          <Plus className="h-4 w-4" />
-          Kayıt Ekle
-        </Button>
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => setShowRecurring((v) => !v)}
+            className="gap-2 shrink-0"
+          >
+            <RepeatIcon className="h-4 w-4" />
+            Sabit Giderler
+            {activeTemplates.length > 0 && (
+              <Badge variant="secondary" className="ml-1 h-5 text-[10px]">
+                {activeTemplates.length}
+              </Badge>
+            )}
+            {showRecurring ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          </Button>
+          <Button onClick={() => setShowForm(true)} className="gap-2 shrink-0">
+            <Plus className="h-4 w-4" />
+            Kayıt Ekle
+          </Button>
+        </div>
       </div>
+
+      {/* ─── Recurring Expenses Panel ─── */}
+      {showRecurring && (
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <RepeatIcon className="h-4 w-4 text-primary" />
+                  Sabit Gider Şablonları
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Her ay tekrarlayan kira, maaş, fatura gibi giderleri tanımlayın. Tek tıkla seçili aya uygulayın.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 text-xs"
+                  onClick={() => {
+                    setEditingRecurring(null);
+                    setRecurringForm(EMPTY_RECURRING);
+                    setShowRecurringForm(true);
+                  }}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Şablon Ekle
+                </Button>
+                {activeTemplates.length > 0 && (
+                  <Button
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                    onClick={handleApplyTemplates}
+                    disabled={applyingTemplates}
+                  >
+                    {applyingTemplates
+                      ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      : <RefreshCw className="h-3.5 w-3.5" />
+                    }
+                    {MONTHS[month - 1]}&apos;e Uygula ({activeTemplates.length})
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {recurringLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              </div>
+            ) : recurring.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <RepeatIcon className="h-7 w-7 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Henüz sabit gider şablonu yok</p>
+                <p className="text-xs mt-1">Kira, maaş, fatura gibi aylık tekrarlayan giderleri ekleyin</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => {
+                    setEditingRecurring(null);
+                    setRecurringForm(EMPTY_RECURRING);
+                    setShowRecurringForm(true);
+                  }}
+                >
+                  İlk Şablonu Ekle
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <div className="hidden md:grid grid-cols-[1fr_140px_120px_80px_80px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+                  <span>Açıklama</span>
+                  <span>Kategori</span>
+                  <span>Ödeme</span>
+                  <span className="text-right">Tutar</span>
+                  <span />
+                </div>
+                {recurring.map((r) => (
+                  <div
+                    key={r.id}
+                    className={`grid grid-cols-[1fr_auto] md:grid-cols-[1fr_140px_120px_80px_80px] items-center gap-3 px-3 py-3 rounded-lg transition-colors group ${
+                      r.is_active ? "hover:bg-accent/50" : "opacity-40 hover:opacity-60"
+                    }`}
+                  >
+                    <div className="md:contents">
+                      <div>
+                        <p className="text-sm font-medium leading-tight">{r.description}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 md:hidden">
+                          {categoryLabel(r.type, r.category)}
+                          {!r.is_active && " · Pasif"}
+                        </p>
+                        {r.note && <p className="text-xs text-muted-foreground italic mt-0.5">{r.note}</p>}
+                      </div>
+                      <div className="hidden md:block">
+                        <Badge variant="outline" className="text-[10px] font-normal">
+                          {categoryLabel(r.type, r.category)}
+                        </Badge>
+                      </div>
+                      <span className="hidden md:block text-xs text-muted-foreground capitalize">
+                        {r.payment_method}
+                      </span>
+                      <span className={`hidden md:block text-sm font-semibold text-right ${r.type === "gelir" ? "text-emerald-600" : "text-red-600"}`}>
+                        {r.type === "gelir" ? "+" : "-"}{fmt(Number(r.amount))}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-sm font-semibold md:hidden ${r.type === "gelir" ? "text-emerald-600" : "text-red-600"}`}>
+                        {r.type === "gelir" ? "+" : "-"}{fmt(Number(r.amount))}
+                      </span>
+                      <button
+                        title={r.is_active ? "Pasif yap" : "Aktif yap"}
+                        onClick={() => handleToggleActive(r)}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        {r.is_active
+                          ? <ToggleRight className="h-4 w-4 text-emerald-500" />
+                          : <ToggleLeft className="h-4 w-4" />
+                        }
+                      </button>
+                      <button
+                        title="Düzenle"
+                        onClick={() => openEditRecurring(r)}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        title="Sil"
+                        onClick={() => handleDeleteRecurring(r.id)}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {activeTemplates.length > 0 && (
+                  <div className="pt-3 border-t mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                    <span>
+                      {activeTemplates.length} aktif şablon · toplam{" "}
+                      <span className="font-semibold text-foreground">
+                        {fmt(activeTemplates.filter(r => r.type === "gider").reduce((s, r) => s + Number(r.amount), 0))}
+                      </span>{" "}
+                      aylık sabit gider
+                    </span>
+                    <Button
+                      size="sm"
+                      className="gap-1.5 h-7 text-xs"
+                      onClick={handleApplyTemplates}
+                      disabled={applyingTemplates}
+                    >
+                      {applyingTemplates
+                        ? <Loader2 className="h-3 w-3 animate-spin" />
+                        : <RefreshCw className="h-3 w-3" />
+                      }
+                      {MONTHS[month - 1]}&apos;e Uygula
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Period selector */}
       <div className="flex flex-wrap gap-2 items-center">
@@ -235,13 +552,20 @@ export default function GelirGiderPage() {
             <div className="text-center py-10 text-muted-foreground">
               <DollarSign className="h-8 w-8 mx-auto mb-2 opacity-30" />
               <p className="text-sm">Bu dönem için kayıt yok</p>
-              <Button variant="outline" size="sm" className="mt-3" onClick={() => setShowForm(true)}>
-                İlk Kaydı Ekle
-              </Button>
+              <div className="flex gap-2 justify-center mt-3 flex-wrap">
+                <Button variant="outline" size="sm" onClick={() => setShowForm(true)}>
+                  Manuel Ekle
+                </Button>
+                {activeTemplates.length > 0 && (
+                  <Button size="sm" className="gap-1.5" onClick={handleApplyTemplates} disabled={applyingTemplates}>
+                    {applyingTemplates ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                    Sabit Giderleri Uygula
+                  </Button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="space-y-1">
-              {/* Table header — hidden on mobile */}
               <div className="hidden md:grid grid-cols-[100px_1fr_140px_120px_100px_40px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
                 <span>Tarih</span>
                 <span>Açıklama</span>
@@ -256,7 +580,6 @@ export default function GelirGiderPage() {
                   key={e.id}
                   className="grid grid-cols-[1fr_auto] md:grid-cols-[100px_1fr_140px_120px_100px_40px] items-center gap-3 px-3 py-3 rounded-lg hover:bg-accent/50 transition-colors group"
                 >
-                  {/* Mobile: stacked */}
                   <div className="md:contents">
                     <span className="hidden md:block text-xs text-muted-foreground">
                       {new Date(e.date).toLocaleDateString("tr-TR")}
@@ -281,7 +604,6 @@ export default function GelirGiderPage() {
                     </span>
                   </div>
 
-                  {/* Mobile amount + delete */}
                   <div className="flex items-center gap-2">
                     <span className={`text-sm font-semibold md:hidden ${e.type === "gelir" ? "text-emerald-600" : "text-red-600"}`}>
                       {e.type === "gelir" ? "+" : "-"}{fmt(Number(e.amount))}
@@ -342,14 +664,13 @@ export default function GelirGiderPage() {
         </div>
       )}
 
-      {/* Add form dialog */}
+      {/* ─── Add Expense Dialog ─── */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Yeni Kayıt</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
-            {/* Type */}
             <div className="grid grid-cols-2 gap-2">
               {(["gelir", "gider"] as const).map((t) => (
                 <button
@@ -454,6 +775,124 @@ export default function GelirGiderPage() {
               <Button className="flex-1 gap-2" onClick={handleSave} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                 Kaydet
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── Recurring Expense Template Dialog ─── */}
+      <Dialog open={showRecurringForm} onOpenChange={(v) => {
+        setShowRecurringForm(v);
+        if (!v) { setEditingRecurring(null); setRecurringForm(EMPTY_RECURRING); }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingRecurring ? "Şablonu Düzenle" : "Yeni Sabit Gider Şablonu"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <p className="text-xs text-muted-foreground -mt-1">
+              Bu şablon her ay tek tıkla seçili döneme uygulanabilir.
+            </p>
+
+            <div className="grid grid-cols-2 gap-2">
+              {(["gelir", "gider"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setRecurringForm((f) => ({ ...f, type: t, category: "diger" }))}
+                  className={`py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${
+                    recurringForm.type === t
+                      ? t === "gelir"
+                        ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
+                        : "border-red-500 bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400"
+                      : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {t === "gelir" ? "💰 Gelir" : "💸 Gider"}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <Label>Kategori</Label>
+              <Select
+                value={recurringForm.category}
+                onValueChange={(v) => setRecurringForm((f) => ({ ...f, category: v ?? f.category }))}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(recurringForm.type === "gelir" ? CATEGORIES_GELIR : CATEGORIES_GIDER).map((c) => (
+                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Tutar (₺) *</Label>
+                <Input
+                  className="mt-1"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={recurringForm.amount}
+                  onChange={(e) => setRecurringForm((f) => ({ ...f, amount: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label>Ödeme Yöntemi</Label>
+                <Select
+                  value={recurringForm.payment_method}
+                  onValueChange={(v) => setRecurringForm((f) => ({ ...f, payment_method: v ?? f.payment_method }))}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nakit">Nakit</SelectItem>
+                    <SelectItem value="kart">Kart</SelectItem>
+                    <SelectItem value="havale">Havale / EFT</SelectItem>
+                    <SelectItem value="çek">Çek</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label>Açıklama *</Label>
+              <Input
+                className="mt-1"
+                placeholder="Aylık Kira, Elektrik Faturası, SGK Primi..."
+                value={recurringForm.description}
+                onChange={(e) => setRecurringForm((f) => ({ ...f, description: e.target.value }))}
+              />
+            </div>
+
+            <div>
+              <Label>Not (isteğe bağlı)</Label>
+              <Input
+                className="mt-1"
+                placeholder="Ek bilgi..."
+                value={recurringForm.note}
+                onChange={(e) => setRecurringForm((f) => ({ ...f, note: e.target.value }))}
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => { setShowRecurringForm(false); setEditingRecurring(null); setRecurringForm(EMPTY_RECURRING); }}
+              >
+                İptal
+              </Button>
+              <Button className="flex-1 gap-2" onClick={handleSaveRecurring} disabled={savingRecurring}>
+                {savingRecurring && <Loader2 className="h-4 w-4 animate-spin" />}
+                {editingRecurring ? "Güncelle" : "Şablon Kaydet"}
               </Button>
             </div>
           </div>
