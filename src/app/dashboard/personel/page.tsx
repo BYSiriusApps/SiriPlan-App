@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { UserCog, Phone, Mail, Star } from "lucide-react";
+import { UserCog, Phone, Mail, Star, MessageCircle } from "lucide-react";
 import type { Staff } from "@/types/database";
 
 const DAYS = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
@@ -141,9 +141,35 @@ export default async function PersonelPage() {
                     )}
                   </div>
                   {(s.phone || s.email) && (
-                    <div className="text-xs text-muted-foreground space-y-0.5">
-                      {s.phone && <p className="flex items-center gap-1"><Phone className="h-3 w-3" />{s.phone}</p>}
-                      {s.email && <p className="flex items-center gap-1"><Mail className="h-3 w-3" />{s.email}</p>}
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      {s.phone && (
+                        <div className="flex items-center gap-2">
+                          <span className="flex items-center gap-1 flex-1 min-w-0">
+                            <Phone className="h-3 w-3 shrink-0" />
+                            <span className="truncate">{s.phone}</span>
+                          </span>
+                          <div className="flex gap-1 shrink-0">
+                            <a href={`tel:${s.phone}`} title="Ara"
+                              className="p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 transition-colors"
+                              onClick={(e) => e.stopPropagation()}>
+                              <Phone className="h-3 w-3" />
+                            </a>
+                            <a href={`https://wa.me/${s.phone.replace(/\D/g,"").replace(/^0/,"90")}`}
+                              target="_blank" rel="noopener noreferrer" title="WhatsApp"
+                              className="p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20 text-green-500 transition-colors"
+                              onClick={(e) => e.stopPropagation()}>
+                              <MessageCircle className="h-3 w-3" />
+                            </a>
+                          </div>
+                        </div>
+                      )}
+                      {s.email && (
+                        <a href={`mailto:${s.email}`} title="E-posta gönder"
+                          className="flex items-center gap-1 hover:text-primary transition-colors"
+                          onClick={(e) => e.stopPropagation()}>
+                          <Mail className="h-3 w-3" />{s.email}
+                        </a>
+                      )}
                     </div>
                   )}
                 </CardContent>

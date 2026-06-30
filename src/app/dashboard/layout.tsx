@@ -16,7 +16,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq("user_id", user.id)
     .single();
 
-  const org = (member as { role: string; organizations: { id: string; name: string; plan: string; subscription_status: string; trial_ends_at?: string } } | null)?.organizations;
+  type MemberRow = { role: string; organizations: { id: string; name: string; plan: string; subscription_status: string; trial_ends_at?: string } };
+  const typedMember = member as MemberRow | null;
+  const org = typedMember?.organizations;
+  const role = typedMember?.role ?? "staff";
 
   if (!org) redirect("/auth/kayit");
 
@@ -31,7 +34,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="flex min-h-screen bg-background">
       {/* Desktop sidebar — hidden on mobile */}
       <div className="hidden md:flex">
-        <Sidebar orgName={org.name} plan={org.plan} />
+        <Sidebar orgName={org.name} plan={org.plan} role={role} />
       </div>
 
       {/* Main content — add bottom padding on mobile for nav bar */}
@@ -40,7 +43,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </main>
 
       {/* Mobile bottom navigation */}
-      <MobileNav />
+      <MobileNav role={role} />
 
       <Toaster position="top-right" richColors />
     </div>

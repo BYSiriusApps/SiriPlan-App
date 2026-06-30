@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff } from "lucide-react";
+import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import type { Customer } from "@/types/database";
@@ -141,24 +141,37 @@ export default async function MusterilerPage({
             <p>Henüz müşteri yok</p>
           </div>
         ) : (
-          (customers as Customer[]).map((cust) => (
-            <Link key={cust.id} href={`/dashboard/musteriler/${cust.id}`}>
-              <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-fuchsia-200 dark:from-primary/30 dark:to-fuchsia-900 flex items-center justify-center font-semibold text-primary">
-                        {cust.full_name[0]}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm group-hover:text-primary transition-colors">{cust.full_name}</p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Phone className="h-3 w-3" />
-                          {cust.phone}
-                        </p>
+          (customers as Customer[]).map((cust) => {
+            const waPhone = (cust.phone ?? "").replace(/\D/g, "").replace(/^0/, "90");
+            return (
+            <Card key={cust.id} className="border-0 shadow-sm hover:shadow-md transition-all group">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <Link href={`/dashboard/musteriler/${cust.id}`} className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-fuchsia-200 dark:from-primary/30 dark:to-fuchsia-900 flex items-center justify-center font-semibold text-primary shrink-0">
+                      {cust.full_name[0]}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm group-hover:text-primary transition-colors truncate">{cust.full_name}</p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Phone className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{cust.phone}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
+                  </Link>
+                  {/* Tel + WA + badge icons */}
+                  <div className="flex flex-col items-end gap-1.5 shrink-0 ml-2">
+                    <div className="flex items-center gap-1">
+                      <a href={`tel:${cust.phone}`} title="Ara"
+                        className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 transition-colors">
+                        <Phone className="h-3.5 w-3.5" />
+                      </a>
+                      <a href={`https://wa.me/${waPhone}`} target="_blank" rel="noopener noreferrer" title="WhatsApp"
+                        className="p-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-500 transition-colors">
+                        <MessageCircle className="h-3.5 w-3.5" />
+                      </a>
+                    </div>
+                    <div className="flex items-center gap-1">
                       {cust.marketing_consent ? (
                         <span title="Kampanya bildirimi onaylı">
                           <Megaphone className="h-3.5 w-3.5 text-green-500" />
@@ -173,6 +186,7 @@ export default async function MusterilerPage({
                       </Badge>
                     </div>
                   </div>
+                </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
@@ -198,10 +212,10 @@ export default async function MusterilerPage({
                       Son: {format(new Date(cust.last_visit_at), "d MMM yyyy", { locale: tr })}
                     </p>
                   )}
-                </CardContent>
-              </Card>
-            </Link>
-          ))
+              </CardContent>
+            </Card>
+            );
+          })
         )}
       </div>
     </div>

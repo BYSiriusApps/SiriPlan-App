@@ -11,21 +11,29 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ThemePicker } from "@/components/layout/ThemePicker";
 import { LanguagePicker } from "@/components/layout/LanguagePicker";
+import { LogoutButton } from "@/components/dashboard/LogoutButton";
 
+// roles: "owner" | "manager" | "staff"
+// minRole: who can see this item (owner > manager > staff)
 const NAV_ITEMS = [
-  { href: "/dashboard",               icon: LayoutDashboard, label: "Genel Bakış" },
-  { href: "/dashboard/takvim",        icon: Calendar,        label: "Takvim" },
-  { href: "/dashboard/randevular",    icon: BookOpen,        label: "Randevular" },
-  { href: "/dashboard/musteriler",    icon: Users,           label: "Müşteriler" },
-  { href: "/dashboard/personel",      icon: UserCog,         label: "Personel" },
-  { href: "/dashboard/hizmetler",     icon: Scissors,        label: "Hizmetler" },
-  { href: "/dashboard/kampanyalar",   icon: Megaphone,       label: "Kampanyalar", badge: "Pro" },
-  { href: "/dashboard/raporlar",      icon: BarChart3,       label: "Raporlar" },
-  { href: "/dashboard/gelir-gider",   icon: Wallet,          label: "Gelir & Gider" },
-  { href: "/dashboard/veri-gocu",     icon: Import,          label: "Veri Göçü" },
-  { href: "/dashboard/ayarlar",       icon: Settings,        label: "Ayarlar" },
-  { href: "/dashboard/abonelik",      icon: CreditCard,      label: "Abonelik" },
+  { href: "/dashboard",               icon: LayoutDashboard, label: "Genel Bakış",   minRole: "staff"   },
+  { href: "/dashboard/takvim",        icon: Calendar,        label: "Takvim",         minRole: "staff"   },
+  { href: "/dashboard/randevular",    icon: BookOpen,        label: "Randevular",     minRole: "staff"   },
+  { href: "/dashboard/musteriler",    icon: Users,           label: "Müşteriler",     minRole: "staff"   },
+  { href: "/dashboard/personel",      icon: UserCog,         label: "Personel",       minRole: "staff"   },
+  { href: "/dashboard/hizmetler",     icon: Scissors,        label: "Hizmetler",      minRole: "staff"   },
+  { href: "/dashboard/kampanyalar",   icon: Megaphone,       label: "Kampanyalar", badge: "Pro", minRole: "manager" },
+  { href: "/dashboard/raporlar",      icon: BarChart3,       label: "Raporlar",       minRole: "manager" },
+  { href: "/dashboard/gelir-gider",   icon: Wallet,          label: "Gelir & Gider",  minRole: "manager" },
+  { href: "/dashboard/veri-gocu",     icon: Import,          label: "Veri Göçü",      minRole: "manager" },
+  { href: "/dashboard/ayarlar",       icon: Settings,        label: "Ayarlar",        minRole: "owner"   },
+  { href: "/dashboard/abonelik",      icon: CreditCard,      label: "Abonelik",       minRole: "owner"   },
 ];
+
+const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
+function canSee(userRole: string, minRole: string) {
+  return (ROLE_RANK[userRole] ?? 0) >= (ROLE_RANK[minRole] ?? 0);
+}
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
   trial:    { label: "⏱ 14 Gün Deneme", color: "rgba(255,255,255,0.12)" },
@@ -37,11 +45,13 @@ const PLAN_LABELS: Record<string, { label: string; color: string }> = {
 interface SidebarProps {
   orgName?: string;
   plan?: string;
+  role?: string;
 }
 
-export function Sidebar({ orgName = "Salonunuz", plan = "trial" }: SidebarProps) {
+export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff" }: SidebarProps) {
   const pathname = usePathname();
   const planInfo = PLAN_LABELS[plan] ?? PLAN_LABELS.trial;
+  const visibleItems = NAV_ITEMS.filter(item => canSee(role, item.minRole));
 
   return (
     <aside
@@ -82,8 +92,15 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial" }: SidebarProps)
       </div>
 
       {/* Navigation */}
+      {role === "staff" && (
+        <div className="mx-3 mt-2 mb-1 px-3 py-1.5 rounded-lg text-[10px] font-medium text-white/40 text-center"
+          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          👤 Personel Görünümü
+        </div>
+      )}
+
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
+        {visibleItems.map((item) => {
           const Icon = item.icon;
           const isActive =
             pathname === item.href ||
@@ -187,6 +204,8 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial" }: SidebarProps)
             <ThemePicker />
           </div>
         </div>
+
+        <LogoutButton />
       </div>
     </aside>
   );
