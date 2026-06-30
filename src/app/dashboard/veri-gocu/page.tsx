@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Download, Upload, FileText, CheckCircle2, Loader2, ArrowRight } from "lucide-react";
+import { Download, Upload, FileText, CheckCircle2, Loader2, ArrowRight, Sheet, Printer } from "lucide-react";
 
 const IMPORT_SOURCES = [
   { id: "salonappy", name: "Randevu Programı", icon: "💆", color: "border-orange-200 dark:border-orange-800" },
@@ -15,21 +15,36 @@ const IMPORT_SOURCES = [
 
 export default function VeriGocuPage() {
   const [importing, setImporting] = useState(false);
-  const [exporting, setExporting] = useState<"json" | "csv" | null>(null);
+  const [exporting, setExporting] = useState<"json" | "csv" | "excel" | "pdf" | null>(null);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
 
-  async function handleExport(format: "json" | "csv") {
+  async function handleExport(format: "json" | "csv" | "excel" | "pdf") {
     setExporting(format);
     try {
       const res = await fetch(`/api/export?format=${format}`);
       if (!res.ok) throw new Error();
+
+      if (format === "pdf") {
+        const html = await res.text();
+        const win = window.open("", "_blank");
+        if (win) {
+          win.document.write(html);
+          win.document.close();
+        }
+        setExporting(null);
+        return;
+      }
+
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
+      const today = new Date().toISOString().slice(0, 10);
       a.download = format === "json"
-        ? `siriplan-export-${new Date().toISOString().slice(0, 10)}.json`
-        : `musteriler-${new Date().toISOString().slice(0, 10)}.csv`;
+        ? `siriplan-export-${today}.json`
+        : format === "excel"
+        ? `siriplan-export-${today}.xlsx`
+        : `musteriler-${today}.csv`;
       a.click();
       URL.revokeObjectURL(url);
       toast.success("Veriler indirildi!");
@@ -82,7 +97,7 @@ export default function VeriGocuPage() {
               variant="outline"
               className="gap-2"
               onClick={() => handleExport("json")}
-              disabled={exporting === "json"}
+              disabled={!!exporting}
             >
               {exporting === "json" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
               JSON (Tam Veri)
@@ -91,14 +106,32 @@ export default function VeriGocuPage() {
               variant="outline"
               className="gap-2"
               onClick={() => handleExport("csv")}
-              disabled={exporting === "csv"}
+              disabled={!!exporting}
             >
               {exporting === "csv" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
               CSV (Müşteriler)
             </Button>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => handleExport("excel")}
+              disabled={!!exporting}
+            >
+              {exporting === "excel" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sheet className="h-4 w-4 text-green-600" />}
+              Excel (.xlsx)
+            </Button>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => handleExport("pdf")}
+              disabled={!!exporting}
+            >
+              {exporting === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4 text-red-500" />}
+              PDF (Yazdır)
+            </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            JSON dosyası: tüm randevular, müşteriler, personel, hizmetler ve kampanyaları içerir.
+            Excel: müşteriler, hizmetler, personel ve randevuları ayrı sayfalarda içerir. PDF: tarayıcı yazdırma ile kaydedin.
           </p>
         </CardContent>
       </Card>

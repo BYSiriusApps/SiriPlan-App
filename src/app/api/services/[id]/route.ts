@@ -1,0 +1,70 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const body = await req.json();
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data: member } = await supabase
+    .from("org_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+  if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+
+  const allowed = ["name", "price", "duration_minutes", "description", "category_tag", "is_active", "contributes_loyalty"];
+  const updates: Record<string, unknown> = {};
+  for (const key of allowed) {
+    if (key in body) updates[key] = body[key];
+  }
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
+  }
+
+  const { data, error } = await supabase
+    .from("services")
+    .update(updates)
+    .eq("id", id)
+    .eq("org_id", member.org_id)
+    .select()
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ service: data });
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data: member } = await supabase
+    .from("org_members")
+    .select("org_id, role")
+    .eq("user_id", user.id)
+    .single();
+  if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+
+  const { error } = await supabase
+    .from("services")
+    .update({ is_active: false })
+    .eq("id", id)
+    .eq("org_id", member.org_id);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}

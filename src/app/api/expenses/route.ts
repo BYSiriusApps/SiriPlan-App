@@ -24,7 +24,9 @@ export async function GET(req: NextRequest) {
 
   if (month) {
     const m = month.padStart(2, "0");
-    query = query.gte("date", `${year}-${m}-01`).lte("date", `${year}-${m}-31`);
+    const lastDay = new Date(parseInt(year), parseInt(month), 0).getDate();
+    const lastDayStr = String(lastDay).padStart(2, "0");
+    query = query.gte("date", `${year}-${m}-01`).lte("date", `${year}-${m}-${lastDayStr}`);
   }
 
   const { data, error } = await query;

@@ -45,7 +45,7 @@ export default function PersonelYeniPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
-        commission_rate: parseFloat(form.commission_rate) || 0,
+        commission_rate: (parseFloat(form.commission_rate) || 0) / 100,
       }),
     });
     setLoading(false);

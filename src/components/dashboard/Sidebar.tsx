@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ThemePicker } from "@/components/layout/ThemePicker";
+import { LanguagePicker } from "@/components/layout/LanguagePicker";
 
 const NAV_ITEMS = [
   { href: "/dashboard",               icon: LayoutDashboard, label: "Genel Bakış" },
@@ -181,7 +182,10 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial" }: SidebarProps)
           <span className="text-[10px] text-white/25 font-medium tracking-wide">
             by <span className="text-white/50">BySirius</span>
           </span>
-          <ThemePicker />
+          <div className="flex items-center gap-1">
+            <LanguagePicker />
+            <ThemePicker />
+          </div>
         </div>
       </div>
     </aside>
