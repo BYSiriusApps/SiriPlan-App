@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { Organization } from "@/types/database";
 
 const DAYS = [
@@ -81,6 +82,7 @@ export default function AyarlarPage() {
         whatsapp_number: org.whatsapp_number,
         locale: org.locale,
         working_hours_json: org.working_hours_json,
+        settings_json: org.settings_json ?? {},
       })
       .eq("id", org.id!);
 
@@ -256,6 +258,47 @@ export default function AyarlarPage() {
               );
             })}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Staff permissions */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            Personel Yetkileri
+          </CardTitle>
+          <CardDescription>Personel rolündeki çalışanların erişimini ayarlayın</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {[
+            {
+              key: "staff_phone_access",
+              label: "Müşteri telefon numaralarını görsün",
+              desc: "Personel, müşteri listesinde 📞 Ara ve 💬 WA butonlarını kullanabilsin",
+              default: true,
+            },
+          ].map((perm) => {
+            const settings = (org.settings_json ?? {}) as Record<string, unknown>;
+            const value = perm.key in settings ? !!settings[perm.key] : perm.default;
+            return (
+              <div key={perm.key} className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-muted/30 transition-colors">
+                <Checkbox
+                  id={perm.key}
+                  checked={value}
+                  onCheckedChange={(checked) => {
+                    const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                    setField("settings_json", { ...cur, [perm.key]: !!checked });
+                  }}
+                  className="mt-0.5"
+                />
+                <label htmlFor={perm.key} className="cursor-pointer flex-1">
+                  <p className="text-sm font-medium leading-snug">{perm.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{perm.desc}</p>
+                </label>
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 

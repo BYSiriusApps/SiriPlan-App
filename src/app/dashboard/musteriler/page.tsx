@@ -33,10 +33,16 @@ export default async function MusterilerPage({
 
   const { data: member } = await supabase
     .from("org_members")
-    .select("org_id")
+    .select("org_id, role, organizations(settings_json)")
     .eq("user_id", user.id)
     .single();
   if (!member) redirect("/auth/kayit");
+
+  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null } | null };
+  const m = member as unknown as MemberWithOrg;
+  const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
+  const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
+  const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
 
   let query = supabase
     .from("customers")
@@ -161,6 +167,7 @@ export default async function MusterilerPage({
                   </Link>
                   {/* Tel + WA + badge icons */}
                   <div className="flex flex-col items-end gap-1.5 shrink-0 ml-2">
+                    {showPhoneButtons && (
                     <div className="flex items-center gap-1">
                       <a href={`tel:${cust.phone}`} title="Ara"
                         className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 transition-colors">
@@ -171,6 +178,7 @@ export default async function MusterilerPage({
                         <MessageCircle className="h-3.5 w-3.5" />
                       </a>
                     </div>
+                    )}
                     <div className="flex items-center gap-1">
                       {cust.marketing_consent ? (
                         <span title="Kampanya bildirimi onaylı">
