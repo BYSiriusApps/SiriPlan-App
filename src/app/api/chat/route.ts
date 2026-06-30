@@ -73,8 +73,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Mesaj gerekli" }, { status: 400 });
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    const isPlaceholder = !apiKey || apiKey.includes("placeholder") || apiKey.includes("sk-ant-api03-xxx");
+    const apiKey = process.env.GEMINI_API_KEY;
+    const isPlaceholder = !apiKey || apiKey.includes("placeholder") || apiKey === "your-gemini-api-key-here";
 
     if (isPlaceholder) {
       // Use static keyword-based fallback
@@ -82,29 +82,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ response });
     }
 
-    // Real Anthropic API call
-    const anthropicResponse = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 300,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: message }],
-      }),
-    });
+    // Gemini API call
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ role: "user", parts: [{ text: message }] }],
+          generationConfig: { maxOutputTokens: 300 },
+        }),
+      }
+    );
 
-    if (!anthropicResponse.ok) {
+    if (!geminiResponse.ok) {
       const fallback = getStaticResponse(message);
       return NextResponse.json({ response: fallback });
     }
 
-    const data = await anthropicResponse.json();
-    const response = data.content?.[0]?.text ?? getStaticResponse(message);
+    const data = await geminiResponse.json();
+    const response = data.candidates?.[0]?.content?.parts?.[0]?.text ?? getStaticResponse(message);
 
     return NextResponse.json({ response });
   } catch {

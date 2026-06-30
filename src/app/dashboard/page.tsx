@@ -19,6 +19,7 @@ import Link from "next/link";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { LiveClock } from "@/components/ui/LiveClock";
 import { QuickActionsPanel } from "@/components/dashboard/QuickActionsPanel";
+import { getUserShortcuts } from "@/app/actions/shortcuts";
 
 /* ─── Status helpers ──────────────────────────────────────────────────── */
 const STATUS_DOT: Record<string, string> = {
@@ -111,6 +112,7 @@ export default async function DashboardPage() {
     { data: newCustomers },
     { data: champion },
     { data: last7 },
+    userShortcuts,
   ] = await Promise.all([
     supabase
       .from("appointments")
@@ -159,6 +161,8 @@ export default async function DashboardPage() {
       .gte("appointment_at", day7Start)
       .lte("appointment_at", todayEnd)
       .eq("status", "tamamlandi"),
+
+    getUserShortcuts(),
   ]);
 
   type ApptRow = { price: number; tip?: number; status: string };
@@ -421,7 +425,7 @@ export default async function DashboardPage() {
         </GlassCard3D>
 
         {/* Panel 3 — Hızlı İşlemler */}
-        <QuickActionsPanel />
+        <QuickActionsPanel initialShortcuts={userShortcuts} orgId={orgId} />
 
         {/* Panel 4 — Haftanın Elemanı + Bekleyenler */}
         <GlassCard3D className="glass-card" glow intensity={5}>

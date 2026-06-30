@@ -35,6 +35,43 @@ export async function POST(req: NextRequest) {
   const data = parsed.data;
   const supabase = await createClient();
 
+  // Server-side quota: check max_appointments_monthly
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("max_appointments_monthly, subscription_status, trial_ends_at")
+    .eq("id", data.org_id)
+    .single();
+
+  if (!org) return NextResponse.json({ error: "Organizasyon bulunamadı" }, { status: 404 });
+
+  // Block booking if org is not active/in-trial
+  const isActive =
+    org.subscription_status === "active" ||
+    (org.trial_ends_at && new Date(org.trial_ends_at) > new Date());
+  if (!isActive) {
+    return NextResponse.json({ error: "Bu salon şu an aktif aboneliğe sahip değil." }, { status: 403 });
+  }
+
+  if (org.max_appointments_monthly && org.max_appointments_monthly < 999999) {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+
+    const { count } = await supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", data.org_id)
+      .gte("created_at", monthStart)
+      .lt("created_at", monthEnd);
+
+    if (count !== null && count >= org.max_appointments_monthly) {
+      return NextResponse.json(
+        { error: `Bu ay için randevu limitine ulaşıldı (${org.max_appointments_monthly}). Sonraki ay veya plan yükseltme ile devam edilebilir.` },
+        { status: 429 }
+      );
+    }
+  }
+
   // Get service for price/duration
   const { data: service } = await supabase
     .from("services")

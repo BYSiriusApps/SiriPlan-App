@@ -7,6 +7,21 @@ import Stripe from "stripe";
 
 export const runtime = "nodejs";
 
+async function writeAuditLog(orgId: string, action: string, meta: Record<string, unknown>) {
+  try {
+    const supabase = await createAdminClient();
+    await supabase.from("audit_logs").insert({
+      org_id: orgId,
+      action,
+      table_name: "organizations",
+      new_data: meta,
+    });
+  } catch {
+    // audit log failure must not block the main flow
+    console.error("[audit] Failed to write audit log:", action, orgId);
+  }
+}
+
 async function applyPlanToOrg(orgId: string, plan: PlanKey | "trial") {
   const supabase = await createAdminClient();
   if (plan === "trial") {
@@ -49,6 +64,7 @@ export async function POST(req: NextRequest) {
         await supabase.from("organizations").update({
           stripe_subscription_id: session.subscription as string,
         }).eq("id", orgId);
+        await writeAuditLog(orgId, "subscription.activated", { plan, event: event.id });
       }
       break;
     }
@@ -66,6 +82,7 @@ export async function POST(req: NextRequest) {
         await supabase.from("organizations").update({
           subscription_status: sub.status,
         }).eq("id", org.id);
+        await writeAuditLog(org.id, "subscription.updated", { plan, status: sub.status, event: event.id });
       }
       break;
     }
@@ -87,6 +104,7 @@ export async function POST(req: NextRequest) {
           feature_api: false,
           feature_whitelabel: false,
         }).eq("id", org.id);
+        await writeAuditLog(org.id, "subscription.canceled", { event: event.id });
       }
       break;
     }
@@ -102,6 +120,7 @@ export async function POST(req: NextRequest) {
         await supabase.from("organizations").update({
           subscription_status: "past_due",
         }).eq("id", org.id);
+        await writeAuditLog(org.id, "payment.failed", { invoice: invoice.id, event: event.id });
       }
       break;
     }

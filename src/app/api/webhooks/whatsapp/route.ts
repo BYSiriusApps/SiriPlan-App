@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import Anthropic from "@anthropic-ai/sdk";
 
 export const runtime = "nodejs";
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
 async function sendWAMessage(phone: string, message: string, token: string, phoneNumberId: string) {
   const to = phone.replace(/\D/g, "").replace(/^0/, "90");
@@ -27,6 +24,11 @@ async function generateAIReply(
   customerHistory: string,
   language: string
 ): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey.includes("placeholder")) {
+    throw new Error("No Gemini API key");
+  }
+
   const systemPrompt = `Sen "${salonName}" adlı ${salonType} işletmesinin AI asistanısın.
 Müşterilere WhatsApp üzerinden yanıt veriyorsun.
 Dil: ${language}
@@ -35,14 +37,24 @@ Müşteri geçmişi: ${customerHistory}
 Randevu bilgileri için müşteriyi web sitesine yönlendir veya çalışma saatlerini paylaş.
 Hiçbir zaman hassas bilgi paylaşma. Kesinlikle uygun ve kibar ol.`;
 
-  const msg = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 200,
-    messages: [{ role: "user", content: userMessage }],
-    system: systemPrompt,
-  });
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: "user", parts: [{ text: userMessage }] }],
+        generationConfig: { maxOutputTokens: 200 },
+      }),
+    }
+  );
 
-  return (msg.content[0] as { text: string }).text;
+  if (!res.ok) throw new Error(`Gemini error ${res.status}`);
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error("Empty Gemini response");
+  return text;
 }
 
 // Webhook verification (GET)
@@ -118,14 +130,19 @@ export async function POST(req: NextRequest) {
       ? `Müşteri: ${customer.full_name}, ${customer.visit_count} ziyaret, son: ${customer.last_visit_at || "bilinmiyor"}`
       : "Yeni müşteri";
 
-    // Generate AI reply
-    const aiReply = await generateAIReply(
-      org.name,
-      org.type,
-      messageText,
-      customerHistory,
-      org.locale || "tr"
-    );
+    // Generate AI reply — fallback to static message if AI fails
+    let aiReply: string;
+    try {
+      aiReply = await generateAIReply(
+        org.name,
+        org.type,
+        messageText,
+        customerHistory,
+        org.locale || "tr"
+      );
+    } catch {
+      aiReply = `Merhaba! Mesajınız için teşekkürler. Ekibimiz en kısa sürede size geri dönecek. 😊`;
+    }
 
     await sendWAMessage(senderPhone, aiReply, org.wa_token, org.wa_phone_number_id!);
 
