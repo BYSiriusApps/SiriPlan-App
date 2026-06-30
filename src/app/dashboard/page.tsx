@@ -11,7 +11,7 @@ import { tr } from "date-fns/locale";
 import {
   TrendingUp, Calendar, Users, Star, Clock,
   AlertCircle, CheckCircle2,
-  MoreHorizontal, ArrowUpRight, BarChart3,
+  MoreHorizontal, ArrowUpRight, BarChart3, HeadphonesIcon, MessageCircle, Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
@@ -559,6 +559,60 @@ export default async function DashboardPage() {
           </div>
         </GlassCard3D>
 
+      </div>
+
+      {/* ── Destek Kartı ─────────────────────────────────────────────── */}
+      <div className="px-5 pb-5">
+        <div
+          className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          style={{
+            background: "color-mix(in oklch, var(--card) 80%, transparent)",
+            border: "1px solid color-mix(in oklch, var(--border) 60%, transparent)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: "color-mix(in oklch, var(--primary) 12%, transparent)" }}
+            >
+              <HeadphonesIcon className="h-5 w-5" style={{ color: "var(--primary)" }} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Destek Al</p>
+              <p className="text-xs text-muted-foreground">
+                Bir sorun mu yaşıyorsunuz? Ekibimize hemen ulaşın.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <a
+              href="https://wa.me/905551234567?text=Merhaba%2C%20Siriplan%20hakk%C4%B1nda%20yard%C4%B1m%20almak%20istiyorum."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
+              style={{
+                background: "rgba(37,211,102,0.12)",
+                border: "1px solid rgba(37,211,102,0.3)",
+                color: "#25d366",
+              }}
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
+            </a>
+            <a
+              href="mailto:destek@bysirius.com?subject=Siriplan%20Destek%20Talebi"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
+              style={{
+                background: "color-mix(in oklch, var(--muted) 70%, transparent)",
+                border: "1px solid color-mix(in oklch, var(--border) 80%, transparent)",
+                color: "var(--foreground)",
+              }}
+            >
+              <Mail className="h-4 w-4" />
+              E-posta
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
