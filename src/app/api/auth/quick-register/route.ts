@@ -103,8 +103,7 @@ export async function POST(req: NextRequest) {
   // 3. Create org_member + staff record
   const now = new Date().toISOString();
 
-  // Try inserting with KVKK consent columns; fall back to basic insert if columns don't exist yet
-  const memberInsert = await admin.from("org_members").insert({
+  await admin.from("org_members").insert({
     org_id: org.id,
     user_id: userId,
     role: "owner",
@@ -113,10 +112,6 @@ export async function POST(req: NextRequest) {
     marketing_consent: marketingConsent === true,
     marketing_consent_at: marketingConsent === true ? now : null,
   });
-
-  if (memberInsert.error?.message?.includes("column")) {
-    await admin.from("org_members").insert({ org_id: org.id, user_id: userId, role: "owner" });
-  }
 
   await admin.from("staff").insert({ org_id: org.id, full_name: fullName, role: "Salon Sahibi", is_active: true });
 

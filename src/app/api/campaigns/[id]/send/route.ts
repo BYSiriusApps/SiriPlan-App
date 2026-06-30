@@ -34,11 +34,21 @@ export async function POST(
     .select("id, full_name, phone")
     .eq("org_id", member.org_id);
 
-  const seg = campaign.segment_json as Record<string, unknown>;
-  if (seg.min_score) custQuery = custQuery.gte("score", seg.min_score as number);
-  if (seg.max_score) custQuery = custQuery.lte("score", seg.max_score as number);
-  if (seg.inactive_days) {
-    const cutoff = new Date(Date.now() - Number(seg.inactive_days) * 24 * 60 * 60 * 1000).toISOString();
+  const seg = (campaign.segment_json ?? {}) as Record<string, unknown>;
+
+  // Validate all numeric filter values to prevent injection
+  const minScore = Number(seg.min_score);
+  const maxScore = Number(seg.max_score);
+  const inactiveDays = Math.floor(Number(seg.inactive_days));
+
+  if (seg.min_score !== undefined && !isNaN(minScore) && minScore >= 0) {
+    custQuery = custQuery.gte("score", minScore);
+  }
+  if (seg.max_score !== undefined && !isNaN(maxScore) && maxScore >= 0) {
+    custQuery = custQuery.lte("score", maxScore);
+  }
+  if (seg.inactive_days !== undefined && !isNaN(inactiveDays) && inactiveDays > 0 && inactiveDays <= 3650) {
+    const cutoff = new Date(Date.now() - inactiveDays * 86400_000).toISOString();
     custQuery = custQuery.or(`last_visit_at.lt.${cutoff},last_visit_at.is.null`);
   }
 
