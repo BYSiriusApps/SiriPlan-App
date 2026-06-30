@@ -116,8 +116,7 @@ export default function KayitPage() {
       }
 
       toast.success("Hesabınız oluşturuldu! Dashboard'a yönlendiriliyorsunuz...");
-      router.push("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
     } catch {
       toast.error("Bir hata oluştu. Lütfen tekrar deneyin.");
       setLoading(false);

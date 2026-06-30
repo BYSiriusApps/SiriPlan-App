@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,6 @@ import { Loader2, Mail, Lock, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 export default function GirisPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -25,8 +23,8 @@ export default function GirisPage() {
       toast.error("Giriş başarısız: " + error.message);
       return false;
     }
-    router.push("/dashboard");
-    router.refresh();
+    // Hard redirect so cookies are sent with the initial server request
+    window.location.href = "/dashboard";
     return true;
   }
 
