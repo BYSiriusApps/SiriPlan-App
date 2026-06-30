@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Building2, Mail, Lock, Phone, User } from "lucide-react";
+import { Loader2, Building2, Mail, Lock, Phone, User, AlertCircle } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 const BUSINESS_TYPES = [
@@ -44,6 +45,10 @@ export default function KayitPage() {
   });
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [kvkkChecked, setKvkkChecked] = useState(false);
+  const [gizlilikChecked, setGizlilikChecked] = useState(false);
+  const [marketingChecked, setMarketingChecked] = useState(false);
+  const [kvkkError, setKvkkError] = useState(false);
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -76,6 +81,12 @@ export default function KayitPage() {
     if (!validatePhone(form.phone)) return;
     if (form.password.length < 8) { toast.error("Şifre en az 8 karakter olmalı."); return; }
     if (!form.salonName.trim()) { toast.error("İşletme adı zorunludur."); return; }
+    if (!kvkkChecked || !gizlilikChecked) {
+      setKvkkError(true);
+      toast.error("Devam etmek için zorunlu onayları işaretlemeniz gerekmektedir.");
+      return;
+    }
+    setKvkkError(false);
 
     setLoading(true);
 
@@ -91,6 +102,8 @@ export default function KayitPage() {
           fullName: form.fullName.trim(),
           phone: normalizePhone(form.phone),
           businessType: form.type,
+          kvkkConsent: kvkkChecked,
+          marketingConsent: marketingChecked,
         }),
       });
 
@@ -197,16 +210,63 @@ export default function KayitPage() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full mt-2" disabled={loading}>
+          {/* KVKK & consent checkboxes */}
+          <div className={`space-y-2.5 rounded-lg border p-3 text-sm ${kvkkError ? "border-red-400 bg-red-50 dark:bg-red-950/20" : "border-border bg-muted/30"}`}>
+            <div className="flex items-start gap-2.5">
+              <Checkbox
+                id="kvkk"
+                checked={kvkkChecked}
+                onCheckedChange={(v) => { setKvkkChecked(!!v); if (v) setKvkkError(false); }}
+                className="mt-0.5 shrink-0"
+              />
+              <label htmlFor="kvkk" className="leading-snug cursor-pointer">
+                <Link href="/kvkk" target="_blank" className="text-primary font-medium hover:underline">KVKK Aydınlatma Metni</Link>&apos;ni
+                {" "}okudum, kişisel verilerimin işlenmesini kabul ediyorum.{" "}
+                <span className="text-red-500 font-medium">*</span>
+              </label>
+            </div>
+
+            <div className="flex items-start gap-2.5">
+              <Checkbox
+                id="gizlilik"
+                checked={gizlilikChecked}
+                onCheckedChange={(v) => { setGizlilikChecked(!!v); if (v) setKvkkError(false); }}
+                className="mt-0.5 shrink-0"
+              />
+              <label htmlFor="gizlilik" className="leading-snug cursor-pointer">
+                <Link href="/gizlilik" target="_blank" className="text-primary font-medium hover:underline">Gizlilik Politikası</Link>&apos;nı
+                {" "}ve{" "}
+                <Link href="/kosullar" target="_blank" className="text-primary font-medium hover:underline">Kullanım Koşulları</Link>&apos;nı
+                {" "}okudum ve kabul ediyorum.{" "}
+                <span className="text-red-500 font-medium">*</span>
+              </label>
+            </div>
+
+            <div className="flex items-start gap-2.5">
+              <Checkbox
+                id="marketing"
+                checked={marketingChecked}
+                onCheckedChange={(v) => setMarketingChecked(!!v)}
+                className="mt-0.5 shrink-0"
+              />
+              <label htmlFor="marketing" className="leading-snug cursor-pointer text-muted-foreground">
+                Siriplan&apos;ın kampanya, duyuru ve özel tekliflerinden e-posta / SMS ile haberdar olmak istiyorum.{" "}
+                <span className="text-xs">(isteğe bağlı)</span>
+              </label>
+            </div>
+
+            {kvkkError && (
+              <p className="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                Devam etmek için zorunlu onayları işaretleyin.
+              </p>
+            )}
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             {loading ? "Hesap oluşturuluyor..." : "Ücretsiz Hesap Oluştur"}
           </Button>
-
-          <p className="text-center text-xs text-muted-foreground pt-2">
-            Kayıt olarak{" "}
-            <Link href="/gizlilik" className="text-primary hover:underline">Gizlilik Politikası</Link>&apos;nı ve{" "}
-            <Link href="/kosullar" className="text-primary hover:underline">Kullanım Koşulları</Link>&apos;nı kabul etmiş olursunuz.
-          </p>
 
           <p className="text-center text-sm text-muted-foreground">
             Zaten hesabınız var mı?{" "}

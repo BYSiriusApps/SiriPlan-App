@@ -26,13 +26,18 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid body" }, { status: 400 });
 
-  const { email, password, salonName, fullName, phone, businessType } = body as {
+  const { email, password, salonName, fullName, phone, businessType, kvkkConsent, marketingConsent } = body as {
     email: string; password: string; salonName: string;
     fullName: string; phone: string; businessType: string;
+    kvkkConsent: boolean; marketingConsent: boolean;
   };
 
   if (!email || !password || !salonName || !fullName) {
     return NextResponse.json({ error: "Eksik alanlar" }, { status: 400 });
+  }
+
+  if (!kvkkConsent) {
+    return NextResponse.json({ error: "KVKK Aydınlatma Metni'ni kabul etmeniz zorunludur." }, { status: 400 });
   }
 
   if (!EMAIL_RE.test(email)) {
@@ -96,10 +101,24 @@ export async function POST(req: NextRequest) {
   }
 
   // 3. Create org_member + staff record
-  await Promise.all([
-    admin.from("org_members").insert({ org_id: org.id, user_id: userId, role: "owner" }),
-    admin.from("staff").insert({ org_id: org.id, full_name: fullName, role: "Salon Sahibi", is_active: true }),
-  ]);
+  const now = new Date().toISOString();
+
+  // Try inserting with KVKK consent columns; fall back to basic insert if columns don't exist yet
+  const memberInsert = await admin.from("org_members").insert({
+    org_id: org.id,
+    user_id: userId,
+    role: "owner",
+    kvkk_consent: true,
+    kvkk_consent_at: now,
+    marketing_consent: marketingConsent === true,
+    marketing_consent_at: marketingConsent === true ? now : null,
+  });
+
+  if (memberInsert.error?.message?.includes("column")) {
+    await admin.from("org_members").insert({ org_id: org.id, user_id: userId, role: "owner" });
+  }
+
+  await admin.from("staff").insert({ org_id: org.id, full_name: fullName, role: "Salon Sahibi", is_active: true });
 
   // 4. Send welcome email via Resend (fire-and-forget)
   const resendKey = process.env.RESEND_API_KEY;
