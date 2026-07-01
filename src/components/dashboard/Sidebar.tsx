@@ -37,23 +37,39 @@ function canSee(userRole: string, minRole: string) {
   return (ROLE_RANK[userRole] ?? 0) >= (ROLE_RANK[minRole] ?? 0);
 }
 
-const PLAN_LABELS: Record<string, { label: string; color: string }> = {
-  trial:    { label: "⏱ 14 Gün Deneme", color: "rgba(255,255,255,0.12)" },
-  starter:  { label: "⚡ Starter",        color: "rgba(99,102,241,0.25)" },
-  pro:      { label: "✨ Pro Plan",        color: "rgba(var(--primary-raw,236 72 153),0.25)" },
-  business: { label: "🏢 Business",       color: "rgba(168,85,247,0.25)" },
+const PLAN_COLORS: Record<string, string> = {
+  trial:    "rgba(255,255,255,0.12)",
+  starter:  "rgba(99,102,241,0.25)",
+  pro:      "rgba(var(--primary-raw,236 72 153),0.25)",
+  business: "rgba(168,85,247,0.25)",
 };
+
+function trialLabel(trialEndsAt?: string): string {
+  if (!trialEndsAt) return "⏱ Deneme";
+  const msLeft = new Date(trialEndsAt).getTime() - Date.now();
+  const daysLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24)));
+  return `⏱ ${daysLeft} Gün Kaldı`;
+}
 
 interface SidebarProps {
   orgName?: string;
   plan?: string;
   role?: string;
+  trialEndsAt?: string;
 }
 
-export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff" }: SidebarProps) {
+export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff", trialEndsAt }: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("dashboard");
-  const planInfo = PLAN_LABELS[plan] ?? PLAN_LABELS.trial;
+
+  const planLabel =
+    plan === "trial" ? trialLabel(trialEndsAt) :
+    plan === "starter" ? "⚡ Starter" :
+    plan === "pro" ? "✨ Pro Plan" :
+    plan === "business" ? "🏢 Business" :
+    "⏱ Deneme";
+  const planColor = PLAN_COLORS[plan] ?? PLAN_COLORS.trial;
+
   const visibleItems = NAV_ITEMS.filter(item => canSee(role, item.minRole));
 
   return (
@@ -88,9 +104,9 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff" 
       <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
         <div
           className="rounded-lg px-3 py-1.5 text-[11px] font-medium text-center text-white/70"
-          style={{ background: planInfo.color, border: "1px solid rgba(255,255,255,0.08)" }}
+          style={{ background: planColor, border: "1px solid rgba(255,255,255,0.08)" }}
         >
-          {planInfo.label}
+          {planLabel}
         </div>
       </div>
 

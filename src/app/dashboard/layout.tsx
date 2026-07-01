@@ -39,7 +39,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="flex min-h-screen bg-background">
         {/* Desktop sidebar — hidden on mobile */}
         <div className="hidden md:flex">
-          <Sidebar orgName={org.name} plan={org.plan} role={role} />
+          <Sidebar orgName={org.name} plan={org.plan} role={role} trialEndsAt={org.trial_ends_at} />
         </div>
 
         {/* Main content — add bottom padding on mobile for nav bar */}

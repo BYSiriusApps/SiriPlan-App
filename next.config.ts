@@ -40,6 +40,14 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // next-intl@3.26.5 writes to experimental.turbo (Next.js 15 path).
+  // Next.js 16 moved Turbopack config to the top-level `turbopack` key,
+  // so we add the alias here explicitly to make getMessages() work at runtime.
+  turbopack: {
+    resolveAlias: {
+      "next-intl/config": "./src/i18n/request.ts",
+    },
+  },
   images: {
     remotePatterns: [
       { hostname: "*.supabase.co" },

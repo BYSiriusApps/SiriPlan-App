@@ -4,7 +4,7 @@ import { updateSession } from "./lib/supabase/middleware";
 // No URL-based locale routing — locale is stored in a cookie and read
 // by next-intl's getRequestConfig (src/i18n/request.ts).
 // This keeps dashboard URLs clean: /dashboard not /tr/dashboard.
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (
