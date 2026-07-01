@@ -586,7 +586,7 @@ export default async function DashboardPage() {
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <a
-              href="https://wa.me/905551234567?text=Merhaba%2C%20Siriplan%20hakk%C4%B1nda%20yard%C4%B1m%20almak%20istiyorum."
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "905355032634"}?text=Merhaba%2C%20Siriplan%20hakk%C4%B1nda%20yard%C4%B1m%20almak%20istiyorum.`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
