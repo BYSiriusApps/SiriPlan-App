@@ -24,6 +24,7 @@ export default function PersonelYeniPage() {
     start_time: "09:00",
     end_time: "18:00",
     working_days: [1, 2, 3, 4, 5] as number[],
+    preferred_language: "",
   });
 
   function toggleDay(d: number) {
@@ -120,6 +121,20 @@ export default function PersonelYeniPage() {
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                   placeholder="personel@..."
                 />
+              </div>
+              <div className="col-span-2 space-y-1">
+                <Label>Tercih Edilen Dil</Label>
+                <select
+                  value={form.preferred_language}
+                  onChange={(e) => setForm((f) => ({ ...f, preferred_language: e.target.value }))}
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option value="">Belirtilmedi</option>
+                  <option value="tr">🇹🇷 Türkçe</option>
+                  <option value="en">🇬🇧 English</option>
+                  <option value="ru">🇷🇺 Русский</option>
+                  <option value="ar">🇸🇦 العربية</option>
+                </select>
               </div>
             </div>
 

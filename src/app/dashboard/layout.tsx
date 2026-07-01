@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { Toaster } from "@/components/ui/sonner";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -30,22 +32,26 @@ export default async function DashboardLayout({ children }: { children: React.Re
     }
   }
 
+  const messages = await getMessages();
+
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Desktop sidebar — hidden on mobile */}
-      <div className="hidden md:flex">
-        <Sidebar orgName={org.name} plan={org.plan} role={role} />
+    <NextIntlClientProvider messages={messages}>
+      <div className="flex min-h-screen bg-background">
+        {/* Desktop sidebar — hidden on mobile */}
+        <div className="hidden md:flex">
+          <Sidebar orgName={org.name} plan={org.plan} role={role} />
+        </div>
+
+        {/* Main content — add bottom padding on mobile for nav bar */}
+        <main className="flex-1 overflow-auto pb-16 md:pb-0">
+          {children}
+        </main>
+
+        {/* Mobile bottom navigation */}
+        <MobileNav role={role} />
+
+        <Toaster position="top-right" richColors />
       </div>
-
-      {/* Main content — add bottom padding on mobile for nav bar */}
-      <main className="flex-1 overflow-auto pb-16 md:pb-0">
-        {children}
-      </main>
-
-      {/* Mobile bottom navigation */}
-      <MobileNav role={role} />
-
-      <Toaster position="top-right" richColors />
-    </div>
+    </NextIntlClientProvider>
   );
 }

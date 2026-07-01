@@ -218,7 +218,13 @@
     "newCustomers": "New Customers",
     "noShow": "No Show",
     "weeklyChampion": "Staff of the Week",
-    "topStaff": "Top Performance"
+    "topStaff": "Top Performance",
+    "income": "Income & Expenses",
+    "staffView": "👤 Staff View",
+    "preferredLanguage": "Preferred Language",
+    "noLanguage": "Not Set",
+    "overviewShort": "Summary",
+    "theme": "Theme"
   },
   "booking": {
     "title": "Online Booking",

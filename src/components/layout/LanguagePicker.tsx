@@ -10,7 +10,12 @@ const LOCALES = [
   { code: "ru", label: "RU", name: "Русский", flag: "🇷🇺" },
 ];
 
-export function LanguagePicker() {
+interface LanguagePickerProps {
+  /** "dark" (default) = sidebar, "muted" = mobile nav / light backgrounds */
+  variant?: "dark" | "muted";
+}
+
+export function LanguagePicker({ variant = "dark" }: LanguagePickerProps) {
   const [current, setCurrent] = useState("tr");
   const [open, setOpen] = useState(false);
 
@@ -28,13 +33,14 @@ export function LanguagePicker() {
 
   const currentLocale = LOCALES.find((l) => l.code === current) ?? LOCALES[0];
 
+  const buttonClass =
+    variant === "muted"
+      ? "flex items-center gap-1 px-1.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all text-[11px] font-medium"
+      : "flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-white/40 hover:text-white/70 hover:bg-white/5 transition-all text-[11px] font-medium";
+
   return (
     <div className="relative">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        title="Dil Seç / Language"
-        className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-white/40 hover:text-white/70 hover:bg-white/5 transition-all text-[11px] font-medium"
-      >
+      <button onClick={() => setOpen((o) => !o)} title="Dil Seç / Language" className={buttonClass}>
         <Globe className="h-3.5 w-3.5" />
         <span>{currentLocale.flag} {currentLocale.label}</span>
       </button>
@@ -43,7 +49,7 @@ export function LanguagePicker() {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div
-            className="absolute bottom-8 left-0 z-50 rounded-xl shadow-xl overflow-hidden"
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 rounded-xl shadow-xl overflow-hidden"
             style={{
               background: "#161820",
               border: "1px solid rgba(255,255,255,0.1)",

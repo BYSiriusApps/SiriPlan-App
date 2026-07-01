@@ -218,7 +218,13 @@
     "newCustomers": "عملاء جدد",
     "noShow": "لم يحضر",
     "weeklyChampion": "موظف الأسبوع",
-    "topStaff": "أفضل أداء"
+    "topStaff": "أفضل أداء",
+    "income": "الإيرادات والمصروفات",
+    "staffView": "👤 عرض الموظفين",
+    "preferredLanguage": "اللغة المفضلة",
+    "noLanguage": "غير محدد",
+    "overviewShort": "ملخص",
+    "theme": "المظهر"
   },
   "booking": {
     "title": "الحجز الإلكتروني",

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Calendar, BookOpen, Users, UserCog,
@@ -12,22 +13,23 @@ import { Badge } from "@/components/ui/badge";
 import { ThemePicker } from "@/components/layout/ThemePicker";
 import { LanguagePicker } from "@/components/layout/LanguagePicker";
 import { LogoutButton } from "@/components/dashboard/LogoutButton";
+import { GlobalSearch } from "@/components/dashboard/GlobalSearch";
 
 // roles: "owner" | "manager" | "staff"
 // minRole: who can see this item (owner > manager > staff)
 const NAV_ITEMS = [
-  { href: "/dashboard",               icon: LayoutDashboard, label: "Genel Bakış",   minRole: "staff"   },
-  { href: "/dashboard/takvim",        icon: Calendar,        label: "Takvim",         minRole: "staff"   },
-  { href: "/dashboard/randevular",    icon: BookOpen,        label: "Randevular",     minRole: "staff"   },
-  { href: "/dashboard/musteriler",    icon: Users,           label: "Müşteriler",     minRole: "staff"   },
-  { href: "/dashboard/personel",      icon: UserCog,         label: "Personel",       minRole: "staff"   },
-  { href: "/dashboard/hizmetler",     icon: Scissors,        label: "Hizmetler",      minRole: "staff"   },
-  { href: "/dashboard/kampanyalar",   icon: Megaphone,       label: "Kampanyalar", badge: "Pro", minRole: "manager" },
-  { href: "/dashboard/raporlar",      icon: BarChart3,       label: "Raporlar",       minRole: "manager" },
-  { href: "/dashboard/gelir-gider",   icon: Wallet,          label: "Gelir & Gider",  minRole: "manager" },
-  { href: "/dashboard/veri-gocu",     icon: Import,          label: "Veri Göçü",      minRole: "manager" },
-  { href: "/dashboard/ayarlar",       icon: Settings,        label: "Ayarlar",        minRole: "owner"   },
-  { href: "/dashboard/abonelik",      icon: CreditCard,      label: "Abonelik",       minRole: "owner"   },
+  { href: "/dashboard",               icon: LayoutDashboard, tKey: "overview",       minRole: "staff"   },
+  { href: "/dashboard/takvim",        icon: Calendar,        tKey: "calendar",       minRole: "staff"   },
+  { href: "/dashboard/randevular",    icon: BookOpen,        tKey: "appointments",   minRole: "staff"   },
+  { href: "/dashboard/musteriler",    icon: Users,           tKey: "customers",      minRole: "staff"   },
+  { href: "/dashboard/personel",      icon: UserCog,         tKey: "staff",          minRole: "staff"   },
+  { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "staff"   },
+  { href: "/dashboard/kampanyalar",   icon: Megaphone,       tKey: "campaigns",      badge: "Pro", minRole: "manager" },
+  { href: "/dashboard/raporlar",      icon: BarChart3,       tKey: "reports",        minRole: "manager" },
+  { href: "/dashboard/gelir-gider",   icon: Wallet,          tKey: "income",         minRole: "manager" },
+  { href: "/dashboard/veri-gocu",     icon: Import,          tKey: "dataMigration",  minRole: "manager" },
+  { href: "/dashboard/ayarlar",       icon: Settings,        tKey: "settings",       minRole: "owner"   },
+  { href: "/dashboard/abonelik",      icon: CreditCard,      tKey: "subscription",   minRole: "owner"   },
 ];
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
@@ -50,6 +52,7 @@ interface SidebarProps {
 
 export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff" }: SidebarProps) {
   const pathname = usePathname();
+  const t = useTranslations("dashboard");
   const planInfo = PLAN_LABELS[plan] ?? PLAN_LABELS.trial;
   const visibleItems = NAV_ITEMS.filter(item => canSee(role, item.minRole));
 
@@ -91,11 +94,16 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff" 
         </div>
       </div>
 
+      {/* Smart Search */}
+      <div className="pt-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+        <GlobalSearch />
+      </div>
+
       {/* Navigation */}
       {role === "staff" && (
         <div className="mx-3 mt-2 mb-1 px-3 py-1.5 rounded-lg text-[10px] font-medium text-white/40 text-center"
           style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
-          👤 Personel Görünümü
+          {t("staffView")}
         </div>
       )}
 
@@ -139,7 +147,7 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff" 
                 className="h-4 w-4 shrink-0"
                 style={{ color: isActive ? "var(--primary)" : "inherit" }}
               />
-              <span className="flex-1 truncate">{item.label}</span>
+              <span className="flex-1 truncate">{t(item.tKey)}</span>
               {item.badge && (
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold"

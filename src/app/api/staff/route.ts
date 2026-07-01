@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { full_name, role, phone, email, commission_rate, start_time, end_time, working_days } = body;
+  const { full_name, role, phone, email, commission_rate, start_time, end_time, working_days, preferred_language } = body;
 
   if (!full_name) return NextResponse.json({ error: "İsim zorunlu" }, { status: 400 });
 
@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
       start_time: start_time || "09:00",
       end_time: end_time || "18:00",
       working_days: working_days || [1, 2, 3, 4, 5],
+      preferred_language: preferred_language || null,
       is_active: true,
     })
     .select()

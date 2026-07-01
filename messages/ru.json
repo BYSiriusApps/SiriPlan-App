@@ -218,7 +218,13 @@
     "newCustomers": "Новые клиенты",
     "noShow": "Не пришли",
     "weeklyChampion": "Сотрудник недели",
-    "topStaff": "Лучший результат"
+    "topStaff": "Лучший результат",
+    "income": "Доходы и расходы",
+    "staffView": "👤 Режим персонала",
+    "preferredLanguage": "Язык интерфейса",
+    "noLanguage": "Не указан",
+    "overviewShort": "Обзор",
+    "theme": "Тема"
   },
   "booking": {
     "title": "Онлайн запись",

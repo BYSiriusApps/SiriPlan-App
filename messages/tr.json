@@ -218,7 +218,13 @@
     "newCustomers": "Yeni Müşteri",
     "noShow": "Gelmedi",
     "weeklyChampion": "Haftanın Elemanı",
-    "topStaff": "En İyi Performans"
+    "topStaff": "En İyi Performans",
+    "income": "Gelir & Gider",
+    "staffView": "👤 Personel Görünümü",
+    "preferredLanguage": "Tercih Edilen Dil",
+    "noLanguage": "Belirtilmedi",
+    "overviewShort": "Özet",
+    "theme": "Tema"
   },
   "booking": {
     "title": "Online Randevu",

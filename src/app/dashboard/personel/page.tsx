@@ -8,6 +8,13 @@ import type { Staff } from "@/types/database";
 
 const DAYS = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
 
+const LANG_FLAGS: Record<string, { flag: string; name: string }> = {
+  tr: { flag: "🇹🇷", name: "Türkçe" },
+  en: { flag: "🇬🇧", name: "English" },
+  ru: { flag: "🇷🇺", name: "Русский" },
+  ar: { flag: "🇸🇦", name: "العربية" },
+};
+
 export default async function PersonelPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -112,7 +119,17 @@ export default async function PersonelPage() {
                       <CardTitle className="text-base group-hover:text-primary transition-colors truncate">
                         {s.full_name}
                       </CardTitle>
-                      <p className="text-xs text-muted-foreground">{s.role}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs text-muted-foreground">{s.role}</p>
+                        {(s as unknown as { preferred_language?: string }).preferred_language && (
+                          <span
+                            className="text-sm leading-none"
+                            title={LANG_FLAGS[(s as unknown as { preferred_language?: string }).preferred_language!]?.name}
+                          >
+                            {LANG_FLAGS[(s as unknown as { preferred_language?: string }).preferred_language!]?.flag}
+                          </span>
+                        )}
+                      </div>
                       {badgeMap[s.id]?.slice(0, 3).map((b) => (
                         <span key={b} className="text-sm" title={b}>{BADGE_ICONS[b]}</span>
                       ))}
