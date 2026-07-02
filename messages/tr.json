@@ -7,15 +7,20 @@
     "blog": "Blog",
     "contact": "İletişim",
     "login": "Giriş Yap",
-    "startFree": "Ücretsiz Başla"
+    "startFree": "Ücretsiz Başla",
+    "language": "Dil",
+    "faq": "SSS"
   },
   "hero": {
-    "badge": "Güzellik Sektörünün Tercih Ettiği Platform",
-    "title": "Salonunuzu A'dan Z'ye\nYönetin",
+    "badge": "10+ Sektörde Güvenilen Randevu Platformu",
+    "title": "İşletmenizi <highlight>Akıllıca</highlight> Yönetin",
     "subtitle": "Randevu, personel, müşteri ve ciro yönetimini tek platformda birleştirin. AI asistanı ile WhatsApp/Instagram'dan otomatik yanıt verin.",
+    "subtitleHighlight": "Her sektöre özel — sınırsız randevu, sıfır karmaşa.",
     "cta": "14 Gün Ücretsiz Deneyin",
     "ctaSecondary": "Demo İzle",
-    "trial": "Kredi kartı gerekmez"
+    "noCard": "Kredi kartı gerekmez",
+    "trial14": "14 gün ücretsiz",
+    "cancelAnytime": "İstediğin zaman iptal"
   },
   "stats": {
     "businesses": "Aktif İşletme",
@@ -25,38 +30,38 @@
   },
   "features": {
     "title": "Her Şey Tek Yerde",
-    "subtitle": "Rakiplerinizden öne geçmenizi sağlayacak araçlar",
+    "subtitle": "Rakiplerinizden öne geçmenizi sağlayacak araçlar — hepsi bir arada",
     "booking": {
       "title": "Çok Kanallı Randevu",
-      "desc": "Web, WhatsApp, Instagram ve QR kodla müşterileriniz her yerden randevu alabilir."
+      "desc": "Web, WhatsApp, Instagram ve QR kodla müşterileriniz her yerden randevu alır. Çakışma kontrolü otomatik."
     },
     "ai": {
       "title": "AI Asistanı",
-      "desc": "WhatsApp ve Instagram DM'lerine 7/24 otomatik, akıllı yanıt. Hiçbir müşteri karşılıksız kalmasın."
+      "desc": "WhatsApp ve Instagram DM'lerine 7/24 akıllı yanıt. Fiyat, randevu, yön sorularını AI yanıtlar."
     },
     "crm": {
       "title": "Müşteri Skoru",
-      "desc": "Her müşteriye 0-100 arası sadakat puanı. Değerli müşterilerinizi tanıyın ve ödüllendirin."
+      "desc": "Her müşteriye 0-100 sadakat puanı. Değerli müşterilerinizi tanıyın, öncelikli randevu sunun."
     },
     "staff": {
-      "title": "Personel Yönetimi",
-      "desc": "Komisyon takibi, vardiya planlama ve Haftanın Elemanı gamification sistemi."
+      "title": "Haftanın Elemanı",
+      "desc": "Personeli motive eden gamification sistemi. Haftalık şampiyon, aylık rozetler, performans sıralaması."
     },
     "analytics": {
-      "title": "Gelir Analizi",
-      "desc": "Gerçek zamanlı ciro dashboard, KDV raporu ve PDF export. Verileriniz her zaman elinizin altında."
+      "title": "Ciro & Analitik",
+      "desc": "Gerçek zamanlı gelir dashboard, KDV raporu, personel performansı, PDF export."
     },
     "migration": {
       "title": "Kolay Veri Göçü",
-      "desc": "Mevcut randevu yazılımınızdan veya Excel'den tek tıkla tüm verilerinizi aktarın. Veri kaybı yok."
+      "desc": "Mevcut randevu yazılımınızdan veya Excel'den tek tıkla tüm verilerinizi aktarın. Veri kaybı asla yaşanmaz."
     },
     "campaigns": {
       "title": "Kampanya Modülü",
-      "desc": "Doğum günü, inaktif müşteri ve özel kampanyalar. Hedefe yönelik WhatsApp/SMS mesajları."
+      "desc": "Doğum günü mesajları, inaktif müşteri kampanyaları, hedefli toplu WhatsApp/SMS gönderimi."
     },
     "export": {
       "title": "Verileriniz Sizindir",
-      "desc": "İstediğiniz zaman tüm verilerinizi JSON, Excel veya CSV olarak indirin. Hiçbir kilit yok."
+      "desc": "İstediğiniz an tüm verilerinizi JSON, Excel veya CSV olarak indirin. Hiçbir sistem kilidine girmeyin."
     }
   },
   "pricing": {
@@ -72,6 +77,8 @@
     "mostPopular": "En Çok Tercih Edilen",
     "startTrial": "Ücretsiz Dene",
     "contactUs": "Bize Ulaşın",
+    "bottomNote": "14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
+    "annualLabel": "veya {annual}/ay · {total}/yıl ({save})",
     "starter": {
       "name": "Starter",
       "desc": "Küçük salonlar için mükemmel başlangıç",
@@ -118,35 +125,35 @@
   },
   "addons": {
     "title": "Ek Paketler",
-    "subtitle": "Planınıza ihtiyacınıza göre ekleyin",
+    "subtitle": "Başka uygulamalarda çok pahalıya ayrı ayrı satılan hizmetleri planınıza ekleyin",
     "whatsappAI": {
       "name": "AI WhatsApp Paketi",
-      "desc": "Gelişmiş AI asistanı — akıllı randevu önerisi, duygu analizi",
+      "desc": "Gelişmiş AI asistanı, duygu analizi, akıllı öneriler",
       "price": "$29/ay"
     },
     "sms": {
       "name": "SMS Paketi",
-      "desc": "1.000 SMS/ay — Twilio altyapısı, teslimat garantisi",
+      "desc": "1.000 SMS/ay, Twilio altyapısı, teslimat garantisi",
       "price": "$19/ay"
     },
     "multiBranch": {
       "name": "Ek Şube Paketi",
-      "desc": "Starter/Pro planına her ek şube için",
+      "desc": "Starter/Pro'ya ek şube ekleyin",
       "price": "$29/şube/ay"
     },
     "premiumAnalytics": {
       "name": "Premium Analitik",
-      "desc": "Özelleştirilebilir dashboard, personel maaş bordrosu, KPI izleme",
+      "desc": "Personel bordrosu, KPI izleme, özelleştirilebilir raporlar",
       "price": "$25/ay"
     },
     "googleReview": {
       "name": "Google Yorum & SEO",
-      "desc": "Otomatik Google yorum isteği, yerel SEO raporu",
+      "desc": "Otomatik Google yorum talebi, yerel SEO raporu",
       "price": "$15/ay"
     },
     "dataMigration": {
       "name": "Profesyonel Veri Göçü",
-      "desc": "Ekibimiz verilerinizi manuel olarak aktarır — garanti",
+      "desc": "Ekibimiz verilerinizi garanti ile aktarır",
       "price": "$99 tek seferlik"
     }
   },
@@ -171,14 +178,57 @@
   "footer": {
     "tagline": "Güzellik sektörünün akıllı yönetim platformu",
     "product": "Ürün",
+    "features": "Özellikler",
+    "pricing": "Fiyatlar",
+    "demo": "Demo",
+    "integrations": "Entegrasyonlar",
+    "faq": "SSS",
+    "sectors": "Sektörler",
+    "blog": "Blog",
     "company": "Şirket",
-    "legal": "Yasal",
     "about": "Hakkımızda",
+    "contact": "İletişim",
     "careers": "Kariyer",
+    "legal": "Yasal",
     "privacy": "Gizlilik Politikası",
     "terms": "Kullanım Koşulları",
+    "cookie": "Çerez Politikası",
+    "kvkk": "KVKK",
     "powered": "Powered by",
-    "rights": "Tüm hakları saklıdır."
+    "rights": "Tüm hakları saklıdır.",
+    "whatsappSupport": "WhatsApp Destek"
+  },
+  "home": {
+    "trust": {
+      "ssl": "SSL Şifreli",
+      "uptime": "%99.9 Uptime Garantisi",
+      "kvkk": "KVKK Uyumlu",
+      "dataOwnership": "Verileriniz Sizindir",
+      "infrastructure": "BY Sirius Group Altyapısı"
+    },
+    "faq": {
+      "title": "Sıkça Sorulan Sorular",
+      "subtitle": "En çok merak edilen soruların cevapları",
+      "viewAll": "Tüm soruları görüntüle",
+      "q1": "14 günlük deneme gerçekten ücretsiz mi?",
+      "a1": "Evet, kredi kartı bilgisi gerekmez. 14 gün boyunca Pro özelliklerini kullanın. Beğenirseniz devam edin, beğenmezseniz hiçbir ücret ödemeden ayrılın.",
+      "q2": "Mevcut sistemdeki verilerimi taşıyabilir miyim?",
+      "a2": "Evet. Kullandığınız randevu yazılımından ve Excel'den tek tıkla veri aktarımı yapabilirsiniz. Ekibimizin yapacağı Profesyonel Veri Göçü hizmeti de mevcuttur.",
+      "q3": "WhatsApp AI asistanı nasıl çalışıyor?",
+      "a3": "Müşterilerinizin WhatsApp mesajlarını 7/24 anlık olarak yanıtlar. Randevu soruları, fiyat bilgisi ve yönlendirmeyi otomatik yapar. Siz sadece hizmetinize odaklanın.",
+      "q4": "Birden fazla şube yönetebilir miyim?",
+      "a4": "Business planında sınırsız şube tek ekrandan yönetilir. Starter veya Pro planına Ek Şube Paketi eklenerek genişletilebilir.",
+      "q5": "KVKK uyumlu mu?",
+      "a5": "Evet. Müşteri verileri KVKK mevzuatına uygun işlenir, uçtan uca şifreleme uygulanır. Aydınlatma metni şablonu ve onay yönetimi dahildir.",
+      "q6": "İstediğim zaman iptal edebilir miyim?",
+      "a6": "Evet, hiçbir taahhüt veya ceza olmaksızın. İptal sonrası 30 gün verilerinize erişim hakkınız devam eder ve dışa aktarabilirsiniz."
+    },
+    "cta": {
+      "title": "Salonunuzu Büyütmeye",
+      "titleHighlight": "Bugün Başlayın",
+      "subtitle": "14 gün boyunca tüm özellikleri ücretsiz deneyin. Kredi kartı gerekmez. Verileriniz güvende, istediğiniz zaman iptal.",
+      "button": "Ücretsiz Hesap Oluştur"
+    }
   },
   "auth": {
     "login": "Giriş Yap",
@@ -224,7 +274,10 @@
     "preferredLanguage": "Tercih Edilen Dil",
     "noLanguage": "Belirtilmedi",
     "overviewShort": "Özet",
-    "theme": "Tema"
+    "theme": "Tema",
+    "websitePromo": "Web Sitesi Lazım mı?",
+    "trial": "⏱ Deneme",
+    "trialDaysLeft": "⏱ {days} Gün Kaldı"
   },
   "booking": {
     "title": "Online Randevu",

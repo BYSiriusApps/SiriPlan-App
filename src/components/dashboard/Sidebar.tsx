@@ -44,11 +44,10 @@ const PLAN_COLORS: Record<string, string> = {
   business: "rgba(168,85,247,0.25)",
 };
 
-function trialLabel(trialEndsAt?: string): string {
-  if (!trialEndsAt) return "⏱ Deneme";
+function trialDaysLeft(trialEndsAt?: string): number | null {
+  if (!trialEndsAt) return null;
   const msLeft = new Date(trialEndsAt).getTime() - Date.now();
-  const daysLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24)));
-  return `⏱ ${daysLeft} Gün Kaldı`;
+  return Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24)));
 }
 
 interface SidebarProps {
@@ -62,12 +61,14 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff",
   const pathname = usePathname();
   const t = useTranslations("dashboard");
 
+  const daysLeft = trialDaysLeft(trialEndsAt);
   const planLabel =
-    plan === "trial" ? trialLabel(trialEndsAt) :
-    plan === "starter" ? "⚡ Starter" :
-    plan === "pro" ? "✨ Pro Plan" :
-    plan === "business" ? "🏢 Business" :
-    "⏱ Deneme";
+    plan === "trial"
+      ? (daysLeft !== null ? t("trialDaysLeft", { days: daysLeft }) : t("trial"))
+      : plan === "starter" ? "⚡ Starter"
+      : plan === "pro"     ? "✨ Pro Plan"
+      : plan === "business"? "🏢 Business"
+      : t("trial");
   const planColor = PLAN_COLORS[plan] ?? PLAN_COLORS.trial;
 
   const visibleItems = NAV_ITEMS.filter(item => canSee(role, item.minRole));
@@ -212,7 +213,7 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff",
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-semibold text-white/70 leading-none mb-0.5">
-              Web Sitesi Lazım mı?
+              {t("websitePromo")}
             </p>
             <p className="text-[10px] text-white/35 truncate">bysirius.com</p>
           </div>

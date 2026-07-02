@@ -26,11 +26,13 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid body" }, { status: 400 });
 
-  const { email, password, salonName, fullName, phone, businessType, kvkkConsent, marketingConsent } = body as {
+  const VALID_LOCALES = new Set(["tr", "en", "ru", "ar"]);
+  const { email, password, salonName, fullName, phone, businessType, locale, kvkkConsent, marketingConsent } = body as {
     email: string; password: string; salonName: string;
     fullName: string; phone: string; businessType: string;
-    kvkkConsent: boolean; marketingConsent: boolean;
+    locale?: string; kvkkConsent: boolean; marketingConsent: boolean;
   };
+  const safeLocale = locale && VALID_LOCALES.has(locale) ? locale : "tr";
 
   if (!email || !password || !salonName || !fullName) {
     return NextResponse.json({ error: "Eksik alanlar" }, { status: 400 });
@@ -90,6 +92,7 @@ export async function POST(req: NextRequest) {
       plan: "trial",
       subscription_status: "active",
       trial_ends_at: trialEndsAt,
+      locale: safeLocale,
     })
     .select("id")
     .single();

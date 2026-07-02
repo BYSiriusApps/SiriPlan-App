@@ -1,25 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemePicker } from "@/components/layout/ThemePicker";
+import { useTranslations } from "next-intl";
 
-const navLinks = [
-  { href: "/ozellikler", label: "Özellikler" },
-  { href: "/fiyatlar", label: "Fiyatlar" },
-  { href: "/sss", label: "SSS" },
-  { href: "/blog", label: "Blog" },
-  { href: "/iletisim", label: "İletişim" },
-];
+const NAV_HREFS = [
+  { href: "/ozellikler", key: "features" },
+  { href: "/fiyatlar",   key: "pricing"  },
+  { href: "/sss",        key: "faq"      },
+  { href: "/blog",       key: "blog"     },
+  { href: "/iletisim",   key: "contact"  },
+] as const;
 
-const locales = [
-  { code: "tr", label: "TR" },
-  { code: "en", label: "EN" },
-  { code: "ru", label: "RU" },
-  { code: "ar", label: "AR" },
+const LOCALES = [
+  { code: "tr", label: "TR", flag: "🇹🇷" },
+  { code: "en", label: "EN", flag: "🇬🇧" },
+  { code: "ru", label: "RU", flag: "🇷🇺" },
+  { code: "ar", label: "AR", flag: "🇸🇦" },
 ];
 
 function getActiveLocale(): string {
@@ -29,10 +30,15 @@ function getActiveLocale(): string {
 }
 
 export function Navbar() {
+  const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
   const [activeLocale, setActiveLocale] = useState<string>("tr");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+
+  useEffect(() => {
+    setActiveLocale(getActiveLocale());
+  }, []);
 
   function switchLocale(code: string) {
     document.cookie = `NEXT_LOCALE=${code};path=/;max-age=31536000;samesite=lax`;
@@ -40,12 +46,6 @@ export function Navbar() {
     startTransition(() => {
       router.refresh();
     });
-  }
-
-  // Read from cookie on mount
-  if (typeof window !== "undefined" && activeLocale === "tr") {
-    const detected = getActiveLocale();
-    if (detected !== activeLocale) setActiveLocale(detected);
   }
 
   return (
@@ -66,13 +66,13 @@ export function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
-          {navLinks.map((l) => (
+          {NAV_HREFS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              {l.label}
+              {t(l.key)}
             </Link>
           ))}
         </nav>
@@ -81,18 +81,20 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           {/* Locale switcher */}
           <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-1">
-            {locales.map((l) => (
+            {LOCALES.map((l) => (
               <button
                 key={l.code}
                 onClick={() => switchLocale(l.code)}
                 disabled={isPending}
-                className={`px-2 py-0.5 text-xs font-medium rounded-md transition-all ${
+                title={l.label}
+                className={`flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-md transition-all ${
                   activeLocale === l.code
                     ? "bg-background shadow-sm text-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-background/60"
                 }`}
               >
-                {l.label}
+                <span className="text-sm leading-none">{l.flag}</span>
+                <span>{l.label}</span>
               </button>
             ))}
           </div>
@@ -101,12 +103,12 @@ export function Navbar() {
 
           <Link href="/auth/giris" className="hidden md:block">
             <Button variant="ghost" size="sm">
-              Giriş Yap
+              {t("login")}
             </Button>
           </Link>
           <Link href="/auth/kayit" className="hidden md:block">
             <Button size="sm" className="bg-primary hover:bg-primary/90 shadow-sm">
-              Ücretsiz Başla
+              {t("startFree")}
             </Button>
           </Link>
 
@@ -123,31 +125,32 @@ export function Navbar() {
       {/* Mobile menu */}
       {open && (
         <div className="md:hidden border-t border-border bg-background px-4 py-4 space-y-3">
-          {navLinks.map((l) => (
+          {NAV_HREFS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
               onClick={() => setOpen(false)}
             >
-              {l.label}
+              {t(l.key)}
             </Link>
           ))}
           {/* Mobile locale switcher */}
           <div className="pt-2 pb-1">
-            <p className="text-[10px] text-muted-foreground mb-2 uppercase tracking-wide">Dil / Language</p>
+            <p className="text-[10px] text-muted-foreground mb-2 uppercase tracking-wide">{t("language")}</p>
             <div className="flex gap-1.5">
-              {locales.map((l) => (
+              {LOCALES.map((l) => (
                 <button
                   key={l.code}
                   onClick={() => { switchLocale(l.code); setOpen(false); }}
-                  className={`px-3 py-1 text-xs font-medium rounded-md border transition-all ${
+                  className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border transition-all ${
                     activeLocale === l.code
                       ? "border-primary text-primary bg-primary/5"
                       : "border-border text-muted-foreground hover:border-primary/40"
                   }`}
                 >
-                  {l.label}
+                  <span className="text-sm leading-none">{l.flag}</span>
+                  <span>{l.label}</span>
                 </button>
               ))}
             </div>
@@ -155,12 +158,12 @@ export function Navbar() {
           <div className="pt-3 flex gap-2">
             <Link href="/auth/giris" className="flex-1">
               <Button variant="outline" size="sm" className="w-full">
-                Giriş Yap
+                {t("login")}
               </Button>
             </Link>
             <Link href="/auth/kayit" className="flex-1">
               <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
-                Ücretsiz Başla
+                {t("startFree")}
               </Button>
             </Link>
           </div>

@@ -1,38 +1,43 @@
 import Link from "next/link";
 import { Sparkles, Mail, Phone } from "lucide-react";
 import { BySiriusBadge } from "@/components/layout/BySiriusBadge";
+import { getTranslations } from "next-intl/server";
 
-const footerLinks = {
-  product: [
-    { label: "Özellikler", href: "/ozellikler" },
-    { label: "Fiyatlar", href: "/fiyatlar" },
-    { label: "Demo", href: "/demo" },
-    { label: "Entegrasyonlar", href: "/entegrasyonlar" },
-    { label: "SSS", href: "/sss" },
-  ],
-  categories: [
-    { label: "Kuaför Programı", href: "/kategori/kuafor" },
-    { label: "Berber Programı", href: "/kategori/berber" },
-    { label: "Güzellik Salonu", href: "/kategori/guzellik" },
-    { label: "SPA & Masaj", href: "/kategori/spa" },
-    { label: "Nail Salon", href: "/kategori/nail" },
-    { label: "Estetik Klinik", href: "/kategori/estetik" },
-  ],
-  company: [
-    { label: "Hakkımızda", href: "/hakkimizda" },
-    { label: "Blog", href: "/blog" },
-    { label: "İletişim", href: "/iletisim" },
-    { label: "Kariyer", href: "/kariyer" },
-  ],
-  legal: [
-    { label: "Gizlilik Politikası", href: "/gizlilik" },
-    { label: "Kullanım Koşulları", href: "/kosullar" },
-    { label: "Çerez Politikası", href: "/cerezler" },
-    { label: "KVKK", href: "/kvkk" },
-  ],
-};
+export async function Footer() {
+  const t = await getTranslations("footer");
+  const tCat = await getTranslations("categories");
 
-export function Footer() {
+  const productLinks = [
+    { key: "features",     href: "/ozellikler"    },
+    { key: "pricing",      href: "/fiyatlar"      },
+    { key: "demo",         href: "/demo"          },
+    { key: "integrations", href: "/entegrasyonlar" },
+    { key: "faq",          href: "/sss"           },
+  ] as const;
+
+  const categoryLinks = [
+    { key: "hairdresser", href: "/kategori/kuafor"     },
+    { key: "barber",      href: "/kategori/berber"     },
+    { key: "beauty",      href: "/kategori/guzellik"   },
+    { key: "spa",         href: "/kategori/spa"        },
+    { key: "nail",        href: "/kategori/nail"       },
+    { key: "aesthetic",   href: "/kategori/estetik"    },
+  ] as const;
+
+  const companyLinks = [
+    { key: "about",   href: "/hakkimizda" },
+    { key: "blog",    href: "/blog"       },
+    { key: "contact", href: "/iletisim"   },
+    { key: "careers", href: "/kariyer"    },
+  ] as const;
+
+  const legalLinks = [
+    { key: "privacy", href: "/gizlilik" },
+    { key: "terms",   href: "/kosullar" },
+    { key: "cookie",  href: "/cerezler" },
+    { key: "kvkk",    href: "/kvkk"     },
+  ] as const;
+
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="container mx-auto px-4 py-12">
@@ -48,7 +53,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-              Her sektöre özel akıllı randevu yönetimi. AI destekli, çok kanallı, kesintisiz.
+              {t("tagline")}
             </p>
             {/* Contact quick links */}
             <div className="space-y-1.5 mb-4">
@@ -74,12 +79,12 @@ export function Footer() {
 
           {/* Product */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Ürün</h3>
+            <h3 className="text-sm font-semibold mb-3">{t("product")}</h3>
             <ul className="space-y-2">
-              {footerLinks.product.map((l) => (
+              {productLinks.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    {l.label}
+                    {t(l.key)}
                   </Link>
                 </li>
               ))}
@@ -88,12 +93,12 @@ export function Footer() {
 
           {/* Categories */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Sektörler</h3>
+            <h3 className="text-sm font-semibold mb-3">{t("sectors")}</h3>
             <ul className="space-y-2">
-              {footerLinks.categories.map((l) => (
+              {categoryLinks.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    {l.label}
+                    {tCat(l.key)}
                   </Link>
                 </li>
               ))}
@@ -102,12 +107,12 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Şirket</h3>
+            <h3 className="text-sm font-semibold mb-3">{t("company")}</h3>
             <ul className="space-y-2">
-              {footerLinks.company.map((l) => (
+              {companyLinks.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    {l.label}
+                    {t(l.key)}
                   </Link>
                 </li>
               ))}
@@ -116,12 +121,12 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Yasal</h3>
+            <h3 className="text-sm font-semibold mb-3">{t("legal")}</h3>
             <ul className="space-y-2">
-              {footerLinks.legal.map((l) => (
+              {legalLinks.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    {l.label}
+                    {t(l.key)}
                   </Link>
                 </li>
               ))}
@@ -131,7 +136,7 @@ export function Footer() {
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} BY Sirius Group AI and Technology Co. Ltd. Tüm hakları saklıdır.
+            © {new Date().getFullYear()} BY Sirius Group AI and Technology Co. Ltd. {t("rights")}
           </p>
           <div className="flex items-center gap-5">
             {/* Social links */}

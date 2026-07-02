@@ -13,6 +13,13 @@ import { Loader2, Building2, Mail, Lock, Phone, User, AlertCircle } from "lucide
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
+const LOCALES = [
+  { code: "tr", label: "TR", flag: "🇹🇷", name: "Türkçe" },
+  { code: "en", label: "EN", flag: "🇬🇧", name: "English" },
+  { code: "ru", label: "RU", flag: "🇷🇺", name: "Русский" },
+  { code: "ar", label: "AR", flag: "🇸🇦", name: "العربية" },
+];
+
 const BUSINESS_TYPES = [
   { value: "kuafor",    label: "💇 Kuaför / Saç Salonu" },
   { value: "berber",    label: "✂️ Berber" },
@@ -39,6 +46,7 @@ function normalizePhone(raw: string) {
 export default function KayitPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [selectedLocale, setSelectedLocale] = useState("tr");
   const [form, setForm] = useState({
     salonName: "", type: "kuafor", fullName: "",
     email: "", phone: "", password: "",
@@ -102,6 +110,7 @@ export default function KayitPage() {
           fullName: form.fullName.trim(),
           phone: normalizePhone(form.phone),
           businessType: form.type,
+          locale: selectedLocale,
           kvkkConsent: kvkkChecked,
           marketingConsent: marketingChecked,
         }),
@@ -139,6 +148,29 @@ export default function KayitPage() {
   return (
     <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm">
       <CardHeader className="text-center pb-2">
+        <div className="flex justify-end mb-1">
+          <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
+            {LOCALES.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                title={l.name}
+                onClick={() => {
+                  setSelectedLocale(l.code);
+                  document.cookie = `NEXT_LOCALE=${l.code};path=/;max-age=31536000;samesite=lax`;
+                }}
+                className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-all ${
+                  selectedLocale === l.code
+                    ? "bg-background shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span className="text-sm leading-none">{l.flag}</span>
+                <span>{l.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
         <CardTitle className="text-2xl">14 Gün Ücretsiz Deneyin</CardTitle>
         <CardDescription>Kredi kartı gerekmez • Anında başlayın</CardDescription>
       </CardHeader>

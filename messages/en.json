@@ -7,15 +7,20 @@
     "blog": "Blog",
     "contact": "Contact",
     "login": "Log In",
-    "startFree": "Start Free"
+    "startFree": "Start Free",
+    "language": "Language",
+    "faq": "FAQ"
   },
   "hero": {
-    "badge": "The Platform Trusted by Beauty Industry",
-    "title": "Manage Your Salon\nFrom A to Z",
+    "badge": "Trusted by 10+ Sectors",
+    "title": "Manage Your Business <highlight>Smartly</highlight>",
     "subtitle": "Combine appointment, staff, customer and revenue management in one platform. Auto-reply via WhatsApp/Instagram with AI assistant.",
+    "subtitleHighlight": "Tailored for every sector — unlimited appointments, zero complexity.",
     "cta": "Try Free for 14 Days",
     "ctaSecondary": "Watch Demo",
-    "trial": "No credit card required"
+    "noCard": "No credit card required",
+    "trial14": "14 days free",
+    "cancelAnytime": "Cancel anytime"
   },
   "stats": {
     "businesses": "Active Businesses",
@@ -25,38 +30,38 @@
   },
   "features": {
     "title": "Everything in One Place",
-    "subtitle": "Tools that will put you ahead of your competitors",
+    "subtitle": "Tools that will put you ahead of your competitors — all in one",
     "booking": {
       "title": "Multi-Channel Booking",
-      "desc": "Customers can book via Web, WhatsApp, Instagram and QR code from anywhere."
+      "desc": "Customers can book via Web, WhatsApp, Instagram and QR code from anywhere. Conflict check is automatic."
     },
     "ai": {
       "title": "AI Assistant",
-      "desc": "24/7 automatic, smart replies to WhatsApp and Instagram DMs. Never miss a customer."
+      "desc": "24/7 smart replies to WhatsApp and Instagram DMs. AI answers pricing, appointment and direction questions."
     },
     "crm": {
       "title": "Customer Score",
-      "desc": "Loyalty score 0-100 for each customer. Know and reward your most valuable customers."
+      "desc": "Loyalty score 0-100 for each customer. Know your most valuable customers and offer priority appointments."
     },
     "staff": {
-      "title": "Staff Management",
-      "desc": "Commission tracking, shift planning and Staff of the Week gamification system."
+      "title": "Staff of the Week",
+      "desc": "Gamification system that motivates staff. Weekly champion, monthly badges, performance rankings."
     },
     "analytics": {
-      "title": "Revenue Analytics",
-      "desc": "Real-time revenue dashboard, VAT reports and PDF export. Your data always at hand."
+      "title": "Revenue & Analytics",
+      "desc": "Real-time revenue dashboard, VAT reports, staff performance, PDF export."
     },
     "migration": {
       "title": "Easy Data Migration",
-      "desc": "Import all your data from your existing appointment software or Excel in one click. No data loss."
+      "desc": "Import all your data from your existing appointment software or Excel in one click. Zero data loss."
     },
     "campaigns": {
       "title": "Campaign Module",
-      "desc": "Birthday, inactive customer and special campaigns. Targeted WhatsApp/SMS messages."
+      "desc": "Birthday messages, inactive customer campaigns, targeted bulk WhatsApp/SMS sending."
     },
     "export": {
       "title": "Your Data Belongs to You",
-      "desc": "Download all your data as JSON, Excel or CSV at any time. No lock-in."
+      "desc": "Download all your data as JSON, Excel or CSV at any time. Never get locked into any system."
     }
   },
   "pricing": {
@@ -72,6 +77,8 @@
     "mostPopular": "Most Popular",
     "startTrial": "Start Free Trial",
     "contactUs": "Contact Us",
+    "bottomNote": "14-day free trial · No credit card required · Cancel anytime",
+    "annualLabel": "or {annual}/mo · {total}/yr ({save})",
     "starter": {
       "name": "Starter",
       "desc": "Perfect starting point for small salons",
@@ -118,35 +125,35 @@
   },
   "addons": {
     "title": "Add-on Packages",
-    "subtitle": "Customize your plan as needed",
+    "subtitle": "Add services sold separately at high prices elsewhere to your plan",
     "whatsappAI": {
       "name": "AI WhatsApp Package",
-      "desc": "Advanced AI assistant — smart booking suggestions, sentiment analysis",
+      "desc": "Advanced AI assistant, sentiment analysis, smart suggestions",
       "price": "$29/mo"
     },
     "sms": {
       "name": "SMS Package",
-      "desc": "1,000 SMS/month — Twilio infrastructure, delivery guarantee",
+      "desc": "1,000 SMS/month, Twilio infrastructure, delivery guarantee",
       "price": "$19/mo"
     },
     "multiBranch": {
-      "name": "Additional Branch",
-      "desc": "For each additional branch on Starter/Pro plan",
+      "name": "Additional Branch Package",
+      "desc": "Add extra branches to Starter/Pro",
       "price": "$29/branch/mo"
     },
     "premiumAnalytics": {
       "name": "Premium Analytics",
-      "desc": "Customizable dashboard, staff payroll, KPI tracking",
+      "desc": "Staff payroll, KPI tracking, customizable reports",
       "price": "$25/mo"
     },
     "googleReview": {
-      "name": "Google Review & SEO",
-      "desc": "Automated Google review requests, local SEO reports",
+      "name": "Google Reviews & SEO",
+      "desc": "Automated Google review requests, local SEO report",
       "price": "$15/mo"
     },
     "dataMigration": {
       "name": "Professional Data Migration",
-      "desc": "Our team manually migrates your data — guaranteed",
+      "desc": "Our team migrates your data with a guarantee",
       "price": "$99 one-time"
     }
   },
@@ -171,14 +178,57 @@
   "footer": {
     "tagline": "The smart management platform for the beauty industry",
     "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "demo": "Demo",
+    "integrations": "Integrations",
+    "faq": "FAQ",
+    "sectors": "Sectors",
+    "blog": "Blog",
     "company": "Company",
-    "legal": "Legal",
     "about": "About Us",
+    "contact": "Contact",
     "careers": "Careers",
+    "legal": "Legal",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
+    "cookie": "Cookie Policy",
+    "kvkk": "KVKK",
     "powered": "Powered by",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "whatsappSupport": "WhatsApp Support"
+  },
+  "home": {
+    "trust": {
+      "ssl": "SSL Encrypted",
+      "uptime": "99.9% Uptime Guarantee",
+      "kvkk": "KVKK Compliant",
+      "dataOwnership": "Your Data Belongs to You",
+      "infrastructure": "BY Sirius Group Infrastructure"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Answers to the most common questions",
+      "viewAll": "View all questions",
+      "q1": "Is the 14-day trial really free?",
+      "a1": "Yes, no credit card required. Use all Pro features for 14 days. If you like it, continue — if not, leave with no charge.",
+      "q2": "Can I migrate my data from my existing system?",
+      "a2": "Yes. You can transfer data from your current appointment software or Excel in one click. Professional Data Migration service performed by our team is also available.",
+      "q3": "How does the WhatsApp AI assistant work?",
+      "a3": "It instantly responds to your customers' WhatsApp messages 24/7. Appointment questions, pricing info, and directions are handled automatically. You just focus on your service.",
+      "q4": "Can I manage multiple branches?",
+      "a4": "In the Business plan, unlimited branches are managed from a single screen. The Starter or Pro plan can be expanded by adding the Extra Branch Package.",
+      "q5": "Is it KVKK compliant?",
+      "a5": "Yes. Customer data is processed in accordance with KVKK regulations, end-to-end encryption is applied. Disclosure text template and consent management are included.",
+      "q6": "Can I cancel anytime?",
+      "a6": "Yes, with no commitment or penalty. After cancellation, you retain access to your data for 30 days and can export it."
+    },
+    "cta": {
+      "title": "Start Growing",
+      "titleHighlight": "Your Salon Today",
+      "subtitle": "Try all features free for 14 days. No credit card required. Your data is safe, cancel anytime.",
+      "button": "Create Free Account"
+    }
   },
   "auth": {
     "login": "Log In",
@@ -224,7 +274,10 @@
     "preferredLanguage": "Preferred Language",
     "noLanguage": "Not Set",
     "overviewShort": "Summary",
-    "theme": "Theme"
+    "theme": "Theme",
+    "websitePromo": "Need a Website?",
+    "trial": "⏱ Trial",
+    "trialDaysLeft": "⏱ {days} Days Left"
   },
   "booking": {
     "title": "Online Booking",

@@ -1,11 +1,15 @@
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import { Navbar } from "@/components/marketing/Navbar";
 import { Footer } from "@/components/marketing/Footer";
 import { ChatWidget } from "@/components/marketing/ChatWidget";
 import { Toaster } from "@/components/ui/sonner";
 
-export default function MarketingLayout({ children }: { children: React.ReactNode }) {
+export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
+  const messages = await getMessages();
+
   return (
-    <>
+    <NextIntlClientProvider messages={messages}>
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
@@ -27,6 +31,6 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
 
       {/* AI Chatbot — position above WhatsApp button */}
       <ChatWidget />
-    </>
+    </NextIntlClientProvider>
   );
 }
