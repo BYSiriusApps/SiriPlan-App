@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { X, CheckCircle2, XCircle, AlertCircle, Loader2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 const STATUS_COLORS: Record<string, string> = {
   talep: "bg-yellow-100 border-yellow-300 text-yellow-900 dark:bg-yellow-900/40 dark:border-yellow-700 dark:text-yellow-200",
@@ -46,6 +47,7 @@ interface Props {
   weekDays: string[]; // ISO date strings yyyy-MM-dd
   today: string;
   hours: number[];
+  orgId: string;
 }
 
 interface Popover {
@@ -54,12 +56,55 @@ interface Popover {
   y: number;
 }
 
-export function CalendarGrid({ staff, appointments, weekDays, today, hours }: Props) {
+export function CalendarGrid({ staff, appointments, weekDays, today, hours, orgId }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [popover, setPopover] = useState<Popover | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [localStatuses, setLocalStatuses] = useState<Record<string, string>>({});
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Supabase Realtime: dışarıdan eklenen/güncellenen randevuları yakala
+  useEffect(() => {
+    const supabase = createClient();
+
+    function scheduleRefresh() {
+      // Debounce: arka arkaya gelen birden fazla event için tek refresh
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = setTimeout(() => {
+        startTransition(() => router.refresh());
+      }, 800);
+    }
+
+    const channel = supabase
+      .channel(`calendar-appointments-${orgId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "appointments",
+          filter: `org_id=eq.${orgId}`,
+        },
+        () => scheduleRefresh()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "appointment_requests",
+          filter: `org_id=eq.${orgId}`,
+        },
+        () => scheduleRefresh()
+      )
+      .subscribe();
+
+    return () => {
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+      supabase.removeChannel(channel);
+    };
+  }, [orgId, router]);
 
   // Group appointments by staff and day
   const apptMap: Record<string, Record<string, Appointment[]>> = {};

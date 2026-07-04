@@ -42,11 +42,8 @@ export default function AyarlarPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.from("org_members").select("org_id, organizations(*)").eq("user_id", (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      return user?.id || "";
-    })() as unknown as string)
-      .then(async () => {
+    (async () => {
+      try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         const { data: member } = await supabase
@@ -61,8 +58,10 @@ export default function AyarlarPage() {
           .eq("id", member.org_id)
           .single();
         setOrg(orgData);
+      } finally {
         setLoading(false);
-      });
+      }
+    })();
   }, []);
 
   async function handleSave() {

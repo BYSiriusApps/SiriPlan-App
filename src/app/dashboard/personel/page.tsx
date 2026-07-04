@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { UserCog, Phone, Mail, Star, MessageCircle } from "lucide-react";
+import { StaffInviteDialog } from "@/components/dashboard/StaffInviteDialog";
 import type { Staff } from "@/types/database";
 
 const DAYS = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
@@ -72,13 +73,20 @@ export default async function PersonelPage() {
             {staff?.length || 0}/{maxStaff} personel kullanılıyor
           </p>
         </div>
-        {(staff?.length || 0) < maxStaff && (
-          <Link
-            href="/dashboard/personel/yeni"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-          >
-            + Personel Ekle
-          </Link>
+        {m.role !== "staff" && (
+          <div className="flex items-center gap-2">
+            <StaffInviteDialog
+              staffList={(staff || []).map((s) => ({ id: s.id, full_name: s.full_name }))}
+            />
+            {m.role === "owner" && (staff?.length || 0) < maxStaff && (
+              <Link
+                href="/dashboard/personel/yeni"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                + Personel Ekle
+              </Link>
+            )}
+          </div>
         )}
       </div>
 

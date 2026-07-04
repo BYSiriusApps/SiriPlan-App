@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Scissors, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell } from "lucide-react";
 
 const DAYS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
@@ -30,6 +30,8 @@ interface StaffData {
   working_days: number[];
   is_active: boolean;
   avatar_url?: string | null;
+  telegram_chat_id?: string | null;
+  whatsapp_number?: string | null;
   staff_services?: StaffService[];
 }
 
@@ -50,6 +52,8 @@ export default function PersonelDetayPage() {
     start_time: "09:00",
     end_time: "18:00",
     working_days: [] as number[],
+    telegram_chat_id: "",
+    whatsapp_number: "",
   });
 
   useEffect(() => {
@@ -67,6 +71,8 @@ export default function PersonelDetayPage() {
           start_time: s.start_time || "09:00",
           end_time: s.end_time || "18:00",
           working_days: s.working_days || [],
+          telegram_chat_id: s.telegram_chat_id || "",
+          whatsapp_number: s.whatsapp_number || "",
         });
       })
       .catch(() => toast.error("Yüklenemedi"))
@@ -92,6 +98,8 @@ export default function PersonelDetayPage() {
       body: JSON.stringify({
         ...form,
         commission_rate: (parseFloat(form.commission_rate) || 0) / 100,
+        telegram_chat_id: form.telegram_chat_id || null,
+        whatsapp_number: form.whatsapp_number || null,
       }),
     });
     setSaving(false);
@@ -220,6 +228,35 @@ export default function PersonelDetayPage() {
                     type="time"
                     value={form.end_time}
                     onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2 border-t">
+              <Label className="text-sm font-medium flex items-center gap-1.5">
+                <Bell className="h-3.5 w-3.5 text-primary" />
+                Bildirim Kanalları
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Doldurulan her kanaldan otomatik randevu bildirimi gönderilir.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Telegram Chat ID</Label>
+                  <Input
+                    value={form.telegram_chat_id}
+                    onChange={(e) => setForm((f) => ({ ...f, telegram_chat_id: e.target.value }))}
+                    placeholder="123456789"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">WhatsApp Numarası</Label>
+                  <Input
+                    type="tel"
+                    value={form.whatsapp_number}
+                    onChange={(e) => setForm((f) => ({ ...f, whatsapp_number: e.target.value }))}
+                    placeholder="905xxxxxxxxx"
                   />
                 </div>
               </div>

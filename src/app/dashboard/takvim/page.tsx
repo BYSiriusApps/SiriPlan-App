@@ -95,6 +95,7 @@ export default async function TakvimPage({
           weekDays={weekDays}
           today={today}
           hours={HOURS}
+          orgId={member.org_id}
         />
       )}
     </div>

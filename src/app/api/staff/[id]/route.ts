@@ -39,7 +39,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (!member) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
-  const ALLOWED = ["full_name", "role", "phone", "email", "commission_rate", "start_time", "end_time", "working_days", "is_active"];
+  const ALLOWED = ["full_name", "role", "phone", "email", "commission_rate", "start_time", "end_time", "working_days", "is_active", "telegram_chat_id", "whatsapp_number"];
   const updates: Record<string, unknown> = {};
   for (const key of ALLOWED) {
     if (key in body) updates[key] = body[key];

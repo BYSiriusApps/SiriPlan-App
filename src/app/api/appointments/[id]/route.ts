@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { notifyAppointment } from "@/lib/notify";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -74,6 +75,31 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Randevu güncellenince ilgili taraflara bildirim gönder (fire-and-forget)
+  // Sadece saat veya personel değişikliğinde: iç durum güncellemeleri (tamamlandi, iptal, gelmedi)
+  // için bildirim gönderme — onay kanallarını gürültüye boğar.
+  const appointmentChanged = updates.appointment_at || updates.staff_id;
+  if (appointmentChanged && data) {
+    const apptData = data as {
+      id: string; org_id: string; customer_name: string; customer_phone: string;
+      appointment_at: string; service_id: string; staff_id: string; price: number; note?: string; source?: string;
+    };
+    notifyAppointment({
+      id: apptData.id,
+      org_id: apptData.org_id,
+      customer_name: apptData.customer_name,
+      customer_phone: apptData.customer_phone,
+      appointment_at: apptData.appointment_at,
+      service_id: apptData.service_id,
+      staff_id: apptData.staff_id,
+      assigned_staff_id: apptData.staff_id,
+      price: apptData.price,
+      note: apptData.note,
+      source: apptData.source,
+    }).catch(() => {});
+  }
+
   return NextResponse.json({ appointment: data });
 }
 

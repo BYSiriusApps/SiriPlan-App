@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { sendConfirmationEmail } from "@/lib/email/send";
+import { notifyAppointment, notifyAppointmentRequest } from "@/lib/notify";
 import { z } from "zod";
 
 const ExtraServiceSchema = z.object({
@@ -14,22 +15,27 @@ const CreateSchema = z.object({
   org_id: z.string().uuid(),
   customer_name: z.string().min(2).max(100),
   customer_phone: z.string().min(10).max(20),
-  customer_email: z.string().email().optional(),
+  customer_email: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.string().email().optional()
+  ),
   staff_id: z.string().uuid(),
   service_id: z.string().uuid(),
   extra_services_json: z.array(ExtraServiceSchema).optional().default([]),
   total_price_override: z.number().optional(),
   total_duration_override: z.number().optional(),
   appointment_at: z.string(),
-  note: z.string().optional(),
-  source: z.enum(["web", "whatsapp", "instagram", "telefon", "yuzyuze"]).default("web"),
+  note: z.preprocess((v) => (v === "" ? undefined : v), z.string().optional()),
+  source: z.enum(["web", "website", "whatsapp", "instagram", "telefon", "yuzyuze", "manual"]).default("web"),
 });
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const parsed = CreateSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    const firstError = Object.entries(fieldErrors).map(([k, v]) => `${k}: ${(v as string[]).join(", ")}`).join("; ");
+    return NextResponse.json({ error: firstError || "Geçersiz form verisi" }, { status: 400 });
   }
 
   const data = parsed.data;
@@ -38,7 +44,7 @@ export async function POST(req: NextRequest) {
   // Server-side quota: check max_appointments_monthly
   const { data: org } = await supabase
     .from("organizations")
-    .select("max_appointments_monthly, subscription_status, trial_ends_at")
+    .select("max_appointments_monthly, subscription_status, trial_ends_at, has_auto_booking, plan")
     .eq("id", data.org_id)
     .single();
 
@@ -50,6 +56,68 @@ export async function POST(req: NextRequest) {
     (org.trial_ends_at && new Date(org.trial_ends_at) > new Date());
   if (!isActive) {
     return NextResponse.json({ error: "Bu salon şu an aktif aboneliğe sahip değil." }, { status: 403 });
+  }
+
+  // ── Otomatik Randevu Akışı ────────────────────────────────────
+  // instagram/whatsapp kaynağından gelen istekler has_auto_booking flag'ine göre
+  // ya direkt appointments'a düşer ya da onay kuyruğuna gönderilir.
+  const isExternalSource = data.source === "instagram" || data.source === "whatsapp";
+
+  // Dışarıdan randevu akışı (has_auto_booking) yalnızca Pro/Business planlarında aktif
+  const planAllowsAutoBooking = org.plan === "pro" || org.plan === "business";
+  if (isExternalSource && org.has_auto_booking && !planAllowsAutoBooking) {
+    return NextResponse.json(
+      { error: "Otomatik randevu özelliği Pro veya Business planı gerektirir." },
+      { status: 403 }
+    );
+  }
+
+  if (isExternalSource && !org.has_auto_booking) {
+    // Onay gerekiyor: appointment_requests tablosuna yaz
+    const [{ data: svcForReq }, { data: staffForReq }] = await Promise.all([
+      supabase.from("services").select("name, price, duration_minutes").eq("id", data.service_id).eq("org_id", data.org_id).single(),
+      supabase.from("staff").select("full_name").eq("id", data.staff_id).single(),
+    ]);
+
+    const { data: reqRow, error: reqErr } = await supabase
+      .from("appointment_requests")
+      .insert({
+        org_id: data.org_id,
+        customer_name: data.customer_name,
+        customer_phone: data.customer_phone,
+        customer_email: data.customer_email,
+        staff_id: data.staff_id,
+        service_id: data.service_id,
+        extra_services_json: data.extra_services_json,
+        appointment_at: data.appointment_at,
+        duration_minutes: data.total_duration_override ?? (svcForReq as { duration_minutes: number } | null)?.duration_minutes,
+        price: data.total_price_override ?? (svcForReq as { price: number } | null)?.price,
+        note: data.note,
+        source: data.source,
+        status: "pending",
+      })
+      .select("id")
+      .single();
+
+    if (reqErr) return NextResponse.json({ error: reqErr.message }, { status: 500 });
+
+    // Salon sahibine bildirim gönder (fire-and-forget)
+    notifyAppointmentRequest({
+      id: reqRow.id,
+      org_id: data.org_id,
+      customer_name: data.customer_name,
+      customer_phone: data.customer_phone,
+      appointment_at: data.appointment_at,
+      service_id: data.service_id,
+      staff_id: data.staff_id,
+      price: data.total_price_override ?? (svcForReq as { price: number } | null)?.price,
+      note: data.note,
+      source: data.source,
+      serviceName: (svcForReq as { name: string } | null)?.name,
+      staffName: (staffForReq as { full_name: string } | null)?.full_name,
+    }).catch(() => {});
+
+    return NextResponse.json({ request_id: reqRow.id, status: "pending" }, { status: 202 });
   }
 
   if (org.max_appointments_monthly && org.max_appointments_monthly < 999999) {
@@ -122,6 +190,7 @@ export async function POST(req: NextRequest) {
       customer_name: data.customer_name,
       customer_phone: data.customer_phone,
       staff_id: data.staff_id,
+      assigned_staff_id: data.staff_id,
       service_id: data.service_id,
       extra_services_json: data.extra_services_json,
       appointment_at: data.appointment_at,
@@ -130,6 +199,7 @@ export async function POST(req: NextRequest) {
       source: data.source,
       note: data.note,
       status: "onaylandi",
+      is_auto: isExternalSource && !!org.has_auto_booking,
     })
     .select("*")
     .single();
@@ -137,6 +207,21 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Bildirim gönder (fire-and-forget)
+  notifyAppointment({
+    id: (appt as { id: string }).id,
+    org_id: data.org_id,
+    customer_name: data.customer_name,
+    customer_phone: data.customer_phone,
+    appointment_at: data.appointment_at,
+    service_id: data.service_id,
+    staff_id: data.staff_id,
+    assigned_staff_id: data.staff_id,
+    price: finalPrice,
+    note: data.note,
+    source: data.source,
+  }).catch(() => {});
 
   // Send confirmation email
   if (data.customer_email) {

@@ -130,10 +130,11 @@ export default function YeniRandevuPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
+        customer_email: form.customer_email || undefined,
+        note: form.note || undefined,
         org_id: orgId,
         service_id: primaryService.id,
         extra_services_json: extraServices,
-        // Total price and duration from all services
         total_price_override: totalPrice,
         total_duration_override: totalDuration,
       }),
@@ -143,10 +144,12 @@ export default function YeniRandevuPage() {
     if (res.ok) {
       const data = await res.json();
       toast.success("Randevu oluşturuldu");
-      router.push(`/dashboard/randevular/${data.appointment.id}`);
+      // Takvime yönlendir ve haftayı randevu tarihine göre aç
+      const apptDate = form.appointment_at.slice(0, 10);
+      router.push(`/dashboard/takvim?date=${apptDate}`);
     } else {
       const err = await res.json();
-      toast.error(err.error || "Hata oluştu");
+      toast.error(typeof err.error === "string" ? err.error : "Randevu oluşturulamadı");
     }
   }
 
