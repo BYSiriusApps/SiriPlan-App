@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Calendar, Phone, User } from "lucide-react";
 import type { Appointment } from "@/types/database";
+import { RandevularHeader } from "@/components/dashboard/RandevularHeader";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   talep:      { label: "Talep",      className: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300" },
@@ -34,6 +35,21 @@ export default async function RandevularPage({
     .single();
   if (!member) redirect("/auth/kayit");
 
+  const [{ data: staff }, { data: services }] = await Promise.all([
+    supabase
+      .from("staff")
+      .select("id, full_name, avatar_url, role")
+      .eq("org_id", member.org_id)
+      .eq("is_active", true)
+      .order("display_order"),
+    supabase
+      .from("services")
+      .select("id, name, price, duration_minutes")
+      .eq("org_id", member.org_id)
+      .eq("is_active", true)
+      .order("display_order"),
+  ]);
+
   let query = supabase
     .from("appointments")
     .select("*, staff(full_name), service:services(name, duration_minutes)")
@@ -55,15 +71,21 @@ export default async function RandevularPage({
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Randevular</h1>
-        <Link
-          href="/dashboard/randevular/yeni"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          + Randevu Ekle
-        </Link>
-      </div>
+      <RandevularHeader
+        orgId={member.org_id}
+        staff={(staff ?? []).map((s) => ({
+          id: s.id,
+          full_name: s.full_name,
+          avatar_url: (s as { avatar_url?: string | null }).avatar_url ?? null,
+          role: (s as { role?: string }).role,
+        }))}
+        services={(services ?? []).map((s) => ({
+          id: s.id,
+          name: s.name,
+          price: s.price,
+          duration_minutes: s.duration_minutes,
+        }))}
+      />
 
       {/* Status filters */}
       <div className="flex gap-2 flex-wrap">

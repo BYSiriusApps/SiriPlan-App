@@ -5,6 +5,7 @@ import { format, startOfWeek, addDays } from "date-fns";
 import { tr } from "date-fns/locale";
 import Link from "next/link";
 import { CalendarGrid } from "@/components/dashboard/CalendarGrid";
+import { TakvimHeader } from "@/components/dashboard/TakvimHeader";
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8-20
 
@@ -31,7 +32,7 @@ export default async function TakvimPage({
     format(addDays(weekStart, i), "yyyy-MM-dd")
   );
 
-  const [{ data: appointments }, { data: staff }] = await Promise.all([
+  const [{ data: appointments }, { data: staff }, { data: services }] = await Promise.all([
     supabase
       .from("appointments")
       .select("*, staff(id, full_name), service:services(name)")
@@ -42,7 +43,14 @@ export default async function TakvimPage({
 
     supabase
       .from("staff")
-      .select("id, full_name")
+      .select("id, full_name, avatar_url, role")
+      .eq("org_id", member.org_id)
+      .eq("is_active", true)
+      .order("display_order"),
+
+    supabase
+      .from("services")
+      .select("id, name, price, duration_minutes")
       .eq("org_id", member.org_id)
       .eq("is_active", true)
       .order("display_order"),
@@ -51,27 +59,29 @@ export default async function TakvimPage({
   const prevWeek = format(addDays(weekStart, -7), "yyyy-MM-dd");
   const nextWeek = format(addDays(weekStart, 7), "yyyy-MM-dd");
   const today = format(new Date(), "yyyy-MM-dd");
+  const weekLabel = `${format(weekStart, "d MMM", { locale: tr })} – ${format(addDays(weekStart, 6), "d MMM yyyy", { locale: tr })}`;
 
   return (
     <div className="p-6 space-y-4">
-      {/* Week navigation */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Takvim</h1>
-        <div className="flex items-center gap-3">
-          <Link href={`/dashboard/takvim?date=${prevWeek}`} className="px-3 py-1.5 rounded-lg border hover:bg-accent transition-colors text-sm">
-            ← Önceki
-          </Link>
-          <span className="text-sm font-medium">
-            {format(weekStart, "d MMM", { locale: tr })} – {format(addDays(weekStart, 6), "d MMM yyyy", { locale: tr })}
-          </span>
-          <Link href={`/dashboard/takvim?date=${nextWeek}`} className="px-3 py-1.5 rounded-lg border hover:bg-accent transition-colors text-sm">
-            Sonraki →
-          </Link>
-          <Link href="/dashboard/takvim" className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
-            Bu Hafta
-          </Link>
-        </div>
-      </div>
+      <TakvimHeader
+        orgId={member.org_id}
+        staff={(staff ?? []).map((s) => ({
+          id: s.id,
+          full_name: s.full_name,
+          avatar_url: (s as { avatar_url?: string | null }).avatar_url ?? null,
+          role: (s as { role?: string }).role,
+        }))}
+        services={(services ?? []).map((s) => ({
+          id: s.id,
+          name: s.name,
+          price: s.price,
+          duration_minutes: s.duration_minutes,
+        }))}
+        weekLabel={weekLabel}
+        prevWeek={prevWeek}
+        nextWeek={nextWeek}
+        today={today}
+      />
 
       {!staff || staff.length === 0 ? (
         <Card className="border-0 shadow-sm">
