@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { sendConfirmationEmail } from "@/lib/email/send";
 import { notifyAppointment, notifyAppointmentRequest } from "@/lib/notify";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const ExtraServiceSchema = z.object({
@@ -247,6 +248,10 @@ export async function POST(req: NextRequest) {
       }).catch(() => {});
     }
   }
+
+  // Sayfaları cache'den temizle — yeni randevu hemen listede görünsün
+  revalidatePath("/dashboard/randevular");
+  revalidatePath("/dashboard/takvim");
 
   return NextResponse.json({ appointment: appt }, { status: 201 });
 }

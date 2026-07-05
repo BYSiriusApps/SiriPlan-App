@@ -23,16 +23,22 @@ export default async function PersonelPage() {
 
   const { data: member } = await supabase
     .from("org_members")
-    .select("org_id, role, organizations(max_staff, settings_json)")
+    .select("org_id, role")
     .eq("user_id", user.id)
     .single();
   if (!member) redirect("/auth/kayit");
 
   const orgId = member.org_id;
-  type MemberWithOrg = { org_id: string; role: string; organizations: { max_staff: number; settings_json: Record<string, unknown> | null } | null };
-  const m = member as unknown as MemberWithOrg;
-  const maxStaff = m.organizations?.max_staff || 3;
-  const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
+
+  const { data: orgData } = await supabase
+    .from("organizations")
+    .select("max_staff, settings_json")
+    .eq("id", orgId)
+    .single();
+
+  const m = { org_id: orgId, role: member.role };
+  const maxStaff = (orgData as { max_staff?: number } | null)?.max_staff || 3;
+  const settings = ((orgData as { settings_json?: Record<string, unknown> | null } | null)?.settings_json ?? {}) as Record<string, unknown>;
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
 

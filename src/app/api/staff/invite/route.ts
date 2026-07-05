@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
   // Org info + plan check
   const { data: org } = await supabase
     .from("organizations")
-    .select("name, plan, max_staff, telegram_chat_id, whatsapp_number")
+    .select("name, plan, max_staff, telegram_chat_id")
     .eq("id", member.org_id)
     .single();
 
