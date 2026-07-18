@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getActiveMember, getMemberships, isPlatformAdmin } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { MobileNav } from "@/components/dashboard/MobileNav";
@@ -12,16 +13,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!user) redirect("/auth/giris");
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("role, organizations(id, name, plan, subscription_status, trial_ends_at)")
-    .eq("user_id", user.id)
-    .single();
-
-  type MemberRow = { role: string; organizations: { id: string; name: string; plan: string; subscription_status: string; trial_ends_at?: string } };
-  const typedMember = member as MemberRow | null;
-  const org = typedMember?.organizations;
-  const role = typedMember?.role ?? "staff";
+  const member = await getActiveMember(supabase);
+  const org = member?.organizations;
+  const role = member?.role ?? "staff";
 
   if (!org) redirect("/auth/kayit");
 
@@ -32,14 +26,26 @@ export default async function DashboardLayout({ children }: { children: React.Re
     }
   }
 
-  const messages = await getMessages();
+  const [memberships, isAdmin, messages] = await Promise.all([
+    getMemberships(supabase),
+    isPlatformAdmin(supabase),
+    getMessages(),
+  ]);
 
   return (
     <NextIntlClientProvider messages={messages}>
       <div className="flex min-h-screen bg-background">
         {/* Desktop sidebar — hidden on mobile */}
         <div className="hidden md:flex">
-          <Sidebar orgName={org.name} plan={org.plan} role={role} trialEndsAt={org.trial_ends_at} />
+          <Sidebar
+            orgName={org.name}
+            plan={org.plan}
+            role={role}
+            trialEndsAt={org.trial_ends_at ?? undefined}
+            activeOrgId={org.id}
+            memberships={memberships}
+            isPlatformAdmin={isAdmin}
+          />
         </div>
 
         {/* Main content — add bottom padding on mobile for nav bar */}

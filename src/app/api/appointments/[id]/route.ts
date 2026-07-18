@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAppointment } from "@/lib/notify";
 
@@ -7,11 +8,7 @@ type Params = { params: Promise<{ id: string }> };
 async function getOrgId(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   return member?.org_id ?? null;
 }
 
@@ -23,7 +20,7 @@ export async function GET(req: NextRequest, { params }: Params) {
 
   const { data, error } = await supabase
     .from("appointments")
-    .select("*, staff(*), service:services(*), customer:customers(*)")
+    .select("*, staff:staff!appointments_staff_id_fkey(*), service:services(*), customer:customers(*)")
     .eq("id", id)
     .eq("org_id", orgId)
     .single();

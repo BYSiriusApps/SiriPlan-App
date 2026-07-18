@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import type { Staff, Service } from "@/types/database";
+import { DateTimeSlotPicker, toLocalDateTimeValue } from "@/components/dashboard/DateTimeSlotPicker";
 
 export default function RandevuDuzenlePage() {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +47,8 @@ export default function RandevuDuzenlePage() {
           customer_email: a.customer_email ?? "",
           staff_id: a.staff_id ?? "",
           service_id: a.service_id ?? "",
-          appointment_at: a.appointment_at ? a.appointment_at.slice(0, 16) : "",
+          // UTC ISO'yu YEREL "yyyy-MM-ddTHH:mm" değerine çevir (slice tz kaydırıyordu)
+          appointment_at: a.appointment_at ? toLocalDateTimeValue(new Date(a.appointment_at)) : "",
           note: a.note ?? "",
           source: a.source ?? "yuzyuze",
         });
@@ -66,7 +68,10 @@ export default function RandevuDuzenlePage() {
     const res = await fetch(`/api/appointments/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        appointment_at: new Date(form.appointment_at).toISOString(),
+      }),
     });
     setLoading(false);
     if (res.ok) {
@@ -166,12 +171,10 @@ export default function RandevuDuzenlePage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Tarih & Saat *</Label>
-                  <Input
-                    type="datetime-local"
+                  <Label>Tarih & Saat * <span className="text-[10px] text-muted-foreground">(15 dk aralıklarla)</span></Label>
+                  <DateTimeSlotPicker
                     value={form.appointment_at}
-                    onChange={(e) => setForm((f) => ({ ...f, appointment_at: e.target.value }))}
-                    required
+                    onChange={(v) => setForm((f) => ({ ...f, appointment_at: v }))}
                   />
                 </div>
 

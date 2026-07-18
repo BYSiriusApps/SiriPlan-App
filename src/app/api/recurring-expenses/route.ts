@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveMember } from "@/lib/active-org";
 
-async function getOrgId(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
-  const { data } = await supabase
-    .from("org_members").select("org_id").eq("user_id", userId).single();
-  return data?.org_id ?? null;
+async function getOrgId(supabase: Awaited<ReturnType<typeof createClient>>, _userId: string) {
+  const member = await getActiveMember(supabase);
+  // Gelir-gider yönetici/işletme sahibi yetkisindedir
+  if (!member || member.role === "staff") return null;
+  return member.org_id;
 }
 
 export async function GET() {

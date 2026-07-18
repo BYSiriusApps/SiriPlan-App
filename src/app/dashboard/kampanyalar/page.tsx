@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,11 +29,7 @@ export default async function KampanyalarPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id, organizations(feature_campaigns)")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
   const featureCampaigns = (member as unknown as { org_id: string; organizations: { feature_campaigns: boolean } }).organizations?.feature_campaigns;

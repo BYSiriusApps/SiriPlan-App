@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { isSupportedLanguage } from "@/lib/languages";
 
 type Params = { params: Promise<{ id: string }> };
 
 async function getMember(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id, role")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   return member ?? null;
 }
 
@@ -39,7 +37,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (!member) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
-  const ALLOWED = ["full_name", "role", "phone", "email", "commission_rate", "start_time", "end_time", "working_days", "is_active", "telegram_chat_id", "whatsapp_number"];
+  const ALLOWED = ["full_name", "role", "phone", "email", "commission_rate", "start_time", "end_time", "working_days", "is_active", "telegram_chat_id", "whatsapp_number", "preferred_language", "color"];
   const updates: Record<string, unknown> = {};
   for (const key of ALLOWED) {
     if (key in body) updates[key] = body[key];
@@ -51,17 +49,42 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     updates.commission_rate = Math.min(1, Math.max(0, normalized));
   }
 
+  if ("preferred_language" in updates && !isSupportedLanguage(updates.preferred_language)) {
+    updates.preferred_language = null;
+  }
+
+  // Takvim rengi: geçerli hex değilse null'a çek
+  if ("color" in updates && updates.color !== null && !/^#[0-9a-fA-F]{6}$/.test(String(updates.color))) {
+    updates.color = null;
+  }
+
   if (!Object.keys(updates).length) {
     return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("staff")
     .update(updates)
     .eq("id", id)
     .eq("org_id", member.org_id)
     .select()
     .single();
+
+  // Migration 009/014/015 uygulanmamışsa kolon yok — o alan olmadan tekrar dene
+  for (const optionalCol of ["preferred_language", "color"]) {
+    if (error && error.message.includes(optionalCol) && optionalCol in updates) {
+      delete updates[optionalCol];
+      if (Object.keys(updates).length) {
+        ({ data, error } = await supabase
+          .from("staff")
+          .update(updates)
+          .eq("id", id)
+          .eq("org_id", member.org_id)
+          .select()
+          .single());
+      }
+    }
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ staff: data });

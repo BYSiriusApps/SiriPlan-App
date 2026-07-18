@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import type { Service } from "@/types/database";
 import { HizmetlerClient } from "./HizmetlerClient";
@@ -8,11 +9,7 @@ export default async function HizmetlerPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id, role")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
   const { data: services } = await supabase

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getActiveMemberClient } from "@/lib/active-org-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,11 +47,7 @@ export default function AyarlarPage() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
-        const { data: member } = await supabase
-          .from("org_members")
-          .select("org_id")
-          .eq("user_id", user.id)
-          .single();
+        const member = await getActiveMemberClient(supabase);
         if (!member) return;
         const { data: orgData } = await supabase
           .from("organizations")

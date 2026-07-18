@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getActiveMember } from "@/lib/active-org";
 import { getStripe } from "@/lib/stripe/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -9,11 +10,7 @@ export async function POST() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id, organizations(stripe_customer_id)")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
 
   const stripeCustomerId = (member as unknown as { organizations: { stripe_customer_id?: string } })?.organizations?.stripe_customer_id;
   if (!stripeCustomerId) {

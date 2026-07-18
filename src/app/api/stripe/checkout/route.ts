@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getActiveMember } from "@/lib/active-org";
 import { getStripe, PLANS, type PlanKey } from "@/lib/stripe/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,11 +14,7 @@ export async function POST(req: NextRequest) {
   const planConfig = PLANS[plan];
   if (!planConfig) return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id, organizations(stripe_customer_id, name, email)")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
 
   if (!member) return NextResponse.json({ error: "No organization" }, { status: 404 });
 

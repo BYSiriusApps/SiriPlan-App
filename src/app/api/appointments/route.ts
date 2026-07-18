@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { sendConfirmationEmail } from "@/lib/email/send";
 import { notifyAppointment, notifyAppointmentRequest } from "@/lib/notify";
@@ -262,11 +263,7 @@ export async function GET(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
 
   const status = searchParams.get("status");
@@ -274,7 +271,7 @@ export async function GET(req: NextRequest) {
 
   let query = supabase
     .from("appointments")
-    .select("*, staff(full_name), service:services(name)")
+    .select("*, staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
     .eq("org_id", member.org_id)
     .order("appointment_at", { ascending: false })
     .limit(200);

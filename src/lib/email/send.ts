@@ -5,6 +5,23 @@ function getResend() {
 }
 const FROM = process.env.RESEND_FROM_EMAIL ?? "noreply@siriplan.com";
 
+function emailEnabled() {
+  const key = process.env.RESEND_API_KEY;
+  return !!key && !key.includes("placeholder");
+}
+
+// Kullanıcı kaynaklı metinler (isim, salon adı vb.) HTML'e gömülmeden önce escape edilir
+function esc(str: string) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+// From başlığındaki görünen ad; başlığı bozabilecek karakterler temizlenir
+function fromName(name: string) {
+  return String(name ?? "").replace(/[<>"\r\n;,]/g, "").trim() || "Siriplan";
+}
+
 export interface AppointmentEmailData {
   to: string;
   customerName: string;
@@ -32,7 +49,7 @@ function baseLayout(content: string, orgName: string) {
           <tr>
             <td style="background:linear-gradient(135deg,#e11d48 0%,#a21caf 100%);padding:28px 32px;text-align:center;">
               <span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Siriplan</span>
-              <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.8);">${orgName}</p>
+              <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.8);">${esc(orgName)}</p>
             </td>
           </tr>
           <!-- Body -->
@@ -45,7 +62,7 @@ function baseLayout(content: string, orgName: string) {
           <tr>
             <td style="background:#f9fafb;padding:20px 32px;text-align:center;border-top:1px solid #e5e7eb;">
               <p style="margin:0;font-size:11px;color:#9ca3af;">
-                Bu e-posta Siriplan tarafından ${orgName} adına gönderilmiştir.<br/>
+                Bu e-posta Siriplan tarafından ${esc(orgName)} adına gönderilmiştir.<br/>
                 <a href="https://siriplan.com" style="color:#e11d48;text-decoration:none;">siriplan.com</a>
                 &nbsp;·&nbsp;
                 <a href="https://bysirius.com" style="color:#9ca3af;text-decoration:none;">BY Sirius Group</a>
@@ -68,16 +85,16 @@ function formatTime(date: Date) {
 }
 
 export async function sendConfirmationEmail(data: AppointmentEmailData) {
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes("placeholder")) return;
+  if (!emailEnabled()) return;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
   const cancelLink = data.cancelToken
-    ? `${appUrl}/r/iptal/${data.cancelToken}`
+    ? `${appUrl}/r/iptal/${encodeURIComponent(data.cancelToken)}`
     : null;
 
   const content = `
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Randevunuz Onaylandı ✅</h2>
-    <p style="margin:0 0 24px;font-size:15px;color:#6b7280;">Merhaba <strong>${data.customerName}</strong>, randevunuz başarıyla oluşturuldu.</p>
+    <p style="margin:0 0 24px;font-size:15px;color:#6b7280;">Merhaba <strong>${esc(data.customerName)}</strong>, randevunuz başarıyla oluşturuldu.</p>
 
     <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;">
       <tr><td style="padding:6px 0;">
@@ -90,11 +107,11 @@ export async function sendConfirmationEmail(data: AppointmentEmailData) {
       </td></tr>
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">💇 Hizmet</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${data.serviceName}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.serviceName)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">👤 Uzman</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${data.staffName}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.staffName)}</span>
       </td></tr>
     </table>
 
@@ -108,13 +125,13 @@ export async function sendConfirmationEmail(data: AppointmentEmailData) {
     ` : ""}
 
     <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
-      Herhangi bir sorunuz için <strong>${data.orgName}</strong> ile iletişime geçin.<br/>
+      Herhangi bir sorunuz için <strong>${esc(data.orgName)}</strong> ile iletişime geçin.<br/>
       İyi günler dileriz! ✨
     </p>
   `;
 
   await getResend().emails.send({
-    from: `${data.orgName} <${FROM}>`,
+    from: `${fromName(data.orgName)} <${FROM}>`,
     to: data.to,
     subject: `Randevunuz Onaylandı — ${formatTR(data.appointmentAt)} ${formatTime(data.appointmentAt)}`,
     html: baseLayout(content, data.orgName),
@@ -122,14 +139,14 @@ export async function sendConfirmationEmail(data: AppointmentEmailData) {
 }
 
 export async function sendWelcomeEmail(data: { to: string; salonName: string; ownerName: string }) {
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes("placeholder")) return;
+  if (!emailEnabled()) return;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
 
   const content = `
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Hoş Geldiniz! 🎉</h2>
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
-      Merhaba <strong>${data.ownerName}</strong>, <strong>${data.salonName}</strong> adına Siriplan'a hoş geldiniz!
+      Merhaba <strong>${esc(data.ownerName)}</strong>, <strong>${esc(data.salonName)}</strong> adına Siriplan'a hoş geldiniz!
     </p>
 
     <p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">
@@ -165,25 +182,66 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
   });
 }
 
+export async function sendBirthdayEmail(data: {
+  to: string;
+  customerName: string;
+  orgName: string;
+  bookingUrl: string;
+}) {
+  if (!emailEnabled()) return;
+
+  const content = `
+    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">🎂 Doğum Gününüz Kutlu Olsun!</h2>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
+      Sevgili <strong>${esc(data.customerName)}</strong>, <strong>${esc(data.orgName)}</strong> ailesi olarak bu özel gününüzü kutlarız!
+    </p>
+
+    <table role="presentation" width="100%" style="background:#fdf2f8;border-radius:12px;padding:20px;margin-bottom:24px;">
+      <tr><td style="padding:6px 0;text-align:center;">
+        <span style="font-size:15px;font-weight:600;color:#be185d;">🎁 Bu ay yapacağınız ziyarette size özel %10 indirim!</span>
+      </td></tr>
+    </table>
+
+    <a href="${data.bookingUrl}"
+       style="display:inline-block;padding:12px 28px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+      Hemen Randevu Al →
+    </a>
+
+    <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
+      Sizi misafir etmekten mutluluk duyarız! ✨
+    </p>
+  `;
+
+  await getResend().emails.send({
+    from: `${fromName(data.orgName)} <${FROM}>`,
+    to: data.to,
+    subject: `🎂 Doğum Gününüz Kutlu Olsun, ${data.customerName}! — ${data.orgName}`,
+    html: baseLayout(content, data.orgName),
+  });
+}
+
 export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: number) {
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes("placeholder")) return;
+  if (!emailEnabled()) return;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
   const cancelLink = data.cancelToken
-    ? `${appUrl}/r/iptal/${data.cancelToken}`
+    ? `${appUrl}/r/iptal/${encodeURIComponent(data.cancelToken)}`
     : null;
 
   const isImminent = hoursAway <= 2;
+  const isToday = hoursAway <= 12;
 
   const content = `
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">
       ${isImminent ? "⏰ Randevunuz Yaklaşıyor!" : "📅 Randevu Hatırlatması"}
     </h2>
     <p style="margin:0 0 24px;font-size:15px;color:#6b7280;">
-      Merhaba <strong>${data.customerName}</strong>,
+      Merhaba <strong>${esc(data.customerName)}</strong>,
       ${isImminent
         ? `randevunuz <strong>${hoursAway} saat</strong> sonra!`
-        : `yarınki randevunuzu hatırlatmak istedik.`
+        : isToday
+          ? `bugünkü randevunuzu hatırlatmak istedik.`
+          : `yaklaşan randevunuzu hatırlatmak istedik.`
       }
     </p>
 
@@ -198,11 +256,11 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
       </td></tr>
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">💇 Hizmet</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${data.serviceName}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.serviceName)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">👤 Uzman</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${data.staffName}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.staffName)}</span>
       </td></tr>
     </table>
 
@@ -218,11 +276,11 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
   `;
 
   await getResend().emails.send({
-    from: `${data.orgName} <${FROM}>`,
+    from: `${fromName(data.orgName)} <${FROM}>`,
     to: data.to,
     subject: isImminent
       ? `⏰ Randevunuz ${hoursAway} Saat Sonra — ${data.orgName}`
-      : `📅 Yarınki Randevunuzu Unutmayın — ${data.orgName}`,
+      : `📅 ${formatTR(data.appointmentAt)} ${formatTime(data.appointmentAt)} Randevunuzu Unutmayın — ${data.orgName}`,
     html: baseLayout(content, data.orgName),
   });
 }

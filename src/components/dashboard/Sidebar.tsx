@@ -7,8 +7,9 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Calendar, BookOpen, Users, UserCog,
   Scissors, Megaphone, BarChart3, Import, Settings,
-  CreditCard, Wallet, ExternalLink, ChevronRight,
+  CreditCard, Wallet, ExternalLink, ChevronRight, ShieldCheck,
 } from "lucide-react";
+import { OrgSwitcher } from "@/components/dashboard/OrgSwitcher";
 import { Badge } from "@/components/ui/badge";
 import { ThemePicker } from "@/components/layout/ThemePicker";
 import { LanguagePicker } from "@/components/layout/LanguagePicker";
@@ -55,9 +56,20 @@ interface SidebarProps {
   plan?: string;
   role?: string;
   trialEndsAt?: string;
+  activeOrgId?: string;
+  memberships?: { org_id: string; role: string; org_name: string }[];
+  isPlatformAdmin?: boolean;
 }
 
-export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff", trialEndsAt }: SidebarProps) {
+export function Sidebar({
+  orgName = "Salonunuz",
+  plan = "trial",
+  role = "staff",
+  trialEndsAt,
+  activeOrgId,
+  memberships = [],
+  isPlatformAdmin = false,
+}: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("dashboard");
 
@@ -102,13 +114,26 @@ export function Sidebar({ orgName = "Salonunuz", plan = "trial", role = "staff",
       </div>
 
       {/* Plan badge */}
-      <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+      <div className="px-4 py-3 space-y-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
         <div
           className="rounded-lg px-3 py-1.5 text-[11px] font-medium text-center text-white/70"
           style={{ background: planColor, border: "1px solid rgba(255,255,255,0.08)" }}
         >
           {planLabel}
         </div>
+        {activeOrgId && memberships.length > 1 && (
+          <OrgSwitcher activeOrgId={activeOrgId} memberships={memberships} />
+        )}
+        {isPlatformAdmin && (
+          <Link
+            href="/admin"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-amber-300/80 hover:text-amber-200 transition-colors"
+            style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)" }}
+          >
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+            <span className="flex-1 truncate">Platform Admin</span>
+          </Link>
+        )}
       </div>
 
       {/* Smart Search */}

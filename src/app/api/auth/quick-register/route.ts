@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendWelcomeEmail } from "@/lib/email/send";
 
 const VALID_BUSINESS_TYPES = new Set([
   "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik",
 ]);
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
-
-function escapeHtml(str: string) {
-  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
 
 function slugify(text: string) {
   return text
@@ -118,32 +115,8 @@ export async function POST(req: NextRequest) {
 
   await admin.from("staff").insert({ org_id: org.id, full_name: fullName, role: "Salon Sahibi", is_active: true });
 
-  // 4. Send welcome email via Resend (fire-and-forget)
-  const resendKey = process.env.RESEND_API_KEY;
-  if (resendKey) {
-    fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: process.env.RESEND_FROM_EMAIL || "noreply@siriplan.com",
-        to: email,
-        subject: `Hoş geldiniz, ${escapeHtml(fullName)}! Siriplan hesabınız hazır 🎉`,
-        html: `
-          <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:24px;">
-            <h2 style="color:#e11d48;">Hoş geldiniz! 👋</h2>
-            <p>Merhaba <strong>${escapeHtml(fullName)}</strong>,</p>
-            <p><strong>${escapeHtml(salonName)}</strong> için Siriplan hesabınız oluşturuldu.</p>
-            <p>14 günlük ücretsiz deneme süreniz başladı.</p>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard"
-               style="display:inline-block;margin-top:16px;padding:12px 24px;background:#e11d48;color:white;border-radius:8px;text-decoration:none;font-weight:600;">
-              Dashboard'a Git →
-            </a>
-            <p style="margin-top:24px;color:#666;font-size:13px;">BySirius tarafından güçlendirilmiştir.</p>
-          </div>
-        `,
-      }),
-    }).catch(() => {});
-  }
+  // 4. Send welcome email via Resend (fire-and-forget, ortak şablon)
+  sendWelcomeEmail({ to: email, salonName, ownerName: fullName }).catch(() => {});
 
   return NextResponse.json({ success: true });
 }

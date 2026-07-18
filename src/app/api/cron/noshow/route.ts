@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { subMinutes } from "date-fns";
+import { subMinutes, subHours } from "date-fns";
 
 export const runtime = "nodejs";
 
@@ -11,8 +11,10 @@ export async function POST(req: NextRequest) {
 
   const supabase = await createAdminClient();
   const now = new Date();
-  // Check appointments that were 15-45 minutes ago and still "onaylandi"
-  const windowStart = subMinutes(now, 45).toISOString();
+  // Başlangıcının üzerinden 15+ dk geçmiş ve hâlâ "onaylandi" olan randevular.
+  // Alt sınır 24 saat: cron aralığı ne olursa olsun randevu kaçırılmaz,
+  // çok eski kayıtlara da dokunulmaz.
+  const windowStart = subHours(now, 24).toISOString();
   const windowEnd = subMinutes(now, 15).toISOString();
 
   const { data: pastAppts } = await supabase

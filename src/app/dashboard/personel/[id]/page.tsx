@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell } from "lucide-react";
+import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 
 const DAYS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
@@ -32,8 +33,16 @@ interface StaffData {
   avatar_url?: string | null;
   telegram_chat_id?: string | null;
   whatsapp_number?: string | null;
+  preferred_language?: string | null;
+  color?: string | null;
   staff_services?: StaffService[];
 }
+
+// Takvimde kullanılan palet ile aynı tonlar
+const CALENDAR_COLORS = [
+  "#6366f1", "#ec4899", "#10b981", "#f59e0b", "#06b6d4",
+  "#8b5cf6", "#ef4444", "#84cc16", "#f97316", "#14b8a6",
+];
 
 export default function PersonelDetayPage() {
   const params = useParams();
@@ -54,6 +63,8 @@ export default function PersonelDetayPage() {
     working_days: [] as number[],
     telegram_chat_id: "",
     whatsapp_number: "",
+    preferred_language: "",
+    color: "",
   });
 
   useEffect(() => {
@@ -73,6 +84,8 @@ export default function PersonelDetayPage() {
           working_days: s.working_days || [],
           telegram_chat_id: s.telegram_chat_id || "",
           whatsapp_number: s.whatsapp_number || "",
+          preferred_language: s.preferred_language || "",
+          color: s.color || "",
         });
       })
       .catch(() => toast.error("Yüklenemedi"))
@@ -100,6 +113,8 @@ export default function PersonelDetayPage() {
         commission_rate: (parseFloat(form.commission_rate) || 0) / 100,
         telegram_chat_id: form.telegram_chat_id || null,
         whatsapp_number: form.whatsapp_number || null,
+        preferred_language: form.preferred_language || null,
+        color: form.color || null,
       }),
     });
     setSaving(false);
@@ -208,6 +223,48 @@ export default function PersonelDetayPage() {
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                   placeholder="personel@..."
                 />
+              </div>
+              <div className="col-span-2 space-y-1">
+                <Label>Tercih Edilen Dil</Label>
+                <select
+                  value={form.preferred_language}
+                  onChange={(e) => setForm((f) => ({ ...f, preferred_language: e.target.value }))}
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option value="">Belirtilmedi</option>
+                  {SUPPORTED_LANGUAGES.map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.flag} {l.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-muted-foreground">
+                  Personel giriş yaptığında panel bu dilde açılır.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2 border-t">
+              <Label className="text-sm font-medium">Takvim Rengi</Label>
+              <p className="text-xs text-muted-foreground">
+                Bu personelin randevuları takvimde bu renkle gösterilir.
+              </p>
+              <div className="flex gap-2 flex-wrap items-center">
+                {CALENDAR_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, color: f.color === c ? "" : c }))}
+                    title={c}
+                    className={`w-7 h-7 rounded-full border-2 transition-transform ${
+                      form.color === c ? "border-foreground scale-110" : "border-transparent hover:scale-105"
+                    }`}
+                    style={{ background: c }}
+                  />
+                ))}
+                {form.color === "" && (
+                  <span className="text-[11px] text-muted-foreground">Otomatik (sıraya göre)</span>
+                )}
               </div>
             </div>
 

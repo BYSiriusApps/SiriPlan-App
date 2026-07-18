@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -28,11 +29,7 @@ export default async function RandevularPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
   const [{ data: staff }, { data: services }] = await Promise.all([
@@ -52,7 +49,7 @@ export default async function RandevularPage({
 
   let query = supabase
     .from("appointments")
-    .select("*, staff(full_name), service:services(name, duration_minutes)")
+    .select("*, staff:staff!appointments_staff_id_fkey(full_name), service:services(name, duration_minutes)")
     .eq("org_id", member.org_id)
     .order("appointment_at", { ascending: false })
     .limit(100);

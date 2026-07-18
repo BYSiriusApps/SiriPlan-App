@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import * as XLSX from "xlsx";
 
@@ -10,11 +11,7 @@ export async function GET(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id, role")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member || !["owner", "manager"].includes(member.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -30,7 +27,7 @@ export async function GET(req: NextRequest) {
     { data: org },
   ] = await Promise.all([
     supabase.from("customers").select("*").eq("org_id", orgId),
-    supabase.from("appointments").select("*, staff(full_name), service:services(name)").eq("org_id", orgId).order("appointment_at", { ascending: false }),
+    supabase.from("appointments").select("*, staff:staff!appointments_staff_id_fkey(full_name), service:services(name)").eq("org_id", orgId).order("appointment_at", { ascending: false }),
     supabase.from("staff").select("*").eq("org_id", orgId),
     supabase.from("services").select("*").eq("org_id", orgId),
     supabase.from("campaigns").select("*").eq("org_id", orgId),

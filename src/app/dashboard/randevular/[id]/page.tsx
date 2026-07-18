@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getActiveMember } from "@/lib/active-org";
 import { redirect, notFound } from "next/navigation";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -28,16 +29,12 @@ export default async function ApptDetailPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
   const { data: appt, error } = await supabase
     .from("appointments")
-    .select("*, staff(*), service:services(*), customer:customers(*)")
+    .select("*, staff:staff!appointments_staff_id_fkey(*), service:services(*), customer:customers(*)")
     .eq("id", id)
     .eq("org_id", member.org_id)
     .single();

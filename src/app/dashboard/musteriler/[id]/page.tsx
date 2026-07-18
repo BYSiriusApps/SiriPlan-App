@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
+import { getActiveMember } from "@/lib/active-org";
 import { redirect, notFound } from "next/navigation";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Customer, Appointment } from "@/types/database";
 
@@ -30,11 +31,7 @@ export default async function MusteriDetailPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
   const [{ data: customer }, { data: appointments }] = await Promise.all([
@@ -46,7 +43,7 @@ export default async function MusteriDetailPage({
       .single(),
     supabase
       .from("appointments")
-      .select("*, staff(full_name), service:services(name)")
+      .select("*, staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
       .eq("org_id", member.org_id)
       .eq("customer_id", id)
       .order("appointment_at", { ascending: false })
@@ -79,6 +76,16 @@ export default async function MusteriDetailPage({
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-muted-foreground" />
               <a href={`tel:${c.phone}`} className="text-primary hover:underline">{c.phone}</a>
+              <a
+                href={`https://wa.me/${c.phone.replace(/\D/g, "").replace(/^0/, "90")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="WhatsApp ile mesaj gönder"
+                className="ml-auto inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                WhatsApp
+              </a>
             </div>
             {c.email && (
               <div className="flex items-center gap-2">
@@ -205,7 +212,7 @@ export default async function MusteriDetailPage({
                   <CardContent className="p-3 flex items-center gap-3">
                     <div className="text-center w-14 shrink-0">
                       <p className="text-xs text-muted-foreground">
-                        {format(new Date(appt.appointment_at), "d MMM", { locale: tr })}
+                        {format(new Date(appt.appointment_at), "d MMM yyyy", { locale: tr })}
                       </p>
                       <p className="text-sm font-bold text-primary">
                         {format(new Date(appt.appointment_at), "HH:mm")}

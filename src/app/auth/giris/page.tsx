@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,16 +15,26 @@ export default function GirisPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  async function doLogin(e: string, p: string) {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email: e, password: p });
-    if (error) {
-      toast.error("Giriş başarısız: " + error.message);
+  async function doLogin(identifier: string, p: string) {
+    // E-posta veya telefon kabul eden sunucu taraflı giriş.
+    // Cookie'ler sunucuda set edilir; hard redirect ile ilk istekte gönderilir.
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier: identifier.trim(), password: p }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        toast.error("Giriş başarısız: " + (err.error || res.statusText));
+        return false;
+      }
+      window.location.href = "/dashboard";
+      return true;
+    } catch {
+      toast.error("Bağlantı hatası — tekrar deneyin");
       return false;
     }
-    // Hard redirect so cookies are sent with the initial server request
-    window.location.href = "/dashboard";
-    return true;
   }
 
   async function handleLogin(e: React.FormEvent) {
@@ -80,19 +89,23 @@ export default function GirisPage() {
 
         <form onSubmit={handleLogin} className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="email">E-posta</Label>
+            <Label htmlFor="email">E-posta veya Telefon</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="email"
-                type="email"
-                placeholder="salon@example.com"
+                type="text"
+                autoComplete="username"
+                placeholder="salon@example.com veya 05xx xxx xx xx"
                 className="pl-9"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
+            <p className="text-[11px] text-muted-foreground">
+              Personelseniz sisteme kayıtlı telefon numaranızla da giriş yapabilirsiniz.
+            </p>
           </div>
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">

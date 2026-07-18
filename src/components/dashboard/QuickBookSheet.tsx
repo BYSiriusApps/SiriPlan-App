@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Plus, Search, User, Scissors, Clock, Phone, Star, Loader2, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DateTimeSlotPicker, nextSlot } from "@/components/dashboard/DateTimeSlotPicker";
 
 interface StaffCard {
   id: string;
@@ -43,16 +44,6 @@ interface Props {
   services: ServiceItem[];
 }
 
-function formatDateTimeLocal(dateStr: string | undefined): string {
-  const d = dateStr ? new Date(dateStr) : new Date();
-  // round to next 30-min slot
-  const mins = d.getMinutes();
-  const roundedMins = mins < 30 ? 30 : 0;
-  if (mins >= 30) d.setHours(d.getHours() + 1);
-  d.setMinutes(roundedMins, 0, 0);
-  return d.toISOString().slice(0, 16);
-}
-
 export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, staff, services }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -61,7 +52,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   // Form state
   const [selectedStaffId, setSelectedStaffId] = useState(preselectedStaffId ?? "");
   const [selectedServiceId, setSelectedServiceId] = useState("");
-  const [appointmentAt, setAppointmentAt] = useState(() => formatDateTimeLocal(preselectedDate));
+  const [appointmentAt, setAppointmentAt] = useState(() => nextSlot(preselectedDate));
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
@@ -79,7 +70,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     if (open) {
       setSelectedStaffId(preselectedStaffId ?? "");
       setSelectedServiceId("");
-      setAppointmentAt(formatDateTimeLocal(preselectedDate));
+      setAppointmentAt(nextSlot(preselectedDate));
       setCustomerName("");
       setCustomerPhone("");
       setCustomerEmail("");
@@ -345,14 +336,13 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
             )}
           </div>
 
-          {/* ── Date & time ── */}
+          {/* ── Date & time — 15 dakikalık slotlar ── */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">Tarih ve Saat</Label>
-            <Input
-              type="datetime-local"
+            <DateTimeSlotPicker
               value={appointmentAt}
-              onChange={(e) => setAppointmentAt(e.target.value)}
-              min={new Date().toISOString().slice(0, 16)}
+              onChange={setAppointmentAt}
+              minDate={new Date().toISOString().slice(0, 10)}
             />
           </div>
 

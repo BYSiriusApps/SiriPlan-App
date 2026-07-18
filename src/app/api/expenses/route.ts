@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
@@ -6,9 +7,9 @@ export async function GET(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: member } = await supabase
-    .from("org_members").select("org_id").eq("user_id", user.id).single();
+  const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const year  = searchParams.get("year")  ?? new Date().getFullYear().toString();
@@ -39,9 +40,9 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: member } = await supabase
-    .from("org_members").select("org_id").eq("user_id", user.id).single();
+  const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const body = await req.json();
   const { type, category, amount, description, note, date, payment_method } = body;
@@ -71,9 +72,9 @@ export async function DELETE(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: member } = await supabase
-    .from("org_members").select("org_id").eq("user_id", user.id).single();
+  const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");

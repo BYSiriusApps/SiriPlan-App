@@ -8,13 +8,13 @@ const MANAGER_ROUTES = [
   "/dashboard/raporlar",
   "/dashboard/gelir-gider",
   "/dashboard/veri-gocu",
+  "/dashboard/personel/yeni",
 ];
 
 // Routes that require "owner" role
 const OWNER_ROUTES = [
   "/dashboard/ayarlar",
   "/dashboard/abonelik",
-  "/dashboard/personel/yeni",
 ];
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
@@ -42,39 +42,60 @@ export async function proxy(request: NextRequest) {
     return sessionResponse;
   }
 
+  const needsAuthCheck = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+  if (!needsAuthCheck) return sessionResponse;
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => request.cookies.getAll(),
+        setAll: () => {},
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.redirect(new URL("/auth/giris", request.url));
+  }
+
+  // /admin — fine-grained platform-admin check happens in the layout;
+  // here we only require an authenticated user.
+  if (pathname.startsWith("/admin")) return sessionResponse;
+
   // Role-based access control for dashboard routes
-  if (pathname.startsWith("/dashboard")) {
-    const requiredRank = OWNER_ROUTES.some((r) => pathname.startsWith(r))
-      ? 2
-      : MANAGER_ROUTES.some((r) => pathname.startsWith(r))
-      ? 1
-      : 0;
+  const requiredRank = OWNER_ROUTES.some((r) => pathname.startsWith(r))
+    ? 2
+    : MANAGER_ROUTES.some((r) => pathname.startsWith(r))
+    ? 1
+    : 0;
 
-    if (requiredRank > 0) {
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          cookies: {
-            getAll: () => request.cookies.getAll(),
-            setAll: () => {},
-          },
-        }
-      );
+  if (requiredRank > 0) {
+    // Aktif işletme cookie'si varsa o üyeliğin rolüne bak; yoksa ilk üyelik.
+    const activeOrg = request.cookies.get("active_org")?.value;
+    let query = supabase
+      .from("org_members")
+      .select("role, org_id")
+      .eq("user_id", user.id);
+    if (activeOrg) query = query.eq("org_id", activeOrg);
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: member } = await supabase
-          .from("org_members")
-          .select("role")
-          .eq("user_id", user.id)
-          .single();
+    let { data: members } = await query.limit(1);
+    if ((!members || members.length === 0) && activeOrg) {
+      // Cookie bayat (üyelik silinmiş) → ilk üyeliğe düş
+      const { data: fallback } = await supabase
+        .from("org_members")
+        .select("role, org_id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true })
+        .limit(1);
+      members = fallback;
+    }
 
-        const userRank = ROLE_RANK[member?.role ?? "staff"] ?? 0;
-        if (userRank < requiredRank) {
-          return NextResponse.redirect(new URL("/dashboard?forbidden=1", request.url));
-        }
-      }
+    const userRank = ROLE_RANK[members?.[0]?.role ?? "staff"] ?? 0;
+    if (userRank < requiredRank) {
+      return NextResponse.redirect(new URL("/dashboard?forbidden=1", request.url));
     }
   }
 

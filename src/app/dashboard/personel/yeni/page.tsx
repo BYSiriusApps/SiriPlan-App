@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 
 const DAYS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
@@ -130,11 +131,15 @@ export default function PersonelYeniPage() {
                   className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
                 >
                   <option value="">Belirtilmedi</option>
-                  <option value="tr">🇹🇷 Türkçe</option>
-                  <option value="en">🇬🇧 English</option>
-                  <option value="ru">🇷🇺 Русский</option>
-                  <option value="ar">🇸🇦 العربية</option>
+                  {SUPPORTED_LANGUAGES.map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.flag} {l.name}
+                    </option>
+                  ))}
                 </select>
+                <p className="text-[11px] text-muted-foreground">
+                  Personel giriş yaptığında panel bu dilde açılır.
+                </p>
               </div>
             </div>
 

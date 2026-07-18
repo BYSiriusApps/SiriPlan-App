@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,11 +12,7 @@ export default async function RaporlarPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
   const orgId = member.org_id;
@@ -53,7 +50,7 @@ export default async function RaporlarPage() {
 
     supabase
       .from("appointments")
-      .select("staff_id, staff(full_name), price, status")
+      .select("staff_id, staff:staff!appointments_staff_id_fkey(full_name), price, status")
       .eq("org_id", orgId)
       .eq("status", "tamamlandi")
       .gte("appointment_at", startOfMonth(now).toISOString()),

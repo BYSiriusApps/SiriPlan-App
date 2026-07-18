@@ -1,6 +1,14 @@
 {
   "crons": [
     {
+      "path": "/api/cron/reminder",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/noshow",
+      "schedule": "*/30 * * * *"
+    },
+    {
       "path": "/api/cron/weekly-champion",
       "schedule": "0 6 * * 1"
     },

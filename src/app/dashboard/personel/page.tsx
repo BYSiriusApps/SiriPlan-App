@@ -1,31 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
+import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { UserCog, Phone, Mail, Star, MessageCircle } from "lucide-react";
+import { UserCog, Phone, Mail } from "lucide-react";
+import { ContactLinks } from "@/components/dashboard/ContactLinks";
 import { StaffInviteDialog } from "@/components/dashboard/StaffInviteDialog";
 import type { Staff } from "@/types/database";
+import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 
 const DAYS = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
 
-const LANG_FLAGS: Record<string, { flag: string; name: string }> = {
-  tr: { flag: "🇹🇷", name: "Türkçe" },
-  en: { flag: "🇬🇧", name: "English" },
-  ru: { flag: "🇷🇺", name: "Русский" },
-  ar: { flag: "🇸🇦", name: "العربية" },
-};
+const LANG_FLAGS: Record<string, { flag: string; name: string }> = Object.fromEntries(
+  SUPPORTED_LANGUAGES.map((l) => [l.code, { flag: l.flag, name: l.name }])
+);
 
 export default async function PersonelPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id, role")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
   const orgId = member.org_id;
@@ -184,29 +180,15 @@ export default async function PersonelPage() {
                             <Phone className="h-3 w-3 shrink-0" />
                             <span className="truncate">{s.phone}</span>
                           </span>
-                          {showPhoneButtons && (
-                            <div className="flex gap-1 shrink-0">
-                              <a href={`tel:${s.phone}`} title="Ara"
-                                className="p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 transition-colors"
-                                onClick={(e) => e.stopPropagation()}>
-                                <Phone className="h-3 w-3" />
-                              </a>
-                              <a href={`https://wa.me/${s.phone.replace(/\D/g,"").replace(/^0/,"90")}`}
-                                target="_blank" rel="noopener noreferrer" title="WhatsApp"
-                                className="p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20 text-green-500 transition-colors"
-                                onClick={(e) => e.stopPropagation()}>
-                                <MessageCircle className="h-3 w-3" />
-                              </a>
-                            </div>
-                          )}
+                          {showPhoneButtons && <ContactLinks phone={s.phone} />}
                         </div>
                       )}
                       {s.email && (
-                        <a href={`mailto:${s.email}`} title="E-posta gönder"
-                          className="flex items-center gap-1 hover:text-primary transition-colors"
-                          onClick={(e) => e.stopPropagation()}>
-                          <Mail className="h-3 w-3" />{s.email}
-                        </a>
+                        <div className="flex items-center gap-1">
+                          <Mail className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{s.email}</span>
+                          <ContactLinks email={s.email} />
+                        </div>
                       )}
                     </div>
                   )}

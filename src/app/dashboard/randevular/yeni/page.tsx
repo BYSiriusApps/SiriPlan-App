@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Search, X, Star, Clock, TrendingUp, Plus } from "lucide-react";
 import type { Staff, Service } from "@/types/database";
+import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 
 const FAVORITES_KEY = "siriplan_fav_services";
 
@@ -137,6 +138,9 @@ export default function YeniRandevuPage() {
         extra_services_json: extraServices,
         total_price_override: totalPrice,
         total_duration_override: totalDuration,
+        // Yerel saati ISO'ya çevir — raw "yyyy-MM-ddTHH:mm" gönderilirse
+        // Postgres UTC sanıp +3 saat kaydırıyordu (takvimde kayıp/yanlış saat).
+        appointment_at: new Date(form.appointment_at).toISOString(),
       }),
     });
     setLoading(false);
@@ -338,13 +342,11 @@ export default function YeniRandevuPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Tarih & Saat *</Label>
-                  <Input
-                    type="datetime-local"
-                    min={minDate}
+                  <Label>Tarih & Saat * <span className="text-[10px] text-muted-foreground">(15 dk aralıklarla)</span></Label>
+                  <DateTimeSlotPicker
                     value={form.appointment_at}
-                    onChange={(e) => setForm((f) => ({ ...f, appointment_at: e.target.value }))}
-                    required
+                    onChange={(v) => setForm((f) => ({ ...f, appointment_at: v }))}
+                    minDate={minDate.slice(0, 10)}
                   />
                 </div>
 

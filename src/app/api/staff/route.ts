@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { isSupportedLanguage } from "@/lib/languages";
+
+// Migration 009/014 uygulanmamış veritabanlarında PostgREST bu kolonu
+// tanımaz; personel kaydı dil tercihi olmadan yine de oluşturulabilsin.
+function isMissingLanguageColumn(message: string): boolean {
+  return message.includes("preferred_language");
+}
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
 
   const { data, error } = await supabase
@@ -34,11 +38,7 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id, role")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
   if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
@@ -71,23 +71,26 @@ export async function POST(req: NextRequest) {
   const normalizedRate = rawRate > 1 ? rawRate / 100 : rawRate;
   const clampedRate = Math.min(1, Math.max(0, normalizedRate));
 
-  const { data, error } = await supabase
-    .from("staff")
-    .insert({
-      org_id: member.org_id,
-      full_name,
-      role: role || "Uzman",
-      phone: phone || null,
-      email: email || null,
-      commission_rate: clampedRate,
-      start_time: start_time || "09:00",
-      end_time: end_time || "18:00",
-      working_days: working_days || [1, 2, 3, 4, 5],
-      preferred_language: preferred_language || null,
-      is_active: true,
-    })
-    .select()
-    .single();
+  const insertRow: Record<string, unknown> = {
+    org_id: member.org_id,
+    full_name,
+    role: role || "Uzman",
+    phone: phone || null,
+    email: email || null,
+    commission_rate: clampedRate,
+    start_time: start_time || "09:00",
+    end_time: end_time || "18:00",
+    working_days: working_days || [1, 2, 3, 4, 5],
+    preferred_language: isSupportedLanguage(preferred_language) ? preferred_language : null,
+    is_active: true,
+  };
+
+  let { data, error } = await supabase.from("staff").insert(insertRow).select().single();
+
+  if (error && isMissingLanguageColumn(error.message)) {
+    delete insertRow.preferred_language;
+    ({ data, error } = await supabase.from("staff").insert(insertRow).select().single());
+  }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ staff: data }, { status: 201 });

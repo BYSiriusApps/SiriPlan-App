@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { QuickBookSheet } from "./QuickBookSheet";
 
 interface StaffCard {
@@ -21,34 +20,19 @@ interface Props {
   orgId: string;
   staff: StaffCard[];
   services: ServiceItem[];
-  weekLabel: string;
-  prevWeek: string;
-  nextWeek: string;
   today: string;
 }
 
-export function TakvimHeader({ orgId, staff, services, weekLabel, prevWeek, nextWeek, today }: Props) {
+export function TakvimHeader({ orgId, staff, services, today }: Props) {
   return (
     <div className="flex items-center justify-between flex-wrap gap-3">
       <h1 className="text-2xl font-bold">Takvim</h1>
-      <div className="flex items-center gap-2 flex-wrap">
-        <Link href={`/dashboard/takvim?date=${prevWeek}`} className="px-3 py-1.5 rounded-lg border hover:bg-accent transition-colors text-sm">
-          ← Önceki
-        </Link>
-        <span className="text-sm font-medium">{weekLabel}</span>
-        <Link href={`/dashboard/takvim?date=${nextWeek}`} className="px-3 py-1.5 rounded-lg border hover:bg-accent transition-colors text-sm">
-          Sonraki →
-        </Link>
-        <Link href="/dashboard/takvim" className="px-3 py-1.5 rounded-lg border hover:bg-accent transition-colors text-sm">
-          Bu Hafta
-        </Link>
-        <QuickBookSheet
-          orgId={orgId}
-          staff={staff}
-          services={services}
-          preselectedDate={today}
-        />
-      </div>
+      <QuickBookSheet
+        orgId={orgId}
+        staff={staff}
+        services={services}
+        preselectedDate={today}
+      />
     </div>
   );
 }

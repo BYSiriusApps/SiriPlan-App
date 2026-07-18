@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import {
   format,
@@ -86,11 +87,7 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
 
-  const { data: member } = await supabase
-    .from("org_members")
-    .select("org_id, organizations(name)")
-    .eq("user_id", user.id)
-    .single();
+  const member = await getActiveMember(supabase);
 
   if (!member) redirect("/auth/kayit");
   const orgId = member.org_id;
@@ -116,7 +113,7 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     supabase
       .from("appointments")
-      .select("*, staff(full_name, avatar_url), service:services(name, duration_minutes)")
+      .select("*, staff:staff!appointments_staff_id_fkey(full_name, avatar_url), service:services(name, duration_minutes)")
       .eq("org_id", orgId)
       .gte("appointment_at", todayStart)
       .lte("appointment_at", todayEnd)
