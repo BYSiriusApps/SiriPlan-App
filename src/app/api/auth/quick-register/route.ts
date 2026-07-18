@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
   // 2. Create organization
   const slug = slugify(salonName) + "-" + Math.random().toString(36).slice(2, 6);
-  const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
   const { data: org, error: orgErr } = await admin
     .from("organizations")

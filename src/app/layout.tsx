@@ -153,7 +153,7 @@ export default function RootLayout({
                     "@type": "Offer",
                     price: "39",
                     priceCurrency: "USD",
-                    description: "Starter plan — 14 days free trial",
+                    description: "Starter plan — 7 days free trial",
                   },
                   description: "AI destekli randevu ve işletme yönetim platformu",
                   url: "https://siriplan.com",

@@ -29,5 +29,10 @@ ALTER TABLE staff DROP CONSTRAINT IF EXISTS staff_color_check;
 ALTER TABLE staff ADD CONSTRAINT staff_color_check
   CHECK (color IS NULL OR color ~ '^#[0-9a-fA-F]{6}$');
 
--- ─── 3. PostgREST şema önbelleğini yenile ────────────────────
+-- ─── 3. Ücretsiz deneme süresi: 14 gün → 7 gün ───────────────
+-- Yeni kayıt olan işletmeler için varsayılan deneme süresi.
+ALTER TABLE organizations
+  ALTER COLUMN trial_ends_at SET DEFAULT (NOW() + INTERVAL '7 days');
+
+-- ─── 4. PostgREST şema önbelleğini yenile ────────────────────
 NOTIFY pgrst, 'reload schema';

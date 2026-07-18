@@ -131,7 +131,7 @@ export default function KariyerPage() {
             Ekibimize katılmadan önce Siriplan&apos;ı deneyin.
           </p>
           <Link href="/auth/kayit">
-            <Button variant="outline" className="gap-2">14 Gün Ücretsiz Deneyin <ArrowRight className="w-4 h-4" /></Button>
+            <Button variant="outline" className="gap-2">7 Gün Ücretsiz Deneyin <ArrowRight className="w-4 h-4" /></Button>
           </Link>
         </div>
       </section>

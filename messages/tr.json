@@ -16,10 +16,10 @@
     "title": "İşletmenizi <highlight>Akıllıca</highlight> Yönetin",
     "subtitle": "Randevu, personel, müşteri ve ciro yönetimini tek platformda birleştirin. AI asistanı ile WhatsApp/Instagram'dan otomatik yanıt verin.",
     "subtitleHighlight": "Her sektöre özel — sınırsız randevu, sıfır karmaşa.",
-    "cta": "14 Gün Ücretsiz Deneyin",
+    "cta": "7 Gün Ücretsiz Deneyin",
     "ctaSecondary": "Demo İzle",
     "noCard": "Kredi kartı gerekmez",
-    "trial14": "14 gün ücretsiz",
+    "trial14": "7 gün ücretsiz",
     "cancelAnytime": "İstediğin zaman iptal"
   },
   "stats": {
@@ -70,14 +70,14 @@
     "monthly": "Aylık",
     "annual": "Yıllık",
     "annualSave": "%18 Tasarruf",
-    "trial": "14 gün ücretsiz deneme",
+    "trial": "7 gün ücretsiz deneme",
     "noCard": "Kredi kartı gerekmez",
     "perMonth": "/ay",
     "perYear": "/yıl",
     "mostPopular": "En Çok Tercih Edilen",
     "startTrial": "Ücretsiz Dene",
     "contactUs": "Bize Ulaşın",
-    "bottomNote": "14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
+    "bottomNote": "7 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
     "annualLabel": "veya {annual}/ay · {total}/yıl ({save})",
     "starter": {
       "name": "Starter",
@@ -210,8 +210,8 @@
       "title": "Sıkça Sorulan Sorular",
       "subtitle": "En çok merak edilen soruların cevapları",
       "viewAll": "Tüm soruları görüntüle",
-      "q1": "14 günlük deneme gerçekten ücretsiz mi?",
-      "a1": "Evet, kredi kartı bilgisi gerekmez. 14 gün boyunca Pro özelliklerini kullanın. Beğenirseniz devam edin, beğenmezseniz hiçbir ücret ödemeden ayrılın.",
+      "q1": "7 günlük deneme gerçekten ücretsiz mi?",
+      "a1": "Evet, kredi kartı bilgisi gerekmez. 7 gün boyunca Pro özelliklerini kullanın. Beğenirseniz devam edin, beğenmezseniz hiçbir ücret ödemeden ayrılın.",
       "q2": "Mevcut sistemdeki verilerimi taşıyabilir miyim?",
       "a2": "Evet. Kullandığınız randevu yazılımından ve Excel'den tek tıkla veri aktarımı yapabilirsiniz. Ekibimizin yapacağı Profesyonel Veri Göçü hizmeti de mevcuttur.",
       "q3": "WhatsApp AI asistanı nasıl çalışıyor?",
@@ -226,7 +226,7 @@
     "cta": {
       "title": "Salonunuzu Büyütmeye",
       "titleHighlight": "Bugün Başlayın",
-      "subtitle": "14 gün boyunca tüm özellikleri ücretsiz deneyin. Kredi kartı gerekmez. Verileriniz güvende, istediğiniz zaman iptal.",
+      "subtitle": "7 gün boyunca tüm özellikleri ücretsiz deneyin. Kredi kartı gerekmez. Verileriniz güvende, istediğiniz zaman iptal.",
       "button": "Ücretsiz Hesap Oluştur"
     }
   },
@@ -246,7 +246,7 @@
     "businessType": "İşletme Türü",
     "selectPlan": "Plan Seçin",
     "createAccount": "Hesap Oluştur",
-    "trialNote": "14 gün ücretsiz, kredi kartı gerekmez"
+    "trialNote": "7 gün ücretsiz, kredi kartı gerekmez"
   },
   "dashboard": {
     "overview": "Genel Bakış",

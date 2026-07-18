@@ -10,7 +10,7 @@ Siriplan, hizmet sektöründeki küçük ve orta ölçekli işletmelerin randevu
 
 **Teknoloji:** Next.js, Supabase, Stripe, WhatsApp Business API, Claude AI.
 
-**Fiyatlandırma:** Starter ($39/ay), Pro ($79/ay), Business ($149/ay) — 14 gün ücretsiz deneme.
+**Fiyatlandırma:** Starter ($39/ay), Pro ($79/ay), Business ($149/ay) — 7 gün ücretsiz deneme.
 
 ## Ana Sayfalar
 
@@ -70,7 +70,7 @@ Siriplan, hizmet sektöründeki küçük ve orta ölçekli işletmelerin randevu
 
 ## Sık Sorulan Sorular (Özet)
 
-**Siriplan ücretsiz mi?** 14 günlük ücretsiz deneme sunulmaktadır; sonrasında aylık planlar geçerlidir.
+**Siriplan ücretsiz mi?** 7 günlük ücretsiz deneme sunulmaktadır; sonrasında aylık planlar geçerlidir.
 
 **Hangi sektörler kullanabilir?** Kuaför, berber, güzellik, spa, nail, estetik, diyetisyen, fitness ve tüm randevulu hizmet sektörleri.
 

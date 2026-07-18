@@ -16,10 +16,10 @@
     "title": "Manage Your Business <highlight>Smartly</highlight>",
     "subtitle": "Combine appointment, staff, customer and revenue management in one platform. Auto-reply via WhatsApp/Instagram with AI assistant.",
     "subtitleHighlight": "Tailored for every sector — unlimited appointments, zero complexity.",
-    "cta": "Try Free for 14 Days",
+    "cta": "Try Free for 7 Days",
     "ctaSecondary": "Watch Demo",
     "noCard": "No credit card required",
-    "trial14": "14 days free",
+    "trial14": "7 days free",
     "cancelAnytime": "Cancel anytime"
   },
   "stats": {
@@ -70,14 +70,14 @@
     "monthly": "Monthly",
     "annual": "Annual",
     "annualSave": "Save 18%",
-    "trial": "14-day free trial",
+    "trial": "7-day free trial",
     "noCard": "No credit card required",
     "perMonth": "/mo",
     "perYear": "/yr",
     "mostPopular": "Most Popular",
     "startTrial": "Start Free Trial",
     "contactUs": "Contact Us",
-    "bottomNote": "14-day free trial · No credit card required · Cancel anytime",
+    "bottomNote": "7-day free trial · No credit card required · Cancel anytime",
     "annualLabel": "or {annual}/mo · {total}/yr ({save})",
     "starter": {
       "name": "Starter",
@@ -210,8 +210,8 @@
       "title": "Frequently Asked Questions",
       "subtitle": "Answers to the most common questions",
       "viewAll": "View all questions",
-      "q1": "Is the 14-day trial really free?",
-      "a1": "Yes, no credit card required. Use all Pro features for 14 days. If you like it, continue — if not, leave with no charge.",
+      "q1": "Is the 7-day trial really free?",
+      "a1": "Yes, no credit card required. Use all Pro features for 7 days. If you like it, continue — if not, leave with no charge.",
       "q2": "Can I migrate my data from my existing system?",
       "a2": "Yes. You can transfer data from your current appointment software or Excel in one click. Professional Data Migration service performed by our team is also available.",
       "q3": "How does the WhatsApp AI assistant work?",
@@ -226,7 +226,7 @@
     "cta": {
       "title": "Start Growing",
       "titleHighlight": "Your Salon Today",
-      "subtitle": "Try all features free for 14 days. No credit card required. Your data is safe, cancel anytime.",
+      "subtitle": "Try all features free for 7 days. No credit card required. Your data is safe, cancel anytime.",
       "button": "Create Free Account"
     }
   },
@@ -246,7 +246,7 @@
     "businessType": "Business Type",
     "selectPlan": "Select Plan",
     "createAccount": "Create Account",
-    "trialNote": "14 days free, no credit card required"
+    "trialNote": "7 days free, no credit card required"
   },
   "dashboard": {
     "overview": "Overview",

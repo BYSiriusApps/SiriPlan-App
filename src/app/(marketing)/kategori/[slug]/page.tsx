@@ -222,7 +222,7 @@ export default async function KategoriPage({ params }: { params: Promise<Params>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/auth/kayit">
               <Button className="bg-primary hover:bg-primary/90 gap-2 h-11 px-7">
-                14 Gün Ücretsiz Dene
+                7 Gün Ücretsiz Dene
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
@@ -320,7 +320,7 @@ export default async function KategoriPage({ params }: { params: Promise<Params>
             {sector.title} İşletmenizi Büyütmeye Hazır mısınız?
           </h2>
           <p className="text-muted-foreground mb-6">
-            14 gün ücretsiz deneyin. Kredi kartı gerekmez.
+            7 gün ücretsiz deneyin. Kredi kartı gerekmez.
           </p>
           <Link href="/auth/kayit">
             <Button size="lg" className="bg-primary hover:bg-primary/90 gap-2 h-12 px-10">

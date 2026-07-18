@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     success_url: `${appUrl}/dashboard?subscription=success&plan=${plan}`,
     cancel_url: `${appUrl}/auth/plan-sec?canceled=1`,
     subscription_data: {
-      trial_period_days: 14,
+      trial_period_days: 7,
       metadata: { org_id: member.org_id, plan },
     },
     allow_promotion_codes: true,

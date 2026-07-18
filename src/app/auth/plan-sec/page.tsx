@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, Loader2, Zap, Building2, Sparkles } from "lucide-react";
+import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 const PLANS = [
@@ -70,6 +70,32 @@ const PLANS = [
 export default function PlanSecPage() {
   const [annual, setAnnual] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
+  const [trialLoading, setTrialLoading] = useState(false);
+  // null = bilinmiyor (henüz yüklenmedi), true = deneme aktif, false = süresi dolmuş
+  const [trialActive, setTrialActive] = useState<boolean | null>(null);
+  const [expired, setExpired] = useState(false);
+
+  // ?expired=1 — dashboard süresi dolduğu için yönlendirdiyse banner göster
+  // (useSearchParams statik prerender'da Suspense istediği için window'dan okunur)
+  useEffect(() => {
+    setExpired(new URLSearchParams(window.location.search).get("expired") === "1");
+  }, []);
+
+  // Aktif işletmenin deneme durumunu öğren — "devam et" davranışını belirler
+  useEffect(() => {
+    fetch("/api/org")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d?.org) return;
+        const paid = d.org.plan !== "trial" && d.org.subscription_status === "active";
+        const trialOk =
+          d.org.plan === "trial" &&
+          d.org.trial_ends_at &&
+          new Date(d.org.trial_ends_at) > new Date();
+        setTrialActive(paid || trialOk);
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleSelect(planKey: string) {
     setLoading(planKey);
@@ -92,6 +118,27 @@ export default function PlanSecPage() {
   }
 
   async function handleTrial() {
+    setTrialLoading(true);
+    try {
+      // Panele dönmeden önce deneme/abonelik durumunu doğrula —
+      // süresi dolmuşsa dashboard bizi buraya geri atar (sessiz döngü olurdu).
+      const res = await fetch("/api/org");
+      if (res.ok) {
+        const d = await res.json();
+        const paid = d.org?.plan !== "trial" && d.org?.subscription_status === "active";
+        const trialOk =
+          d.org?.plan === "trial" &&
+          d.org?.trial_ends_at &&
+          new Date(d.org.trial_ends_at) > new Date();
+        if (!paid && !trialOk) {
+          toast.error("Ücretsiz deneme süreniz doldu. Devam etmek için bir plan seçmeniz gerekiyor.");
+          setTrialLoading(false);
+          return;
+        }
+      }
+    } catch {
+      // API'ye ulaşılamazsa yine de dene — dashboard kendi kontrolünü yapar
+    }
     window.location.href = "/dashboard";
   }
 
@@ -99,8 +146,17 @@ export default function PlanSecPage() {
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 py-12 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
+          {(expired || trialActive === false) && (
+            <div className="max-w-lg mx-auto mb-6 flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 px-4 py-3 text-left">
+              <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+              <p className="text-sm text-amber-800 dark:text-amber-300">
+                <strong>7 günlük ücretsiz deneme süreniz doldu.</strong> Panele erişmeye devam
+                etmek için aşağıdan bir plan seçin — verileriniz güvende, hiçbir şey silinmedi.
+              </p>
+            </div>
+          )}
           <h1 className="text-3xl font-bold mb-2">Planınızı Seçin</h1>
-          <p className="text-muted-foreground">14 gün ücretsiz deneme • İstediğiniz zaman iptal</p>
+          <p className="text-muted-foreground">7 gün ücretsiz deneme • İstediğiniz zaman iptal</p>
 
           <div className="flex items-center justify-center gap-3 mt-6">
             <span className={annual ? "text-muted-foreground" : "font-semibold"}>Aylık</span>
@@ -167,14 +223,18 @@ export default function PlanSecPage() {
           })}
         </div>
 
-        <div className="text-center">
-          <button
-            onClick={handleTrial}
-            className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
-          >
-            Şimdilik ücretsiz denemeye devam et →
-          </button>
-        </div>
+        {trialActive !== false && (
+          <div className="text-center">
+            <button
+              onClick={handleTrial}
+              disabled={trialLoading}
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors disabled:opacity-50"
+            >
+              {trialLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              Şimdilik ücretsiz denemeye devam et →
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

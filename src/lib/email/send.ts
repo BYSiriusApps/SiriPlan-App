@@ -150,7 +150,7 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
     </p>
 
     <p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">
-      14 günlük ücretsiz deneme süreniz başladı. Bu sürede Pro planın tüm özelliklerini keşfedebilirsiniz.
+      7 günlük ücretsiz deneme süreniz başladı. Bu sürede Pro planın tüm özelliklerini keşfedebilirsiniz.
     </p>
 
     <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;">
@@ -177,7 +177,7 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
   await getResend().emails.send({
     from: `Siriplan <${FROM}>`,
     to: data.to,
-    subject: `Hoş Geldiniz ${data.salonName}! Siriplan'da 14 günlük ücretsiz denemeniz başladı`,
+    subject: `Hoş Geldiniz ${data.salonName}! Siriplan'da 7 günlük ücretsiz denemeniz başladı`,
     html: baseLayout(content, "Siriplan"),
   });
 }

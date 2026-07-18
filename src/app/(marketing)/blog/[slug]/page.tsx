@@ -120,7 +120,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
       {/* CTA */}
       <section className="py-10 bg-primary/5 border-y border-primary/20">
         <div className="container mx-auto px-4 max-w-xl text-center">
-          <h2 className="text-xl font-bold mb-3">14 Gün Ücretsiz Deneyin</h2>
+          <h2 className="text-xl font-bold mb-3">7 Gün Ücretsiz Deneyin</h2>
           <p className="text-sm text-muted-foreground mb-5">
             Kredi kartı gerekmez. Verileriniz güvende.
           </p>
