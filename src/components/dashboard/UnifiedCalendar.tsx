@@ -232,6 +232,46 @@ export function UnifiedCalendar({
 
   const gridHeight = hours.length * HOUR_PX;
 
+  // Dakikada bir tazelenen "şimdi" — devam eden randevu ve kırmızı çizgi için
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Randevu şu an devam ediyor mu? (onaylı + saat aralığının içindeyiz)
+  const isLive = (a: Appointment) => {
+    if (a.status !== "onaylandi") return false;
+    const start = new Date(a.appointment_at).getTime();
+    return now.getTime() >= start && now.getTime() < start + a.duration_minutes * 60_000;
+  };
+
+  // Görünen aralık için durum özeti
+  const statusCounts = useMemo(() => {
+    const c = { talep: 0, devam: 0, onaylandi: 0, tamamlandi: 0 };
+    for (const a of visibleAppointments) {
+      if (isLive(a)) c.devam++;
+      else if (a.status === "talep") c.talep++;
+      else if (a.status === "onaylandi") c.onaylandi++;
+      else if (a.status === "tamamlandi") c.tamamlandi++;
+    }
+    return c;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleAppointments, now]);
+
+  // Kırmızı "şu an" çizgisi (bugün görünürken)
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const nowTop = ((nowMin - hours[0] * 60) / 60) * HOUR_PX;
+  const nowVisible = nowTop >= 0 && nowTop <= gridHeight;
+  const nowLine = nowVisible ? (
+    <div className="absolute left-0 right-0 z-20 pointer-events-none" style={{ top: nowTop }}>
+      <div className="flex items-center">
+        <span className="w-2 h-2 rounded-full bg-red-500 -ml-1 shrink-0" />
+        <div className="flex-1 h-[2px] bg-red-500/80" />
+      </div>
+    </div>
+  ) : null;
+
   function apptBlockStyle(appt: Appointment) {
     const d = new Date(appt.appointment_at);
     const startMin = d.getHours() * 60 + d.getMinutes();
@@ -250,6 +290,7 @@ export function UnifiedCalendar({
     const done = appt.status === "tamamlandi";
     const noShow = appt.status === "gelmedi";
     const pending = appt.status === "talep";
+    const live = isLive(appt);
 
     return (
       <button
@@ -261,10 +302,11 @@ export function UnifiedCalendar({
           width: `calc(${width}% - 4px)`,
           background: c.soft,
           borderLeft: `3px solid ${c.solid}`,
-          borderTop: `1px solid ${c.border}`,
-          borderRight: `1px solid ${c.border}`,
-          borderBottom: `1px solid ${c.border}`,
-          opacity: noShow ? 0.55 : done ? 0.75 : 1,
+          borderTop: `1px solid ${live ? c.solid : c.border}`,
+          borderRight: `1px solid ${live ? c.solid : c.border}`,
+          borderBottom: `1px solid ${live ? c.solid : c.border}`,
+          opacity: noShow ? 0.55 : done ? 0.7 : 1,
+          boxShadow: live ? `0 0 0 1px ${c.solid}, 0 2px 10px ${c.border}` : undefined,
         }}
         className={cn(
           "absolute rounded-md px-1 py-0.5 text-[10px] leading-tight overflow-hidden cursor-pointer hover:shadow-md transition-shadow text-left z-10",
@@ -272,9 +314,12 @@ export function UnifiedCalendar({
         )}
       >
         <p className="font-semibold truncate" style={{ color: c.solid }}>
+          {live && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-1 align-middle" />}
+          {done && <span className="mr-0.5">✓</span>}
           {format(new Date(appt.appointment_at), "HH:mm")} {appt.customer_name}
         </p>
         <p className="truncate opacity-80">
+          {live ? "● Devam ediyor · " : ""}
           {appt.service?.name}
           {opts?.showStaff ? ` · ${staffName(appt.staff_id)}` : ""}
         </p>
@@ -352,6 +397,25 @@ export function UnifiedCalendar({
             Bugün
           </Link>
         </div>
+      </div>
+
+      {/* Durum özeti — görünen aralıktaki randevu durumları */}
+      <div className="flex items-center gap-2 flex-wrap text-xs">
+        {statusCounts.devam > 0 && (
+          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold bg-red-50 text-red-600 border border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            {statusCounts.devam} devam ediyor
+          </span>
+        )}
+        <span className="px-2.5 py-1 rounded-full font-medium bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400">
+          {statusCounts.talep} onay bekliyor
+        </span>
+        <span className="px-2.5 py-1 rounded-full font-medium bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400">
+          {statusCounts.onaylandi} onaylı
+        </span>
+        <span className="px-2.5 py-1 rounded-full font-medium bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
+          ✓ {statusCounts.tamamlandi} tamamlandı
+        </span>
       </div>
 
       {/* Personel filtre çipleri (renk lejantı) */}
@@ -436,6 +500,7 @@ export function UnifiedCalendar({
                     </Link>
                     <div className="relative" style={{ height: gridHeight }}>
                       {slotLines}
+                      {isToday && nowLine}
                       <div className="absolute inset-0">
                         {positioned.map((p) => renderApptBlock(p, { showStaff: selectedStaff === "all" }))}
                       </div>
@@ -448,47 +513,44 @@ export function UnifiedCalendar({
         </div>
       )}
 
-      {/* ─── GÜN GÖRÜNÜMÜ (personel sütunları) ───────────────── */}
+      {/* ─── GÜN GÖRÜNÜMÜ (tek birleşik tablo) ───────────────────
+          Personel başına ayrı sütun YOK: günün tüm randevuları tek
+          zaman çizelgesinde, çakışanlar yan yana şeritlerde. Personel
+          rengi ve adı her blokta görünür; filtre çipleriyle daraltılır. */}
       {view === "day" && (
         <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
           <div className="overflow-x-auto">
             {(() => {
               const dayStr = gridDays[0];
               const dayAppts = byDay[dayStr] || [];
-              const visibleStaff = lockedStaffId
-                ? staff.filter((s) => s.id === lockedStaffId)
-                : selectedStaff === "all"
-                ? staff
-                : staff.filter((s) => s.id === selectedStaff);
+              const positioned = layoutDay(dayAppts);
+              const isToday = dayStr === today;
 
               return (
-                <div
-                  className="grid min-w-[560px]"
-                  style={{ gridTemplateColumns: `48px repeat(${Math.max(visibleStaff.length, 1)}, 1fr)` }}
-                >
+                <div className="grid min-w-[420px]" style={{ gridTemplateColumns: "48px 1fr" }}>
                   {hourRail}
-                  {visibleStaff.map((s) => {
-                    const c = colorOf(s.id);
-                    const staffAppts = dayAppts.filter((a) => a.staff_id === s.id);
-                    const positioned = layoutDay(staffAppts);
-                    return (
-                      <div key={s.id} className="border-r last:border-r-0 min-w-0">
-                        <div
-                          className="h-10 border-b flex items-center justify-center gap-1.5 text-xs font-semibold"
-                          style={{ background: c.soft, color: c.solid }}
-                        >
-                          <span className="w-2 h-2 rounded-full" style={{ background: c.solid }} />
-                          <span className="truncate px-1">{s.full_name}</span>
-                        </div>
-                        <div className="relative" style={{ height: gridHeight }}>
-                          {slotLines}
-                          <div className="absolute inset-0">
-                            {positioned.map((p) => renderApptBlock(p))}
-                          </div>
-                        </div>
+                  <div className="min-w-0">
+                    <div
+                      className={cn(
+                        "h-10 border-b flex items-center justify-center gap-2 text-xs font-semibold",
+                        isToday && "bg-primary/10 text-primary"
+                      )}
+                    >
+                      <span className="capitalize">
+                        {format(new Date(dayStr + "T12:00:00"), "d MMMM EEEE", { locale: tr })}
+                      </span>
+                      <span className="text-[10px] font-normal text-muted-foreground">
+                        {dayAppts.length} randevu
+                      </span>
+                    </div>
+                    <div className="relative" style={{ height: gridHeight }}>
+                      {slotLines}
+                      {isToday && nowLine}
+                      <div className="absolute inset-0">
+                        {positioned.map((p) => renderApptBlock(p, { showStaff: true }))}
                       </div>
-                    );
-                  })}
+                    </div>
+                  </div>
                 </div>
               );
             })()}
