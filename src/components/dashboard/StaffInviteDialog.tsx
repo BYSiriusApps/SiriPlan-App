@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Mail, Send, Copy, CheckCircle2, UserPlus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PERM_LABELS, DEFAULT_PERMS } from "@/lib/permissions";
 
 interface StaffOption {
   id: string;
@@ -15,45 +16,19 @@ interface StaffOption {
 
 interface Props {
   staffList: StaffOption[];
+  /** Belirli bir personel için önceden seçilmiş davet (personel detay sayfasından açılışta) */
+  preselectedStaffId?: string;
 }
 
-const PERM_LABELS: Record<string, string> = {
-  view_customers:      "Müşterileri görsün",
-  edit_customers:      "Müşterileri düzenleyebilsin",
-  view_reports:        "Raporları görsün",
-  edit_services:       "Hizmetleri düzenleyebilsin",
-  manage_staff:        "Personeli yönetebilsin",
-  view_financials:     "Gelir/gideri görsün",
-  manage_campaigns:    "Kampanyaları yönetebilsin",
-  create_appointments: "Randevu oluşturabilsin",
-  edit_appointments:   "Randevu düzenleyebilsin",
-  cancel_appointments: "Randevu iptal edebilsin",
-};
-
-const DEFAULT_PERMS: Record<string, Record<string, boolean>> = {
-  staff: {
-    view_customers: true, edit_customers: false, view_reports: false,
-    edit_services: false, manage_staff: false, view_financials: false,
-    manage_campaigns: false, create_appointments: true, edit_appointments: true,
-    cancel_appointments: false,
-  },
-  manager: {
-    view_customers: true, edit_customers: true, view_reports: true,
-    edit_services: true, manage_staff: false, view_financials: true,
-    manage_campaigns: true, create_appointments: true, edit_appointments: true,
-    cancel_appointments: true,
-  },
-};
-
-export function StaffInviteDialog({ staffList }: Props) {
-  const [open, setOpen] = useState(false);
+export function StaffInviteDialog({ staffList, preselectedStaffId }: Props) {
+  const [open, setOpen] = useState(!!preselectedStaffId);
   const [step, setStep] = useState<"form" | "success">("form");
   const [loading, setLoading] = useState(false);
   const [inviteUrl, setInviteUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
   const [form, setForm] = useState({
-    staff_id: "",
+    staff_id: preselectedStaffId ?? "",
     email: "",
     phone: "",
     role: "staff" as "staff" | "manager",

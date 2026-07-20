@@ -9,8 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell } from "lucide-react";
+import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell, ShieldCheck } from "lucide-react";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
+import { PERM_LABELS, DEFAULT_PERMS } from "@/lib/permissions";
+import { StaffInviteDialog } from "@/components/dashboard/StaffInviteDialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const DAYS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
@@ -52,6 +55,44 @@ export default function PersonelDetayPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [staff, setStaff] = useState<StaffData | null>(null);
+
+  // Giriş hesabı yetkileri (org_members.role + permissions_json)
+  const [permsLoading, setPermsLoading] = useState(true);
+  const [permsSaving, setPermsSaving] = useState(false);
+  const [linked, setLinked] = useState(false);
+  const [memberRole, setMemberRole] = useState<"staff" | "manager">("staff");
+  const [perms, setPerms] = useState<Record<string, boolean>>(DEFAULT_PERMS.staff);
+
+  useEffect(() => {
+    fetch(`/api/staff/${id}/permissions`)
+      .then((r) => r.json())
+      .then((d) => {
+        setLinked(!!d.linked);
+        if (d.linked) {
+          setMemberRole(d.role === "manager" ? "manager" : "staff");
+          setPerms({ ...DEFAULT_PERMS[d.role === "manager" ? "manager" : "staff"], ...(d.permissions_json ?? {}) });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setPermsLoading(false));
+  }, [id]);
+
+  async function handleSavePerms() {
+    setPermsSaving(true);
+    const res = await fetch(`/api/staff/${id}/permissions`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: memberRole, permissions_json: perms }),
+    });
+    setPermsSaving(false);
+    if (res.ok) {
+      toast.success("Yetkiler güncellendi");
+    } else {
+      const err = await res.json();
+      toast.error(err.error || "Yetkiler güncellenemedi");
+    }
+  }
+
   const [form, setForm] = useState({
     full_name: "",
     role: "",
@@ -344,6 +385,80 @@ export default function PersonelDetayPage() {
               Kaydet
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Giriş hesabı yetkileri */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            Yetkiler
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {permsLoading ? (
+            <div className="flex justify-center py-6">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : !linked ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Bu personelin henüz sisteme giriş yapabileceği bir hesabı yok. Davet
+                gönderirseniz kendi hesabını oluşturup panele erişebilir.
+              </p>
+              <StaffInviteDialog staffList={[]} preselectedStaffId={id} />
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <Label className="text-xs">Rol</Label>
+                <Select
+                  value={memberRole}
+                  onValueChange={(v) => {
+                    const role = (v ?? "staff") as "staff" | "manager";
+                    setMemberRole(role);
+                    setPerms({ ...DEFAULT_PERMS[role] });
+                  }}
+                >
+                  <SelectTrigger className="text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="staff">Personel — Temel erişim</SelectItem>
+                    <SelectItem value="manager">Yönetici — Genişletilmiş erişim</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground">
+                  Rol değiştirmek varsayılan izinleri sıfırlar — altta ince ayar yapabilirsiniz.
+                </p>
+              </div>
+
+              <div className="space-y-1.5 pt-2 border-t">
+                <Label className="text-xs font-medium">İzinler</Label>
+                <div className="grid sm:grid-cols-2 gap-1.5">
+                  {Object.entries(PERM_LABELS).map(([key, label]) => (
+                    <label key={key} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={!!perms[key]}
+                        onChange={() => setPerms((p) => ({ ...p, [key]: !p[key] }))}
+                        className="rounded text-primary"
+                      />
+                      <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+                        {label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <Button size="sm" onClick={handleSavePerms} disabled={permsSaving} className="gap-1.5">
+                {permsSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+                Yetkileri Kaydet
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
