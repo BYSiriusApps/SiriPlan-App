@@ -8,7 +8,7 @@ const MANAGER_ROUTES = [
   "/dashboard/raporlar",
   "/dashboard/gelir-gider",
   "/dashboard/veri-gocu",
-  "/dashboard/personel/yeni",
+  "/dashboard/personel",
 ];
 
 // Routes that require "owner" role

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Megaphone } from "lucide-react";
+import { ArrowLeft, Loader2, Megaphone, Users, Search, X, Check } from "lucide-react";
+
+interface PickerCustomer {
+  id: string;
+  full_name: string;
+  phone: string;
+  marketing_consent: boolean;
+  score: number;
+}
 
 const CAMPAIGN_TYPES = [
   { value: "birthday", label: "🎂 Doğum Günü", desc: "Bugün doğum günü olan müşterilere otomatik mesaj" },
@@ -42,6 +50,38 @@ export default function YeniKampanyaPage() {
   });
   const [kvkkConsent, setKvkkConsent] = useState(false);
 
+  // ── Hedef müşteri seçimi (filtreleme + seçme) ──
+  const [customers, setCustomers] = useState<PickerCustomer[]>([]);
+  const [custSearch, setCustSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [targetMode, setTargetMode] = useState<"all" | "selected">("all");
+
+  useEffect(() => {
+    fetch("/api/customers?limit=500")
+      .then((r) => r.json())
+      .then((d) => setCustomers(
+        ((d.customers ?? []) as PickerCustomer[]).filter((c) => c.marketing_consent)
+      ))
+      .catch(() => {});
+  }, []);
+
+  const filteredCustomers = useMemo(() => {
+    const q = custSearch.trim().toLocaleLowerCase("tr");
+    if (!q) return customers;
+    return customers.filter(
+      (c) => c.full_name.toLocaleLowerCase("tr").includes(q) || (c.phone ?? "").includes(q)
+    );
+  }, [customers, custSearch]);
+
+  function toggleCustomer(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
   function handleTypeChange(type: string) {
     setForm((f) => ({
       ...f,
@@ -63,6 +103,11 @@ export default function YeniKampanyaPage() {
     const segment: Record<string, unknown> = {};
     if (form.type === "inactive") {
       segment.inactive_days = parseInt(form.inactive_days) || 60;
+    }
+    // Elle müşteri seçildiyse kampanya yalnızca onlara gider
+    if (targetMode === "selected") {
+      if (selectedIds.size === 0) return toast.error("En az bir müşteri seçin veya 'Tüm onaylı müşteriler'i işaretleyin");
+      segment.customer_ids = Array.from(selectedIds);
     }
 
     setLoading(true);
@@ -205,6 +250,118 @@ export default function YeniKampanyaPage() {
                 ))}
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* ── Hedef Müşteriler: filtrele + seç ── */}
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Users className="h-4 w-4" /> Hedef Müşteriler
+              <span className="text-xs font-normal text-muted-foreground">
+                ({customers.length} kampanya onaylı)
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setTargetMode("all")}
+                className={`py-2.5 px-3 rounded-lg text-sm font-medium border-2 transition-colors text-left ${
+                  targetMode === "all" ? "border-primary bg-primary/5" : "border-border text-muted-foreground"
+                }`}
+              >
+                Tüm onaylı müşteriler
+                <span className="block text-xs font-normal text-muted-foreground">{customers.length} kişi</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTargetMode("selected")}
+                className={`py-2.5 px-3 rounded-lg text-sm font-medium border-2 transition-colors text-left ${
+                  targetMode === "selected" ? "border-primary bg-primary/5" : "border-border text-muted-foreground"
+                }`}
+              >
+                Müşteri seç
+                <span className="block text-xs font-normal text-muted-foreground">
+                  {selectedIds.size > 0 ? `${selectedIds.size} kişi seçildi` : "Listeden filtrele ve seç"}
+                </span>
+              </button>
+            </div>
+
+            {targetMode === "selected" && (
+              <div className="space-y-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                  <Input
+                    placeholder="Müşteri filtrele (isim / telefon)..."
+                    value={custSearch}
+                    onChange={(e) => setCustSearch(e.target.value)}
+                    className="pl-8 pr-8"
+                  />
+                  {custSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setCustSearch("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedIds(new Set(filteredCustomers.map((c) => c.id)))}
+                    className="px-2.5 py-1 rounded-lg border hover:bg-accent transition-colors"
+                  >
+                    Görünenleri Seç ({filteredCustomers.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedIds(new Set())}
+                    className="px-2.5 py-1 rounded-lg border hover:bg-accent transition-colors text-muted-foreground"
+                  >
+                    Seçimi Temizle
+                  </button>
+                </div>
+
+                <div className="max-h-56 overflow-y-auto rounded-lg border divide-y">
+                  {filteredCustomers.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      {customers.length === 0 ? "Kampanya onaylı müşteri yok" : "Filtreye uyan müşteri yok"}
+                    </p>
+                  ) : (
+                    filteredCustomers.map((c) => {
+                      const checked = selectedIds.has(c.id);
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => toggleCustomer(c.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${
+                            checked ? "bg-primary/5" : "hover:bg-accent"
+                          }`}
+                        >
+                          <span
+                            className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
+                              checked ? "bg-primary border-primary" : "border-border"
+                            }`}
+                          >
+                            {checked && <Check className="h-3 w-3 text-primary-foreground" />}
+                          </span>
+                          <span className="flex-1 min-w-0">
+                            <span className="block text-sm font-medium truncate">{c.full_name}</span>
+                            <span className="block text-xs text-muted-foreground">{c.phone}</span>
+                          </span>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

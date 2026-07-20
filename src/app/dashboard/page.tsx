@@ -76,6 +76,10 @@ function CardTitle({ children, right }: { children: React.ReactNode; right?: Rea
   );
 }
 
+/* Router önbelleği bayat veri göstermesin — rakamlar her girişte güncel gelsin */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /* ─── Sayfa ─── */
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -98,6 +102,7 @@ export default async function DashboardPage() {
 
   const [
     { data: todayAppts },
+    { data: nextAppts },
     { data: weekAppts },
     { data: newCustomers },
     { data: champion },
@@ -114,6 +119,17 @@ export default async function DashboardPage() {
       .lte("appointment_at", todayEnd)
       .neq("status", "iptal")
       .order("appointment_at"),
+
+    // Yaklaşan randevular: bugünle sınırlı değil — şu andan itibaren
+    // en yakın tarih/saate göre sıralı ilk 5 (bekleyen + onaylı)
+    supabase
+      .from("appointments")
+      .select("id, customer_name, appointment_at, status, duration_minutes, service:services(name)")
+      .eq("org_id", orgId)
+      .gte("appointment_at", now.toISOString())
+      .in("status", ["talep", "onaylandi"])
+      .order("appointment_at", { ascending: true })
+      .limit(5),
 
     supabase
       .from("appointments")
@@ -172,7 +188,7 @@ export default async function DashboardPage() {
   const appts = (todayAppts ?? []) as FullAppt[];
 
   /* Durum sayıları */
-  const isLive = (a: FullAppt) => {
+  const isLive = (a: { status: string; appointment_at: string; duration_minutes: number }) => {
     if (a.status !== "onaylandi") return false;
     const s = new Date(a.appointment_at).getTime();
     return now.getTime() >= s && now.getTime() < s + a.duration_minutes * 60_000;
@@ -181,10 +197,29 @@ export default async function DashboardPage() {
   const pendingCount = appts.filter((a) => a.status === "talep").length;
   const doneCount = appts.filter((a) => a.status === "tamamlandi").length;
 
-  /* Sıradaki randevular: devam eden + gelecekler önce */
-  const upcoming = appts
-    .filter((a) => a.status !== "tamamlandi" && a.status !== "gelmedi")
-    .slice(0, 4);
+  /* Sıradaki randevular: şu andan itibaren en yakın tarih/saat sırasıyla.
+     Ayrıca şu an devam eden bugünkü randevu varsa listenin başına al. */
+  type NextAppt = {
+    id: string; customer_name: string; appointment_at: string;
+    status: string; duration_minutes: number; service?: { name: string } | null;
+  };
+  const liveNow = appts.filter(isLive).map((a) => ({
+    id: a.id, customer_name: a.customer_name, appointment_at: a.appointment_at,
+    status: a.status, duration_minutes: a.duration_minutes,
+    service: a.service ? { name: a.service.name } : null,
+  }));
+  const futureList = ((nextAppts ?? []) as unknown as NextAppt[]).filter(
+    (a) => !liveNow.some((l) => l.id === a.id)
+  );
+  const upcoming: NextAppt[] = [...liveNow, ...futureList].slice(0, 5);
+
+  const dayLabel = (iso: string) => {
+    const d = new Date(iso);
+    const diff = differenceInCalendarDays(d, now);
+    if (diff === 0) return "";
+    if (diff === 1) return "Yarın ";
+    return format(d, "d MMM ", { locale: tr });
+  };
 
   /* Haftalık doluluk (verimlilik): tamamlanan / toplam */
   const weekRows = (weekAppts ?? []) as { price: number; status: string }[];
@@ -261,7 +296,7 @@ export default async function DashboardPage() {
             </div>
             <div className="flex-1 min-w-0 space-y-1.5">
               {upcoming.length === 0 ? (
-                <p className="text-sm text-gray-500 py-2">Bugün bekleyen randevu yok</p>
+                <p className="text-sm text-gray-500 py-2">Yaklaşan randevu yok</p>
               ) : (
                 upcoming.map((a) => (
                   <Link
@@ -275,11 +310,18 @@ export default async function DashboardPage() {
                       <span className="text-gray-500"> ({a.service?.name ?? "—"})</span>
                     </span>
                     <span className="tabular-nums shrink-0" style={{ color: CYAN }}>
-                      {format(new Date(a.appointment_at), "HH:mm")}
+                      {dayLabel(a.appointment_at)}{format(new Date(a.appointment_at), "HH:mm")}
                     </span>
                   </Link>
                 ))
               )}
+              <Link
+                href="/dashboard/randevular"
+                className="inline-flex items-center gap-1 mt-1 text-[12px] font-semibold px-2.5 py-1 rounded-lg hover:opacity-80 transition-opacity"
+                style={{ background: "rgba(34,211,238,0.12)", color: CYAN, border: "1px solid rgba(34,211,238,0.3)" }}
+              >
+                Tümünü Gör <ChevronRight className="h-3 w-3" />
+              </Link>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap px-4 pb-3.5 text-[11px]">

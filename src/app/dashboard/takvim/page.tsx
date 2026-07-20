@@ -29,7 +29,11 @@ export default async function TakvimPage({
   const view: CalendarView = ["day", "week", "month"].includes(params.view ?? "")
     ? (params.view as CalendarView)
     : "week";
-  const baseDate = params.date ? new Date(params.date + "T12:00:00") : new Date();
+  // Bozuk ?date= değeri Invalid Date → format() çöker; sıkı doğrula.
+  const validDate = params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date)
+    ? new Date(params.date + "T12:00:00")
+    : new Date();
+  const baseDate = isNaN(validDate.getTime()) ? new Date() : validDate;
 
   // Görünüme göre görünür gün aralığı + gezinme hedefleri
   let gridStart: Date;

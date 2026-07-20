@@ -9,9 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Organization } from "@/types/database";
+import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
+import { HomeButton } from "@/components/dashboard/HomeButton";
+import { DEFAULT_WA_TEMPLATE, WA_TEMPLATE_VARS, renderWaTemplate } from "@/lib/wa-template";
 
 const DAYS = [
   { key: "mon", label: "Pazartesi" },
@@ -105,7 +108,7 @@ export default function AyarlarPage() {
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Ayarlar</h1>
+        <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Ayarlar</h1><HomeButton /></div>
         <p className="text-muted-foreground text-sm">Salon bilgilerinizi güncelleyin</p>
       </div>
 
@@ -197,6 +200,70 @@ export default function AyarlarPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Otomatik randevu mesajı */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <MessageCircle className="h-4 w-4 text-green-600" />
+            Otomatik Randevu Mesajı (WhatsApp)
+          </CardTitle>
+          <CardDescription>
+            Yeni randevu oluşturulduğunda müşteriye gönderilen bilgilendirme metni.
+            Tarih ve saat her randevuda otomatik doldurulur.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <textarea
+            className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
+            value={
+              ((org.settings_json as Record<string, unknown> | null)?.wa_appointment_template as string | undefined) ??
+              DEFAULT_WA_TEMPLATE
+            }
+            onChange={(e) => {
+              const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+              setField("settings_json", { ...cur, wa_appointment_template: e.target.value });
+            }}
+            placeholder={DEFAULT_WA_TEMPLATE}
+          />
+          <div className="flex gap-1.5 flex-wrap items-center">
+            <span className="text-xs text-muted-foreground">Değişkenler:</span>
+            {WA_TEMPLATE_VARS.map((v) => (
+              <button
+                key={v.key}
+                type="button"
+                title={v.desc}
+                onClick={() => {
+                  const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                  const existing = (cur.wa_appointment_template as string | undefined) ?? DEFAULT_WA_TEMPLATE;
+                  setField("settings_json", { ...cur, wa_appointment_template: existing + " " + v.key });
+                }}
+                className="text-xs px-2 py-1 rounded bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                {v.key}
+              </button>
+            ))}
+          </div>
+          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50">
+            <p className="text-[11px] font-medium text-green-700 dark:text-green-400 mb-1">Örnek önizleme:</p>
+            <p className="text-xs text-muted-foreground italic">
+              {renderWaTemplate(
+                ((org.settings_json as Record<string, unknown> | null)?.wa_appointment_template as string | undefined) ?? null,
+                {
+                  musteri: "Ayşe Yıldız",
+                  salon: org.name || "Salonunuz",
+                  appointmentAt: "2026-07-20T15:00",
+                  hizmet: "Saç Kesimi",
+                  personel: "Elif",
+                }
+              )}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Uygulamayı telefona ekle (PWA) */}
+      <InstallPwaCard />
 
       {/* Working hours */}
       <Card className="border-0 shadow-sm">

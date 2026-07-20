@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslations } from "next-intl";
 
 export type CalendarView = "day" | "week" | "month";
 
@@ -123,6 +124,7 @@ export function UnifiedCalendar({
   hours, orgId, staff, appointments, lockedStaffId,
 }: Props) {
   const router = useRouter();
+  const t = useTranslations("dashboard");
   const [isPending, startTransition] = useTransition();
   const [popover, setPopover] = useState<Popover | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -360,7 +362,7 @@ export function UnifiedCalendar({
       {/* Kontrol çubuğu: görünüm + gezinme + personel filtresi */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-1 rounded-lg border p-0.5 bg-card">
-          {([["day", "Gün"], ["week", "Hafta"], ["month", "Ay"]] as const).map(([v, l]) => (
+          {([["day", t("day")], ["week", t("week")], ["month", t("month")]] as const).map(([v, l]) => (
             <Link
               key={v}
               href={`/dashboard/takvim?view=${v}&date=${viewDate}`}
@@ -394,7 +396,7 @@ export function UnifiedCalendar({
             href={`/dashboard/takvim?view=${view}&date=${today}`}
             className="px-3 py-1.5 rounded-lg border hover:bg-accent transition-colors text-sm"
           >
-            Bugün
+            {t("today")}
           </Link>
         </div>
       </div>
@@ -404,17 +406,17 @@ export function UnifiedCalendar({
         {statusCounts.devam > 0 && (
           <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold bg-red-50 text-red-600 border border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-            {statusCounts.devam} devam ediyor
+            {statusCounts.devam} {t("inProgress")}
           </span>
         )}
         <span className="px-2.5 py-1 rounded-full font-medium bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400">
-          {statusCounts.talep} onay bekliyor
+          {statusCounts.talep} {t("awaiting")}
         </span>
         <span className="px-2.5 py-1 rounded-full font-medium bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400">
-          {statusCounts.onaylandi} onaylı
+          {statusCounts.onaylandi} {t("approved")}
         </span>
         <span className="px-2.5 py-1 rounded-full font-medium bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
-          ✓ {statusCounts.tamamlandi} tamamlandı
+          ✓ {statusCounts.tamamlandi} {t("completedChip")}
         </span>
       </div>
 
@@ -449,7 +451,7 @@ export function UnifiedCalendar({
                   : "hover:bg-accent text-muted-foreground"
               )}
             >
-              Tümü
+              {t("all")}
             </button>
             {staff.map((s) => {
               const c = colorOf(s.id);

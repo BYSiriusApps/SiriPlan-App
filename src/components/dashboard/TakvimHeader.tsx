@@ -1,6 +1,7 @@
 "use client";
 
 import { QuickBookSheet } from "./QuickBookSheet";
+import { HomeButton } from "./HomeButton";
 
 interface StaffCard {
   id: string;
@@ -26,7 +27,10 @@ interface Props {
 export function TakvimHeader({ orgId, staff, services, today }: Props) {
   return (
     <div className="flex items-center justify-between flex-wrap gap-3">
-      <h1 className="text-2xl font-bold">Takvim</h1>
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-bold">Takvim</h1>
+        <HomeButton />
+      </div>
       <QuickBookSheet
         orgId={orgId}
         staff={staff}

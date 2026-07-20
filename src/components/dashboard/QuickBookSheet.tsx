@@ -9,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Search, User, Scissors, Clock, Phone, Star, Loader2, X, Check } from "lucide-react";
+import { Plus, Search, User, Scissors, Clock, Phone, Star, Loader2, X, Check, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DateTimeSlotPicker, nextSlot } from "@/components/dashboard/DateTimeSlotPicker";
+import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
 
 interface StaffCard {
   id: string;
@@ -64,6 +65,22 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   const [customerLoading, setCustomerLoading] = useState(false);
   const [customerPicked, setCustomerPicked] = useState(false);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Otomatik WhatsApp bilgilendirme mesajı
+  const [sendWaMessage, setSendWaMessage] = useState(true);
+  const [orgName, setOrgName] = useState("");
+  const [waTemplate, setWaTemplate] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/org")
+      .then((r) => r.json())
+      .then((d) => {
+        setOrgName(d.org?.name ?? "");
+        const s = (d.org?.settings_json ?? {}) as Record<string, unknown>;
+        setWaTemplate(typeof s.wa_appointment_template === "string" ? s.wa_appointment_template : null);
+      })
+      .catch(() => {});
+  }, []);
 
   // Reset on open
   useEffect(() => {
@@ -150,6 +167,19 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
       }
 
       toast.success("Randevu oluşturuldu!");
+
+      // Hazır mesajla müşterinin WhatsApp sohbetini aç (tek dokunuşla gönderilir)
+      if (sendWaMessage && customerPhone.trim()) {
+        const text = renderWaTemplate(waTemplate, {
+          musteri: customerName.trim(),
+          salon: orgName || "Salonumuz",
+          appointmentAt,
+          hizmet: selectedService?.name,
+          personel: staff.find((s) => s.id === selectedStaffId)?.full_name,
+        });
+        window.open(waMessageLink(customerPhone.trim(), text), "_blank", "noopener");
+      }
+
       setOpen(false);
       router.refresh();
     } finally {
@@ -355,6 +385,25 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
               onChange={(e) => setNote(e.target.value)}
             />
           </div>
+
+          {/* ── Otomatik WhatsApp mesajı ── */}
+          <label className="flex items-start gap-3 p-3 rounded-xl border border-green-200 dark:border-green-900/50 bg-green-50/60 dark:bg-green-950/20 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={sendWaMessage}
+              onChange={(e) => setSendWaMessage(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded accent-green-600 shrink-0"
+            />
+            <span className="min-w-0">
+              <span className="text-sm font-medium flex items-center gap-1.5">
+                <MessageCircle className="h-3.5 w-3.5 text-green-600" />
+                Müşteriye WhatsApp mesajı gönder
+              </span>
+              <span className="block text-xs text-muted-foreground mt-0.5">
+                Kaydedince hazır bilgilendirme metniyle WhatsApp açılır.
+              </span>
+            </span>
+          </label>
 
           {/* ── Submit ── */}
           <div className="pt-2 border-t">

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { HomeButton } from "@/components/dashboard/HomeButton";
 import Link from "next/link";
 import { Megaphone, Calendar, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
@@ -71,7 +72,7 @@ export default async function KampanyalarPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Kampanyalar</h1>
+          <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Kampanyalar</h1><HomeButton /></div>
           <p className="text-muted-foreground text-sm">Müşterilerinize otomatik mesajlar gönderin</p>
         </div>
         <Link

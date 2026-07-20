@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, CreditCard, Zap, Sparkles, Building2 } from "lucide-react";
+import { HomeButton } from "@/components/dashboard/HomeButton";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import Link from "next/link";
@@ -36,7 +37,7 @@ export default async function AbonelikPage() {
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Abonelik</h1>
+        <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Abonelik</h1><HomeButton /></div>
         <p className="text-muted-foreground text-sm">Plan ve fatura yönetimi</p>
       </div>
 

@@ -63,19 +63,23 @@ export function DateTimeSlotPicker({ value, onChange, minDate }: Props) {
     onChange(`${datePart || new Date().toISOString().slice(0, 10)}T${t}`);
   }
 
+  // Dar ekranda yan yana sıkışıp üst üste binmesin diye alt alta,
+  // ≥400px genişlikte yan yana dizilir. min-w-0: native date input'un
+  // içsel genişliği grid hücresini taşırmasın.
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-2">
       <Input
         type="date"
         value={datePart}
         min={minDate}
         onChange={(e) => setDate(e.target.value)}
+        className="w-full min-w-0"
         required
       />
       <Select value={timePart || undefined} onValueChange={(v) => v && setTime(v)}>
-        <SelectTrigger>
-          <span className="flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+        <SelectTrigger className="w-full min-w-0">
+          <span className="flex items-center gap-1.5 min-w-0">
+            <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             <SelectValue placeholder="Saat" />
           </span>
         </SelectTrigger>

@@ -13,7 +13,8 @@ export async function GET(req: NextRequest) {
 
   const search = searchParams.get("q");
   const page = parseInt(searchParams.get("page") || "1");
-  const limit = 50;
+  // İsteğe bağlı limit (kampanya müşteri seçici tüm listeyi çeker); üst sınır 500
+  const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "50") || 50, 1), 500);
   const offset = (page - 1) * limit;
 
   let query = supabase

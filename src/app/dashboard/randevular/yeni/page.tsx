@@ -10,9 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Search, X, Star, Clock, TrendingUp, Plus } from "lucide-react";
+import { ArrowLeft, Loader2, Search, X, Star, Clock, TrendingUp, Plus, MessageCircle } from "lucide-react";
 import type { Staff, Service } from "@/types/database";
 import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
+import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
 
 const FAVORITES_KEY = "siriplan_fav_services";
 
@@ -39,6 +40,9 @@ export default function YeniRandevuPage() {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [orgId, setOrgId] = useState<string>("");
+  const [orgName, setOrgName] = useState<string>("");
+  const [waTemplate, setWaTemplate] = useState<string | null>(null);
+  const [sendWaMessage, setSendWaMessage] = useState(true);
 
   const [form, setForm] = useState({
     customer_name: "",
@@ -68,6 +72,9 @@ export default function YeniRandevuPage() {
         setStaff(staffData.staff || []);
         setServices(servicesData.services || []);
         setOrgId(orgData.org?.id || "");
+        setOrgName(orgData.org?.name || "");
+        const settings = (orgData.org?.settings_json ?? {}) as Record<string, unknown>;
+        setWaTemplate(typeof settings.wa_appointment_template === "string" ? settings.wa_appointment_template : null);
       })
       .catch(() => toast.error("Veriler yüklenemedi"))
       .finally(() => setDataLoading(false));
@@ -146,8 +153,20 @@ export default function YeniRandevuPage() {
     setLoading(false);
 
     if (res.ok) {
-      const data = await res.json();
       toast.success("Randevu oluşturuldu");
+
+      // Otomatik WhatsApp mesajı: hazır metinle müşterinin sohbetini aç
+      if (sendWaMessage && form.customer_phone) {
+        const text = renderWaTemplate(waTemplate, {
+          musteri: form.customer_name,
+          salon: orgName || "Salonumuz",
+          appointmentAt: form.appointment_at,
+          hizmet: selectedServices.map((s) => s.name).join(", "),
+          personel: staff.find((s) => s.id === form.staff_id)?.full_name,
+        });
+        window.open(waMessageLink(form.customer_phone, text), "_blank", "noopener");
+      }
+
       // Takvime yönlendir ve haftayı randevu tarihine göre aç
       const apptDate = form.appointment_at.slice(0, 10);
       router.push(`/dashboard/takvim?date=${apptDate}`);
@@ -372,6 +391,37 @@ export default function YeniRandevuPage() {
                     placeholder="Opsiyonel not..."
                   />
                 </div>
+
+                {/* Otomatik WhatsApp bilgilendirme mesajı */}
+                <label className="flex items-start gap-3 p-3 rounded-xl border border-green-200 dark:border-green-900/50 bg-green-50/60 dark:bg-green-950/20 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={sendWaMessage}
+                    onChange={(e) => setSendWaMessage(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded accent-green-600 shrink-0"
+                  />
+                  <span className="min-w-0">
+                    <span className="text-sm font-medium flex items-center gap-1.5">
+                      <MessageCircle className="h-3.5 w-3.5 text-green-600" />
+                      Müşteriye WhatsApp mesajı gönder
+                    </span>
+                    <span className="block text-xs text-muted-foreground mt-0.5">
+                      Randevu oluşturulunca hazır bilgilendirme metniyle WhatsApp açılır —
+                      göndermek için tek dokunuş yeter. Metni Ayarlar&apos;dan değiştirebilirsiniz.
+                    </span>
+                    {form.customer_name && form.appointment_at && (
+                      <span className="block text-[11px] mt-1.5 p-2 rounded-lg bg-background/80 border border-border text-muted-foreground italic">
+                        &quot;{renderWaTemplate(waTemplate, {
+                          musteri: form.customer_name,
+                          salon: orgName || "Salonumuz",
+                          appointmentAt: form.appointment_at,
+                          hizmet: selectedServices.map((s) => s.name).join(", "),
+                          personel: staff.find((s) => s.id === form.staff_id)?.full_name,
+                        })}&quot;
+                      </span>
+                    )}
+                  </span>
+                </label>
               </div>
 
               <Button type="submit" className="w-full mt-2" disabled={loading || selectedServices.length === 0}>

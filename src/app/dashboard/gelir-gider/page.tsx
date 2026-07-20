@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { HomeButton } from "@/components/dashboard/HomeButton";
 import { toast } from "sonner";
 import {
   TrendingUp, TrendingDown, Wallet, Plus, Trash2, Loader2,
@@ -90,6 +91,7 @@ export default function GelirGiderPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<Expense | null>(null);
   const [filterType, setFilterType] = useState<"all" | "gelir" | "gider">("all");
 
   // Recurring expenses state
@@ -133,20 +135,36 @@ export default function GelirGiderPage() {
       return;
     }
     setSaving(true);
+    // editingEntry doluysa mevcut kaydı güncelle, değilse yeni ekle
     const res = await fetch("/api/expenses", {
-      method: "POST",
+      method: editingEntry ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(editingEntry ? { id: editingEntry.id, ...form } : form),
     });
     if (res.ok) {
-      toast.success("Kayıt eklendi");
+      toast.success(editingEntry ? "Kayıt güncellendi" : "Kayıt eklendi");
       setShowForm(false);
       setForm(EMPTY_FORM);
+      setEditingEntry(null);
       fetchData();
     } else {
-      toast.error("Kayıt eklenemedi");
+      toast.error(editingEntry ? "Güncellenemedi" : "Kayıt eklenemedi");
     }
     setSaving(false);
+  }
+
+  function openEditEntry(e: Expense) {
+    setEditingEntry(e);
+    setForm({
+      type: e.type,
+      category: e.category,
+      amount: String(e.amount),
+      description: e.description,
+      note: e.note ?? "",
+      date: e.date.slice(0, 10),
+      payment_method: e.payment_method ?? "nakit",
+    });
+    setShowForm(true);
   }
 
   async function handleDelete(id: string) {
@@ -258,7 +276,7 @@ export default function GelirGiderPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Gelir & Gider</h1>
+          <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Gelir & Gider</h1><HomeButton /></div>
           <p className="text-muted-foreground text-sm">Finansal kayıtlarınızı takip edin</p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -608,9 +626,18 @@ export default function GelirGiderPage() {
                     <span className={`text-sm font-semibold md:hidden ${e.type === "gelir" ? "text-emerald-600" : "text-red-600"}`}>
                       {e.type === "gelir" ? "+" : "-"}{fmt(Number(e.amount))}
                     </span>
+                    {/* Mobilde her zaman görünür; masaüstünde hover'da belirir */}
                     <button
+                      title="Düzenle"
+                      onClick={() => openEditEntry(e)}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      title="Sil"
                       onClick={() => handleDelete(e.id)}
-                      className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -664,11 +691,14 @@ export default function GelirGiderPage() {
         </div>
       )}
 
-      {/* ─── Add Expense Dialog ─── */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
+      {/* ─── Add/Edit Expense Dialog ─── */}
+      <Dialog open={showForm} onOpenChange={(v) => {
+        setShowForm(v);
+        if (!v) { setEditingEntry(null); setForm(EMPTY_FORM); }
+      }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Yeni Kayıt</DialogTitle>
+            <DialogTitle>{editingEntry ? "Kaydı Düzenle" : "Yeni Kayıt"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-2">
@@ -774,7 +804,7 @@ export default function GelirGiderPage() {
               </Button>
               <Button className="flex-1 gap-2" onClick={handleSave} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                Kaydet
+                {editingEntry ? "Güncelle" : "Kaydet"}
               </Button>
             </div>
           </div>

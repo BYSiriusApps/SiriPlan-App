@@ -49,6 +49,17 @@ export async function POST(
     custQuery = custQuery.or(`last_visit_at.lt.${cutoff},last_visit_at.is.null`);
   }
 
+  // Kampanya oluşturulurken elle seçilen müşteriler (filtreleme/seçme paneli)
+  if (Array.isArray(seg.customer_ids) && seg.customer_ids.length > 0) {
+    const ids = (seg.customer_ids as unknown[])
+      .filter((v): v is string => typeof v === "string")
+      .slice(0, 500);
+    if (ids.length > 0) custQuery = custQuery.in("id", ids);
+  }
+
+  // KVKK: yalnızca kampanya bildirimi onayı olan müşterilere gönderilir
+  custQuery = custQuery.eq("marketing_consent", true);
+
   const { data: customers } = await custQuery.limit(500);
   const sentCount = customers?.length || 0;
 

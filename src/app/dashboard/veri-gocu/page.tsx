@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Download, Upload, FileText, CheckCircle2, Loader2, ArrowRight, Sheet, Printer } from "lucide-react";
+import { HomeButton } from "@/components/dashboard/HomeButton";
 
 const IMPORT_SOURCES = [
   { id: "salonappy", name: "Randevu Programı", icon: "💆", color: "border-orange-200 dark:border-orange-800" },
@@ -78,7 +79,7 @@ export default function VeriGocuPage() {
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Veri Göçü</h1>
+        <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Veri Göçü</h1><HomeButton /></div>
         <p className="text-muted-foreground text-sm">Verilerinizi aktarın veya güvenle indirin</p>
       </div>
 

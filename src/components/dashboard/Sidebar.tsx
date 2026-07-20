@@ -23,7 +23,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/takvim",        icon: Calendar,        tKey: "calendar",       minRole: "staff"   },
   { href: "/dashboard/randevular",    icon: BookOpen,        tKey: "appointments",   minRole: "staff"   },
   { href: "/dashboard/musteriler",    icon: Users,           tKey: "customers",      minRole: "staff"   },
-  { href: "/dashboard/personel",      icon: UserCog,         tKey: "staff",          minRole: "staff"   },
+  { href: "/dashboard/personel",      icon: UserCog,         tKey: "staff",          minRole: "manager" },
   { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "staff"   },
   { href: "/dashboard/kampanyalar",   icon: Megaphone,       tKey: "campaigns",      badge: "Pro", minRole: "manager" },
   { href: "/dashboard/raporlar",      icon: BarChart3,       tKey: "reports",        minRole: "manager" },

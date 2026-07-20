@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { HomeButton } from "@/components/dashboard/HomeButton";
 import { cn } from "@/lib/utils";
 import { Scissors, Clock, Star, Pencil, Loader2, Trash2, Users, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
@@ -115,7 +116,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Hizmetler</h1>
+          <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Hizmetler</h1><HomeButton /></div>
           <p className="text-muted-foreground text-sm">{services.length} hizmet</p>
         </div>
         <Link

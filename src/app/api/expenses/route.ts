@@ -67,6 +67,36 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(data, { status: 201 });
 }
 
+export async function PUT(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const member = await getActiveMember(supabase);
+  if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+
+  const body = await req.json();
+  const { id } = body;
+  if (!id) return NextResponse.json({ error: "ID gerekli" }, { status: 400 });
+
+  const updates: Record<string, unknown> = {};
+  for (const key of ["type", "category", "amount", "description", "note", "date", "payment_method"]) {
+    if (key in body) updates[key] = key === "amount" ? Number(body[key]) : body[key];
+  }
+
+  const { data, error } = await supabase
+    .from("expenses")
+    .update(updates)
+    .eq("id", id)
+    .eq("org_id", member.org_id)
+    .select()
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
+}
+
 export async function DELETE(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

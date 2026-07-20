@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { UserCog, Phone, Mail } from "lucide-react";
 import { ContactLinks } from "@/components/dashboard/ContactLinks";
+import { HomeButton } from "@/components/dashboard/HomeButton";
 import { StaffInviteDialog } from "@/components/dashboard/StaffInviteDialog";
 import type { Staff } from "@/types/database";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
@@ -70,7 +71,7 @@ export default async function PersonelPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Personel</h1>
+          <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Personel</h1><HomeButton /></div>
           <p className="text-muted-foreground text-sm">
             {staff?.length || 0}/{maxStaff} personel kullanılıyor
           </p>
