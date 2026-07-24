@@ -76,12 +76,12 @@ export default async function PersonelPage() {
             {staff?.length || 0}/{maxStaff} personel kullanılıyor
           </p>
         </div>
-        {m.role !== "staff" && (
+        {m.role === "owner" && (
           <div className="flex items-center gap-2">
             <StaffInviteDialog
               staffList={(staff || []).map((s) => ({ id: s.id, full_name: s.full_name }))}
             />
-            {m.role === "owner" && (staff?.length || 0) < maxStaff && (
+            {(staff?.length || 0) < maxStaff && (
               <Link
                 href="/dashboard/personel/yeni"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"

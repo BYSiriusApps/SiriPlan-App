@@ -65,7 +65,7 @@ function baseLayout(content: string, orgName: string) {
                 Bu e-posta Siriplan tarafından ${esc(orgName)} adına gönderilmiştir.<br/>
                 <a href="https://siriplan.com" style="color:#e11d48;text-decoration:none;">siriplan.com</a>
                 &nbsp;·&nbsp;
-                <a href="https://bysirius.com" style="color:#9ca3af;text-decoration:none;">BY Sirius Group</a>
+                <a href="https://bysirius.com" style="color:#9ca3af;text-decoration:none;">BY Sirius Group Ai & Technology Co Ltd.</a>
               </p>
             </td>
           </tr>
@@ -77,11 +77,13 @@ function baseLayout(content: string, orgName: string) {
 </html>`;
 }
 
+const APPOINTMENT_TZ = "Europe/Istanbul";
+
 function formatTR(date: Date) {
-  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: APPOINTMENT_TZ });
 }
 function formatTime(date: Date) {
-  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: APPOINTMENT_TZ });
 }
 
 export async function sendConfirmationEmail(data: AppointmentEmailData) {

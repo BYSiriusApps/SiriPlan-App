@@ -3,17 +3,21 @@
 import { useState, useEffect, useTransition } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { format } from "date-fns";
+import { tr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell, ShieldCheck, Activity } from "lucide-react";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { PERM_LABELS, DEFAULT_PERMS } from "@/lib/permissions";
+import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
 import { StaffInviteDialog } from "@/components/dashboard/StaffInviteDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const DAYS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
@@ -62,12 +66,14 @@ export default function PersonelDetayPage() {
   const [linked, setLinked] = useState(false);
   const [memberRole, setMemberRole] = useState<"staff" | "manager">("staff");
   const [perms, setPerms] = useState<Record<string, boolean>>(DEFAULT_PERMS.staff);
+  const [viewerRole, setViewerRole] = useState<string>("staff");
 
   useEffect(() => {
     fetch(`/api/staff/${id}/permissions`)
       .then((r) => r.json())
       .then((d) => {
         setLinked(!!d.linked);
+        setViewerRole(d.viewerRole ?? "staff");
         if (d.linked) {
           setMemberRole(d.role === "manager" ? "manager" : "staff");
           setPerms({ ...DEFAULT_PERMS[d.role === "manager" ? "manager" : "staff"], ...(d.permissions_json ?? {}) });
@@ -75,6 +81,22 @@ export default function PersonelDetayPage() {
       })
       .catch(() => {})
       .finally(() => setPermsLoading(false));
+  }, [id]);
+
+  // Randevu istatistikleri + durum değişikliği geçmişi (audit log)
+  interface ActivityHistoryEntry {
+    id: string;
+    created_at: string;
+    old_data: { status?: string } | null;
+    new_data: { status?: string; actor_name?: string } | null;
+  }
+  const [activity, setActivity] = useState<{ counts: Record<string, number>; history: ActivityHistoryEntry[] } | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/staff/${id}/activity`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setActivity(d))
+      .catch(() => {});
   }, [id]);
 
   async function handleSavePerms() {
@@ -404,10 +426,12 @@ export default function PersonelDetayPage() {
           ) : !linked ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Bu personelin henüz sisteme giriş yapabileceği bir hesabı yok. Davet
-                gönderirseniz kendi hesabını oluşturup panele erişebilir.
+                Bu personelin henüz sisteme giriş yapabileceği bir hesabı yok.
+                {viewerRole === "owner"
+                  ? " Davet gönderirseniz kendi hesabını oluşturup panele erişebilir."
+                  : " Davet göndermek için salon sahibiyle iletişime geçin."}
               </p>
-              <StaffInviteDialog staffList={[]} preselectedStaffId={id} />
+              {viewerRole === "owner" && <StaffInviteDialog staffList={[]} preselectedStaffId={id} />}
             </div>
           ) : (
             <div className="space-y-4">
@@ -491,6 +515,57 @@ export default function PersonelDetayPage() {
               </Link>{" "}
               sayfasını kullanın.
             </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Activity */}
+      {activity && (
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Activity className="h-4 w-4 text-primary" />
+              Personel Aktiviteleri
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {(["tamamlandi", "talep", "onaylandi", "gelmedi", "iptal"] as const).map((key) => (
+                <div key={key} className={cn("rounded-lg border p-2.5 text-center", STATUS_BADGE_CLASSES[key])}>
+                  <p className="text-lg font-bold">{activity.counts[key] ?? 0}</p>
+                  <p className="text-[10px] font-medium">{STATUS_LABELS[key]}</p>
+                </div>
+              ))}
+            </div>
+
+            {activity.history.length > 0 && (
+              <div className="space-y-1.5 pt-2 border-t">
+                <p className="text-xs font-medium text-muted-foreground">Durum Değişikliği Geçmişi</p>
+                <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                  {activity.history.map((h) => {
+                    const oldStatus = h.old_data?.status ?? "";
+                    const newStatus = h.new_data?.status ?? "";
+                    return (
+                      <div key={h.id} className="flex items-center justify-between gap-2 text-xs py-1.5 px-2 rounded-lg bg-muted/30">
+                        <span className="flex items-center gap-1 flex-wrap">
+                          <span className={cn("px-1.5 py-0.5 rounded", STATUS_BADGE_CLASSES[oldStatus])}>
+                            {STATUS_LABELS[oldStatus] ?? oldStatus}
+                          </span>
+                          →
+                          <span className={cn("px-1.5 py-0.5 rounded", STATUS_BADGE_CLASSES[newStatus])}>
+                            {STATUS_LABELS[newStatus] ?? newStatus}
+                          </span>
+                        </span>
+                        <span className="text-muted-foreground shrink-0">
+                          {h.new_data?.actor_name ? `${h.new_data.actor_name} · ` : ""}
+                          {format(new Date(h.created_at), "d MMM HH:mm", { locale: tr })}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

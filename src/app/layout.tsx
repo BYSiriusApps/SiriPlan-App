@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     template: "%s | Siriplan",
   },
   description:
-    "Kuaför, berber, güzellik salonu, spa, klinik ve daha fazlası için AI destekli randevu, müşteri ve ciro yönetim platformu. BY Sirius Group tarafından geliştirildi.",
+    "Kuaför, berber, güzellik salonu, spa, klinik ve daha fazlası için AI destekli randevu, müşteri ve ciro yönetim platformu. BY Sirius Group Ai & Technology Co Ltd. tarafından geliştirildi.",
   keywords: [
     "randevu sistemi",
     "kuaför programı",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     "akıllı randevu",
     "online randevu",
   ],
-  authors: [{ name: "BY Sirius Group", url: "https://bysirius.com" }],
+  authors: [{ name: "BY Sirius Group Ai & Technology Co Ltd.", url: "https://bysirius.com" }],
   creator: "BY Sirius Group Ai & Technology Co Ltd.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com"),
   manifest: "/manifest.json",

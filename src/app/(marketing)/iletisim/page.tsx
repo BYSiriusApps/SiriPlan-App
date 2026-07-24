@@ -30,7 +30,7 @@ const contactInfo = [
   {
     icon: MapPin,
     label: "Adres",
-    value: "BY Sirius Group, Türkiye",
+    value: "BY Sirius Group Ai & Technology Co Ltd., Türkiye",
     href: "https://bysirius.com",
     color: "text-blue-500",
     bg: "bg-blue-50 dark:bg-blue-950/30",

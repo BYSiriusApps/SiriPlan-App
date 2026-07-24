@@ -184,6 +184,16 @@ export async function POST(req: NextRequest) {
   const finalPrice = data.total_price_override ?? service.price;
   const finalDuration = data.total_duration_override ?? service.duration_minutes;
 
+  // Panelden (giriş yapmış, org üyesi) girilen randevular direkt onaylı düşer.
+  // Herkese açık rezervasyon widget'ından (/r/[slug], anonim) gelenler onay bekler.
+  const { data: { user: callingUser } } = await supabase.auth.getUser();
+  let isPanelBooking = false;
+  if (callingUser) {
+    const callingMember = await getActiveMember(supabase);
+    isPanelBooking = callingMember?.org_id === data.org_id;
+  }
+  const initialStatus = isPanelBooking ? "onaylandi" : "talep";
+
   const { data: appt, error } = await supabase
     .from("appointments")
     .insert({
@@ -200,7 +210,7 @@ export async function POST(req: NextRequest) {
       price: finalPrice,
       source: data.source,
       note: data.note,
-      status: "onaylandi",
+      status: initialStatus,
       is_auto: isExternalSource && !!org.has_auto_booking,
     })
     .select("*")

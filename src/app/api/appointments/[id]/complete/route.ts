@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { logAppointmentStatusChange } from "@/lib/audit";
 
 export async function POST(
   req: NextRequest,
@@ -28,6 +29,9 @@ export async function POST(
   if (appt.status === "tamamlandi") {
     return NextResponse.json({ error: "Zaten tamamlandı" }, { status: 400 });
   }
+  if (member.role === "staff" && appt.staff_id !== member.staff_id) {
+    return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
+  }
 
   // Mark complete
   const { error: updateErr } = await supabase
@@ -36,6 +40,18 @@ export async function POST(
     .eq("id", id);
 
   if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 });
+
+  logAppointmentStatusChange({
+    orgId: member.org_id,
+    userId: user.id,
+    actorName: (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Bilinmiyor",
+    appointmentId: id,
+    staffId: appt.staff_id,
+    customerName: appt.customer_name,
+    appointmentAt: appt.appointment_at,
+    oldStatus: appt.status,
+    newStatus: "tamamlandi",
+  }).catch(() => {});
 
   // Add loyalty punch if applicable
   if (appt.customer_id && appt.service?.contributes_loyalty && !appt.loyalty_punch_added) {

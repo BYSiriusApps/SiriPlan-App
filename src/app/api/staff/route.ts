@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+  if (member.role !== "owner") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   // Server-side quota: check max_staff limit
   const { data: org } = await supabase

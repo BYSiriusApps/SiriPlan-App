@@ -56,7 +56,7 @@ export default function KosullarPage() {
           <h2 className="text-xl font-semibold mb-3">5. Hizmet Kesintileri ve Sorumluluk Sınırları</h2>
           <p className="text-muted-foreground leading-relaxed">
             Platform %99,9 uptime hedefiyle çalışır; ancak bakım veya teknik nedenlerle kısa süreli
-            kesintiler yaşanabilir. BY Sirius Group, dolaylı, arızi veya sonuçta ortaya çıkan zararlardan
+            kesintiler yaşanabilir. BY Sirius Group Ai & Technology Co Ltd., dolaylı, arızi veya sonuçta ortaya çıkan zararlardan
             sorumlu tutulamaz. Sorumluluğumuz, ilgili ay içinde ödediğiniz abonelik ücretiyle sınırlıdır.
           </p>
         </section>

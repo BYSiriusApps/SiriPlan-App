@@ -136,7 +136,16 @@ export async function Footer() {
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} BY Sirius Group AI and Technology Co. Ltd. {t("rights")}
+            © {new Date().getFullYear()}{" "}
+            <a
+              href="https://bysirius.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors"
+            >
+              BY Sirius Group Ai & Technology Co Ltd.
+            </a>{" "}
+            {t("rights")}
           </p>
           <div className="flex items-center gap-5">
             {/* Social links */}

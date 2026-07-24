@@ -69,7 +69,7 @@ export default function HakkimizdaPage() {
                 dijitalleşme yolculuğunu kolaylaştırmak için yenilikçi ürünler geliştirmekteyiz.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-6">
-                Siriplan, BY Sirius Group&apos;un amiral gemisi ürünü olarak kuaförden kliniklere, berbelerden spa
+                Siriplan, BY Sirius Group Ai & Technology Co Ltd.&apos;un amiral gemisi ürünü olarak kuaförden kliniklere, berbelerden spa
                 merkezlerine kadar geniş bir sektör yelpazesine randevu yönetimi ve operasyonel verimlilik sağlar.
               </p>
               <a href="https://bysirius.com" target="_blank" rel="noopener noreferrer">

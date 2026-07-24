@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendReminderEmail } from "@/lib/email/send";
-import { format, addHours, differenceInHours } from "date-fns";
-import { tr } from "date-fns/locale";
+import { addHours, differenceInHours } from "date-fns";
 
 export const runtime = "nodejs";
+
+const APPOINTMENT_TZ = "Europe/Istanbul";
+
+function formatApptTime(date: Date) {
+  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: APPOINTMENT_TZ });
+}
+function formatApptDate(date: Date) {
+  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: APPOINTMENT_TZ });
+}
 
 async function sendWhatsApp(phone: string, message: string, token: string, phoneNumberId: string) {
   const to = phone.replace(/\D/g, "").replace(/^0/, "90");
@@ -91,7 +99,7 @@ export async function POST(req: NextRequest) {
   for (const appt of (imminent || []) as ApptWithRelations[]) {
     const org = appt.organizations;
     const apptAt = new Date(appt.appointment_at);
-    const apptTime = format(apptAt, "HH:mm");
+    const apptTime = formatApptTime(apptAt);
     const hoursAway = Math.max(1, differenceInHours(apptAt, now));
 
     if (org.wa_token && org.wa_phone_number_id) {
@@ -131,8 +139,8 @@ export async function POST(req: NextRequest) {
   for (const appt of (upcoming || []) as ApptWithRelations[]) {
     const org = appt.organizations;
     const apptAt = new Date(appt.appointment_at);
-    const apptDate = format(apptAt, "d MMMM yyyy", { locale: tr });
-    const apptTime = format(apptAt, "HH:mm");
+    const apptDate = formatApptDate(apptAt);
+    const apptTime = formatApptTime(apptAt);
     const hoursAway = Math.max(1, differenceInHours(apptAt, now));
 
     if (org.wa_token && org.wa_phone_number_id) {

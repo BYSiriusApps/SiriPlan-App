@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
+import { STATUS_LABELS } from "@/lib/appointment-status";
 
 export type CalendarView = "day" | "week" | "month";
 
@@ -29,14 +30,6 @@ const STAFF_COLORS = [
   { solid: "#f97316", soft: "rgba(249,115,22,0.16)", border: "rgba(249,115,22,0.55)" },   // orange
   { solid: "#14b8a6", soft: "rgba(20,184,166,0.16)", border: "rgba(20,184,166,0.55)" },   // teal
 ];
-
-const STATUS_LABELS: Record<string, string> = {
-  talep: "Bekliyor",
-  onaylandi: "Onaylı",
-  tamamlandi: "Tamamlandı",
-  iptal: "İptal",
-  gelmedi: "Gelmedi",
-};
 
 const HOUR_PX = 56; // 1 saat = 56px → 15dk = 14px
 
@@ -302,12 +295,12 @@ export function UnifiedCalendar({
           top, height,
           left: `calc(${lane * width}% + 2px)`,
           width: `calc(${width}% - 4px)`,
-          background: c.soft,
+          background: done ? "rgba(16,185,129,0.18)" : noShow ? "rgba(245,158,11,0.22)" : c.soft,
           borderLeft: `3px solid ${c.solid}`,
           borderTop: `1px solid ${live ? c.solid : c.border}`,
           borderRight: `1px solid ${live ? c.solid : c.border}`,
           borderBottom: `1px solid ${live ? c.solid : c.border}`,
-          opacity: noShow ? 0.55 : done ? 0.7 : 1,
+          opacity: 1,
           boxShadow: live ? `0 0 0 1px ${c.solid}, 0 2px 10px ${c.border}` : undefined,
         }}
         className={cn(
@@ -318,6 +311,7 @@ export function UnifiedCalendar({
         <p className="font-semibold truncate" style={{ color: c.solid }}>
           {live && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-1 align-middle" />}
           {done && <span className="mr-0.5">✓</span>}
+          {noShow && <span className="mr-0.5">⚠</span>}
           {format(new Date(appt.appointment_at), "HH:mm")} {appt.customer_name}
         </p>
         <p className="truncate opacity-80">
@@ -603,9 +597,14 @@ export function UnifiedCalendar({
                         key={a.id}
                         onClick={(e) => openPopover(e, a)}
                         className="w-full text-left rounded px-1 py-0.5 text-[10px] leading-tight truncate cursor-pointer hover:shadow transition-shadow"
-                        style={{ background: c.soft, borderLeft: `2px solid ${c.solid}` }}
+                        style={{
+                          background: a.status === "tamamlandi" ? "rgba(16,185,129,0.18)" : a.status === "gelmedi" ? "rgba(245,158,11,0.22)" : c.soft,
+                          borderLeft: `2px solid ${c.solid}`,
+                        }}
                       >
                         <span className="font-semibold" style={{ color: c.solid }}>
+                          {a.status === "tamamlandi" && "✓ "}
+                          {a.status === "gelmedi" && "⚠ "}
                           {format(new Date(a.appointment_at), "HH:mm")}
                         </span>{" "}
                         {a.customer_name}
@@ -671,50 +670,62 @@ export function UnifiedCalendar({
 
             <div className="p-2 space-y-1">
               <p className="text-[10px] text-muted-foreground px-1 pb-0.5">Hızlı Güncelle</p>
+              {(() => {
+                const canQuickAct = !lockedStaffId || popover.appt.staff_id === lockedStaffId;
+                const disabled = !!updatingId || !canQuickAct;
+                return (
+                  <>
+                    {!canQuickAct && (
+                      <p className="text-[10px] text-amber-600 px-1 pb-0.5">
+                        Bu randevu size atanmadığı için durum değiştiremezsiniz.
+                      </p>
+                    )}
+                    {popover.appt.status !== "onaylandi" && (
+                      <button
+                        onClick={() => updateStatus(popover.appt.id, "onaylandi")}
+                        disabled={disabled}
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                      >
+                        {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                        Onayla
+                      </button>
+                    )}
 
-              {popover.appt.status !== "onaylandi" && (
-                <button
-                  onClick={() => updateStatus(popover.appt.id, "onaylandi")}
-                  disabled={!!updatingId}
-                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                >
-                  {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                  Onayla
-                </button>
-              )}
+                    {popover.appt.status !== "tamamlandi" && (
+                      <button
+                        onClick={() => updateStatus(popover.appt.id, "tamamlandi")}
+                        disabled={disabled}
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                      >
+                        {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                        Tamamlandı
+                      </button>
+                    )}
 
-              {popover.appt.status !== "tamamlandi" && (
-                <button
-                  onClick={() => updateStatus(popover.appt.id, "tamamlandi")}
-                  disabled={!!updatingId}
-                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-                >
-                  {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                  Tamamlandı
-                </button>
-              )}
+                    {popover.appt.status !== "gelmedi" && (
+                      <button
+                        onClick={() => updateStatus(popover.appt.id, "gelmedi")}
+                        disabled={disabled}
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                      >
+                        {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertCircle className="h-3.5 w-3.5" />}
+                        Gelmedi
+                      </button>
+                    )}
 
-              {popover.appt.status !== "gelmedi" && (
-                <button
-                  onClick={() => updateStatus(popover.appt.id, "gelmedi")}
-                  disabled={!!updatingId}
-                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
-                >
-                  {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertCircle className="h-3.5 w-3.5" />}
-                  Gelmedi
-                </button>
-              )}
-
-              {popover.appt.status !== "iptal" && (
-                <button
-                  onClick={() => updateStatus(popover.appt.id, "iptal")}
-                  disabled={!!updatingId}
-                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                >
-                  {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
-                  İptal Et
-                </button>
-              )}
+                    {popover.appt.status !== "iptal" && (
+                      <button
+                        onClick={() => updateStatus(popover.appt.id, "iptal")}
+                        disabled={disabled}
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                      >
+                        {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
+                        İptal Et
+                      </button>
+                    )}
+                  </>
+                );
+              })()}
 
               <div className="border-t pt-1 mt-1">
                 <Link

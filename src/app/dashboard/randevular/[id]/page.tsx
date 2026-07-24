@@ -10,14 +10,7 @@ import { ArrowLeft, Phone, User, Scissors, Clock, CreditCard, Pencil } from "luc
 import { cn } from "@/lib/utils";
 import type { Appointment } from "@/types/database";
 import ApptActions from "./appt-actions";
-
-const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  talep:      { label: "Talep",      className: "bg-yellow-100 text-yellow-800 border-yellow-200" },
-  onaylandi:  { label: "Onaylandı",  className: "bg-blue-100 text-blue-800 border-blue-200" },
-  tamamlandi: { label: "Tamamlandı", className: "bg-green-100 text-green-800 border-green-200" },
-  iptal:      { label: "İptal",      className: "bg-red-100 text-red-800 border-red-200" },
-  gelmedi:    { label: "Gelmedi",    className: "bg-gray-100 text-gray-800 border-gray-200" },
-};
+import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
 
 export default async function ApptDetailPage({
   params,
@@ -42,7 +35,6 @@ export default async function ApptDetailPage({
   if (error || !appt) notFound();
 
   const a = appt as Appointment;
-  const statusCfg = STATUS_CONFIG[a.status];
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
@@ -51,8 +43,8 @@ export default async function ApptDetailPage({
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="text-xl font-bold">Randevu Detayı</h1>
-        <Badge variant="outline" className={cn("ml-auto", statusCfg?.className)}>
-          {statusCfg?.label}
+        <Badge variant="outline" className={cn("ml-auto", STATUS_BADGE_CLASSES[a.status])}>
+          {STATUS_LABELS[a.status]}
         </Badge>
         {a.status !== "tamamlandi" && a.status !== "iptal" && a.status !== "gelmedi" && (
           <Link
@@ -155,7 +147,7 @@ export default async function ApptDetailPage({
       )}
 
       {/* Actions */}
-      <ApptActions appt={a} />
+      <ApptActions appt={a} viewerRole={member.role} viewerStaffId={member.staff_id} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { getActiveMemberClient } from "@/lib/active-org-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, ChevronRight } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
@@ -39,8 +40,15 @@ const BUSINESS_TYPES = [
   { value: "kas_kirpik", label: "Kaş & Kirpik" },
 ];
 
+interface StaffListItem {
+  id: string;
+  full_name: string;
+  role: string;
+}
+
 export default function AyarlarPage() {
   const [org, setOrg] = useState<Partial<Organization> | null>(null);
+  const [staffList, setStaffList] = useState<StaffListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -52,12 +60,17 @@ export default function AyarlarPage() {
         if (!user) return;
         const member = await getActiveMemberClient(supabase);
         if (!member) return;
-        const { data: orgData } = await supabase
-          .from("organizations")
-          .select("*")
-          .eq("id", member.org_id)
-          .single();
+        const [{ data: orgData }, { data: staffData }] = await Promise.all([
+          supabase.from("organizations").select("*").eq("id", member.org_id).single(),
+          supabase
+            .from("staff")
+            .select("id, full_name, role")
+            .eq("org_id", member.org_id)
+            .eq("is_active", true)
+            .order("display_order"),
+        ]);
         setOrg(orgData);
+        setStaffList(staffData ?? []);
       } finally {
         setLoading(false);
       }
@@ -362,6 +375,32 @@ export default function AyarlarPage() {
               </div>
             );
           })}
+
+          <div className="pt-2 border-t space-y-2">
+            <p className="text-xs font-medium text-muted-foreground pt-2">
+              Bireysel personel yetkileri (rol, izinler)
+            </p>
+            {staffList.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-2">Henüz personel eklenmemiş.</p>
+            ) : (
+              staffList.map((s) => (
+                <Link
+                  key={s.id}
+                  href={`/dashboard/personel/${s.id}`}
+                  className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border hover:bg-muted/30 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{s.full_name}</p>
+                    <p className="text-xs text-muted-foreground">{s.role}</p>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs text-primary shrink-0">
+                    Yetkileri Düzenle
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </span>
+                </Link>
+              ))
+            )}
+          </div>
         </CardContent>
       </Card>
 

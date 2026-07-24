@@ -2,27 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAppointment } from "@/lib/notify";
+import { logAppointmentStatusChange } from "@/lib/audit";
 
 type Params = { params: Promise<{ id: string }> };
 
-async function getOrgId(supabase: Awaited<ReturnType<typeof createClient>>) {
+async function getAuthContext(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   const member = await getActiveMember(supabase);
-  return member?.org_id ?? null;
+  if (!member) return null;
+  return { user, member };
 }
 
 export async function GET(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const supabase = await createClient();
-  const orgId = await getOrgId(supabase);
-  if (!orgId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const ctx = await getAuthContext(supabase);
+  if (!ctx) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data, error } = await supabase
     .from("appointments")
     .select("*, staff:staff!appointments_staff_id_fkey(*), service:services(*), customer:customers(*)")
     .eq("id", id)
-    .eq("org_id", orgId)
+    .eq("org_id", ctx.member.org_id)
     .single();
 
   if (error || !data) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
@@ -33,8 +35,9 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const body = await req.json();
   const supabase = await createClient();
-  const orgId = await getOrgId(supabase);
-  if (!orgId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const ctx = await getAuthContext(supabase);
+  if (!ctx) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { user, member } = ctx;
 
   const ALLOWED = [
     "status", "note", "internal_note", "tip", "payment_method", "cancel_reason",
@@ -49,13 +52,30 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
   }
 
+  // Durum değişikliği: personel yalnızca kendi üzerine atanan randevunun durumunu değiştirebilir.
+  // Sahip ve yönetici kısıtlamasız.
+  let previous: { status: string; staff_id: string | null; customer_name: string; appointment_at: string } | null = null;
+  if (typeof updates.status === "string") {
+    const { data: current } = await supabase
+      .from("appointments")
+      .select("status, staff_id, customer_name, appointment_at")
+      .eq("id", id)
+      .eq("org_id", member.org_id)
+      .single();
+    if (!current) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
+    if (member.role === "staff" && current.staff_id !== member.staff_id) {
+      return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
+    }
+    previous = current;
+  }
+
   // When service changes, sync price and duration from the new service
   if (updates.service_id) {
     const { data: svc } = await supabase
       .from("services")
       .select("price, duration_minutes")
       .eq("id", updates.service_id as string)
-      .eq("org_id", orgId)
+      .eq("org_id", member.org_id)
       .single();
     if (svc) {
       updates.price = svc.price;
@@ -67,11 +87,25 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     .from("appointments")
     .update(updates)
     .eq("id", id)
-    .eq("org_id", orgId)
+    .eq("org_id", member.org_id)
     .select("*")
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (previous && data && previous.status !== (updates.status as string)) {
+    logAppointmentStatusChange({
+      orgId: member.org_id,
+      userId: user.id,
+      actorName: (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Bilinmiyor",
+      appointmentId: id,
+      staffId: previous.staff_id,
+      customerName: previous.customer_name,
+      appointmentAt: previous.appointment_at,
+      oldStatus: previous.status,
+      newStatus: updates.status as string,
+    }).catch(() => {});
+  }
 
   // Randevu güncellenince ilgili taraflara bildirim gönder (fire-and-forget)
   // Sadece saat veya personel değişikliğinde: iç durum güncellemeleri (tamamlandi, iptal, gelmedi)
@@ -103,15 +137,42 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 export async function DELETE(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const supabase = await createClient();
-  const orgId = await getOrgId(supabase);
-  if (!orgId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const ctx = await getAuthContext(supabase);
+  if (!ctx) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { user, member } = ctx;
+
+  const { data: current } = await supabase
+    .from("appointments")
+    .select("status, staff_id, customer_name, appointment_at")
+    .eq("id", id)
+    .eq("org_id", member.org_id)
+    .single();
+  if (!current) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
+  if (member.role === "staff" && current.staff_id !== member.staff_id) {
+    return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
+  }
 
   const { error } = await supabase
     .from("appointments")
     .update({ status: "iptal" })
     .eq("id", id)
-    .eq("org_id", orgId);
+    .eq("org_id", member.org_id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (current.status !== "iptal") {
+    logAppointmentStatusChange({
+      orgId: member.org_id,
+      userId: user.id,
+      actorName: (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Bilinmiyor",
+      appointmentId: id,
+      staffId: current.staff_id,
+      customerName: current.customer_name,
+      appointmentAt: current.appointment_at,
+      oldStatus: current.status,
+      newStatus: "iptal",
+    }).catch(() => {});
+  }
+
   return NextResponse.json({ success: true });
 }

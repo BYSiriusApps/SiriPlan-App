@@ -10,14 +10,7 @@ import Link from "next/link";
 import { Calendar, Phone, User } from "lucide-react";
 import type { Appointment } from "@/types/database";
 import { RandevularHeader } from "@/components/dashboard/RandevularHeader";
-
-const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  talep:      { label: "Talep",      className: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300" },
-  onaylandi:  { label: "Onaylandı",  className: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300" },
-  tamamlandi: { label: "Tamamlandı", className: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300" },
-  iptal:      { label: "İptal",      className: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300" },
-  gelmedi:    { label: "Gelmedi",    className: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300" },
-};
+import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
 
 export default async function RandevularPage({
   searchParams,
@@ -106,7 +99,7 @@ export default async function RandevularPage({
                 : "border-border hover:bg-accent"
             )}
           >
-            {STATUS_CONFIG[s]?.label}
+            {STATUS_LABELS[s]}
           </Link>
         ))}
       </div>
@@ -140,9 +133,9 @@ export default async function RandevularPage({
                         <p className="font-semibold truncate">{appt.customer_name}</p>
                         <Badge
                           variant="outline"
-                          className={cn("text-[10px] shrink-0", STATUS_CONFIG[appt.status]?.className)}
+                          className={cn("text-[10px] shrink-0", STATUS_BADGE_CLASSES[appt.status])}
                         >
-                          {STATUS_CONFIG[appt.status]?.label}
+                          {STATUS_LABELS[appt.status]}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">

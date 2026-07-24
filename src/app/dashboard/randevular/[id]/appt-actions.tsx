@@ -8,10 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Loader2, AlertTriangle } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock } from "lucide-react";
 import type { Appointment } from "@/types/database";
 
-export default function ApptActions({ appt }: { appt: Appointment }) {
+interface ApptActionsProps {
+  appt: Appointment;
+  viewerRole: string;
+  viewerStaffId: string | null;
+}
+
+export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptActionsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [tip, setTip] = useState("");
@@ -19,6 +25,7 @@ export default function ApptActions({ appt }: { appt: Appointment }) {
   const [internalNote, setInternalNote] = useState(appt.internal_note || "");
 
   const isDone = appt.status === "tamamlandi" || appt.status === "iptal" || appt.status === "gelmedi";
+  const canAct = viewerRole !== "staff" || appt.staff_id === viewerStaffId;
 
   async function patch(updates: Record<string, unknown>, actionKey: string, successMsg: string) {
     setLoading(actionKey);
@@ -83,7 +90,16 @@ export default function ApptActions({ appt }: { appt: Appointment }) {
       </Card>
 
       {/* Action buttons */}
-      {!isDone && (
+      {!isDone && !canAct && (
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Lock className="h-4 w-4 shrink-0" />
+            Bu randevu size atanmadığı için durumunu değiştiremezsiniz.
+          </CardContent>
+        </Card>
+      )}
+
+      {!isDone && canAct && (
         <Card className="border-0 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">İşlemler</CardTitle>
