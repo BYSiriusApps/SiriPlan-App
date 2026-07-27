@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Plus, Search, User, Scissors, Clock, Phone, Star, Loader2, X, Check, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import { DateTimeSlotPicker, nextSlot } from "@/components/dashboard/DateTimeSlotPicker";
 import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
 
@@ -47,6 +48,8 @@ interface Props {
 
 export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, staff, services }: Props) {
   const router = useRouter();
+  const t = useTranslations("dashboard.quickBook");
+  const td = useTranslations("dashboard");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -136,11 +139,11 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedStaffId) { toast.error("Personel seçiniz"); return; }
-    if (!selectedServiceId) { toast.error("Hizmet seçiniz"); return; }
-    if (!customerName.trim()) { toast.error("Müşteri adı gerekli"); return; }
-    if (!customerPhone.trim()) { toast.error("Müşteri telefonu gerekli"); return; }
-    if (!appointmentAt) { toast.error("Tarih/saat gerekli"); return; }
+    if (!selectedStaffId) { toast.error(t("errorStaffRequired")); return; }
+    if (!selectedServiceId) { toast.error(t("errorServiceRequired")); return; }
+    if (!customerName.trim()) { toast.error(t("errorNameRequired")); return; }
+    if (!customerPhone.trim()) { toast.error(t("errorPhoneRequired")); return; }
+    if (!appointmentAt) { toast.error(t("errorDateRequired")); return; }
 
     setLoading(true);
     try {
@@ -162,11 +165,11 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
       const json = await res.json();
       if (!res.ok) {
-        toast.error(json.error ?? "Randevu oluşturulamadı");
+        toast.error(json.error ?? t("errorCreateFailed"));
         return;
       }
 
-      toast.success("Randevu oluşturuldu!");
+      toast.success(t("successCreated"));
 
       // Hazır mesajla müşterinin WhatsApp sohbetini aç (tek dokunuşla gönderilir)
       if (sendWaMessage && customerPhone.trim()) {
@@ -193,14 +196,14 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
         <Button size="sm" className="gap-1.5" />
       }>
         <Plus className="h-4 w-4" />
-        Randevu Ekle
+        {t("addButton")}
       </SheetTrigger>
 
       <SheetContent side="right" className="overflow-y-auto p-0">
         <SheetHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10">
           <SheetTitle className="flex items-center gap-2">
             <Plus className="h-4 w-4 text-primary" />
-            Hızlı Randevu
+            {t("sheetTitle")}
           </SheetTitle>
         </SheetHeader>
 
@@ -209,7 +212,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           {/* ── Staff picker ── */}
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5 text-sm font-medium">
-              <User className="h-3.5 w-3.5" /> Personel
+              <User className="h-3.5 w-3.5" /> {t("staffLabel")}
             </Label>
             <div className="grid grid-cols-2 gap-2">
               {staff.map((s) => (
@@ -246,7 +249,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           {/* ── Customer search ── */}
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5 text-sm font-medium">
-              <Search className="h-3.5 w-3.5" /> Müşteri
+              <Search className="h-3.5 w-3.5" /> {t("customerLabel")}
             </Label>
 
             {customerPicked ? (
@@ -264,7 +267,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                   <Input
-                    placeholder="İsim veya telefon ara..."
+                    placeholder={t("searchPlaceholder")}
                     value={customerSearch}
                     onChange={(e) => {
                       setCustomerSearch(e.target.value);
@@ -298,7 +301,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
                             {(c.total_visits ?? 0) > 0 && (
                               <span className="ml-1 flex items-center gap-0.5">
                                 <Star className="h-2.5 w-2.5 text-amber-500" />
-                                {c.total_visits} ziyaret
+                                {t("visitsCount", { count: c.total_visits })}
                               </span>
                             )}
                           </p>
@@ -314,7 +317,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
             {!customerPicked && (
               <div className="grid grid-cols-2 gap-2 mt-1">
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-1 block">Telefon *</Label>
+                  <Label className="text-xs text-muted-foreground mb-1 block">{t("phoneLabel")}</Label>
                   <Input
                     placeholder="05xx xxx xx xx"
                     value={customerPhone}
@@ -323,7 +326,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-1 block">E-posta</Label>
+                  <Label className="text-xs text-muted-foreground mb-1 block">{t("emailLabel")}</Label>
                   <Input
                     placeholder="ornek@mail.com"
                     value={customerEmail}
@@ -338,11 +341,11 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           {/* ── Service picker ── */}
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5 text-sm font-medium">
-              <Scissors className="h-3.5 w-3.5" /> Hizmet
+              <Scissors className="h-3.5 w-3.5" /> {t("serviceLabel")}
             </Label>
             <Select value={selectedServiceId} onValueChange={(v) => setSelectedServiceId(v ?? "")}>
               <SelectTrigger>
-                <SelectValue placeholder="Hizmet seçin..." />
+                <SelectValue placeholder={t("servicePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {services.map((svc) => (
@@ -350,7 +353,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
                     <span className="flex items-center gap-2">
                       {svc.name}
                       <Badge variant="outline" className="text-[10px] ml-1">
-                        ₺{Number(svc.price).toLocaleString("tr-TR")} · {svc.duration_minutes}dk
+                        ₺{Number(svc.price).toLocaleString("tr-TR")} · {svc.duration_minutes}{td("minutesShort")}
                       </Badge>
                     </span>
                   </SelectItem>
@@ -360,7 +363,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
             {selectedService && (
               <div className="flex gap-4 text-xs text-muted-foreground px-1">
-                <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{selectedService.duration_minutes} dk</span>
+                <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{selectedService.duration_minutes} {td("minutesShort")}</span>
                 <span>₺{Number(selectedService.price).toLocaleString("tr-TR")}</span>
               </div>
             )}
@@ -368,7 +371,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
           {/* ── Date & time — 15 dakikalık slotlar ── */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Tarih ve Saat</Label>
+            <Label className="text-sm font-medium">{t("dateTimeLabel")}</Label>
             <DateTimeSlotPicker
               value={appointmentAt}
               onChange={setAppointmentAt}
@@ -378,9 +381,9 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
           {/* ── Note ── */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-muted-foreground">Not (isteğe bağlı)</Label>
+            <Label className="text-sm font-medium text-muted-foreground">{t("noteLabel")}</Label>
             <Input
-              placeholder="Özel istek, not..."
+              placeholder={t("notePlaceholder")}
               value={note}
               onChange={(e) => setNote(e.target.value)}
             />
@@ -397,10 +400,10 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
             <span className="min-w-0">
               <span className="text-sm font-medium flex items-center gap-1.5">
                 <MessageCircle className="h-3.5 w-3.5 text-green-600" />
-                Müşteriye WhatsApp mesajı gönder
+                {t("sendWaLabel")}
               </span>
               <span className="block text-xs text-muted-foreground mt-0.5">
-                Kaydedince hazır bilgilendirme metniyle WhatsApp açılır.
+                {t("sendWaHint")}
               </span>
             </span>
           </label>
@@ -409,7 +412,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           <div className="pt-2 border-t">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-              Randevu Oluştur
+              {t("submitButton")}
             </Button>
           </div>
         </form>

@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { tr } from "date-fns/locale";
+import { tr, enUS, ru, ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import {
   X, CheckCircle2, XCircle, AlertCircle, Loader2, ExternalLink,
@@ -12,10 +12,17 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { useTranslations } from "next-intl";
-import { STATUS_LABELS } from "@/lib/appointment-status";
+import { useTranslations, useLocale } from "next-intl";
 
 export type CalendarView = "day" | "week" | "month";
+
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
+// Sabit referans hafta (Pzt→Paz) — ay görünümü başlığındaki gün kısaltmalarını
+// aktif dile göre üretmek için kullanılır, yeni çeviri key'i gerektirmez.
+const WEEKDAY_REF_DATES = [
+  "2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04",
+  "2024-01-05", "2024-01-06", "2024-01-07",
+];
 
 // Personel renk paleti — her personel dizindeki rengini alır
 const STAFF_COLORS = [
@@ -118,6 +125,22 @@ export function UnifiedCalendar({
 }: Props) {
   const router = useRouter();
   const t = useTranslations("dashboard");
+  const locale = useLocale();
+  const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
+  const weekdayShort = useMemo(
+    () => WEEKDAY_REF_DATES.map((d) => format(new Date(d + "T12:00:00"), "EEE", { locale: dateFnsLocale })),
+    [dateFnsLocale]
+  );
+  const statusLabel = (status: string) => {
+    switch (status) {
+      case "talep": return t("statusTalep");
+      case "onaylandi": return t("statusOnaylandi");
+      case "tamamlandi": return t("statusTamamlandi");
+      case "iptal": return t("statusIptal");
+      case "gelmedi": return t("noShow");
+      default: return status;
+    }
+  };
   const [isPending, startTransition] = useTransition();
   const [popover, setPopover] = useState<Popover | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -206,12 +229,12 @@ export function UnifiedCalendar({
         body: JSON.stringify({ status: newStatus }),
       });
       if (res.ok) {
-        toast.success(`Durum: ${STATUS_LABELS[newStatus]}`);
+        toast.success(t("statusUpdatedToast", { status: statusLabel(newStatus) }));
         setPopover(null);
         startTransition(() => router.refresh());
       } else {
         const err = await res.json();
-        toast.error(err.error || "Güncellenemedi");
+        toast.error(err.error || t("updateFailed"));
       }
     } finally {
       setUpdatingId(null);
@@ -315,7 +338,7 @@ export function UnifiedCalendar({
           {format(new Date(appt.appointment_at), "HH:mm")} {appt.customer_name}
         </p>
         <p className="truncate opacity-80">
-          {live ? "● Devam ediyor · " : ""}
+          {live ? `● ${t("liveNow")} · ` : ""}
           {appt.service?.name}
           {opts?.showStaff ? ` · ${staffName(appt.staff_id)}` : ""}
         </p>
@@ -374,7 +397,7 @@ export function UnifiedCalendar({
           <Link
             href={`/dashboard/takvim?view=${view}&date=${prevDate}`}
             className="p-2 rounded-lg border hover:bg-accent transition-colors"
-            aria-label="Önceki"
+            aria-label={t("previous")}
           >
             <ChevronLeft className="h-4 w-4" />
           </Link>
@@ -382,7 +405,7 @@ export function UnifiedCalendar({
           <Link
             href={`/dashboard/takvim?view=${view}&date=${nextDate}`}
             className="p-2 rounded-lg border hover:bg-accent transition-colors"
-            aria-label="Sonraki"
+            aria-label={t("next")}
           >
             <ChevronRight className="h-4 w-4" />
           </Link>
@@ -430,7 +453,7 @@ export function UnifiedCalendar({
                   style={{ background: c.soft, border: `1px solid ${c.border}`, color: c.solid }}
                 >
                   <span className="w-2 h-2 rounded-full" style={{ background: c.solid }} />
-                  {s.full_name} (sizin randevularınız)
+                  {s.full_name} ({t("yourAppointments")})
                 </span>
               );
             })
@@ -489,9 +512,9 @@ export function UnifiedCalendar({
                         isToday && "bg-primary/10 text-primary"
                       )}
                     >
-                      <span className="capitalize">{format(new Date(dayStr + "T12:00:00"), "EEE", { locale: tr })}</span>
+                      <span className="capitalize">{format(new Date(dayStr + "T12:00:00"), "EEE", { locale: dateFnsLocale })}</span>
                       <span className={cn("text-[10px]", isToday ? "font-bold" : "text-muted-foreground")}>
-                        {format(new Date(dayStr + "T12:00:00"), "d MMM", { locale: tr })}
+                        {format(new Date(dayStr + "T12:00:00"), "d MMM", { locale: dateFnsLocale })}
                       </span>
                     </Link>
                     <div className="relative" style={{ height: gridHeight }}>
@@ -533,10 +556,10 @@ export function UnifiedCalendar({
                       )}
                     >
                       <span className="capitalize">
-                        {format(new Date(dayStr + "T12:00:00"), "d MMMM EEEE", { locale: tr })}
+                        {format(new Date(dayStr + "T12:00:00"), "d MMMM EEEE", { locale: dateFnsLocale })}
                       </span>
                       <span className="text-[10px] font-normal text-muted-foreground">
-                        {dayAppts.length} randevu
+                        {t("apptCountLabel", { count: dayAppts.length })}
                       </span>
                     </div>
                     <div className="relative" style={{ height: gridHeight }}>
@@ -558,8 +581,8 @@ export function UnifiedCalendar({
       {view === "month" && (
         <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
           <div className="grid grid-cols-7 border-b bg-muted/30">
-            {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((d) => (
-              <div key={d} className="py-2 text-center text-xs font-medium text-muted-foreground">
+            {weekdayShort.map((d, i) => (
+              <div key={i} className="py-2 text-center text-xs font-medium text-muted-foreground">
                 {d}
               </div>
             ))}
@@ -616,7 +639,7 @@ export function UnifiedCalendar({
                       href={`/dashboard/takvim?view=day&date=${dayStr}`}
                       className="block text-[10px] text-primary font-medium hover:underline px-1"
                     >
-                      +{more} daha
+                      {t("moreCount", { count: more })}
                     </Link>
                   )}
                 </div>
@@ -647,7 +670,7 @@ export function UnifiedCalendar({
                   {staffName(popover.appt.staff_id) ? ` · ${staffName(popover.appt.staff_id)}` : ""}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {format(new Date(popover.appt.appointment_at), "d MMM HH:mm", { locale: tr })} · {popover.appt.duration_minutes}dk
+                  {format(new Date(popover.appt.appointment_at), "d MMM HH:mm", { locale: dateFnsLocale })} · {popover.appt.duration_minutes}{t("minutesShort")}
                 </p>
               </div>
               <button onClick={() => setPopover(null)} className="text-muted-foreground hover:text-foreground shrink-0 mt-0.5">
@@ -664,12 +687,12 @@ export function UnifiedCalendar({
                   color: colorOf(popover.appt.staff_id).solid,
                 }}
               >
-                {STATUS_LABELS[popover.appt.status] ?? popover.appt.status}
+                {statusLabel(popover.appt.status)}
               </span>
             </div>
 
             <div className="p-2 space-y-1">
-              <p className="text-[10px] text-muted-foreground px-1 pb-0.5">Hızlı Güncelle</p>
+              <p className="text-[10px] text-muted-foreground px-1 pb-0.5">{t("quickUpdate")}</p>
               {(() => {
                 const canQuickAct = !lockedStaffId || popover.appt.staff_id === lockedStaffId;
                 const disabled = !!updatingId || !canQuickAct;
@@ -677,7 +700,7 @@ export function UnifiedCalendar({
                   <>
                     {!canQuickAct && (
                       <p className="text-[10px] text-amber-600 px-1 pb-0.5">
-                        Bu randevu size atanmadığı için durum değiştiremezsiniz.
+                        {t("cannotChangeStatus")}
                       </p>
                     )}
                     {popover.appt.status !== "onaylandi" && (
@@ -687,7 +710,7 @@ export function UnifiedCalendar({
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                        Onayla
+                        {t("approve")}
                       </button>
                     )}
 
@@ -698,7 +721,7 @@ export function UnifiedCalendar({
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                        Tamamlandı
+                        {t("markCompleted")}
                       </button>
                     )}
 
@@ -709,7 +732,7 @@ export function UnifiedCalendar({
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertCircle className="h-3.5 w-3.5" />}
-                        Gelmedi
+                        {t("noShow")}
                       </button>
                     )}
 
@@ -720,7 +743,7 @@ export function UnifiedCalendar({
                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
-                        İptal Et
+                        {t("cancelAction")}
                       </button>
                     )}
                   </>
@@ -734,7 +757,7 @@ export function UnifiedCalendar({
                   className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
-                  Detaya Git
+                  {t("viewDetail")}
                 </Link>
               </div>
             </div>

@@ -5,31 +5,11 @@ import { addHours, differenceInHours } from "date-fns";
 
 export const runtime = "nodejs";
 
-const APPOINTMENT_TZ = "Europe/Istanbul";
-
-function formatApptTime(date: Date) {
-  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: APPOINTMENT_TZ });
-}
-function formatApptDate(date: Date) {
-  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: APPOINTMENT_TZ });
-}
-
-async function sendWhatsApp(phone: string, message: string, token: string, phoneNumberId: string) {
-  const to = phone.replace(/\D/g, "").replace(/^0/, "90");
-  await fetch(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      to,
-      type: "text",
-      text: { body: message },
-    }),
-  });
-}
+// NOT: WhatsApp hatırlatmaları artık burada değil, Supabase pg_cron
+// (her 5 dakikada bir, migration 016) + /api/whatsapp/send-template
+// üzerinden, tek platform numarasıyla ve dakika hassasiyetinde
+// gönderiliyor. Bu route sadece e-posta (Resend) hatırlatmasından
+// sorumlu — Vercel Hobby'nin günlük cron limiti e-posta için yeterli.
 
 type ApptWithRelations = {
   id: string;
@@ -39,7 +19,7 @@ type ApptWithRelations = {
   appointment_at: string;
   cancel_token?: string;
   reminder_sent_at?: string | null;
-  organizations: { wa_token?: string; wa_phone_number_id?: string; name: string; email?: string };
+  organizations: { name: string; email?: string };
   staff?: { full_name: string };
   service?: { name: string };
 };
@@ -51,13 +31,12 @@ export async function POST(req: NextRequest) {
 
   const supabase = await createAdminClient();
   const now = new Date();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
 
   // Yaklaşan (0-2.5 saat): son hatırlatma. İlk hatırlatma şartı ARANMAZ —
   // son anda alınan randevular da en az bir hatırlatma alabilsin.
   const { data: imminent } = await supabase
     .from("appointments")
-    .select("*, organizations(wa_token, wa_phone_number_id, name, email), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+    .select("*, organizations(name, email), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
     .gte("appointment_at", now.toISOString())
     .lte("appointment_at", addHours(now, 2.5).toISOString())
     .eq("status", "onaylandi")
@@ -67,7 +46,7 @@ export async function POST(req: NextRequest) {
   // 2.5-25 saat arası: ilk hatırlatma (yaklaşan pencere hariç, çift mesaj olmasın)
   const { data: upcoming } = await supabase
     .from("appointments")
-    .select("*, organizations(wa_token, wa_phone_number_id, name, email), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+    .select("*, organizations(name, email), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
     .gt("appointment_at", addHours(now, 2.5).toISOString())
     .lte("appointment_at", addHours(now, 25).toISOString())
     .eq("status", "onaylandi")
@@ -99,15 +78,7 @@ export async function POST(req: NextRequest) {
   for (const appt of (imminent || []) as ApptWithRelations[]) {
     const org = appt.organizations;
     const apptAt = new Date(appt.appointment_at);
-    const apptTime = formatApptTime(apptAt);
     const hoursAway = Math.max(1, differenceInHours(apptAt, now));
-
-    if (org.wa_token && org.wa_phone_number_id) {
-      const message = `⏰ Hatırlatma! Bugün saat ${apptTime} için ${org.name}'deki randevunuz yaklaşıyor.\n\nHazır olun, sizi bekliyoruz! 💅`;
-      try {
-        await sendWhatsApp(appt.customer_phone, message, org.wa_token, org.wa_phone_number_id);
-      } catch {}
-    }
 
     const customerEmail = appt.customer_id ? emailByCustomer.get(appt.customer_id) : undefined;
     if (customerEmail) {
@@ -139,16 +110,7 @@ export async function POST(req: NextRequest) {
   for (const appt of (upcoming || []) as ApptWithRelations[]) {
     const org = appt.organizations;
     const apptAt = new Date(appt.appointment_at);
-    const apptDate = formatApptDate(apptAt);
-    const apptTime = formatApptTime(apptAt);
     const hoursAway = Math.max(1, differenceInHours(apptAt, now));
-
-    if (org.wa_token && org.wa_phone_number_id) {
-      const message = `Merhaba ${appt.customer_name}! 👋\n\n📅 ${apptDate} saat ${apptTime} için ${org.name}'de randevunuz var.\n\n💇 Hizmet: ${appt.service?.name ?? ""}\n👤 Personel: ${appt.staff?.full_name ?? ""}\n\nGelemeseniz lütfen önceden iptal edin: ${appUrl}/r/iptal/${appt.cancel_token}\n\nİyi günler! ✨`;
-      try {
-        await sendWhatsApp(appt.customer_phone, message, org.wa_token, org.wa_phone_number_id);
-      } catch {}
-    }
 
     const customerEmail = appt.customer_id ? emailByCustomer.get(appt.customer_id) : undefined;
     if (customerEmail) {

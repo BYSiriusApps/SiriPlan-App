@@ -6,12 +6,14 @@ import {
   format, startOfWeek, endOfWeek, addDays, addMonths,
   startOfMonth, endOfMonth, eachDayOfInterval,
 } from "date-fns";
-import { tr } from "date-fns/locale";
+import { tr, enUS, ru, ar } from "date-fns/locale";
 import Link from "next/link";
 import { UnifiedCalendar, type CalendarView } from "@/components/dashboard/UnifiedCalendar";
 import { TakvimHeader } from "@/components/dashboard/TakvimHeader";
+import { getTranslations, getLocale } from "next-intl/server";
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8-20
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
 export default async function TakvimPage({
   searchParams,
@@ -19,6 +21,10 @@ export default async function TakvimPage({
   searchParams: Promise<{ date?: string; view?: string }>;
 }) {
   const params = await searchParams;
+  const t = await getTranslations("dashboard");
+  const locale = await getLocale();
+  const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
@@ -45,7 +51,7 @@ export default async function TakvimPage({
   if (view === "day") {
     gridStart = baseDate;
     gridEnd = baseDate;
-    label = format(baseDate, "d MMMM yyyy, EEEE", { locale: tr });
+    label = format(baseDate, "d MMMM yyyy, EEEE", { locale: dateFnsLocale });
     prevDate = addDays(baseDate, -1);
     nextDate = addDays(baseDate, 1);
   } else if (view === "month") {
@@ -53,13 +59,13 @@ export default async function TakvimPage({
     const mEnd = endOfMonth(baseDate);
     gridStart = startOfWeek(mStart, { weekStartsOn: 1 });
     gridEnd = endOfWeek(mEnd, { weekStartsOn: 1 });
-    label = format(baseDate, "MMMM yyyy", { locale: tr });
+    label = format(baseDate, "MMMM yyyy", { locale: dateFnsLocale });
     prevDate = addMonths(baseDate, -1);
     nextDate = addMonths(baseDate, 1);
   } else {
     gridStart = startOfWeek(baseDate, { weekStartsOn: 1 });
     gridEnd = addDays(gridStart, 6);
-    label = `${format(gridStart, "d MMM", { locale: tr })} – ${format(gridEnd, "d MMM yyyy", { locale: tr })}`;
+    label = `${format(gridStart, "d MMM", { locale: dateFnsLocale })} – ${format(gridEnd, "d MMM yyyy", { locale: dateFnsLocale })}`;
     prevDate = addDays(gridStart, -7);
     nextDate = addDays(gridStart, 7);
   }
@@ -127,8 +133,8 @@ export default async function TakvimPage({
       {!staff || staff.length === 0 ? (
         <Card className="border-0 shadow-sm">
           <CardContent className="py-12 text-center text-muted-foreground">
-            Personel eklenmemiş.{" "}
-            <Link href="/dashboard/personel/yeni" className="text-primary underline">Personel ekle</Link>
+            {t("noStaffAdded")}{" "}
+            <Link href="/dashboard/personel/yeni" className="text-primary underline">{t("addStaffCta")}</Link>
           </CardContent>
         </Card>
       ) : (

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Globe } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 const LOCALES = [
   { code: "tr", label: "TR", name: "Türkçe", flag: "🇹🇷" },
@@ -16,6 +18,7 @@ interface LanguagePickerProps {
 }
 
 export function LanguagePicker({ variant = "dark" }: LanguagePickerProps) {
+  const router = useRouter();
   const [current, setCurrent] = useState("tr");
   const [open, setOpen] = useState(false);
 
@@ -24,11 +27,19 @@ export function LanguagePicker({ variant = "dark" }: LanguagePickerProps) {
     if (match) setCurrent(match[1]);
   }, []);
 
-  function switchLang(code: string) {
+  async function switchLang(code: string) {
     document.cookie = `NEXT_LOCALE=${code}; path=/; max-age=31536000; SameSite=Lax`;
     setCurrent(code);
     setOpen(false);
-    window.location.reload();
+
+    // Giriş yapmış kullanıcıysa hesabına kalıcı yaz — cihazdan/org'dan bağımsız kalıcı tercih
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.auth.updateUser({ data: { locale: code } });
+    }
+
+    router.refresh();
   }
 
   const currentLocale = LOCALES.find((l) => l.code === current) ?? LOCALES[0];

@@ -36,6 +36,9 @@ export interface Organization {
   wa_phone_number_id: string | null;
   ig_page_access_token: string | null;
   ig_page_id: string | null;
+  custom_reminder_message: string | null;
+  custom_cancellation_message: string | null;
+  whatsapp_notifications_enabled: boolean;
   settings_json: Record<string, unknown>;
   created_at: string;
   updated_at: string;

@@ -101,18 +101,25 @@ export async function POST(req: NextRequest) {
   // En fazla 3 aday e-posta dene (aynı telefon birden çok kayıtta olabilir)
   let lastError = "Giriş başarısız";
   for (const email of candidates.slice(0, 3)) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
     if (!error) {
       const res = NextResponse.json({ ok: true });
 
-      // Personelin tercih ettiği dil varsa paneli o dile çevir
-      const lang = await getStaffPreferredLanguage(email);
-      if (lang) {
-        res.cookies.set("NEXT_LOCALE", lang, {
-          path: "/",
-          maxAge: 60 * 60 * 24 * 365,
-          sameSite: "lax",
-        });
+      // Kullanıcı daha önce panelden kendi dilini seçmediyse (hesabında henüz
+      // user_metadata.locale yoksa), personel kaydındaki tercih edilen dili
+      // hem çereze hem hesaba yazarak ilk giriş için öner. Kullanıcı zaten
+      // kendi seçimini yapmışsa bu bootstrap onu bir daha ezmez.
+      const existingLocale = signInData.user?.user_metadata?.locale;
+      if (!existingLocale) {
+        const lang = await getStaffPreferredLanguage(email);
+        if (lang) {
+          res.cookies.set("NEXT_LOCALE", lang, {
+            path: "/",
+            maxAge: 60 * 60 * 24 * 365,
+            sameSite: "lax",
+          });
+          await supabase.auth.updateUser({ data: { locale: lang } });
+        }
       }
       return res;
     }

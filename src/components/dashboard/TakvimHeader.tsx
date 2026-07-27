@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { QuickBookSheet } from "./QuickBookSheet";
 import { HomeButton } from "./HomeButton";
 
@@ -25,10 +26,11 @@ interface Props {
 }
 
 export function TakvimHeader({ orgId, staff, services, today }: Props) {
+  const t = useTranslations("dashboard");
   return (
     <div className="flex items-center justify-between flex-wrap gap-3">
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold">Takvim</h1>
+        <h1 className="text-2xl font-bold">{t("calendar")}</h1>
         <HomeButton />
       </div>
       <QuickBookSheet

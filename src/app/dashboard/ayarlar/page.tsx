@@ -94,6 +94,9 @@ export default function AyarlarPage() {
         whatsapp_number: org.whatsapp_number,
         locale: org.locale,
         working_hours_json: org.working_hours_json,
+        custom_reminder_message: org.custom_reminder_message,
+        custom_cancellation_message: org.custom_cancellation_message,
+        whatsapp_notifications_enabled: org.whatsapp_notifications_enabled,
         settings_json: org.settings_json ?? {},
       })
       .eq("id", org.id!);
@@ -272,6 +275,69 @@ export default function AyarlarPage() {
               )}
             </p>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* WhatsApp Bildirim Ayarları (hatırlatma / iptal) */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <MessageCircle className="h-4 w-4 text-green-600" />
+            WhatsApp Bildirim Ayarları
+          </CardTitle>
+          <CardDescription>
+            Randevu saatine yaklaşırken otomatik gönderilen hatırlatma ve iptal
+            mesajlarının altına eklenen özel not.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
+            <Checkbox
+              id="whatsapp_notifications_enabled"
+              checked={org.whatsapp_notifications_enabled ?? true}
+              onCheckedChange={(checked) => setField("whatsapp_notifications_enabled", !!checked)}
+              className="mt-0.5"
+            />
+            <label htmlFor="whatsapp_notifications_enabled" className="cursor-pointer flex-1">
+              <p className="text-sm font-medium">Otomatik WhatsApp hatırlatmaları açık</p>
+              <p className="text-xs text-muted-foreground">
+                Kapatırsanız randevu saatine 2 saat kala giden otomatik hatırlatma mesajı gönderilmez.
+              </p>
+            </label>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Hatırlatma mesajı özel notu</Label>
+            <textarea
+              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[70px] bg-background"
+              value={org.custom_reminder_message ?? ""}
+              onChange={(e) => setField("custom_reminder_message", e.target.value)}
+              placeholder="Lütfen randevunuza saatinde gelmeye özen gösteriniz."
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>İptal mesajı özel notu (opsiyonel)</Label>
+            <textarea
+              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[70px] bg-background"
+              value={org.custom_cancellation_message ?? ""}
+              onChange={(e) => setField("custom_cancellation_message", e.target.value)}
+              placeholder="Randevunuz iptal edilmiştir. Yeniden randevu almak için bizi arayabilirsiniz."
+            />
+          </div>
+
+          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50">
+            <p className="text-[11px] font-medium text-green-700 dark:text-green-400 mb-1">WhatsApp önizleme:</p>
+            <p className="text-xs text-muted-foreground italic">
+              Sayın Ayşe Yıldız, {org.name || "Salonunuz"} salonundaki 28.07.2026 14:30 tarihli randevunuz
+              Hatırlatma. Detay: {org.custom_reminder_message?.trim() || "Lütfen randevunuza saatinde gelmeye özen gösteriniz."}
+            </p>
+          </div>
+
+          <p className="text-[11px] text-muted-foreground">
+            Meta WhatsApp kuralları gereği bu mesajlar önceden onaylı şablon üzerinden gider —
+            yukarıdaki not şablonun son değişkenine ({"{{5}}"}) dinamik olarak eklenir.
+          </p>
         </CardContent>
       </Card>
 

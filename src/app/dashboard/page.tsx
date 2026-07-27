@@ -8,7 +8,7 @@ import {
   startOfMonth, endOfMonth,
   subDays, differenceInCalendarDays,
 } from "date-fns";
-import { tr } from "date-fns/locale";
+import { tr, enUS, ru, ar } from "date-fns/locale";
 import {
   Calendar, MessageCircle, Megaphone, Star, ChevronRight, Plus,
 } from "lucide-react";
@@ -17,6 +17,7 @@ import Link from "next/link";
 import { LiveClock } from "@/components/ui/LiveClock";
 import { QuickActionsPanel } from "@/components/dashboard/QuickActionsPanel";
 import { getUserShortcuts } from "@/app/actions/shortcuts";
+import { getTranslations, getLocale } from "next-intl/server";
 
 /* ─── Tema sabitleri — örnek arayüzdeki koyu/altın/camgöbeği stil ─── */
 const GOLD = "#facc15";
@@ -24,21 +25,7 @@ const CYAN = "#22d3ee";
 const CARD_BG = "linear-gradient(165deg, #15151f 0%, #101018 100%)";
 const CARD_BORDER = "1px solid rgba(250, 204, 21, 0.30)";
 
-const STATUS_LABELS: Record<string, string> = {
-  talep: "Bekliyor",
-  onaylandi: "Onaylı",
-  tamamlandi: "Tamamlandı",
-  iptal: "İptal",
-  gelmedi: "Gelmedi",
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  talep: "#f59e0b",
-  onaylandi: CYAN,
-  tamamlandi: "#34d399",
-  iptal: "#f87171",
-  gelmedi: "#9ca3af",
-};
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
 /* ─── Mini sparkline SVG ─── */
 function Sparkline({ data, color = CYAN }: { data: number[]; color?: string }) {
@@ -82,6 +69,10 @@ export const revalidate = 0;
 
 /* ─── Sayfa ─── */
 export default async function DashboardPage() {
+  const t = await getTranslations("dashboard");
+  const locale = await getLocale();
+  const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
@@ -89,7 +80,7 @@ export default async function DashboardPage() {
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
   const orgId = member.org_id;
-  const orgName = (member as { org_id: string; organizations?: { name?: string } }).organizations?.name ?? "İşletmeniz";
+  const orgName = (member as { org_id: string; organizations?: { name?: string } }).organizations?.name ?? t("homePage.yourBusiness");
 
   const now = new Date();
   const todayStart = startOfDay(now).toISOString();
@@ -217,8 +208,8 @@ export default async function DashboardPage() {
     const d = new Date(iso);
     const diff = differenceInCalendarDays(d, now);
     if (diff === 0) return "";
-    if (diff === 1) return "Yarın ";
-    return format(d, "d MMM ", { locale: tr });
+    if (diff === 1) return `${t("homePage.tomorrow")} `;
+    return `${format(d, "d MMM", { locale: dateFnsLocale })} `;
   };
 
   /* Haftalık doluluk (verimlilik): tamamlanan / toplam */
@@ -241,7 +232,11 @@ export default async function DashboardPage() {
   const champ = champion as (StaffPerformanceWeekly & { staff?: { full_name: string } }) | null;
   const camp = latestCampaign as { id: string; name: string; status: string; sent_count: number } | null;
   const CAMP_STATUS: Record<string, string> = {
-    draft: "Hazır", scheduled: "Planlandı", sending: "Gönderiliyor", sent: "Gönderildi", failed: "Hata",
+    draft: t("homePage.campStatus.draft"),
+    scheduled: t("homePage.campStatus.scheduled"),
+    sending: t("homePage.campStatus.sending"),
+    sent: t("homePage.campStatus.sent"),
+    failed: t("homePage.campStatus.failed"),
   };
 
   return (
@@ -258,14 +253,14 @@ export default async function DashboardPage() {
           >
             {orgName}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">Merhaba {firstName}.</p>
+          <p className="text-sm text-gray-400 mt-0.5">{t("homePage.greeting", { name: firstName })}</p>
         </div>
         <div className="text-right shrink-0 ml-3">
           <div className="text-2xl font-bold tabular-nums text-white leading-none">
             <LiveClock />
           </div>
           <p className="text-[11px] text-gray-500 mt-1">
-            {format(now, "d MMMM", { locale: tr })}
+            {format(now, "d MMMM", { locale: dateFnsLocale })}
           </p>
         </div>
       </header>
@@ -278,11 +273,11 @@ export default async function DashboardPage() {
           <CardTitle
             right={
               <Link href="/dashboard/randevular" className="text-[11px] font-medium flex items-center gap-0.5 hover:opacity-80" style={{ color: CYAN }}>
-                Tümü <ChevronRight className="h-3 w-3" />
+                {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
           >
-            Aktif Randevular
+            {t("homePage.activeAppointments")}
           </CardTitle>
           <div className="flex gap-4 px-4 py-3.5">
             <div className="shrink-0 text-center">
@@ -292,11 +287,11 @@ export default async function DashboardPage() {
               >
                 {appts.length}
               </p>
-              <p className="text-[11px] text-gray-400 mt-1.5">Bugün</p>
+              <p className="text-[11px] text-gray-400 mt-1.5">{t("today")}</p>
             </div>
             <div className="flex-1 min-w-0 space-y-1.5">
               {upcoming.length === 0 ? (
-                <p className="text-sm text-gray-500 py-2">Yaklaşan randevu yok</p>
+                <p className="text-sm text-gray-500 py-2">{t("homePage.noUpcoming")}</p>
               ) : (
                 upcoming.map((a) => (
                   <Link
@@ -320,21 +315,21 @@ export default async function DashboardPage() {
                 className="inline-flex items-center gap-1 mt-1 text-[12px] font-semibold px-2.5 py-1 rounded-lg hover:opacity-80 transition-opacity"
                 style={{ background: "rgba(34,211,238,0.12)", color: CYAN, border: "1px solid rgba(34,211,238,0.3)" }}
               >
-                Tümünü Gör <ChevronRight className="h-3 w-3" />
+                {t("viewAll")} <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap px-4 pb-3.5 text-[11px]">
             {liveCount > 0 && (
               <span className="px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(239,68,68,0.15)", color: "#f87171" }}>
-                ● {liveCount} devam ediyor
+                ● {liveCount} {t("inProgress")}
               </span>
             )}
             <span className="px-2 py-0.5 rounded-full" style={{ background: "rgba(245,158,11,0.14)", color: "#fbbf24" }}>
-              Bekliyor: {pendingCount}
+              {t("homePage.pendingCountLabel", { count: pendingCount })}
             </span>
             <span className="px-2 py-0.5 rounded-full" style={{ background: "rgba(52,211,153,0.13)", color: "#34d399" }}>
-              ✓ Tamamlanan: {doneCount}
+              ✓ {t("homePage.doneCountLabel", { count: doneCount })}
             </span>
           </div>
         </div>
@@ -344,24 +339,24 @@ export default async function DashboardPage() {
           <CardTitle
             right={
               <span className="text-[11px] text-gray-500 capitalize">
-                {format(now, "MMM yyyy", { locale: tr })}
+                {format(now, "MMM yyyy", { locale: dateFnsLocale })}
               </span>
             }
           >
-            Kampanya Durumu
+            {t("homePage.campaignStatus")}
           </CardTitle>
           <div className="px-4 py-3.5">
             <Sparkline data={dailyRev} />
             <div className="flex items-center justify-between mt-3">
               <span className="text-sm font-bold" style={{ color: CYAN }}>
-                +%{efficiency} Verimlilik
+                {t("homePage.efficiencyLabel", { value: efficiency })}
               </span>
               <span className="text-sm font-bold" style={{ color: GOLD }}>
-                +{newCustCount} Müşteri Erişimi
+                {t("homePage.newCustomersLabel", { count: newCustCount })}
               </span>
             </div>
             <p className="text-[11px] text-gray-500 mt-1.5">
-              Son 7 gün tamamlanan randevu cirosu · verimlilik = haftalık tamamlanma oranı
+              {t("homePage.chartCaption")}
             </p>
           </div>
         </div>
@@ -371,18 +366,18 @@ export default async function DashboardPage() {
           <CardTitle
             right={
               <Link href="/dashboard/randevular" className="text-[11px] font-medium flex items-center gap-0.5 hover:opacity-80" style={{ color: CYAN }}>
-                Tümü <ChevronRight className="h-3 w-3" />
+                {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
           >
-            WhatsApp Asistanı
+            {t("homePage.whatsappAssistant")}
           </CardTitle>
           <div className="px-4 py-3.5 space-y-2.5">
             <p className="text-[12px] text-gray-400">
-              Onay bekleyen talepler ({(pendingRequests ?? []).length + pendingCount})
+              {t("homePage.pendingRequestsLabel", { count: (pendingRequests ?? []).length + pendingCount })}
             </p>
             {(pendingRequests ?? []).length === 0 && pendingCount === 0 ? (
-              <p className="text-sm text-gray-500">Bekleyen talep yok — her şey güncel ✓</p>
+              <p className="text-sm text-gray-500">{t("homePage.noPendingRequests")}</p>
             ) : (
               <>
                 {(pendingRequests ?? []).map((r) => (
@@ -399,10 +394,10 @@ export default async function DashboardPage() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="text-[13px] font-medium text-gray-200 truncate">
-                        {r.customer_name}: Randevu Onayı
+                        {t("homePage.apptApprovalLabel", { name: r.customer_name })}
                       </p>
                       <p className="text-[11px] text-gray-500">
-                        {format(new Date(r.appointment_at), "d MMM HH:mm", { locale: tr })} · Otomatik mesaj: gönderildi
+                        {format(new Date(r.appointment_at), "d MMM HH:mm", { locale: dateFnsLocale })} · {t("homePage.autoMsgSent")}
                       </p>
                     </div>
                   </div>
@@ -418,10 +413,10 @@ export default async function DashboardPage() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="text-[13px] font-medium text-gray-200 truncate">
-                        {a.customer_name}: Onay bekliyor
+                        {t("homePage.awaitingApprovalLabel", { name: a.customer_name })}
                       </p>
                       <p className="text-[11px] text-gray-500">
-                        Bugün {format(new Date(a.appointment_at), "HH:mm")} · {a.service?.name}
+                        {t("today")} {format(new Date(a.appointment_at), "HH:mm")} · {a.service?.name}
                       </p>
                     </div>
                     <Link
@@ -429,7 +424,7 @@ export default async function DashboardPage() {
                       className="text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0"
                       style={{ background: GOLD, color: "#111" }}
                     >
-                      Onayla
+                      {t("approve")}
                     </Link>
                   </div>
                 ))}
@@ -443,11 +438,11 @@ export default async function DashboardPage() {
           <CardTitle
             right={
               <Link href="/dashboard/kampanyalar" className="text-[11px] font-medium flex items-center gap-0.5 hover:opacity-80" style={{ color: CYAN }}>
-                Tümü <ChevronRight className="h-3 w-3" />
+                {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
           >
-            Kampanya &amp; Performans
+            {t("homePage.campaignPerformance")}
           </CardTitle>
           <div className="px-4 py-3.5 space-y-3">
             {camp ? (
@@ -455,9 +450,9 @@ export default async function DashboardPage() {
                 style={{ background: "rgba(250,204,21,0.06)", border: "1px solid rgba(250,204,21,0.22)" }}>
                 <Megaphone className="h-4 w-4 shrink-0" style={{ color: GOLD }} />
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium text-gray-200 truncate">Kampanya: {camp.name}</p>
+                  <p className="text-[13px] font-medium text-gray-200 truncate">{t("homePage.campaignLabel", { name: camp.name })}</p>
                   {camp.sent_count > 0 && (
-                    <p className="text-[11px] text-gray-500">{camp.sent_count} müşteriye ulaştı</p>
+                    <p className="text-[11px] text-gray-500">{t("homePage.reachedCustomers", { count: camp.sent_count })}</p>
                   )}
                 </div>
                 <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0" style={{ background: GOLD, color: "#111" }}>
@@ -469,7 +464,7 @@ export default async function DashboardPage() {
                 href="/dashboard/kampanyalar/yeni"
                 className="flex items-center gap-2 text-[13px] text-gray-400 hover:text-gray-200 transition-colors"
               >
-                <Plus className="h-4 w-4" style={{ color: GOLD }} /> İlk kampanyanızı oluşturun
+                <Plus className="h-4 w-4" style={{ color: GOLD }} /> {t("homePage.createFirstCampaign")}
               </Link>
             )}
 
@@ -482,10 +477,10 @@ export default async function DashboardPage() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] font-medium text-gray-200 truncate">
-                    Haftanın Yıldızı: {champ.staff.full_name}
+                    {t("homePage.weeklyStarLabel", { name: champ.staff.full_name })}
                   </p>
                   <p className="text-[11px] text-gray-500">
-                    {champ.appointments_done} randevu · ₺{Number(champ.total_revenue).toLocaleString("tr-TR")}
+                    {t("homePage.staffStatsLabel", { count: champ.appointments_done, revenue: Number(champ.total_revenue).toLocaleString("tr-TR") })}
                   </p>
                 </div>
               </div>
@@ -505,7 +500,7 @@ export default async function DashboardPage() {
         className="fixed bottom-20 right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-1.5 px-4 py-3 rounded-full font-bold text-sm shadow-2xl hover:scale-105 transition-transform"
         style={{ background: GOLD, color: "#111", boxShadow: "0 8px 28px rgba(250,204,21,0.4)" }}
       >
-        <Plus className="h-4 w-4" /> Randevu
+        <Plus className="h-4 w-4" /> {t("homePage.newApptButton")}
       </Link>
     </div>
   );
