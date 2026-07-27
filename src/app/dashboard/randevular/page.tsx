@@ -1,16 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
-import { format } from "date-fns";
-import { tr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Calendar, Phone, User } from "lucide-react";
+import { Calendar } from "lucide-react";
 import type { Appointment } from "@/types/database";
 import { RandevularHeader } from "@/components/dashboard/RandevularHeader";
-import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
+import { RandevuCard } from "@/components/dashboard/RandevuCard";
+import { STATUS_LABELS } from "@/lib/appointment-status";
 
 export default async function RandevularPage({
   searchParams,
@@ -115,50 +113,11 @@ export default async function RandevularPage({
           </Card>
         ) : (
           (appointments as (Appointment & { staff?: { full_name: string }; service?: { name: string; duration_minutes: number } })[]).map((appt) => (
-            <Link key={appt.id} href={`/dashboard/randevular/${appt.id}`}>
-              <Card className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="text-center w-16 shrink-0">
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(appt.appointment_at), "d MMM", { locale: tr })}
-                      </p>
-                      <p className="text-base font-bold text-primary">
-                        {format(new Date(appt.appointment_at), "HH:mm")}
-                      </p>
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold truncate">{appt.customer_name}</p>
-                        <Badge
-                          variant="outline"
-                          className={cn("text-[10px] shrink-0", STATUS_BADGE_CLASSES[appt.status])}
-                        >
-                          {STATUS_LABELS[appt.status]}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <User className="h-3 w-3" />
-                          {appt.staff?.full_name}
-                        </span>
-                        <span>• {appt.service?.name}</span>
-                        <span className="flex items-center gap-1">
-                          <Phone className="h-3 w-3" />
-                          {appt.customer_phone}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="text-right shrink-0">
-                      <p className="font-semibold">₺{Number(appt.price).toLocaleString("tr-TR")}</p>
-                      <p className="text-xs text-muted-foreground">{appt.duration_minutes}dk</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+            <RandevuCard
+              key={appt.id}
+              appt={appt}
+              canQuickAct={member.role !== "staff" || appt.staff_id === member.staff_id}
+            />
           ))
         )}
       </div>
