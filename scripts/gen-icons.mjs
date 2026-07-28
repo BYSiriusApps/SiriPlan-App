@@ -1,30 +1,48 @@
 import sharp from "sharp";
-import { mkdirSync, writeFileSync, rmSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
 
 const root = process.cwd();
-const source = path.join(root, "public/brand/app-icon.png");
+const rawSource = path.join(root, "public/brand/app-icon.png");
 const iconsDir = path.join(root, "public/icons");
 mkdirSync(iconsDir, { recursive: true });
 
-async function buildMarkOnly() {
-  // Kırpılmış, sadece amblem (metinsiz) kare — küçük favicon boyutlarında
-  // "SiriPlan BY Sirius" yazısı okunaksız kaldığı için ayrı bir varyant.
-  const emblem = await sharp(source)
-    .extract({ left: 150, top: 150, width: 950, height: 600 })
+const NAVY = "#0a1c4a";
+
+async function buildFullBleed() {
+  // Kaynak görselde lacivert kare, beyaz bir tuval içinde yuvarlatılmış köşelerle
+  // duruyor (Windows/Android'de kısayol ikonunun kenarları beyaz görünmesine
+  // sebep oluyordu). Önce karenin dış sınırına, sonra köşe yuvarlamasının
+  // beyaz üçgenlerini de kesecek kadar içeri kırpıyoruz — sonuçta kenardan
+  // kenara %100 lacivert dolu bir kare kalıyor, yuvarlatmayı işletim sistemi
+  // kendi ikon maskesiyle uyguluyor.
+  const tight = await sharp(rawSource)
+    .extract({ left: 77, top: 69, width: 1099, height: 1107 })
     .toBuffer();
-  return sharp(emblem).resize(512, 512, { fit: "contain", background: "#0a1c4a" }).toBuffer();
+  const fullBleed = await sharp(tight)
+    .extract({ left: 90, top: 90, width: 1099 - 180, height: 1107 - 180 })
+    .resize(1024, 1024, { fit: "cover" })
+    .toBuffer();
+  writeFileSync(path.join(root, "public/brand/app-icon-full-bleed.png"), fullBleed);
+  return fullBleed;
+}
+
+async function buildMarkOnly(fullBleed) {
+  // Metinsiz amblem — küçük favicon/UI logosu boyutlarında "SiriPlan BY
+  // Sirius" yazısı okunaksız kaldığı için ayrı bir kırpım.
+  const emblem = await sharp(fullBleed)
+    .extract({ left: 0, top: 0, width: 1024, height: 700 })
+    .toBuffer();
+  return sharp(emblem).resize(512, 512, { fit: "contain", background: NAVY }).toBuffer();
 }
 
 async function main() {
-  const markOnly = await buildMarkOnly();
+  const fullBleed = await buildFullBleed();
+  const markOnly = await buildMarkOnly(fullBleed);
 
-  // Kalıcı metinsiz amblem — Sidebar/Navbar/Auth gibi küçük UI yuvalarında
-  // tam logo (yazılı) yerine bu kullanılır, tekrar üretmeye gerek kalmasın.
   await sharp(markOnly).resize(256, 256).png().toFile(path.join(iconsDir, "icon-mark.png"));
   console.log("icon-mark.png");
 
-  // Küçük boyutlar (sekme/favicon) → sadece amblem
   for (const size of [16, 32]) {
     await sharp(markOnly)
       .resize(size, size, { fit: "cover" })
@@ -33,18 +51,17 @@ async function main() {
     console.log(`icon-${size}x${size}.png (mark-only)`);
   }
 
-  // Büyük boyutlar (ana ekran/PWA) → tam logo (metinli)
   for (const size of [72, 96, 128, 144, 152, 192, 384, 512]) {
-    await sharp(source)
+    await sharp(fullBleed)
       .resize(size, size, { fit: "cover" })
       .png()
       .toFile(path.join(iconsDir, `icon-${size}x${size}.png`));
     console.log(`icon-${size}x${size}.png`);
   }
 
-  await sharp(source)
+  await sharp(fullBleed)
     .resize(180, 180, { fit: "cover" })
-    .flatten({ background: "#0a1c4a" })
+    .flatten({ background: NAVY })
     .png()
     .toFile(path.join(iconsDir, "apple-touch-icon.png"));
   console.log("apple-touch-icon.png");
@@ -85,12 +102,6 @@ async function main() {
   const ico = Buffer.concat([header, ...entries, ...pngBuffers]);
   writeFileSync(path.join(root, "src/app/favicon.ico"), ico);
   console.log("favicon.ico");
-
-  rmSync(path.join(root, "public/brand/_test-crop.png"), { force: true });
-  rmSync(path.join(root, "public/brand/_test-crop2.png"), { force: true });
-  rmSync(path.join(root, "public/brand/_mark-only.png"), { force: true });
-  rmSync(path.join(root, "public/brand/_mark-only2.png"), { force: true });
-  rmSync(path.join(root, "public/brand/_test32.png"), { force: true });
 }
 
 main();
