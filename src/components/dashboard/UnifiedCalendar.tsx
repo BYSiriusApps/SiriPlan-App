@@ -171,9 +171,13 @@ export function UnifiedCalendar({
     return (id: string) => map.get(id) ?? "";
   }, [staff]);
 
-  // Supabase Realtime: dışarıdan eklenen/güncellenen randevuları yakala
+  // Supabase Realtime: dışarıdan eklenen/güncellenen randevuları yakala.
+  // Realtime salt bir "canlı yenile" kolaylığı — CSP/ağ/tarayıcı engellerse
+  // (ör. WebSocket kurulumu bazı WebKit sürümlerinde senkron fırlatabiliyor)
+  // sayfanın tamamı çökmemeli, sadece canlı yenileme sessizce devre dışı kalmalı.
   useEffect(() => {
-    const supabase = createClient();
+    let channel: ReturnType<ReturnType<typeof createClient>["channel"]> | null = null;
+    let supabase: ReturnType<typeof createClient> | null = null;
 
     function scheduleRefresh() {
       if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
@@ -182,23 +186,30 @@ export function UnifiedCalendar({
       }, 800);
     }
 
-    const channel = supabase
-      .channel(`calendar-appointments-${orgId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "appointments", filter: `org_id=eq.${orgId}` },
-        () => scheduleRefresh()
-      )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "appointment_requests", filter: `org_id=eq.${orgId}` },
-        () => scheduleRefresh()
-      )
-      .subscribe();
+    try {
+      supabase = createClient();
+      channel = supabase
+        .channel(`calendar-appointments-${orgId}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "appointments", filter: `org_id=eq.${orgId}` },
+          () => scheduleRefresh()
+        )
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "appointment_requests", filter: `org_id=eq.${orgId}` },
+          () => scheduleRefresh()
+        )
+        .subscribe((_status, err) => {
+          if (err) console.warn("Takvim canlı yenileme devre dışı:", err);
+        });
+    } catch (err) {
+      console.warn("Takvim canlı yenileme başlatılamadı:", err);
+    }
 
     return () => {
       if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
-      supabase.removeChannel(channel);
+      if (supabase && channel) supabase.removeChannel(channel);
     };
   }, [orgId, router]);
 

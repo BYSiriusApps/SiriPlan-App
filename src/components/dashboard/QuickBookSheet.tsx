@@ -72,6 +72,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   // Otomatik WhatsApp bilgilendirme mesajı
   const [sendWaMessage, setSendWaMessage] = useState(true);
   const [orgName, setOrgName] = useState("");
+  const [orgAddress, setOrgAddress] = useState("");
   const [waTemplate, setWaTemplate] = useState<string | null>(null);
 
   useEffect(() => {
@@ -79,6 +80,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
       .then((r) => r.json())
       .then((d) => {
         setOrgName(d.org?.name ?? "");
+        setOrgAddress(d.org?.address ?? "");
         const s = (d.org?.settings_json ?? {}) as Record<string, unknown>;
         setWaTemplate(typeof s.wa_appointment_template === "string" ? s.wa_appointment_template : null);
       })
@@ -179,6 +181,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           appointmentAt,
           hizmet: selectedService?.name,
           personel: staff.find((s) => s.id === selectedStaffId)?.full_name,
+          address: orgAddress,
         });
         window.open(waMessageLink(customerPhone.trim(), text), "_blank", "noopener");
       }

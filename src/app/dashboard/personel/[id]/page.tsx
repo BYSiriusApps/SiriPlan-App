@@ -67,6 +67,7 @@ export default function PersonelDetayPage() {
   const [memberRole, setMemberRole] = useState<"staff" | "manager">("staff");
   const [perms, setPerms] = useState<Record<string, boolean>>(DEFAULT_PERMS.staff);
   const [viewerRole, setViewerRole] = useState<string>("staff");
+  const [viewerCanManageStaff, setViewerCanManageStaff] = useState(false);
 
   useEffect(() => {
     fetch(`/api/staff/${id}/permissions`)
@@ -74,6 +75,7 @@ export default function PersonelDetayPage() {
       .then((d) => {
         setLinked(!!d.linked);
         setViewerRole(d.viewerRole ?? "staff");
+        setViewerCanManageStaff(!!d.viewerPermissions?.manage_staff);
         if (d.linked) {
           setMemberRole(d.role === "manager" ? "manager" : "staff");
           setPerms({ ...DEFAULT_PERMS[d.role === "manager" ? "manager" : "staff"], ...(d.permissions_json ?? {}) });
@@ -427,11 +429,13 @@ export default function PersonelDetayPage() {
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 Bu personelin henüz sisteme giriş yapabileceği bir hesabı yok.
-                {viewerRole === "owner"
+                {viewerRole === "owner" || viewerCanManageStaff
                   ? " Davet gönderirseniz kendi hesabını oluşturup panele erişebilir."
                   : " Davet göndermek için salon sahibiyle iletişime geçin."}
               </p>
-              {viewerRole === "owner" && <StaffInviteDialog staffList={[]} preselectedStaffId={id} />}
+              {(viewerRole === "owner" || viewerCanManageStaff) && (
+                <StaffInviteDialog staffList={[]} preselectedStaffId={id} />
+              )}
             </div>
           ) : (
             <div className="space-y-4">

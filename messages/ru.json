@@ -343,6 +343,22 @@
     },
     "noStaffAdded": "Сотрудники ещё не добавлены.",
     "addStaffCta": "Добавить сотрудника",
+    "newAppointment": "Новая запись",
+    "newCustomer": "Новый клиент",
+    "quickActions": {
+      "title": "Быстрые действия",
+      "editing": "Редактирование",
+      "cancel": "Отмена",
+      "personalize": "Настроить",
+      "addShortcut": "Добавить ярлык",
+      "saving": "Сохранение…",
+      "save": "Сохранить",
+      "empty": "Пока нет ярлыков",
+      "pickerTitle": "Выбор ярлыка",
+      "allAdded": "Все страницы добавлены",
+      "saveFailed": "Не удалось сохранить",
+      "saved": "Ярлыки сохранены"
+    },
     "quickBook": {
       "addButton": "Добавить запись",
       "sheetTitle": "Быстрая запись",

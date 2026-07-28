@@ -26,7 +26,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com",
       "font-src 'self'",
-      "connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.anthropic.com https://graph.facebook.com https://www.google-analytics.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://graph.facebook.com https://www.google-analytics.com",
       "frame-src https://js.stripe.com https://hooks.stripe.com",
       "worker-src 'none'",
       "object-src 'none'",

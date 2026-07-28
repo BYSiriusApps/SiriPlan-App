@@ -9,12 +9,32 @@ import {
   X, ArrowUp, ArrowDown, MoreHorizontal, ArrowUpRight, Save, RotateCcw,
   type LucideIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { saveUserShortcuts, type ShortcutItem } from "@/app/actions/shortcuts";
+
+// href → dashboard çeviri anahtarı. Etiketler DB'ye Türkçe olarak kaydedilir
+// (geriye dönük uyumluluk) ama ekranda her zaman bu eşlemeden, aktif dile
+// göre üretilir — kayıtlı `label` sadece eşlemede olmayan durumlar için yedek.
+const SHORTCUT_LABEL_KEYS: Record<string, string> = {
+  "/dashboard": "overview",
+  "/dashboard/randevular?new=1": "newAppointment",
+  "/dashboard/takvim": "calendar",
+  "/dashboard/randevular": "appointments",
+  "/dashboard/musteriler": "customers",
+  "/dashboard/musteriler?new=1": "newCustomer",
+  "/dashboard/personel": "staff",
+  "/dashboard/hizmetler": "services",
+  "/dashboard/kampanyalar": "campaigns",
+  "/dashboard/raporlar": "reports",
+  "/dashboard/gelir-gider": "income",
+  "/dashboard/ayarlar": "settings",
+  "/dashboard/abonelik": "subscription",
+};
 
 /* ── Icon registry ─────────────────────────────────────────────────────── */
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -57,6 +77,12 @@ interface Props {
 
 /* ── Component ─────────────────────────────────────────────────────────── */
 export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
+  const t = useTranslations("dashboard");
+  const labelFor = (item: { href: string; label: string }) => {
+    const key = SHORTCUT_LABEL_KEYS[item.href];
+    return key ? t(key) : item.label;
+  };
+
   const saved = initialShortcuts.length > 0 ? initialShortcuts : DEFAULT_SHORTCUTS;
   const [shortcuts, setShortcuts] = useState<ShortcutItem[]>(saved);
   const [editMode, setEditMode] = useState(false);
@@ -95,9 +121,9 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
     startTransition(async () => {
       const result = await saveUserShortcuts(orgId, shortcuts);
       if (result.error) {
-        toast.error("Kaydedilemedi: " + result.error);
+        toast.error(t("quickActions.saveFailed") + ": " + result.error);
       } else {
-        toast.success("Kısayollar kaydedildi");
+        toast.success(t("quickActions.saved"));
         setEditMode(false);
       }
     });
@@ -122,13 +148,13 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
             >
               <Zap className="h-3.5 w-3.5" style={{ color: "#6366f1" }} />
             </div>
-            <span className="text-sm font-semibold text-foreground">Hızlı İşlemler</span>
+            <span className="text-sm font-semibold text-foreground">{t("quickActions.title")}</span>
             {editMode && (
               <span
                 className="text-[10px] px-1.5 py-0.5 rounded-md font-medium"
                 style={{ background: "rgba(99,102,241,0.15)", color: "#6366f1" }}
               >
-                Düzenleniyor
+                {t("quickActions.editing")}
               </span>
             )}
           </div>
@@ -136,7 +162,7 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
           <button
             onClick={() => (editMode ? cancel() : setEditMode(true))}
             className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-muted-foreground"
-            title={editMode ? "İptal" : "Kişiselleştir"}
+            title={editMode ? t("quickActions.cancel") : t("quickActions.personalize")}
           >
             {editMode ? <X className="h-4 w-4" /> : <MoreHorizontal className="h-4 w-4" />}
           </button>
@@ -158,7 +184,7 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
               style={{ background: "rgba(99,102,241,0.15)", color: "#6366f1" }}
             >
               <Plus className="h-3.5 w-3.5" />
-              Kısayol Ekle
+              {t("quickActions.addShortcut")}
             </button>
             <div className="flex-1" />
             <button
@@ -166,7 +192,7 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
               className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
             >
               <RotateCcw className="h-3 w-3" />
-              İptal
+              {t("quickActions.cancel")}
             </button>
             <button
               onClick={save}
@@ -175,7 +201,7 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
               style={{ background: "#6366f1", color: "white" }}
             >
               <Save className="h-3.5 w-3.5" />
-              {isPending ? "Kaydediliyor…" : "Kaydet"}
+              {isPending ? t("quickActions.saving") : t("quickActions.save")}
             </button>
           </div>
         )}
@@ -191,14 +217,14 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
               }}
             >
               <Zap className="h-6 w-6 mb-2 text-muted-foreground/30" />
-              <p className="text-xs text-muted-foreground">Henüz kısayol yok</p>
+              <p className="text-xs text-muted-foreground">{t("quickActions.empty")}</p>
               {editMode && (
                 <button
                   onClick={() => setShowPicker(true)}
                   className="mt-2 text-xs font-medium"
                   style={{ color: "#6366f1" }}
                 >
-                  + Kısayol ekle
+                  + {t("quickActions.addShortcut")}
                 </button>
               )}
             </div>
@@ -229,7 +255,7 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
 
                     {/* Label */}
                     <span className="flex-1 text-sm font-medium text-foreground truncate">
-                      {action.label}
+                      {labelFor(action)}
                     </span>
 
                     {/* Reorder */}
@@ -290,7 +316,7 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground leading-none">
-                      {action.label}
+                      {labelFor(action)}
                     </p>
                   </div>
                   <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
@@ -307,7 +333,7 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
               onClick={() => setEditMode(true)}
               className="w-full text-center text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-colors py-1"
             >
-              Kişiselleştir ···
+              {t("quickActions.personalize")} ···
             </button>
           </div>
         )}
@@ -317,12 +343,12 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
       <Dialog open={showPicker} onOpenChange={setShowPicker}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-base">Kısayol Seç</DialogTitle>
+            <DialogTitle className="text-base">{t("quickActions.pickerTitle")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1">
             {available.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
-                Tüm sayfalar eklendi
+                {t("quickActions.allAdded")}
               </p>
             ) : (
               available.map((item) => {
@@ -353,7 +379,7 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
                     >
                       <Icon className="h-4 w-4" style={{ color: item.color }} />
                     </div>
-                    <span className="text-sm font-medium text-foreground">{item.label}</span>
+                    <span className="text-sm font-medium text-foreground">{labelFor(item)}</span>
                     <Plus className="h-4 w-4 ml-auto text-muted-foreground shrink-0" />
                   </button>
                 );

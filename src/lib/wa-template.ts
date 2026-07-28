@@ -27,6 +27,13 @@ export interface WaTemplateVars {
   appointmentAt: string;
   hizmet?: string;
   personel?: string;
+  /** İşletme adresi — doluysa mesaj sonuna Google Maps linki eklenir. */
+  address?: string;
+}
+
+/** İşletme adresinden tıklanabilir Google Maps arama linki üretir. */
+export function googleMapsLink(address: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
 /** "05xx...", "+90 5xx..." → "905xxxxxxxxx" (wa.me formatı) */
@@ -46,7 +53,7 @@ export function renderWaTemplate(template: string | null | undefined, vars: WaTe
     : `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
   const saat = isNaN(d.getTime()) ? "" : `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
-  return (template?.trim() || DEFAULT_WA_TEMPLATE)
+  const rendered = (template?.trim() || DEFAULT_WA_TEMPLATE)
     .replaceAll("{musteri}", vars.musteri)
     .replaceAll("{salon}", vars.salon)
     .replaceAll("{tarih}", tarih)
@@ -55,6 +62,9 @@ export function renderWaTemplate(template: string | null | undefined, vars: WaTe
     .replaceAll("{personel}", vars.personel ?? "")
     .replace(/ {2,}/g, " ")
     .trim();
+
+  const address = vars.address?.trim();
+  return address ? `${rendered}\n\n📍 Konum: ${googleMapsLink(address)}` : rendered;
 }
 
 /** Hazır mesajla müşterinin WhatsApp sohbetini açan link */

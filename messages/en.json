@@ -343,6 +343,22 @@
     },
     "noStaffAdded": "No staff added yet.",
     "addStaffCta": "Add staff",
+    "newAppointment": "New Appointment",
+    "newCustomer": "New Customer",
+    "quickActions": {
+      "title": "Quick Actions",
+      "editing": "Editing",
+      "cancel": "Cancel",
+      "personalize": "Personalize",
+      "addShortcut": "Add Shortcut",
+      "saving": "Saving…",
+      "save": "Save",
+      "empty": "No shortcuts yet",
+      "pickerTitle": "Choose Shortcut",
+      "allAdded": "All pages added",
+      "saveFailed": "Could not save",
+      "saved": "Shortcuts saved"
+    },
     "quickBook": {
       "addButton": "Add Appointment",
       "sheetTitle": "Quick Booking",

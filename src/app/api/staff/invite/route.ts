@@ -37,7 +37,9 @@ export async function POST(req: NextRequest) {
   const member = await getActiveMember(supabase);
 
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role !== "owner") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+  if (member.role !== "owner" && !member.permissions_json?.manage_staff) {
+    return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+  }
 
   // Org info + plan check
   const { data: org } = await supabase
@@ -161,7 +163,9 @@ export async function GET(_req: NextRequest) {
   const member = await getActiveMember(supabase);
 
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role !== "owner") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+  if (member.role !== "owner" && !member.permissions_json?.manage_staff) {
+    return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+  }
 
   const { data, error } = await supabase
     .from("staff_invitations")

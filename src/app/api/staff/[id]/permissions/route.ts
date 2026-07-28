@@ -29,8 +29,20 @@ export async function GET(_req: NextRequest, { params }: Params) {
     .eq("staff_id", id)
     .maybeSingle();
 
-  if (!data) return NextResponse.json({ linked: false, viewerRole: member.role });
-  return NextResponse.json({ linked: true, role: data.role, permissions_json: data.permissions_json ?? {}, viewerRole: member.role });
+  if (!data) {
+    return NextResponse.json({
+      linked: false,
+      viewerRole: member.role,
+      viewerPermissions: member.permissions_json ?? {},
+    });
+  }
+  return NextResponse.json({
+    linked: true,
+    role: data.role,
+    permissions_json: data.permissions_json ?? {},
+    viewerRole: member.role,
+    viewerPermissions: member.permissions_json ?? {},
+  });
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {

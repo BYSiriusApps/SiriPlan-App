@@ -343,6 +343,22 @@
     },
     "noStaffAdded": "لم تتم إضافة أي موظف بعد.",
     "addStaffCta": "إضافة موظف",
+    "newAppointment": "موعد جديد",
+    "newCustomer": "عميل جديد",
+    "quickActions": {
+      "title": "إجراءات سريعة",
+      "editing": "تحرير",
+      "cancel": "إلغاء",
+      "personalize": "تخصيص",
+      "addShortcut": "إضافة اختصار",
+      "saving": "جارٍ الحفظ…",
+      "save": "حفظ",
+      "empty": "لا توجد اختصارات بعد",
+      "pickerTitle": "اختر اختصارًا",
+      "allAdded": "تمت إضافة كل الصفحات",
+      "saveFailed": "تعذر الحفظ",
+      "saved": "تم حفظ الاختصارات"
+    },
     "quickBook": {
       "addButton": "إضافة موعد",
       "sheetTitle": "حجز سريع",

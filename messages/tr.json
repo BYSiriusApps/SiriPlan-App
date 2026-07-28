@@ -343,6 +343,22 @@
     },
     "noStaffAdded": "Personel eklenmemiş.",
     "addStaffCta": "Personel ekle",
+    "newAppointment": "Yeni Randevu",
+    "newCustomer": "Yeni Müşteri",
+    "quickActions": {
+      "title": "Hızlı İşlemler",
+      "editing": "Düzenleniyor",
+      "cancel": "İptal",
+      "personalize": "Kişiselleştir",
+      "addShortcut": "Kısayol Ekle",
+      "saving": "Kaydediliyor…",
+      "save": "Kaydet",
+      "empty": "Henüz kısayol yok",
+      "pickerTitle": "Kısayol Seç",
+      "allAdded": "Tüm sayfalar eklendi",
+      "saveFailed": "Kaydedilemedi",
+      "saved": "Kısayollar kaydedildi"
+    },
     "quickBook": {
       "addButton": "Randevu Ekle",
       "sheetTitle": "Hızlı Randevu",
