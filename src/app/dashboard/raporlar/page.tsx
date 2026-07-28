@@ -151,12 +151,13 @@ export default async function RaporlarPage({
           <HomeButton />
         </div>
         <a
-          href="/api/export?format=json"
-          download
+          href={`/api/export?format=pdf&gun=${dayParam}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-accent transition-colors"
         >
           <Download className="h-4 w-4" />
-          Veri İndir
+          Gün Sonu Özeti (PDF)
         </a>
       </div>
 

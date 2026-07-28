@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,6 +93,7 @@ export default function GelirGiderPage() {
   const [saving, setSaving] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Expense | null>(null);
   const [filterType, setFilterType] = useState<"all" | "gelir" | "gider">("all");
+  const [viewMode, setViewMode] = useState<"aylik" | "yillik">("aylik");
 
   // Recurring expenses state
   const [recurring, setRecurring] = useState<RecurringExpense[]>([]);
@@ -108,10 +109,13 @@ export default function GelirGiderPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/expenses?year=${year}&month=${month}`);
+    const url = viewMode === "yillik"
+      ? `/api/expenses?year=${year}`
+      : `/api/expenses?year=${year}&month=${month}`;
+    const res = await fetch(url);
     if (res.ok) setEntries(await res.json());
     setLoading(false);
-  }, [year, month]);
+  }, [year, month, viewMode]);
 
   const fetchRecurring = useCallback(async () => {
     setRecurringLoading(true);
@@ -128,6 +132,22 @@ export default function GelirGiderPage() {
   const netKar = totalGelir - totalGider;
 
   const visible = entries.filter((e) => filterType === "all" || e.type === filterType);
+
+  // Yıllık kümülatif özet — seçili yılın 12 ayı için aylık ve birikimli toplamlar
+  const monthlyBreakdown = useMemo(() => {
+    if (viewMode !== "yillik") return [];
+    let cumGelir = 0;
+    let cumGider = 0;
+    return Array.from({ length: 12 }, (_, i) => {
+      const m = i + 1;
+      const monthEntries = entries.filter((e) => new Date(e.date).getMonth() + 1 === m);
+      const gelir = monthEntries.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
+      const gider = monthEntries.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
+      cumGelir += gelir;
+      cumGider += gider;
+      return { month: m, gelir, gider, net: gelir - gider, cumGelir, cumGider, cumNet: cumGelir - cumGider };
+    });
+  }, [entries, viewMode]);
 
   async function handleSave() {
     if (!form.amount || !form.description || !form.date) {
@@ -469,27 +489,46 @@ export default function GelirGiderPage() {
       )}
 
       {/* Period selector */}
-      <div className="flex flex-wrap gap-2 items-center">
-        <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
-          <SelectTrigger className="w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {MONTHS.map((m, i) => (
-              <SelectItem key={i} value={String(i + 1)}>{m}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-          <SelectTrigger className="w-28">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {[now.getFullYear(), now.getFullYear() - 1, now.getFullYear() - 2].map((y) => (
-              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex flex-wrap gap-2 items-center justify-between">
+        <div className="flex flex-wrap gap-2 items-center">
+          {viewMode === "aylik" && (
+            <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MONTHS.map((m, i) => (
+                  <SelectItem key={i} value={String(i + 1)}>{m}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+            <SelectTrigger className="w-28">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[now.getFullYear(), now.getFullYear() - 1, now.getFullYear() - 2].map((y) => (
+                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex gap-1 p-1 rounded-full bg-muted w-fit">
+          {(["aylik", "yillik"] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setViewMode(v)}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                viewMode === v
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-background/60"
+              }`}
+            >
+              {v === "aylik" ? "Aylık" : "Yıllık (Kümülatif)"}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Summary cards */}
@@ -536,7 +575,61 @@ export default function GelirGiderPage() {
         </Card>
       </div>
 
+      {/* Yıllık kümülatif tablo */}
+      {viewMode === "yillik" && (
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Wallet className="h-4 w-4 text-primary" />
+              {year} — Aylık & Kümülatif Özet
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <div className="hidden md:grid grid-cols-[90px_110px_110px_110px_130px_130px_130px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+                  <span>Ay</span>
+                  <span className="text-right">Gelir</span>
+                  <span className="text-right">Gider</span>
+                  <span className="text-right">Net</span>
+                  <span className="text-right">Küm. Gelir</span>
+                  <span className="text-right">Küm. Gider</span>
+                  <span className="text-right">Küm. Net</span>
+                </div>
+                {monthlyBreakdown.map((m) => (
+                  <div
+                    key={m.month}
+                    className="grid grid-cols-[1fr_auto] md:grid-cols-[90px_110px_110px_110px_130px_130px_130px] items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent/50 transition-colors"
+                  >
+                    <span className="text-sm font-medium">{MONTHS[m.month - 1]}</span>
+                    <span className="hidden md:block text-xs text-right text-emerald-600">{fmt(m.gelir)}</span>
+                    <span className="hidden md:block text-xs text-right text-red-600">{fmt(m.gider)}</span>
+                    <span className={`hidden md:block text-xs text-right font-medium ${m.net >= 0 ? "text-blue-600" : "text-orange-600"}`}>
+                      {fmt(m.net)}
+                    </span>
+                    <span className="hidden md:block text-xs text-right text-emerald-700 dark:text-emerald-400 font-semibold">{fmt(m.cumGelir)}</span>
+                    <span className="hidden md:block text-xs text-right text-red-700 dark:text-red-400 font-semibold">{fmt(m.cumGider)}</span>
+                    <span className={`hidden md:block text-sm text-right font-bold ${m.cumNet >= 0 ? "text-blue-700 dark:text-blue-400" : "text-orange-700 dark:text-orange-400"}`}>
+                      {fmt(m.cumNet)}
+                    </span>
+                    <div className="md:hidden text-right text-xs space-y-0.5">
+                      <div className={m.net >= 0 ? "text-blue-600" : "text-orange-600"}>Net: {fmt(m.net)}</div>
+                      <div className="text-muted-foreground">Kümülatif: {fmt(m.cumNet)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Table */}
+      {viewMode === "aylik" && (
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -648,6 +741,7 @@ export default function GelirGiderPage() {
           )}
         </CardContent>
       </Card>
+      )}
 
       {/* Category breakdown */}
       {entries.length > 0 && (
