@@ -156,7 +156,11 @@ export default function PlanSecPage() {
             </div>
           )}
           <h1 className="text-3xl font-bold mb-2">Planınızı Seçin</h1>
-          <p className="text-muted-foreground">7 gün ücretsiz deneme • İstediğiniz zaman iptal</p>
+          <p className="text-muted-foreground">
+            {expired || trialActive === false
+              ? "İstediğiniz zaman iptal"
+              : "7 gün ücretsiz deneme • İstediğiniz zaman iptal"}
+          </p>
 
           <div className="flex items-center justify-center gap-3 mt-6">
             <span className={annual ? "text-muted-foreground" : "font-semibold"}>Aylık</span>

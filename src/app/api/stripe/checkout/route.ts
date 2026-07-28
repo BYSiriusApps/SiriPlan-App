@@ -18,8 +18,13 @@ export async function POST(req: NextRequest) {
 
   if (!member) return NextResponse.json({ error: "No organization" }, { status: 404 });
 
-  type OrgJoin = { stripe_customer_id?: string; name: string; email?: string };
+  type OrgJoin = { stripe_customer_id?: string; name: string; email?: string; trial_ends_at?: string | null };
   const org = (member as unknown as { org_id: string; organizations: OrgJoin }).organizations;
+
+  // Deneme süresi yalnızca bir defa verilir: org kayıt sırasında zaten kendi
+  // ücretsiz denemesini almıştır (trial_ends_at dolu). Stripe'ta ikinci bir
+  // deneme süresi tanımlamıyoruz — kart girildiğinde ücretlendirme hemen başlar.
+  const hasAlreadyHadTrial = !!org.trial_ends_at;
 
   const stripe = getStripe();
   let customerId = org.stripe_customer_id;
@@ -47,7 +52,7 @@ export async function POST(req: NextRequest) {
     success_url: `${appUrl}/dashboard?subscription=success&plan=${plan}`,
     cancel_url: `${appUrl}/auth/plan-sec?canceled=1`,
     subscription_data: {
-      trial_period_days: 7,
+      ...(hasAlreadyHadTrial ? {} : { trial_period_days: 7 }),
       metadata: { org_id: member.org_id, plan },
     },
     allow_promotion_codes: true,
