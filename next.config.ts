@@ -28,7 +28,9 @@ const securityHeaders = [
       "font-src 'self'",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://graph.facebook.com https://www.google-analytics.com",
       "frame-src https://js.stripe.com https://hooks.stripe.com",
-      "worker-src 'none'",
+      // PWA service worker (kurulabilirlik + "ana ekrana ekle") aynı origin'den
+      // kayıt oluyor — 'none' bunu tamamen engelliyordu.
+      "worker-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

@@ -180,6 +180,17 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>{children}</ThemeProvider>
+        {/* PWA kurulabilirlik: fetch handler'lı service worker kaydı (Chrome/Android
+            "Ana ekrana ekle" istemi bunu şart koşuyor — yoksa istem hiç tetiklenmiyor) */}
+        <Script id="sw-register" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+              });
+            }
+          `}
+        </Script>
         {/* Google Analytics 4 */}
         {GA_ID && (
           <>
