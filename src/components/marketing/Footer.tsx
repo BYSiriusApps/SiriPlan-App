@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, Mail, Phone } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { BySiriusBadge } from "@/components/layout/BySiriusBadge";
 import { getTranslations } from "next-intl/server";
 
@@ -45,9 +45,7 @@ export async function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg brand-gradient flex items-center justify-center">
-                <Sparkles className="w-3.5 h-3.5 text-white" />
-              </div>
+              <img src="/icons/icon-mark.png" alt="Siriplan" className="w-7 h-7 rounded-lg" />
               <span className="font-bold text-base">
                 Siri<span className="text-primary">plan</span>
               </span>

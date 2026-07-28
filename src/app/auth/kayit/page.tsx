@@ -9,9 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Building2, Mail, Lock, Phone, User, AlertCircle } from "lucide-react";
+import { Loader2, Building2, Mail, Lock, Phone, User, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
+
+function isMobileDevice() {
+  if (typeof navigator === "undefined") return false;
+  return /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+}
 
 const LOCALES = [
   { code: "tr", label: "TR", flag: "🇹🇷", name: "Türkçe" },
@@ -46,6 +52,7 @@ function normalizePhone(raw: string) {
 export default function KayitPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
   const [selectedLocale, setSelectedLocale] = useState("tr");
   const [form, setForm] = useState({
     salonName: "", type: "kuafor", fullName: "",
@@ -137,12 +144,42 @@ export default function KayitPage() {
         return;
       }
 
-      toast.success("Hesabınız oluşturuldu! Dashboard'a yönlendiriliyorsunuz...");
+      toast.success("Hesabınız oluşturuldu!");
+
+      // Mobil cihazlarda paneline gitmeden önce "ana ekrana ekle" kısayolunu öner
+      if (isMobileDevice()) {
+        setRegistered(true);
+        setLoading(false);
+        return;
+      }
+
       window.location.href = "/dashboard";
     } catch {
       toast.error("Bir hata oluştu. Lütfen tekrar deneyin.");
       setLoading(false);
     }
+  }
+
+  if (registered) {
+    return (
+      <div className="space-y-4">
+        <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm">
+          <CardContent className="pt-6 text-center space-y-2">
+            <CheckCircle2 className="h-10 w-10 text-green-500 mx-auto" />
+            <CardTitle className="text-xl">Hesabınız oluşturuldu!</CardTitle>
+            <CardDescription>
+              Panele girmeden önce Siriplan&apos;ı ana ekranınıza ekleyebilirsiniz — uygulama gibi tek dokunuşla açılır.
+            </CardDescription>
+          </CardContent>
+        </Card>
+
+        <InstallPwaCard />
+
+        <Button className="w-full" onClick={() => { window.location.href = "/dashboard"; }}>
+          Panele Git
+        </Button>
+      </div>
+    );
   }
 
   return (

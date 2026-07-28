@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemePicker } from "@/components/layout/ThemePicker";
 import { useTranslations } from "next-intl";
@@ -53,9 +53,11 @@ export function Navbar() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <div className="w-8 h-8 rounded-lg brand-gradient flex items-center justify-center shadow-sm">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
+          <img
+            src="/icons/icon-mark.png"
+            alt="Siriplan"
+            className="w-8 h-8 rounded-lg shadow-sm"
+          />
           <span className="font-bold text-lg tracking-tight">
             Siri<span className="text-primary">plan</span>
           </span>

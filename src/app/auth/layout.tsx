@@ -8,9 +8,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           {/* Logo */}
           <div className="text-center mb-8">
             <a href="/" className="inline-flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                <span className="text-white font-bold text-lg">S</span>
-              </div>
+              <img
+                src="/icons/icon-mark.png"
+                alt="Siriplan"
+                className="w-10 h-10 rounded-xl shadow-lg group-hover:scale-105 transition-transform"
+              />
               <span className="text-2xl font-bold text-foreground">Siriplan</span>
             </a>
           </div>

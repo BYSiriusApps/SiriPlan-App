@@ -96,16 +96,13 @@ export function Sidebar({
       {/* Logo + org name */}
       <div className="px-5 py-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <Link href="/dashboard" className="flex items-center gap-3 group">
-          {/* BY logo */}
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm text-white shrink-0 group-hover:scale-105 transition-transform"
-            style={{
-              background: "linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--primary) 60%, oklch(0.50 0.15 280)))",
-              boxShadow: "0 0 20px color-mix(in oklch, var(--primary) 40%, transparent)",
-            }}
-          >
-            BY
-          </div>
+          {/* Siriplan logo */}
+          <img
+            src="/icons/icon-mark.png"
+            alt="Siriplan"
+            className="w-9 h-9 rounded-xl shrink-0 group-hover:scale-105 transition-transform"
+            style={{ boxShadow: "0 0 20px rgba(10,28,74,0.5)" }}
+          />
           <div className="min-w-0">
             <p className="text-xs font-medium text-white/40 uppercase tracking-widest leading-none mb-1">Siriplan</p>
             <p className="text-sm font-semibold text-white/90 truncate leading-none">{orgName}</p>
