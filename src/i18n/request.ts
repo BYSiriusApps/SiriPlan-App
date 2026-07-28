@@ -6,8 +6,14 @@ const LOCALES = ["tr", "en", "ru", "ar"] as const;
 type Locale = (typeof LOCALES)[number];
 
 async function detectLocale(): Promise<Locale> {
-  // 1. Giriş yapmış kullanıcının hesabına kayıtlı dil tercihi (org'dan bağımsız,
-  // cihazdan bağımsız — asıl kaynak).
+  // 1. Cookie (en yaygın yol — giriş ve dil değişiminde zaten yazılıyor,
+  // her sayfa geçişinde Supabase'e gitmeden anında karar verilir).
+  const cookieStore = await cookies();
+  const cookieLang = cookieStore.get("NEXT_LOCALE")?.value;
+  if (cookieLang && LOCALES.includes(cookieLang as Locale)) return cookieLang as Locale;
+
+  // 2. Cookie yoksa (ör. yeni cihaz): hesaba kayıtlı dil tercihine bak.
+  // Sadece bu durumda Supabase'e gidilir — her sayfada değil.
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -16,11 +22,6 @@ async function detectLocale(): Promise<Locale> {
   } catch {
     // Supabase erişilemezse (ör. build zamanı) sessizce devam et
   }
-
-  // 2. Cookie (giriş yapmamış ziyaretçi / henüz senkronize olmamış anlık geçiş)
-  const cookieStore = await cookies();
-  const cookieLang = cookieStore.get("NEXT_LOCALE")?.value;
-  if (cookieLang && LOCALES.includes(cookieLang as Locale)) return cookieLang as Locale;
 
   // 3. Accept-Language header
   const headerStore = await headers();
