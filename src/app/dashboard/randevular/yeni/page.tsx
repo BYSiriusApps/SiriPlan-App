@@ -44,6 +44,7 @@ export default function YeniRandevuPage() {
   const [orgAddress, setOrgAddress] = useState<string>("");
   const [waTemplate, setWaTemplate] = useState<string | null>(null);
   const [sendWaMessage, setSendWaMessage] = useState(true);
+  const [kvkkAttested, setKvkkAttested] = useState(false);
 
   const [form, setForm] = useState({
     customer_name: "",
@@ -150,6 +151,13 @@ export default function YeniRandevuPage() {
         // Yerel saati ISO'ya çevir — raw "yyyy-MM-ddTHH:mm" gönderilirse
         // Postgres UTC sanıp +3 saat kaydırıyordu (takvimde kayıp/yanlış saat).
         appointment_at: new Date(form.appointment_at).toISOString(),
+        ...(kvkkAttested
+          ? {
+              kvkk_consent: true,
+              kvkk_notice_snapshot: "Müşteri sözlü/yazılı olarak personel huzurunda KVKK onayı verdi.",
+              kvkk_captured_via: "staff_attested",
+            }
+          : {}),
       }),
     });
     setLoading(false);
@@ -381,10 +389,21 @@ export default function YeniRandevuPage() {
                       <SelectItem value="telefon">Telefon</SelectItem>
                       <SelectItem value="whatsapp">WhatsApp</SelectItem>
                       <SelectItem value="instagram">Instagram</SelectItem>
+                      <SelectItem value="tiktok">TikTok</SelectItem>
                       <SelectItem value="web">Web</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                <label className="flex items-start gap-2 text-xs cursor-pointer p-2 rounded-lg border border-border">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={kvkkAttested}
+                    onChange={(e) => setKvkkAttested(e.target.checked)}
+                  />
+                  <span>Müşteri KVKK onayı verdi (sözlü/yazılı olarak yüz yüze/telefonda alındı)</span>
+                </label>
 
                 <div className="space-y-1">
                   <Label>Not</Label>

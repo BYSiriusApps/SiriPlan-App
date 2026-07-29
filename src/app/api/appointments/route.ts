@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendConfirmationEmail } from "@/lib/email/send";
 import { notifyAppointment, notifyAppointmentRequest } from "@/lib/notify";
 import { revalidatePath } from "next/cache";
@@ -28,7 +28,11 @@ const CreateSchema = z.object({
   total_duration_override: z.number().optional(),
   appointment_at: z.string(),
   note: z.preprocess((v) => (v === "" ? undefined : v), z.string().optional()),
-  source: z.enum(["web", "website", "whatsapp", "instagram", "telefon", "yuzyuze", "manual"]).default("web"),
+  source: z.enum(["web", "website", "whatsapp", "instagram", "tiktok", "telefon", "yuzyuze", "manual"]).default("web"),
+  kvkk_consent: z.boolean().optional(),
+  marketing_consent: z.boolean().optional(),
+  kvkk_notice_snapshot: z.string().optional(),
+  kvkk_captured_via: z.enum(["inline_web", "staff_attested"]).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -154,19 +158,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Service not found" }, { status: 404 });
   }
 
-  // Find or create customer
+  // Find or create customer — admin client: anonim /r/[slug] rezervasyonlarında
+  // caller'ın customers tablosunda org_member RLS'i geçecek bir oturumu olmayabilir.
+  const adminSupabase = await createAdminClient();
   let customerId: string | null = null;
-  const { data: existingCustomer } = await supabase
+  const { data: existingCustomer } = await adminSupabase
     .from("customers")
     .select("id")
     .eq("org_id", data.org_id)
     .eq("phone", data.customer_phone)
     .single();
 
+  const consentFields =
+    typeof data.kvkk_consent === "boolean"
+      ? {
+          kvkk_consent: data.kvkk_consent,
+          kvkk_consent_at: new Date().toISOString(),
+          marketing_consent: !!data.marketing_consent,
+          marketing_consent_at: data.marketing_consent ? new Date().toISOString() : null,
+        }
+      : null;
+
   if (existingCustomer) {
     customerId = existingCustomer.id;
+    if (consentFields) {
+      await adminSupabase.from("customers").update(consentFields).eq("id", customerId);
+    }
   } else {
-    const { data: newCustomer } = await supabase
+    const { data: newCustomer } = await adminSupabase
       .from("customers")
       .insert({
         org_id: data.org_id,
@@ -174,10 +193,46 @@ export async function POST(req: NextRequest) {
         phone: data.customer_phone,
         email: data.customer_email,
         source: data.source,
+        ...(consentFields ?? {}),
       })
       .select("id")
       .single();
     if (newCustomer) customerId = newCustomer.id;
+  }
+
+  if (consentFields) {
+    const capturedVia = data.kvkk_captured_via ?? "inline_web";
+    const consentRows = [
+      {
+        org_id: data.org_id,
+        customer_id: customerId,
+        phone: data.customer_phone,
+        consent_type: "kvkk",
+        given: data.kvkk_consent,
+        source_channel: data.source,
+        ip_address: req.headers.get("x-forwarded-for"),
+        user_agent: req.headers.get("user-agent"),
+        consent_text_snapshot: data.kvkk_notice_snapshot ?? "",
+        captured_via: capturedVia,
+      },
+      ...(data.marketing_consent
+        ? [
+            {
+              org_id: data.org_id,
+              customer_id: customerId,
+              phone: data.customer_phone,
+              consent_type: "marketing",
+              given: true,
+              source_channel: data.source,
+              ip_address: req.headers.get("x-forwarded-for"),
+              user_agent: req.headers.get("user-agent"),
+              consent_text_snapshot: data.kvkk_notice_snapshot ?? "",
+              captured_via: capturedVia,
+            },
+          ]
+        : []),
+    ];
+    await adminSupabase.from("customer_consents").insert(consentRows);
   }
 
   // Create appointment — use overrides when multiple services selected

@@ -1,7 +1,7 @@
 export type OrgPlan = "trial" | "starter" | "pro" | "business";
 export type OrgRole = "owner" | "manager" | "staff";
 export type AppointmentStatus = "talep" | "onaylandi" | "tamamlandi" | "iptal" | "gelmedi";
-export type AppointmentSource = "web" | "whatsapp" | "instagram" | "telefon" | "yuzyuze";
+export type AppointmentSource = "web" | "website" | "whatsapp" | "instagram" | "tiktok" | "telefon" | "yuzyuze" | "manual";
 export type CampaignType = "birthday" | "inactive" | "custom";
 export type BadgeType = "superstar" | "speedmaster" | "customer_fav" | "rising_star";
 
@@ -39,6 +39,9 @@ export interface Organization {
   custom_reminder_message: string | null;
   custom_cancellation_message: string | null;
   whatsapp_notifications_enabled: boolean;
+  wa_template_styles: Record<string, string>;
+  wa_reminder_offsets_hours: number[];
+  kvkk_notice_text: string | null;
   settings_json: Record<string, unknown>;
   created_at: string;
   updated_at: string;

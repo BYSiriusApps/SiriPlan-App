@@ -9,6 +9,7 @@ import Link from "next/link";
 import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Customer, Appointment } from "@/types/database";
+import SendKvkkLinkButton from "./SendKvkkLinkButton";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800";
@@ -115,6 +116,7 @@ export default async function MusteriDetailPage({
                       : "verildi"
                     : "yok"}
                 </span>
+                {!c.kvkk_consent && <SendKvkkLinkButton customerId={c.id} phone={c.phone} />}
               </div>
               <div className="flex items-center gap-2">
                 {c.marketing_consent ? (

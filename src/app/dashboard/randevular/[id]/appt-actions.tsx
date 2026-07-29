@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock, Send } from "lucide-react";
 import type { Appointment } from "@/types/database";
 
 interface ApptActionsProps {
@@ -63,6 +63,24 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
 
   async function saveNote() {
     await patch({ internal_note: internalNote }, "note", "Not kaydedildi");
+  }
+
+  async function sendNotify(purpose: "hatirlatma" | "iptal", actionKey: string, successMsg: string) {
+    setLoading(actionKey);
+    const res = await fetch(`/api/appointments/${appt.id}/notify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ purpose }),
+    });
+    const body = await res.json().catch(() => ({}));
+    setLoading(null);
+    if (res.ok && body.sent) {
+      toast.success(successMsg);
+    } else if (res.ok && body.skipped) {
+      toast.error("WhatsApp bağlantısı henüz kurulmadı.");
+    } else {
+      toast.error(body.error || "Gönderilemedi");
+    }
   }
 
   return (
@@ -175,6 +193,37 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
                 İptal Et
               </Button>
             </div>
+
+            {/* Manuel WhatsApp bildirimleri */}
+            {appt.status === "onaylandi" && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => sendNotify("hatirlatma", "notify-reminder", "Hatırlatma gönderildi")}
+                disabled={!!loading}
+              >
+                {loading === "notify-reminder" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
+                Hatırlatmayı Şimdi Gönder
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {appt.status === "iptal" && (
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => sendNotify("iptal", "notify-cancel", "İptal bildirimi yeniden gönderildi")}
+              disabled={!!loading}
+            >
+              {loading === "notify-cancel" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
+              İptal Bildirimini Yeniden Gönder
+            </Button>
           </CardContent>
         </Card>
       )}

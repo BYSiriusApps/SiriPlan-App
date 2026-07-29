@@ -3,6 +3,7 @@ import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAppointment } from "@/lib/notify";
 import { logAppointmentStatusChange } from "@/lib/audit";
+import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -108,13 +109,16 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   // Randevu güncellenince ilgili taraflara bildirim gönder (fire-and-forget)
-  // Sadece saat veya personel değişikliğinde: iç durum güncellemeleri (tamamlandi, iptal, gelmedi)
-  // için bildirim gönderme — onay kanallarını gürültüye boğar.
+  // Sadece saat veya personel değişikliğinde: iç durum güncellemeleri (tamamlandi, gelmedi)
+  // için bildirim gönderme — onay kanallarını gürültüye boğar. İptal ayrı ele alınır.
   const appointmentChanged = updates.appointment_at || updates.staff_id;
-  if (appointmentChanged && data) {
+  const becameCancelled = previous && previous.status !== "iptal" && updates.status === "iptal";
+
+  if (appointmentChanged && data && updates.status !== "iptal") {
     const apptData = data as {
       id: string; org_id: string; customer_name: string; customer_phone: string;
       appointment_at: string; service_id: string; staff_id: string; price: number; note?: string; source?: string;
+      cancel_token?: string;
     };
     notifyAppointment({
       id: apptData.id,
@@ -129,6 +133,32 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       note: apptData.note,
       source: apptData.source,
     }).catch(() => {});
+
+    // Müşteriye Meta onaylı WhatsApp şablonu — randevu revize edildi
+    if (apptData.customer_phone) {
+      const { date, time } = formatApptDateTime(apptData.appointment_at);
+      sendPurposeTemplate({
+        toPhone: apptData.customer_phone,
+        orgId: apptData.org_id,
+        purpose: "revize",
+        vars: { customer_name: apptData.customer_name, new_date: date, new_time: time, appointment_no: apptData.cancel_token },
+      }).catch(() => {});
+    }
+  }
+
+  if (becameCancelled && data) {
+    const apptData = data as {
+      org_id: string; customer_name: string; customer_phone: string; appointment_at: string; cancel_token?: string;
+    };
+    if (apptData.customer_phone) {
+      const { date, time } = formatApptDateTime(apptData.appointment_at);
+      sendPurposeTemplate({
+        toPhone: apptData.customer_phone,
+        orgId: apptData.org_id,
+        purpose: "iptal",
+        vars: { customer_name: apptData.customer_name, date, time, cancel_no: apptData.cancel_token },
+      }).catch(() => {});
+    }
   }
 
   return NextResponse.json({ appointment: data });
@@ -143,7 +173,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
 
   const { data: current } = await supabase
     .from("appointments")
-    .select("status, staff_id, customer_name, appointment_at")
+    .select("status, staff_id, customer_name, customer_phone, appointment_at, cancel_token")
     .eq("id", id)
     .eq("org_id", member.org_id)
     .single();
@@ -172,6 +202,16 @@ export async function DELETE(req: NextRequest, { params }: Params) {
       oldStatus: current.status,
       newStatus: "iptal",
     }).catch(() => {});
+
+    if (current.customer_phone) {
+      const { date, time } = formatApptDateTime(current.appointment_at);
+      sendPurposeTemplate({
+        toPhone: current.customer_phone,
+        orgId: member.org_id,
+        purpose: "iptal",
+        vars: { customer_name: current.customer_name, date, time, cancel_no: current.cancel_token },
+      }).catch(() => {});
+    }
   }
 
   return NextResponse.json({ success: true });

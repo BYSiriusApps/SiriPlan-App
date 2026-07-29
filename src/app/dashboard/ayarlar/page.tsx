@@ -12,10 +12,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, ChevronRight } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Organization } from "@/types/database";
+import type { Organization, OrgPlan } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { DEFAULT_WA_TEMPLATE, WA_TEMPLATE_VARS, renderWaTemplate } from "@/lib/wa-template";
+import {
+  STYLES_BY_PURPOSE,
+  DEFAULT_WA_TEMPLATE_STYLES,
+  WA_REMINDER_OFFSET_PRESETS,
+  buttonVariantForPlan,
+  type WaPurpose,
+  type WaStyle,
+} from "@/lib/wa-templates/registry";
+import { DEFAULT_KVKK_NOTICE_TEMPLATE, renderKvkkNotice } from "@/lib/kvkk";
+
+const STYLE_LABELS: Record<WaStyle, string> = {
+  sicak: "Sıcak",
+  kisa: "Kısa",
+  detayli: "Detaylı",
+  hizmetli: "Hizmet Adı Belirtilen",
+};
+
+const PURPOSE_LABELS: Record<WaPurpose, string> = {
+  onay: "Randevu Onayı",
+  iptal: "Randevu İptali",
+  revize: "Randevu Güncelleme",
+  hatirlatma: "Hatırlatma",
+};
 
 const DAYS = [
   { key: "mon", label: "Pazartesi" },
@@ -97,6 +120,9 @@ export default function AyarlarPage() {
         custom_reminder_message: org.custom_reminder_message,
         custom_cancellation_message: org.custom_cancellation_message,
         whatsapp_notifications_enabled: org.whatsapp_notifications_enabled,
+        wa_template_styles: org.wa_template_styles ?? DEFAULT_WA_TEMPLATE_STYLES,
+        wa_reminder_offsets_hours: org.wa_reminder_offsets_hours ?? [2],
+        kvkk_notice_text: org.kvkk_notice_text,
         settings_json: org.settings_json ?? {},
       })
       .eq("id", org.id!);
@@ -278,6 +304,58 @@ export default function AyarlarPage() {
         </CardContent>
       </Card>
 
+      {/* WhatsApp Meta şablon stilleri (onay/iptal/revize/hatırlatma) */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <MessageCircle className="h-4 w-4 text-green-600" />
+            WhatsApp Şablon Stilleri
+          </CardTitle>
+          <CardDescription>
+            Meta onaylı WhatsApp şablonlarının hangi üslupla gönderileceğini amaç
+            başına seçin. Buton tipi (statik/dinamik) planınıza göre otomatik belirlenir.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {(Object.keys(PURPOSE_LABELS) as WaPurpose[]).map((purpose) => {
+            const styles = STYLES_BY_PURPOSE[purpose];
+            const current = (org.wa_template_styles as Record<string, string> | undefined)?.[purpose]
+              ?? DEFAULT_WA_TEMPLATE_STYLES[purpose];
+            return (
+              <div key={purpose} className="flex items-center justify-between gap-3">
+                <Label className="text-sm">{PURPOSE_LABELS[purpose]}</Label>
+                {styles.length > 1 ? (
+                  <Select
+                    value={current}
+                    onValueChange={(v) => {
+                      const cur = (org.wa_template_styles ?? DEFAULT_WA_TEMPLATE_STYLES) as Record<string, string>;
+                      setField("wa_template_styles", { ...cur, [purpose]: v });
+                    }}
+                  >
+                    <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {styles.map((s) => (
+                        <SelectItem key={s} value={s}>{STYLE_LABELS[s]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <span className="text-sm text-muted-foreground w-44 text-right">{STYLE_LABELS[styles[0]]}</span>
+                )}
+              </div>
+            );
+          })}
+          <div className="p-3 rounded-lg bg-muted/50 text-xs text-muted-foreground">
+            Buton tipi:{" "}
+            <strong>
+              {buttonVariantForPlan((org.plan ?? "starter") as OrgPlan) === "dinamik"
+                ? "Dinamik (randevu detay linki) — Pro/Business planı"
+                : "Statik (siriplan.com) — Starter planı"}
+            </strong>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* WhatsApp Bildirim Ayarları (hatırlatma / iptal) */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
@@ -301,9 +379,33 @@ export default function AyarlarPage() {
             <label htmlFor="whatsapp_notifications_enabled" className="cursor-pointer flex-1">
               <p className="text-sm font-medium">Otomatik WhatsApp hatırlatmaları açık</p>
               <p className="text-xs text-muted-foreground">
-                Kapatırsanız randevu saatine 2 saat kala giden otomatik hatırlatma mesajı gönderilmez.
+                Kapatırsanız aşağıda seçili sürelerde giden otomatik hatırlatma mesajları gönderilmez.
               </p>
             </label>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Hatırlatma randevudan kaç saat önce gönderilsin?</Label>
+            <p className="text-xs text-muted-foreground">Birden fazla seçebilirsiniz — her seçili süre için ayrı bir hatırlatma gider.</p>
+            <div className="flex flex-wrap gap-3 pt-1">
+              {WA_REMINDER_OFFSET_PRESETS.map((h) => {
+                const offsets = (org.wa_reminder_offsets_hours as number[] | undefined) ?? [2];
+                const checked = offsets.includes(h);
+                return (
+                  <label key={h} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(c) => {
+                        const cur = (org.wa_reminder_offsets_hours as number[] | undefined) ?? [2];
+                        const next = c ? [...cur, h] : cur.filter((x) => x !== h);
+                        setField("wa_reminder_offsets_hours", next.sort((a, b) => a - b));
+                      }}
+                    />
+                    {h < 24 ? `${h} saat önce` : `${h / 24} gün önce`}
+                  </label>
+                );
+              })}
+            </div>
           </div>
 
           <div className="space-y-1.5">
@@ -338,6 +440,34 @@ export default function AyarlarPage() {
             Meta WhatsApp kuralları gereği bu mesajlar önceden onaylı şablon üzerinden gider —
             yukarıdaki not şablonun son değişkenine ({"{{5}}"}) dinamik olarak eklenir.
           </p>
+        </CardContent>
+      </Card>
+
+      {/* KVKK / Yasal Bildirim */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            KVKK / Yasal Bildirim
+          </CardTitle>
+          <CardDescription>
+            Müşterilerinize randevu alırken gösterilecek KVKK aydınlatma metni. Boş
+            bırakırsanız platform varsayılan metni kullanılır.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <textarea
+            className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[110px] bg-background"
+            value={org.kvkk_notice_text ?? ""}
+            onChange={(e) => setField("kvkk_notice_text", e.target.value)}
+            placeholder={DEFAULT_KVKK_NOTICE_TEMPLATE.replaceAll("{salon}", org.name || "Salonunuz")}
+          />
+          <div className="p-3 rounded-lg bg-muted/50 border border-border">
+            <p className="text-[11px] font-medium text-muted-foreground mb-1">Müşteriye gösterilecek metin:</p>
+            <p className="text-xs text-muted-foreground italic">
+              {renderKvkkNotice(org.kvkk_notice_text, org.name || "Salonunuz")}
+            </p>
+          </div>
         </CardContent>
       </Card>
 

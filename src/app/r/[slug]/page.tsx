@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { format, addDays } from "date-fns";
 import { tr } from "date-fns/locale";
 import type { Service, Staff, Organization } from "@/types/database";
+import { renderKvkkNotice } from "@/lib/kvkk";
 
 const STEPS = ["Hizmet Seç", "Personel & Saat", "Bilgilerini Gir"];
 
@@ -34,6 +35,9 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
   const [form, setForm] = useState({
     name: "", phone: "", email: "", note: "",
   });
+  const [kvkkAccepted, setKvkkAccepted] = useState(false);
+  const [marketingAccepted, setMarketingAccepted] = useState(false);
+  const [showKvkkText, setShowKvkkText] = useState(false);
 
   // Load org data
   useEffect(() => {
@@ -58,7 +62,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
   }, [selectedStaff, selectedService, selectedDate, org]);
 
   async function handleSubmit() {
-    if (!org || !selectedService || !selectedStaff || !selectedDate || !selectedSlot) return;
+    if (!org || !selectedService || !selectedStaff || !selectedDate || !selectedSlot || !kvkkAccepted) return;
     setSubmitting(true);
     const appointmentAt = new Date(`${selectedDate}T${selectedSlot}:00`).toISOString();
     const res = await fetch("/api/appointments", {
@@ -74,6 +78,9 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
         appointment_at: appointmentAt,
         note: form.note || undefined,
         source: "web",
+        kvkk_consent: kvkkAccepted,
+        marketing_consent: marketingAccepted,
+        kvkk_notice_snapshot: renderKvkkNotice(org.kvkk_notice_text, org.name),
       }),
     });
     if (res.ok) {
@@ -362,10 +369,41 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
               </div>
             </div>
 
+            <div className="space-y-2 p-3 rounded-xl bg-muted/50">
+              <label className="flex items-start gap-2 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="mt-0.5"
+                  checked={kvkkAccepted}
+                  onChange={(e) => setKvkkAccepted(e.target.checked)}
+                />
+                <span>
+                  <button type="button" className="text-primary underline" onClick={(e) => { e.preventDefault(); setShowKvkkText((v) => !v); }}>
+                    KVKK Aydınlatma Metni
+                  </button>
+                  {"'ni okudum, onaylıyorum. *"}
+                </span>
+              </label>
+              {showKvkkText && (
+                <p className="text-[11px] text-muted-foreground border-t pt-2">
+                  {renderKvkkNotice(org.kvkk_notice_text, org.name)}
+                </p>
+              )}
+              <label className="flex items-start gap-2 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="mt-0.5"
+                  checked={marketingAccepted}
+                  onChange={(e) => setMarketingAccepted(e.target.checked)}
+                />
+                <span>Kampanya ve fırsatlardan haberdar olmak istiyorum (opsiyonel)</span>
+              </label>
+            </div>
+
             <Button
               className="w-full"
               onClick={handleSubmit}
-              disabled={!form.name || !form.phone || submitting}
+              disabled={!form.name || !form.phone || !kvkkAccepted || submitting}
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Randevuyu Onayla

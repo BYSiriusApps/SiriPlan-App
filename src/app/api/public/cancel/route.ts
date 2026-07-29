@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 
 export const runtime = "nodejs";
 
@@ -8,9 +9,12 @@ const TOKEN_RE = /^[a-f0-9]{16,64}$/i;
 
 type ApptRow = {
   id: string;
+  org_id: string;
   status: string;
   appointment_at: string;
   customer_name: string;
+  customer_phone: string;
+  cancel_token: string;
   organizations?: { name: string } | null;
   staff?: { full_name: string } | null;
   service?: { name: string } | null;
@@ -20,7 +24,7 @@ async function findByToken(token: string) {
   const supabase = await createAdminClient();
   const { data } = await supabase
     .from("appointments")
-    .select("id, status, appointment_at, customer_name, organizations(name), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+    .select("id, org_id, status, appointment_at, customer_name, customer_phone, cancel_token, organizations(name), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
     .eq("cancel_token", token)
     .single();
   return { supabase, appt: data as unknown as ApptRow | null };
@@ -79,6 +83,16 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: "İptal işlemi başarısız oldu." }, { status: 500 });
+  }
+
+  if (appt.customer_phone) {
+    const { date, time } = formatApptDateTime(appt.appointment_at);
+    sendPurposeTemplate({
+      toPhone: appt.customer_phone,
+      orgId: appt.org_id,
+      purpose: "iptal",
+      vars: { customer_name: appt.customer_name, date, time, cancel_no: appt.cancel_token },
+    }).catch(() => {});
   }
 
   return NextResponse.json({ success: true });

@@ -1,39 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sendPurposeTemplate } from "@/lib/wa-templates/send";
+import type { WaParamSource, WaPurpose } from "@/lib/wa-templates/registry";
 
 export const runtime = "nodejs";
 
 /**
  * Supabase pg_cron + pg_net tarafından her 5 dakikada bir tetiklenir
- * (bkz. migration 016). Tek bir platform WhatsApp Business numarası
- * (WHATSAPP_TOKEN / WHATSAPP_PHONE_ID) üzerinden, Meta'da onaylı bir
- * şablon mesajı gönderir — Meta kuralları gereği işletme başlatımlı
- * mesajlar serbest metin değil onaylı şablon olmak zorunda:
- *
- *   "Sayın {{1}}, {{2}} salonundaki {{3}} tarihli randevunuz {{4}}. Detay: {{5}}"
- *   {{1}} customer_name  {{2}} salon_name  {{3}} appointment_date
- *   {{4}} status_type    {{5}} custom_note
- *
- * WHATSAPP_TEMPLATE_NAME env'i henüz ayarlanmadıysa veya Meta
- * kimlik bilgileri eksikse, hata fırlatmak yerine {skipped:true}
- * döner — WhatsApp numarası bağlanana kadar cron sessizce boşa
- * dönmüş olur, hatalar birikip alarm oluşturmaz.
+ * (bkz. migration 017) — hatırlatma gönderimi için. Ayrıca panel
+ * tarafındaki iptal/revize/manuel-gönder tetikleyicileri de aynı
+ * HTTP sözleşmesini kullanabilir. Gerçek gönderim mantığı
+ * src/lib/wa-templates/send.ts'de (sendPurposeTemplate) tek yerde yaşar.
  */
 
 interface SendTemplateBody {
   to_phone: string;
-  customer_name: string;
-  salon_name: string;
-  appointment_date: string;
-  status_type: string;
-  custom_note?: string;
-}
-
-function normalizePhone(phone: string): string {
-  const digits = (phone || "").replace(/\D/g, "");
-  if (digits.startsWith("90")) return digits;
-  if (digits.startsWith("0")) return "90" + digits.slice(1);
-  if (digits.length === 10) return "90" + digits;
-  return digits;
+  org_id: string;
+  purpose: WaPurpose;
+  vars: Partial<Record<WaParamSource, string>>;
 }
 
 export async function POST(req: NextRequest) {
@@ -42,55 +25,16 @@ export async function POST(req: NextRequest) {
   }
 
   const body = (await req.json()) as Partial<SendTemplateBody>;
-  const { to_phone, customer_name, salon_name, appointment_date, status_type, custom_note } = body;
+  const { to_phone, org_id, purpose, vars } = body;
 
-  if (!to_phone || !customer_name || !salon_name || !appointment_date || !status_type) {
+  if (!to_phone || !org_id || !purpose || !vars) {
     return NextResponse.json({ error: "Eksik parametre" }, { status: 400 });
   }
 
-  const token = process.env.WHATSAPP_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_ID;
-  const templateName = process.env.WHATSAPP_TEMPLATE_NAME;
+  const result = await sendPurposeTemplate({ toPhone: to_phone, orgId: org_id, purpose, vars });
 
-  if (!token || !phoneId || !templateName) {
-    return NextResponse.json({ skipped: true, reason: "whatsapp_not_configured" });
+  if ("error" in result) {
+    return NextResponse.json(result, { status: 502 });
   }
-
-  const to = normalizePhone(to_phone);
-
-  const res = await fetch(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      to,
-      type: "template",
-      template: {
-        name: templateName,
-        language: { code: "tr" },
-        components: [
-          {
-            type: "body",
-            parameters: [
-              { type: "text", text: customer_name },
-              { type: "text", text: salon_name },
-              { type: "text", text: appointment_date },
-              { type: "text", text: status_type },
-              { type: "text", text: custom_note || "" },
-            ],
-          },
-        ],
-      },
-    }),
-  });
-
-  if (!res.ok) {
-    const errText = await res.text().catch(() => "");
-    return NextResponse.json({ error: "Meta API hatası", detail: errText }, { status: 502 });
-  }
-
-  return NextResponse.json({ sent: true });
+  return NextResponse.json(result);
 }
