@@ -62,8 +62,7 @@ export function OrgSwitcher({ activeOrgId, memberships }: Props) {
       <DropdownMenuTrigger
         render={
           <button
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-white/60 hover:text-white/90 transition-colors"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors bg-sidebar-accent/30 border border-sidebar-border"
           />
         }
       >

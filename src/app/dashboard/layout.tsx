@@ -49,7 +49,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
 
         {/* Main content — add bottom padding on mobile for nav bar */}
-        <main className="flex-1 overflow-auto pb-16 md:pb-0">
+        <main className="dashboard-shell flex-1 overflow-auto pb-16 md:pb-0">
           {children}
         </main>
 

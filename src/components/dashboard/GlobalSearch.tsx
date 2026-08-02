@@ -80,53 +80,39 @@ export function GlobalSearch() {
   return (
     <div ref={containerRef} className="relative px-3 pb-2">
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none"
-          style={{ color: "rgba(255,255,255,0.3)" }} />
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none text-sidebar-foreground/40" />
         <input
           ref={inputRef}
           type="text"
           value={query}
           placeholder="Ara… (Ctrl+K)"
-          className="w-full pl-8 pr-7 py-1.5 text-xs rounded-lg outline-none transition-all"
-          style={{
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.09)",
-            color: "rgba(255,255,255,0.85)",
-          }}
+          className="w-full pl-8 pr-7 py-1.5 text-xs rounded-lg outline-none transition-all bg-sidebar-accent/40 border border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/40"
           onFocus={() => setOpen(true)}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
         />
         {query && (
           <button
             onClick={() => { setQuery(""); setResults(null); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2"
-            style={{ color: "rgba(255,255,255,0.3)" }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-sidebar-foreground/40 hover:text-sidebar-foreground/70"
           >
             <X className="h-3 w-3" />
           </button>
         )}
         {loading && !query && (
-          <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin"
-            style={{ color: "rgba(255,255,255,0.3)" }} />
+          <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin text-sidebar-foreground/40" />
         )}
       </div>
 
       {open && query.length > 0 && (
-        <div
-          className="absolute left-3 right-3 mt-1 rounded-xl overflow-hidden z-[200] shadow-2xl"
-          style={{
-            background: "#16181f",
-            border: "1px solid rgba(255,255,255,0.1)",
-          }}
-        >
+        <div className="absolute left-3 right-3 mt-1 rounded-xl overflow-hidden z-[200] shadow-2xl bg-popover border border-border">
           {loading && (
             <div className="flex items-center justify-center py-4">
-              <Loader2 className="h-4 w-4 animate-spin" style={{ color: "rgba(255,255,255,0.4)" }} />
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             </div>
           )}
 
           {!loading && noResults && (
-            <p className="text-xs text-center py-4" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <p className="text-xs text-center py-4 text-muted-foreground">
               Sonuç bulunamadı
             </p>
           )}
@@ -135,18 +121,14 @@ export function GlobalSearch() {
             <div className="max-h-72 overflow-y-auto py-1">
               {results.customers.length > 0 && (
                 <>
-                  <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider"
-                    style={{ color: "rgba(255,255,255,0.3)" }}>
+                  <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Müşteriler
                   </p>
                   {results.customers.map((c) => (
                     <button
                       key={c.id}
                       onClick={() => go(`/dashboard/musteriler/${c.id}`)}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors"
-                      style={{ color: "rgba(255,255,255,0.75)" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.07)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors text-popover-foreground hover:bg-accent"
                     >
                       <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
                         style={{ background: "rgba(99,102,241,0.2)" }}>
@@ -154,7 +136,7 @@ export function GlobalSearch() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-medium truncate">{c.full_name}</p>
-                        {c.phone && <p className="text-[10px] truncate" style={{ color: "rgba(255,255,255,0.35)" }}>{c.phone}</p>}
+                        {c.phone && <p className="text-[10px] truncate text-muted-foreground">{c.phone}</p>}
                       </div>
                     </button>
                   ))}
@@ -163,18 +145,14 @@ export function GlobalSearch() {
 
               {results.staff.length > 0 && (
                 <>
-                  <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider"
-                    style={{ color: "rgba(255,255,255,0.3)" }}>
+                  <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Personel
                   </p>
                   {results.staff.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => go(`/dashboard/personel/${s.id}`)}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors"
-                      style={{ color: "rgba(255,255,255,0.75)" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.07)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors text-popover-foreground hover:bg-accent"
                     >
                       <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
                         style={{ background: "rgba(168,85,247,0.2)" }}>
@@ -182,7 +160,7 @@ export function GlobalSearch() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-medium truncate">{s.full_name}</p>
-                        <p className="text-[10px] truncate" style={{ color: "rgba(255,255,255,0.35)" }}>{s.role}</p>
+                        <p className="text-[10px] truncate text-muted-foreground">{s.role}</p>
                       </div>
                     </button>
                   ))}
@@ -191,18 +169,14 @@ export function GlobalSearch() {
 
               {results.services.length > 0 && (
                 <>
-                  <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider"
-                    style={{ color: "rgba(255,255,255,0.3)" }}>
+                  <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Hizmetler
                   </p>
                   {results.services.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => go(`/dashboard/hizmetler`)}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors"
-                      style={{ color: "rgba(255,255,255,0.75)" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.07)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors text-popover-foreground hover:bg-accent"
                     >
                       <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
                         style={{ background: "rgba(236,72,153,0.2)" }}>
@@ -210,7 +184,7 @@ export function GlobalSearch() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-medium truncate">{s.name}</p>
-                        <p className="text-[10px] truncate" style={{ color: "rgba(255,255,255,0.35)" }}>
+                        <p className="text-[10px] truncate text-muted-foreground">
                           ₺{Number(s.price).toLocaleString("tr-TR")} · {s.duration_minutes} dk
                         </p>
                       </div>

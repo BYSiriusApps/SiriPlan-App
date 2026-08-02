@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { Button } from "@/components/ui/button";
 import { Smartphone, Share, PlusSquare, MonitorSmartphone, CheckCircle2 } from "lucide-react";
 
@@ -47,18 +47,18 @@ export function InstallPwaCard() {
   }
 
   return (
-    <Card className="border-0 shadow-sm">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <MonitorSmartphone className="h-4 w-4 text-primary" />
+    <GlassCard3D className="glass-card" glow intensity={3}>
+      <div className="panel-header">
+        <span className="flex items-center gap-2 text-[13px] font-bold tracking-wider uppercase text-primary">
+          <MonitorSmartphone className="h-4 w-4" />
           Uygulamayı Telefona Ekle (Widget)
-        </CardTitle>
-        <CardDescription>
+        </span>
+      </div>
+      <div className="px-4 py-3.5 space-y-3">
+        <p className="text-xs text-muted-foreground -mt-1">
           App Store / Google Play&apos;e kadar Siriplan&apos;ı ana ekranınıza ekleyip
           uygulama gibi tam ekran kullanabilirsiniz. Personelinize de önerin.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
+        </p>
         {installed ? (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 dark:bg-green-950/20 text-sm text-green-700 dark:text-green-400">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
@@ -100,7 +100,7 @@ export function InstallPwaCard() {
             </p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </GlassCard3D>
   );
 }

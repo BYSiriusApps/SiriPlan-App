@@ -49,6 +49,9 @@
   --color-brand-rose: var(--brand-rose);
   --color-brand-gold: var(--brand-gold);
   --color-brand-plum: var(--brand-plum);
+  /* Dashboard-only font pairing (Pembe Rose visual language) */
+  --font-dashboard-heading: var(--font-playfair);
+  --font-dashboard-body: var(--font-jakarta);
 }
 
 /* ─── BySirius Beauty Platform — Light Mode ─────────────────────────── */
@@ -411,6 +414,16 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* ─── Dashboard font pairing scope — Playfair başlık, Jakarta gövde ──── */
+.dashboard-shell {
+  font-family: var(--font-dashboard-body), var(--font-sans);
+}
+
+.dashboard-shell :where(h1, h2, h3) {
+  font-family: var(--font-dashboard-heading), serif;
+  letter-spacing: -0.01em;
 }
 
 /* ─── 3D Glass Dashboard System ─────────────────────────────────────── */

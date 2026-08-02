@@ -26,7 +26,7 @@ export function MobileNav({ role = "staff" }: { role?: string }) {
   const visible = MOBILE_NAV.filter(item => userRank >= (ROLE_RANK[item.minRole] ?? 0));
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden bg-card border-t border-border safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden bg-sidebar border-t border-sidebar-border safe-bottom">
       {visible.map((item) => {
         const Icon = item.icon;
         const isActive =

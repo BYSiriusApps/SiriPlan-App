@@ -40,12 +40,12 @@ function normalizePhone(input: string): string {
  * signInWithPassword akışı çalışır (şifre yanlışsa e-posta sızmaz).
  */
 export async function POST(req: NextRequest) {
-  const { identifier, password } = await req.json().catch(() => ({}));
+  const { identifier, password, rememberMe } = await req.json().catch(() => ({}));
   if (!identifier || !password) {
     return NextResponse.json({ error: "E-posta/telefon ve şifre gerekli" }, { status: 400 });
   }
 
-  const supabase = await createClient();
+  const supabase = await createClient({ persistSession: rememberMe !== false });
 
   const candidates: string[] = [];
 

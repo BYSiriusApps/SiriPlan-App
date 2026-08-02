@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Mail, Lock, Zap } from "lucide-react";
 import { toast } from "sonner";
@@ -14,15 +15,16 @@ export default function GirisPage() {
   const [demoLoading, setDemoLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
 
-  async function doLogin(identifier: string, p: string) {
+  async function doLogin(identifier: string, p: string, remember = true) {
     // E-posta veya telefon kabul eden sunucu taraflı giriş.
     // Cookie'ler sunucuda set edilir; hard redirect ile ilk istekte gönderilir.
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier: identifier.trim(), password: p }),
+        body: JSON.stringify({ identifier: identifier.trim(), password: p, rememberMe: remember }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -40,13 +42,13 @@ export default function GirisPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await doLogin(email, password);
+    await doLogin(email, password, rememberMe);
     setLoading(false);
   }
 
   async function handleDemoLogin() {
     setDemoLoading(true);
-    const ok = await doLogin("demo@siriplan.com", "Demo1234!");
+    const ok = await doLogin("demo@siriplan.com", "Demo1234!", true);
     if (!ok) setDemoLoading(false);
   }
 
@@ -126,6 +128,16 @@ export default function GirisPage() {
                 required
               />
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="remember-me"
+              checked={rememberMe}
+              onCheckedChange={setRememberMe}
+            />
+            <Label htmlFor="remember-me" className="text-sm font-normal cursor-pointer">
+              Beni hatırla
+            </Label>
           </div>
           <Button type="submit" className="w-full" disabled={loading || demoLoading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
