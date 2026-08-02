@@ -25,6 +25,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
   const [staff, setStaff] = useState<Staff[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+  const [anyStaff, setAnyStaff] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedSlot, setSelectedSlot] = useState<string>("");
   const [slots, setSlots] = useState<string[]>([]);
@@ -46,23 +47,34 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
       .then(({ data }) => {
         if (!data) return;
         setOrg(data as Organization);
-        setServices((data.services || []).filter((s: Service) => s.is_active));
+        setServices((data.services || []).filter((s: Service) => s.is_active && s.is_bookable_online !== false));
         setStaff((data.staff || []).filter((s: Staff) => s.is_active));
       });
   }, [slug]);
 
-  // Load available slots when date/staff/service changes
+  // Load available slots when date/staff/service changes — "Farketmez" seçiliyse
+  // tüm personelin müsaitliğini birleştirip (union) tek bir saat listesi gösterir.
   useEffect(() => {
-    if (!selectedStaff || !selectedService || !selectedDate || !org) return;
+    if ((!selectedStaff && !anyStaff) || !selectedService || !selectedDate || !org) return;
     setLoadingSlots(true);
-    fetch(`/api/availability?slug=${org.slug}&staff_id=${selectedStaff.id}&service_id=${selectedService.id}&date=${selectedDate}`)
-      .then((r) => r.json())
-      .then((d) => setSlots(d.slots || []))
+    const candidateStaff = anyStaff ? staff : selectedStaff ? [selectedStaff] : [];
+    Promise.all(
+      candidateStaff.map((s) =>
+        fetch(`/api/availability?slug=${org.slug}&staff_id=${s.id}&service_id=${selectedService.id}&date=${selectedDate}`)
+          .then((r) => r.json())
+          .then((d) => (d.slots as string[] | undefined) || [])
+          .catch(() => [])
+      )
+    )
+      .then((lists) => {
+        const merged = Array.from(new Set(lists.flat())).sort();
+        setSlots(merged);
+      })
       .finally(() => setLoadingSlots(false));
-  }, [selectedStaff, selectedService, selectedDate, org]);
+  }, [selectedStaff, anyStaff, staff, selectedService, selectedDate, org]);
 
   async function handleSubmit() {
-    if (!org || !selectedService || !selectedStaff || !selectedDate || !selectedSlot || !kvkkAccepted) return;
+    if (!org || !selectedService || (!selectedStaff && !anyStaff) || !selectedDate || !selectedSlot || !kvkkAccepted) return;
     setSubmitting(true);
     const appointmentAt = new Date(`${selectedDate}T${selectedSlot}:00`).toISOString();
     const res = await fetch("/api/appointments", {
@@ -73,7 +85,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
         customer_name: form.name,
         customer_phone: form.phone,
         customer_email: form.email || undefined,
-        staff_id: selectedStaff.id,
+        ...(anyStaff ? { auto_assign_staff: true } : { staff_id: selectedStaff!.id }),
         service_id: selectedService.id,
         appointment_at: appointmentAt,
         note: form.note || undefined,
@@ -125,7 +137,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
               <p><span className="text-muted-foreground">Salon:</span> {org.name}</p>
               <p><span className="text-muted-foreground">Tarih:</span> {selectedDate && format(new Date(selectedDate + "T12:00:00"), "d MMMM yyyy, EEEE", { locale: tr })}</p>
               <p><span className="text-muted-foreground">Saat:</span> {selectedSlot}</p>
-              <p><span className="text-muted-foreground">Personel:</span> {selectedStaff?.full_name}</p>
+              <p><span className="text-muted-foreground">Personel:</span> {anyStaff ? "Otomatik atanacak" : selectedStaff?.full_name}</p>
               <p><span className="text-muted-foreground">Hizmet:</span> {selectedService?.name}</p>
             </div>
             <p className="text-xs text-muted-foreground">WhatsApp hatırlatması gönderilecek.</p>
@@ -226,12 +238,28 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
             <div>
               <p className="text-sm font-medium mb-2">Personel Seçin</p>
               <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => { setAnyStaff(true); setSelectedStaff(null); setSelectedSlot(""); }}
+                  className={`p-3 rounded-xl border-2 text-left transition-all ${
+                    anyStaff ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-semibold text-primary text-sm">
+                      ?
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Farketmez</p>
+                      <p className="text-xs text-muted-foreground">Uygun ilk personel</p>
+                    </div>
+                  </div>
+                </button>
                 {staff.map((s) => (
                   <button
                     key={s.id}
-                    onClick={() => { setSelectedStaff(s); setSelectedSlot(""); }}
+                    onClick={() => { setAnyStaff(false); setSelectedStaff(s); setSelectedSlot(""); }}
                     className={`p-3 rounded-xl border-2 text-left transition-all ${
-                      selectedStaff?.id === s.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                      !anyStaff && selectedStaff?.id === s.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -249,7 +277,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
             </div>
 
             {/* Date selection */}
-            {selectedStaff && (
+            {(selectedStaff || anyStaff) && (
               <div>
                 <p className="text-sm font-medium mb-2">Tarih Seçin</p>
                 <div className="flex gap-2 overflow-x-auto pb-2">
@@ -269,7 +297,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
             )}
 
             {/* Time slots */}
-            {selectedDate && selectedStaff && (
+            {selectedDate && (selectedStaff || anyStaff) && (
               <div>
                 <p className="text-sm font-medium mb-2">Saat Seçin</p>
                 {loadingSlots ? (
@@ -324,7 +352,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                 <span className="font-semibold text-foreground">{selectedSlot}</span>
               </div>
               <p><span className="text-muted-foreground">Hizmet:</span> {selectedService?.name}</p>
-              <p><span className="text-muted-foreground">Personel:</span> {selectedStaff?.full_name}</p>
+              <p><span className="text-muted-foreground">Personel:</span> {anyStaff ? "Otomatik atanacak" : selectedStaff?.full_name}</p>
               <p className="font-bold text-primary">₺{Number(selectedService?.price || 0).toLocaleString("tr-TR")}</p>
             </div>
 

@@ -63,6 +63,12 @@ function hexToRgba(hex: string, alpha: number) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
 }
 
+interface TimeOff {
+  staff_id: string | null; // null = işletme geneli kapalı gün
+  starts_on: string;       // yyyy-MM-dd
+  ends_on: string;
+}
+
 interface Props {
   view: CalendarView;
   label: string;
@@ -75,6 +81,7 @@ interface Props {
   orgId: string;
   staff: Staff[];
   appointments: Appointment[];
+  timeOff: TimeOff[];
   lockedStaffId: string | null; // staff rolü: sadece kendi randevuları
 }
 
@@ -121,7 +128,7 @@ function layoutDay(appts: Appointment[]): Positioned[] {
 
 export function UnifiedCalendar({
   view, label, viewDate, prevDate, nextDate, gridDays, today,
-  hours, orgId, staff, appointments, lockedStaffId,
+  hours, orgId, staff, appointments, timeOff, lockedStaffId,
 }: Props) {
   const router = useRouter();
   const t = useTranslations("dashboard");
@@ -170,6 +177,22 @@ export function UnifiedCalendar({
     const map = new Map(staff.map((s) => [s.id, s.full_name]));
     return (id: string) => map.get(id) ?? "";
   }, [staff]);
+
+  // Bir günde işletme geneli kapalı mı, hangi personel izinli?
+  const orgClosedOn = useMemo(
+    () => (dayStr: string) => timeOff.some((t) => t.staff_id === null && t.starts_on <= dayStr && t.ends_on >= dayStr),
+    [timeOff]
+  );
+  const staffOffOn = useMemo(
+    () => (dayStr: string, staffId: string) =>
+      timeOff.some((t) => t.staff_id === staffId && t.starts_on <= dayStr && t.ends_on >= dayStr),
+    [timeOff]
+  );
+  const offStaffNamesOn = useMemo(
+    () => (dayStr: string) =>
+      staff.filter((s) => staffOffOn(dayStr, s.id)).map((s) => s.full_name),
+    [staff, staffOffOn]
+  );
 
   // Supabase Realtime: dışarıdan eklenen/güncellenen randevuları yakala.
   // Realtime salt bir "canlı yenile" kolaylığı — CSP/ağ/tarayıcı engellerse
@@ -255,11 +278,120 @@ export function UnifiedCalendar({
   function openPopover(e: React.MouseEvent, appt: Appointment) {
     e.preventDefault();
     e.stopPropagation();
+    if (justDraggedRef.current) {
+      justDraggedRef.current = false;
+      return;
+    }
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setPopover({ appt, x: rect.right + 8, y: rect.top });
   }
 
   const gridHeight = hours.length * HOUR_PX;
+
+  // ── Sürükle-bırak: randevuyu farklı bir saate (hafta/gün görünümü) veya
+  // farklı bir güne (yalnızca hafta görünümü) taşımak için. Personel/lane
+  // değişmez — kapsamı büyütmemek için o kısım popover/düzenleme formunda kalır.
+  const justDraggedRef = useRef(false);
+  const columnRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const dragRef = useRef<{
+    apptId: string;
+    pointerId: number;
+    startClientX: number;
+    startClientY: number;
+    origAt: string;
+    dayIndex: number;
+    dragging: boolean;
+    pendingDate: Date | null;
+    pendingDayIndex: number;
+  } | null>(null);
+  const [dragPreview, setDragPreview] = useState<{ apptId: string; dayIndex: number; top: number; height: number; label: string } | null>(null);
+
+  function onApptPointerDown(e: React.PointerEvent, appt: Appointment, dayIndex: number) {
+    if (view === "month") return;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = {
+      apptId: appt.id,
+      pointerId: e.pointerId,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      origAt: appt.appointment_at,
+      dayIndex,
+      dragging: false,
+      pendingDate: null,
+      pendingDayIndex: dayIndex,
+    };
+  }
+
+  function onApptPointerMove(e: React.PointerEvent, appt: Appointment, height: number) {
+    const d = dragRef.current;
+    if (!d || d.pointerId !== e.pointerId || d.apptId !== appt.id) return;
+    const dx = e.clientX - d.startClientX;
+    const dy = e.clientY - d.startClientY;
+    if (!d.dragging && Math.hypot(dx, dy) < 6) return;
+    d.dragging = true;
+
+    const rawMinDelta = (dy / HOUR_PX) * 60;
+    const snappedMinDelta = Math.round(rawMinDelta / 15) * 15;
+
+    let newDayIndex = d.dayIndex;
+    if (view === "week") {
+      const idx = columnRefs.current.findIndex((el) => {
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        return e.clientX >= r.left && e.clientX < r.right;
+      });
+      if (idx !== -1) newDayIndex = idx;
+    }
+
+    const origStart = new Date(d.origAt);
+    const totalMinAtDay = origStart.getHours() * 60 + origStart.getMinutes() + snappedMinDelta;
+    const baseDayStr = view === "week" ? gridDays[newDayIndex] : format(origStart, "yyyy-MM-dd");
+    const newDate = new Date(baseDayStr + "T00:00:00");
+    newDate.setMinutes(totalMinAtDay);
+
+    d.pendingDate = newDate;
+    d.pendingDayIndex = newDayIndex;
+
+    const previewMin = newDate.getHours() * 60 + newDate.getMinutes();
+    const rawTop = ((previewMin - hours[0] * 60) / 60) * HOUR_PX;
+    const top = Math.min(Math.max(rawTop, 0), gridHeight - 24);
+    setDragPreview({
+      apptId: appt.id,
+      dayIndex: newDayIndex,
+      top,
+      height: Math.min(height, gridHeight - top),
+      label: format(newDate, "HH:mm"),
+    });
+  }
+
+  async function onApptPointerUp(e: React.PointerEvent, appt: Appointment) {
+    const d = dragRef.current;
+    if (!d || d.pointerId !== e.pointerId || d.apptId !== appt.id) return;
+    dragRef.current = null;
+    setDragPreview(null);
+    if (!d.dragging || !d.pendingDate) return;
+    justDraggedRef.current = true;
+
+    if (d.pendingDate.getTime() === new Date(d.origAt).getTime()) return;
+
+    setUpdatingId(appt.id);
+    try {
+      const res = await fetch(`/api/appointments/${appt.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointment_at: d.pendingDate.toISOString() }),
+      });
+      if (res.ok) {
+        toast.success("Randevu saati güncellendi");
+        startTransition(() => router.refresh());
+      } else {
+        const err = await res.json();
+        toast.error(err.error || t("updateFailed"));
+      }
+    } finally {
+      setUpdatingId(null);
+    }
+  }
 
   // Dakikada bir tazelenen "şimdi" — devam eden randevu ve kırmızı çizgi için
   const [now, setNow] = useState(() => new Date());
@@ -311,7 +443,7 @@ export function UnifiedCalendar({
     return { top, height: Math.min(height, gridHeight - top) };
   }
 
-  function renderApptBlock(p: Positioned, opts?: { showStaff?: boolean }) {
+  function renderApptBlock(p: Positioned, opts?: { showStaff?: boolean; dayIndex?: number }) {
     const { appt, lane, lanes } = p;
     const c = colorOf(appt.staff_id);
     const { top, height } = apptBlockStyle(appt);
@@ -320,11 +452,16 @@ export function UnifiedCalendar({
     const noShow = appt.status === "gelmedi";
     const pending = appt.status === "talep";
     const live = isLive(appt);
+    const beingDragged = dragPreview?.apptId === appt.id;
 
     return (
       <button
         key={appt.id}
         onClick={(e) => openPopover(e, appt)}
+        onPointerDown={(e) => onApptPointerDown(e, appt, opts?.dayIndex ?? 0)}
+        onPointerMove={(e) => onApptPointerMove(e, appt, height)}
+        onPointerUp={(e) => onApptPointerUp(e, appt)}
+        onPointerCancel={() => { dragRef.current = null; setDragPreview(null); }}
         style={{
           top, height,
           left: `calc(${lane * width}% + 2px)`,
@@ -334,11 +471,12 @@ export function UnifiedCalendar({
           borderTop: `1px solid ${live ? c.solid : c.border}`,
           borderRight: `1px solid ${live ? c.solid : c.border}`,
           borderBottom: `1px solid ${live ? c.solid : c.border}`,
-          opacity: 1,
+          opacity: beingDragged ? 0.35 : 1,
           boxShadow: live ? `0 0 0 1px ${c.solid}, 0 2px 10px ${c.border}` : undefined,
+          touchAction: view === "month" ? undefined : "none",
         }}
         className={cn(
-          "absolute rounded-md px-1 py-0.5 text-[10px] leading-tight overflow-hidden cursor-pointer hover:shadow-md transition-shadow text-left z-10",
+          "absolute rounded-md px-1 py-0.5 text-[10px] leading-tight overflow-hidden cursor-pointer hover:shadow-md transition-shadow text-left z-10 select-none",
           pending && "border-dashed"
         )}
       >
@@ -510,17 +648,24 @@ export function UnifiedCalendar({
           <div className="overflow-x-auto">
             <div className="grid min-w-[760px]" style={{ gridTemplateColumns: `48px repeat(7, 1fr)` }}>
               {hourRail}
-              {gridDays.map((dayStr) => {
+              {gridDays.map((dayStr, dayIndex) => {
                 const dayAppts = byDay[dayStr] || [];
                 const positioned = layoutDay(dayAppts);
                 const isToday = dayStr === today;
+                const closed = orgClosedOn(dayStr);
+                const offNames = offStaffNamesOn(dayStr);
                 return (
-                  <div key={dayStr} className="border-r last:border-r-0 min-w-0">
+                  <div
+                    key={dayStr}
+                    ref={(el) => { columnRefs.current[dayIndex] = el; }}
+                    className="border-r last:border-r-0 min-w-0"
+                  >
                     <Link
                       href={`/dashboard/takvim?view=day&date=${dayStr}`}
                       className={cn(
                         "h-10 border-b flex flex-col items-center justify-center text-xs font-medium hover:bg-accent transition-colors",
-                        isToday && "bg-primary/10 text-primary"
+                        isToday && "bg-primary/10 text-primary",
+                        closed && "bg-red-50 dark:bg-red-950/20"
                       )}
                     >
                       <span className="capitalize">{format(new Date(dayStr + "T12:00:00"), "EEE", { locale: dateFnsLocale })}</span>
@@ -528,11 +673,24 @@ export function UnifiedCalendar({
                         {format(new Date(dayStr + "T12:00:00"), "d MMM", { locale: dateFnsLocale })}
                       </span>
                     </Link>
+                    {(closed || offNames.length > 0) && (
+                      <div className="px-1 py-0.5 text-[9px] leading-tight text-center truncate bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-b">
+                        {closed ? "Kapalı" : `İzinli: ${offNames.join(", ")}`}
+                      </div>
+                    )}
                     <div className="relative" style={{ height: gridHeight }}>
                       {slotLines}
                       {isToday && nowLine}
                       <div className="absolute inset-0">
-                        {positioned.map((p) => renderApptBlock(p, { showStaff: selectedStaff === "all" }))}
+                        {positioned.map((p) => renderApptBlock(p, { showStaff: selectedStaff === "all", dayIndex }))}
+                        {dragPreview && dragPreview.dayIndex === dayIndex && (
+                          <div
+                            className="absolute inset-x-1 rounded-md border-2 border-dashed border-primary bg-primary/10 pointer-events-none z-30 flex items-start justify-center"
+                            style={{ top: dragPreview.top, height: dragPreview.height }}
+                          >
+                            <span className="text-[10px] font-semibold text-primary bg-card/80 px-1 rounded">{dragPreview.label}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -555,6 +713,8 @@ export function UnifiedCalendar({
               const dayAppts = byDay[dayStr] || [];
               const positioned = layoutDay(dayAppts);
               const isToday = dayStr === today;
+              const closed = orgClosedOn(dayStr);
+              const offNames = offStaffNamesOn(dayStr);
 
               return (
                 <div className="grid min-w-[420px]" style={{ gridTemplateColumns: "48px 1fr" }}>
@@ -563,7 +723,8 @@ export function UnifiedCalendar({
                     <div
                       className={cn(
                         "h-10 border-b flex items-center justify-center gap-2 text-xs font-semibold",
-                        isToday && "bg-primary/10 text-primary"
+                        isToday && "bg-primary/10 text-primary",
+                        closed && "bg-red-50 dark:bg-red-950/20"
                       )}
                     >
                       <span className="capitalize">
@@ -573,11 +734,24 @@ export function UnifiedCalendar({
                         {t("apptCountLabel", { count: dayAppts.length })}
                       </span>
                     </div>
+                    {(closed || offNames.length > 0) && (
+                      <div className="px-1 py-0.5 text-[10px] leading-tight text-center bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-b">
+                        {closed ? "İşletme bugün kapalı" : `İzinli: ${offNames.join(", ")}`}
+                      </div>
+                    )}
                     <div className="relative" style={{ height: gridHeight }}>
                       {slotLines}
                       {isToday && nowLine}
                       <div className="absolute inset-0">
-                        {positioned.map((p) => renderApptBlock(p, { showStaff: true }))}
+                        {positioned.map((p) => renderApptBlock(p, { showStaff: true, dayIndex: 0 }))}
+                        {dragPreview && (
+                          <div
+                            className="absolute inset-x-1 rounded-md border-2 border-dashed border-primary bg-primary/10 pointer-events-none z-30 flex items-start justify-center"
+                            style={{ top: dragPreview.top, height: dragPreview.height }}
+                          >
+                            <span className="text-[10px] font-semibold text-primary bg-card/80 px-1 rounded">{dragPreview.label}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -46,7 +46,7 @@ export async function PATCH(
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
   if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
-  const allowed = ["name", "price", "duration_minutes", "description", "category_tag", "is_active", "contributes_loyalty"];
+  const allowed = ["name", "price", "duration_minutes", "description", "category_tag", "is_active", "contributes_loyalty", "is_bookable_online"];
   const updates: Record<string, unknown> = {};
   for (const key of allowed) {
     if (key in body) updates[key] = body[key];

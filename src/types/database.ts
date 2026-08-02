@@ -39,12 +39,23 @@ export interface Organization {
   custom_reminder_message: string | null;
   custom_cancellation_message: string | null;
   whatsapp_notifications_enabled: boolean;
+  has_auto_booking: boolean;
   wa_template_styles: Record<string, string>;
   wa_reminder_offsets_hours: number[];
   kvkk_notice_text: string | null;
   settings_json: Record<string, unknown>;
   created_at: string;
   updated_at: string;
+}
+
+export interface StaffTimeOff {
+  id: string;
+  org_id: string;
+  staff_id: string | null;
+  starts_on: string;
+  ends_on: string;
+  reason: string | null;
+  created_at: string;
 }
 
 export interface OrgMember {
@@ -84,6 +95,7 @@ export interface Service {
   category_tag: string;
   contributes_loyalty: boolean;
   is_active: boolean;
+  is_bookable_online: boolean;
   display_order: number;
   created_at: string;
 }

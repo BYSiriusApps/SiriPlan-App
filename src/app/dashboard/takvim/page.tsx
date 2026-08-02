@@ -79,7 +79,7 @@ export default async function TakvimPage({
   const queryStart = addDays(gridStart, -1);
   const queryEnd = addDays(gridEnd, 2);
 
-  const [{ data: appointments }, { data: staff }, { data: services }] = await Promise.all([
+  const [{ data: appointments }, { data: staff }, { data: services }, { data: timeOff }] = await Promise.all([
     supabase
       .from("appointments")
       .select("id, status, customer_name, customer_phone, appointment_at, duration_minutes, staff_id, service:services(name)")
@@ -104,6 +104,13 @@ export default async function TakvimPage({
       .eq("org_id", member.org_id)
       .eq("is_active", true)
       .order("display_order"),
+
+    supabase
+      .from("staff_time_off")
+      .select("staff_id, starts_on, ends_on")
+      .eq("org_id", member.org_id)
+      .lte("starts_on", format(gridEnd, "yyyy-MM-dd"))
+      .gte("ends_on", format(gridStart, "yyyy-MM-dd")),
   ]);
 
   const today = format(new Date(), "yyyy-MM-dd");
@@ -162,6 +169,11 @@ export default async function TakvimPage({
             duration_minutes: a.duration_minutes,
             staff_id: a.staff_id,
             service: (a as unknown as { service?: { name: string } | null }).service ?? null,
+          }))}
+          timeOff={(timeOff || []).map((t) => ({
+            staff_id: t.staff_id,
+            starts_on: t.starts_on,
+            ends_on: t.ends_on,
           }))}
         />
       )}

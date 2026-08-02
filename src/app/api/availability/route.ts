@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
   // Get staff working hours
   const { data: staff } = await supabase
     .from("staff")
-    .select("start_time, end_time, working_days")
+    .select("org_id, start_time, end_time, working_days")
     .eq("id", staffId)
     .single();
 
@@ -54,6 +54,19 @@ export async function GET(req: NextRequest) {
   const dayOfWeek = new Date(date + "T12:00:00").getDay(); // 0=Sun
   if (!(staff.working_days as number[]).includes(dayOfWeek)) {
     return NextResponse.json({ slots: [], reason: "off_day" });
+  }
+
+  // Personel izinli mi veya işletme geneli kapalı gün mü? (staff_time_off, staff_id NULL = geneli kapatır)
+  const { data: timeOff } = await supabase
+    .from("staff_time_off")
+    .select("id")
+    .eq("org_id", staff.org_id ?? "")
+    .or(`staff_id.eq.${staffId},staff_id.is.null`)
+    .lte("starts_on", date)
+    .gte("ends_on", date)
+    .limit(1);
+  if (timeOff && timeOff.length > 0) {
+    return NextResponse.json({ slots: [], reason: "time_off" });
   }
 
   // Generate all theoretical slots
@@ -69,7 +82,7 @@ export async function GET(req: NextRequest) {
     .eq("staff_id", staffId)
     .gte("appointment_at", dayStart)
     .lte("appointment_at", dayEnd)
-    .not("status", "in", '("iptal")');
+    .not("status", "in", '("iptal","gelmedi")');
 
   // Convert existing appointments to occupied minute ranges
   const occupied: Array<{ start: number; end: number }> = (existing || []).map((a) => {

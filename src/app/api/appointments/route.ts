@@ -5,6 +5,8 @@ import { sendConfirmationEmail } from "@/lib/email/send";
 import { notifyAppointment, notifyAppointmentRequest } from "@/lib/notify";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { findAvailableStaff, isStaffOnTimeOff } from "@/lib/staff-availability";
+import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 
 const ExtraServiceSchema = z.object({
   id: z.string().uuid(),
@@ -21,7 +23,8 @@ const CreateSchema = z.object({
     (v) => (v === "" ? undefined : v),
     z.string().email().optional()
   ),
-  staff_id: z.string().uuid(),
+  staff_id: z.string().uuid().optional(),
+  auto_assign_staff: z.boolean().optional().default(false),
   service_id: z.string().uuid(),
   extra_services_json: z.array(ExtraServiceSchema).optional().default([]),
   total_price_override: z.number().optional(),
@@ -33,6 +36,9 @@ const CreateSchema = z.object({
   marketing_consent: z.boolean().optional(),
   kvkk_notice_snapshot: z.string().optional(),
   kvkk_captured_via: z.enum(["inline_web", "staff_attested"]).optional(),
+}).refine((d) => d.auto_assign_staff || !!d.staff_id, {
+  message: "Personel seçimi zorunlu",
+  path: ["staff_id"],
 });
 
 export async function POST(req: NextRequest) {
@@ -68,6 +74,9 @@ export async function POST(req: NextRequest) {
   // instagram/whatsapp kaynağından gelen istekler has_auto_booking flag'ine göre
   // ya direkt appointments'a düşer ya da onay kuyruğuna gönderilir.
   const isExternalSource = data.source === "instagram" || data.source === "whatsapp";
+  if (isExternalSource && !data.staff_id) {
+    return NextResponse.json({ error: "Personel seçimi zorunlu" }, { status: 400 });
+  }
 
   // Dışarıdan randevu akışı (has_auto_booking) yalnızca Pro/Business planlarında aktif
   const planAllowsAutoBooking = org.plan === "pro" || org.plan === "business";
@@ -161,6 +170,29 @@ export async function POST(req: NextRequest) {
   // Find or create customer — admin client: anonim /r/[slug] rezervasyonlarında
   // caller'ın customers tablosunda org_member RLS'i geçecek bir oturumu olmayabilir.
   const adminSupabase = await createAdminClient();
+
+  // ── Personel çözümleme: "farketmez" seçildiyse uygun bir personel bul,
+  // aksi halde seçilen personelin o tarihte izinli olmadığını doğrula.
+  const requestedDuration = data.total_duration_override ?? service.duration_minutes;
+  let resolvedStaffId: string | null = data.staff_id ?? null;
+  if (data.auto_assign_staff) {
+    resolvedStaffId = await findAvailableStaff(
+      adminSupabase,
+      data.org_id,
+      data.service_id,
+      data.appointment_at,
+      requestedDuration
+    );
+    if (!resolvedStaffId) {
+      return NextResponse.json({ error: "Seçilen saatte uygun personel yok." }, { status: 409 });
+    }
+  } else if (resolvedStaffId && (await isStaffOnTimeOff(adminSupabase, data.org_id, resolvedStaffId, data.appointment_at))) {
+    return NextResponse.json({ error: "Personel bu tarihte izinli." }, { status: 409 });
+  }
+  if (!resolvedStaffId) {
+    return NextResponse.json({ error: "Personel seçimi zorunlu" }, { status: 400 });
+  }
+
   let customerId: string | null = null;
   const { data: existingCustomer } = await adminSupabase
     .from("customers")
@@ -240,39 +272,49 @@ export async function POST(req: NextRequest) {
   const finalDuration = data.total_duration_override ?? service.duration_minutes;
 
   // Panelden (giriş yapmış, org üyesi) girilen randevular direkt onaylı düşer.
-  // Herkese açık rezervasyon widget'ından (/r/[slug], anonim) gelenler onay bekler.
+  // Herkese açık rezervasyon widget'ından (/r/[slug], anonim) gelenler, has_auto_booking
+  // açıksa (ve plan destekliyorsa) da direkt onaylanır; aksi halde onay bekler.
   const { data: { user: callingUser } } = await supabase.auth.getUser();
   let isPanelBooking = false;
   if (callingUser) {
     const callingMember = await getActiveMember(supabase);
     isPanelBooking = callingMember?.org_id === data.org_id;
   }
-  const initialStatus = isPanelBooking ? "onaylandi" : "talep";
+  const webAutoBookingEligible = data.source === "web" && !!org.has_auto_booking && planAllowsAutoBooking;
+  const initialStatus = isPanelBooking || webAutoBookingEligible ? "onaylandi" : "talep";
 
-  const { data: appt, error } = await supabase
-    .from("appointments")
-    .insert({
-      org_id: data.org_id,
-      customer_id: customerId,
-      customer_name: data.customer_name,
-      customer_phone: data.customer_phone,
-      staff_id: data.staff_id,
-      assigned_staff_id: data.staff_id,
-      service_id: data.service_id,
-      extra_services_json: data.extra_services_json,
-      appointment_at: data.appointment_at,
-      duration_minutes: finalDuration,
-      price: finalPrice,
-      source: data.source,
-      note: data.note,
-      status: initialStatus,
-      is_auto: isExternalSource && !!org.has_auto_booking,
-    })
-    .select("*")
-    .single();
+  let appt: Record<string, unknown>;
+  try {
+    const { data: insertedAppt, error } = await supabase
+      .from("appointments")
+      .insert({
+        org_id: data.org_id,
+        customer_id: customerId,
+        customer_name: data.customer_name,
+        customer_phone: data.customer_phone,
+        staff_id: resolvedStaffId,
+        assigned_staff_id: resolvedStaffId,
+        service_id: data.service_id,
+        extra_services_json: data.extra_services_json,
+        appointment_at: data.appointment_at,
+        duration_minutes: finalDuration,
+        price: finalPrice,
+        source: data.source,
+        note: data.note,
+        status: initialStatus,
+        is_auto: (isExternalSource && !!org.has_auto_booking) || webAutoBookingEligible,
+      })
+      .select("*")
+      .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) throw error;
+    appt = insertedAppt;
+  } catch (err) {
+    const pgErr = err as { code?: string; message?: string };
+    if (pgErr.code === "23P01") {
+      return NextResponse.json({ error: "Bu saatte personelin başka bir randevusu var." }, { status: 409 });
+    }
+    return NextResponse.json({ error: pgErr.message || "Randevu oluşturulamadı" }, { status: 500 });
   }
 
   // Bildirim gönder (fire-and-forget)
@@ -283,12 +325,31 @@ export async function POST(req: NextRequest) {
     customer_phone: data.customer_phone,
     appointment_at: data.appointment_at,
     service_id: data.service_id,
-    staff_id: data.staff_id,
-    assigned_staff_id: data.staff_id,
+    staff_id: resolvedStaffId,
+    assigned_staff_id: resolvedStaffId,
     price: finalPrice,
     note: data.note,
     source: data.source,
   }).catch(() => {});
+
+  // Müşteriye anlık WhatsApp onay bildirimi — telefon zorunlu alan olduğu
+  // için email girilmemiş olsa bile bu kanal her zaman devreye girer.
+  // Sadece gerçekten onaylanmış randevularda gönderilir.
+  if (initialStatus === "onaylandi") {
+    const { date, time } = formatApptDateTime(data.appointment_at);
+    sendPurposeTemplate({
+      toPhone: data.customer_phone,
+      orgId: data.org_id,
+      purpose: "onay",
+      vars: {
+        customer_name: data.customer_name,
+        date,
+        time,
+        cancel_no: (appt as { cancel_token?: string }).cancel_token,
+        appointment_no: (appt as { cancel_token?: string }).cancel_token,
+      },
+    }).catch(() => {});
+  }
 
   // Send confirmation email
   if (data.customer_email) {
@@ -300,7 +361,7 @@ export async function POST(req: NextRequest) {
     const { data: staffRow } = await supabase
       .from("staff")
       .select("full_name")
-      .eq("id", data.staff_id)
+      .eq("id", resolvedStaffId)
       .single();
     if (org) {
       sendConfirmationEmail({

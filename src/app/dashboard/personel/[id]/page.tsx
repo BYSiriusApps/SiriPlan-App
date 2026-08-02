@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell, ShieldCheck, Activity } from "lucide-react";
+import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell, ShieldCheck, Activity, CalendarX, Trash2 } from "lucide-react";
+import type { StaffTimeOff } from "@/types/database";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { PERM_LABELS, DEFAULT_PERMS } from "@/lib/permissions";
 import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
@@ -100,6 +101,48 @@ export default function PersonelDetayPage() {
       .then((d) => setActivity(d))
       .catch(() => {});
   }, [id]);
+
+  // İzinler / kapalı günler
+  const [timeOff, setTimeOff] = useState<StaffTimeOff[]>([]);
+  const [timeOffForm, setTimeOffForm] = useState({ starts_on: "", ends_on: "", reason: "" });
+  const [addingTimeOff, setAddingTimeOff] = useState(false);
+
+  function loadTimeOff() {
+    fetch(`/api/staff-time-off?staff_id=${id}`)
+      .then((r) => r.json())
+      .then((d) => setTimeOff(d.time_off ?? []))
+      .catch(() => {});
+  }
+  useEffect(loadTimeOff, [id]);
+
+  async function handleAddTimeOff(e: React.FormEvent) {
+    e.preventDefault();
+    if (!timeOffForm.starts_on || !timeOffForm.ends_on) return toast.error("Tarih aralığı zorunlu");
+    setAddingTimeOff(true);
+    const res = await fetch("/api/staff-time-off", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ staff_id: id, ...timeOffForm }),
+    });
+    setAddingTimeOff(false);
+    if (res.ok) {
+      setTimeOffForm({ starts_on: "", ends_on: "", reason: "" });
+      loadTimeOff();
+      toast.success("İzin eklendi");
+    } else {
+      const err = await res.json();
+      toast.error(err.error || "İzin eklenemedi");
+    }
+  }
+
+  async function handleDeleteTimeOff(toId: string) {
+    const res = await fetch(`/api/staff-time-off/${toId}`, { method: "DELETE" });
+    if (res.ok) {
+      setTimeOff((prev) => prev.filter((t) => t.id !== toId));
+    } else {
+      toast.error("İzin silinemedi");
+    }
+  }
 
   async function handleSavePerms() {
     setPermsSaving(true);
@@ -522,6 +565,75 @@ export default function PersonelDetayPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* İzinler / kapalı günler */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <CalendarX className="h-4 w-4 text-primary" />
+            İzinler
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground -mt-1">
+            Bu tarih aralıklarında personel için online randevu ve panelden randevu oluşturma engellenir.
+          </p>
+
+          {timeOff.length > 0 && (
+            <div className="space-y-1.5">
+              {timeOff.map((t) => (
+                <div key={t.id} className="flex items-center justify-between gap-2 text-sm py-1.5 px-2.5 rounded-lg bg-muted/30">
+                  <div className="min-w-0">
+                    <p className="font-medium">
+                      {format(new Date(t.starts_on + "T12:00:00"), "d MMM yyyy", { locale: tr })}
+                      {t.ends_on !== t.starts_on && ` – ${format(new Date(t.ends_on + "T12:00:00"), "d MMM yyyy", { locale: tr })}`}
+                    </p>
+                    {t.reason && <p className="text-xs text-muted-foreground truncate">{t.reason}</p>}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteTimeOff(t.id)}
+                    className="text-muted-foreground hover:text-red-600 transition-colors shrink-0"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <form onSubmit={handleAddTimeOff} className="grid grid-cols-2 gap-3 pt-2 border-t">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Başlangıç</Label>
+              <Input
+                type="date"
+                value={timeOffForm.starts_on}
+                onChange={(e) => setTimeOffForm((f) => ({ ...f, starts_on: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Bitiş</Label>
+              <Input
+                type="date"
+                value={timeOffForm.ends_on}
+                onChange={(e) => setTimeOffForm((f) => ({ ...f, ends_on: e.target.value }))}
+              />
+            </div>
+            <div className="col-span-2 space-y-1">
+              <Label className="text-xs text-muted-foreground">Not (opsiyonel)</Label>
+              <Input
+                value={timeOffForm.reason}
+                onChange={(e) => setTimeOffForm((f) => ({ ...f, reason: e.target.value }))}
+                placeholder="Yıllık izin, rapor..."
+              />
+            </div>
+            <Button type="submit" size="sm" className="col-span-2" disabled={addingTimeOff}>
+              {addingTimeOff ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
+              İzin Ekle
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       {/* Activity */}
       {activity && (

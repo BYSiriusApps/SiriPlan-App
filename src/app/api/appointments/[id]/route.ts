@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notifyAppointment } from "@/lib/notify";
 import { logAppointmentStatusChange } from "@/lib/audit";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
+import { isStaffOnTimeOff } from "@/lib/staff-availability";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -53,13 +54,14 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
   }
 
-  // Durum değişikliği: personel yalnızca kendi üzerine atanan randevunun durumunu değiştirebilir.
-  // Sahip ve yönetici kısıtlamasız.
-  let previous: { status: string; staff_id: string | null; customer_name: string; appointment_at: string } | null = null;
-  if (typeof updates.status === "string") {
+  // Durum, personel veya saat değişikliği: personel yalnızca kendi üzerine
+  // atanan randevu üzerinde işlem yapabilir (sahip/yönetici kısıtlamasız).
+  const touchesSchedule = "staff_id" in updates || "appointment_at" in updates;
+  let previous: { status: string; staff_id: string | null; customer_name: string; appointment_at: string; duration_minutes: number } | null = null;
+  if (typeof updates.status === "string" || touchesSchedule) {
     const { data: current } = await supabase
       .from("appointments")
-      .select("status, staff_id, customer_name, appointment_at")
+      .select("status, staff_id, customer_name, appointment_at, duration_minutes")
       .eq("id", id)
       .eq("org_id", member.org_id)
       .single();
@@ -84,17 +86,36 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     }
   }
 
-  const { data, error } = await supabase
-    .from("appointments")
-    .update(updates)
-    .eq("id", id)
-    .eq("org_id", member.org_id)
-    .select("*")
-    .single();
+  // Personel/saat değişiyorsa, hedef personelin o tarihte izinli olmadığını doğrula
+  // (çakışma zaten DB'deki exclusion constraint ile garanti altında).
+  if (touchesSchedule && previous) {
+    const targetStaffId = (updates.staff_id as string | undefined) ?? previous.staff_id;
+    const targetAt = (updates.appointment_at as string | undefined) ?? previous.appointment_at;
+    if (targetStaffId && (await isStaffOnTimeOff(supabase, member.org_id, targetStaffId, targetAt))) {
+      return NextResponse.json({ error: "Personel bu tarihte izinli." }, { status: 409 });
+    }
+  }
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  let data: Record<string, unknown>;
+  try {
+    const { data: updated, error } = await supabase
+      .from("appointments")
+      .update(updates)
+      .eq("id", id)
+      .eq("org_id", member.org_id)
+      .select("*")
+      .single();
+    if (error) throw error;
+    data = updated;
+  } catch (err) {
+    const pgErr = err as { code?: string; message?: string };
+    if (pgErr.code === "23P01") {
+      return NextResponse.json({ error: "Bu saatte personelin başka bir randevusu var." }, { status: 409 });
+    }
+    return NextResponse.json({ error: pgErr.message || "Randevu güncellenemedi" }, { status: 500 });
+  }
 
-  if (previous && data && previous.status !== (updates.status as string)) {
+  if (previous && data && typeof updates.status === "string" && previous.status !== updates.status) {
     logAppointmentStatusChange({
       orgId: member.org_id,
       userId: user.id,

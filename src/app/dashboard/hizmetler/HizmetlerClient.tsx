@@ -38,7 +38,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [editForm, setEditForm] = useState({ name: "", price: "", duration_minutes: "" });
+  const [editForm, setEditForm] = useState({ name: "", price: "", duration_minutes: "", is_bookable_online: true });
 
   async function openDetail(svc: Service) {
     setDetailTarget(svc);
@@ -66,6 +66,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
       name: detailTarget.name,
       price: String(detailTarget.price),
       duration_minutes: String(detailTarget.duration_minutes),
+      is_bookable_online: detailTarget.is_bookable_online,
     });
     setEditing(true);
     setConfirmDelete(false);
@@ -81,6 +82,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
         name: editForm.name.trim(),
         price: parseFloat(editForm.price) || 0,
         duration_minutes: parseInt(editForm.duration_minutes) || detailTarget.duration_minutes,
+        is_bookable_online: editForm.is_bookable_online,
       }),
     });
     setSaving(false);
@@ -158,6 +160,11 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                           {!service.is_active && (
                             <Badge variant="outline" className="text-[10px] text-muted-foreground">
                               Pasif
+                            </Badge>
+                          )}
+                          {!service.is_bookable_online && (
+                            <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                              Online'da gizli
                             </Badge>
                           )}
                         </div>
@@ -304,6 +311,14 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                             />
                           </div>
                         </div>
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editForm.is_bookable_online}
+                            onChange={(e) => setEditForm((f) => ({ ...f, is_bookable_online: e.target.checked }))}
+                          />
+                          Online randevu sayfasında göster
+                        </label>
                         <div className="flex gap-2">
                           <Button variant="outline" className="flex-1" onClick={() => setEditing(false)}>
                             İptal

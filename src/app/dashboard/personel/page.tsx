@@ -8,6 +8,7 @@ import { UserCog, Phone, Mail } from "lucide-react";
 import { ContactLinks } from "@/components/dashboard/ContactLinks";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { StaffInviteDialog } from "@/components/dashboard/StaffInviteDialog";
+import { OrgClosedDaysCard } from "@/components/dashboard/OrgClosedDaysCard";
 import type { Staff } from "@/types/database";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 
@@ -102,6 +103,8 @@ export default async function PersonelPage() {
           </CardContent>
         </Card>
       )}
+
+      {m.role !== "staff" && <OrgClosedDaysCard />}
 
       {/* Staff grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
