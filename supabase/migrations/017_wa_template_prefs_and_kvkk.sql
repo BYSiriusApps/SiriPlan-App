@@ -26,6 +26,11 @@ ALTER TABLE organizations
 ALTER TABLE organizations
   ADD COLUMN IF NOT EXISTS kvkk_notice_text TEXT;
 
+-- 016'nın hiç çalıştırılmamış olma ihtimaline karşı (bu kolon olmadan
+-- get_due_whatsapp_reminders() derlenemez) — zaten varsa no-op.
+ALTER TABLE organizations
+  ADD COLUMN IF NOT EXISTS whatsapp_notifications_enabled BOOLEAN DEFAULT true;
+
 -- ─── 2. appointment_reminder_log — çoklu süre için idempotent gönderim kaydı ─
 CREATE TABLE IF NOT EXISTS appointment_reminder_log (
   id SERIAL PRIMARY KEY,
@@ -78,6 +83,11 @@ CREATE INDEX IF NOT EXISTS idx_consent_requests_token ON consent_requests(token)
 REVOKE ALL ON consent_requests FROM anon, authenticated;
 
 -- ─── 5. Çoklu süreli hatırlatma fonksiyonları (016'nın yerini alır) ──────
+-- 016'daki fonksiyon farklı bir dönüş satır tipiyle (OUT parametreleri)
+-- tanımlıydı; CREATE OR REPLACE dönüş tipi değişikliğine izin vermiyor,
+-- bu yüzden önce eski tanımı kaldırıyoruz (varsa).
+DROP FUNCTION IF EXISTS public.get_due_whatsapp_reminders();
+
 CREATE OR REPLACE FUNCTION public.get_due_whatsapp_reminders()
 RETURNS TABLE (
   appointment_id UUID,

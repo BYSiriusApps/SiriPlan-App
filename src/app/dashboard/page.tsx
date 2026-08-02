@@ -16,19 +16,16 @@ import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
 import Link from "next/link";
 import { LiveClock } from "@/components/ui/LiveClock";
 import { QuickActionsPanel } from "@/components/dashboard/QuickActionsPanel";
+import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { getUserShortcuts } from "@/app/actions/shortcuts";
+import { getDashboardWidgetPrefs } from "@/app/actions/dashboard-widgets";
+import { DashboardWidgetGrid, type DashboardWidget } from "@/components/dashboard/DashboardWidgetGrid";
 import { getTranslations, getLocale } from "next-intl/server";
-
-/* ─── Tema sabitleri — örnek arayüzdeki koyu/altın/camgöbeği stil ─── */
-const GOLD = "#facc15";
-const CYAN = "#22d3ee";
-const CARD_BG = "linear-gradient(165deg, #15151f 0%, #101018 100%)";
-const CARD_BORDER = "1px solid rgba(250, 204, 21, 0.30)";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
-/* ─── Mini sparkline SVG ─── */
-function Sparkline({ data, color = CYAN }: { data: number[]; color?: string }) {
+/* ─── Mini sparkline SVG — rengi aktif organizasyon temasından (currentColor) alır ─── */
+function Sparkline({ data }: { data: number[] }) {
   if (data.length < 2) return null;
   const max = Math.max(...data, 1);
   const W = 260, H = 64;
@@ -36,29 +33,28 @@ function Sparkline({ data, color = CYAN }: { data: number[]; color?: string }) {
     .map((v, i) => `${(i / (data.length - 1)) * W},${H - (v / max) * (H - 6) - 3}`)
     .join(" ");
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-16 overflow-visible" preserveAspectRatio="none">
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-16 overflow-visible text-primary" preserveAspectRatio="none">
       <defs>
         <linearGradient id="dsg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.28" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
         </linearGradient>
       </defs>
       <polygon points={`0,${H} ${pts} ${W},${H}`} fill="url(#dsg)" />
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={W} cy={H - (data[data.length - 1] / max) * (H - 6) - 3} r="3.5" fill={color} />
+      <polyline points={pts} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={W} cy={H - (data[data.length - 1] / max) * (H - 6) - 3} r="3.5" fill="currentColor" />
     </svg>
   );
 }
 
-/* ─── Kart başlığı ─── */
+/* ─── Kart başlığı — mevcut .panel-header / token sistemiyle uyumlu ─── */
 function CardTitle({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between px-4 pt-3.5 pb-2.5"
-      style={{ borderBottom: "1px solid rgba(250,204,21,0.15)" }}>
-      <span className="text-[13px] font-bold tracking-wider uppercase" style={{ color: GOLD }}>
+    <div className="panel-header">
+      <span className="text-[13px] font-bold tracking-wider uppercase text-primary">
         {children}
       </span>
-      {right ?? <span className="text-lg leading-none tracking-widest" style={{ color: "rgba(250,204,21,0.5)" }}>⋯</span>}
+      {right}
     </div>
   );
 }
@@ -101,6 +97,7 @@ export default async function DashboardPage() {
     { data: pendingRequests },
     { data: latestCampaign },
     userShortcuts,
+    dashboardWidgetPrefs,
   ] = await Promise.all([
     supabase
       .from("appointments")
@@ -170,6 +167,7 @@ export default async function DashboardPage() {
       .maybeSingle(),
 
     getUserShortcuts(),
+    getDashboardWidgetPrefs(),
   ]);
 
   type FullAppt = Appointment & {
@@ -239,106 +237,22 @@ export default async function DashboardPage() {
     failed: t("homePage.campStatus.failed"),
   };
 
-  return (
-    <div
-      className="min-h-screen text-gray-200"
-      style={{ background: "linear-gradient(170deg, #0c0c15 0%, #12121e 55%, #0b0b12 100%)" }}
-    >
-      {/* ── Üst başlık ── */}
-      <header className="flex items-start justify-between px-4 pt-5 pb-4 max-w-6xl mx-auto">
-        <div className="min-w-0">
-          <h1
-            className="text-xl sm:text-2xl font-black tracking-[0.06em] uppercase truncate"
-            style={{ color: GOLD, textShadow: "0 0 24px rgba(250,204,21,0.35)" }}
-          >
-            {orgName}
-          </h1>
-          <p className="text-sm text-gray-400 mt-0.5">{t("homePage.greeting", { name: firstName })}</p>
-        </div>
-        <div className="text-right shrink-0 ml-3">
-          <div className="text-2xl font-bold tabular-nums text-white leading-none">
-            <LiveClock />
-          </div>
-          <p className="text-[11px] text-gray-500 mt-1">
-            {format(now, "d MMMM", { locale: dateFnsLocale })}
-          </p>
-        </div>
-      </header>
-
-      {/* ── Kart ızgarası: mobil tek sütun, geniş ekran 2 sütun ── */}
-      <div className="px-4 pb-24 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-        {/* 1 — AKTİF RANDEVULAR */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: CARD_BG, border: CARD_BORDER }}>
+  const widgets: DashboardWidget[] = [
+    {
+      key: "quick_actions",
+      label: "Hızlı İşlemler",
+      colSpanClass: "lg:col-span-4",
+      node: <QuickActionsPanel key="quick_actions" initialShortcuts={userShortcuts} orgId={orgId} />,
+    },
+    {
+      key: "revenue_summary",
+      label: "Ciro Özeti",
+      colSpanClass: "lg:col-span-8",
+      node: (
+        <GlassCard3D key="revenue_summary" className="glass-card h-full" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/randevular" className="text-[11px] font-medium flex items-center gap-0.5 hover:opacity-80" style={{ color: CYAN }}>
-                {t("all")} <ChevronRight className="h-3 w-3" />
-              </Link>
-            }
-          >
-            {t("homePage.activeAppointments")}
-          </CardTitle>
-          <div className="flex gap-4 px-4 py-3.5">
-            <div className="shrink-0 text-center">
-              <p
-                className="text-5xl font-black tabular-nums leading-none"
-                style={{ color: CYAN, textShadow: "0 0 28px rgba(34,211,238,0.45)" }}
-              >
-                {appts.length}
-              </p>
-              <p className="text-[11px] text-gray-400 mt-1.5">{t("today")}</p>
-            </div>
-            <div className="flex-1 min-w-0 space-y-1.5">
-              {upcoming.length === 0 ? (
-                <p className="text-sm text-gray-500 py-2">{t("homePage.noUpcoming")}</p>
-              ) : (
-                upcoming.map((a) => (
-                  <Link
-                    key={a.id}
-                    href={`/dashboard/randevular/${a.id}`}
-                    className="flex items-center justify-between gap-2 text-[13px] leading-snug hover:opacity-80 transition-opacity"
-                  >
-                    <span className="truncate text-gray-200">
-                      {isLive(a) && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-1.5 align-middle" />}
-                      {a.customer_name}
-                      <span className="text-gray-500"> ({a.service?.name ?? "—"})</span>
-                    </span>
-                    <span className="tabular-nums shrink-0" style={{ color: CYAN }}>
-                      {dayLabel(a.appointment_at)}{format(new Date(a.appointment_at), "HH:mm")}
-                    </span>
-                  </Link>
-                ))
-              )}
-              <Link
-                href="/dashboard/randevular"
-                className="inline-flex items-center gap-1 mt-1 text-[12px] font-semibold px-2.5 py-1 rounded-lg hover:opacity-80 transition-opacity"
-                style={{ background: "rgba(34,211,238,0.12)", color: CYAN, border: "1px solid rgba(34,211,238,0.3)" }}
-              >
-                {t("viewAll")} <ChevronRight className="h-3 w-3" />
-              </Link>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap px-4 pb-3.5 text-[11px]">
-            {liveCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full font-semibold" style={{ background: "rgba(239,68,68,0.15)", color: "#f87171" }}>
-                ● {liveCount} {t("inProgress")}
-              </span>
-            )}
-            <span className="px-2 py-0.5 rounded-full" style={{ background: "rgba(245,158,11,0.14)", color: "#fbbf24" }}>
-              {t("homePage.pendingCountLabel", { count: pendingCount })}
-            </span>
-            <span className="px-2 py-0.5 rounded-full" style={{ background: "rgba(52,211,153,0.13)", color: "#34d399" }}>
-              ✓ {t("homePage.doneCountLabel", { count: doneCount })}
-            </span>
-          </div>
-        </div>
-
-        {/* 2 — KAMPANYA DURUMU / PERFORMANS GRAFİĞİ */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: CARD_BG, border: CARD_BORDER }}>
-          <CardTitle
-            right={
-              <span className="text-[11px] text-gray-500 capitalize">
+              <span className="text-[11px] text-muted-foreground capitalize">
                 {format(now, "MMM yyyy", { locale: dateFnsLocale })}
               </span>
             }
@@ -348,24 +262,97 @@ export default async function DashboardPage() {
           <div className="px-4 py-3.5">
             <Sparkline data={dailyRev} />
             <div className="flex items-center justify-between mt-3">
-              <span className="text-sm font-bold" style={{ color: CYAN }}>
+              <span className="text-sm font-bold text-primary">
                 {t("homePage.efficiencyLabel", { value: efficiency })}
               </span>
-              <span className="text-sm font-bold" style={{ color: GOLD }}>
+              <span className="text-sm font-bold text-foreground">
                 {t("homePage.newCustomersLabel", { count: newCustCount })}
               </span>
             </div>
-            <p className="text-[11px] text-gray-500 mt-1.5">
+            <p className="text-[11px] text-muted-foreground mt-1.5">
               {t("homePage.chartCaption")}
             </p>
           </div>
-        </div>
-
-        {/* 3 — WHATSAPP ASİSTANI / ONAY KUYRUĞU */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: CARD_BG, border: CARD_BORDER }}>
+        </GlassCard3D>
+      ),
+    },
+    {
+      key: "active_appointments",
+      label: "Aktif Randevular",
+      colSpanClass: "lg:col-span-12",
+      node: (
+        <GlassCard3D key="active_appointments" className="glass-card" glow intensity={3}>
           <CardTitle
             right={
-              <Link href="/dashboard/randevular" className="text-[11px] font-medium flex items-center gap-0.5 hover:opacity-80" style={{ color: CYAN }}>
+              <Link href="/dashboard/randevular" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+                {t("all")} <ChevronRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            {t("homePage.activeAppointments")}
+          </CardTitle>
+          <div className="flex gap-4 px-4 py-3.5">
+            <div className="shrink-0 text-center">
+              <p className="stat-number text-primary">
+                {appts.length}
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-1.5">{t("today")}</p>
+            </div>
+            <div className="flex-1 min-w-0 space-y-1.5">
+              {upcoming.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">{t("homePage.noUpcoming")}</p>
+              ) : (
+                upcoming.map((a) => (
+                  <Link
+                    key={a.id}
+                    href={`/dashboard/randevular/${a.id}`}
+                    className="flex items-center justify-between gap-2 text-[13px] leading-snug hover:opacity-80 transition-opacity"
+                  >
+                    <span className="truncate text-foreground">
+                      {isLive(a) && <span className="status-dot active pulse-live inline-block mr-1.5 align-middle" />}
+                      {a.customer_name}
+                      <span className="text-muted-foreground"> ({a.service?.name ?? "—"})</span>
+                    </span>
+                    <span className="tabular-nums shrink-0 text-primary">
+                      {dayLabel(a.appointment_at)}{format(new Date(a.appointment_at), "HH:mm")}
+                    </span>
+                  </Link>
+                ))
+              )}
+              <Link
+                href="/dashboard/randevular"
+                className="inline-flex items-center gap-1 mt-1 text-[12px] font-semibold px-2.5 py-1 rounded-lg text-primary hover:opacity-80 transition-opacity"
+                style={{ background: "color-mix(in oklch, var(--primary) 12%, transparent)", border: "1px solid color-mix(in oklch, var(--primary) 30%, transparent)" }}
+              >
+                {t("viewAll")} <ChevronRight className="h-3 w-3" />
+              </Link>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap px-4 pb-3.5 text-[11px] text-muted-foreground">
+            {liveCount > 0 && (
+              <span className="flex items-center gap-1.5 font-semibold">
+                <span className="status-dot active pulse-live" /> {liveCount} {t("inProgress")}
+              </span>
+            )}
+            <span className="flex items-center gap-1.5">
+              <span className="status-dot pending" /> {t("homePage.pendingCountLabel", { count: pendingCount })}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="status-dot done" /> {t("homePage.doneCountLabel", { count: doneCount })}
+            </span>
+          </div>
+        </GlassCard3D>
+      ),
+    },
+    {
+      key: "whatsapp_assistant",
+      label: "WhatsApp Asistanı",
+      colSpanClass: "lg:col-span-5",
+      node: (
+        <GlassCard3D key="whatsapp_assistant" className="glass-card h-full" glow intensity={4}>
+          <CardTitle
+            right={
+              <Link href="/dashboard/randevular" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -373,30 +360,30 @@ export default async function DashboardPage() {
             {t("homePage.whatsappAssistant")}
           </CardTitle>
           <div className="px-4 py-3.5 space-y-2.5">
-            <p className="text-[12px] text-gray-400">
+            <p className="text-[12px] text-muted-foreground">
               {t("homePage.pendingRequestsLabel", { count: (pendingRequests ?? []).length + pendingCount })}
             </p>
             {(pendingRequests ?? []).length === 0 && pendingCount === 0 ? (
-              <p className="text-sm text-gray-500">{t("homePage.noPendingRequests")}</p>
+              <p className="text-sm text-muted-foreground">{t("homePage.noPendingRequests")}</p>
             ) : (
               <>
                 {(pendingRequests ?? []).map((r) => (
                   <div
                     key={r.id}
                     className="flex items-center gap-3 rounded-xl px-3 py-2.5"
-                    style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)" }}
+                    style={{ background: "color-mix(in oklch, var(--chart-4) 12%, transparent)", border: "1px solid color-mix(in oklch, var(--chart-4) 30%, transparent)" }}
                   >
                     <span
                       className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                      style={{ background: "rgba(34,197,94,0.2)" }}
+                      style={{ background: "color-mix(in oklch, var(--chart-4) 22%, transparent)" }}
                     >
-                      <MessageCircle className="h-4 w-4" style={{ color: "#4ade80" }} />
+                      <MessageCircle className="h-4 w-4" style={{ color: "var(--chart-4)" }} />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-medium text-gray-200 truncate">
+                      <p className="text-[13px] font-medium text-foreground truncate">
                         {t("homePage.apptApprovalLabel", { name: r.customer_name })}
                       </p>
-                      <p className="text-[11px] text-gray-500">
+                      <p className="text-[11px] text-muted-foreground">
                         {format(new Date(r.appointment_at), "d MMM HH:mm", { locale: dateFnsLocale })} · {t("homePage.autoMsgSent")}
                       </p>
                     </div>
@@ -406,23 +393,22 @@ export default async function DashboardPage() {
                   <div
                     key={a.id}
                     className="flex items-center gap-3 rounded-xl px-3 py-2.5"
-                    style={{ background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.25)" }}
+                    style={{ background: "color-mix(in oklch, var(--accent) 30%, transparent)", border: "1px solid color-mix(in oklch, var(--accent) 60%, transparent)" }}
                   >
-                    <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(245,158,11,0.18)" }}>
-                      <Calendar className="h-4 w-4" style={{ color: "#fbbf24" }} />
+                    <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "color-mix(in oklch, var(--accent) 60%, transparent)" }}>
+                      <Calendar className="h-4 w-4 text-accent-foreground" />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-medium text-gray-200 truncate">
+                      <p className="text-[13px] font-medium text-foreground truncate">
                         {t("homePage.awaitingApprovalLabel", { name: a.customer_name })}
                       </p>
-                      <p className="text-[11px] text-gray-500">
+                      <p className="text-[11px] text-muted-foreground">
                         {t("today")} {format(new Date(a.appointment_at), "HH:mm")} · {a.service?.name}
                       </p>
                     </div>
                     <Link
                       href={`/dashboard/randevular/${a.id}`}
-                      className="text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0"
-                      style={{ background: GOLD, color: "#111" }}
+                      className="text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0 bg-primary text-primary-foreground"
                     >
                       {t("approve")}
                     </Link>
@@ -431,55 +417,67 @@ export default async function DashboardPage() {
               </>
             )}
           </div>
-        </div>
-
-        {/* 4 — KAMPANYALAR + HAFTANIN YILDIZI */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: CARD_BG, border: CARD_BORDER }}>
-          <CardTitle
-            right={
-              <Link href="/dashboard/kampanyalar" className="text-[11px] font-medium flex items-center gap-0.5 hover:opacity-80" style={{ color: CYAN }}>
+        </GlassCard3D>
+      ),
+    },
+    {
+      key: "campaigns_star",
+      label: "Kampanyalar",
+      colSpanClass: "lg:col-span-7",
+      node: (
+        <div key="campaigns_star" className="rounded-2xl bg-primary text-primary-foreground h-full relative overflow-hidden">
+          <div
+            className="pointer-events-none absolute -top-12 -right-12 w-64 h-64 rounded-full blur-3xl"
+            style={{ background: "color-mix(in oklch, var(--primary-foreground) 20%, transparent)" }}
+          />
+          <div className="relative z-10 px-6 py-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] font-bold tracking-wider uppercase opacity-90">
+                {t("homePage.campaignPerformance")}
+              </span>
+              <Link href="/dashboard/kampanyalar" className="text-[11px] font-medium flex items-center gap-0.5 opacity-80 hover:opacity-100">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
-            }
-          >
-            {t("homePage.campaignPerformance")}
-          </CardTitle>
-          <div className="px-4 py-3.5 space-y-3">
+            </div>
+
             {camp ? (
               <div className="flex items-center gap-3 rounded-xl px-3 py-2.5"
-                style={{ background: "rgba(250,204,21,0.06)", border: "1px solid rgba(250,204,21,0.22)" }}>
-                <Megaphone className="h-4 w-4 shrink-0" style={{ color: GOLD }} />
+                style={{ background: "color-mix(in oklch, var(--primary-foreground) 12%, transparent)" }}>
+                <Megaphone className="h-4 w-4 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium text-gray-200 truncate">{t("homePage.campaignLabel", { name: camp.name })}</p>
+                  <p className="text-[13px] font-medium truncate">{t("homePage.campaignLabel", { name: camp.name })}</p>
                   {camp.sent_count > 0 && (
-                    <p className="text-[11px] text-gray-500">{t("homePage.reachedCustomers", { count: camp.sent_count })}</p>
+                    <p className="text-[11px] opacity-75">{t("homePage.reachedCustomers", { count: camp.sent_count })}</p>
                   )}
                 </div>
-                <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0" style={{ background: GOLD, color: "#111" }}>
+                <span
+                  className="text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0 bg-primary-foreground"
+                  style={{ color: "var(--primary)" }}
+                >
                   {CAMP_STATUS[camp.status] ?? camp.status}
                 </span>
               </div>
             ) : (
               <Link
                 href="/dashboard/kampanyalar/yeni"
-                className="flex items-center gap-2 text-[13px] text-gray-400 hover:text-gray-200 transition-colors"
+                className="flex items-center gap-2 text-[13px] opacity-85 hover:opacity-100 transition-opacity"
               >
-                <Plus className="h-4 w-4" style={{ color: GOLD }} /> {t("homePage.createFirstCampaign")}
+                <Plus className="h-4 w-4" /> {t("homePage.createFirstCampaign")}
               </Link>
             )}
 
             {champ?.staff?.full_name && (
               <div className="flex items-center gap-3 rounded-xl px-3 py-2.5"
-                style={{ background: "rgba(34,211,238,0.06)", border: "1px solid rgba(34,211,238,0.22)" }}>
+                style={{ background: "color-mix(in oklch, var(--primary-foreground) 12%, transparent)" }}>
                 <span className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
-                  style={{ background: "rgba(34,211,238,0.18)", color: CYAN }}>
+                  style={{ background: "color-mix(in oklch, var(--primary-foreground) 20%, transparent)" }}>
                   <Star className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium text-gray-200 truncate">
+                  <p className="text-[13px] font-medium truncate">
                     {t("homePage.weeklyStarLabel", { name: champ.staff.full_name })}
                   </p>
-                  <p className="text-[11px] text-gray-500">
+                  <p className="text-[11px] opacity-75">
                     {t("homePage.staffStatsLabel", { count: champ.appointments_done, revenue: Number(champ.total_revenue).toLocaleString("tr-TR") })}
                   </p>
                 </div>
@@ -487,18 +485,39 @@ export default async function DashboardPage() {
             )}
           </div>
         </div>
+      ),
+    },
+  ];
 
-        {/* 5 — Hızlı işlemler (kullanıcı kısayolları — özelleştirilebilir) */}
-        <div className="lg:col-span-2">
-          <QuickActionsPanel initialShortcuts={userShortcuts} orgId={orgId} />
+  return (
+    <div className="min-h-screen bg-background">
+      {/* ── Üst başlık: sıcak karşılama + canlı saat ── */}
+      <header className="flex items-start justify-between px-4 pt-6 pb-5 max-w-6xl mx-auto">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate text-balance">
+            {orgName}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">{t("homePage.greeting", { name: firstName })}</p>
         </div>
+        <div className="text-right shrink-0 ml-3">
+          <div className="text-2xl font-bold tabular-nums text-foreground leading-none">
+            <LiveClock />
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            {format(now, "d MMMM", { locale: dateFnsLocale })}
+          </p>
+        </div>
+      </header>
+
+      {/* ── Bento ızgara: mobil tek sütun, geniş ekran 12 sütun — kişiselleştirilebilir ── */}
+      <div className="px-4 pb-24 max-w-6xl mx-auto">
+        <DashboardWidgetGrid orgId={orgId} widgets={widgets} initialPrefs={dashboardWidgetPrefs} />
       </div>
 
       {/* ── Sabit "+ Randevu" düğmesi (mobil kullanım için) ── */}
       <Link
         href="/dashboard/randevular/yeni"
-        className="fixed bottom-20 right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-1.5 px-4 py-3 rounded-full font-bold text-sm shadow-2xl hover:scale-105 transition-transform"
-        style={{ background: GOLD, color: "#111", boxShadow: "0 8px 28px rgba(250,204,21,0.4)" }}
+        className="fixed bottom-20 right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-1.5 px-4 py-3 rounded-full font-bold text-sm shadow-2xl hover:scale-105 transition-transform bg-primary text-primary-foreground neon-primary"
       >
         <Plus className="h-4 w-4" /> {t("homePage.newApptButton")}
       </Link>
