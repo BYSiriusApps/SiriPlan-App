@@ -40,10 +40,8 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   const vars =
     purpose === "revize"
-      ? { customer_name: appt.customer_name, new_date: date, new_time: time, appointment_no: appt.cancel_token }
-      : purpose === "hatirlatma"
-      ? { customer_name: appt.customer_name, date, time, remaining_time: "yakında" }
-      : { customer_name: appt.customer_name, date, time, cancel_no: appt.cancel_token, appointment_no: appt.cancel_token };
+      ? { customer_name: appt.customer_name, new_date: date, new_time: time }
+      : { customer_name: appt.customer_name, date, time };
 
   const result = await sendPurposeTemplate({
     toPhone: appt.customer_phone,

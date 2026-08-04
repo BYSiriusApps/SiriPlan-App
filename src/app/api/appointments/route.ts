@@ -341,13 +341,7 @@ export async function POST(req: NextRequest) {
       toPhone: data.customer_phone,
       orgId: data.org_id,
       purpose: "onay",
-      vars: {
-        customer_name: data.customer_name,
-        date,
-        time,
-        cancel_no: (appt as { cancel_token?: string }).cancel_token,
-        appointment_no: (appt as { cancel_token?: string }).cancel_token,
-      },
+      vars: { customer_name: data.customer_name, date, time },
     }).catch(() => {});
   }
 

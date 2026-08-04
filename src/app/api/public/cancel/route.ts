@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
       toPhone: appt.customer_phone,
       orgId: appt.org_id,
       purpose: "iptal",
-      vars: { customer_name: appt.customer_name, date, time, cancel_no: appt.cancel_token },
+      vars: { customer_name: appt.customer_name, date, time },
     }).catch(() => {});
   }
 

@@ -162,7 +162,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         toPhone: apptData.customer_phone,
         orgId: apptData.org_id,
         purpose: "revize",
-        vars: { customer_name: apptData.customer_name, new_date: date, new_time: time, appointment_no: apptData.cancel_token },
+        vars: { customer_name: apptData.customer_name, new_date: date, new_time: time },
       }).catch(() => {});
     }
   }
@@ -177,7 +177,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         toPhone: apptData.customer_phone,
         orgId: apptData.org_id,
         purpose: "iptal",
-        vars: { customer_name: apptData.customer_name, date, time, cancel_no: apptData.cancel_token },
+        vars: { customer_name: apptData.customer_name, date, time },
       }).catch(() => {});
     }
   }
@@ -230,7 +230,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
         toPhone: current.customer_phone,
         orgId: member.org_id,
         purpose: "iptal",
-        vars: { customer_name: current.customer_name, date, time, cancel_no: current.cancel_token },
+        vars: { customer_name: current.customer_name, date, time },
       }).catch(() => {});
     }
   }

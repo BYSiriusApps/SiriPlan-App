@@ -12,7 +12,7 @@ import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
 import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, ChevronRight, CalendarCheck, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Organization, OrgPlan } from "@/types/database";
+import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { DEFAULT_WA_TEMPLATE, WA_TEMPLATE_VARS, renderWaTemplate } from "@/lib/wa-template";
@@ -20,7 +20,6 @@ import {
   STYLES_BY_PURPOSE,
   DEFAULT_WA_TEMPLATE_STYLES,
   WA_REMINDER_OFFSET_PRESETS,
-  buttonVariantForPlan,
   type WaPurpose,
   type WaStyle,
 } from "@/lib/wa-templates/registry";
@@ -28,9 +27,6 @@ import { DEFAULT_KVKK_NOTICE_TEMPLATE, renderKvkkNotice } from "@/lib/kvkk";
 
 const STYLE_LABELS: Record<WaStyle, string> = {
   sicak: "Sıcak",
-  kisa: "Kısa",
-  detayli: "Detaylı",
-  hizmetli: "Hizmet Adı Belirtilen",
 };
 
 const PURPOSE_LABELS: Record<WaPurpose, string> = {
@@ -355,7 +351,7 @@ export default function AyarlarPage() {
         icon={MessageCircle}
         iconClassName="text-green-600"
         title="WhatsApp Şablon Stilleri"
-        description="Meta onaylı WhatsApp şablonlarının hangi üslupla gönderileceğini amaç başına seçin. Buton tipi (statik/dinamik) planınıza göre otomatik belirlenir."
+        description="Meta onaylı WhatsApp şablonlarının hangi üslupla gönderileceğini amaç başına gösterir."
       >
         {(Object.keys(PURPOSE_LABELS) as WaPurpose[]).map((purpose) => {
           const styles = STYLES_BY_PURPOSE[purpose];
@@ -385,14 +381,6 @@ export default function AyarlarPage() {
             </div>
           );
         })}
-        <div className="p-3 rounded-lg bg-muted/50 text-xs text-muted-foreground">
-          Buton tipi:{" "}
-          <strong>
-            {buttonVariantForPlan((org.plan ?? "starter") as OrgPlan) === "dinamik"
-              ? "Dinamik (randevu detay linki) — Pro/Business planı"
-              : "Statik (siriplan.com) — Starter planı"}
-          </strong>
-        </div>
       </SectionCard>
 
       {/* WhatsApp Bildirim Ayarları (hatırlatma / iptal) */}

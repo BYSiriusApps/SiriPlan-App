@@ -1,12 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import {
   resolveTemplate,
-  buttonVariantForPlan,
   type WaPurpose,
   type WaParamSource,
   type WaStyle,
 } from "@/lib/wa-templates/registry";
-import type { OrgPlan } from "@/types/database";
+import { googleMapsLink } from "@/lib/wa-template";
 
 /**
  * Meta onaylı WhatsApp şablon mesajı gönderiminin tek gerçek uygulaması.
@@ -51,7 +50,7 @@ export async function sendPurposeTemplate({
   const supabase = await createAdminClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("name, plan, wa_template_styles, phone, whatsapp_number")
+    .select("name, wa_template_styles, phone, whatsapp_number, address")
     .eq("id", orgId)
     .single();
 
@@ -66,8 +65,7 @@ export async function sendPurposeTemplate({
     return { skipped: true, reason: "template_not_found" };
   }
 
-  const btn = buttonVariantForPlan((org.plan ?? "starter") as OrgPlan);
-  const templateName = def.metaName(btn);
+  const templateName = def.metaName;
 
   const businessPhone =
     vars.business_phone?.trim() ||
@@ -76,10 +74,13 @@ export async function sendPurposeTemplate({
     process.env.PLATFORM_SUPPORT_PHONE ||
     "";
 
+  const locationLink = vars.location_link?.trim() || (org.address?.trim() ? googleMapsLink(org.address.trim()) : "");
+
   const paramValues: Record<WaParamSource, string> = {
     ...vars,
     business_name: org.name,
     business_phone: businessPhone,
+    location_link: locationLink,
   } as Record<WaParamSource, string>;
 
   const bodyParameters = def.bodyParamOrder.map((source) => ({
@@ -88,15 +89,6 @@ export async function sendPurposeTemplate({
   }));
 
   const components: Record<string, unknown>[] = [{ type: "body", parameters: bodyParameters }];
-
-  if (btn === "dinamik" && vars.appointment_no) {
-    components.push({
-      type: "button",
-      sub_type: "url",
-      index: "0",
-      parameters: [{ type: "text", text: vars.appointment_no }],
-    });
-  }
 
   const to = normalizePhone(toPhone);
 
