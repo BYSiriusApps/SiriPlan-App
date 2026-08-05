@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, ChevronRight, CalendarCheck, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, ChevronRight, CalendarCheck, Copy, Check, QrCode, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
@@ -24,6 +24,7 @@ import {
   type WaStyle,
 } from "@/lib/wa-templates/registry";
 import { DEFAULT_KVKK_NOTICE_TEMPLATE, renderKvkkNotice } from "@/lib/kvkk";
+import QRCode from "qrcode";
 
 const STYLE_LABELS: Record<WaStyle, string> = {
   sicak: "Sıcak",
@@ -100,6 +101,8 @@ export default function AyarlarPage() {
   const [staffList, setStaffList] = useState<StaffListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -164,6 +167,35 @@ export default function AyarlarPage() {
 
   function setField(field: keyof Organization, value: unknown) {
     setOrg((prev) => prev ? { ...prev, [field]: value } : prev);
+  }
+
+  const bookingLink = org?.slug
+    ? `${process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com"}/r/${org.slug}`
+    : "";
+
+  useEffect(() => {
+    if (!bookingLink) return;
+    QRCode.toDataURL(bookingLink, { width: 320, margin: 1 })
+      .then(setQrDataUrl)
+      .catch(() => setQrDataUrl(null));
+  }, [bookingLink]);
+
+  async function copyBookingLink() {
+    if (!bookingLink) return;
+    try {
+      await navigator.clipboard.writeText(bookingLink);
+      setLinkCopied(true);
+      toast.success("Link kopyalandı!");
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      toast.error("Link kopyalanamadı, elle seçip kopyalayın.");
+    }
+  }
+
+  function shareBookingLinkOnWhatsApp() {
+    if (!bookingLink) return;
+    const text = `${org?.name || "Salonumuz"} için online randevu almak isterseniz: ${bookingLink}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
   }
 
   if (loading || !org) {
@@ -237,6 +269,65 @@ export default function AyarlarPage() {
             </Select>
           </div>
         </div>
+      </SectionCard>
+
+      {/* Online randevu linki */}
+      <SectionCard
+        icon={CalendarCheck}
+        iconClassName="text-rose-600"
+        title="Online Randevu Linkim"
+        description="Bu linki sosyal medya biyografinize veya WhatsApp'tan müşterilerinize paylaşın. Müşterileriniz boş saatleri görüp kendileri randevu alabilir; onayladıkları KVKK metniyle birlikte otomatik olarak müşteri listenize eklenirler."
+      >
+        {org.slug ? (
+          <>
+            <div className="flex items-center gap-2 p-2.5 rounded-lg border border-border bg-muted/40">
+              <Link2 className="h-4 w-4 text-muted-foreground shrink-0" />
+              <a
+                href={bookingLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-primary truncate hover:underline flex-1 min-w-0"
+              >
+                {bookingLink}
+              </a>
+            </div>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" className="flex-1 gap-2" onClick={copyBookingLink}>
+                {linkCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {linkCopied ? "Kopyalandı" : "Linki Kopyala"}
+              </Button>
+              <Button
+                type="button"
+                className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
+                onClick={shareBookingLinkOnWhatsApp}
+              >
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp&apos;ta Paylaş
+              </Button>
+            </div>
+            <details className="group">
+              <summary className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none w-fit">
+                <QrCode className="h-3.5 w-3.5" />
+                QR kod ile paylaş
+              </summary>
+              <div className="mt-2 flex items-center gap-3 p-3 rounded-lg border border-border bg-white w-fit">
+                {qrDataUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={qrDataUrl} alt="Randevu linki QR kodu" width={160} height={160} />
+                ) : (
+                  <div className="h-[160px] w-[160px] flex items-center justify-center">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground max-w-[140px]">
+                  Salonunuzda basılı olarak asabilir, müşterileriniz telefonla okutarak direkt randevu sayfanıza ulaşabilir.
+                </p>
+              </div>
+            </details>
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">Randevu linkiniz oluşturulamadı, lütfen destek ekibiyle iletişime geçin.</p>
+        )}
       </SectionCard>
 
       {/* Integrations */}

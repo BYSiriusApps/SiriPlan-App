@@ -134,6 +134,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   // için bildirim gönderme — onay kanallarını gürültüye boğar. İptal ayrı ele alınır.
   const appointmentChanged = updates.appointment_at || updates.staff_id;
   const becameCancelled = previous && previous.status !== "iptal" && updates.status === "iptal";
+  const becameApproved = previous && previous.status === "talep" && updates.status === "onaylandi";
 
   if (appointmentChanged && data && updates.status !== "iptal") {
     const apptData = data as {
@@ -177,6 +178,24 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         toPhone: apptData.customer_phone,
         orgId: apptData.org_id,
         purpose: "iptal",
+        vars: { customer_name: apptData.customer_name, date, time },
+      }).catch(() => {});
+    }
+  }
+
+  // Bekleyen bir randevu talebi (talep) panelden onaylandığında müşteriye
+  // onay WhatsApp şablonu gönderilir — oluşturma anında sadece otomatik
+  // onaylanan randevularda gönderiliyordu, elle onayda müşteri hiç haber almıyordu.
+  if (becameApproved && data) {
+    const apptData = data as {
+      org_id: string; customer_name: string; customer_phone: string; appointment_at: string;
+    };
+    if (apptData.customer_phone) {
+      const { date, time } = formatApptDateTime(apptData.appointment_at);
+      sendPurposeTemplate({
+        toPhone: apptData.customer_phone,
+        orgId: apptData.org_id,
+        purpose: "onay",
         vars: { customer_name: apptData.customer_name, date, time },
       }).catch(() => {});
     }
