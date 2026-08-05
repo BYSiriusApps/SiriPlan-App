@@ -125,6 +125,7 @@ export interface Customer {
   kvkk_consent_at: string | null;
   marketing_consent: boolean;
   marketing_consent_at: string | null;
+  online_booking_blocked: boolean;
   created_at: string;
   updated_at: string;
 }

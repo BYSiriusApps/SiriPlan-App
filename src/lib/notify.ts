@@ -23,16 +23,38 @@ interface Recipient {
   label: string;
 }
 
+/** Randevunun nereden geldiğini kısa, okunur bir etikete çevirir. */
+function sourceLabel(source?: string | null): string {
+  switch (source) {
+    case "web":
+    case "website":
+      return "🌐 Online Randevu Linki";
+    case "whatsapp":
+      return "💬 WhatsApp";
+    case "instagram":
+      return "📷 Instagram";
+    case "tiktok":
+      return "🎵 TikTok";
+    case "telefon":
+      return "☎️ Telefon";
+    case "yuzyuze":
+      return "🏠 Yüz Yüze (Panel)";
+    default:
+      return "✍️ Manuel (Personel)";
+  }
+}
+
 function buildMessage(appt: AppointmentForNotify, serviceName: string, staffName: string, isRequest = false): string {
   const date = new Date(appt.appointment_at).toLocaleString("tr-TR", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "Europe/Istanbul",
   });
+  const source = sourceLabel(appt.source);
 
   if (isRequest) {
     return (
-      `📋 <b>Yeni Randevu Talebi</b>\n\n` +
+      `📋 <b>Yeni Randevu Talebi</b> — ${source}\n\n` +
       `👤 ${appt.customer_name} (${appt.customer_phone})\n` +
       `💇 ${serviceName}\n` +
       `👩‍💼 ${staffName}\n` +
@@ -44,7 +66,7 @@ function buildMessage(appt: AppointmentForNotify, serviceName: string, staffName
   }
 
   return (
-    `✅ <b>Randevu Onaylandı</b>\n\n` +
+    `✅ <b>Randevu Onaylandı</b> — ${source}\n\n` +
     `👤 ${appt.customer_name} (${appt.customer_phone})\n` +
     `💇 ${serviceName}\n` +
     `👩‍💼 ${staffName}\n` +

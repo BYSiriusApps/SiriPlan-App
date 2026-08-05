@@ -6,10 +6,11 @@ import { tr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle } from "lucide-react";
+import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle, Ban } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Customer, Appointment } from "@/types/database";
 import SendKvkkLinkButton from "./SendKvkkLinkButton";
+import BlockOnlineBookingToggle from "./BlockOnlineBookingToggle";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800";
@@ -132,6 +133,17 @@ export default async function MusteriDetailPage({
                       : "onaylı"
                     : "— onay verilmedi"}
                 </span>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                {c.online_booking_blocked ? (
+                  <Ban className="h-4 w-4 shrink-0 text-red-500" />
+                ) : (
+                  <ShieldCheck className="h-4 w-4 shrink-0 text-muted-foreground/40" />
+                )}
+                <span className={cn("text-xs", c.online_booking_blocked ? "text-red-600 font-medium" : "text-muted-foreground")}>
+                  {c.online_booking_blocked ? "Online randevu engelli" : "Online randevu açık"}
+                </span>
+                <BlockOnlineBookingToggle customerId={c.id} blocked={!!c.online_booking_blocked} />
               </div>
             </div>
           </CardContent>

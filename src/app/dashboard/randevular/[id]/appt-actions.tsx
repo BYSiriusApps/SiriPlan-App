@@ -65,7 +65,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
     await patch({ internal_note: internalNote }, "note", "Not kaydedildi");
   }
 
-  async function sendNotify(purpose: "hatirlatma" | "iptal", actionKey: string, successMsg: string) {
+  async function sendNotify(purpose: "onay" | "hatirlatma" | "iptal", actionKey: string, successMsg: string) {
     setLoading(actionKey);
     const res = await fetch(`/api/appointments/${appt.id}/notify`, {
       method: "POST",
@@ -196,16 +196,28 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
 
             {/* Manuel WhatsApp bildirimleri */}
             {appt.status === "onaylandi" && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => sendNotify("hatirlatma", "notify-reminder", "Hatırlatma gönderildi")}
-                disabled={!!loading}
-              >
-                {loading === "notify-reminder" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
-                Hatırlatmayı Şimdi Gönder
-              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => sendNotify("onay", "notify-confirm", "Onay mesajı yeniden gönderildi")}
+                  disabled={!!loading}
+                >
+                  {loading === "notify-confirm" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
+                  Onayı Yeniden Gönder
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => sendNotify("hatirlatma", "notify-reminder", "Hatırlatma gönderildi")}
+                  disabled={!!loading}
+                >
+                  {loading === "notify-reminder" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
+                  Hatırlatmayı Şimdi Gönder
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>

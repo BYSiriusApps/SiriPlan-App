@@ -70,6 +70,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Bu salon şu an aktif aboneliğe sahip değil." }, { status: 403 });
   }
 
+  // Panelden (giriş yapmış, org üyesi) girilen randevular ile anonim
+  // /r/[slug] self-servis rezervasyonlarını ayırt etmek için erkenden çözülür —
+  // hem çakışma engeli (online_booking_blocked) hem initialStatus hesaplaması bunu kullanır.
+  const { data: { user: callingUser } } = await supabase.auth.getUser();
+  let isPanelBooking = false;
+  if (callingUser) {
+    const callingMember = await getActiveMember(supabase);
+    isPanelBooking = callingMember?.org_id === data.org_id;
+  }
+
   // ── Otomatik Randevu Akışı ────────────────────────────────────
   // instagram/whatsapp kaynağından gelen istekler has_auto_booking flag'ine göre
   // ya direkt appointments'a düşer ya da onay kuyruğuna gönderilir.
@@ -196,10 +206,19 @@ export async function POST(req: NextRequest) {
   let customerId: string | null = null;
   const { data: existingCustomer } = await adminSupabase
     .from("customers")
-    .select("id")
+    .select("id, online_booking_blocked")
     .eq("org_id", data.org_id)
     .eq("phone", data.customer_phone)
     .single();
+
+  // Sık gelmeyen/no-show müşteriler için: sadece anonim self-servis akışını
+  // (online widget) engeller — panelden (isPanelBooking) elle randevu her zaman serbest.
+  if (!isPanelBooking && existingCustomer?.online_booking_blocked) {
+    return NextResponse.json(
+      { error: "Bu saat için online randevu alınamıyor. Lütfen bizi arayın." },
+      { status: 403 }
+    );
+  }
 
   const consentFields =
     typeof data.kvkk_consent === "boolean"
@@ -274,12 +293,6 @@ export async function POST(req: NextRequest) {
   // Panelden (giriş yapmış, org üyesi) girilen randevular direkt onaylı düşer.
   // Herkese açık rezervasyon widget'ından (/r/[slug], anonim) gelenler, has_auto_booking
   // açıksa (ve plan destekliyorsa) da direkt onaylanır; aksi halde onay bekler.
-  const { data: { user: callingUser } } = await supabase.auth.getUser();
-  let isPanelBooking = false;
-  if (callingUser) {
-    const callingMember = await getActiveMember(supabase);
-    isPanelBooking = callingMember?.org_id === data.org_id;
-  }
   const webAutoBookingEligible = data.source === "web" && !!org.has_auto_booking && planAllowsAutoBooking;
   const initialStatus = isPanelBooking || webAutoBookingEligible ? "onaylandi" : "talep";
 
