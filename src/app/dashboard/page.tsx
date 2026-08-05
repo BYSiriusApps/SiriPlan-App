@@ -11,6 +11,7 @@ import {
 import { tr, enUS, ru, ar } from "date-fns/locale";
 import {
   Calendar, MessageCircle, Megaphone, Star, ChevronRight, Plus,
+  Clock, BarChart3, Wallet, Users, Scissors,
 } from "lucide-react";
 import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
 import Link from "next/link";
@@ -85,6 +86,8 @@ export default async function DashboardPage() {
   const weekEnd = endOfWeek(now, { weekStartsOn: 1 }).toISOString();
   const monthStart = startOfMonth(now).toISOString();
   const monthEnd = endOfMonth(now).toISOString();
+  const monthStartDate = format(startOfMonth(now), "yyyy-MM-dd");
+  const monthEndDate = format(endOfMonth(now), "yyyy-MM-dd");
   const day7Start = startOfDay(subDays(now, 6)).toISOString();
 
   const [
@@ -98,6 +101,12 @@ export default async function DashboardPage() {
     { data: latestCampaign },
     userShortcuts,
     dashboardWidgetPrefs,
+    { count: staffCount },
+    { count: activeServicesCount },
+    { data: activeServices },
+    { data: monthAppts },
+    { data: monthExpenses },
+    { data: recentCustomers },
   ] = await Promise.all([
     supabase
       .from("appointments")
@@ -168,6 +177,48 @@ export default async function DashboardPage() {
 
     getUserShortcuts(),
     getDashboardWidgetPrefs(),
+
+    supabase
+      .from("staff")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .eq("is_active", true),
+
+    supabase
+      .from("services")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .eq("is_active", true),
+
+    supabase
+      .from("services")
+      .select("id, name, price, duration_minutes")
+      .eq("org_id", orgId)
+      .eq("is_active", true)
+      .order("display_order")
+      .limit(4),
+
+    supabase
+      .from("appointments")
+      .select("price, tip, status")
+      .eq("org_id", orgId)
+      .gte("appointment_at", monthStart)
+      .lte("appointment_at", monthEnd)
+      .eq("status", "tamamlandi"),
+
+    supabase
+      .from("expenses")
+      .select("type, amount")
+      .eq("org_id", orgId)
+      .gte("date", monthStartDate)
+      .lte("date", monthEndDate),
+
+    supabase
+      .from("customers")
+      .select("id, full_name, phone, created_at")
+      .eq("org_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(4),
   ]);
 
   type FullAppt = Appointment & {
@@ -223,6 +274,33 @@ export default async function DashboardPage() {
     if (diff >= 0 && diff < 7) dailyRev[diff] += Number(a.price);
   });
 
+  /* Bugün çalışan personel — bugünkü randevulardan gruplanır */
+  const staffTodayMap = new Map<string, number>();
+  appts.forEach((a) => {
+    const name = a.staff?.full_name;
+    if (name) staffTodayMap.set(name, (staffTodayMap.get(name) ?? 0) + 1);
+  });
+  const staffToday = [...staffTodayMap.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4);
+
+  /* Bu ayki ciro/randevu (Raporlar kutucuğu) */
+  const monthRows = (monthAppts ?? []) as { price: number; tip: number | null }[];
+  const monthRevenue = monthRows.reduce((s, a) => s + Number(a.price) + Number(a.tip ?? 0), 0);
+  const monthApptsCount = monthRows.length;
+
+  /* Bu ayki gelir/gider (Gelir Gider kutucuğu) */
+  const expenseRows = (monthExpenses ?? []) as { type: string; amount: number }[];
+  const expenseTotal = expenseRows.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
+  const extraIncomeTotal = expenseRows.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
+  const netTotal = monthRevenue + extraIncomeTotal - expenseTotal;
+
+  /* Aktif hizmetler (Hizmetler kutucuğu) */
+  const servicesList = (activeServices ?? []) as { id: string; name: string; price: number; duration_minutes: number }[];
+
+  /* Son eklenen müşteriler (Yeni Müşteri kutucuğu) */
+  const recentCustList = (recentCustomers ?? []) as { id: string; full_name: string; phone: string; created_at: string }[];
+
   const firstName =
     (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] ??
     user.email?.split("@")[0] ?? "";
@@ -238,44 +316,6 @@ export default async function DashboardPage() {
   };
 
   const widgets: DashboardWidget[] = [
-    {
-      key: "quick_actions",
-      label: "Hızlı İşlemler",
-      colSpanClass: "lg:col-span-4",
-      node: <QuickActionsPanel key="quick_actions" initialShortcuts={userShortcuts} orgId={orgId} />,
-    },
-    {
-      key: "revenue_summary",
-      label: "Ciro Özeti",
-      colSpanClass: "lg:col-span-8",
-      node: (
-        <GlassCard3D key="revenue_summary" className="glass-card h-full" glow intensity={4}>
-          <CardTitle
-            right={
-              <span className="text-[11px] text-muted-foreground capitalize">
-                {format(now, "MMM yyyy", { locale: dateFnsLocale })}
-              </span>
-            }
-          >
-            {t("homePage.campaignStatus")}
-          </CardTitle>
-          <div className="px-4 py-3.5">
-            <Sparkline data={dailyRev} />
-            <div className="flex items-center justify-between mt-3">
-              <span className="text-sm font-bold text-primary">
-                {t("homePage.efficiencyLabel", { value: efficiency })}
-              </span>
-              <span className="text-sm font-bold text-foreground">
-                {t("homePage.newCustomersLabel", { count: newCustCount })}
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-1.5">
-              {t("homePage.chartCaption")}
-            </p>
-          </div>
-        </GlassCard3D>
-      ),
-    },
     {
       key: "active_appointments",
       label: "Aktif Randevular",
@@ -340,6 +380,52 @@ export default async function DashboardPage() {
             <span className="flex items-center gap-1.5">
               <span className="status-dot done" /> {t("homePage.doneCountLabel", { count: doneCount })}
             </span>
+          </div>
+        </GlassCard3D>
+      ),
+    },
+    {
+      key: "daily_calendar",
+      label: "Takvim (Bugün)",
+      colSpanClass: "lg:col-span-7",
+      node: (
+        <GlassCard3D key="daily_calendar" className="glass-card h-full" glow intensity={4}>
+          <CardTitle
+            right={
+              <Link href="/dashboard/takvim" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+                {t("all")} <ChevronRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            {t("homePage.dailyCalendar")}
+          </CardTitle>
+          <div className="px-4 py-3.5">
+            {appts.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-2">{t("homePage.todayScheduleEmpty")}</p>
+            ) : (
+              <div className="space-y-1.5">
+                {appts.slice(0, 6).map((a) => (
+                  <Link
+                    key={a.id}
+                    href={`/dashboard/randevular/${a.id}`}
+                    className="flex items-center gap-2.5 text-[13px] leading-snug hover:opacity-80 transition-opacity"
+                  >
+                    <span className="tabular-nums shrink-0 w-12 text-primary font-semibold flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> {format(new Date(a.appointment_at), "HH:mm")}
+                    </span>
+                    <span className="truncate flex-1 text-foreground">{a.customer_name}</span>
+                    {a.staff?.full_name && (
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded-md shrink-0 text-muted-foreground"
+                        style={{ background: "color-mix(in oklch, var(--accent) 30%, transparent)" }}
+                      >
+                        {a.staff.full_name}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </GlassCard3D>
       ),
@@ -485,6 +571,236 @@ export default async function DashboardPage() {
             )}
           </div>
         </div>
+      ),
+    },
+    {
+      key: "new_customer",
+      label: "Yeni Müşteriler",
+      colSpanClass: "lg:col-span-5",
+      node: (
+        <GlassCard3D key="new_customer" className="glass-card h-full" glow intensity={4}>
+          <CardTitle
+            right={
+              <Link href="/dashboard/musteriler" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+                {t("all")} <ChevronRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            {t("homePage.newCustomersTitle")}
+          </CardTitle>
+          <div className="flex gap-4 px-4 py-3.5">
+            <div className="shrink-0 text-center">
+              <p className="stat-number text-primary">{newCustCount}</p>
+              <p className="text-[11px] text-muted-foreground mt-1.5">{t("homePage.newCustomersThisMonth", { count: newCustCount })}</p>
+            </div>
+            <div className="flex-1 min-w-0 space-y-1.5">
+              {recentCustList.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">{t("homePage.noNewCustomers")}</p>
+              ) : (
+                recentCustList.map((c) => (
+                  <Link
+                    key={c.id}
+                    href="/dashboard/musteriler"
+                    className="flex items-center justify-between gap-2 text-[13px] leading-snug hover:opacity-80 transition-opacity"
+                  >
+                    <span className="truncate text-foreground">{c.full_name}</span>
+                    <span className="tabular-nums shrink-0 text-muted-foreground text-[11px]">
+                      {format(new Date(c.created_at), "d MMM", { locale: dateFnsLocale })}
+                    </span>
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+        </GlassCard3D>
+      ),
+    },
+    {
+      key: "reports_summary",
+      label: "Raporlar",
+      colSpanClass: "lg:col-span-6",
+      node: (
+        <GlassCard3D key="reports_summary" className="glass-card h-full" glow intensity={4}>
+          <CardTitle
+            right={
+              <Link href="/dashboard/raporlar" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+                {t("all")} <ChevronRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            {t("homePage.reportsTitle")}
+          </CardTitle>
+          <div className="px-4 py-3.5 flex items-center gap-3">
+            <span
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: "color-mix(in oklch, var(--primary) 15%, transparent)" }}
+            >
+              <BarChart3 className="h-5 w-5 text-primary" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-lg font-bold text-foreground truncate">
+                ₺{monthRevenue.toLocaleString("tr-TR")}
+              </p>
+              <p className="text-[11px] text-muted-foreground">{t("homePage.monthRevenueLabel")}</p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-sm font-semibold text-foreground">{t("homePage.monthApptsCountLabel", { count: monthApptsCount })}</p>
+            </div>
+          </div>
+        </GlassCard3D>
+      ),
+    },
+    {
+      key: "income_expense",
+      label: "Gelir & Gider",
+      colSpanClass: "lg:col-span-6",
+      node: (
+        <GlassCard3D key="income_expense" className="glass-card h-full" glow intensity={4}>
+          <CardTitle
+            right={
+              <Link href="/dashboard/gelir-gider" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+                {t("all")} <ChevronRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            {t("homePage.incomeExpenseTitle")}
+          </CardTitle>
+          <div className="px-4 py-3.5">
+            <div className="flex items-center gap-3 mb-3">
+              <span
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: "color-mix(in oklch, var(--primary) 15%, transparent)" }}
+              >
+                <Wallet className="h-5 w-5 text-primary" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-lg font-bold text-foreground truncate">₺{netTotal.toLocaleString("tr-TR")}</p>
+                <p className="text-[11px] text-muted-foreground">{t("homePage.netLabel")}</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-[13px] py-1">
+              <span className="text-muted-foreground">{t("homePage.extraIncomeLabel")}</span>
+              <span className="font-semibold" style={{ color: "var(--chart-2)" }}>+₺{extraIncomeTotal.toLocaleString("tr-TR")}</span>
+            </div>
+            <div className="flex items-center justify-between text-[13px] py-1">
+              <span className="text-muted-foreground">{t("homePage.expenseLabel")}</span>
+              <span className="font-semibold" style={{ color: "var(--destructive)" }}>-₺{expenseTotal.toLocaleString("tr-TR")}</span>
+            </div>
+          </div>
+        </GlassCard3D>
+      ),
+    },
+    {
+      key: "quick_actions",
+      label: "Hızlı İşlemler",
+      colSpanClass: "lg:col-span-4",
+      node: <QuickActionsPanel key="quick_actions" initialShortcuts={userShortcuts} orgId={orgId} />,
+    },
+    {
+      key: "revenue_summary",
+      label: "Ciro Özeti",
+      colSpanClass: "lg:col-span-8",
+      node: (
+        <GlassCard3D key="revenue_summary" className="glass-card h-full" glow intensity={4}>
+          <CardTitle
+            right={
+              <span className="text-[11px] text-muted-foreground capitalize">
+                {format(now, "MMM yyyy", { locale: dateFnsLocale })}
+              </span>
+            }
+          >
+            {t("homePage.campaignStatus")}
+          </CardTitle>
+          <div className="px-4 py-3.5">
+            <Sparkline data={dailyRev} />
+            <div className="flex items-center justify-between mt-3">
+              <span className="text-sm font-bold text-primary">
+                {t("homePage.efficiencyLabel", { value: efficiency })}
+              </span>
+              <span className="text-sm font-bold text-foreground">
+                {t("homePage.newCustomersLabel", { count: newCustCount })}
+              </span>
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1.5">
+              {t("homePage.chartCaption")}
+            </p>
+          </div>
+        </GlassCard3D>
+      ),
+    },
+    {
+      key: "staff_today",
+      label: "Personel",
+      colSpanClass: "lg:col-span-6",
+      node: (
+        <GlassCard3D key="staff_today" className="glass-card h-full" glow intensity={4}>
+          <CardTitle
+            right={
+              <Link href="/dashboard/personel" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+                {t("all")} <ChevronRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            {t("homePage.staffTitle")}
+          </CardTitle>
+          <div className="px-4 py-3.5 space-y-2.5">
+            <p className="text-[12px] text-muted-foreground">
+              {t("homePage.activeStaffCountLabel", { count: staffCount ?? 0 })}
+            </p>
+            {staffToday.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t("homePage.noStaffToday")}</p>
+            ) : (
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-medium text-muted-foreground">{t("homePage.workingTodayLabel")}</p>
+                {staffToday.map(([name, count]) => (
+                  <div key={name} className="flex items-center justify-between text-[13px]">
+                    <span className="flex items-center gap-2 text-foreground truncate">
+                      <Users className="h-3.5 w-3.5 text-primary shrink-0" /> {name}
+                    </span>
+                    <span className="tabular-nums shrink-0 text-muted-foreground text-[11px]">{count}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </GlassCard3D>
+      ),
+    },
+    {
+      key: "services_summary",
+      label: "Hizmetler",
+      colSpanClass: "lg:col-span-6",
+      node: (
+        <GlassCard3D key="services_summary" className="glass-card h-full" glow intensity={4}>
+          <CardTitle
+            right={
+              <Link href="/dashboard/hizmetler" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+                {t("all")} <ChevronRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            {t("homePage.servicesTitle")}
+          </CardTitle>
+          <div className="px-4 py-3.5 space-y-2">
+            <p className="text-[12px] text-muted-foreground">
+              {t("homePage.activeServicesCountLabel", { count: activeServicesCount ?? 0 })}
+            </p>
+            {servicesList.map((s) => (
+              <Link
+                key={s.id}
+                href="/dashboard/hizmetler"
+                className="flex items-center justify-between gap-2 text-[13px] leading-snug hover:opacity-80 transition-opacity"
+              >
+                <span className="flex items-center gap-2 truncate text-foreground">
+                  <Scissors className="h-3.5 w-3.5 text-primary shrink-0" /> {s.name}
+                </span>
+                <span className="tabular-nums shrink-0 text-muted-foreground text-[11px]">
+                  ₺{Number(s.price).toLocaleString("tr-TR")} · {s.duration_minutes}{t("minutesShort")}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </GlassCard3D>
       ),
     },
   ];

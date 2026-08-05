@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, ChevronRight, CalendarCheck, Copy, Check, QrCode, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
@@ -144,6 +144,7 @@ export default function AyarlarPage() {
         city: org.city,
         instagram_handle: org.instagram_handle,
         whatsapp_number: org.whatsapp_number,
+        telegram_chat_id: org.telegram_chat_id,
         locale: org.locale,
         working_hours_json: org.working_hours_json,
         custom_reminder_message: org.custom_reminder_message,
@@ -352,6 +353,32 @@ export default function AyarlarPage() {
               {" "}ile iletişime geçin.
             </p>
           </div>
+        </div>
+
+        <div className="pt-1 space-y-2">
+          <Label className="flex items-center gap-1.5">
+            <Send className="h-3.5 w-3.5 text-primary" />
+            Telegram Bildirimleri (Chat ID)
+          </Label>
+          <Input
+            className="mt-1"
+            value={org.telegram_chat_id || ""}
+            onChange={(e) => setField("telegram_chat_id", e.target.value)}
+            placeholder="123456789"
+          />
+          <p className="text-xs text-muted-foreground">
+            Yeni bir randevu oluştuğunda (online veya elle) buraya anında Telegram bildirimi gönderilir.
+          </p>
+          <details className="group">
+            <summary className="text-xs text-primary cursor-pointer select-none w-fit hover:underline">
+              Chat ID&apos;mi nasıl bulurum?
+            </summary>
+            <ol className="mt-2 text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+              <li>Telegram&apos;da salonumuzun bildirim botunu bulup <strong>Başlat / Start</strong>&apos;a basın.</li>
+              <li>Bot size bir Chat ID numarası gönderecek.</li>
+              <li>Bu numarayı yukarıya yapıştırıp kaydedin — artık her randevuda bildirim alırsınız.</li>
+            </ol>
+          </details>
         </div>
       </SectionCard>
 

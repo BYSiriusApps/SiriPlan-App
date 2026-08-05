@@ -19,6 +19,7 @@ export interface Organization {
   cover_url: string | null;
   instagram_handle: string | null;
   whatsapp_number: string | null;
+  telegram_chat_id: string | null;
   working_hours_json: Record<string, { open: string; close: string } | null>;
   plan: OrgPlan;
   subscription_status: string;
