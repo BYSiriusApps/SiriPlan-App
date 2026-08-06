@@ -7,13 +7,17 @@ export async function Footer() {
   const t = await getTranslations("footer");
   const tCat = await getTranslations("categories");
 
-  const productLinks = [
-    { key: "features",     href: "/ozellikler"    },
-    { key: "pricing",      href: "/fiyatlar"      },
-    { key: "demo",         href: "/demo"          },
-    { key: "integrations", href: "/entegrasyonlar" },
-    { key: "faq",          href: "/sss"           },
-  ] as const;
+  // Demo ortamı şu an yok — link geçici olarak gizli, altyapı (/demo route'u) korunuyor.
+  const DEMO_ENABLED = false;
+  const productLinks = (
+    [
+      { key: "features",     href: "/ozellikler"    },
+      { key: "pricing",      href: "/fiyatlar"      },
+      { key: "demo",         href: "/demo"          },
+      { key: "integrations", href: "/entegrasyonlar" },
+      { key: "faq",          href: "/sss"           },
+    ] as const
+  ).filter((l) => DEMO_ENABLED || l.key !== "demo");
 
   const categoryLinks = [
     { key: "hairdresser", href: "/kategori/kuafor"     },
