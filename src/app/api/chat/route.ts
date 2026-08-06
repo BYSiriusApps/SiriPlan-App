@@ -9,7 +9,7 @@ Temel bilgiler:
 - Platform: siriplan.com
 - Destek: destek@siriplan.com | WhatsApp: +90 535 503 26 34
 - Fiyatlar: Starter $39/ay, Pro $69/ay, Business $119/ay
-- 7 gün ücretsiz deneme, kredi kartı gerekmez
+- 14 gün ücretsiz deneme, kredi kartı gerekmez
 - Desteklenen sektörler: Kuaför, Berber, Güzellik Salonu, SPA & Masaj, Nail Salon, Estetik Klinik, Makyaj Stüdyosu, Tattoo Studio, Diyetisyen, Kaş & Kirpik
 
 Ana özellikler:
@@ -41,10 +41,10 @@ function getStaticResponse(message: string): string {
   const msg = message.toLowerCase();
 
   if (msg.includes("fiyat") || msg.includes("ücret") || msg.includes("price") || msg.includes("cost")) {
-    return "Siriplan 3 plan sunuyor: Starter $39/ay, Pro $69/ay, Business $119/ay. Hepsi 7 gün ücretsiz deneme ile geliyor, kredi kartı gerekmez. Detaylar için siriplan.com/fiyatlar";
+    return "Siriplan 3 plan sunuyor: Starter $39/ay, Pro $69/ay, Business $119/ay. Hepsi 14 gün ücretsiz deneme ile geliyor, kredi kartı gerekmez. Detaylar için siriplan.com/fiyatlar";
   }
   if (msg.includes("deneme") || msg.includes("ücretsiz") || msg.includes("free") || msg.includes("trial")) {
-    return "Evet! 7 gün boyunca tüm Pro özelliklerini ücretsiz deneyebilirsiniz. Kredi kartı gerekmez, istediğiniz zaman iptal edilebilir. Başlamak için: siriplan.com/auth/kayit";
+    return "Evet! 14 gün boyunca tüm Pro özelliklerini ücretsiz deneyebilirsiniz. Kredi kartı gerekmez, istediğiniz zaman iptal edilebilir. Başlamak için: siriplan.com/auth/kayit";
   }
   if (msg.includes("whatsapp") || msg.includes("ai") || msg.includes("asistan")) {
     return "Siriplan'ın AI asistanı WhatsApp ve Instagram DM'lerinizi 7/24 yanıtlar — randevu alır, fiyat sorusu yanıtlar, ön ödeme toplar. Pro planla aktif olur.";

@@ -150,7 +150,7 @@ export default function PlanSecPage() {
             <div className="max-w-lg mx-auto mb-6 flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 px-4 py-3 text-left">
               <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
               <p className="text-sm text-amber-800 dark:text-amber-300">
-                <strong>7 günlük ücretsiz deneme süreniz doldu.</strong> Panele erişmeye devam
+                <strong>14 günlük ücretsiz deneme süreniz doldu.</strong> Panele erişmeye devam
                 etmek için aşağıdan bir plan seçin — verileriniz güvende, hiçbir şey silinmedi.
               </p>
             </div>
@@ -159,7 +159,7 @@ export default function PlanSecPage() {
           <p className="text-muted-foreground">
             {expired || trialActive === false
               ? "İstediğiniz zaman iptal"
-              : "7 gün ücretsiz deneme • İstediğiniz zaman iptal"}
+              : "14 gün ücretsiz deneme • İstediğiniz zaman iptal"}
           </p>
 
           <div className="flex items-center justify-center gap-3 mt-6">

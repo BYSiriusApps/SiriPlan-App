@@ -62,7 +62,7 @@ export default function DemoPage() {
             Siriplan&apos;ı Keşfedin
           </h1>
           <p className="text-muted-foreground text-lg">
-            7 gün ücretsiz deneme ile tüm özellikleri kendi salonunuzda test edin.
+            14 gün ücretsiz deneme ile tüm özellikleri kendi salonunuzda test edin.
             Kredi kartı gerekmez.
           </p>
         </div>
@@ -106,7 +106,7 @@ export default function DemoPage() {
         <div className="text-center max-w-lg mx-auto">
           <h2 className="text-2xl font-bold mb-4">Hemen Başlayın</h2>
           <p className="text-muted-foreground mb-6">
-            Demo izlemek yerine doğrudan salonunuzla deneyin. 7 gün boyunca tüm özellikler ücretsiz.
+            Demo izlemek yerine doğrudan salonunuzla deneyin. 14 gün boyunca tüm özellikler ücretsiz.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/auth/kayit">
@@ -122,7 +122,7 @@ export default function DemoPage() {
             </Link>
           </div>
           <p className="text-xs text-muted-foreground mt-4">
-            ✓ Kredi kartı gerekmez &nbsp;·&nbsp; ✓ 7 gün ücretsiz &nbsp;·&nbsp; ✓ İstediğin zaman iptal
+            ✓ Kredi kartı gerekmez &nbsp;·&nbsp; ✓ 14 gün ücretsiz &nbsp;·&nbsp; ✓ İstediğin zaman iptal
           </p>
         </div>
       </div>

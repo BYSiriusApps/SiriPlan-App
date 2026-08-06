@@ -213,7 +213,7 @@ export default function OzelliklerPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
             <Link href="/auth/kayit">
               <Button className="bg-primary hover:bg-primary/90 gap-2 h-11 px-7">
-                7 Gün Ücretsiz Dene
+                14 Gün Ücretsiz Dene
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
@@ -268,7 +268,7 @@ export default function OzelliklerPage() {
       <section className="py-16 bg-muted/20 border-t border-border">
         <div className="container mx-auto px-4 text-center max-w-xl">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            Tüm Özellikleri 7 Gün Ücretsiz Deneyin
+            Tüm Özellikleri 14 Gün Ücretsiz Deneyin
           </h2>
           <p className="text-muted-foreground mb-6">
             Kredi kartı gerekmez. İstediğiniz zaman iptal. Verileriniz her zaman sizin.

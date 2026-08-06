@@ -68,7 +68,7 @@ O gün kalan boş saatler için "Flash kampanya" mesajı gönderin. WhatsApp lis
 
 Bu 7 yöntemi birlikte uyguladığınızda doluluk oranınızın 4-8 haftada belirgin şekilde arttığını göreceksiniz. Siriplan, tüm bu adımları tek platformdan otomatize etmenizi sağlar.
 
-**7 gün ücretsiz deneyin, farkı kendiniz görün.**
+**14 gün ücretsiz deneyin, farkı kendiniz görün.**
     `,
   },
   {
@@ -202,7 +202,7 @@ Sadakat programı aktif kullanan Siriplan müşterilerinden elde edilen ortalama
 - Ortalama sepet tutarı: **+%18**
 - Müşteri yaşam döngüsü: **2.3x uzuyor**
 
-**Bugün başlayın — 7 gün ücretsiz.**
+**Bugün başlayın — 14 gün ücretsiz.**
     `,
   },
   {
@@ -406,7 +406,7 @@ Net kar = Ciro - Giderler. Siriplan bunu otomatik hesaplar.
 
 El hesabı ve Excel yerine Siriplan'ın otomatik raporlama sistemi ile her ay 3-4 saat tasarruf edin. Muhasebeci maliyetinizi düşürün.
 
-**7 gün ücretsiz deneyin.**
+**14 gün ücretsiz deneyin.**
     `,
   },
 ];

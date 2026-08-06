@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Fiyatlar",
-  description: "Siriplan fiyatlandırma — Starter $39/ay, Pro $69/ay, Business $119/ay. 7 gün ücretsiz deneme, kredi kartı gerekmez.",
+  description: "Siriplan fiyatlandırma — Starter $39/ay, Pro $69/ay, Business $119/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
 };
 
 const plans = [
@@ -95,8 +95,8 @@ const addons = [
 
 const faqs = [
   {
-    q: "7 günlük deneme gerçekten ücretsiz mi?",
-    a: "Evet, kredi kartı bilgisi gerekmez. 7 gün boyunca Pro özelliklerini kullanın, beğenirseniz devam edin.",
+    q: "14 günlük deneme gerçekten ücretsiz mi?",
+    a: "Evet, kredi kartı bilgisi gerekmez. 14 gün boyunca Pro özelliklerini kullanın, beğenirseniz devam edin.",
   },
   {
     q: "İstediğim zaman iptal edebilir miyim?",
@@ -124,7 +124,7 @@ export default function FiyatlarPage() {
         <div className="container mx-auto px-4 text-center max-w-2xl">
           <Badge variant="secondary" className="mb-5 gap-1.5 px-3 py-1 text-xs">
             <Check className="w-3 h-3 text-primary" />
-            7 Gün Ücretsiz — Kredi Kartı Gerekmez
+            14 Gün Ücretsiz — Kredi Kartı Gerekmez
           </Badge>
           <h1 className="text-3xl md:text-5xl font-bold mb-4">
             Şeffaf Fiyatlandırma,<br />
@@ -199,7 +199,7 @@ export default function FiyatlarPage() {
           </div>
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            7 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal · Verileriniz her zaman sizin
+            14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal · Verileriniz her zaman sizin
           </p>
         </div>
       </section>

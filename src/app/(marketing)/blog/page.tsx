@@ -79,7 +79,7 @@ export default function BlogPage() {
             </p>
             <Link href="/auth/kayit">
               <Button className="bg-primary hover:bg-primary/90 gap-2">
-                Ücretsiz Deneyin — 7 Gün
+                Ücretsiz Deneyin — 14 Gün
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>

@@ -34,8 +34,8 @@ const categories = [
     title: "Fiyatlandırma & Deneme",
     items: [
       {
-        q: "7 günlük deneme gerçekten ücretsiz mi?",
-        a: "Evet, herhangi bir kredi kartı bilgisi gerekmez. 7 gün boyunca Pro planın tüm özelliklerini ücretsiz kullanabilirsiniz.",
+        q: "14 günlük deneme gerçekten ücretsiz mi?",
+        a: "Evet, herhangi bir kredi kartı bilgisi gerekmez. 14 gün boyunca Pro planın tüm özelliklerini ücretsiz kullanabilirsiniz.",
       },
       {
         q: "Fiyatlar dolara mı?",

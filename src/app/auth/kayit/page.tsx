@@ -208,7 +208,7 @@ export default function KayitPage() {
             ))}
           </div>
         </div>
-        <CardTitle className="text-2xl">7 Gün Ücretsiz Deneyin</CardTitle>
+        <CardTitle className="text-2xl">14 Gün Ücretsiz Deneyin</CardTitle>
         <CardDescription>Kredi kartı gerekmez • Anında başlayın</CardDescription>
       </CardHeader>
       <CardContent>

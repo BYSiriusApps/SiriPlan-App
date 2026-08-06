@@ -141,7 +141,7 @@ export default function EntegrasyonlarPage() {
       <section className="py-12 border-t border-border">
         <div className="container mx-auto px-4 text-center max-w-xl">
           <h2 className="text-2xl font-bold mb-3">Tüm Entegrasyonları Ücretsiz Deneyin</h2>
-          <p className="text-muted-foreground mb-6">7 günlük deneme süresinde tüm entegrasyonlar dahil.</p>
+          <p className="text-muted-foreground mb-6">14 günlük deneme süresinde tüm entegrasyonlar dahil.</p>
           <Link href="/auth/kayit">
             <Button className="bg-primary hover:bg-primary/90 gap-2">
               Ücretsiz Başlayın <ArrowRight className="w-4 h-4" />
