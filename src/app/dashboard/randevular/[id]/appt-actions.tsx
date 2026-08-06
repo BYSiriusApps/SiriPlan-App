@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,8 @@ interface ApptActionsProps {
 
 export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptActionsProps) {
   const router = useRouter();
+  const t = useTranslations("dashboard");
+  const ta = useTranslations("dashboard.apptActions");
   const [loading, setLoading] = useState<string | null>(null);
   const [tip, setTip] = useState("");
   const [extraIncome, setExtraIncome] = useState("");
@@ -41,7 +44,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
       router.refresh();
     } else {
       const e = await res.json();
-      toast.error(e.error || "Hata oluştu");
+      toast.error(e.error || ta("genericError"));
     }
   }
 
@@ -58,16 +61,16 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
     });
     setLoading(null);
     if (res.ok) {
-      toast.success("Randevu tamamlandı ✓");
+      toast.success(ta("toastCompleted"));
       router.refresh();
     } else {
       const e = await res.json();
-      toast.error(e.error || "Hata oluştu");
+      toast.error(e.error || ta("genericError"));
     }
   }
 
   async function saveNote() {
-    await patch({ internal_note: internalNote }, "note", "Not kaydedildi");
+    await patch({ internal_note: internalNote }, "note", ta("toastNoteSaved"));
   }
 
   async function sendNotify(purpose: "onay" | "hatirlatma" | "iptal", actionKey: string, successMsg: string) {
@@ -82,9 +85,9 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
     if (res.ok && body.sent) {
       toast.success(successMsg);
     } else if (res.ok && body.skipped) {
-      toast.error("WhatsApp bağlantısı henüz kurulmadı.");
+      toast.error(ta("waNotConnected"));
     } else {
-      toast.error(body.error || "Gönderilemedi");
+      toast.error(body.error || ta("sendFailed"));
     }
   }
 
@@ -100,9 +103,9 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
     if (res.ok && body.sent) {
       toast.success(successMsg);
     } else if (res.ok && body.skipped) {
-      toast.error("SMS bağlantısı henüz kurulmadı (Ayarlar'dan sağlayıcı seçin).");
+      toast.error(ta("smsNotConnected"));
     } else {
-      toast.error(body.error || "SMS gönderilemedi");
+      toast.error(body.error || ta("smsSendFailed"));
     }
   }
 
@@ -111,20 +114,20 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
       {/* Internal note */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Dahili Not</CardTitle>
+          <CardTitle className="text-sm">{ta("internalNoteTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <textarea
             className="w-full text-sm border rounded-lg p-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[80px] bg-background"
             value={internalNote}
             onChange={(e) => setInternalNote(e.target.value)}
-            placeholder="Personel için dahili not..."
+            placeholder={ta("internalNotePlaceholder")}
             disabled={isDone}
           />
           {!isDone && (
             <Button size="sm" variant="outline" onClick={saveNote} disabled={loading === "note"}>
               {loading === "note" ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
-              Notu Kaydet
+              {ta("saveNote")}
             </Button>
           )}
         </CardContent>
@@ -135,7 +138,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4 flex items-center gap-2 text-sm text-muted-foreground">
             <Lock className="h-4 w-4 shrink-0" />
-            Bu randevu size atanmadığı için durumunu değiştiremezsiniz.
+            {ta("lockedMessage")}
           </CardContent>
         </Card>
       )}
@@ -143,28 +146,28 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
       {!isDone && canAct && (
         <Card className="border-0 shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">İşlemler</CardTitle>
+            <CardTitle className="text-sm">{ta("actionsTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {appt.status === "talep" && (
               <Button
                 className="w-full"
                 variant="outline"
-                onClick={() => patch({ status: "onaylandi" }, "approve", "Randevu onaylandı")}
+                onClick={() => patch({ status: "onaylandi" }, "approve", ta("toastApproved"))}
                 disabled={!!loading}
               >
                 {loading === "approve" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Onayla
+                {t("approve")}
               </Button>
             )}
 
             {/* Complete form */}
             {(appt.status === "talep" || appt.status === "onaylandi") && (
               <div className="space-y-3 pt-2 border-t">
-                <p className="text-sm font-medium text-muted-foreground">Tamamla</p>
+                <p className="text-sm font-medium text-muted-foreground">{ta("completeSectionTitle")}</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-xs">Bahşiş (₺)</Label>
+                    <Label className="text-xs">{ta("tipLabel")}</Label>
                     <Input
                       type="number"
                       min="0"
@@ -174,22 +177,22 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Ödeme Yöntemi</Label>
+                    <Label className="text-xs">{ta("paymentMethodLabel")}</Label>
                     <Select value={payMethod} onValueChange={(v) => v && setPayMethod(v)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="nakit">Nakit</SelectItem>
-                        <SelectItem value="kart">Kart</SelectItem>
-                        <SelectItem value="havale">Havale</SelectItem>
-                        <SelectItem value="diger">Diğer</SelectItem>
+                        <SelectItem value="nakit">{ta("paymentCash")}</SelectItem>
+                        <SelectItem value="kart">{ta("paymentCard")}</SelectItem>
+                        <SelectItem value="havale">{ta("paymentTransfer")}</SelectItem>
+                        <SelectItem value="diger">{ta("paymentOther")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Ekstra Gelir (₺) — opsiyonel</Label>
+                  <Label className="text-xs">{ta("extraIncomeLabel")}</Label>
                   <Input
                     type="number"
                     min="0"
@@ -198,12 +201,12 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
                     onChange={(e) => setExtraIncome(e.target.value)}
                   />
                   <p className="text-[11px] text-muted-foreground">
-                    Hizmet fiyatı dışında ek ücret alındıysa girin — Gelir &amp; Gider tablosuna otomatik işlenir.
+                    {ta("extraIncomeHint")}
                   </p>
                 </div>
                 <Button className="w-full" onClick={handleComplete} disabled={!!loading}>
                   {loading === "complete" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
-                  Tamamlandı Olarak İşaretle
+                  {ta("markCompletedBtn")}
                 </Button>
               </div>
             )}
@@ -213,20 +216,20 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
               <Button
                 variant="outline"
                 className="text-orange-600 border-orange-200 hover:bg-orange-50"
-                onClick={() => patch({ status: "gelmedi" }, "noshow", "No-show olarak işaretlendi")}
+                onClick={() => patch({ status: "gelmedi" }, "noshow", ta("toastNoShow"))}
                 disabled={!!loading}
               >
                 {loading === "noshow" ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <AlertTriangle className="h-3.5 w-3.5 mr-1" />}
-                Gelmedi
+                {t("noShow")}
               </Button>
               <Button
                 variant="outline"
                 className="text-red-600 border-red-200 hover:bg-red-50"
-                onClick={() => patch({ status: "iptal" }, "cancel", "Randevu iptal edildi")}
+                onClick={() => patch({ status: "iptal" }, "cancel", ta("toastCancelled"))}
                 disabled={!!loading}
               >
                 {loading === "cancel" ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <XCircle className="h-3.5 w-3.5 mr-1" />}
-                İptal Et
+                {t("cancelAction")}
               </Button>
             </div>
 
@@ -237,21 +240,21 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
                   variant="outline"
                   size="sm"
                   className="w-full"
-                  onClick={() => sendNotify("onay", "notify-confirm", "Onay mesajı yeniden gönderildi")}
+                  onClick={() => sendNotify("onay", "notify-confirm", ta("toastConfirmResent"))}
                   disabled={!!loading}
                 >
                   {loading === "notify-confirm" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
-                  Onayı Yeniden Gönder
+                  {ta("resendConfirm")}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   className="w-full"
-                  onClick={() => sendNotify("hatirlatma", "notify-reminder", "Hatırlatma gönderildi")}
+                  onClick={() => sendNotify("hatirlatma", "notify-reminder", ta("toastReminderSent"))}
                   disabled={!!loading}
                 >
                   {loading === "notify-reminder" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
-                  Hatırlatmayı Şimdi Gönder
+                  {ta("sendReminderNow")}
                 </Button>
               </div>
             )}
@@ -263,21 +266,21 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
                   variant="outline"
                   size="sm"
                   className="w-full"
-                  onClick={() => sendSms("onay", "sms-confirm", "Onay SMS'i gönderildi")}
+                  onClick={() => sendSms("onay", "sms-confirm", ta("toastConfirmSmsSent"))}
                   disabled={!!loading}
                 >
                   {loading === "sms-confirm" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <MessageSquareText className="h-3.5 w-3.5 mr-1" />}
-                  Onay SMS Gönder
+                  {ta("sendConfirmSms")}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   className="w-full"
-                  onClick={() => sendSms("hatirlatma", "sms-reminder", "Hatırlatma SMS'i gönderildi")}
+                  onClick={() => sendSms("hatirlatma", "sms-reminder", ta("toastReminderSmsSent"))}
                   disabled={!!loading}
                 >
                   {loading === "sms-reminder" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <MessageSquareText className="h-3.5 w-3.5 mr-1" />}
-                  Hatırlatma SMS Gönder
+                  {ta("sendReminderSms")}
                 </Button>
               </div>
             )}
@@ -292,21 +295,21 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
               variant="outline"
               size="sm"
               className="w-full"
-              onClick={() => sendNotify("iptal", "notify-cancel", "İptal bildirimi yeniden gönderildi")}
+              onClick={() => sendNotify("iptal", "notify-cancel", ta("toastCancelNoticeResent"))}
               disabled={!!loading}
             >
               {loading === "notify-cancel" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
-              İptal Bildirimini Yeniden Gönder
+              {ta("resendCancelNotice")}
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="w-full"
-              onClick={() => sendSms("iptal", "sms-cancel", "İptal SMS'i gönderildi")}
+              onClick={() => sendSms("iptal", "sms-cancel", ta("toastCancelSmsSent"))}
               disabled={!!loading}
             >
               {loading === "sms-cancel" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <MessageSquareText className="h-3.5 w-3.5 mr-1" />}
-              İptal SMS Gönder
+              {ta("sendCancelSms")}
             </Button>
           </CardContent>
         </Card>

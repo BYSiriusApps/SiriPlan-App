@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { Check, Eye, EyeOff, GripVertical, SlidersHorizontal, X } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { saveDashboardWidgetPrefs, type WidgetPref } from "@/app/actions/dashboard-widgets";
 
@@ -25,6 +26,7 @@ interface Props {
  * Sunucu bileşeninden gelen hazır JSX'i (node) sadece düzenler/filtreler — veri çekmez.
  */
 export function DashboardWidgetGrid({ orgId, widgets, initialPrefs }: Props) {
+  const t = useTranslations("dashboard.widgetGrid");
   const defaultOrder = widgets.map((w) => w.key);
   const savedOrder = initialPrefs.length
     ? [
@@ -73,9 +75,9 @@ export function DashboardWidgetGrid({ orgId, widgets, initialPrefs }: Props) {
       }));
       const res = await saveDashboardWidgetPrefs(orgId, prefs);
       if (res.error) {
-        toast.error("Kaydedilemedi: " + res.error);
+        toast.error(t("saveFailed") + res.error);
       } else {
-        toast.success("Görünüm kaydedildi");
+        toast.success(t("saveSuccess"));
         setEditMode(false);
       }
     });
@@ -98,14 +100,14 @@ export function DashboardWidgetGrid({ orgId, widgets, initialPrefs }: Props) {
               onClick={handleCancel}
               className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border hover:bg-accent transition-colors"
             >
-              <X className="h-3.5 w-3.5" /> Vazgeç
+              <X className="h-3.5 w-3.5" /> {t("cancel")}
             </button>
             <button
               onClick={handleSave}
               disabled={isPending}
               className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-60"
             >
-              <Check className="h-3.5 w-3.5" /> Kaydet
+              <Check className="h-3.5 w-3.5" /> {t("save")}
             </button>
           </div>
         ) : (
@@ -113,14 +115,14 @@ export function DashboardWidgetGrid({ orgId, widgets, initialPrefs }: Props) {
             onClick={() => setEditMode(true)}
             className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           >
-            <SlidersHorizontal className="h-3.5 w-3.5" /> Kişiselleştir
+            <SlidersHorizontal className="h-3.5 w-3.5" /> {t("customize")}
           </button>
         )}
       </div>
 
       {editMode && (
         <p className="text-[11px] text-muted-foreground px-1">
-          Kutuları sürükleyerek sırala, göz ikonuyla göster/gizle — bitince Kaydet&apos;e bas.
+          {t("editHint")}
         </p>
       )}
 
@@ -158,14 +160,14 @@ export function DashboardWidgetGrid({ orgId, widgets, initialPrefs }: Props) {
             >
               {editMode && (
                 <div className="absolute top-2 right-2 z-30 flex items-center gap-1 rounded-lg bg-card/95 border shadow-sm px-1.5 py-1 backdrop-blur-sm">
-                  <span className="cursor-grab active:cursor-grabbing text-muted-foreground p-0.5" title="Sürükle">
+                  <span className="cursor-grab active:cursor-grabbing text-muted-foreground p-0.5" title={t("dragTitle")}>
                     <GripVertical className="h-3.5 w-3.5" />
                   </span>
                   <button
                     type="button"
                     onClick={() => toggleVisible(key)}
                     className="text-muted-foreground hover:text-foreground p-0.5"
-                    title={isVisible ? `${w.label} — gizle` : `${w.label} — göster`}
+                    title={isVisible ? `${w.label} — ${t("hideAction")}` : `${w.label} — ${t("showAction")}`}
                   >
                     {isVisible ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
                   </button>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, XCircle, Calendar, Clock, User, Scissors } from "lucide-react";
+import { Loader2, XCircle, Calendar, Clock, User, Scissors, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 
@@ -14,6 +14,8 @@ type ApptInfo = {
   appointment_at: string;
   customer_name: string;
   org_name: string;
+  org_address: string;
+  location_url: string;
   staff_name: string;
   service_name: string;
   cancellable: boolean;
@@ -87,6 +89,23 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ to
                   <div className="flex items-center gap-3">
                     <User className="h-4 w-4 text-rose-500 shrink-0" />
                     <span>{info.staff_name}</span>
+                  </div>
+                )}
+                {(info.location_url || info.org_address) && (
+                  <div className="flex items-center gap-3">
+                    <MapPin className="h-4 w-4 text-rose-500 shrink-0" />
+                    {info.location_url ? (
+                      <a
+                        href={info.location_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-rose-600 hover:underline"
+                      >
+                        {info.org_address || "Konumu Görüntüle"}
+                      </a>
+                    ) : (
+                      <span>{info.org_address}</span>
+                    )}
                   </div>
                 )}
                 <div className="pt-1 text-xs text-muted-foreground">{info.org_name}</div>

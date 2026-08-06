@@ -53,14 +53,14 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     purpose: "revize",
     style: "sicak",
     metaName: "randevu_revize",
-    bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
+    bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time", "location_link"],
   },
   hatirlatma_sicak: {
     key: "hatirlatma_sicak",
     purpose: "hatirlatma",
     style: "sicak",
     metaName: "randevu_hatirlatma",
-    bodyParamOrder: ["customer_name", "business_name", "date", "time"],
+    bodyParamOrder: ["customer_name", "business_name", "date", "time", "location_link"],
   },
 };
 

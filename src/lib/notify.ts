@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
+import { googleMapsLink } from "@/lib/wa-template";
 
 interface AppointmentForNotify {
   id: string;
@@ -44,13 +45,20 @@ function sourceLabel(source?: string | null): string {
   }
 }
 
-function buildMessage(appt: AppointmentForNotify, serviceName: string, staffName: string, isRequest = false): string {
+function buildMessage(
+  appt: AppointmentForNotify,
+  serviceName: string,
+  staffName: string,
+  isRequest = false,
+  locationLink?: string | null
+): string {
   const date = new Date(appt.appointment_at).toLocaleString("tr-TR", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "Europe/Istanbul",
   });
   const source = sourceLabel(appt.source);
+  const locationLine = locationLink ? `📍 ${locationLink}\n` : "";
 
   if (isRequest) {
     return (
@@ -60,6 +68,7 @@ function buildMessage(appt: AppointmentForNotify, serviceName: string, staffName
       `👩‍💼 ${staffName}\n` +
       `🕐 ${date}\n` +
       (appt.price ? `💰 ₺${Number(appt.price).toLocaleString("tr-TR")}\n` : "") +
+      locationLine +
       (appt.note ? `📝 ${appt.note}\n` : "") +
       `\nOnaylamak için panele girin.`
     );
@@ -72,6 +81,7 @@ function buildMessage(appt: AppointmentForNotify, serviceName: string, staffName
     `👩‍💼 ${staffName}\n` +
     `🕐 ${date}\n` +
     (appt.price ? `💰 ₺${Number(appt.price).toLocaleString("tr-TR")}\n` : "") +
+    locationLine +
     (appt.note ? `📝 ${appt.note}` : "")
   );
 }
@@ -103,7 +113,7 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
       staffTargetId
         ? supabase.from("staff").select("full_name, telegram_chat_id, whatsapp_number").eq("id", staffTargetId).single()
         : Promise.resolve({ data: null }),
-      supabase.from("organizations").select("telegram_chat_id, whatsapp_number").eq("id", appt.org_id).single(),
+      supabase.from("organizations").select("telegram_chat_id, whatsapp_number, address, location_url").eq("id", appt.org_id).single(),
     ]);
 
     // Fetch owner's staff record (role=owner linked staff)
@@ -126,7 +136,11 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
 
     const serviceName = (service as { name: string } | null)?.name ?? "Hizmet";
     const staffName = (staffRow as { full_name: string } | null)?.full_name ?? "Personel";
-    const message = buildMessage(appt, serviceName, staffName);
+    const orgForLocation = orgRow as { address?: string | null; location_url?: string | null } | null;
+    const locationLink =
+      orgForLocation?.location_url?.trim() ||
+      (orgForLocation?.address?.trim() ? googleMapsLink(orgForLocation.address.trim()) : "");
+    const message = buildMessage(appt, serviceName, staffName, false, locationLink);
 
     const recipients: Recipient[] = [];
 
@@ -196,13 +210,17 @@ export async function notifyAppointmentRequest(
 
     const { data: orgRow } = await supabase
       .from("organizations")
-      .select("telegram_chat_id, whatsapp_number")
+      .select("telegram_chat_id, whatsapp_number, address, location_url")
       .eq("id", req.org_id)
       .single();
 
     const serviceName = req.serviceName ?? "Hizmet";
     const staffName = req.staffName ?? "Personel";
-    const message = buildMessage(req, serviceName, staffName, true);
+    const orgForLocation = orgRow as { address?: string | null; location_url?: string | null } | null;
+    const locationLink =
+      orgForLocation?.location_url?.trim() ||
+      (orgForLocation?.address?.trim() ? googleMapsLink(orgForLocation.address.trim()) : "");
+    const message = buildMessage(req, serviceName, staffName, true, locationLink);
 
     if (orgRow) {
       await dispatch(

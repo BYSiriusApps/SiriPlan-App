@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendReminderEmail } from "@/lib/email/send";
+import { googleMapsLink } from "@/lib/wa-template";
 import { addHours, differenceInHours } from "date-fns";
 
 export const runtime = "nodejs";
@@ -19,7 +20,7 @@ type ApptWithRelations = {
   appointment_at: string;
   cancel_token?: string;
   reminder_sent_at?: string | null;
-  organizations: { name: string; email?: string };
+  organizations: { name: string; email?: string; address?: string; location_url?: string };
   staff?: { full_name: string };
   service?: { name: string };
 };
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
   // son anda alınan randevular da en az bir hatırlatma alabilsin.
   const { data: imminent } = await supabase
     .from("appointments")
-    .select("*, organizations(name, email), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+    .select("*, organizations(name, email, address, location_url), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
     .gte("appointment_at", now.toISOString())
     .lte("appointment_at", addHours(now, 2.5).toISOString())
     .eq("status", "onaylandi")
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
   // 2.5-25 saat arası: ilk hatırlatma (yaklaşan pencere hariç, çift mesaj olmasın)
   const { data: upcoming } = await supabase
     .from("appointments")
-    .select("*, organizations(name, email), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+    .select("*, organizations(name, email, address, location_url), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
     .gt("appointment_at", addHours(now, 2.5).toISOString())
     .lte("appointment_at", addHours(now, 25).toISOString())
     .eq("status", "onaylandi")
@@ -91,6 +92,8 @@ export async function POST(req: NextRequest) {
           staffName: appt.staff?.full_name ?? "",
           appointmentAt: apptAt,
           cancelToken: appt.cancel_token,
+          orgAddress: org.address ?? "",
+          locationUrl: org.location_url?.trim() || (org.address?.trim() ? googleMapsLink(org.address.trim()) : ""),
         }, hoursAway);
       } catch {}
     }
@@ -123,6 +126,8 @@ export async function POST(req: NextRequest) {
           staffName: appt.staff?.full_name ?? "",
           appointmentAt: apptAt,
           cancelToken: appt.cancel_token,
+          orgAddress: org.address ?? "",
+          locationUrl: org.location_url?.trim() || (org.address?.trim() ? googleMapsLink(org.address.trim()) : ""),
         }, hoursAway);
       } catch {}
     }

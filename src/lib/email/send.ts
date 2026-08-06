@@ -30,6 +30,8 @@ export interface AppointmentEmailData {
   staffName: string;
   appointmentAt: Date;
   cancelToken?: string;
+  orgAddress?: string;
+  locationUrl?: string;
 }
 
 function baseLayout(content: string, orgName: string) {
@@ -229,6 +231,11 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
   const cancelLink = data.cancelToken
     ? `${appUrl}/r/iptal/${encodeURIComponent(data.cancelToken)}`
     : null;
+  // Randevu detay sayfası — WhatsApp buton hedefiyle aynı token'ı kullanır (bkz. /randevu/[token])
+  const detailLink = data.cancelToken
+    ? `${appUrl}/randevu/${encodeURIComponent(data.cancelToken)}`
+    : null;
+  const locationLink = data.locationUrl?.trim() || "";
 
   const isImminent = hoursAway <= 2;
   const isToday = hoursAway <= 12;
@@ -264,8 +271,24 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">👤 Uzman</span>
         <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.staffName)}</span>
       </td></tr>
+      ${locationLink ? `
+      <tr><td style="padding:6px 0;">
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">📍 Konum</span>
+        <a href="${locationLink}" style="font-size:15px;font-weight:600;color:#e11d48;text-decoration:none;">${data.orgAddress ? esc(data.orgAddress) : "Haritada Görüntüle"}</a>
+      </td></tr>
+      ` : data.orgAddress ? `
+      <tr><td style="padding:6px 0;">
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">📍 Konum</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.orgAddress)}</span>
+      </td></tr>
+      ` : ""}
     </table>
 
+    ${detailLink ? `
+    <a href="${detailLink}" style="display:inline-block;padding:10px 24px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:12px;margin-right:8px;">
+      Randevu Detayını Görüntüle
+    </a>
+    ` : ""}
     ${cancelLink ? `
     <a href="${cancelLink}" style="display:inline-block;padding:10px 24px;background:#fee2e2;color:#dc2626;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       Randevuyu İptal Et
