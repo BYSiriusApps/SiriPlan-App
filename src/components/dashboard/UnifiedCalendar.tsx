@@ -38,8 +38,6 @@ const STAFF_COLORS = [
   { solid: "#14b8a6", soft: "rgba(20,184,166,0.16)", border: "rgba(20,184,166,0.55)" },   // teal
 ];
 
-const HOUR_PX = 56; // 1 saat = 56px → 15dk = 14px
-
 interface Appointment {
   id: string;
   status: string;
@@ -133,6 +131,9 @@ export function UnifiedCalendar({
   const router = useRouter();
   const t = useTranslations("dashboard");
   const locale = useLocale();
+  // Gün görünümü saat bazında çok daha büyük gösterilir (tek gün, tüm genişlik boş kalmasın);
+  // hafta görünümü de öncekinden biraz büyütüldü.
+  const HOUR_PX = view === "day" ? 112 : 64;
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
   const weekdayShort = useMemo(
     () => WEEKDAY_REF_DATES.map((d) => format(new Date(d + "T12:00:00"), "EEE", { locale: dateFnsLocale })),
@@ -437,7 +438,7 @@ export function UnifiedCalendar({
     const d = new Date(appt.appointment_at);
     const startMin = d.getHours() * 60 + d.getMinutes();
     const rawTop = ((startMin - hours[0] * 60) / 60) * HOUR_PX;
-    const height = Math.max(24, (appt.duration_minutes / 60) * HOUR_PX);
+    const height = Math.max(view === "day" ? 40 : 28, (appt.duration_minutes / 60) * HOUR_PX);
     // Grid dışına taşan randevular gizlenmesin — kenara kenetle
     const top = Math.min(Math.max(rawTop, 0), gridHeight - 24);
     return { top, height: Math.min(height, gridHeight - top) };
@@ -476,7 +477,8 @@ export function UnifiedCalendar({
           touchAction: view === "month" ? undefined : "none",
         }}
         className={cn(
-          "absolute rounded-md px-1 py-0.5 text-[10px] leading-tight overflow-hidden cursor-pointer hover:shadow-md transition-shadow text-left z-10 select-none",
+          "absolute rounded-md overflow-hidden cursor-pointer hover:shadow-md transition-shadow text-left z-10 select-none",
+          view === "day" ? "px-2 py-1.5 text-[13px] leading-snug" : "px-1.5 py-1 text-[11px] leading-tight",
           pending && "border-dashed"
         )}
       >
@@ -501,7 +503,10 @@ export function UnifiedCalendar({
       {hours.map((h) => (
         <div
           key={h}
-          className="border-b flex items-start justify-center pt-0.5 text-[10px] text-muted-foreground"
+          className={cn(
+            "border-b flex items-start justify-center pt-0.5 text-muted-foreground",
+            view === "day" ? "text-xs font-medium pt-1.5" : "text-[10px]"
+          )}
           style={{ height: HOUR_PX }}
         >
           {String(h).padStart(2, "0")}:00

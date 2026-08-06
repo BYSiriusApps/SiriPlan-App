@@ -40,7 +40,8 @@ export default async function MusterilerPage({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold">{t("customers")}</h1>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">CRM</span>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("customers")}</h1>
             <p className="text-muted-foreground text-sm">{t("customerCountLabel", { count: customers?.length || 0 })}</p>
           </div>
           <HomeButton />

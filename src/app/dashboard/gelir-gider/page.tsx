@@ -296,7 +296,8 @@ export default function GelirGiderPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Gelir & Gider</h1><HomeButton /></div>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Finans</span>
+          <div className="flex items-center gap-3"><h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Gelir & Gider</h1><HomeButton /></div>
           <p className="text-muted-foreground text-sm">Finansal kayıtlarınızı takip edin</p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -401,8 +402,8 @@ export default function GelirGiderPage() {
                 {recurring.map((r) => (
                   <div
                     key={r.id}
-                    className={`grid grid-cols-[1fr_auto] md:grid-cols-[1fr_140px_120px_80px_80px] items-center gap-3 px-3 py-3 rounded-lg transition-colors group ${
-                      r.is_active ? "hover:bg-accent/50" : "opacity-40 hover:opacity-60"
+                    className={`data-row grid grid-cols-[1fr_auto] md:grid-cols-[1fr_140px_120px_80px_80px] items-center gap-3 px-3 py-3 rounded-lg transition-colors group ${
+                      r.is_active ? "" : "opacity-40 hover:opacity-60"
                     }`}
                   >
                     <div className="md:contents">
@@ -533,46 +534,40 @@ export default function GelirGiderPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-0 shadow-sm bg-emerald-50 dark:bg-emerald-950/20">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-              <ArrowUpCircle className="h-5 w-5 text-emerald-600" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Toplam Gelir</p>
-              <p className="text-xl font-bold text-emerald-700 dark:text-emerald-400">{fmt(totalGelir)}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="kpi-tile p-5 flex items-center gap-4 bg-emerald-50/60 dark:bg-emerald-950/20">
+          <div className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 shrink-0">
+            <ArrowUpCircle className="h-5 w-5 text-emerald-600" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Toplam Gelir</p>
+            <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 tabular-nums tracking-tight">{fmt(totalGelir)}</p>
+          </div>
+        </div>
 
-        <Card className="border-0 shadow-sm bg-red-50 dark:bg-red-950/20">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="p-2.5 rounded-xl bg-red-100 dark:bg-red-900/30">
-              <ArrowDownCircle className="h-5 w-5 text-red-600" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Toplam Gider</p>
-              <p className="text-xl font-bold text-red-700 dark:text-red-400">{fmt(totalGider)}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="kpi-tile p-5 flex items-center gap-4 bg-red-50/60 dark:bg-red-950/20">
+          <div className="p-2.5 rounded-xl bg-red-100 dark:bg-red-900/30 shrink-0">
+            <ArrowDownCircle className="h-5 w-5 text-red-600" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Toplam Gider</p>
+            <p className="text-2xl font-bold text-red-700 dark:text-red-400 tabular-nums tracking-tight">{fmt(totalGider)}</p>
+          </div>
+        </div>
 
-        <Card className={`border-0 shadow-sm ${netKar >= 0 ? "bg-blue-50 dark:bg-blue-950/20" : "bg-orange-50 dark:bg-orange-950/20"}`}>
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className={`p-2.5 rounded-xl ${netKar >= 0 ? "bg-blue-100 dark:bg-blue-900/30" : "bg-orange-100 dark:bg-orange-900/30"}`}>
-              {netKar >= 0
-                ? <TrendingUp className="h-5 w-5 text-blue-600" />
-                : <TrendingDown className="h-5 w-5 text-orange-600" />
-              }
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Net Kâr / Zarar</p>
-              <p className={`text-xl font-bold ${netKar >= 0 ? "text-blue-700 dark:text-blue-400" : "text-orange-700 dark:text-orange-400"}`}>
-                {netKar >= 0 ? "+" : ""}{fmt(netKar)}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className={`kpi-tile p-5 flex items-center gap-4 ${netKar >= 0 ? "bg-blue-50/60 dark:bg-blue-950/20" : "bg-orange-50/60 dark:bg-orange-950/20"}`}>
+          <div className={`p-2.5 rounded-xl shrink-0 ${netKar >= 0 ? "bg-blue-100 dark:bg-blue-900/30" : "bg-orange-100 dark:bg-orange-900/30"}`}>
+            {netKar >= 0
+              ? <TrendingUp className="h-5 w-5 text-blue-600" />
+              : <TrendingDown className="h-5 w-5 text-orange-600" />
+            }
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Net Kâr / Zarar</p>
+            <p className={`text-2xl font-bold tabular-nums tracking-tight ${netKar >= 0 ? "text-blue-700 dark:text-blue-400" : "text-orange-700 dark:text-orange-400"}`}>
+              {netKar >= 0 ? "+" : ""}{fmt(netKar)}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Yıllık kümülatif tablo */}
@@ -603,7 +598,7 @@ export default function GelirGiderPage() {
                 {monthlyBreakdown.map((m) => (
                   <div
                     key={m.month}
-                    className="grid grid-cols-[1fr_auto] md:grid-cols-[90px_110px_110px_110px_130px_130px_130px] items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent/50 transition-colors"
+                    className="data-row grid grid-cols-[1fr_auto] md:grid-cols-[90px_110px_110px_110px_130px_130px_130px] items-center gap-3 px-3 py-2.5 rounded-lg transition-colors"
                   >
                     <span className="text-sm font-medium">{MONTHS[m.month - 1]}</span>
                     <span className="hidden md:block text-xs text-right text-emerald-600">{fmt(m.gelir)}</span>
@@ -689,7 +684,7 @@ export default function GelirGiderPage() {
               {visible.map((e) => (
                 <div
                   key={e.id}
-                  className="grid grid-cols-[1fr_auto] md:grid-cols-[100px_1fr_140px_120px_100px_40px] items-center gap-3 px-3 py-3 rounded-lg hover:bg-accent/50 transition-colors group"
+                  className="data-row grid grid-cols-[1fr_auto] md:grid-cols-[100px_1fr_140px_120px_100px_40px] items-center gap-3 px-3 py-3 rounded-lg transition-colors group"
                 >
                   <div className="md:contents">
                     <span className="hidden md:block text-xs text-muted-foreground">
@@ -710,7 +705,7 @@ export default function GelirGiderPage() {
                     <span className="hidden md:block text-xs text-muted-foreground capitalize">
                       {e.payment_method}
                     </span>
-                    <span className={`hidden md:block text-sm font-semibold text-right ${e.type === "gelir" ? "text-emerald-600" : "text-red-600"}`}>
+                    <span className={`hidden md:block text-sm font-semibold text-right tabular-nums ${e.type === "gelir" ? "text-emerald-600" : "text-red-600"}`}>
                       {e.type === "gelir" ? "+" : "-"}{fmt(Number(e.amount))}
                     </span>
                   </div>

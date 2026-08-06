@@ -98,8 +98,8 @@ export function Sidebar({
             style={{ boxShadow: "0 0 20px color-mix(in oklch, var(--sidebar-primary) 40%, transparent)" }}
           />
           <div className="min-w-0">
-            <p className="text-xs font-medium text-sidebar-foreground/50 uppercase tracking-widest leading-none mb-1">Siriplan</p>
-            <p className="text-sm font-semibold text-sidebar-foreground truncate leading-none">{orgName}</p>
+            <p className="text-[10px] font-semibold text-sidebar-foreground/45 uppercase tracking-[0.2em] leading-none mb-1.5">Siriplan</p>
+            <p className="font-heading text-[15px] font-semibold text-sidebar-foreground truncate leading-none">{orgName}</p>
           </div>
         </Link>
       </div>

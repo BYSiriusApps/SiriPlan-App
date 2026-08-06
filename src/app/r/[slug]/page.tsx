@@ -115,32 +115,63 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
 
   if (!org) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[oklch(0.985_0.006_70)] dark:bg-[oklch(0.15_0.03_290)]">
+        <div className="absolute -top-32 -left-24 w-96 h-96 rounded-full bg-rose-300/25 dark:bg-fuchsia-800/20 blur-3xl animate-soft-float" />
+        <div className="absolute -bottom-32 -right-24 w-96 h-96 rounded-full bg-amber-200/30 dark:bg-purple-900/20 blur-3xl animate-soft-float" style={{ animationDelay: "-4s" }} />
+        <div className="relative flex flex-col items-center gap-3">
+          <Loader2 className="h-7 w-7 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground font-medium tracking-wide">Randevu sayfası yükleniyor…</p>
+        </div>
       </div>
     );
   }
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 to-fuchsia-50 dark:from-zinc-950 dark:to-purple-950/30 p-4">
-        <Card className="max-w-md w-full text-center border-0 shadow-xl">
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-rose-50 via-background to-amber-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 p-4">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[560px] h-[560px] rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+        <Card className="relative max-w-md w-full text-center border-0 shadow-2xl shadow-primary/10 animate-fade-up overflow-hidden">
+          <div className="h-1.5 w-full bg-gradient-to-r from-primary via-accent to-primary" />
           <CardContent className="p-8">
-            <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="h-8 w-8 text-green-600" />
+            <div className="relative w-20 h-20 mx-auto mb-5">
+              <div className="absolute inset-0 rounded-full bg-emerald-100 dark:bg-emerald-900/30 animate-pulse" />
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                <CheckCircle2 className="h-9 w-9 text-white" strokeWidth={2.5} />
+              </div>
             </div>
-            <h2 className="text-2xl font-bold mb-2">Randevu Onaylandı!</h2>
-            <p className="text-muted-foreground mb-4">
-              <span className="font-semibold">{selectedService?.name}</span> için randevunuz oluşturuldu.
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/70 mb-1">Onaylandı</p>
+            <h2 className="font-heading text-3xl font-bold mb-2 text-balance">Randevunuz Hazır!</h2>
+            <p className="text-muted-foreground mb-6 text-sm">
+              <span className="font-semibold text-foreground">{selectedService?.name}</span> için randevunuz oluşturuldu.
             </p>
-            <div className="bg-muted/50 rounded-xl p-4 text-sm space-y-1 text-left mb-6">
-              <p><span className="text-muted-foreground">Salon:</span> {org.name}</p>
-              <p><span className="text-muted-foreground">Tarih:</span> {selectedDate && format(new Date(selectedDate + "T12:00:00"), "d MMMM yyyy, EEEE", { locale: tr })}</p>
-              <p><span className="text-muted-foreground">Saat:</span> {selectedSlot}</p>
-              <p><span className="text-muted-foreground">Personel:</span> {anyStaff ? "Otomatik atanacak" : selectedStaff?.full_name}</p>
-              <p><span className="text-muted-foreground">Hizmet:</span> {selectedService?.name}</p>
+            <div className="rounded-2xl border border-border/70 bg-muted/30 p-4 text-sm space-y-2.5 text-left mb-6">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-muted-foreground">Salon</span>
+                <span className="font-medium text-right">{org.name}</span>
+              </div>
+              <div className="h-px bg-border/60" />
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />Tarih</span>
+                <span className="font-medium text-right capitalize">{selectedDate && format(new Date(selectedDate + "T12:00:00"), "d MMMM yyyy, EEEE", { locale: tr })}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-muted-foreground flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />Saat</span>
+                <span className="font-bold text-primary text-right">{selectedSlot}</span>
+              </div>
+              <div className="h-px bg-border/60" />
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-muted-foreground">Personel</span>
+                <span className="font-medium text-right">{anyStaff ? "Otomatik atanacak" : selectedStaff?.full_name}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-muted-foreground">Hizmet</span>
+                <span className="font-medium text-right">{selectedService?.name}</span>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">WhatsApp hatırlatması gönderilecek.</p>
+            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              WhatsApp hatırlatması gönderilecek
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -148,41 +179,53 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30">
+    <div className="min-h-screen relative bg-gradient-to-br from-rose-50 via-background to-amber-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30">
+      {/* Ambient decorative glow — pure atmosphere, no interaction */}
+      <div className="pointer-events-none fixed -top-40 -right-32 w-[520px] h-[520px] rounded-full bg-primary/10 dark:bg-primary/15 blur-3xl" />
+      <div className="pointer-events-none fixed top-1/3 -left-40 w-96 h-96 rounded-full bg-amber-200/25 dark:bg-purple-900/15 blur-3xl" />
+
       {/* Salon header */}
-      <div className="bg-card border-b shadow-sm">
-        <div className="max-w-xl mx-auto p-4 flex items-center gap-3">
+      <div className="relative bg-card/90 backdrop-blur-sm border-b border-border/70">
+        <div className="h-1 w-full bg-gradient-to-r from-primary via-accent to-primary" />
+        <div className="max-w-xl mx-auto p-4 flex items-center gap-3.5">
           {org.logo_url ? (
-            <img src={org.logo_url} alt={org.name} className="w-12 h-12 rounded-xl object-cover" />
+            <img src={org.logo_url} alt={org.name} className="rounded-2xl object-cover shadow-md ring-1 ring-border/60 shrink-0" style={{ width: 52, height: 52 }} />
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-xl">
+            <div
+              className="rounded-2xl flex items-center justify-center text-white font-heading font-bold text-xl shadow-md shrink-0"
+              style={{ width: 52, height: 52, background: "linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--accent) 60%, var(--primary)))" }}
+            >
               {org.name[0]}
             </div>
           )}
-          <div>
-            <h1 className="font-bold text-lg">{org.name}</h1>
+          <div className="min-w-0">
+            <h1 className="font-heading font-bold text-xl leading-tight truncate">{org.name}</h1>
             {org.city && <p className="text-sm text-muted-foreground">{org.city}</p>}
           </div>
         </div>
       </div>
 
-      <div className="max-w-xl mx-auto p-4 py-8">
+      <div className="relative max-w-xl mx-auto p-4 py-8">
         {/* Step indicator */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-9">
           {STEPS.map((s, i) => (
-            <div key={s} className="flex items-center flex-1">
-              <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+            <div key={s} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center gap-1.5">
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
                   i < step ? "bg-primary text-primary-foreground" :
-                  i === step ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" :
+                  i === step ? "text-primary-foreground shadow-lg shadow-primary/35 scale-110" :
                   "bg-muted text-muted-foreground"
-                }`}>
+                }`}
+                style={i === step ? { background: "linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--accent) 55%, var(--primary)))" } : undefined}
+                >
                   {i < step ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
                 </div>
-                <span className={`text-xs font-medium hidden sm:block ${i === step ? "text-primary" : "text-muted-foreground"}`}>{s}</span>
+                <span className={`text-[10px] font-medium hidden sm:block text-center leading-tight ${i === step ? "text-primary font-semibold" : "text-muted-foreground"}`}>{s}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`flex-1 h-0.5 mx-2 ${i < step ? "bg-primary" : "bg-muted"}`} />
+                <div className="flex-1 h-0.5 mx-2 rounded-full bg-muted overflow-hidden -mt-4 sm:mt-0">
+                  <div className={`h-full bg-primary transition-all duration-500 ${i < step ? "w-full" : "w-0"}`} />
+                </div>
               )}
             </div>
           ))}
@@ -190,10 +233,13 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
 
         {/* Step 0: Service selection */}
         {step === 0 && (
-          <div className="space-y-3">
-            <h2 className="text-xl font-bold mb-4">Hizmet Seçin</h2>
+          <div className="space-y-2.5">
+            <div className="mb-5">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Adım 1</span>
+              <h2 className="font-heading text-2xl font-bold">Hizmet Seçin</h2>
+            </div>
             {services.length === 0 && (
-              <div className="text-center py-10 px-4 rounded-xl border border-dashed border-border">
+              <div className="text-center py-10 px-4 rounded-2xl border border-dashed border-border bg-card/50">
                 <p className="text-sm text-muted-foreground">
                   Şu anda online randevu alınabilecek bir hizmet bulunmuyor.
                 </p>
@@ -205,24 +251,26 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                 )}
               </div>
             )}
-            {services.map((s) => (
+            {services.map((s, i) => (
               <button
                 key={s.id}
                 onClick={() => { setSelectedService(s); setStep(1); }}
-                className="w-full text-left p-4 rounded-xl border-2 transition-all hover:border-primary hover:shadow-md group"
+                className="animate-fade-up w-full text-left p-4 rounded-2xl border border-border bg-card/70 backdrop-blur-sm transition-all hover:border-primary hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 group relative overflow-hidden"
+                style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold group-hover:text-primary transition-colors">{s.name}</p>
-                    {s.description && <p className="text-sm text-muted-foreground mt-0.5">{s.description}</p>}
-                    <div className="flex items-center gap-2 mt-1">
+                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary/0 group-hover:bg-primary transition-colors" />
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold group-hover:text-primary transition-colors truncate">{s.name}</p>
+                    {s.description && <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{s.description}</p>}
+                    <div className="flex items-center gap-1.5 mt-1.5">
                       <Clock className="h-3 w-3 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">{s.duration_minutes} dk</span>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-primary">₺{Number(s.price).toLocaleString("tr-TR")}</p>
-                    <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground group-hover:text-primary" />
+                  <div className="text-right shrink-0 flex items-center gap-1">
+                    <p className="font-heading text-lg font-bold text-primary tabular-nums">₺{Number(s.price).toLocaleString("tr-TR")}</p>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                   </div>
                 </div>
               </button>
@@ -232,38 +280,41 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
 
         {/* Step 1: Staff + Date + Slot */}
         {step === 1 && (
-          <div className="space-y-5">
-            <div className="flex items-center gap-3 mb-4">
-              <button onClick={() => setStep(0)} className="p-1 hover:bg-accent rounded-lg transition-colors">
+          <div className="space-y-6 animate-fade-up">
+            <div className="flex items-center gap-3 mb-1">
+              <button onClick={() => setStep(0)} className="p-1.5 hover:bg-accent rounded-lg transition-colors shrink-0">
                 <ChevronLeft className="h-5 w-5" />
               </button>
-              <h2 className="text-xl font-bold">Personel & Saat</h2>
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Adım 2</span>
+                <h2 className="font-heading text-2xl font-bold leading-tight">Personel & Saat</h2>
+              </div>
             </div>
 
             {selectedService && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/5 border border-primary/20">
-                <Badge variant="secondary">{selectedService.name}</Badge>
-                <span className="text-sm text-muted-foreground">₺{Number(selectedService.price).toLocaleString("tr-TR")} • {selectedService.duration_minutes}dk</span>
+              <div className="flex items-center gap-2 p-3 rounded-2xl bg-primary/5 border border-primary/20">
+                <Badge variant="secondary" className="font-heading">{selectedService.name}</Badge>
+                <span className="text-sm text-muted-foreground tabular-nums">₺{Number(selectedService.price).toLocaleString("tr-TR")} • {selectedService.duration_minutes}dk</span>
               </div>
             )}
 
             {/* Staff selection */}
             <div>
-              <p className="text-sm font-medium mb-2">Personel Seçin</p>
-              <div className="grid grid-cols-2 gap-2">
+              <p className="text-sm font-semibold mb-2.5">Personel Seçin</p>
+              <div className="grid grid-cols-2 gap-2.5">
                 <button
                   onClick={() => { setAnyStaff(true); setSelectedStaff(null); setSelectedSlot(""); }}
-                  className={`p-3 rounded-xl border-2 text-left transition-all ${
-                    anyStaff ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                  className={`p-3 rounded-2xl border-2 text-left transition-all ${
+                    anyStaff ? "border-primary bg-primary/5 shadow-sm shadow-primary/10" : "border-border bg-card/60 hover:border-primary/50"
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-semibold text-primary text-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center font-semibold text-primary text-sm shrink-0">
                       ?
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">Farketmez</p>
-                      <p className="text-xs text-muted-foreground">Uygun ilk personel</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">Farketmez</p>
+                      <p className="text-xs text-muted-foreground truncate">Uygun ilk personel</p>
                     </div>
                   </div>
                 </button>
@@ -271,17 +322,17 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                   <button
                     key={s.id}
                     onClick={() => { setAnyStaff(false); setSelectedStaff(s); setSelectedSlot(""); }}
-                    className={`p-3 rounded-xl border-2 text-left transition-all ${
-                      !anyStaff && selectedStaff?.id === s.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                    className={`p-3 rounded-2xl border-2 text-left transition-all ${
+                      !anyStaff && selectedStaff?.id === s.id ? "border-primary bg-primary/5 shadow-sm shadow-primary/10" : "border-border bg-card/60 hover:border-primary/50"
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-semibold text-primary text-sm">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/25 to-accent/40 flex items-center justify-center font-heading font-semibold text-primary text-sm shrink-0">
                         {s.full_name[0]}
                       </div>
-                      <div>
-                        <p className="text-sm font-medium">{s.full_name}</p>
-                        <p className="text-xs text-muted-foreground">{s.role}</p>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{s.full_name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{s.role}</p>
                       </div>
                     </div>
                   </button>
@@ -292,17 +343,18 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
             {/* Date selection */}
             {(selectedStaff || anyStaff) && (
               <div>
-                <p className="text-sm font-medium mb-2">Tarih Seçin</p>
+                <p className="text-sm font-semibold mb-2.5">Tarih Seçin</p>
                 <div className="flex gap-2 overflow-x-auto pb-2">
                   {dateOptions.map((d) => (
                     <button
                       key={d.value}
                       onClick={() => { setSelectedDate(d.value); setSelectedSlot(""); }}
-                      className={`flex-shrink-0 px-3 py-2 rounded-xl border-2 text-center transition-all ${
-                        selectedDate === d.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                      className={`flex-shrink-0 px-3.5 py-2.5 rounded-2xl border-2 text-center transition-all ${
+                        selectedDate === d.value ? "border-primary text-primary-foreground shadow-md shadow-primary/25" : "border-border bg-card/60 hover:border-primary/50"
                       }`}
+                      style={selectedDate === d.value ? { background: "linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--accent) 55%, var(--primary)))" } : undefined}
                     >
-                      <p className="text-xs font-medium">{d.label}</p>
+                      <p className="text-xs font-semibold whitespace-nowrap">{d.label}</p>
                     </button>
                   ))}
                 </div>
@@ -326,9 +378,10 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                       <button
                         key={slot}
                         onClick={() => setSelectedSlot(slot)}
-                        className={`py-2 rounded-lg border-2 text-sm font-medium transition-all ${
-                          selectedSlot === slot ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary/50"
+                        className={`py-2.5 rounded-xl border-2 text-sm font-semibold tabular-nums transition-all ${
+                          selectedSlot === slot ? "border-primary text-primary-foreground shadow-md shadow-primary/25 scale-[1.03]" : "border-border bg-card/60 hover:border-primary/50"
                         }`}
+                        style={selectedSlot === slot ? { background: "linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--accent) 55%, var(--primary)))" } : undefined}
                       >
                         {slot}
                       </button>
@@ -339,8 +392,11 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
             )}
 
             {selectedSlot && (
-              <Button className="w-full" onClick={() => setStep(2)}>
-                Devam Et <ChevronRight className="h-4 w-4 ml-1" />
+              <Button
+                className="w-full h-12 text-base font-semibold shadow-lg shadow-primary/20 gap-1.5 animate-fade-up"
+                onClick={() => setStep(2)}
+              >
+                Devam Et <ChevronRight className="h-4 w-4" />
               </Button>
             )}
           </div>
@@ -348,35 +404,38 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
 
         {/* Step 2: Contact info */}
         {step === 2 && (
-          <div className="space-y-5">
-            <div className="flex items-center gap-3 mb-4">
-              <button onClick={() => setStep(1)} className="p-1 hover:bg-accent rounded-lg transition-colors">
+          <div className="space-y-5 animate-fade-up">
+            <div className="flex items-center gap-3 mb-1">
+              <button onClick={() => setStep(1)} className="p-1.5 hover:bg-accent rounded-lg transition-colors shrink-0">
                 <ChevronLeft className="h-5 w-5" />
               </button>
-              <h2 className="text-xl font-bold">Bilgilerinizi Girin</h2>
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Adım 3</span>
+                <h2 className="font-heading text-2xl font-bold leading-tight">Bilgilerinizi Girin</h2>
+              </div>
             </div>
 
             {/* Summary */}
-            <div className="p-4 rounded-xl bg-muted/50 space-y-1.5 text-sm">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/8 to-accent/10 border border-primary/15 space-y-2 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                <span>{selectedDate && format(new Date(selectedDate + "T12:00:00"), "d MMMM yyyy, EEEE", { locale: tr })}</span>
+                <span className="capitalize">{selectedDate && format(new Date(selectedDate + "T12:00:00"), "d MMMM yyyy, EEEE", { locale: tr })}</span>
                 <Clock className="h-4 w-4 ml-2" />
-                <span className="font-semibold text-foreground">{selectedSlot}</span>
+                <span className="font-semibold text-foreground tabular-nums">{selectedSlot}</span>
               </div>
-              <p><span className="text-muted-foreground">Hizmet:</span> {selectedService?.name}</p>
-              <p><span className="text-muted-foreground">Personel:</span> {anyStaff ? "Otomatik atanacak" : selectedStaff?.full_name}</p>
-              <p className="font-bold text-primary">₺{Number(selectedService?.price || 0).toLocaleString("tr-TR")}</p>
+              <p><span className="text-muted-foreground">Hizmet:</span> <span className="font-medium">{selectedService?.name}</span></p>
+              <p><span className="text-muted-foreground">Personel:</span> <span className="font-medium">{anyStaff ? "Otomatik atanacak" : selectedStaff?.full_name}</span></p>
+              <p className="font-heading font-bold text-primary text-lg pt-1">₺{Number(selectedService?.price || 0).toLocaleString("tr-TR")}</p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               <div>
                 <Label>Adınız Soyadınız *</Label>
                 <Input
                   placeholder="Ad Soyad"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  className="mt-1"
+                  className="mt-1.5 h-11 rounded-xl"
                 />
               </div>
               <div>
@@ -386,7 +445,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                   placeholder="05xx xxx xxxx"
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                  className="mt-1"
+                  className="mt-1.5 h-11 rounded-xl"
                 />
               </div>
               <div>
@@ -396,7 +455,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                   placeholder="ornek@mail.com"
                   value={form.email}
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                  className="mt-1"
+                  className="mt-1.5 h-11 rounded-xl"
                 />
               </div>
               <div>
@@ -405,35 +464,35 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                   placeholder="Özel istek veya notunuz..."
                   value={form.note}
                   onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
-                  className="mt-1"
+                  className="mt-1.5 h-11 rounded-xl"
                 />
               </div>
             </div>
 
-            <div className="space-y-2 p-3 rounded-xl bg-muted/50">
+            <div className="space-y-2.5 p-3.5 rounded-2xl bg-muted/40 border border-border/60">
               <label className="flex items-start gap-2 text-xs cursor-pointer">
                 <input
                   type="checkbox"
-                  className="mt-0.5"
+                  className="mt-0.5 accent-primary"
                   checked={kvkkAccepted}
                   onChange={(e) => setKvkkAccepted(e.target.checked)}
                 />
                 <span>
-                  <button type="button" className="text-primary underline" onClick={(e) => { e.preventDefault(); setShowKvkkText((v) => !v); }}>
+                  <button type="button" className="text-primary underline underline-offset-2" onClick={(e) => { e.preventDefault(); setShowKvkkText((v) => !v); }}>
                     KVKK Aydınlatma Metni
                   </button>
                   {"'ni okudum, onaylıyorum. *"}
                 </span>
               </label>
               {showKvkkText && (
-                <p className="text-[11px] text-muted-foreground border-t pt-2">
+                <p className="text-[11px] text-muted-foreground border-t border-border/60 pt-2">
                   {renderKvkkNotice(org.kvkk_notice_text, org.name)}
                 </p>
               )}
               <label className="flex items-start gap-2 text-xs cursor-pointer">
                 <input
                   type="checkbox"
-                  className="mt-0.5"
+                  className="mt-0.5 accent-primary"
                   checked={marketingAccepted}
                   onChange={(e) => setMarketingAccepted(e.target.checked)}
                 />
@@ -442,7 +501,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
             </div>
 
             <Button
-              className="w-full"
+              className="w-full h-12 text-base font-semibold shadow-lg shadow-primary/20"
               onClick={handleSubmit}
               disabled={!form.name || !form.phone || !kvkkAccepted || submitting}
             >
@@ -458,9 +517,9 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
       </div>
 
       {/* Powered by */}
-      <div className="text-center py-4">
+      <div className="relative text-center py-6">
         <a href="https://bysirius.com" className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
-          Siriplan ile güçlendirilmiştir · BY Sirius Group
+          ✨ Siriplan ile güçlendirilmiştir · BY Sirius Group
         </a>
       </div>
     </div>

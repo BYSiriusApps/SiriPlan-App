@@ -6,9 +6,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-jakarta), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-playfair), serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -180,6 +180,12 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Hafif ışık/renk atmosferi — düz tek renk yerine hissedilir bir derinlik verir */
+    background-image:
+      radial-gradient(1100px 620px at 12% -8%, color-mix(in oklch, var(--primary) 8%, transparent), transparent 60%),
+      radial-gradient(900px 520px at 105% 0%, color-mix(in oklch, var(--accent) 12%, transparent), transparent 55%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
   html {
     @apply font-sans;
@@ -479,6 +485,42 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* KPI tile — küçük istatistik kartları için ortak, hafif yükseltilmiş görünüm */
+.kpi-tile {
+  position: relative;
+  border-radius: var(--radius-xl);
+  background: color-mix(in oklch, var(--card) 94%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 65%, transparent);
+  box-shadow: 0 1px 3px color-mix(in oklch, var(--foreground) 5%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  overflow: hidden;
+}
+.kpi-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), color-mix(in oklch, var(--accent) 70%, var(--primary)));
+  opacity: 0.75;
+}
+.kpi-tile:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklch, var(--primary) 30%, transparent);
+  box-shadow: 0 12px 28px -10px color-mix(in oklch, var(--primary) 22%, transparent);
+}
+
+/* Data table row — liste satırlarında tutarlı hover/ayırıcı davranışı */
+.data-row {
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 40%, transparent);
+}
+.data-row:last-child {
+  border-bottom: none;
+}
+.data-row:hover {
+  background: color-mix(in oklch, var(--primary) 6%, transparent);
+}
+
 /* Status dot indicator */
 .status-dot {
   width: 7px;
@@ -514,6 +556,23 @@
 @keyframes shimmer {
   from { background-position: -200% 0; }
   to { background-position: 200% 0; }
+}
+
+/* Yumuşak yukarı-belirme — kamuya açık randevu sayfasında adım/kart girişleri için */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes soft-float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(0, -14px); }
+}
+.animate-soft-float {
+  animation: soft-float 9s ease-in-out infinite;
 }
 
 /* Smooth scrolling */

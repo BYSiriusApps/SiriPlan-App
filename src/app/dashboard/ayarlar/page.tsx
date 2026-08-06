@@ -18,18 +18,11 @@ import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { DEFAULT_WA_TEMPLATE, WA_TEMPLATE_VARS, renderWaTemplate } from "@/lib/wa-template";
 import {
-  STYLES_BY_PURPOSE,
   DEFAULT_WA_TEMPLATE_STYLES,
   WA_REMINDER_OFFSET_PRESETS,
-  type WaPurpose,
-  type WaStyle,
 } from "@/lib/wa-templates/registry";
 import { DEFAULT_KVKK_NOTICE_TEMPLATE, renderKvkkNotice } from "@/lib/kvkk";
 import QRCode from "qrcode";
-
-const STYLE_LABELS: Record<WaStyle, string> = {
-  sicak: "Sıcak",
-};
 
 const APPOINTMENT_TEMPLATE_PRESETS: { key: string; label: string; text: string }[] = [
   {
@@ -53,13 +46,6 @@ const APPOINTMENT_TEMPLATE_PRESETS: { key: string; label: string; text: string }
     text: "Merhaba {musteri}, {hizmet} hizmeti için {tarih} {saat} randevunuz {personel} ile {salon}'da oluşturuldu. Bekliyoruz!",
   },
 ];
-
-const PURPOSE_LABELS: Record<WaPurpose, string> = {
-  onay: "Randevu Onayı",
-  iptal: "Randevu İptali",
-  revize: "Randevu Güncelleme",
-  hatirlatma: "Hatırlatma",
-};
 
 const SMS_PROVIDERS: { value: "netgsm" | "vatansms" | "iletimerkezi"; label: string; userLabel: string; passLabel: string }[] = [
   { value: "netgsm", label: "Netgsm", userLabel: "Kullanıcı Kodu", passLabel: "Şifre / API Şifresi" },
@@ -646,43 +632,6 @@ export default function AyarlarPage() {
             Otomatik onay, Pro veya Business planında kullanılabilir.
           </div>
         )}
-      </SectionCard>
-
-      {/* WhatsApp Meta şablon stilleri (onay/iptal/revize/hatırlatma) */}
-      <SectionCard
-        icon={MessageCircle}
-        iconClassName="text-green-600"
-        title="WhatsApp Şablon Stilleri"
-        description="Meta onaylı WhatsApp şablonlarının hangi üslupla gönderileceğini amaç başına gösterir."
-      >
-        {(Object.keys(PURPOSE_LABELS) as WaPurpose[]).map((purpose) => {
-          const styles = STYLES_BY_PURPOSE[purpose];
-          const current = (org.wa_template_styles as Record<string, string> | undefined)?.[purpose]
-            ?? DEFAULT_WA_TEMPLATE_STYLES[purpose];
-          return (
-            <div key={purpose} className="flex items-center justify-between gap-3">
-              <Label className="text-sm">{PURPOSE_LABELS[purpose]}</Label>
-              {styles.length > 1 ? (
-                <Select
-                  value={current}
-                  onValueChange={(v) => {
-                    const cur = (org.wa_template_styles ?? DEFAULT_WA_TEMPLATE_STYLES) as Record<string, string>;
-                    setField("wa_template_styles", { ...cur, [purpose]: v });
-                  }}
-                >
-                  <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {styles.map((s) => (
-                      <SelectItem key={s} value={s}>{STYLE_LABELS[s]}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <span className="text-sm text-muted-foreground w-44 text-right">{STYLE_LABELS[styles[0]]}</span>
-              )}
-            </div>
-          );
-        })}
       </SectionCard>
 
       {/* WhatsApp Bildirim Ayarları (hatırlatma / iptal) */}

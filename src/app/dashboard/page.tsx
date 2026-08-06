@@ -810,7 +810,7 @@ export default async function DashboardPage() {
       {/* ── Üst başlık: sıcak karşılama + canlı saat ── */}
       <header className="flex items-start justify-between px-4 pt-6 pb-5 max-w-6xl mx-auto">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate text-balance">
+          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-foreground truncate text-balance">
             {orgName}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">{t("homePage.greeting", { name: firstName })}</p>
