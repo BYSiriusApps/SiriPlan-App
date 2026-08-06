@@ -50,7 +50,7 @@ export async function sendPurposeTemplate({
   const supabase = await createAdminClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("name, wa_template_styles, phone, whatsapp_number, address")
+    .select("name, wa_template_styles, phone, whatsapp_number, address, location_url")
     .eq("id", orgId)
     .single();
 
@@ -74,7 +74,10 @@ export async function sendPurposeTemplate({
     process.env.PLATFORM_SUPPORT_PHONE ||
     "";
 
-  const locationLink = vars.location_link?.trim() || (org.address?.trim() ? googleMapsLink(org.address.trim()) : "");
+  const locationLink =
+    vars.location_link?.trim() ||
+    org.location_url?.trim() ||
+    (org.address?.trim() ? googleMapsLink(org.address.trim()) : "");
 
   const paramValues: Record<WaParamSource, string> = {
     ...vars,

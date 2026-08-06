@@ -42,6 +42,7 @@ export default function YeniRandevuPage() {
   const [orgId, setOrgId] = useState<string>("");
   const [orgName, setOrgName] = useState<string>("");
   const [orgAddress, setOrgAddress] = useState<string>("");
+  const [orgLocationUrl, setOrgLocationUrl] = useState<string>("");
   const [waTemplate, setWaTemplate] = useState<string | null>(null);
   const [sendWaMessage, setSendWaMessage] = useState(true);
   const [kvkkAttested, setKvkkAttested] = useState(false);
@@ -76,6 +77,7 @@ export default function YeniRandevuPage() {
         setOrgId(orgData.org?.id || "");
         setOrgName(orgData.org?.name || "");
         setOrgAddress(orgData.org?.address || "");
+        setOrgLocationUrl(orgData.org?.location_url || "");
         const settings = (orgData.org?.settings_json ?? {}) as Record<string, unknown>;
         setWaTemplate(typeof settings.wa_appointment_template === "string" ? settings.wa_appointment_template : null);
       })
@@ -174,6 +176,7 @@ export default function YeniRandevuPage() {
           hizmet: selectedServices.map((s) => s.name).join(", "),
           personel: staff.find((s) => s.id === form.staff_id)?.full_name,
           address: orgAddress,
+          locationUrl: orgLocationUrl,
         });
         window.open(waMessageLink(form.customer_phone, text), "_blank", "noopener");
       }
@@ -440,6 +443,7 @@ export default function YeniRandevuPage() {
                           hizmet: selectedServices.map((s) => s.name).join(", "),
                           personel: staff.find((s) => s.id === form.staff_id)?.full_name,
                           address: orgAddress,
+          locationUrl: orgLocationUrl,
                         })}&quot;
                       </span>
                     )}

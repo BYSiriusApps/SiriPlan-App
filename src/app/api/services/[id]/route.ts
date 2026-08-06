@@ -44,7 +44,6 @@ export async function PATCH(
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const allowed = ["name", "price", "duration_minutes", "description", "category_tag", "is_active", "contributes_loyalty", "is_bookable_online"];
   const updates: Record<string, unknown> = {};
@@ -79,7 +78,6 @@ export async function DELETE(
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { error } = await supabase
     .from("services")

@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { name, duration_minutes, price, category_tag, description, contributes_loyalty } = body;
 
-  if (!name || !duration_minutes || price === undefined) {
-    return NextResponse.json({ error: "Ad, süre ve fiyat zorunlu" }, { status: 400 });
+  if (!name || !duration_minutes) {
+    return NextResponse.json({ error: "Ad ve süre zorunlu" }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -52,7 +52,6 @@ export async function POST(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { data, error } = await supabase
     .from("services")
@@ -60,7 +59,7 @@ export async function POST(req: NextRequest) {
       org_id: member.org_id,
       name,
       duration_minutes: parseInt(duration_minutes),
-      price: parseFloat(price),
+      price: price !== undefined && price !== null && price !== "" ? parseFloat(price) : 0,
       category_tag: category_tag || "genel",
       description: description || null,
       contributes_loyalty: contributes_loyalty ?? true,

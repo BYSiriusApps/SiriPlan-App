@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendWelcomeEmail } from "@/lib/email/send";
 import { notifyAdminNewSignup } from "@/lib/notify-admin";
+import { seedDefaultServices } from "@/lib/services/seed";
 
 const VALID_BUSINESS_TYPES = new Set([
   "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik",
@@ -115,6 +116,10 @@ export async function POST(req: NextRequest) {
   });
 
   await admin.from("staff").insert({ org_id: org.id, full_name: fullName, role: "Salon Sahibi", is_active: true });
+
+  // 3b. Hizmet listesini iş türüne göre otomatik doldur — işletme sahibi sıfırdan
+  // eklemek yerine dolu bir listeyle başlar, istemediklerini kaldırabilir.
+  await seedDefaultServices(admin, org.id, safeBusinessType);
 
   // 4. Send welcome email via Resend (fire-and-forget, ortak şablon)
   sendWelcomeEmail({ to: email, salonName, ownerName: fullName }).catch(() => {});

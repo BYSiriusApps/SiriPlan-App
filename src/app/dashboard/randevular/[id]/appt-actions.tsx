@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock, Send } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock, Send, MessageSquareText } from "lucide-react";
 import type { Appointment } from "@/types/database";
 
 interface ApptActionsProps {
@@ -21,6 +21,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [tip, setTip] = useState("");
+  const [extraIncome, setExtraIncome] = useState("");
   const [payMethod, setPayMethod] = useState("nakit");
   const [internalNote, setInternalNote] = useState(appt.internal_note || "");
 
@@ -49,7 +50,11 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
     const res = await fetch(`/api/appointments/${appt.id}/complete`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tip: parseFloat(tip) || 0, payment_method: payMethod }),
+      body: JSON.stringify({
+        tip: parseFloat(tip) || 0,
+        payment_method: payMethod,
+        extra_income: parseFloat(extraIncome) || 0,
+      }),
     });
     setLoading(null);
     if (res.ok) {
@@ -80,6 +85,24 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
       toast.error("WhatsApp bağlantısı henüz kurulmadı.");
     } else {
       toast.error(body.error || "Gönderilemedi");
+    }
+  }
+
+  async function sendSms(purpose: "onay" | "hatirlatma" | "iptal", actionKey: string, successMsg: string) {
+    setLoading(actionKey);
+    const res = await fetch(`/api/appointments/${appt.id}/notify-sms`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ purpose }),
+    });
+    const body = await res.json().catch(() => ({}));
+    setLoading(null);
+    if (res.ok && body.sent) {
+      toast.success(successMsg);
+    } else if (res.ok && body.skipped) {
+      toast.error("SMS bağlantısı henüz kurulmadı (Ayarlar'dan sağlayıcı seçin).");
+    } else {
+      toast.error(body.error || "SMS gönderilemedi");
     }
   }
 
@@ -165,6 +188,19 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
                     </Select>
                   </div>
                 </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Ekstra Gelir (₺) — opsiyonel</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={extraIncome}
+                    onChange={(e) => setExtraIncome(e.target.value)}
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Hizmet fiyatı dışında ek ücret alındıysa girin — Gelir &amp; Gider tablosuna otomatik işlenir.
+                  </p>
+                </div>
                 <Button className="w-full" onClick={handleComplete} disabled={!!loading}>
                   {loading === "complete" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
                   Tamamlandı Olarak İşaretle
@@ -219,13 +255,39 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
                 </Button>
               </div>
             )}
+
+            {/* Manuel SMS bildirimleri */}
+            {appt.status === "onaylandi" && (
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => sendSms("onay", "sms-confirm", "Onay SMS'i gönderildi")}
+                  disabled={!!loading}
+                >
+                  {loading === "sms-confirm" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <MessageSquareText className="h-3.5 w-3.5 mr-1" />}
+                  Onay SMS Gönder
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => sendSms("hatirlatma", "sms-reminder", "Hatırlatma SMS'i gönderildi")}
+                  disabled={!!loading}
+                >
+                  {loading === "sms-reminder" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <MessageSquareText className="h-3.5 w-3.5 mr-1" />}
+                  Hatırlatma SMS Gönder
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
 
       {appt.status === "iptal" && (
         <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
+          <CardContent className="p-4 grid grid-cols-2 gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -235,6 +297,16 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
             >
               {loading === "notify-cancel" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
               İptal Bildirimini Yeniden Gönder
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => sendSms("iptal", "sms-cancel", "İptal SMS'i gönderildi")}
+              disabled={!!loading}
+            >
+              {loading === "sms-cancel" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <MessageSquareText className="h-3.5 w-3.5 mr-1" />}
+              İptal SMS Gönder
             </Button>
           </CardContent>
         </Card>

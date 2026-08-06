@@ -18,7 +18,5 @@ export default async function HizmetlerPage() {
     .eq("org_id", member.org_id)
     .order("display_order");
 
-  const canEdit = member.role !== "staff";
-
-  return <HizmetlerClient initialServices={(services || []) as Service[]} canEdit={canEdit} />;
+  return <HizmetlerClient initialServices={(services || []) as Service[]} canEdit={true} />;
 }

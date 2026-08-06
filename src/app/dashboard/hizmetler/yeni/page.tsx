@@ -20,6 +20,7 @@ const CATEGORIES = [
   { value: "spa", label: "Spa & Masaj" },
   { value: "lazer", label: "Lazer & Epilasyon" },
   { value: "genel", label: "Genel" },
+  { value: "diger", label: "Diğer" },
 ];
 
 type Tab = "catalog" | "manual";
@@ -86,7 +87,7 @@ export default function YeniHizmetPage() {
 
   async function handleManualSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim() || !form.price) return toast.error("Ad ve fiyat zorunlu");
+    if (!form.name.trim()) return toast.error("Hizmet adı zorunlu");
     setLoading(true);
     const res = await fetch("/api/services", {
       method: "POST",
@@ -94,7 +95,7 @@ export default function YeniHizmetPage() {
       body: JSON.stringify({
         name: form.name.trim(),
         duration_minutes: parseInt(form.duration_minutes) || 30,
-        price: parseFloat(form.price),
+        price: form.price ? parseFloat(form.price) : 0,
         category_tag: form.category_tag,
         description: form.description || null,
         contributes_loyalty: form.contributes_loyalty,
@@ -225,16 +226,18 @@ export default function YeniHizmetPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label>Fiyat (₺) *</Label>
+                  <Label>Fiyat (₺)</Label>
                   <Input
                     type="number"
                     min="0"
                     step="0.01"
                     value={form.price}
                     onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                    placeholder="örn. 500"
-                    required
+                    placeholder="örn. 500 (opsiyonel)"
                   />
+                  <p className="text-[11px] text-muted-foreground">
+                    Boş bırakırsanız fiyat randevu tamamlanırken girilebilir.
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <Label>Süre (dakika) *</Label>

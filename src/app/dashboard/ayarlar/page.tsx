@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
@@ -36,6 +36,12 @@ const PURPOSE_LABELS: Record<WaPurpose, string> = {
   revize: "Randevu Güncelleme",
   hatirlatma: "Hatırlatma",
 };
+
+const SMS_PROVIDERS: { value: "netgsm" | "vatansms" | "iletimerkezi"; label: string; userLabel: string; passLabel: string }[] = [
+  { value: "netgsm", label: "Netgsm", userLabel: "Kullanıcı Kodu", passLabel: "Şifre / API Şifresi" },
+  { value: "vatansms", label: "VatanSMS", userLabel: "API ID", passLabel: "API Key" },
+  { value: "iletimerkezi", label: "İletimerkezi", userLabel: "Kullanıcı Adı", passLabel: "Şifre" },
+];
 
 const DAYS = [
   { key: "mon", label: "Pazartesi" },
@@ -103,6 +109,7 @@ export default function AyarlarPage() {
   const [saving, setSaving] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -142,6 +149,8 @@ export default function AyarlarPage() {
         email: org.email,
         address: org.address,
         city: org.city,
+        location_url: org.location_url,
+        logo_url: org.logo_url,
         instagram_handle: org.instagram_handle,
         whatsapp_number: org.whatsapp_number,
         telegram_chat_id: org.telegram_chat_id,
@@ -152,6 +161,11 @@ export default function AyarlarPage() {
         whatsapp_notifications_enabled: org.whatsapp_notifications_enabled,
         wa_template_styles: org.wa_template_styles ?? DEFAULT_WA_TEMPLATE_STYLES,
         wa_reminder_offsets_hours: org.wa_reminder_offsets_hours ?? [2],
+        sms_notifications_enabled: org.sms_notifications_enabled ?? false,
+        sms_provider: org.sms_provider,
+        sms_username: org.sms_username,
+        sms_password: org.sms_password,
+        sms_sender_id: org.sms_sender_id,
         has_auto_booking: org.has_auto_booking ?? false,
         kvkk_notice_text: org.kvkk_notice_text,
         settings_json: org.settings_json ?? {},
@@ -168,6 +182,57 @@ export default function AyarlarPage() {
 
   function setField(field: keyof Organization, value: unknown) {
     setOrg((prev) => prev ? { ...prev, [field]: value } : prev);
+  }
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !org?.id) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Lütfen bir resim dosyası seçin");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Dosya boyutu 2MB'dan küçük olmalı");
+      return;
+    }
+    setUploadingLogo(true);
+    const supabase = createClient();
+    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+    const path = `${org.id}/logo.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("org-logos")
+      .upload(path, file, { upsert: true, cacheControl: "3600" });
+    if (upErr) {
+      toast.error("Yükleme başarısız: " + upErr.message);
+      setUploadingLogo(false);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("org-logos").getPublicUrl(path);
+    const publicUrl = `${pub.publicUrl}?t=${Date.now()}`;
+    const { error: dbErr } = await supabase
+      .from("organizations")
+      .update({ logo_url: publicUrl })
+      .eq("id", org.id);
+    if (dbErr) {
+      toast.error("Kaydedilemedi: " + dbErr.message);
+    } else {
+      setField("logo_url", publicUrl);
+      toast.success("Logo güncellendi!");
+    }
+    setUploadingLogo(false);
+  }
+
+  async function handleLogoRemove() {
+    if (!org?.id) return;
+    const supabase = createClient();
+    const { error } = await supabase.from("organizations").update({ logo_url: null }).eq("id", org.id);
+    if (error) {
+      toast.error("Kaldırılamadı: " + error.message);
+    } else {
+      setField("logo_url", null);
+      toast.success("Logo kaldırıldı");
+    }
   }
 
   const bookingLink = org?.slug
@@ -221,6 +286,36 @@ export default function AyarlarPage() {
 
       {/* Basic info */}
       <SectionCard icon={Building2} title="Salon Bilgileri">
+        <div className="flex items-center gap-3">
+          {org.logo_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={org.logo_url} alt="Logo" className="w-16 h-16 rounded-xl object-cover border border-border shrink-0" />
+          ) : (
+            <div className="w-16 h-16 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-2xl shrink-0">
+              {(org.name || "S")[0]}
+            </div>
+          )}
+          <div className="space-y-1.5">
+            <Label>İşletme Logosu</Label>
+            <div className="flex items-center gap-2">
+              <label className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-border cursor-pointer hover:bg-muted/50 transition-colors">
+                {uploadingLogo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageUp className="h-3.5 w-3.5" />}
+                {org.logo_url ? "Logoyu Değiştir" : "Logo Yükle"}
+                <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} />
+              </label>
+              {org.logo_url && (
+                <button
+                  type="button"
+                  onClick={handleLogoRemove}
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-red-600 transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" /> Kaldır
+                </button>
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground">PNG, JPG veya WebP — en fazla 2MB. Randevu sayfanızda görünür.</p>
+          </div>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label>Salon Adı</Label>
@@ -269,6 +364,20 @@ export default function AyarlarPage() {
               </SelectContent>
             </Select>
           </div>
+        </div>
+        <div className="space-y-1">
+          <Label>Konum (Google Maps Linki)</Label>
+          <Input
+            className="mt-1"
+            value={org.location_url || ""}
+            onChange={(e) => setField("location_url", e.target.value)}
+            placeholder="https://maps.app.goo.gl/..."
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Google Maps&apos;te işletmenizi bulup <strong>Paylaş</strong> ile linki kopyalayıp buraya yapıştırın —
+            otomatik randevu onay mesajlarında müşteriye bu linke tıklayarak gelebileceği doğru konum gösterilir.
+            Boş bırakırsanız adresinizden otomatik bir harita linki üretilir.
+          </p>
         </div>
       </SectionCard>
 
@@ -580,6 +689,85 @@ export default function AyarlarPage() {
             Meta WhatsApp kuralları gereği bu mesajlar önceden onaylı şablon üzerinden gider —
             yukarıdaki not şablonun son değişkenine ({"{{5}}"}) dinamik olarak eklenir.
           </p>
+        </div>
+      </SectionCard>
+
+      {/* SMS Bildirimleri */}
+      <SectionCard
+        icon={MessageSquareText}
+        iconClassName="text-blue-600"
+        title="SMS Bildirimleri"
+        description="Randevu onayı, hatırlatma ve iptal bildirimlerini SMS ile de gönderebilirsiniz. Bunun için bir SMS sağlayıcısında (Netgsm, VatanSMS veya İletimerkezi) hesap açıp API bilgilerinizi buraya girmeniz gerekir."
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
+            <Checkbox
+              id="sms_notifications_enabled"
+              checked={org.sms_notifications_enabled ?? false}
+              onCheckedChange={(checked) => setField("sms_notifications_enabled", !!checked)}
+              className="mt-0.5"
+            />
+            <label htmlFor="sms_notifications_enabled" className="cursor-pointer flex-1">
+              <p className="text-sm font-medium">SMS bildirimleri açık</p>
+              <p className="text-xs text-muted-foreground">
+                Kapalıyken randevu detayındaki &quot;SMS Gönder&quot; butonları çalışmaz.
+              </p>
+            </label>
+          </div>
+
+          <div>
+            <Label>SMS Sağlayıcısı</Label>
+            <Select
+              value={org.sms_provider ?? ""}
+              onValueChange={(v) => setField("sms_provider", v || null)}
+            >
+              <SelectTrigger className="mt-1"><SelectValue placeholder="Sağlayıcı seçin" /></SelectTrigger>
+              <SelectContent>
+                {SMS_PROVIDERS.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {org.sms_provider && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label>{SMS_PROVIDERS.find((p) => p.value === org.sms_provider)?.userLabel}</Label>
+                <Input
+                  className="mt-1"
+                  value={org.sms_username || ""}
+                  onChange={(e) => setField("sms_username", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>{SMS_PROVIDERS.find((p) => p.value === org.sms_provider)?.passLabel}</Label>
+                <Input
+                  type="password"
+                  className="mt-1"
+                  value={org.sms_password || ""}
+                  onChange={(e) => setField("sms_password", e.target.value)}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label>Gönderici Başlığı (Sender ID)</Label>
+                <Input
+                  className="mt-1"
+                  value={org.sms_sender_id || ""}
+                  onChange={(e) => setField("sms_sender_id", e.target.value)}
+                  placeholder="Operatörce onaylı marka başlığınız"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Sağlayıcı panelinizden operatöre onaylattığınız başlık — onaysız gönderimde SMS reddedilir.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 text-xs text-muted-foreground space-y-1">
+            <p className="font-medium text-blue-700 dark:text-blue-400">Maliyet hakkında</p>
+            <p>SMS başına yaklaşık 0,08–0,20 TL arası (paket boyutuna göre) — sağlayıcı sitesinden kredi paketi satın almanız gerekir, aylık sabit ücret yoktur.</p>
+          </div>
         </div>
       </SectionCard>
 

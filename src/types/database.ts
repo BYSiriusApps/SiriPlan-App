@@ -15,6 +15,7 @@ export interface Organization {
   email: string | null;
   address: string | null;
   city: string | null;
+  location_url: string | null;
   logo_url: string | null;
   cover_url: string | null;
   instagram_handle: string | null;
@@ -43,6 +44,11 @@ export interface Organization {
   has_auto_booking: boolean;
   wa_template_styles: Record<string, string>;
   wa_reminder_offsets_hours: number[];
+  sms_notifications_enabled: boolean;
+  sms_provider: "netgsm" | "vatansms" | "iletimerkezi" | null;
+  sms_username: string | null;
+  sms_password: string | null;
+  sms_sender_id: string | null;
   kvkk_notice_text: string | null;
   settings_json: Record<string, unknown>;
   created_at: string;

@@ -73,6 +73,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   const [sendWaMessage, setSendWaMessage] = useState(true);
   const [orgName, setOrgName] = useState("");
   const [orgAddress, setOrgAddress] = useState("");
+  const [orgLocationUrl, setOrgLocationUrl] = useState("");
   const [waTemplate, setWaTemplate] = useState<string | null>(null);
 
   useEffect(() => {
@@ -81,6 +82,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
       .then((d) => {
         setOrgName(d.org?.name ?? "");
         setOrgAddress(d.org?.address ?? "");
+        setOrgLocationUrl(d.org?.location_url ?? "");
         const s = (d.org?.settings_json ?? {}) as Record<string, unknown>;
         setWaTemplate(typeof s.wa_appointment_template === "string" ? s.wa_appointment_template : null);
       })
@@ -182,6 +184,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           hizmet: selectedService?.name,
           personel: staff.find((s) => s.id === selectedStaffId)?.full_name,
           address: orgAddress,
+          locationUrl: orgLocationUrl,
         });
         window.open(waMessageLink(customerPhone.trim(), text), "_blank", "noopener");
       }

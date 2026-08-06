@@ -29,6 +29,8 @@ export interface WaTemplateVars {
   personel?: string;
   /** İşletme adresi — doluysa mesaj sonuna Google Maps linki eklenir. */
   address?: string;
+  /** Kayıtlı Google Maps paylaşım linki — doluysa adresten üretilen linkin yerine kullanılır. */
+  locationUrl?: string;
 }
 
 /** İşletme adresinden tıklanabilir Google Maps arama linki üretir. */
@@ -64,7 +66,8 @@ export function renderWaTemplate(template: string | null | undefined, vars: WaTe
     .trim();
 
   const address = vars.address?.trim();
-  return address ? `${rendered}\n\n📍 Konum: ${googleMapsLink(address)}` : rendered;
+  const locationLink = vars.locationUrl?.trim() || (address ? googleMapsLink(address) : "");
+  return locationLink ? `${rendered}\n\n📍 Konum: ${locationLink}` : rendered;
 }
 
 /** Hazır mesajla müşterinin WhatsApp sohbetini açan link */

@@ -192,6 +192,19 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
         {step === 0 && (
           <div className="space-y-3">
             <h2 className="text-xl font-bold mb-4">Hizmet Seçin</h2>
+            {services.length === 0 && (
+              <div className="text-center py-10 px-4 rounded-xl border border-dashed border-border">
+                <p className="text-sm text-muted-foreground">
+                  Şu anda online randevu alınabilecek bir hizmet bulunmuyor.
+                </p>
+                {org.phone && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Randevu almak için bizi arayabilirsiniz:{" "}
+                    <a href={`tel:${org.phone}`} className="text-primary font-medium hover:underline">{org.phone}</a>
+                  </p>
+                )}
+              </div>
+            )}
             {services.map((s) => (
               <button
                 key={s.id}

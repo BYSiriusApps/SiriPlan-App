@@ -8,7 +8,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const { tip = 0, payment_method = "nakit" } = await req.json();
+  const { tip = 0, payment_method = "nakit", extra_income = 0 } = await req.json();
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -40,6 +40,20 @@ export async function POST(
     .eq("id", id);
 
   if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 });
+
+  const extraIncomeAmount = Number(extra_income) || 0;
+  if (extraIncomeAmount > 0) {
+    await supabase.from("expenses").insert({
+      org_id: member.org_id,
+      type: "gelir",
+      category: "randevu",
+      amount: extraIncomeAmount,
+      description: `${appt.customer_name} — ekstra gelir (randevu)`,
+      date: new Date().toISOString().slice(0, 10),
+      payment_method,
+      created_by: user.id,
+    });
+  }
 
   logAppointmentStatusChange({
     orgId: member.org_id,
