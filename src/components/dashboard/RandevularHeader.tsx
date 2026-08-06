@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { QuickBookSheet } from "./QuickBookSheet";
 import { HomeButton } from "./HomeButton";
 import { LayoutList } from "lucide-react";
@@ -26,11 +27,12 @@ interface Props {
 }
 
 export function RandevularHeader({ orgId, staff, services }: Props) {
+  const t = useTranslations("dashboard");
   return (
     <div className="flex items-center justify-between flex-wrap gap-3">
       <div className="flex items-center gap-2">
         <LayoutList className="h-5 w-5 text-muted-foreground" />
-        <h1 className="text-2xl font-bold">Randevular</h1>
+        <h1 className="text-2xl font-bold">{t("appointments")}</h1>
         <HomeButton />
       </div>
       <div className="flex items-center gap-2">
@@ -38,7 +40,7 @@ export function RandevularHeader({ orgId, staff, services }: Props) {
           href="/dashboard/randevular/yeni"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium hover:bg-accent transition-colors"
         >
-          Detaylı Form
+          {t("detailedForm")}
         </Link>
         <QuickBookSheet orgId={orgId} staff={staff} services={services} />
       </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { getActiveMemberClient } from "@/lib/active-org-client";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
@@ -29,6 +30,29 @@ import QRCode from "qrcode";
 const STYLE_LABELS: Record<WaStyle, string> = {
   sicak: "Sıcak",
 };
+
+const APPOINTMENT_TEMPLATE_PRESETS: { key: string; label: string; text: string }[] = [
+  {
+    key: "sicak",
+    label: "Sıcak",
+    text: "Sayın {musteri}, {salon} işletmesinde {tarih} tarihi ve {saat} saati için randevunuz oluşturulmuştur. Sorunuz olursa bu numaradan bize ulaşabilirsiniz. Görüşmek üzere! 💫",
+  },
+  {
+    key: "kisa",
+    label: "Kısa",
+    text: "{musteri}, {salon} - {tarih} {saat} randevunuz onaylandı.",
+  },
+  {
+    key: "resmi",
+    label: "Resmi",
+    text: "Sayın {musteri}, {salon} nezdinde {tarih} tarihinde saat {saat} için randevunuz kayıt altına alınmıştır. Bilginize sunarız.",
+  },
+  {
+    key: "hizmetli",
+    label: "Hizmet Detaylı",
+    text: "Merhaba {musteri}, {hizmet} hizmeti için {tarih} {saat} randevunuz {personel} ile {salon}'da oluşturuldu. Bekliyoruz!",
+  },
+];
 
 const PURPOSE_LABELS: Record<WaPurpose, string> = {
   onay: "Randevu Onayı",
@@ -103,6 +127,7 @@ function SectionCard({
 }
 
 export default function AyarlarPage() {
+  const t = useTranslations("dashboard");
   const [org, setOrg] = useState<Partial<Organization> | null>(null);
   const [staffList, setStaffList] = useState<StaffListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,6 +135,28 @@ export default function AyarlarPage() {
   const [linkCopied, setLinkCopied] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [locating, setLocating] = useState(false);
+
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      toast.error("Tarayıcınız konum özelliğini desteklemiyor");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setField("location_url", `https://www.google.com/maps?q=${latitude},${longitude}`);
+        setLocating(false);
+        toast.success("Konumunuz alındı");
+      },
+      () => {
+        setLocating(false);
+        toast.error("Konum alınamadı — tarayıcınızdan konum izni vermeniz gerekiyor");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
 
   useEffect(() => {
     const supabase = createClient();
@@ -277,10 +324,10 @@ export default function AyarlarPage() {
       <header className="flex items-start justify-between gap-3 pb-1">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Ayarlar</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t("settings")}</h1>
             <HomeButton />
           </div>
-          <p className="text-sm text-muted-foreground mt-1">Salon profilinizi ve uygulama tercihlerinizi yönetin.</p>
+          <p className="text-sm text-muted-foreground mt-1">{t("settingsSubtitle")}</p>
         </div>
       </header>
 
@@ -367,12 +414,24 @@ export default function AyarlarPage() {
         </div>
         <div className="space-y-1">
           <Label>Konum (Google Maps Linki)</Label>
-          <Input
-            className="mt-1"
-            value={org.location_url || ""}
-            onChange={(e) => setField("location_url", e.target.value)}
-            placeholder="https://maps.app.goo.gl/..."
-          />
+          <div className="flex gap-2 mt-1">
+            <Input
+              className="flex-1"
+              value={org.location_url || ""}
+              onChange={(e) => setField("location_url", e.target.value)}
+              placeholder="https://maps.app.goo.gl/..."
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={useMyLocation}
+              disabled={locating}
+              className="shrink-0 gap-1.5"
+            >
+              {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
+              Konumumu Kullan
+            </Button>
+          </div>
           <p className="text-[11px] text-muted-foreground">
             Google Maps&apos;te işletmenizi bulup <strong>Paylaş</strong> ile linki kopyalayıp buraya yapıştırın —
             otomatik randevu onay mesajlarında müşteriye bu linke tıklayarak gelebileceği doğru konum gösterilir.
@@ -498,6 +557,22 @@ export default function AyarlarPage() {
         title="Otomatik Randevu Mesajı"
         description="Yeni randevu oluşturulduğunda müşteriye gönderilen bilgilendirme metni. Tarih ve saat her randevuda otomatik doldurulur."
       >
+        <div className="flex gap-1.5 flex-wrap items-center">
+          <span className="text-xs text-muted-foreground">Şablon seç:</span>
+          {APPOINTMENT_TEMPLATE_PRESETS.map((preset) => (
+            <button
+              key={preset.key}
+              type="button"
+              onClick={() => {
+                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                setField("settings_json", { ...cur, wa_appointment_template: preset.text });
+              }}
+              className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
         <textarea
           className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
           value={

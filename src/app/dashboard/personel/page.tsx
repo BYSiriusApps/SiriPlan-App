@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -19,6 +20,7 @@ const LANG_FLAGS: Record<string, { flag: string; name: string }> = Object.fromEn
 );
 
 export default async function PersonelPage() {
+  const t = await getTranslations("dashboard");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
@@ -72,9 +74,9 @@ export default async function PersonelPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Personel</h1><HomeButton /></div>
+          <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">{t("staff")}</h1><HomeButton /></div>
           <p className="text-muted-foreground text-sm">
-            {staff?.length || 0}/{maxStaff} personel kullanılıyor
+            {t("staffCountLabel", { used: staff?.length || 0, max: maxStaff })}
           </p>
         </div>
         {(m.role === "owner" || !!member.permissions_json?.manage_staff) && (
@@ -87,7 +89,7 @@ export default async function PersonelPage() {
                 href="/dashboard/personel/yeni"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
               >
-                + Personel Ekle
+                {t("addStaff")}
               </Link>
             )}
           </div>

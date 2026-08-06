@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import type { Customer } from "@/types/database";
 import { CustomerList } from "@/components/dashboard/CustomerList";
 import { HomeButton } from "@/components/dashboard/HomeButton";
@@ -12,6 +13,7 @@ export default async function MusterilerPage({
   searchParams: Promise<{ kampanya?: string }>;
 }) {
   const params = await searchParams;
+  const t = await getTranslations("dashboard");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
@@ -38,8 +40,8 @@ export default async function MusterilerPage({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold">Müşteriler</h1>
-            <p className="text-muted-foreground text-sm">{customers?.length || 0} müşteri</p>
+            <h1 className="text-2xl font-bold">{t("customers")}</h1>
+            <p className="text-muted-foreground text-sm">{t("customerCountLabel", { count: customers?.length || 0 })}</p>
           </div>
           <HomeButton />
         </div>
@@ -47,7 +49,7 @@ export default async function MusterilerPage({
           href="/dashboard/musteriler/yeni"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
         >
-          + Müşteri Ekle
+          {t("addCustomer")}
         </Link>
       </div>
 
