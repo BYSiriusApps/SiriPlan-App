@@ -438,7 +438,9 @@ export function UnifiedCalendar({
     const d = new Date(appt.appointment_at);
     const startMin = d.getHours() * 60 + d.getMinutes();
     const rawTop = ((startMin - hours[0] * 60) / 60) * HOUR_PX;
-    const height = Math.max(view === "day" ? 40 : 28, (appt.duration_minutes / 60) * HOUR_PX);
+    // Not: yüksekliği gerçek süreden fazla şişirmiyoruz — art arda kısa randevular
+    // birbirinin üzerine taşar. Bunun yerine kısa kutularda 2. satır (hizmet) gizlenir.
+    const height = Math.max(view === "day" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
     // Grid dışına taşan randevular gizlenmesin — kenara kenetle
     const top = Math.min(Math.max(rawTop, 0), gridHeight - 24);
     return { top, height: Math.min(height, gridHeight - top) };
@@ -454,6 +456,9 @@ export function UnifiedCalendar({
     const pending = appt.status === "talep";
     const live = isLive(appt);
     const beingDragged = dragPreview?.apptId === appt.id;
+    // Kutu çok kısaysa (kısa süreli randevu) 2. satırı (hizmet) gizle —
+    // saat + isim (başlık) her koşulda kesilmeden tam görünsün.
+    const canShowServiceLine = height >= (view === "day" ? 46 : 34);
 
     return (
       <button
@@ -488,11 +493,13 @@ export function UnifiedCalendar({
           {noShow && <span className="mr-0.5">⚠</span>}
           {format(new Date(appt.appointment_at), "HH:mm")} {appt.customer_name}
         </p>
-        <p className="truncate opacity-80">
-          {live ? `● ${t("liveNow")} · ` : ""}
-          {appt.service?.name}
-          {opts?.showStaff ? ` · ${staffName(appt.staff_id)}` : ""}
-        </p>
+        {canShowServiceLine && (
+          <p className="truncate opacity-80">
+            {live ? `● ${t("liveNow")} · ` : ""}
+            {appt.service?.name}
+            {opts?.showStaff ? ` · ${staffName(appt.staff_id)}` : ""}
+          </p>
+        )}
       </button>
     );
   }

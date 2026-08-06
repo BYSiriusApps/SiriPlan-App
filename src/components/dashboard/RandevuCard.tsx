@@ -69,14 +69,14 @@ export function RandevuCard({ appt: initial, canQuickAct }: { appt: ApptWithRela
                   {STATUS_LABELS[appt.status]}
                 </Badge>
               </div>
-              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  {appt.staff?.full_name}
+              <div className="flex items-center flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1 min-w-0">
+                  <User className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{appt.staff?.full_name}</span>
                 </span>
-                <span>• {appt.service?.name}</span>
-                <span className="flex items-center gap-1">
-                  <Phone className="h-3 w-3" />
+                <span className="truncate">• {appt.service?.name}</span>
+                <span className="flex items-center gap-1 shrink-0">
+                  <Phone className="h-3 w-3 shrink-0" />
                   {appt.customer_phone}
                 </span>
               </div>
