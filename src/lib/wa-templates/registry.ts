@@ -53,14 +53,22 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     purpose: "revize",
     style: "sicak",
     metaName: "randevu_revize",
-    bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time", "location_link"],
+    // NOT: location_link BİLEREK eklenmedi — Meta'daki "randevu_revize" şablonu
+    // henüz konum yer tutucusuyla onaylanmadı (bkz. hatirlatma_sicak notu, aynı risk).
+    // Meta'da şablon 5 parametreye güncellenip onaylandıktan SONRA buraya
+    // "location_link" eklenmeli, aksi halde TÜM revize mesajları 132000 hatasıyla başarısız olur.
+    bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
   },
   hatirlatma_sicak: {
     key: "hatirlatma_sicak",
     purpose: "hatirlatma",
     style: "sicak",
     metaName: "randevu_hatirlatma",
-    bodyParamOrder: ["customer_name", "business_name", "date", "time", "location_link"],
+    // NOT: location_link BİLEREK eklenmedi — canlıda denendi, Meta 132000 hatası
+    // verdi ("randevu_hatirlatma" şablonu hâlâ 4 parametreli, 5 değil). Meta'da
+    // şablon konum yer tutucusuyla güncellenip ONAYLANDIKTAN SONRA buraya
+    // "location_link" eklenmeli.
+    bodyParamOrder: ["customer_name", "business_name", "date", "time"],
   },
 };
 
