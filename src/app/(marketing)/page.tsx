@@ -9,6 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTranslations } from "next-intl/server";
 
+// Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (/demo route'u) korunuyor.
+const DEMO_ENABLED = false;
+
 const FEATURE_META = [
   { key: "booking",   icon: Calendar,       color: "text-rose-500",   bg: "bg-rose-50 dark:bg-rose-950/30"    },
   { key: "ai",        icon: Bot,            color: "text-violet-500", bg: "bg-violet-50 dark:bg-violet-950/30" },
@@ -126,12 +129,14 @@ export default async function HomePage() {
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-            <Link href="/demo">
-              <Button size="lg" variant="outline" className="h-12 px-8 text-base gap-2">
-                <Sparkles className="w-4 h-4" />
-                {t("hero.ctaSecondary")}
-              </Button>
-            </Link>
+            {DEMO_ENABLED && (
+              <Link href="/demo">
+                <Button size="lg" variant="outline" className="h-12 px-8 text-base gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  {t("hero.ctaSecondary")}
+                </Button>
+              </Link>
+            )}
           </div>
 
           <p className="text-sm text-muted-foreground">

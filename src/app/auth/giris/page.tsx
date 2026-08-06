@@ -10,6 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, Mail, Lock, Zap } from "lucide-react";
 import { toast } from "sonner";
 
+// Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (handleDemoLogin) korunuyor.
+const DEMO_ENABLED = false;
+
 export default function GirisPage() {
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
@@ -59,35 +62,39 @@ export default function GirisPage() {
         <CardDescription>Hesabınıza giriş yapın</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Demo quick-login */}
-        <Button
-          type="button"
-          className="w-full gap-2 font-semibold"
-          style={{
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-            border: "none",
-            color: "white",
-          }}
-          onClick={handleDemoLogin}
-          disabled={demoLoading || loading}
-        >
-          {demoLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Zap className="h-4 w-4" />
-          )}
-          Demo Dashboard'ı Gör
-        </Button>
+        {DEMO_ENABLED && (
+          <>
+            {/* Demo quick-login */}
+            <Button
+              type="button"
+              className="w-full gap-2 font-semibold"
+              style={{
+                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                border: "none",
+                color: "white",
+              }}
+              onClick={handleDemoLogin}
+              disabled={demoLoading || loading}
+            >
+              {demoLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Zap className="h-4 w-4" />
+              )}
+              Demo Dashboard'ı Gör
+            </Button>
 
-        {/* Separator */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">veya hesabınızla giriş yapın</span>
-          </div>
-        </div>
+            {/* Separator */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">veya hesabınızla giriş yapın</span>
+              </div>
+            </div>
+          </>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-3">
           <div className="space-y-1.5">
