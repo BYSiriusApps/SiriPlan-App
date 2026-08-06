@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email/send";
+import { notifyAdminNewSignup } from "@/lib/notify-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,7 @@ export async function POST(req: NextRequest) {
         .single();
       if (orgError2 || !org2) return NextResponse.json({ error: orgError2?.message }, { status: 500 });
       await supabase.from("org_members").insert({ org_id: org2.id, user_id: userId, role: "owner" });
+      notifyAdminNewSignup({ salonName, ownerName: fullName || email.split("@")[0], email, phone, businessType: type }).catch(() => {});
       return NextResponse.json({ orgId: org2.id, slug: newSlug });
     }
     return NextResponse.json({ error: orgError.message }, { status: 500 });
@@ -70,6 +72,8 @@ export async function POST(req: NextRequest) {
     salonName,
     ownerName: fullName || email.split("@")[0],
   }).catch(() => {/* ignore email errors */});
+
+  notifyAdminNewSignup({ salonName, ownerName: fullName || email.split("@")[0], email, phone, businessType: type }).catch(() => {});
 
   return NextResponse.json({ orgId: org.id, slug });
 }

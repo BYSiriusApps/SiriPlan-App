@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email/send";
+import { notifyAdminNewSignup } from "@/lib/notify-admin";
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
@@ -64,12 +65,14 @@ export async function GET(req: NextRequest) {
         if (org2) {
           await admin.from("org_members").insert({ org_id: org2.id, user_id: user.id, role: "owner" });
           await admin.from("staff").insert({ org_id: org2.id, full_name: fullName, role: "Salon Sahibi", is_active: true });
+          notifyAdminNewSignup({ salonName, ownerName: fullName, email: user.email!, phone, businessType: type }).catch(() => {});
         }
       } else if (org) {
         await admin.from("org_members").insert({ org_id: org.id, user_id: user.id, role: "owner" });
         await admin.from("staff").insert({ org_id: org.id, full_name: fullName, role: "Salon Sahibi", is_active: true });
 
         sendWelcomeEmail({ to: user.email!, salonName, ownerName: fullName }).catch(() => {});
+        notifyAdminNewSignup({ salonName, ownerName: fullName, email: user.email!, phone, businessType: type }).catch(() => {});
       }
     }
   }

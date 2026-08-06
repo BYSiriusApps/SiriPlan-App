@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendWelcomeEmail } from "@/lib/email/send";
+import { notifyAdminNewSignup } from "@/lib/notify-admin";
 
 const VALID_BUSINESS_TYPES = new Set([
   "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik",
@@ -117,6 +118,9 @@ export async function POST(req: NextRequest) {
 
   // 4. Send welcome email via Resend (fire-and-forget, ortak şablon)
   sendWelcomeEmail({ to: email, salonName, ownerName: fullName }).catch(() => {});
+
+  // 5. Platform admine yeni kayıt bildirimi (fire-and-forget)
+  notifyAdminNewSignup({ salonName, ownerName: fullName, email, phone, businessType: safeBusinessType }).catch(() => {});
 
   return NextResponse.json({ success: true });
 }
