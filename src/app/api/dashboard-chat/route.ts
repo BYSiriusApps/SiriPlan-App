@@ -3,78 +3,142 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-/** Panel içi yardım asistanının bilgi tabanı — docs/kullanim-kilavuzu.md ile senkron tutulmalı. */
-const SYSTEM_PROMPT = `Sen Siriplan panelinin içinde çalışan bir kullanım/destek asistanısın. Görevin, panele giriş yapmış salon/işletme sahiplerine ve personeline panelin nasıl kullanılacağını anlatmak ve sorularını yanıtlamaktır. Satış veya pazarlama yapmıyorsun — kullanıcı zaten müşteri.
+const CONTACT_LINE = "📧 destek@siriplan.com veya 💬 WhatsApp: +90 535 503 26 34 üzerinden bize ulaşabilirsiniz.";
 
-Panel bölümleri ve ne işe yaradıkları:
-- Ana Sayfa: Sürükle-bırakla kişiselleştirilebilir widget'lar (Aktif Randevular, Günlük Takvim, WhatsApp Asistanı, Kampanya Yıldızı, Yeni Müşteri, Rapor Özeti, Gelir-Gider, Hızlı İşlemler, Ciro Özeti, Bugünkü Personel, Hizmet Özeti). "Kişiselleştir" butonuyla widget'lar sıralanır/gizlenir.
-- Takvim: Gün/hafta bazlı, personel renklerine göre kodlanmış görsel takvim. Randevular 15 dakikalık dilimler halinde planlanır.
-- Randevular: Liste + Yeni Randevu ekranı. Randevu oluşturma/düzenleme/iptalde müşteriye otomatik bildirim (WhatsApp/E-posta/Telegram, ayarlara göre) gider. 5 durum vardır: Bekliyor (talep edildi, onaylanmadı), Onaylandı, Tamamlandı, İptal, Gelmedi (no-show).
-- Müşteriler: Müşteri listesi, detay sayfasında geçmiş randevular ve notlar. Yeni Müşteri ekranından manuel eklenir; randevu oluşturunca da otomatik açılır.
-- Hizmetler: Hizmet kataloğu — kategori, süre, fiyat. Süre takvimdeki slot uzunluğunu belirler.
-- Personel: Personel daveti (e-posta/telefon), rol bazlı varsayılan yetkiler + kişiye özel istisnalar, çalışma günleri, takvim rengi, bildirim dili.
-- Kampanyalar: Toplu WhatsApp mesajı ({{musteri_adi}}, {{salon_adi}} gibi şablon değişkenleriyle). Durumlar: Taslak → Planlandı → Gönderiliyor → Gönderildi / Başarısız.
-- Raporlar: Günlük randevu sayısı, tamamlanan, ciro, gider, yeni müşteri; personel ve hizmet bazlı kırılımlar.
-- Gelir-Gider: Randevu gelirlerinin yanında manuel gelir/gider (kira, malzeme, fatura) takibi, kasa durumu.
-- Ayarlar → Bildirimler: WhatsApp (oluşturma/revize/iptal bildirimleri ayrı ayrı açılır kapanır, ton: Sıcak/Kısa/Resmi/Hizmet Detaylı), SMS (Netgsm/VatanSMS/İletimerkezi), E-posta, Telegram.
-- Ayarlar → Yetkilendirme: Rol ve personel bazlı izin yönetimi.
-- Veri Göçü: Excel/CSV içe aktarma; CSV/JSON/PDF dışa aktarma.
-- Abonelik: Kayıt sonrası 14 gün ücretsiz deneme; süre dolmadan Ayarlar → Abonelik'ten plan seçilip ödeme yapılır.
-
-Kurallar:
-- Sadece panelin kullanımı hakkında konuş; kısa, adım adım ve net cevaplar ver (2-5 cümle veya kısa madde listesi).
-- Kullanıcının o an hangi sayfada olduğunu bilmiyorsan, cevabında ilgili sayfanın adını söyle (örn. "Ayarlar → Bildirimler").
-- Kendi hesabına özel veri (randevu/müşteri/ciro rakamları) isteyen olursa, bu bilgilere erişimin olmadığını belirt ve ilgili sayfaya yönlendir.
-- Teknik bir arıza/hata bildirilirse destek@siriplan.com veya WhatsApp destek hattını öner.
-- Kullanıcının yazdığı dilde cevap ver (TR/EN/RU/AR).`;
+/**
+ * Panel içi yardım asistanının bilgi tabanı — tamamen statik (LLM/API anahtarı gerekmez).
+ * docs/kullanim-kilavuzu.md ile senkron tutulmalı. Yeni bir soru kalıbı eklerken en
+ * spesifik (dar kapsamlı) girdileri listenin başına, genel girdileri sonuna koyun —
+ * ilk eşleşen kural kazanır.
+ */
+const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
+  {
+    keywords: ["bekliyor", "onaylandı", "onayla", "tamamlandı", "gelmedi", "no-show", "noshow", "randevu durum", "durum ne"],
+    answer:
+      "Randevu durumu butonları:\n" +
+      "• Bekliyor — online'dan talep edildi veya yeni oluşturuldu, henüz onaylanmadı.\n" +
+      "• Onayla / Onaylandı — randevu kesinleşti, takvime düştü.\n" +
+      "• Tamamlandı — hizmet verildi; bu adımda ödeme yöntemi/bahşiş girilir ve Gelir-Gider'e otomatik işlenir.\n" +
+      "• Gelmedi — müşteri randevusuna gelmedi (no-show), müşteri skorunu düşürür.\n" +
+      "• İptal Et — randevu iptal edilir, ayarlarınıza göre müşteriye otomatik iptal bildirimi gider.\n" +
+      "Durumu, randevu detay sayfasındaki veya liste görünümündeki hızlı işlem butonlarından değiştirebilirsiniz.",
+  },
+  {
+    keywords: ["aktif", "inaktif", "pasif", "pasife al", "devre dışı"],
+    answer:
+      "Personel sayfasında bir çalışanı, detay sayfasındaki \"Tehlikeli Alan\" bölümünden \"Pasife Al\" ile devre dışı bırakabilirsiniz — pasif personel yeni randevulara atanamaz, geçmiş randevuları etkilenmez. " +
+      "Hizmetlerde ise \"Online randevu sayfasında göster\" seçeneğini kapatarak o hizmeti müşterilerden (online randevu sayfasından) gizleyebilirsiniz; panelden elle randevu oluştururken yine seçilebilir kalır.",
+  },
+  {
+    keywords: ["widget", "kişiselleştir", "ana sayfa düzen", "kutu ekle", "kutucuk"],
+    answer:
+      "Ana Sayfa'da sağ üstteki \"Kişiselleştir\" butonuna basın: kutucukları sürükleyerek sıralayın, göz ikonuyla gösterin/gizleyin, bitince \"Kaydet\"e basın. " +
+      "Kullanılabilir widget'lar: Aktif Randevular, Günlük Takvim, WhatsApp Asistanı, Kampanya & Performans, Yeni Müşteriler, Raporlar, Gelir & Gider, Hızlı İşlemler, Personel, Hizmetler. Tercihleriniz size özel kaydedilir.",
+  },
+  {
+    keywords: ["konum ekle", "konum linki", "harita", "google maps", "adres linki", "konumumu kullan"],
+    answer:
+      "Ayarlar → Salon Bilgileri → \"Konum (Google Maps Linki)\" alanına ekleyebilirsiniz. İki yol var:\n" +
+      "1. \"Konumumu Kullan\" butonuna basıp tarayıcı konum izni verin — link otomatik doldurulur.\n" +
+      "2. Google Maps'te işletmenizi bulup \"Paylaş\" ile linki kopyalayıp buraya yapıştırın.\n" +
+      "Bu link, otomatik WhatsApp bildirim mesajlarındaki {konum} değişkeninde kullanılır; boş bırakırsanız adresinizden otomatik bir harita linki üretilir.",
+  },
+  {
+    keywords: ["telegram"],
+    answer:
+      "Ayarlar → Sosyal Medya & Entegrasyonlar → \"Telegram Bildirimleri (Chat ID)\" alanına Chat ID'nizi girin. " +
+      "Chat ID'yi bulmak için: Telegram'da salonunuzun bildirim botunu bulup \"Başlat / Start\"a basın, bot size bir Chat ID numarası gönderecek. " +
+      "O numarayı Ayarlar'a yapıştırıp kaydedince, yeni bir randevu oluştuğunda (online veya elle) anında Telegram bildirimi alırsınız.",
+  },
+  {
+    keywords: ["yetki", "yetkilendirme", "manager", "yönetici erişim", "personel rolü", "rol değiştir"],
+    answer:
+      "İki katmanlı yetki sistemi var:\n" +
+      "1. Ayarlar → Personel Yetkileri: tüm personel için genel kurallar (örn. müşteri telefon numaralarını görebilme).\n" +
+      "2. Her personelin kendi detay sayfasında Rol (Personel — temel erişim / Yönetici — genişletilmiş erişim) ve tekil izinler: müşterileri görme/düzenleme, raporları görme, hizmetleri düzenleme, personeli yönetme, gelir/gideri görme, kampanyaları yönetme, randevu oluşturma/düzenleme/iptal etme.\n" +
+      "Rol değiştirmek varsayılan izinleri sıfırlar, altta ince ayar yapabilirsiniz.",
+  },
+  {
+    keywords: ["şablon", "mesaj metni", "hazır mesaj", "sıcak", "kısa mesaj", "resmi mesaj", "hizmet detaylı"],
+    answer:
+      "Ayarlar → Otomatik Randevu Mesajı bölümünden 4 hazır şablondan (Sıcak, Kısa, Resmi, Hizmet Detaylı) birini seçebilir veya kendi metninizi yazabilirsiniz. " +
+      "Değişkenler otomatik doldurulur: {musteri} {salon} {tarih} {saat} {hizmet} {personel} {konum}. " +
+      "Hatırlatma ve iptal mesajlarına Ayarlar → WhatsApp Bildirim Ayarları'ndan ayrı birer özel not da ekleyebilirsiniz.",
+  },
+  {
+    keywords: ["whatsapp", "bildirim", "sms", "e-posta bildirim", "mail bildirim"],
+    answer:
+      "Ayarlar → Bildirimler'den WhatsApp (randevu oluşturulunca/revize edilince/iptal edilince ayrı ayrı açılıp kapatılır), SMS (Netgsm/VatanSMS/İletimerkezi sağlayıcılarından biriyle), e-posta ve Telegram kanallarını yönetebilirsiniz. " +
+      "Hatırlatma mesajının randevudan kaç saat önce gideceğini de aynı sayfadan seçersiniz.",
+  },
+  {
+    keywords: ["ödeme", "abonelik", "plan seç", "starter", "pro plan", "business plan", "fiyat", "kredi kartı", "deneme süresi"],
+    answer:
+      "14 gün ücretsiz deneme ile başlarsınız, kredi kartı gerekmez. Planlar:\n" +
+      "• Starter — 1 şube/3 personel, 300 randevu/ay, online randevu sayfası, WhatsApp hatırlatma, sadakat kartı, temel ciro raporu, CSV export.\n" +
+      "• Pro — sınırsız personel & randevu, AI WhatsApp/Instagram asistanı, kampanya modülü, müşteri skoru, Haftanın Elemanı, Google Calendar senkronizasyonu, bekleme listesi, PDF export, KDV hesaplama.\n" +
+      "• Business — sınırsız şube & personel, tüm Pro özellikleri, white-label, API erişimi, öncelikli destek, özel entegrasyonlar, özel hesap yöneticisi.\n" +
+      "Deneme süresi dolmadan Ayarlar → Abonelik'ten plan seçip ödeme yapabilirsiniz.",
+  },
+  {
+    keywords: ["randevu"],
+    answer:
+      "Randevular sayfasından yeni randevu oluşturabilir, Takvim sayfasından 15 dakikalık dilimlerle görsel olarak planlayabilirsiniz. Oluşturma/düzenleme/iptalde müşteriye otomatik bildirim gider (Ayarlar → Bildirimler'e bağlı).",
+  },
+  {
+    keywords: ["personel", "davet", "çalışan ekle"],
+    answer:
+      "Personel sayfasından yeni personel davet edebilirsiniz (e-posta veya WhatsApp/telefon ile). Rol bazlı varsayılan yetkiler + kişiye özel istisnalarla erişimi sınırlandırabilirsiniz. Çalışma günleri, takvim rengi ve bildirim dili de personel detayından ayarlanır.",
+  },
+  {
+    keywords: ["müşteri"],
+    answer:
+      "Müşteriler sayfasında tüm müşterileriniz ve geçmiş randevu sayıları listelenir. Yeni Müşteri ekranından manuel ekleyebilir, detay sayfasından geçmiş randevu ve notları görebilirsiniz.",
+  },
+  {
+    keywords: ["hizmet"],
+    answer:
+      "Hizmetler sayfasından kategori, süre ve fiyat tanımlayarak hizmet kataloğunuzu oluşturursunuz. Süre, takvimdeki randevu slotunun uzunluğunu belirler.",
+  },
+  {
+    keywords: ["kampanya"],
+    answer:
+      "Kampanyalar sayfasından toplu WhatsApp mesajı gönderebilirsiniz. Kampanyalar Taslak → Planlandı → Gönderiliyor → Gönderildi sırasıyla ilerler; hata olursa Başarısız olarak işaretlenir.",
+  },
+  {
+    keywords: ["rapor", "ciro"],
+    answer:
+      "Raporlar sayfasında günlük randevu sayısı, ciro, gider ve yeni müşteri sayısını; ayrıca personel ve hizmet bazlı kırılımları görürsünüz.",
+  },
+  {
+    keywords: ["gider", "gelir", "kasa"],
+    answer:
+      "Gelir-Gider sayfasından randevu gelirlerinin yanı sıra kira, malzeme, fatura gibi manuel kalemleri işleyerek kasa durumunuzu takip edebilirsiniz.",
+  },
+  {
+    keywords: ["excel", "csv", "içe aktar", "dışa aktar", "veri göçü", "import", "export"],
+    answer:
+      "Veri Göçü sayfasından mevcut Excel/CSV verilerinizi içe aktarabilir; verilerinizi CSV, JSON veya PDF olarak dışa aktarabilirsiniz.",
+  },
+  {
+    keywords: ["dil", "language"],
+    answer:
+      "Panel Türkçe, İngilizce, Rusça ve Arapça dillerini destekler. Bildirimlerin hangi dilde gideceğini her personel için Personel sayfasından ayrıca ayarlayabilirsiniz; online randevu sayfası da müşterinin daha önce seçtiği dili hatırlar.",
+  },
+];
 
 function getStaticResponse(message: string): string {
   const msg = message.toLowerCase();
 
-  if (msg.includes("randevu") && (msg.includes("durum") || msg.includes("bekliyor") || msg.includes("onay") || msg.includes("gelmedi"))) {
-    return "Randevuların 5 durumu vardır: Bekliyor (henüz onaylanmadı), Onaylandı, Tamamlandı, İptal, Gelmedi (müşteri gelmedi). Durumu randevu detay sayfasından güncelleyebilirsiniz.";
-  }
-  if (msg.includes("randevu")) {
-    return "Randevular sayfasından yeni randevu oluşturabilir, Takvim sayfasından 15 dakikalık dilimlerle görsel olarak planlayabilirsiniz. Oluşturma/düzenleme/iptalde müşteriye otomatik bildirim gider (Ayarlar → Bildirimler'e bağlı).";
-  }
-  if (msg.includes("whatsapp") || msg.includes("bildirim") || msg.includes("sms") || msg.includes("telegram") || msg.includes("mail") || msg.includes("e-posta")) {
-    return "Ayarlar → Bildirimler'den WhatsApp (oluşturma/revize/iptal ayrı ayrı), SMS (Netgsm/VatanSMS/İletimerkezi), E-posta ve Telegram kanallarını açıp kapatabilir, mesaj tonunu (Sıcak/Kısa/Resmi/Hizmet Detaylı) seçebilirsiniz.";
-  }
-  if (msg.includes("personel") || msg.includes("davet") || msg.includes("yetki") || msg.includes("izin")) {
-    return "Personel sayfasından yeni personel davet edebilir; rol bazlı varsayılan yetkiler + kişiye özel istisnalarla erişimi sınırlandırabilirsiniz. Çalışma günleri, takvim rengi ve bildirim dili de personel detayından ayarlanır.";
-  }
-  if (msg.includes("müşteri")) {
-    return "Müşteriler sayfasında tüm müşterileriniz ve geçmiş randevu sayıları listelenir. Yeni Müşteri ekranından manuel ekleyebilir, detay sayfasından geçmiş randevu ve notları görebilirsiniz.";
-  }
-  if (msg.includes("hizmet")) {
-    return "Hizmetler sayfasından kategori, süre ve fiyat tanımlayarak hizmet kataloğunuzu oluşturursunuz. Süre, takvimdeki randevu slotunun uzunluğunu belirler.";
-  }
-  if (msg.includes("kampanya")) {
-    return "Kampanyalar sayfasından toplu WhatsApp mesajı gönderebilirsiniz. Kampanyalar Taslak → Planlandı → Gönderiliyor → Gönderildi sırasıyla ilerler; hata olursa Başarısız olarak işaretlenir.";
-  }
-  if (msg.includes("rapor") || msg.includes("ciro")) {
-    return "Raporlar sayfasında günlük randevu sayısı, ciro, gider ve yeni müşteri sayısını; ayrıca personel ve hizmet bazlı kırılımları görürsünüz.";
-  }
-  if (msg.includes("gider") || msg.includes("gelir") || msg.includes("kasa")) {
-    return "Gelir-Gider sayfasından randevu gelirlerinin yanı sıra kira, malzeme, fatura gibi manuel kalemleri işleyerek kasa durumunuzu takip edebilirsiniz.";
-  }
-  if (msg.includes("excel") || msg.includes("csv") || msg.includes("içe aktar") || msg.includes("dışa aktar") || msg.includes("veri göçü") || msg.includes("import") || msg.includes("export")) {
-    return "Veri Göçü sayfasından mevcut Excel/CSV verilerinizi içe aktarabilir; verilerinizi CSV, JSON veya PDF olarak dışa aktarabilirsiniz.";
-  }
-  if (msg.includes("deneme") || msg.includes("abonelik") || msg.includes("plan") || msg.includes("ödeme")) {
-    return "Kayıt sonrası 14 günlük ücretsiz deneme başlar. Süre dolmadan Ayarlar → Abonelik üzerinden bir plan seçip ödeme yaparak kesintisiz kullanmaya devam edebilirsiniz.";
-  }
-  if (msg.includes("dil") || msg.includes("language")) {
-    return "Panel TR/EN/RU/AR dillerini destekler. Bildirimlerin hangi dilde gideceğini her personel için Personel sayfasından ayrıca ayarlayabilirsiniz.";
-  }
-  if (msg.includes("widget") || msg.includes("ana sayfa") || msg.includes("kişiselleştir")) {
-    return "Ana Sayfa'daki \"Kişiselleştir\" butonuyla widget'ları sürükle-bırakla sıralayabilir, istemediklerinizi gizleyebilirsiniz. Tercihler size özel kaydedilir.";
-  }
-  if (msg.includes("destek") || msg.includes("yardım") || msg.includes("hata") || msg.includes("sorun")) {
-    return "Panel kullanımıyla ilgili sorularınızı buradan sorabilirsiniz. Teknik bir arıza için destek@siriplan.com veya WhatsApp destek hattımıza ulaşabilirsiniz.";
+  for (const entry of KNOWLEDGE_BASE) {
+    if (entry.keywords.some((k) => msg.includes(k))) {
+      return entry.answer;
+    }
   }
 
-  return "Merhaba! Panel kullanımıyla ilgili sorularınızı yanıtlayabilirim — randevular, müşteriler, personel, bildirimler, raporlar veya ayarlar hakkında ne öğrenmek istersiniz?";
+  // Bilgi tabanında karşılığı olmayan (çok özel/hesaba özel) sorular için:
+  // panel kullanımı hakkında genel bilgi veremediğimiz için destek ekibine yönlendir.
+  return `Bu konuda elimde hazır bir bilgi yok. Daha detaylı yardım için ${CONTACT_LINE}`;
 }
 
 export async function POST(req: NextRequest) {
@@ -85,39 +149,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Mesaj gerekli" }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    const isPlaceholder = !apiKey || apiKey.includes("placeholder") || apiKey === "your-gemini-api-key-here";
-
-    if (isPlaceholder) {
-      const response = getStaticResponse(message);
-      return NextResponse.json({ response });
-    }
-
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ role: "user", parts: [{ text: message }] }],
-          generationConfig: { maxOutputTokens: 300 },
-        }),
-      }
-    );
-
-    if (!geminiResponse.ok) {
-      const fallback = getStaticResponse(message);
-      return NextResponse.json({ response: fallback });
-    }
-
-    const data = await geminiResponse.json();
-    const response = data.candidates?.[0]?.content?.parts?.[0]?.text ?? getStaticResponse(message);
-
-    return NextResponse.json({ response });
+    return NextResponse.json({ response: getStaticResponse(message) });
   } catch {
     return NextResponse.json({
-      response: "Şu an yanıt veremiyorum. Lütfen destek@siriplan.com veya WhatsApp üzerinden ulaşın.",
+      response: `Şu an yanıt veremiyorum. Lütfen ${CONTACT_LINE}`,
     });
   }
 }

@@ -144,13 +144,11 @@ Veri Göçü sayfasından Excel/CSV dosyanızı yükleyerek mevcut müşteri kay
 **Randevu durumları neyi ifade ediyor?**
 Bekliyor (henüz onaylanmadı), Onaylandı, Tamamlandı, İptal, Gelmedi (müşteri gelmedi). Bkz. bölüm 4.
 
-## 15. Gelecek Adım: Panel İçi AI Asistan
+## 15. Panel İçi Yardım Asistanı
 
-Planlanan panel içi AI asistan, kullanıcıya panelin kullanımını öğretecek ve sorularını yanıtlayacak şekilde tasarlanacaktır. Önerilen yaklaşım:
+Panelde sağ altta sabit bir "Yardım" balonu bulunur (`HelpAssistant` bileşeni). Dış bir AI servisine/API anahtarına ihtiyaç duymaz — `src/app/api/dashboard-chat/route.ts` içindeki statik, anahtar kelime eşleştirmeli bir bilgi tabanından anında yanıt verir.
 
-1. **İçerik kaynağı**: Bu kılavuz (docs/kullanim-kilavuzu.md) asistanın bilgi tabanının (knowledge base) birincil kaynağı olur; panel güncellendikçe önce bu dosya güncellenir, asistan otomatik olarak güncel kalır.
-2. **Konumlandırma**: Panelde sağ altta sabit bir "Yardım" balonu/chat penceresi (mevcut GlassCard3D/diyalog bileşenleriyle tutarlı bir arayüzle).
-3. **Kapsam**: Önce statik SSS + kılavuz içeriğiyle basit bir arama/RAG asistanı; ardından kullanıcının o an bulunduğu sayfaya göre bağlamsal ipucu gösterme (örn. Kampanyalar sayfasındayken "Nasıl kampanya oluştururum?" önerisi).
-4. **Ölçüm**: Asistana sorulan soruların loglanması, cevapsız kalan soruların kılavuza yeni madde olarak eklenmesi için geri bildirim döngüsü kurulması.
-
-Bu, ayrı bir uygulama görevi olarak planlanmalı; kılavuz içeriği netleştikçe teknik tasarımı ayrıca ele alınabilir.
+1. **İçerik kaynağı**: Bilgi tabanı bu kılavuzla senkron tutulmalıdır — panelde yeni bir özellik/sayfa eklendiğinde önce bu dosya, ardından `KNOWLEDGE_BASE` dizisindeki ilgili girdi güncellenir.
+2. **Kapsam**: Randevu durumları, aktif/pasif personel-hizmet, widget kişiselleştirme, konum ekleme, Telegram Chat ID, yetki/rol ayarları, mesaj şablonları, bildirim kanalları, plan/ödeme özellikleri gibi sık sorulan pratik kullanım soruları.
+3. **Eşleşmeyen sorular**: Bilgi tabanında karşılığı olmayan (hesaba özel veya çok spesifik) sorularda kullanıcı doğrudan destek@siriplan.com ve WhatsApp destek hattına (+90 535 503 26 34) yönlendirilir — asistan tahmini/yanlış bilgi üretmez.
+4. **Ölçüm**: Cevapsız kalan (fallback'e düşen) soru kalıpları zamanla `KNOWLEDGE_BASE`'e yeni madde olarak eklenerek kapsam genişletilebilir.
