@@ -510,6 +510,22 @@
       "errorContactRequired": "E-posta veya telefon zorunlu",
       "errorGeneric": "Hata oluştu"
     },
+    "aiAssistant": {
+      "openLabel": "Yardım Asistanı",
+      "title": "Yardım Asistanı",
+      "status": "Çevrimiçi",
+      "minimizeLabel": "Küçült",
+      "closeLabel": "Kapat",
+      "sendLabel": "Gönder",
+      "greeting": "Merhaba! 👋 Panel kullanımıyla ilgili sorularınızı yanıtlayabilirim. Ne öğrenmek istersiniz?",
+      "placeholder": "Bir şey sorun...",
+      "quickQ1": "Randevu durumları ne anlama geliyor?",
+      "quickQ2": "WhatsApp bildirimlerini nasıl açarım?",
+      "quickQ3": "Personel nasıl davet ederim?",
+      "quickQ4": "Verilerimi nasıl dışa aktarırım?",
+      "errorFallback": "Bağlantı hatası. Lütfen tekrar deneyin veya destek@siriplan.com adresinden ulaşın.",
+      "footer": "Panel Yardım Asistanı"
+    },
     "randevularPage": {
       "empty": "Randevu bulunamadı"
     },

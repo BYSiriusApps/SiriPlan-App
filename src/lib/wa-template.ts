@@ -5,7 +5,7 @@
  * alanında saklanır; boşsa DEFAULT_WA_TEMPLATE kullanılır. Salon sahibi
  * Ayarlar sayfasından metni değiştirebilir.
  *
- * Desteklenen değişkenler: {musteri} {salon} {tarih} {saat} {hizmet} {personel}
+ * Desteklenen değişkenler: {musteri} {salon} {tarih} {saat} {hizmet} {personel} {konum}
  */
 
 export const DEFAULT_WA_TEMPLATE =
@@ -18,6 +18,7 @@ export const WA_TEMPLATE_VARS = [
   { key: "{saat}", desc: "Randevu saati (15:00)" },
   { key: "{hizmet}", desc: "Hizmet adı" },
   { key: "{personel}", desc: "Personel adı" },
+  { key: "{konum}", desc: "Konum linki (Google Maps)" },
 ] as const;
 
 export interface WaTemplateVars {
@@ -55,19 +56,25 @@ export function renderWaTemplate(template: string | null | undefined, vars: WaTe
     : `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
   const saat = isNaN(d.getTime()) ? "" : `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
-  const rendered = (template?.trim() || DEFAULT_WA_TEMPLATE)
+  const address = vars.address?.trim();
+  const locationLink = vars.locationUrl?.trim() || (address ? googleMapsLink(address) : "");
+
+  const raw = template?.trim() || DEFAULT_WA_TEMPLATE;
+  const hasLocationVar = raw.includes("{konum}");
+
+  const rendered = raw
     .replaceAll("{musteri}", vars.musteri)
     .replaceAll("{salon}", vars.salon)
     .replaceAll("{tarih}", tarih)
     .replaceAll("{saat}", saat)
     .replaceAll("{hizmet}", vars.hizmet ?? "")
     .replaceAll("{personel}", vars.personel ?? "")
+    .replaceAll("{konum}", locationLink)
     .replace(/ {2,}/g, " ")
     .trim();
 
-  const address = vars.address?.trim();
-  const locationLink = vars.locationUrl?.trim() || (address ? googleMapsLink(address) : "");
-  return locationLink ? `${rendered}\n\n📍 Konum: ${locationLink}` : rendered;
+  // {konum} zaten şablonda kullanıldıysa sona ikinci kez eklenmesin
+  return !hasLocationVar && locationLink ? `${rendered}\n\n📍 Konum: ${locationLink}` : rendered;
 }
 
 /** Hazır mesajla müşterinin WhatsApp sohbetini açan link */

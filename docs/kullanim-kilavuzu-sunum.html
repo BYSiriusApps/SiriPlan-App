@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SiriPlan — Panel Kullanım Kılavuzu</title>
+<style>
+  :root{
+    --c-primary:#D6336C;
+    --c-primary-2:#7C3AED;
+    --c-bg:#0B0B14;
+    --c-surface:#15151F;
+    --c-surface-2:#1C1C29;
+    --c-border:rgba(255,255,255,0.08);
+    --c-text:#F5F5FA;
+    --c-muted:#9C9CB4;
+    --grad:linear-gradient(135deg, var(--c-primary), var(--c-primary-2));
+    --font-head:'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-body:'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    background:var(--c-bg);
+    color:var(--c-text);
+    font-family:var(--font-body);
+    overflow:hidden;
+  }
+  .slide-deck{position:relative;width:100vw;height:100vh;overflow:hidden;}
+  @media (min-width:769px){
+    .slide-deck{max-width:calc(100vh * 16 / 9);max-height:calc(100vw * 9 / 16);margin:auto;position:absolute;inset:0;}
+  }
+  .slide{
+    position:absolute;inset:0;width:100%;height:100%;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    padding:56px 72px;opacity:0;visibility:hidden;transition:opacity .45s ease;
+    background:
+      radial-gradient(900px 500px at 8% -10%, color-mix(in oklch, var(--c-primary) 18%, transparent), transparent 60%),
+      radial-gradient(800px 480px at 105% 8%, color-mix(in oklch, var(--c-primary-2) 20%, transparent), transparent 55%),
+      var(--c-bg);
+    overflow:hidden;
+  }
+  .slide.active{opacity:1;visibility:visible;}
+  .slide-content{width:100%;max-width:1120px;max-height:100%;display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--c-muted);font-weight:600;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--grad);}
+  h1,h2,h3{font-family:var(--font-head);font-weight:800;line-height:1.15;}
+  .title-xl{font-size:clamp(34px,5.4vw,60px);background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .title-lg{font-size:clamp(26px,3.6vw,40px);}
+  p.lead{font-size:clamp(15px,1.7vw,19px);color:var(--c-muted);max-width:720px;line-height:1.55;}
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;
+    background:var(--c-surface-2);border:1px solid var(--c-border);font-size:13px;color:var(--c-text);font-weight:600;
+  }
+  .badge .ic{font-size:15px;}
+  .grid{display:grid;gap:16px;width:100%;}
+  .grid-2{grid-template-columns:1fr 1fr;}
+  .grid-3{grid-template-columns:repeat(3,1fr);}
+  .grid-4{grid-template-columns:repeat(4,1fr);}
+  .card{
+    background:var(--c-surface);border:1px solid var(--c-border);border-radius:16px;
+    padding:20px 18px;text-align:left;display:flex;flex-direction:column;gap:8px;
+  }
+  .card .ic{
+    width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    background:var(--grad);flex-shrink:0;
+  }
+  .card .ic svg, .step-ic svg, .stepnum .ic-sm, .chip .ic-sm{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+  .ic-sm{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+  .avatar{
+    width:30px;height:30px;border-radius:50%;background:var(--grad);color:#fff;
+    font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:10px;flex-shrink:0;
+  }
+  .chip{display:inline-flex;align-items:center;gap:7px;}
+  .card h3{font-size:15.5px;}
+  .card p{font-size:12.8px;color:var(--c-muted);line-height:1.5;}
+  .stat-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+  .stat{background:var(--c-surface);border:1px solid var(--c-border);border-radius:14px;padding:14px 22px;min-width:130px;}
+  .stat .num{font-size:26px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .stat .lbl{font-size:11.5px;color:var(--c-muted);margin-top:2px;}
+  .hero-num{font-size:clamp(70px,11vw,140px);font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+  .pill-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+  .pill{padding:8px 16px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid var(--c-border);}
+  .pill.wait{background:rgba(234,179,8,.12);color:#facc15;border-color:rgba(234,179,8,.3);}
+  .pill.ok{background:rgba(59,130,246,.12);color:#60a5fa;border-color:rgba(59,130,246,.3);}
+  .pill.done{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.3);}
+  .pill.cancel{background:rgba(239,68,68,.12);color:#f87171;border-color:rgba(239,68,68,.3);}
+  .pill.noshow{background:rgba(245,158,11,.12);color:#fbbf24;border-color:rgba(245,158,11,.3);}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+  .flow .step{background:var(--c-surface);border:1px solid var(--c-border);border-radius:12px;padding:10px 16px;font-size:12.5px;font-weight:700;}
+  .flow .arrow{color:var(--c-muted);font-size:16px;}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;text-align:left;width:100%;}
+  .split h2{font-size:clamp(20px,2.6vw,28px);margin-bottom:10px;}
+  .split ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .split li{font-size:13.5px;color:var(--c-muted);display:flex;gap:8px;align-items:flex-start;line-height:1.5;}
+  .split li b{color:var(--c-text);}
+  .split li .chk{color:#4ade80;flex-shrink:0;}
+  .panel-mock{
+    background:var(--c-surface);border:1px solid var(--c-border);border-radius:18px;padding:18px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.6);
+  }
+  .panel-mock .row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--c-border);font-size:12.5px;}
+  .panel-mock .row:last-child{border-bottom:none;}
+  .qa{background:var(--c-surface);border:1px solid var(--c-border);border-radius:14px;padding:16px 18px;text-align:left;}
+  .qa .q{font-size:13.5px;font-weight:700;margin-bottom:5px;}
+  .qa .a{font-size:12.5px;color:var(--c-muted);line-height:1.5;}
+  .cta-btn{
+    display:inline-flex;align-items:center;gap:8px;padding:14px 30px;border-radius:12px;
+    background:var(--grad);color:#fff;font-weight:700;font-size:15px;box-shadow:0 12px 30px -8px rgba(214,51,108,.5);
+  }
+  .foot-note{font-size:11.5px;color:var(--c-muted);opacity:.7;}
+
+  /* Animations */
+  .animate-fade-up{animation:fadeUp .6s ease-out forwards;opacity:0;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+  .animate-stagger>*{opacity:0;animation:fadeUp .5s ease-out forwards;}
+  .animate-stagger>*:nth-child(1){animation-delay:.05s;}
+  .animate-stagger>*:nth-child(2){animation-delay:.12s;}
+  .animate-stagger>*:nth-child(3){animation-delay:.19s;}
+  .animate-stagger>*:nth-child(4){animation-delay:.26s;}
+  .animate-stagger>*:nth-child(5){animation-delay:.33s;}
+  .animate-stagger>*:nth-child(6){animation-delay:.40s;}
+
+  /* Nav */
+  .progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--grad);transition:width .3s;z-index:1000;}
+  .nav-controls{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:18px;z-index:1000;}
+  .nav-btn{background:rgba(255,255,255,.08);border:1px solid var(--c-border);color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:16px;}
+  .nav-btn:hover{background:rgba(255,255,255,.16);}
+  .slide-counter{color:var(--c-muted);font-size:13px;font-variant-numeric:tabular-nums;}
+
+  @media (max-width:768px){
+    .slide{padding:32px 24px;}
+    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr 1fr;}
+    .split{grid-template-columns:1fr;gap:20px;}
+    .title-xl{font-size:clamp(26px,7vw,40px);}
+  }
+  @media (max-width:480px){
+    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+  }
+
+  /* Presentation is a designed, lights-off surface — stays on this palette
+     regardless of the viewer's OS theme, like a projected slide deck. */
+</style>
+</head>
+<body>
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="slide-deck">
+
+    <!-- 1. Title -->
+    <div class="slide active">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Panel Kullanım Kılavuzu</span>
+        <h1 class="title-xl">SiriPlan ile Salonunu<br/>Tek Panelden Yönet</h1>
+        <p class="lead">Randevu, müşteri, personel ve gelir-gider yönetimini; WhatsApp, e-posta ve Telegram üzerinden otomatik bildirimlerle birleştiren randevu SaaS'ı.</p>
+        <div class="pill-row">
+          <span class="badge">4 Dil — TR · EN · RU · AR</span>
+          <span class="badge">WhatsApp · SMS · E-posta · Telegram</span>
+          <span class="badge">14 Gün Ücretsiz Deneme</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Ne için -->
+    <div class="slide">
+      <div class="slide-content animate-stagger">
+        <span class="eyebrow"><span class="dot"></span>SiriPlan Nedir</span>
+        <h2 class="title-lg">Randevu bazlı her işletme için tek çözüm</h2>
+        <div class="grid grid-4" style="margin-top:8px;">
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></div><h3>Kuaför & Berber</h3><p>Randevu, personel ve müşteri takibi tek yerde.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><h3>Nail & Güzellik</h3><p>Hizmet kataloğu, süre ve fiyat yönetimi.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2s7 7.5 7 12a7 7 0 0 1-14 0c0-4.5 7-12 7-12z"/></svg></div><h3>Spa & Estetik</h3><p>Personel takvimi ve çalışma saatleri.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 4 13c0-6 8-11 17-11 0 9-5 17-11 17-1.5 0-3-.5-4-1z"/><path d="M4 13c4-1 8-3 11-7"/></svg></div><h3>Diyetisyen</h3><p>Danışan takibi ve otomatik hatırlatmalar.</p></div>
+        </div>
+        <p class="lead" style="margin-top:6px;">Kuaför, berber, güzellik merkezi, spa, nail salon, estetik klinik, makyaj &amp; tattoo stüdyosu ve diyetisyenler dahil, randevu bazlı çalışan her işletme için tasarlandı.</p>
+      </div>
+    </div>
+
+    <!-- 3. Deneme süresi -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Kayıt &amp; Giriş</span>
+        <div class="hero-num animate-fade-up">14 GÜN</div>
+        <h2 class="title-lg">Ücretsiz, kredi kartsız deneme</h2>
+        <p class="lead">Kayıt olan her işletme 14 gün boyunca tüm özelliklere erişir. Deneme süresi dolmadan Ayarlar → Abonelik üzerinden bir plan seçilerek kesintisiz kullanıma geçilir.</p>
+        <div class="flow" style="margin-top:6px;">
+          <div class="step">Kayıt Ol</div><span class="arrow">→</span>
+          <div class="step">14 Gün Tüm Özellikler Açık</div><span class="arrow">→</span>
+          <div class="step">Plan Seç &amp; Devam Et</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Ana Sayfa / Widgetlar -->
+    <div class="slide">
+      <div class="slide-content animate-stagger">
+        <span class="eyebrow"><span class="dot"></span>Ana Sayfa</span>
+        <h2 class="title-lg">Kişiselleştirilebilir gösterge paneli</h2>
+        <div class="grid grid-3">
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg></div><h3>Aktif Randevular</h3><p>Bugünün randevu sayısı ve yaklaşanların canlı listesi.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><h3>Günlük Takvim</h3><p>Seçili günün saatlik randevu görünümü.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div><h3>WhatsApp Asistanı</h3><p>Bağlantı ve bildirim durumu özeti.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><h3>Kampanya Yıldızı</h3><p>Son kampanyanın durumu ve gönderim sayısı.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg></div><h3>Yeni Müşteri</h3><p>Son eklenen müşteriler tek bakışta.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><h3>Rapor &amp; Ciro Özeti</h3><p>Günlük randevu / ciro / gider mini özeti.</p></div>
+        </div>
+        <p class="foot-note">"Kişiselleştir" ile widget'ları sürükle-bırak sırala, istemediklerini gizle — tercihler kullanıcıya özel kaydedilir.</p>
+      </div>
+    </div>
+
+    <!-- 5. Takvim & Randevu -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Takvim &amp; Randevu Yönetimi</span>
+        <div class="split">
+          <div>
+            <h2>Görsel takvim, 15 dakikalık hassasiyet</h2>
+            <ul>
+              <li><span class="chk">✓</span> Gün/hafta bazlı, personel renklerine göre kodlanmış takvim</li>
+              <li><span class="chk">✓</span> Randevular <b>15 dakikalık dilimler</b> halinde planlanır</li>
+              <li><span class="chk">✓</span> Yeni randevuda müşteriye <b>otomatik bildirim</b> gönderilir</li>
+              <li><span class="chk">✓</span> Düzenleme ve iptalde bildirim yeniden tetiklenir</li>
+            </ul>
+          </div>
+          <div>
+            <p style="font-size:12.5px;color:var(--c-muted);margin-bottom:10px;font-weight:700;">5 Randevu Durumu</p>
+            <div class="pill-row" style="justify-content:flex-start;">
+              <span class="pill wait">Bekliyor</span>
+              <span class="pill ok">Onaylandı</span>
+              <span class="pill done">Tamamlandı</span>
+              <span class="pill cancel">İptal</span>
+              <span class="pill noshow">Gelmedi</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Müşteri Yönetimi -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Müşteri Yönetimi</span>
+        <div class="split">
+          <div class="panel-mock animate-fade-up">
+            <div class="row"><span style="display:flex;align-items:center;"><span class="avatar">AY</span>Ayşe Yılmaz</span><span class="foot-note">12 randevu</span></div>
+            <div class="row"><span style="display:flex;align-items:center;"><span class="avatar">MK</span>Mehmet Kaya</span><span class="foot-note">5 randevu</span></div>
+            <div class="row"><span style="display:flex;align-items:center;"><span class="avatar">ED</span>Elif Demir</span><span class="foot-note">Yeni müşteri</span></div>
+          </div>
+          <div>
+            <h2>Her müşterinin geçmişi elinizin altında</h2>
+            <ul>
+              <li><span class="chk">✓</span> Tüm müşteriler, iletişim bilgisi ve geçmiş randevu sayısıyla listelenir</li>
+              <li><span class="chk">✓</span> Detay sayfasında geçmiş randevular ve notlar</li>
+              <li><span class="chk">✓</span> Randevu oluşturulunca yeni müşteri otomatik kaydedilir</li>
+              <li><span class="chk">✓</span> Manuel müşteri ekleme desteklenir</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Hizmet Yönetimi -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Hizmet Yönetimi</span>
+        <h2 class="title-lg">Hizmet kataloğunuzu tanımlayın</h2>
+        <div class="grid grid-3" style="margin-top:6px;">
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M20.59 13.41L11 4H4v7l9.41 9.41a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></div><h3>Kategori</h3><p>Hizmetleri kategorilere ayırarak düzenli bir katalog oluşturun.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><h3>Süre</h3><p>Her hizmetin süresi takvimdeki slot uzunluğunu belirler.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><h3>Fiyat</h3><p>Fiyatlar randevu oluşturma ve raporlarda otomatik kullanılır.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Personel -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Personel Yönetimi</span>
+        <div class="split">
+          <div>
+            <h2>Ekibinizi davet edin, yetkilendirin</h2>
+            <ul>
+              <li><span class="chk">✓</span> E-posta/telefon ile personel daveti</li>
+              <li><span class="chk">✓</span> Rol bazlı varsayılan yetkiler + kişiye özel istisnalar</li>
+              <li><span class="chk">✓</span> Çalışma günleri, izinler ve takvim rengi</li>
+              <li><span class="chk">✓</span> Bildirim dili kişi bazında ayarlanır</li>
+            </ul>
+          </div>
+          <div class="grid grid-2">
+            <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="7" cy="15" r="4"/><path d="M10.5 11.5L20 2m-3 3l2 2m-6 2l2 2"/></svg></div><h3>Roller &amp; Yetkiler</h3><p>Sahip, yönetici, personel — ihtiyaca göre.</p></div>
+            <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.2 0-1.1.9-2 2-2h2.3A5.2 5.2 0 0 0 22 10.5C22 5.8 17.5 2 12 2z"/><circle cx="6.5" cy="11.5" r="1.1"/><circle cx="9.5" cy="7.5" r="1.1"/><circle cx="14.5" cy="7.5" r="1.1"/><circle cx="17.5" cy="11.5" r="1.1"/></svg></div><h3>Takvim Rengi</h3><p>Her personel takvimde kendi renginde görünür.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Kampanyalar -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Kampanyalar</span>
+        <h2 class="title-lg">Toplu WhatsApp kampanyaları</h2>
+        <p class="lead">Doğum günü kutlaması, promosyon ve hatırlatma mesajlarını <code style="background:var(--c-surface-2);padding:2px 6px;border-radius:6px;">{{musteri_adi}}</code> gibi şablon değişkenleriyle kişiselleştirin.</p>
+        <div class="flow" style="margin-top:10px;">
+          <div class="step">Taslak</div><span class="arrow">→</span>
+          <div class="step">Planlandı</div><span class="arrow">→</span>
+          <div class="step">Gönderiliyor</div><span class="arrow">→</span>
+          <div class="step">Gönderildi</div>
+        </div>
+        <p class="foot-note">Hata durumunda kampanya "Başarısız" olarak işaretlenir.</p>
+      </div>
+    </div>
+
+    <!-- 10. Raporlar -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Raporlar</span>
+        <h2 class="title-lg">Günlük performansı tek bakışta görün</h2>
+        <div class="pill-row">
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Randevu Sayısı</span>
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Tamamlanan</span>
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Günlük Ciro</span>
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>Günlük Gider</span>
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/></svg>Yeni Müşteri</span>
+        </div>
+        <p class="lead" style="margin-top:6px;">Ayrıca <b>personel bazlı</b> ve <b>hizmet bazlı</b> kırılımlarla kimin ne kadar ciro yaptığını, hangi hizmetin en çok satıldığını görün.</p>
+      </div>
+    </div>
+
+    <!-- 11. Gelir-Gider -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Gelir-Gider</span>
+        <h2 class="title-lg">Kasanızı randevu dışı kalemlerle de takip edin</h2>
+        <p class="lead">Randevu gelirlerinin yanı sıra kira, malzeme, fatura gibi manuel gelir/gider kalemlerini işleyerek gerçek kasa durumunuzu görün.</p>
+      </div>
+    </div>
+
+    <!-- 12. Ayarlar / Bildirimler -->
+    <div class="slide">
+      <div class="slide-content animate-stagger">
+        <span class="eyebrow"><span class="dot"></span>Ayarlar — Bildirimler</span>
+        <h2 class="title-lg">4 kanal, size özel ton</h2>
+        <div class="grid grid-4">
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div><h3>WhatsApp</h3><p>Oluşturma / revize / iptalde ayrı ayrı açılıp kapatılır.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="10" y1="18" x2="14" y2="18"/></svg></div><h3>SMS</h3><p>Netgsm, VatanSMS veya İletimerkezi entegrasyonu.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 6l10 7 10-7"/></svg></div><h3>E-posta</h3><p>Randevu bildirimleri için ek kanal.</p></div>
+          <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div><h3>Telegram</h3><p>Alternatif anlık bildirim kanalı.</p></div>
+        </div>
+        <div class="pill-row" style="margin-top:4px;">
+          <span class="badge">Sıcak</span>
+          <span class="badge">Kısa</span>
+          <span class="badge">Resmi</span>
+          <span class="badge">Hizmet Detaylı</span>
+        </div>
+        <p class="foot-note">Mesaj tonu ve otomatik hatırlatma zamanlaması (randevudan kaç saat/gün önce) Ayarlar'dan seçilir.</p>
+      </div>
+    </div>
+
+    <!-- 13. Veri Göçü -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Veri Göçü</span>
+        <h2 class="title-lg">Verileriniz sizinle taşınır</h2>
+        <div class="pill-row">
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>Excel / CSV İçe Aktar</span>
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M4 20h16"/></svg>CSV Dışa Aktar</span>
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>JSON Dışa Aktar</span>
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>PDF Dışa Aktar</span>
+        </div>
+        <p class="lead" style="margin-top:6px;">Mevcut müşteri kayıtlarınızı tek tıkla panele taşıyın; yedekleme veya muhasebe için verilerinizi istediğiniz formatta dışarı alın.</p>
+      </div>
+    </div>
+
+    <!-- 14. Abonelik -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Abonelik</span>
+        <h2 class="title-lg">Deneme bitince kesintisiz devam edin</h2>
+        <p class="lead">14 günlük deneme dolmadan Ayarlar → Abonelik üzerinden size uygun planı seçip ödemenizi tamamlayarak paneli kesintisiz kullanmaya devam edin.</p>
+      </div>
+    </div>
+
+    <!-- 15. SSS -->
+    <div class="slide">
+      <div class="slide-content animate-stagger">
+        <span class="eyebrow"><span class="dot"></span>Sık Sorulan Sorular</span>
+        <div class="grid grid-2" style="text-align:left;">
+          <div class="qa"><div class="q">Randevu oluşturunca müşteriye otomatik mesaj gidiyor mu?</div><div class="a">Evet — Ayarlar → Bildirimler'de açık olan WhatsApp/E-posta/Telegram kanallarına göre otomatik gider.</div></div>
+          <div class="qa"><div class="q">Panel dilini nasıl değiştiririm?</div><div class="a">Panel TR/EN/RU/AR destekler; bildirim dili personel bazında ayrıca ayarlanabilir.</div></div>
+          <div class="qa"><div class="q">Birden fazla personelim var, yönetebilir miyim?</div><div class="a">Evet, rol bazlı yetkilendirme ile her personelin erişimi sınırlandırılabilir.</div></div>
+          <div class="qa"><div class="q">Eski Excel verilerimi nasıl aktarırım?</div><div class="a">Veri Göçü sayfasından Excel/CSV dosyanızı yükleyerek içe aktarabilirsiniz.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 16. Kapanış - AI Asistan -->
+    <div class="slide">
+      <div class="slide-content">
+        <span class="eyebrow"><span class="dot"></span>Çok Yakında</span>
+        <h1 class="title-xl">Panel İçi AI Asistan</h1>
+        <p class="lead">Panelde her zaman sağ altta duran akıllı yardımcı; kullanım sorularınızı bu kılavuzdaki bilgilerle anında yanıtlar, bulunduğunuz sayfaya göre ipucu önerir.</p>
+        <div class="pill-row">
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Anlık Soru-Cevap</span>
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Sayfaya Özel İpuçları</span>
+          <span class="badge chip"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M2 4h7a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 4h-7a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h8z"/></svg>Kılavuzdan Beslenir</span>
+        </div>
+        <span class="cta-btn" style="margin-top:10px;">SiriPlan'ı Bugün Deneyin →</span>
+      </div>
+    </div>
+
+  </div><!-- /.slide-deck -->
+
+  <div class="nav-controls">
+    <button class="nav-btn" onclick="prevSlide()" aria-label="Önceki">←</button>
+    <span class="slide-counter"><span id="current">1</span> / <span id="total">1</span></span>
+    <button class="nav-btn" onclick="nextSlide()" aria-label="Sonraki">→</button>
+  </div>
+
+  <script>
+    let current = 1;
+    const total = document.querySelectorAll('.slide').length;
+    document.getElementById('total').textContent = total;
+
+    function showSlide(n){
+      if(n < 1) n = 1;
+      if(n > total) n = total;
+      current = n;
+      document.querySelectorAll('.slide').forEach((s,i)=>{
+        s.classList.toggle('active', i === n-1);
+      });
+      document.getElementById('current').textContent = n;
+      document.getElementById('progressBar').style.width = (n/total*100) + '%';
+    }
+    function nextSlide(){ showSlide(current+1); }
+    function prevSlide(){ showSlide(current-1); }
+
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'ArrowRight' || e.key === ' '){ e.preventDefault(); nextSlide(); }
+      if(e.key === 'ArrowLeft'){ e.preventDefault(); prevSlide(); }
+    });
+    document.addEventListener('click', (e)=>{
+      if(!e.target.closest('.nav-controls') && !e.target.closest('a')) nextSlide();
+    });
+
+    showSlide(1);
+  </script>
+</body>
+</html>

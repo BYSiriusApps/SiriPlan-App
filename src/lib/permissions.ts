@@ -13,6 +13,9 @@ export const PERM_LABELS: Record<string, string> = {
   cancel_appointments: "Randevu iptal edebilsin",
 };
 
+/** Çeviri anahtarı sırası — dashboard.permissions.* ile eşleşir. */
+export const PERM_KEYS = Object.keys(PERM_LABELS);
+
 export const DEFAULT_PERMS: Record<"staff" | "manager", Record<string, boolean>> = {
   staff: {
     view_customers: true, edit_customers: false, view_reports: false,

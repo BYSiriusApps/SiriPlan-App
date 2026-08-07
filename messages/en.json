@@ -510,6 +510,22 @@
       "errorContactRequired": "Email or phone is required",
       "errorGeneric": "Something went wrong"
     },
+    "aiAssistant": {
+      "openLabel": "Help Assistant",
+      "title": "Help Assistant",
+      "status": "Online",
+      "minimizeLabel": "Minimize",
+      "closeLabel": "Close",
+      "sendLabel": "Send",
+      "greeting": "Hi! 👋 I can answer your questions about using the panel. What would you like to know?",
+      "placeholder": "Ask something...",
+      "quickQ1": "What do appointment statuses mean?",
+      "quickQ2": "How do I turn on WhatsApp notifications?",
+      "quickQ3": "How do I invite staff?",
+      "quickQ4": "How do I export my data?",
+      "errorFallback": "Connection error. Please try again or reach us at destek@siriplan.com.",
+      "footer": "Panel Help Assistant"
+    },
     "randevularPage": {
       "empty": "No appointments found"
     },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -14,7 +15,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell, ShieldCheck, Activity, CalendarX, Trash2 } from "lucide-react";
 import type { StaffTimeOff } from "@/types/database";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
-import { PERM_LABELS, DEFAULT_PERMS } from "@/lib/permissions";
+import { PERM_KEYS, DEFAULT_PERMS } from "@/lib/permissions";
 import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
 import { StaffInviteDialog } from "@/components/dashboard/StaffInviteDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -53,6 +54,8 @@ const CALENDAR_COLORS = [
 ];
 
 export default function PersonelDetayPage() {
+  const t = useTranslations("dashboard.staffPermissions");
+  const tp = useTranslations("dashboard.permissions");
   const params = useParams();
   const id = params.id as string;
   const router = useRouter();
@@ -153,10 +156,10 @@ export default function PersonelDetayPage() {
     });
     setPermsSaving(false);
     if (res.ok) {
-      toast.success("Yetkiler güncellendi");
+      toast.success(t("savedToast"));
     } else {
       const err = await res.json();
-      toast.error(err.error || "Yetkiler güncellenemedi");
+      toast.error(err.error || t("saveFailedToast"));
     }
   }
 
@@ -460,7 +463,7 @@ export default function PersonelDetayPage() {
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-primary" />
-            Yetkiler
+            {t("yetkilerTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -471,10 +474,10 @@ export default function PersonelDetayPage() {
           ) : !linked ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Bu personelin henüz sisteme giriş yapabileceği bir hesabı yok.
+                {t("noAccountText")}
                 {viewerRole === "owner" || viewerCanManageStaff
-                  ? " Davet gönderirseniz kendi hesabını oluşturup panele erişebilir."
-                  : " Davet göndermek için salon sahibiyle iletişime geçin."}
+                  ? t("noAccountOwnerHint")
+                  : t("noAccountStaffHint")}
               </p>
               {(viewerRole === "owner" || viewerCanManageStaff) && (
                 <StaffInviteDialog staffList={[]} preselectedStaffId={id} />
@@ -483,7 +486,7 @@ export default function PersonelDetayPage() {
           ) : (
             <div className="space-y-4">
               <div className="space-y-1">
-                <Label className="text-xs">Rol</Label>
+                <Label className="text-xs">{t("roleLabel")}</Label>
                 <Select
                   value={memberRole}
                   onValueChange={(v) => {
@@ -496,19 +499,19 @@ export default function PersonelDetayPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="staff">Personel — Temel erişim</SelectItem>
-                    <SelectItem value="manager">Yönetici — Genişletilmiş erişim</SelectItem>
+                    <SelectItem value="staff">{t("roleStaff")}</SelectItem>
+                    <SelectItem value="manager">{t("roleManager")}</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground">
-                  Rol değiştirmek varsayılan izinleri sıfırlar — altta ince ayar yapabilirsiniz.
+                  {t("roleResetHint")}
                 </p>
               </div>
 
               <div className="space-y-1.5 pt-2 border-t">
-                <Label className="text-xs font-medium">İzinler</Label>
+                <Label className="text-xs font-medium">{t("permissionsLabel")}</Label>
                 <div className="grid sm:grid-cols-2 gap-1.5">
-                  {Object.entries(PERM_LABELS).map(([key, label]) => (
+                  {PERM_KEYS.map((key) => (
                     <label key={key} className="flex items-center gap-2 cursor-pointer group">
                       <input
                         type="checkbox"
@@ -517,7 +520,7 @@ export default function PersonelDetayPage() {
                         className="rounded text-primary"
                       />
                       <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-                        {label}
+                        {tp(key)}
                       </span>
                     </label>
                   ))}
@@ -526,7 +529,7 @@ export default function PersonelDetayPage() {
 
               <Button size="sm" onClick={handleSavePerms} disabled={permsSaving} className="gap-1.5">
                 {permsSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
-                Yetkileri Kaydet
+                {t("saveButton")}
               </Button>
             </div>
           )}

@@ -50,12 +50,24 @@ export async function sendPurposeTemplate({
   const supabase = await createAdminClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("name, wa_template_styles, phone, whatsapp_number, address, location_url")
+    .select("name, wa_template_styles, phone, whatsapp_number, address, location_url, settings_json")
     .eq("id", orgId)
     .single();
 
   if (!org) {
     return { skipped: true, reason: "org_not_found" };
+  }
+
+  const notifySettingKey: Partial<Record<WaPurpose, string>> = {
+    onay: "wa_notify_onay",
+    revize: "wa_notify_revize",
+    iptal: "wa_notify_iptal",
+  };
+  const settingsJson = (org.settings_json ?? {}) as Record<string, unknown>;
+  const key = notifySettingKey[purpose];
+  // Varsayılan: işaretli (gönderilir) — yalnızca kullanıcı açıkça kapatmışsa (false) atlanır.
+  if (key && settingsJson[key] === false) {
+    return { skipped: true, reason: "purpose_disabled" };
   }
 
   const styles = (org.wa_template_styles ?? {}) as Record<string, string>;

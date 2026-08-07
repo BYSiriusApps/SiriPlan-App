@@ -3,6 +3,7 @@ import { getActiveMember, getMemberships, isPlatformAdmin } from "@/lib/active-o
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { MobileNav } from "@/components/dashboard/MobileNav";
+import { HelpAssistant } from "@/components/dashboard/HelpAssistant";
 import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -55,6 +56,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
         {/* Mobile bottom navigation */}
         <MobileNav role={role} />
+
+        <HelpAssistant />
 
         <Toaster position="top-right" richColors />
       </div>
