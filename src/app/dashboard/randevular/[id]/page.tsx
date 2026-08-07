@@ -42,7 +42,7 @@ export default async function ApptDetailPage({
         <Link href="/dashboard/randevular" className="text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold">Randevu Detayı</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">Randevu Detayı</h1>
         <Badge variant="outline" className={cn("ml-auto", STATUS_BADGE_CLASSES[a.status])}>
           {STATUS_LABELS[a.status]}
         </Badge>
@@ -58,7 +58,7 @@ export default async function ApptDetailPage({
       </div>
 
       {/* Main info */}
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">
             {format(new Date(a.appointment_at), "d MMMM yyyy, EEEE — HH:mm", { locale: tr })}

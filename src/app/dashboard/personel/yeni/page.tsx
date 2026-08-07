@@ -68,10 +68,10 @@ export default function PersonelYeniPage() {
         <Link href="/dashboard/personel" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold">Yeni Personel Ekle</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">Yeni Personel Ekle</h1>
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Personel Bilgileri</CardTitle>
         </CardHeader>

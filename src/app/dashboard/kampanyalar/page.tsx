@@ -70,10 +70,19 @@ export default async function KampanyalarPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Kampanyalar</h1><HomeButton /></div>
-          <p className="text-muted-foreground text-sm">Müşterilerinize otomatik mesajlar gönderin</p>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0">
+              <Megaphone className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Pazarlama</span>
+              <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Kampanyalar</h1>
+            </div>
+            <HomeButton />
+          </div>
+          <p className="text-muted-foreground text-sm mt-1">Müşterilerinize otomatik mesajlar gönderin</p>
         </div>
         <Link
           href="/dashboard/kampanyalar/yeni"
@@ -124,7 +133,7 @@ export default async function KampanyalarPage() {
           },
         ].map((c) => (
           <Link key={c.type} href={`/dashboard/kampanyalar/yeni?type=${c.type}`}>
-            <Card className={cn("border-0 shadow-sm bg-gradient-to-br cursor-pointer hover:shadow-md transition-all", c.color, `border ${c.border}`)}>
+            <Card className={cn("border-0 shadow-sm bg-gradient-to-br cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all", c.color, `border ${c.border}`)}>
               <CardContent className="p-4">
                 <h3 className="font-semibold mb-1">{c.title}</h3>
                 <p className="text-xs text-muted-foreground">{c.desc}</p>
@@ -135,7 +144,7 @@ export default async function KampanyalarPage() {
       </div>
 
       {/* Campaign history */}
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Kampanya Geçmişi</CardTitle>
         </CardHeader>
@@ -152,7 +161,7 @@ export default async function KampanyalarPage() {
                 const Icon = statusConf.icon;
                 return (
                   <Link key={c.id} href={`/dashboard/kampanyalar/${c.id}`}>
-                    <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors group">
+                    <div className="data-row flex items-center gap-3 p-3 rounded-lg transition-colors group">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <p className="font-medium text-sm">{c.name}</p>

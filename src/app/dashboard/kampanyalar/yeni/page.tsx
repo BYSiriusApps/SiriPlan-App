@@ -143,7 +143,7 @@ export default function YeniKampanyaPage() {
         <Link href="/dashboard/kampanyalar" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold">Yeni Kampanya</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">Yeni Kampanya</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -166,7 +166,7 @@ export default function YeniKampanyaPage() {
           ))}
         </div>
 
-        <Card className="border-0 shadow-sm">
+        <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
               <Megaphone className="h-4 w-4" /> Kampanya Detayları
@@ -254,7 +254,7 @@ export default function YeniKampanyaPage() {
         </Card>
 
         {/* ── Hedef Müşteriler: filtrele + seç ── */}
-        <Card className="border-0 shadow-sm">
+        <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
               <Users className="h-4 w-4" /> Hedef Müşteriler

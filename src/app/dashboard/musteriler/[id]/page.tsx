@@ -61,7 +61,7 @@ export default async function MusteriDetailPage({
         <Link href="/dashboard/musteriler" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold">{c.full_name}</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">{c.full_name}</h1>
         <Badge className={cn("ml-auto text-xs", scoreColor(c.score))}>
           <Star className="h-3 w-3 mr-1 fill-current" />
           {c.score} puan
@@ -70,7 +70,7 @@ export default async function MusteriDetailPage({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Contact */}
-        <Card className="border-0 shadow-sm">
+        <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">İletişim</CardTitle>
           </CardHeader>
@@ -150,22 +150,22 @@ export default async function MusteriDetailPage({
         </Card>
 
         {/* Stats */}
-        <Card className="border-0 shadow-sm">
+        <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">İstatistikler</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-muted-foreground text-xs">Toplam Ziyaret</p>
-              <p className="font-bold text-lg">{c.visit_count}</p>
+              <p className="font-bold text-lg tabular-nums">{c.visit_count}</p>
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Toplam Harcama</p>
-              <p className="font-bold text-lg">₺{Number(c.total_spend).toLocaleString("tr-TR")}</p>
+              <p className="font-bold text-lg tabular-nums">₺{Number(c.total_spend).toLocaleString("tr-TR")}</p>
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Sadakat Kartı</p>
-              <p className="font-bold text-lg">{c.loyalty_punches} / 10</p>
+              <p className="font-bold text-lg tabular-nums">{c.loyalty_punches} / 10</p>
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Son Ziyaret</p>
@@ -189,7 +189,7 @@ export default async function MusteriDetailPage({
       )}
 
       {/* Loyalty bar */}
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium flex items-center gap-1.5">
@@ -222,13 +222,12 @@ export default async function MusteriDetailPage({
           ) : (
             (appointments as (Appointment & { staff?: { full_name: string }; service?: { name: string } })[]).map((appt) => (
               <Link key={appt.id} href={`/dashboard/randevular/${appt.id}`}>
-                <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-3 flex items-center gap-3">
+                <div className="data-row flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors">
                     <div className="text-center w-14 shrink-0">
                       <p className="text-xs text-muted-foreground">
                         {format(new Date(appt.appointment_at), "d MMM yyyy", { locale: tr })}
                       </p>
-                      <p className="text-sm font-bold text-primary">
+                      <p className="text-sm font-bold text-primary tabular-nums">
                         {format(new Date(appt.appointment_at), "HH:mm")}
                       </p>
                     </div>
@@ -237,13 +236,12 @@ export default async function MusteriDetailPage({
                       <p className="text-xs text-muted-foreground">{appt.staff?.full_name}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium">₺{Number(appt.price).toLocaleString("tr-TR")}</p>
+                      <p className="text-sm font-medium tabular-nums">₺{Number(appt.price).toLocaleString("tr-TR")}</p>
                       <Badge variant="outline" className="text-[10px]">
                         {STATUS_LABELS[appt.status] || appt.status}
                       </Badge>
                     </div>
-                  </CardContent>
-                </Card>
+                </div>
               </Link>
             ))
           )}

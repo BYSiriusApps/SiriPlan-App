@@ -117,10 +117,19 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Hizmetler</h1><HomeButton /></div>
-          <p className="text-muted-foreground text-sm">{services.length} hizmet</p>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0">
+              <Scissors className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Hizmet Kataloğu</span>
+              <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Hizmetler</h1>
+            </div>
+            <HomeButton />
+          </div>
+          <p className="text-muted-foreground text-sm mt-1">{services.length} hizmet</p>
         </div>
         <Link
           href="/dashboard/hizmetler/yeni"
@@ -141,7 +150,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
               .map((service) => (
                 <Card
                   key={service.id}
-                  className="border-0 shadow-sm hover:shadow-md transition-all group cursor-pointer"
+                  className="kpi-tile border-0 shadow-none group cursor-pointer"
                   onClick={() => openDetail(service)}
                 >
                   <CardContent className="p-4">

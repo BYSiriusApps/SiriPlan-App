@@ -72,10 +72,19 @@ export default async function PersonelPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">{t("staff")}</h1><HomeButton /></div>
-          <p className="text-muted-foreground text-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0">
+              <UserCog className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Ekip</span>
+              <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("staff")}</h1>
+            </div>
+            <HomeButton />
+          </div>
+          <p className="text-muted-foreground text-sm mt-1">
             {t("staffCountLabel", { used: staff?.length || 0, max: maxStaff })}
           </p>
         </div>
@@ -118,7 +127,7 @@ export default async function PersonelPage() {
         ) : (
           (staff as (Staff & { staff_services?: { services?: { name: string } }[] })[]).map((s) => (
             <Link key={s.id} href={`/dashboard/personel/${s.id}`}>
-              <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group">
+              <Card className="kpi-tile border-0 shadow-none cursor-pointer group h-full">
                 <CardHeader className="pb-3">
                   <div className="flex items-start gap-3">
                     <div className="relative">

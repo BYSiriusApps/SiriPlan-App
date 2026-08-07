@@ -138,7 +138,7 @@ export default async function TakvimPage({
       />
 
       {!staff || staff.length === 0 ? (
-        <Card className="border-0 shadow-sm">
+        <Card className="kpi-tile border-0 shadow-none">
           <CardContent className="py-12 text-center text-muted-foreground">
             {t("noStaffAdded")}{" "}
             <Link href="/dashboard/personel/yeni" className="text-primary underline">{t("addStaffCta")}</Link>

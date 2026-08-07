@@ -310,7 +310,10 @@ export default function AyarlarPage() {
       <header className="flex items-start justify-between gap-3 pb-1">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t("settings")}</h1>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70 block">Yapılandırma</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold brand-gradient-text leading-tight">{t("settings")}</h1>
             <HomeButton />
           </div>
           <p className="text-sm text-muted-foreground mt-1">{t("settingsSubtitle")}</p>

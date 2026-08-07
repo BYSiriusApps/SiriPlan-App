@@ -79,12 +79,21 @@ export default function VeriGocuPage() {
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <div>
-        <div className="flex items-center gap-3"><h1 className="text-2xl font-bold">Veri Göçü</h1><HomeButton /></div>
-        <p className="text-muted-foreground text-sm">Verilerinizi aktarın veya güvenle indirin</p>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0">
+            <Upload className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Veri Yönetimi</span>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Veri Göçü</h1>
+          </div>
+          <HomeButton />
+        </div>
+        <p className="text-muted-foreground text-sm mt-1">Verilerinizi aktarın veya güvenle indirin</p>
       </div>
 
       {/* Export section */}
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Download className="h-4 w-4 text-primary" />
@@ -138,7 +147,7 @@ export default function VeriGocuPage() {
       </Card>
 
       {/* Import section */}
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Upload className="h-4 w-4 text-primary" />

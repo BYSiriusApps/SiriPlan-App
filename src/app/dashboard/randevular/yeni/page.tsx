@@ -196,13 +196,16 @@ export default function YeniRandevuPage() {
   return (
     <div className="p-6 max-w-xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/dashboard/randevular" className="text-muted-foreground hover:text-foreground">
+        <Link href="/dashboard/randevular" className="text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold">Yeni Randevu</h1>
+        <div>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Randevular</span>
+          <h1 className="text-xl font-bold brand-gradient-text leading-tight">Yeni Randevu</h1>
+        </div>
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Randevu Bilgileri</CardTitle>
         </CardHeader>

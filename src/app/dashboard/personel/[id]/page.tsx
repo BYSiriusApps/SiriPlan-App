@@ -271,7 +271,7 @@ export default function PersonelDetayPage() {
             {staff.full_name[0]}
           </div>
           <div className="min-w-0">
-            <h1 className="text-xl font-bold truncate">{staff.full_name}</h1>
+            <h1 className="text-xl font-bold brand-gradient-text truncate">{staff.full_name}</h1>
             <p className="text-xs text-muted-foreground">{staff.role}</p>
           </div>
         </div>
@@ -280,7 +280,7 @@ export default function PersonelDetayPage() {
         )}
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Personel Bilgileri</CardTitle>
         </CardHeader>
@@ -456,7 +456,7 @@ export default function PersonelDetayPage() {
       </Card>
 
       {/* Giriş hesabı yetkileri */}
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-primary" />
@@ -535,7 +535,7 @@ export default function PersonelDetayPage() {
 
       {/* Services */}
       {staff.staff_services && staff.staff_services.length > 0 && (
-        <Card className="border-0 shadow-sm">
+        <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Scissors className="h-4 w-4 text-primary" />
@@ -567,7 +567,7 @@ export default function PersonelDetayPage() {
       )}
 
       {/* İzinler / kapalı günler */}
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <CalendarX className="h-4 w-4 text-primary" />
@@ -637,7 +637,7 @@ export default function PersonelDetayPage() {
 
       {/* Activity */}
       {activity && (
-        <Card className="border-0 shadow-sm">
+        <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Activity className="h-4 w-4 text-primary" />
@@ -688,7 +688,7 @@ export default function PersonelDetayPage() {
 
       {/* Danger zone */}
       {staff.is_active && (
-        <Card className="border-0 shadow-sm border-red-100 dark:border-red-900/30">
+        <Card className="kpi-tile border-0 shadow-none border-red-100 dark:border-red-900/30">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2 text-red-600 dark:text-red-400">
               <AlertTriangle className="h-4 w-4" />

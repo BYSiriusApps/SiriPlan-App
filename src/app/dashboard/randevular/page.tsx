@@ -81,7 +81,7 @@ export default async function RandevularPage({
           href="/dashboard/randevular"
           className={cn(
             "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-            !params.status ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-accent"
+            !params.status ? "bg-primary text-primary-foreground border-primary shadow-sm" : "border-border hover:bg-accent"
           )}
         >
           Tümü
@@ -93,7 +93,7 @@ export default async function RandevularPage({
             className={cn(
               "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
               params.status === s
-                ? "bg-primary text-primary-foreground border-primary"
+                ? "bg-primary text-primary-foreground border-primary shadow-sm"
                 : "border-border hover:bg-accent"
             )}
           >
@@ -105,8 +105,8 @@ export default async function RandevularPage({
       {/* Appointments list */}
       <div className="space-y-2">
         {!appointments || appointments.length === 0 ? (
-          <Card className="border-0 shadow-sm">
-            <CardContent className="py-12 text-center text-muted-foreground">
+          <Card className="kpi-tile border-0 shadow-none">
+            <CardContent className="py-14 text-center text-muted-foreground">
               <Calendar className="h-10 w-10 mx-auto mb-3 opacity-30" />
               <p>Randevu bulunamadı</p>
             </CardContent>

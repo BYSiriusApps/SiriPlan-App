@@ -120,7 +120,7 @@ export default function YeniHizmetPage() {
         <Link href="/dashboard/hizmetler" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold">Hizmet Ekle</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">Hizmet Ekle</h1>
       </div>
 
       {/* Tab switcher */}
@@ -208,7 +208,7 @@ export default function YeniHizmetPage() {
       )}
 
       {tab === "manual" && (
-        <Card className="border-0 shadow-sm">
+        <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Manuel Hizmet</CardTitle>
           </CardHeader>
@@ -304,7 +304,7 @@ function ServiceCatalogRow({
   onAdd: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-border hover:bg-accent/50 transition-colors">
+    <div className="data-row flex items-center justify-between px-3 py-2.5 rounded-lg border border-border/60 hover:bg-primary/5 transition-colors">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">{svc.name}</p>
         <p className="text-xs text-muted-foreground">{svc.duration} dk</p>

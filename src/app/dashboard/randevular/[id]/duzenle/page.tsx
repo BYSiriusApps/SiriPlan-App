@@ -89,10 +89,10 @@ export default function RandevuDuzenlePage() {
         <Link href={`/dashboard/randevular/${id}`} className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold">Randevu Düzenle</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">Randevu Düzenle</h1>
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Randevu Bilgilerini Güncelle</CardTitle>
         </CardHeader>
