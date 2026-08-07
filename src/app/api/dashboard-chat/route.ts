@@ -9,7 +9,8 @@ const CONTACT_LINE = "📧 destek@siriplan.com veya 💬 WhatsApp: +90 535 503 2
  * Panel içi yardım asistanının bilgi tabanı — tamamen statik (LLM/API anahtarı gerekmez).
  * docs/kullanim-kilavuzu.md ile senkron tutulmalı. Yeni bir soru kalıbı eklerken en
  * spesifik (dar kapsamlı) girdileri listenin başına, genel girdileri sonuna koyun —
- * ilk eşleşen kural kazanır.
+ * ilk eşleşen kural kazanır (bkz. örn. "izin günü" girdisi "personel" girdisinden önce
+ * durmalı, yoksa bare "personel" alt-string eşleşmesi onu ele geçirir).
  */
 const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
   {
@@ -33,10 +34,10 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
     keywords: ["widget", "kişiselleştir", "ana sayfa düzen", "kutu ekle", "kutucuk"],
     answer:
       "Ana Sayfa'da sağ üstteki \"Kişiselleştir\" butonuna basın: kutucukları sürükleyerek sıralayın, göz ikonuyla gösterin/gizleyin, bitince \"Kaydet\"e basın. " +
-      "Kullanılabilir widget'lar: Aktif Randevular, Günlük Takvim, WhatsApp Asistanı, Kampanya & Performans, Yeni Müşteriler, Raporlar, Gelir & Gider, Hızlı İşlemler, Personel, Hizmetler. Tercihleriniz size özel kaydedilir.",
+      "Kullanılabilir widget'lar: Aktif Randevular, Günlük Takvim, WhatsApp Asistanı, Kampanya & Performans, Yeni Müşteriler, Raporlar, Gelir & Gider, Hızlı İşlemler, Personel, Hizmetler. Tercihleriniz size özel kaydedilir (bir personelin gizlediği widget diğerini etkilemez).",
   },
   {
-    keywords: ["konum ekle", "konum linki", "harita", "google maps", "adres linki", "konumumu kullan"],
+    keywords: ["konum ekle", "konum link", "harita", "google maps", "adres link", "konumumu kullan"],
     answer:
       "Ayarlar → Salon Bilgileri → \"Konum (Google Maps Linki)\" alanına ekleyebilirsiniz. İki yol var:\n" +
       "1. \"Konumumu Kullan\" butonuna basıp tarayıcı konum izni verin — link otomatik doldurulur.\n" +
@@ -51,6 +52,64 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
       "O numarayı Ayarlar'a yapıştırıp kaydedince, yeni bir randevu oluştuğunda (online veya elle) anında Telegram bildirimi alırsınız.",
   },
   {
+    keywords: ["online randevu linki", "randevu link", "qr kod", "linkimi paylaş", "müşteri link", "biyografiye ekle"],
+    answer:
+      "Ayarlar → \"Online Randevu Linkim\" bölümünde size özel bir link (siriplan.com/r/...) bulunur. \"Linki Kopyala\" ile kopyalayıp Instagram biyografinize/WhatsApp'a ekleyebilir, \"WhatsApp'ta Paylaş\" ile doğrudan gönderebilir veya QR kodunu indirip salonunuza asabilirsiniz. " +
+      "Müşterileriniz bu linkten boş saatleri görüp kendileri randevu alır; onayladıkları KVKK metniyle birlikte otomatik olarak müşteri listenize eklenirler.",
+  },
+  {
+    keywords: ["otomatik onay", "online randevu otomatik", "elle onay", "onay bekliyor online"],
+    answer:
+      "Ayarlar → \"Online Randevu Ayarları\"ndan, online randevu sayfanızdan gelen taleplerin otomatik onaylanmasını açabilirsiniz (Pro veya Business planında). Kapalıyken online talepler önce \"Bekliyor\" durumunda kuyruğa düşer, siz onaylayana kadar takvime işlenmez.",
+  },
+  {
+    keywords: ["müşteri dili", "müşterinin dili", "randevu sayfası dil", "online sayfa dil", "hangi dilde açılır"],
+    answer:
+      "Online randevu sayfanız, müşteri telefon numarasını girdiğinde daha önce kaydedilmiş bir dil tercihi varsa otomatik o dilde açılır; sağ üstteki bayrak ikonlarıyla müşteri elle de değiştirebilir. " +
+      "Bir müşterinin dilini panelden elle ayarlamak isterseniz, Müşteriler → ilgili müşteri detayından \"Tercih Edilen Dil\" alanını düzenleyebilirsiniz.",
+  },
+  {
+    keywords: ["sadakat", "puan kazan", "loyalty", "müşteri skoru", "sadakat kartı"],
+    answer:
+      "Her müşteri, hizmet aldıkça 0-100 arası bir sadakat/skor puanı biriktirir (randevuya gelmemek puanı düşürür). Ayrıca hangi hizmetlerin sadakat kartına puan/damga kazandıracağını Hizmetler → hizmet düzenle ekranından \"Sadakat puanı kazandırsın\" seçeneğiyle belirlersiniz. " +
+      "Müşteri detay sayfasında güncel puan ve sadakat kartı ilerlemesi görüntülenir.",
+  },
+  {
+    keywords: ["online randevudan engelle", "müşteriyi engelle", "randevu alamasın", "engelli müşteri", "engelle"],
+    answer:
+      "Sık gelmeyen veya sürekli gelmeyen (no-show) bir müşteriyi, müşteri detay sayfasındaki \"Online Randevudan Engelle\" butonuyla yalnızca online randevu sayfasından yeni randevu almaktan men edebilirsiniz — siz panelden onun için elle randevu oluşturmaya devam edebilirsiniz. İstediğiniz an aynı butonla engeli kaldırabilirsiniz.",
+  },
+  {
+    keywords: ["izin gün", "izinli", "tatil gün", "personel izni", "personel tatil"],
+    answer:
+      "Personel detay sayfasından ilgili çalışan için izin/tatil günleri tanımlayabilirsiniz; personel o tarihlerde randevuya atanamaz ve online randevu sayfasında müsait görünmez (mevcut randevular etkilenmez, elle iptal/taşıma gerekir).",
+  },
+  {
+    keywords: ["çalışma saat", "açılış saat", "kapanış saat", "mesai saat", "kaçta açılıyor"],
+    answer:
+      "Ayarlar → Salon Bilgileri → \"Çalışma Saatleri\" bölümünden her gün için ayrı açılış/kapanış saati tanımlayabilir, kapalı olduğunuz günleri boş bırakabilirsiniz. Bu saatler, online randevu sayfasında ve takvimde gösterilen müsait aralıkları belirler.",
+  },
+  {
+    keywords: ["kvkk", "gizlilik metn", "aydınlatma metn"],
+    answer:
+      "Müşterilerinize online randevu alırken gösterilecek KVKK aydınlatma metnini Ayarlar → \"KVKK / Yasal Bildirim\" bölümünden özelleştirebilirsiniz; boş bırakırsanız platformun varsayılan metni kullanılır. Müşteri bu metni onaylamadan online randevu tamamlanamaz.",
+  },
+  {
+    keywords: ["tema", "karanlık mod", "koyu mod", "dark mode", "açık mod"],
+    answer:
+      "Panelin açık/koyu temasını, kenar menüdeki (Sidebar) tema anahtarından değiştirebilirsiniz; tercih tarayıcınızda saklanır.",
+  },
+  {
+    keywords: ["birden fazla işletme", "şube değiştir", "işletme değiştir", "organizasyon değiştir", "birden fazla salon"],
+    answer:
+      "Aynı hesapla birden fazla işletmede (organizasyonda) üyeyseniz, kenar menüdeki işletme seçiciden aktif işletmenizi değiştirebilirsiniz — her işletmenin randevu, müşteri ve personel verisi ayrı tutulur. Business planında sınırsız şube desteklenir.",
+  },
+  {
+    keywords: ["hızlı randevu", "quick book", "tek tıkla randevu"],
+    answer:
+      "Randevular sayfasının sağ üstündeki \"Randevu Ekle\" butonuyla açılan hızlı panelden; personel, müşteri (isim/telefonla arayarak) ve hizmet seçip birkaç saniyede randevu oluşturabilirsiniz. Daha fazla alan (not, kaynak, KVKK onayı vb.) gerekiyorsa \"Detaylı Form\"u kullanın.",
+  },
+  {
     keywords: ["yetki", "yetkilendirme", "manager", "yönetici erişim", "personel rolü", "rol değiştir"],
     answer:
       "İki katmanlı yetki sistemi var:\n" +
@@ -59,7 +118,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
       "Rol değiştirmek varsayılan izinleri sıfırlar, altta ince ayar yapabilirsiniz.",
   },
   {
-    keywords: ["şablon", "mesaj metni", "hazır mesaj", "sıcak", "kısa mesaj", "resmi mesaj", "hizmet detaylı"],
+    keywords: ["şablon", "mesaj metn", "hazır mesaj", "sıcak", "kısa mesaj", "resmi mesaj", "hizmet detaylı"],
     answer:
       "Ayarlar → Otomatik Randevu Mesajı bölümünden 4 hazır şablondan (Sıcak, Kısa, Resmi, Hizmet Detaylı) birini seçebilir veya kendi metninizi yazabilirsiniz. " +
       "Değişkenler otomatik doldurulur: {musteri} {salon} {tarih} {saat} {hizmet} {personel} {konum}. " +
@@ -72,18 +131,28 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
       "Hatırlatma mesajının randevudan kaç saat önce gideceğini de aynı sayfadan seçersiniz.",
   },
   {
-    keywords: ["ödeme", "abonelik", "plan seç", "starter", "pro plan", "business plan", "fiyat", "kredi kartı", "deneme süresi"],
+    keywords: ["bahşiş", "ödeme yöntemi", "nakit mi kart mı", "ekstra gelir"],
+    answer:
+      "Randevuyu \"Tamamlandı\" olarak işaretlerken ödeme yöntemini (Nakit/Kart/Havale/Diğer), varsa bahşişi ve hizmet fiyatı dışında alınan ekstra ücreti girebilirsiniz — bunlar otomatik olarak Gelir-Gider tablosuna işlenir.",
+  },
+  {
+    keywords: ["ödeme yap", "abonelik", "plan seç", "starter", "pro plan", "business plan", "plan fiyat", "kredi kartı", "deneme süresi", "stripe"],
     answer:
       "14 gün ücretsiz deneme ile başlarsınız, kredi kartı gerekmez. Planlar:\n" +
       "• Starter — 1 şube/3 personel, 300 randevu/ay, online randevu sayfası, WhatsApp hatırlatma, sadakat kartı, temel ciro raporu, CSV export.\n" +
-      "• Pro — sınırsız personel & randevu, AI WhatsApp/Instagram asistanı, kampanya modülü, müşteri skoru, Haftanın Elemanı, Google Calendar senkronizasyonu, bekleme listesi, PDF export, KDV hesaplama.\n" +
-      "• Business — sınırsız şube & personel, tüm Pro özellikleri, white-label, API erişimi, öncelikli destek, özel entegrasyonlar, özel hesap yöneticisi.\n" +
-      "Deneme süresi dolmadan Ayarlar → Abonelik'ten plan seçip ödeme yapabilirsiniz.",
+      "• Pro — sınırsız personel & randevu, kampanya modülü, müşteri skoru, Haftanın Elemanı, Google Calendar senkronizasyonu, bekleme listesi, PDF export, KDV hesaplama.\n" +
+      "• Business — sınırsız şube & personel, tüm Pro özellikleri, AI WhatsApp/IG asistanı, white-label, API erişimi, öncelikli destek, özel entegrasyonlar, özel hesap yöneticisi.\n" +
+      "Deneme süresi dolmadan Ayarlar → Abonelik'ten plan seçip ödeme yapabilir, aktif abonelikte fatura/kart bilgilerinizi \"Stripe Müşteri Portalı\" butonundan yönetebilirsiniz.",
   },
   {
     keywords: ["randevu"],
     answer:
       "Randevular sayfasından yeni randevu oluşturabilir, Takvim sayfasından 15 dakikalık dilimlerle görsel olarak planlayabilirsiniz. Oluşturma/düzenleme/iptalde müşteriye otomatik bildirim gider (Ayarlar → Bildirimler'e bağlı).",
+  },
+  {
+    keywords: ["takvim", "gün görünüm", "hafta görünüm"],
+    answer:
+      "Takvim sayfası tüm randevuları gün/hafta bazlı, her personele atanmış renk koduyla gösterir. Boş bir saate tıklayarak hızlıca randevu oluşturabilir, mevcut bir randevuyu sürükleyerek farklı bir saate/personele taşıyabilirsiniz.",
   },
   {
     keywords: ["personel", "davet", "çalışan ekle"],
@@ -98,12 +167,12 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
   {
     keywords: ["hizmet"],
     answer:
-      "Hizmetler sayfasından kategori, süre ve fiyat tanımlayarak hizmet kataloğunuzu oluşturursunuz. Süre, takvimdeki randevu slotunun uzunluğunu belirler.",
+      "Hizmetler sayfasından kategori, süre ve fiyat tanımlayarak hizmet kataloğunuzu oluşturursunuz; mevcut bir hizmete tıklayıp \"Düzenle\"den adını, fiyatını veya süresini değiştirebilirsiniz. Süre, takvimdeki randevu slotunun uzunluğunu belirler.",
   },
   {
     keywords: ["kampanya"],
     answer:
-      "Kampanyalar sayfasından toplu WhatsApp mesajı gönderebilirsiniz. Kampanyalar Taslak → Planlandı → Gönderiliyor → Gönderildi sırasıyla ilerler; hata olursa Başarısız olarak işaretlenir.",
+      "Kampanyalar sayfasından toplu WhatsApp mesajı gönderebilirsiniz ({{musteri_adi}}, {{salon_adi}} gibi şablon değişkenleriyle). Kampanyalar Taslak → Planlandı → Gönderiliyor → Gönderildi sırasıyla ilerler; hata olursa Başarısız olarak işaretlenir.",
   },
   {
     keywords: ["rapor", "ciro"],
@@ -118,12 +187,22 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
   {
     keywords: ["excel", "csv", "içe aktar", "dışa aktar", "veri göçü", "import", "export"],
     answer:
-      "Veri Göçü sayfasından mevcut Excel/CSV verilerinizi içe aktarabilir; verilerinizi CSV, JSON veya PDF olarak dışa aktarabilirsiniz.",
+      "Veri Göçü sayfasından mevcut Excel/CSV verilerinizi içe aktarabilir; verilerinizi CSV, JSON, Excel veya PDF olarak dışa aktarabilirsiniz.",
   },
   {
     keywords: ["dil", "language"],
     answer:
       "Panel Türkçe, İngilizce, Rusça ve Arapça dillerini destekler. Bildirimlerin hangi dilde gideceğini her personel için Personel sayfasından ayrıca ayarlayabilirsiniz; online randevu sayfası da müşterinin daha önce seçtiği dili hatırlar.",
+  },
+  {
+    keywords: ["kayıt ol", "hesap oluştur", "giriş yap", "şifremi unuttum", "şifre"],
+    answer:
+      "Yeni işletmeler /auth/kayit üzerinden kayıt olur, mevcut kullanıcılar /auth/giris ile panele erişir. Şifrenizi unuttuysanız giriş ekranındaki \"Şifremi Unuttum\" linkinden sıfırlayabilirsiniz. Yeni kayıt olan her işletme 14 günlük ücretsiz deneme ile başlar.",
+  },
+  {
+    keywords: ["ana ekrana ekle", "telefona yükle", "uygulama olarak", "pwa"],
+    answer:
+      "Ayarlar sayfasındaki \"Uygulamayı telefona ekle\" kartından, tarayıcınızın \"Ana ekrana ekle\" özelliğiyle SiriPlan'ı telefonunuza bir uygulama gibi kurabilirsiniz — ayrı bir mağaza indirmesi gerekmez.",
   },
 ];
 
