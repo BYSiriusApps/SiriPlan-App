@@ -18,7 +18,7 @@ const plans = [
     annualTotal: "$384",
     desc: "Küçük salonlar için mükemmel başlangıç",
     features: [
-      "1 şube, 3 personel",
+      "1 şube, 5 personel",
       "300 randevu/ay",
       "Online randevu sayfası",
       "WhatsApp hatırlatma",
@@ -45,7 +45,6 @@ const plans = [
     features: [
       "1 şube, sınırsız personel",
       "Sınırsız randevu",
-      "AI WhatsApp/IG asistanı",
       "Kampanya modülü",
       "Müşteri skoru sistemi",
       "Haftanın Elemanı gamification",
@@ -55,7 +54,7 @@ const plans = [
       "KDV hesaplama",
       "Öncelikli destek",
     ],
-    notIncluded: [],
+    notIncluded: ["AI WhatsApp/IG asistanı"],
     cta: "Ücretsiz Dene",
     href: "/auth/kayit",
     highlight: true,
@@ -70,6 +69,7 @@ const plans = [
       "Sınırsız şube",
       "Sınırsız personel",
       "Tüm Pro özellikleri",
+      "AI WhatsApp/IG asistanı",
       "Beyaz etiket (kendi domaininiz)",
       "API erişimi",
       "Öncelikli destek",
@@ -143,8 +143,8 @@ export default function FiyatlarPage() {
             {plans.map((plan) => (
               <Card
                 key={plan.name}
-                className={`relative flex flex-col ${plan.highlight
-                  ? "border-primary shadow-lg shadow-primary/10 scale-[1.02]"
+                className={`relative flex flex-col overflow-visible ${plan.highlight
+                  ? "border-primary shadow-lg shadow-primary/10 scale-[1.02] z-10"
                   : "border-border"
                   }`}
               >

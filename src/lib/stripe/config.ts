@@ -14,7 +14,7 @@ export const PLANS = {
     annual: process.env.STRIPE_PRICE_STARTER_ANNUAL || "",
     price_monthly: 39,
     price_annual: 32,
-    max_staff: 3,
+    max_staff: 5,
     max_appointments_monthly: 300,
     features: {
       feature_ai: false,
@@ -33,7 +33,7 @@ export const PLANS = {
     max_staff: 999,
     max_appointments_monthly: 999999,
     features: {
-      feature_ai: true,
+      feature_ai: false,
       feature_campaigns: true,
       feature_gamification: true,
       feature_api: false,

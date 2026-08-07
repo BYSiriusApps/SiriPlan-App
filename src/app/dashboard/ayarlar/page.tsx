@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
@@ -320,6 +320,21 @@ export default function AyarlarPage() {
           <p className="text-sm text-muted-foreground mt-1">{t("settingsSubtitle")}</p>
         </div>
       </header>
+
+      {/* Abonelik & fatura — mobilde alt menüde yer olmadığı için buradan erişim */}
+      <Link
+        href="/dashboard/abonelik"
+        className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-accent/50 transition-colors"
+      >
+        <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0">
+          <CreditCard className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-sm">Abonelik &amp; Fatura</p>
+          <p className="text-xs text-muted-foreground">Plan, kullanım limitleri ve ödeme yönetimi</p>
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+      </Link>
 
       {/* Basic info */}
       <SectionCard icon={Building2} title={t("settingsPage.basicInfoTitle")}>
