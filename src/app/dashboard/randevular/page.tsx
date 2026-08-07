@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
@@ -8,7 +9,7 @@ import { Calendar } from "lucide-react";
 import type { Appointment } from "@/types/database";
 import { RandevularHeader } from "@/components/dashboard/RandevularHeader";
 import { RandevuCard } from "@/components/dashboard/RandevuCard";
-import { STATUS_LABELS } from "@/lib/appointment-status";
+import { STATUS_LABEL_KEYS } from "@/lib/appointment-status";
 
 export default async function RandevularPage({
   searchParams,
@@ -16,6 +17,7 @@ export default async function RandevularPage({
   searchParams: Promise<{ status?: string; date?: string }>;
 }) {
   const params = await searchParams;
+  const t = await getTranslations("dashboard");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
@@ -84,7 +86,7 @@ export default async function RandevularPage({
             !params.status ? "bg-primary text-primary-foreground border-primary shadow-sm" : "border-border hover:bg-accent"
           )}
         >
-          Tümü
+          {t("all")}
         </Link>
         {statuses.map((s) => (
           <Link
@@ -97,7 +99,7 @@ export default async function RandevularPage({
                 : "border-border hover:bg-accent"
             )}
           >
-            {STATUS_LABELS[s]}
+            {t(STATUS_LABEL_KEYS[s])}
           </Link>
         ))}
       </div>
@@ -108,7 +110,7 @@ export default async function RandevularPage({
           <Card className="kpi-tile border-0 shadow-none">
             <CardContent className="py-14 text-center text-muted-foreground">
               <Calendar className="h-10 w-10 mx-auto mb-3 opacity-30" />
-              <p>Randevu bulunamadı</p>
+              <p>{t("randevularPage.empty")}</p>
             </CardContent>
           </Card>
         ) : (

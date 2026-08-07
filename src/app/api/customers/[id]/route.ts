@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 type Params = { params: Promise<{ id: string }> };
 
-const ALLOWED = ["online_booking_blocked"];
+const ALLOWED = ["online_booking_blocked", "preferred_language"];
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
@@ -22,6 +22,13 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
   if (!Object.keys(updates).length) {
     return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
+  }
+  if (
+    "preferred_language" in updates &&
+    updates.preferred_language !== null &&
+    !["tr", "en", "ru", "ar"].includes(updates.preferred_language as string)
+  ) {
+    return NextResponse.json({ error: "Geçersiz dil" }, { status: 400 });
   }
 
   const { data, error } = await supabase

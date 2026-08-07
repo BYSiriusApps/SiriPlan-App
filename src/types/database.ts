@@ -132,6 +132,7 @@ export interface Customer {
   marketing_consent: boolean;
   marketing_consent_at: string | null;
   online_booking_blocked: boolean;
+  preferred_language: string | null;
   created_at: string;
   updated_at: string;
 }

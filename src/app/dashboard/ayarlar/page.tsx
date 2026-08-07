@@ -114,6 +114,7 @@ function SectionCard({
 
 export default function AyarlarPage() {
   const t = useTranslations("dashboard");
+  const tsp = useTranslations("dashboard.staffPermissions");
   const [org, setOrg] = useState<Partial<Organization> | null>(null);
   const [staffList, setStaffList] = useState<StaffListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -310,7 +311,7 @@ export default function AyarlarPage() {
       <header className="flex items-start justify-between gap-3 pb-1">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70 block">Yapılandırma</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70 block">{t("settingsPage.eyebrow")}</span>
           </div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl sm:text-3xl font-bold brand-gradient-text leading-tight">{t("settings")}</h1>
@@ -321,7 +322,7 @@ export default function AyarlarPage() {
       </header>
 
       {/* Basic info */}
-      <SectionCard icon={Building2} title="Salon Bilgileri">
+      <SectionCard icon={Building2} title={t("settingsPage.basicInfoTitle")}>
         <div className="flex items-center gap-3">
           {org.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -336,7 +337,7 @@ export default function AyarlarPage() {
             <div className="flex items-center gap-2">
               <label className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-border cursor-pointer hover:bg-muted/50 transition-colors">
                 {uploadingLogo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageUp className="h-3.5 w-3.5" />}
-                {org.logo_url ? "Logoyu Değiştir" : "Logo Yükle"}
+                {org.logo_url ? t("settingsPage.logoChangeButton") : t("settingsPage.logoUploadButton")}
                 <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} />
               </label>
               {org.logo_url && (
@@ -345,7 +346,7 @@ export default function AyarlarPage() {
                   onClick={handleLogoRemove}
                   className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-red-600 transition-colors"
                 >
-                  <X className="h-3.5 w-3.5" /> Kaldır
+                  <X className="h-3.5 w-3.5" /> {t("settingsPage.logoRemoveButton")}
                 </button>
               )}
             </div>
@@ -418,7 +419,7 @@ export default function AyarlarPage() {
               className="shrink-0 gap-1.5"
             >
               {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
-              Konumumu Kullan
+              {t("settingsPage.useMyLocationButton")}
             </Button>
           </div>
           <p className="text-[11px] text-muted-foreground">
@@ -433,7 +434,7 @@ export default function AyarlarPage() {
       <SectionCard
         icon={CalendarCheck}
         iconClassName="text-rose-600"
-        title="Online Randevu Linkim"
+        title={t("settingsPage.bookingLinkTitle")}
         description="Bu linki sosyal medya biyografinize veya WhatsApp'tan müşterilerinize paylaşın. Müşterileriniz boş saatleri görüp kendileri randevu alabilir; onayladıkları KVKK metniyle birlikte otomatik olarak müşteri listenize eklenirler."
       >
         {org.slug ? (
@@ -452,7 +453,7 @@ export default function AyarlarPage() {
             <div className="flex gap-2">
               <Button type="button" variant="outline" className="flex-1 gap-2" onClick={copyBookingLink}>
                 {linkCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {linkCopied ? "Kopyalandı" : "Linki Kopyala"}
+                {linkCopied ? t("settingsPage.linkCopiedButton") : t("settingsPage.copyLinkButton")}
               </Button>
               <Button
                 type="button"
@@ -460,7 +461,7 @@ export default function AyarlarPage() {
                 onClick={shareBookingLinkOnWhatsApp}
               >
                 <MessageCircle className="h-4 w-4" />
-                WhatsApp&apos;ta Paylaş
+                {t("settingsPage.shareWhatsAppButton")}
               </Button>
             </div>
             <details className="group">
@@ -489,7 +490,7 @@ export default function AyarlarPage() {
       </SectionCard>
 
       {/* Integrations */}
-      <SectionCard icon={Link2} title="Sosyal Medya & Entegrasyonlar">
+      <SectionCard icon={Link2} title={t("settingsPage.integrationsTitle")}>
         <div>
           <Label>Instagram Kullanıcı Adı</Label>
           <div className="flex mt-1">
@@ -543,7 +544,7 @@ export default function AyarlarPage() {
       <SectionCard
         icon={MessageCircle}
         iconClassName="text-green-600"
-        title="Otomatik Randevu Mesajı"
+        title={t("settingsPage.autoMessageTitle")}
         description="Yeni randevu oluşturulduğunda müşteriye gönderilen bilgilendirme metni. Tarih ve saat her randevuda otomatik doldurulur."
       >
         <div className="flex gap-1.5 flex-wrap items-center">
@@ -612,7 +613,7 @@ export default function AyarlarPage() {
       {/* Online randevu — otomatik onay */}
       <SectionCard
         icon={CalendarCheck}
-        title="Online Randevu Ayarları"
+        title={t("settingsPage.onlineBookingSettingsTitle")}
         description="Online randevu sayfanızdan (/r/...) gelen talepler varsayılan olarak onayınızı bekler."
       >
         {(org.plan === "pro" || org.plan === "business") ? (
@@ -641,7 +642,7 @@ export default function AyarlarPage() {
       <SectionCard
         icon={MessageCircle}
         iconClassName="text-green-600"
-        title="WhatsApp Bildirim Ayarları"
+        title={t("settingsPage.whatsappNotifTitle")}
         description="Randevu saatine yaklaşırken otomatik gönderilen hatırlatma ve iptal mesajlarının altına eklenen özel not."
       >
         <div className="space-y-4">
@@ -655,14 +656,42 @@ export default function AyarlarPage() {
             <label htmlFor="whatsapp_notifications_enabled" className="cursor-pointer flex-1">
               <p className="text-sm font-medium">Otomatik WhatsApp hatırlatmaları açık</p>
               <p className="text-xs text-muted-foreground">
-                Kapatırsanız aşağıda seçili sürelerde giden otomatik hatırlatma mesajları gönderilmez.
+                Kapatırsanız aşağıda seçili süre için giden otomatik hatırlatma mesajları gönderilmez.
               </p>
             </label>
           </div>
 
           <div className="space-y-1.5">
+            <Label>Hangi işlemler için WhatsApp bildirimi gönderilsin?</Label>
+            <div className="grid gap-2 pt-1 sm:grid-cols-3">
+              {(
+                [
+                  { key: "wa_notify_onay", label: "Randevu oluşturulunca" },
+                  { key: "wa_notify_revize", label: "Randevu revize edilince" },
+                  { key: "wa_notify_iptal", label: "Randevu iptal edilince" },
+                ] as const
+              ).map((ev) => {
+                const settings = (org.settings_json ?? {}) as Record<string, unknown>;
+                const checked = settings[ev.key] !== false; // default: işaretli
+                return (
+                  <label key={ev.key} className="flex items-center gap-2 p-2.5 rounded-lg border border-border text-sm cursor-pointer">
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(c) => {
+                        const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                        setField("settings_json", { ...cur, [ev.key]: !!c });
+                      }}
+                    />
+                    {ev.label}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
             <Label>Hatırlatma randevudan kaç saat önce gönderilsin?</Label>
-            <p className="text-xs text-muted-foreground">Birden fazla seçebilirsiniz — her seçili süre için ayrı bir hatırlatma gider.</p>
+            <p className="text-xs text-muted-foreground">Tek bir süre seçebilirsiniz — seçtiğinizde diğerleri pasif olur.</p>
             <div className="flex flex-wrap gap-3 pt-1">
               {WA_REMINDER_OFFSET_PRESETS.map((h) => {
                 const offsets = (org.wa_reminder_offsets_hours as number[] | undefined) ?? [2];
@@ -672,9 +701,8 @@ export default function AyarlarPage() {
                     <Checkbox
                       checked={checked}
                       onCheckedChange={(c) => {
-                        const cur = (org.wa_reminder_offsets_hours as number[] | undefined) ?? [2];
-                        const next = c ? [...cur, h] : cur.filter((x) => x !== h);
-                        setField("wa_reminder_offsets_hours", next.sort((a, b) => a - b));
+                        if (!c) return; // tekli seçim: mevcut seçili süre bırakılamaz, sadece değiştirilir
+                        setField("wa_reminder_offsets_hours", [h]);
                       }}
                     />
                     {h < 24 ? `${h} saat önce` : `${h / 24} gün önce`}
@@ -723,7 +751,7 @@ export default function AyarlarPage() {
       <SectionCard
         icon={MessageSquareText}
         iconClassName="text-blue-600"
-        title="SMS Bildirimleri"
+        title={t("settingsPage.smsNotifTitle")}
         description="Randevu onayı, hatırlatma ve iptal bildirimlerini SMS ile de gönderebilirsiniz. Bunun için bir SMS sağlayıcısında (Netgsm, VatanSMS veya İletimerkezi) hesap açıp API bilgilerinizi buraya girmeniz gerekir."
       >
         <div className="space-y-4">
@@ -801,7 +829,7 @@ export default function AyarlarPage() {
       {/* KVKK / Yasal Bildirim */}
       <SectionCard
         icon={ShieldCheck}
-        title="KVKK / Yasal Bildirim"
+        title={t("settingsPage.kvkkTitle")}
         description="Müşterilerinize randevu alırken gösterilecek KVKK aydınlatma metni. Boş bırakırsanız platform varsayılan metni kullanılır."
       >
         <textarea
@@ -822,7 +850,7 @@ export default function AyarlarPage() {
       <InstallPwaCard />
 
       {/* Working hours */}
-      <SectionCard icon={Clock} title="Çalışma Saatleri" description="Kapalı günler için açma/kapama saatlerini boş bırakın">
+      <SectionCard icon={Clock} title={t("settingsPage.workingHoursTitle")} description="Kapalı günler için açma/kapama saatlerini boş bırakın">
         <div className="space-y-2">
           {DAYS.map((day) => {
             const hours = (org.working_hours_json as Record<string, { open: string; close: string } | null>)?.[day.key];
@@ -872,12 +900,12 @@ export default function AyarlarPage() {
       </SectionCard>
 
       {/* Staff permissions */}
-      <SectionCard icon={ShieldCheck} title="Personel Yetkileri" description="Personel rolündeki çalışanların erişimini ayarlayın">
+      <SectionCard icon={ShieldCheck} title={tsp("cardTitle")} description={tsp("cardDesc")}>
         {[
           {
             key: "staff_phone_access",
-            label: "Müşteri telefon numaralarını görsün",
-            desc: "Personel, müşteri listesinde 📞 Ara ve 💬 WA butonlarını kullanabilsin",
+            label: tsp("phoneAccessLabel"),
+            desc: tsp("phoneAccessDesc"),
             default: true,
           },
         ].map((perm) => {
@@ -904,10 +932,10 @@ export default function AyarlarPage() {
 
         <div className="pt-2 border-t border-border space-y-2">
           <p className="text-xs font-medium text-muted-foreground pt-2">
-            Bireysel personel yetkileri (rol, izinler)
+            {tsp("individualTitle")}
           </p>
           {staffList.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-2">Henüz personel eklenmemiş.</p>
+            <p className="text-sm text-muted-foreground py-2">{tsp("noStaff")}</p>
           ) : (
             staffList.map((s) => (
               <Link
@@ -920,7 +948,7 @@ export default function AyarlarPage() {
                   <p className="text-xs text-muted-foreground">{s.role}</p>
                 </div>
                 <span className="inline-flex items-center gap-1 text-xs text-primary shrink-0">
-                  Yetkileri Düzenle
+                  {tsp("editLink")}
                   <ChevronRight className="h-3.5 w-3.5" />
                 </span>
               </Link>
@@ -931,7 +959,7 @@ export default function AyarlarPage() {
 
       <Button className="w-full gap-2 rounded-full" onClick={handleSave} disabled={saving}>
         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-        Kaydet
+        {t("settingsPage.saveButton")}
       </Button>
     </div>
   );

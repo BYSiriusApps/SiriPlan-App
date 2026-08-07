@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ interface SelectedService {
 }
 
 export default function YeniRandevuPage() {
+  const t = useTranslations("dashboard");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
@@ -200,14 +202,14 @@ export default function YeniRandevuPage() {
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Randevular</span>
-          <h1 className="text-xl font-bold brand-gradient-text leading-tight">Yeni Randevu</h1>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("apptNew.eyebrow")}</span>
+          <h1 className="text-xl font-bold brand-gradient-text leading-tight">{t("apptNew.title")}</h1>
         </div>
       </div>
 
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Randevu Bilgileri</CardTitle>
+          <CardTitle className="text-base">{t("apptNew.cardTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           {dataLoading ? (
@@ -456,7 +458,7 @@ export default function YeniRandevuPage() {
 
               <Button type="submit" className="w-full mt-2" disabled={loading || selectedServices.length === 0}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Randevu Oluştur
+                {t("apptNew.submitButton")}
                 {selectedServices.length > 0 && (
                   <span className="ml-2 opacity-80">· ₺{totalPrice.toLocaleString("tr-TR")}</span>
                 )}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -10,21 +11,22 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Phone, User, CheckCircle2, XCircle, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Appointment, AppointmentStatus } from "@/types/database";
-import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
+import { STATUS_LABEL_KEYS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
 
 type ApptWithRelations = Appointment & {
   staff?: { full_name: string };
   service?: { name: string; duration_minutes: number };
 };
 
-const QUICK_ACTIONS: { key: AppointmentStatus; label: string; icon: typeof CheckCircle2; className: string }[] = [
-  { key: "onaylandi", label: "Onayla", icon: CheckCircle2, className: "text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-900 dark:hover:bg-blue-900/20" },
-  { key: "tamamlandi", label: "Tamamlandı", icon: CheckCircle2, className: "text-green-600 border-green-200 hover:bg-green-50 dark:border-green-900 dark:hover:bg-green-900/20" },
-  { key: "gelmedi", label: "Gelmedi", icon: AlertCircle, className: "text-orange-600 border-orange-200 hover:bg-orange-50 dark:border-orange-900 dark:hover:bg-orange-900/20" },
-  { key: "iptal", label: "İptal Et", icon: XCircle, className: "text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20" },
+const QUICK_ACTIONS: { key: AppointmentStatus; labelKey: string; icon: typeof CheckCircle2; className: string }[] = [
+  { key: "onaylandi", labelKey: "approve", icon: CheckCircle2, className: "text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-900 dark:hover:bg-blue-900/20" },
+  { key: "tamamlandi", labelKey: "markCompleted", icon: CheckCircle2, className: "text-green-600 border-green-200 hover:bg-green-50 dark:border-green-900 dark:hover:bg-green-900/20" },
+  { key: "gelmedi", labelKey: "statusGelmedi", icon: AlertCircle, className: "text-orange-600 border-orange-200 hover:bg-orange-50 dark:border-orange-900 dark:hover:bg-orange-900/20" },
+  { key: "iptal", labelKey: "cancelAction", icon: XCircle, className: "text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20" },
 ];
 
 export function RandevuCard({ appt: initial, canQuickAct }: { appt: ApptWithRelations; canQuickAct: boolean }) {
+  const t = useTranslations("dashboard");
   const [appt, setAppt] = useState(initial);
   const [updating, setUpdating] = useState(false);
 
@@ -66,7 +68,7 @@ export function RandevuCard({ appt: initial, canQuickAct }: { appt: ApptWithRela
               <div className="flex items-center gap-2">
                 <p className="font-semibold truncate">{appt.customer_name}</p>
                 <Badge variant="outline" className={cn("text-[10px] shrink-0", STATUS_BADGE_CLASSES[appt.status])}>
-                  {STATUS_LABELS[appt.status]}
+                  {t(STATUS_LABEL_KEYS[appt.status])}
                 </Badge>
               </div>
               <div className="flex items-center flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-muted-foreground">
@@ -103,7 +105,7 @@ export function RandevuCard({ appt: initial, canQuickAct }: { appt: ApptWithRela
                 )}
               >
                 {updating ? <Loader2 className="h-3 w-3 animate-spin" /> : <a.icon className="h-3 w-3" />}
-                {a.label}
+                {t(a.labelKey)}
               </button>
             ))}
           </div>

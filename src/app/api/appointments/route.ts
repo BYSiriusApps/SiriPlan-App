@@ -36,6 +36,7 @@ const CreateSchema = z.object({
   marketing_consent: z.boolean().optional(),
   kvkk_notice_snapshot: z.string().optional(),
   kvkk_captured_via: z.enum(["inline_web", "staff_attested"]).optional(),
+  preferred_language: z.enum(["tr", "en", "ru", "ar"]).optional(),
 }).refine((d) => d.auto_assign_staff || !!d.staff_id, {
   message: "Personel seçimi zorunlu",
   path: ["staff_id"],
@@ -232,8 +233,12 @@ export async function POST(req: NextRequest) {
 
   if (existingCustomer) {
     customerId = existingCustomer.id;
-    if (consentFields) {
-      await adminSupabase.from("customers").update(consentFields).eq("id", customerId);
+    const customerUpdates = {
+      ...(consentFields ?? {}),
+      ...(data.preferred_language ? { preferred_language: data.preferred_language } : {}),
+    };
+    if (Object.keys(customerUpdates).length) {
+      await adminSupabase.from("customers").update(customerUpdates).eq("id", customerId);
     }
   } else {
     const { data: newCustomer } = await adminSupabase
@@ -244,6 +249,7 @@ export async function POST(req: NextRequest) {
         phone: data.customer_phone,
         email: data.customer_email,
         source: data.source,
+        preferred_language: data.preferred_language ?? null,
         ...(consentFields ?? {}),
       })
       .select("id")

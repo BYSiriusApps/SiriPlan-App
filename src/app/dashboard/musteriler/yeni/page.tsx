@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 
 export default function MusteriYeniPage() {
+  const t = useTranslations("dashboard");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -21,6 +24,7 @@ export default function MusteriYeniPage() {
     birth_date: "",
     gender: "",
     notes: "",
+    preferred_language: "",
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -39,6 +43,7 @@ export default function MusteriYeniPage() {
         birth_date: form.birth_date || null,
         gender: form.gender || null,
         notes: form.notes.trim() || null,
+        preferred_language: form.preferred_language || null,
       }),
     });
     setLoading(false);
@@ -59,12 +64,12 @@ export default function MusteriYeniPage() {
         <Link href="/dashboard/musteriler" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold brand-gradient-text">Yeni Müşteri Ekle</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">{t("customerNew.title")}</h1>
       </div>
 
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Müşteri Bilgileri</CardTitle>
+          <CardTitle className="text-base">{t("customerNew.cardTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -121,6 +126,22 @@ export default function MusteriYeniPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-1">
+                <Label>Tercih Edilen Dil</Label>
+                <Select
+                  value={form.preferred_language}
+                  onValueChange={(v) => setForm((f) => ({ ...f, preferred_language: v ?? "" }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Belirtilmedi" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_LANGUAGES.map((l) => (
+                      <SelectItem key={l.code} value={l.code}>{l.flag} {l.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="col-span-2 space-y-1">
                 <Label>Notlar</Label>
                 <Input
@@ -133,7 +154,7 @@ export default function MusteriYeniPage() {
 
             <Button type="submit" className="w-full mt-2" disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Müşteri Ekle
+              {t("customerNew.submitButton")}
             </Button>
           </form>
         </CardContent>

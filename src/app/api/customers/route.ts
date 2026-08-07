@@ -36,10 +36,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { full_name, phone, email, birth_date, gender, notes, tags } = body;
+  const { full_name, phone, email, birth_date, gender, notes, tags, preferred_language } = body;
 
   if (!full_name || !phone) {
     return NextResponse.json({ error: "Ad ve telefon zorunlu" }, { status: 400 });
+  }
+  if (preferred_language && !["tr", "en", "ru", "ar"].includes(preferred_language)) {
+    return NextResponse.json({ error: "Geçersiz dil" }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -60,6 +63,7 @@ export async function POST(req: NextRequest) {
       gender: gender || null,
       notes: notes || null,
       tags: tags || [],
+      preferred_language: preferred_language || null,
       source: "manual",
     })
     .select()

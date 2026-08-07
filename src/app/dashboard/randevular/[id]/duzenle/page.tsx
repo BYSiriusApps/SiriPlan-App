@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import type { Staff, Service } from "@/types/database";
 import { DateTimeSlotPicker, toLocalDateTimeValue } from "@/components/dashboard/DateTimeSlotPicker";
 
 export default function RandevuDuzenlePage() {
+  const t = useTranslations("dashboard");
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -89,12 +91,12 @@ export default function RandevuDuzenlePage() {
         <Link href={`/dashboard/randevular/${id}`} className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold brand-gradient-text">Randevu Düzenle</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">{t("apptEdit.title")}</h1>
       </div>
 
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Randevu Bilgilerini Güncelle</CardTitle>
+          <CardTitle className="text-base">{t("apptEdit.cardTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           {dataLoading ? (
@@ -204,7 +206,7 @@ export default function RandevuDuzenlePage() {
 
               <Button type="submit" className="w-full mt-2" disabled={loading}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Değişiklikleri Kaydet
+                {t("apptEdit.submitButton")}
               </Button>
             </form>
           )}

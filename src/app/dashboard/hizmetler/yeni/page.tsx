@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ const CATEGORIES = [
 type Tab = "catalog" | "manual";
 
 export default function YeniHizmetPage() {
+  const t = useTranslations("dashboard");
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("catalog");
   const [orgType, setOrgType] = useState("kuafor");
@@ -120,7 +122,7 @@ export default function YeniHizmetPage() {
         <Link href="/dashboard/hizmetler" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold brand-gradient-text">Hizmet Ekle</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">{t("serviceNew.title")}</h1>
       </div>
 
       {/* Tab switcher */}
@@ -132,7 +134,7 @@ export default function YeniHizmetPage() {
             tab === "catalog" ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground hover:border-primary/40"
           }`}
         >
-          <Sparkles className="h-4 w-4" /> Katalogdan Seç
+          <Sparkles className="h-4 w-4" /> {t("serviceNew.tabCatalog")}
         </button>
         <button
           type="button"
@@ -141,7 +143,7 @@ export default function YeniHizmetPage() {
             tab === "manual" ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground hover:border-primary/40"
           }`}
         >
-          <PenLine className="h-4 w-4" /> Manuel Gir
+          <PenLine className="h-4 w-4" /> {t("serviceNew.tabManual")}
         </button>
       </div>
 
@@ -201,7 +203,7 @@ export default function YeniHizmetPage() {
 
           {addedNames.size > 0 && (
             <Button variant="outline" className="w-full" onClick={() => router.push("/dashboard/hizmetler")}>
-              Tamamlandı — Hizmetler Sayfasına Dön ({addedNames.size} hizmet eklendi)
+              {t("serviceNew.doneButton")} ({addedNames.size})
             </Button>
           )}
         </div>
@@ -210,7 +212,7 @@ export default function YeniHizmetPage() {
       {tab === "manual" && (
         <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Manuel Hizmet</CardTitle>
+            <CardTitle className="text-base">{t("serviceNew.manualCardTitle")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleManualSubmit} className="space-y-4">
@@ -285,7 +287,7 @@ export default function YeniHizmetPage() {
 
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Hizmet Ekle
+                {t("serviceNew.submitButton")}
               </Button>
             </form>
           </CardContent>
@@ -303,6 +305,7 @@ function ServiceCatalogRow({
   loading: boolean;
   onAdd: () => void;
 }) {
+  const t = useTranslations("dashboard");
   return (
     <div className="data-row flex items-center justify-between px-3 py-2.5 rounded-lg border border-border/60 hover:bg-primary/5 transition-colors">
       <div className="flex-1 min-w-0">
@@ -319,7 +322,7 @@ function ServiceCatalogRow({
           onClick={onAdd}
           disabled={added || loading}
         >
-          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : added ? "✓ Eklendi" : <><Plus className="h-3 w-3 mr-1" />Ekle</>}
+          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : added ? `✓ ${t("serviceNew.addedButton")}` : <><Plus className="h-3 w-3 mr-1" />{t("serviceNew.addButton")}</>}
         </Button>
       </div>
     </div>

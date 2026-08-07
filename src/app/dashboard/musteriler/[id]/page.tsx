@@ -1,16 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect, notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle, Ban } from "lucide-react";
+import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle, Ban, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Customer, Appointment } from "@/types/database";
 import SendKvkkLinkButton from "./SendKvkkLinkButton";
 import BlockOnlineBookingToggle from "./BlockOnlineBookingToggle";
+import CustomerLanguageSelect from "./CustomerLanguageSelect";
+import { STATUS_LABEL_KEYS } from "@/lib/appointment-status";
+import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800";
@@ -18,17 +22,13 @@ function scoreColor(score: number) {
   return "bg-red-100 text-red-800";
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  talep: "Talep", onaylandi: "Onaylandı", tamamlandi: "Tamamlandı",
-  iptal: "İptal", gelmedi: "Gelmedi",
-};
-
 export default async function MusteriDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const t = await getTranslations("dashboard");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
@@ -64,7 +64,7 @@ export default async function MusteriDetailPage({
         <h1 className="text-xl font-bold brand-gradient-text">{c.full_name}</h1>
         <Badge className={cn("ml-auto text-xs", scoreColor(c.score))}>
           <Star className="h-3 w-3 mr-1 fill-current" />
-          {c.score} puan
+          {c.score} {t("customerDetail.scoreSuffix")}
         </Badge>
       </div>
 
@@ -72,7 +72,7 @@ export default async function MusteriDetailPage({
         {/* Contact */}
         <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">İletişim</CardTitle>
+            <CardTitle className="text-sm">{t("customerDetail.contactTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex items-center gap-2">
@@ -101,6 +101,17 @@ export default async function MusteriDetailPage({
                 <span>{format(new Date(c.birth_date), "d MMMM", { locale: tr })} doğumlu</span>
               </div>
             )}
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="text-xs text-muted-foreground">
+                {c.preferred_language
+                  ? SUPPORTED_LANGUAGES.find((l) => l.code === c.preferred_language)?.name ?? c.preferred_language
+                  : t("noLanguage")}
+              </span>
+              <div className="ml-auto">
+                <CustomerLanguageSelect customerId={c.id} preferredLanguage={c.preferred_language} />
+              </div>
+            </div>
             {c.notes && (
               <p className="text-muted-foreground text-xs pt-1 border-t">{c.notes}</p>
             )}
@@ -152,7 +163,7 @@ export default async function MusteriDetailPage({
         {/* Stats */}
         <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">İstatistikler</CardTitle>
+            <CardTitle className="text-sm">{t("customerDetail.statsTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3 text-sm">
             <div>
@@ -193,7 +204,7 @@ export default async function MusteriDetailPage({
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium flex items-center gap-1.5">
-              <Gift className="h-4 w-4 text-primary" /> Sadakat Kartı
+              <Gift className="h-4 w-4 text-primary" /> {t("customerDetail.loyaltyTitle")}
             </span>
             <span className="text-xs text-muted-foreground">{c.loyalty_punches}/10 — {c.loyalty_redeems} kullanım</span>
           </div>
@@ -214,11 +225,11 @@ export default async function MusteriDetailPage({
       {/* Appointment history */}
       <div>
         <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
-          <Calendar className="h-4 w-4" /> Randevu Geçmişi
+          <Calendar className="h-4 w-4" /> {t("customerDetail.historyTitle")}
         </h2>
         <div className="space-y-2">
           {!appointments || appointments.length === 0 ? (
-            <p className="text-muted-foreground text-sm text-center py-6">Randevu bulunamadı</p>
+            <p className="text-muted-foreground text-sm text-center py-6">{t("customerDetail.noAppointments")}</p>
           ) : (
             (appointments as (Appointment & { staff?: { full_name: string }; service?: { name: string } })[]).map((appt) => (
               <Link key={appt.id} href={`/dashboard/randevular/${appt.id}`}>
@@ -238,7 +249,7 @@ export default async function MusteriDetailPage({
                     <div className="text-right">
                       <p className="text-sm font-medium tabular-nums">₺{Number(appt.price).toLocaleString("tr-TR")}</p>
                       <Badge variant="outline" className="text-[10px]">
-                        {STATUS_LABELS[appt.status] || appt.status}
+                        {t(STATUS_LABEL_KEYS[appt.status] ?? "statusTalep")}
                       </Badge>
                     </div>
                 </div>

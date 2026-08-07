@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useRef, use } from "react";
+import { NextIntlClientProvider, useTranslations, type AbstractIntlMessages } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,15 +10,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, CheckCircle2, ChevronRight, ChevronLeft, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { format, addDays } from "date-fns";
-import { tr } from "date-fns/locale";
+import { format, addDays, type Locale as DateFnsLocale } from "date-fns";
+import { tr, enUS, ru, ar } from "date-fns/locale";
 import type { Service, Staff, Organization } from "@/types/database";
 import { renderKvkkNotice } from "@/lib/kvkk";
+import { SUPPORTED_LANGUAGES, isSupportedLanguage, type LanguageCode } from "@/lib/languages";
 
-const STEPS = ["Hizmet Seç", "Personel & Saat", "Bilgilerini Gir"];
+import trMessages from "../../../../messages/tr.json";
+import enMessages from "../../../../messages/en.json";
+import ruMessages from "../../../../messages/ru.json";
+import arMessages from "../../../../messages/ar.json";
+
+const MESSAGES: Record<LanguageCode, AbstractIntlMessages> = {
+  tr: trMessages as unknown as AbstractIntlMessages,
+  en: enMessages as unknown as AbstractIntlMessages,
+  ru: ruMessages as unknown as AbstractIntlMessages,
+  ar: arMessages as unknown as AbstractIntlMessages,
+};
+
+const DATE_FNS_LOCALES: Record<LanguageCode, DateFnsLocale> = { tr, en: enUS, ru, ar };
 
 export default function PublicBookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
+  // Varsayılan dil salonun kendi tercihine göre değişir (org.locale), müşteri
+  // telefonunu girdiğinde daha önce kaydettiği dil biliniyorsa ona geçilir —
+  // bkz. BookingWizard içindeki lookup effect'i. Elle seçilen bayrak butonu
+  // her zaman önceliklidir.
+  const [lang, setLang] = useState<LanguageCode>("tr");
+
+  return (
+    <NextIntlClientProvider locale={lang} messages={MESSAGES[lang]}>
+      <BookingWizard slug={slug} lang={lang} setLang={setLang} />
+    </NextIntlClientProvider>
+  );
+}
+
+function BookingWizard({
+  slug,
+  lang,
+  setLang,
+}: {
+  slug: string;
+  lang: LanguageCode;
+  setLang: (l: LanguageCode) => void;
+}) {
+  const t = useTranslations("booking.public");
+  const dateLocale = DATE_FNS_LOCALES[lang];
+  const manualLangOverride = useRef(false);
+
+  const STEPS = [t("stepService"), t("stepStaffTime"), t("stepYourInfo")];
 
   const [step, setStep] = useState(0);
   const [org, setOrg] = useState<Organization | null>(null);
@@ -49,8 +90,29 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
         setOrg(data as Organization);
         setServices((data.services || []).filter((s: Service) => s.is_active && s.is_bookable_online !== false));
         setStaff((data.staff || []).filter((s: Staff) => s.is_active));
+        if (!manualLangOverride.current && isSupportedLanguage(data.locale)) {
+          setLang(data.locale);
+        }
       });
-  }, [slug]);
+  }, [slug, setLang]);
+
+  // Dönen müşteri tespiti: telefon numarası yeterince uzunsa (10+ hane),
+  // daha önce kaydettiği dil tercihi varsa sayfayı o dile geçirir.
+  useEffect(() => {
+    const digits = form.phone.replace(/\D/g, "");
+    if (digits.length < 10 || !org) return;
+    const timeout = setTimeout(() => {
+      fetch(`/api/public/customer-language?slug=${org.slug}&phone=${encodeURIComponent(form.phone)}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (!manualLangOverride.current && d.preferred_language && isSupportedLanguage(d.preferred_language)) {
+            setLang(d.preferred_language);
+          }
+        })
+        .catch(() => {});
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [form.phone, org, setLang]);
 
   // Load available slots when date/staff/service changes — "Farketmez" seçiliyse
   // tüm personelin müsaitliğini birleştirip (union) tek bir saat listesi gösterir.
@@ -93,13 +155,14 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
         kvkk_consent: kvkkAccepted,
         marketing_consent: marketingAccepted,
         kvkk_notice_snapshot: renderKvkkNotice(org.kvkk_notice_text, org.name),
+        preferred_language: lang,
       }),
     });
     if (res.ok) {
       setDone(true);
     } else {
       const err = await res.json();
-      toast.error(err.error || "Bir hata oluştu.");
+      toast.error(err.error || t("genericError"));
     }
     setSubmitting(false);
   }
@@ -109,9 +172,29 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
     const d = addDays(new Date(), i);
     return {
       value: format(d, "yyyy-MM-dd"),
-      label: format(d, "d MMM, EEE", { locale: tr }),
+      label: format(d, "d MMM, EEE", { locale: dateLocale }),
     };
   });
+
+  function LanguageSwitcher() {
+    return (
+      <div className="flex items-center gap-1 shrink-0">
+        {SUPPORTED_LANGUAGES.map((l) => (
+          <button
+            key={l.code}
+            type="button"
+            title={l.name}
+            onClick={() => { manualLangOverride.current = true; setLang(l.code); }}
+            className={`text-base leading-none p-1.5 rounded-lg transition-all ${
+              lang === l.code ? "bg-primary/10 ring-1 ring-primary/30" : "opacity-50 hover:opacity-90"
+            }`}
+          >
+            {l.flag}
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   if (!org) {
     return (
@@ -120,7 +203,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
         <div className="absolute -bottom-32 -right-24 w-96 h-96 rounded-full bg-amber-200/30 dark:bg-purple-900/20 blur-3xl animate-soft-float" style={{ animationDelay: "-4s" }} />
         <div className="relative flex flex-col items-center gap-3">
           <Loader2 className="h-7 w-7 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground font-medium tracking-wide">Randevu sayfası yükleniyor…</p>
+          <p className="text-sm text-muted-foreground font-medium tracking-wide">{t("loadingPage")}</p>
         </div>
       </div>
     );
@@ -139,38 +222,38 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                 <CheckCircle2 className="h-9 w-9 text-white" strokeWidth={2.5} />
               </div>
             </div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/70 mb-1">Onaylandı</p>
-            <h2 className="font-heading text-3xl font-bold mb-2 text-balance">Randevunuz Hazır!</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/70 mb-1">{t("confirmedBadge")}</p>
+            <h2 className="font-heading text-3xl font-bold mb-2 text-balance">{t("successTitle")}</h2>
             <p className="text-muted-foreground mb-6 text-sm">
-              <span className="font-semibold text-foreground">{selectedService?.name}</span> için randevunuz oluşturuldu.
+              {t("successMessage", { service: selectedService?.name ?? "" })}
             </p>
             <div className="rounded-2xl border border-border/70 bg-muted/30 p-4 text-sm space-y-2.5 text-left mb-6">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-muted-foreground">Salon</span>
+                <span className="text-muted-foreground">{t("summarySalon")}</span>
                 <span className="font-medium text-right">{org.name}</span>
               </div>
               <div className="h-px bg-border/60" />
               <div className="flex items-center justify-between gap-3">
-                <span className="text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />Tarih</span>
-                <span className="font-medium text-right capitalize">{selectedDate && format(new Date(selectedDate + "T12:00:00"), "d MMMM yyyy, EEEE", { locale: tr })}</span>
+                <span className="text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{t("summaryDate")}</span>
+                <span className="font-medium text-right capitalize">{selectedDate && format(new Date(selectedDate + "T12:00:00"), "d MMMM yyyy, EEEE", { locale: dateLocale })}</span>
               </div>
               <div className="flex items-center justify-between gap-3">
-                <span className="text-muted-foreground flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />Saat</span>
+                <span className="text-muted-foreground flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />{t("summaryTime")}</span>
                 <span className="font-bold text-primary text-right">{selectedSlot}</span>
               </div>
               <div className="h-px bg-border/60" />
               <div className="flex items-center justify-between gap-3">
-                <span className="text-muted-foreground">Personel</span>
-                <span className="font-medium text-right">{anyStaff ? "Otomatik atanacak" : selectedStaff?.full_name}</span>
+                <span className="text-muted-foreground">{t("summaryStaff")}</span>
+                <span className="font-medium text-right">{anyStaff ? t("autoAssignLabel") : selectedStaff?.full_name}</span>
               </div>
               <div className="flex items-center justify-between gap-3">
-                <span className="text-muted-foreground">Hizmet</span>
+                <span className="text-muted-foreground">{t("summaryService")}</span>
                 <span className="font-medium text-right">{selectedService?.name}</span>
               </div>
             </div>
             <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              WhatsApp hatırlatması gönderilecek
+              {t("waReminderNote")}
             </p>
           </CardContent>
         </Card>
@@ -198,10 +281,11 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
               {org.name[0]}
             </div>
           )}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="font-heading font-bold text-xl leading-tight truncate">{org.name}</h1>
             {org.city && <p className="text-sm text-muted-foreground">{org.city}</p>}
           </div>
+          <LanguageSwitcher />
         </div>
       </div>
 
@@ -235,17 +319,17 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
         {step === 0 && (
           <div className="space-y-2.5">
             <div className="mb-5">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Adım 1</span>
-              <h2 className="font-heading text-2xl font-bold">Hizmet Seçin</h2>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">{t("step1Label")}</span>
+              <h2 className="font-heading text-2xl font-bold">{t("chooseServiceTitle")}</h2>
             </div>
             {services.length === 0 && (
               <div className="text-center py-10 px-4 rounded-2xl border border-dashed border-border bg-card/50">
                 <p className="text-sm text-muted-foreground">
-                  Şu anda online randevu alınabilecek bir hizmet bulunmuyor.
+                  {t("noServicesAvailable")}
                 </p>
                 {org.phone && (
                   <p className="text-sm text-muted-foreground mt-2">
-                    Randevu almak için bizi arayabilirsiniz:{" "}
+                    {t("callToBook")}{" "}
                     <a href={`tel:${org.phone}`} className="text-primary font-medium hover:underline">{org.phone}</a>
                   </p>
                 )}
@@ -265,7 +349,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                     {s.description && <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{s.description}</p>}
                     <div className="flex items-center gap-1.5 mt-1.5">
                       <Clock className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">{s.duration_minutes} dk</span>
+                      <span className="text-xs text-muted-foreground">{s.duration_minutes} {t("minutesShort")}</span>
                     </div>
                   </div>
                   <div className="text-right shrink-0 flex items-center gap-1">
@@ -286,21 +370,21 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <div>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Adım 2</span>
-                <h2 className="font-heading text-2xl font-bold leading-tight">Personel & Saat</h2>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">{t("step2Label")}</span>
+                <h2 className="font-heading text-2xl font-bold leading-tight">{t("stepStaffTime")}</h2>
               </div>
             </div>
 
             {selectedService && (
               <div className="flex items-center gap-2 p-3 rounded-2xl bg-primary/5 border border-primary/20">
                 <Badge variant="secondary" className="font-heading">{selectedService.name}</Badge>
-                <span className="text-sm text-muted-foreground tabular-nums">₺{Number(selectedService.price).toLocaleString("tr-TR")} • {selectedService.duration_minutes}dk</span>
+                <span className="text-sm text-muted-foreground tabular-nums">₺{Number(selectedService.price).toLocaleString("tr-TR")} • {selectedService.duration_minutes}{t("minutesShort")}</span>
               </div>
             )}
 
             {/* Staff selection */}
             <div>
-              <p className="text-sm font-semibold mb-2.5">Personel Seçin</p>
+              <p className="text-sm font-semibold mb-2.5">{t("chooseStaffTitle")}</p>
               <div className="grid grid-cols-2 gap-2.5">
                 <button
                   onClick={() => { setAnyStaff(true); setSelectedStaff(null); setSelectedSlot(""); }}
@@ -313,8 +397,8 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                       ?
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">Farketmez</p>
-                      <p className="text-xs text-muted-foreground truncate">Uygun ilk personel</p>
+                      <p className="text-sm font-medium truncate">{t("anyStaffLabel")}</p>
+                      <p className="text-xs text-muted-foreground truncate">{t("anyStaffDesc")}</p>
                     </div>
                   </div>
                 </button>
@@ -343,7 +427,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
             {/* Date selection */}
             {(selectedStaff || anyStaff) && (
               <div>
-                <p className="text-sm font-semibold mb-2.5">Tarih Seçin</p>
+                <p className="text-sm font-semibold mb-2.5">{t("chooseDateTitle")}</p>
                 <div className="flex gap-2 overflow-x-auto pb-2">
                   {dateOptions.map((d) => (
                     <button
@@ -364,14 +448,14 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
             {/* Time slots */}
             {selectedDate && (selectedStaff || anyStaff) && (
               <div>
-                <p className="text-sm font-medium mb-2">Saat Seçin</p>
+                <p className="text-sm font-medium mb-2">{t("chooseTimeTitle")}</p>
                 {loadingSlots ? (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Müsait saatler yükleniyor...</span>
+                    <span className="text-sm">{t("loadingSlots")}</span>
                   </div>
                 ) : slots.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-3">Bu tarihte müsait saat yok.</p>
+                  <p className="text-sm text-muted-foreground py-3">{t("noSlotsAvailable")}</p>
                 ) : (
                   <div className="grid grid-cols-4 gap-2">
                     {slots.map((slot) => (
@@ -396,7 +480,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                 className="w-full h-12 text-base font-semibold shadow-lg shadow-primary/20 gap-1.5 animate-fade-up"
                 onClick={() => setStep(2)}
               >
-                Devam Et <ChevronRight className="h-4 w-4" />
+                {t("continueButton")} <ChevronRight className="h-4 w-4" />
               </Button>
             )}
           </div>
@@ -410,8 +494,8 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <div>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">Adım 3</span>
-                <h2 className="font-heading text-2xl font-bold leading-tight">Bilgilerinizi Girin</h2>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/70">{t("step3Label")}</span>
+                <h2 className="font-heading text-2xl font-bold leading-tight">{t("enterInfoTitle")}</h2>
               </div>
             </div>
 
@@ -419,27 +503,27 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
             <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/8 to-accent/10 border border-primary/15 space-y-2 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                <span className="capitalize">{selectedDate && format(new Date(selectedDate + "T12:00:00"), "d MMMM yyyy, EEEE", { locale: tr })}</span>
+                <span className="capitalize">{selectedDate && format(new Date(selectedDate + "T12:00:00"), "d MMMM yyyy, EEEE", { locale: dateLocale })}</span>
                 <Clock className="h-4 w-4 ml-2" />
                 <span className="font-semibold text-foreground tabular-nums">{selectedSlot}</span>
               </div>
-              <p><span className="text-muted-foreground">Hizmet:</span> <span className="font-medium">{selectedService?.name}</span></p>
-              <p><span className="text-muted-foreground">Personel:</span> <span className="font-medium">{anyStaff ? "Otomatik atanacak" : selectedStaff?.full_name}</span></p>
+              <p><span className="text-muted-foreground">{t("serviceLabel")}</span> <span className="font-medium">{selectedService?.name}</span></p>
+              <p><span className="text-muted-foreground">{t("staffLabel")}</span> <span className="font-medium">{anyStaff ? t("autoAssignLabel") : selectedStaff?.full_name}</span></p>
               <p className="font-heading font-bold text-primary text-lg pt-1">₺{Number(selectedService?.price || 0).toLocaleString("tr-TR")}</p>
             </div>
 
             <div className="space-y-3.5">
               <div>
-                <Label>Adınız Soyadınız *</Label>
+                <Label>{t("nameLabel")}</Label>
                 <Input
-                  placeholder="Ad Soyad"
+                  placeholder={t("nameLabel")}
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   className="mt-1.5 h-11 rounded-xl"
                 />
               </div>
               <div>
-                <Label>Telefon *</Label>
+                <Label>{t("phoneLabel")}</Label>
                 <Input
                   type="tel"
                   placeholder="05xx xxx xxxx"
@@ -449,7 +533,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                 />
               </div>
               <div>
-                <Label>E-posta (opsiyonel)</Label>
+                <Label>{t("emailLabel")}</Label>
                 <Input
                   type="email"
                   placeholder="ornek@mail.com"
@@ -459,9 +543,9 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                 />
               </div>
               <div>
-                <Label>Not (opsiyonel)</Label>
+                <Label>{t("noteLabel")}</Label>
                 <Input
-                  placeholder="Özel istek veya notunuz..."
+                  placeholder={t("noteLabel")}
                   value={form.note}
                   onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
                   className="mt-1.5 h-11 rounded-xl"
@@ -478,10 +562,11 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                   onChange={(e) => setKvkkAccepted(e.target.checked)}
                 />
                 <span>
+                  {t("kvkkPrefix")}
                   <button type="button" className="text-primary underline underline-offset-2" onClick={(e) => { e.preventDefault(); setShowKvkkText((v) => !v); }}>
-                    KVKK Aydınlatma Metni
+                    {t("kvkkLinkText")}
                   </button>
-                  {"'ni okudum, onaylıyorum. *"}
+                  {t("kvkkSuffix")}
                 </span>
               </label>
               {showKvkkText && (
@@ -496,7 +581,7 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
                   checked={marketingAccepted}
                   onChange={(e) => setMarketingAccepted(e.target.checked)}
                 />
-                <span>Kampanya ve fırsatlardan haberdar olmak istiyorum (opsiyonel)</span>
+                <span>{t("marketingOptIn")}</span>
               </label>
             </div>
 
@@ -506,11 +591,11 @@ export default function PublicBookingPage({ params }: { params: Promise<{ slug: 
               disabled={!form.name || !form.phone || !kvkkAccepted || submitting}
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Randevuyu Onayla
+              {t("confirmButton")}
             </Button>
 
             <p className="text-xs text-center text-muted-foreground">
-              Randevunuz anında onaylanacak. WhatsApp hatırlatması gönderilecek.
+              {t("confirmHint")}
             </p>
           </div>
         )}

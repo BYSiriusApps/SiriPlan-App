@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,7 @@ interface Props {
 }
 
 export function HizmetlerClient({ initialServices, canEdit }: Props) {
+  const t = useTranslations("dashboard");
   const [services, setServices] = useState<Service[]>(initialServices);
   const [detailTarget, setDetailTarget] = useState<Service | null>(null);
   const [detailStaff, setDetailStaff] = useState<Staff[]>([]);
@@ -124,8 +126,8 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
               <Scissors className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Hizmet Kataloğu</span>
-              <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Hizmetler</h1>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("servicesPage.eyebrow")}</span>
+              <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("services")}</h1>
             </div>
             <HomeButton />
           </div>
@@ -135,7 +137,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
           href="/dashboard/hizmetler/yeni"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
         >
-          + Hizmet Ekle
+          {t("servicesPage.addButton")}
         </Link>
       </div>
 
@@ -169,12 +171,12 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                           </Badge>
                           {!service.is_active && (
                             <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                              Pasif
+                              {t("servicesPage.inactiveBadge")}
                             </Badge>
                           )}
                           {!service.is_bookable_online && (
                             <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                              Online'da gizli
+                              {t("servicesPage.hiddenOnlineBadge")}
                             </Badge>
                           )}
                         </div>
@@ -191,7 +193,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                           </p>
                           {service.contributes_loyalty && (
                             <p className="text-[10px] text-amber-600 flex items-center justify-end gap-0.5">
-                              <Star className="h-3 w-3 fill-amber-500" />puan kazandırır
+                              <Star className="h-3 w-3 fill-amber-500" />{t("servicesPage.loyaltyPointsHint")}
                             </p>
                           )}
                         </div>
@@ -208,7 +210,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
       {services.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
           <Scissors className="h-10 w-10 mx-auto mb-3 opacity-30" />
-          <p>Henüz hizmet eklenmemiş</p>
+          <p>{t("servicesPage.emptyText")}</p>
         </div>
       )}
 
@@ -236,14 +238,14 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                     <p className="text-2xl font-bold text-primary">
                       ₺{Number(detailTarget.price).toLocaleString("tr-TR")}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Fiyat</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t("servicesPage.detailPriceLabel")}</p>
                   </div>
                   <div className="rounded-xl bg-muted/50 border p-3 text-center">
                     <p className="text-2xl font-bold">
                       {detailTarget.duration_minutes}
                       <span className="text-sm font-normal text-muted-foreground">dk</span>
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Süre</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t("servicesPage.detailDurationLabel")}</p>
                   </div>
                 </div>
 
@@ -255,7 +257,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                 <div>
                   <p className="text-sm font-semibold flex items-center gap-1.5 mb-2">
                     <Users className="h-4 w-4" />
-                    Bu hizmeti yapan personel
+                    {t("servicesPage.staffListTitle")}
                   </p>
                   {loadingDetail ? (
                     <div className="flex items-center gap-2 text-muted-foreground text-sm py-2">
@@ -264,7 +266,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                     </div>
                   ) : detailStaff.length === 0 ? (
                     <p className="text-sm text-muted-foreground py-1">
-                      Bu hizmete henüz personel atanmamış.
+                      {t("servicesPage.noStaffAssigned")}
                     </p>
                   ) : (
                     <div className="space-y-2">
@@ -288,7 +290,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                   <div className="border-t pt-4">
                     {editing ? (
                       <div className="space-y-3">
-                        <p className="text-sm font-semibold">Hizmeti Düzenle</p>
+                        <p className="text-sm font-semibold">{t("servicesPage.editServiceTitle")}</p>
                         <div>
                           <Label>Hizmet Adı</Label>
                           <Input
@@ -331,11 +333,11 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                         </label>
                         <div className="flex gap-2">
                           <Button variant="outline" className="flex-1" onClick={() => setEditing(false)}>
-                            İptal
+                            {t("servicesPage.cancelButton")}
                           </Button>
                           <Button className="flex-1 gap-2" onClick={handleSave} disabled={saving}>
                             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                            Kaydet
+                            {t("servicesPage.saveButton")}
                           </Button>
                         </div>
                       </div>
@@ -343,12 +345,12 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                       <div className="flex gap-2">
                         <Button variant="outline" className="flex-1 gap-2" onClick={startEdit}>
                           <Pencil className="h-4 w-4" />
-                          Düzenle
+                          {t("servicesPage.editButton")}
                         </Button>
                         {confirmDelete ? (
                           <>
                             <Button variant="outline" className="flex-1" onClick={() => setConfirmDelete(false)}>
-                              Hayır
+                              {t("servicesPage.noButton")}
                             </Button>
                             <Button
                               variant="destructive"
@@ -357,7 +359,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                               disabled={deleting}
                             >
                               {deleting && <Loader2 className="h-4 w-4 animate-spin" />}
-                              Evet, Kaldır
+                              {t("servicesPage.confirmRemoveButton")}
                             </Button>
                           </>
                         ) : (
@@ -367,7 +369,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                             onClick={() => setConfirmDelete(true)}
                           >
                             <Trash2 className="h-4 w-4" />
-                            Kaldır
+                            {t("servicesPage.removeButton")}
                           </Button>
                         )}
                       </div>

@@ -8,6 +8,15 @@ export const STATUS_LABELS: Record<string, string> = {
   gelmedi: "Gelmedi",
 };
 
+/** dashboard.* çeviri anahtarları — t(STATUS_LABEL_KEYS[status]) ile kullanılır. */
+export const STATUS_LABEL_KEYS: Record<string, string> = {
+  talep: "statusTalep",
+  onaylandi: "statusOnaylandi",
+  tamamlandi: "statusTamamlandi",
+  iptal: "statusIptal",
+  gelmedi: "statusGelmedi",
+};
+
 export const STATUS_BADGE_CLASSES: Record<string, string> = {
   talep:      "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300",
   onaylandi:  "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300",

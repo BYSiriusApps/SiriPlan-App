@@ -35,7 +35,7 @@ export function RandevularHeader({ orgId, staff, services }: Props) {
           <LayoutList className="h-5 w-5" />
         </div>
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Randevular</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("appointments")}</span>
           <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("appointments")}</h1>
         </div>
         <HomeButton />

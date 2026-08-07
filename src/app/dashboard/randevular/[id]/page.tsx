@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect, notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +11,7 @@ import { ArrowLeft, Phone, User, Scissors, Clock, CreditCard, Pencil } from "luc
 import { cn } from "@/lib/utils";
 import type { Appointment } from "@/types/database";
 import ApptActions from "./appt-actions";
-import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
+import { STATUS_LABEL_KEYS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
 
 export default async function ApptDetailPage({
   params,
@@ -18,6 +19,7 @@ export default async function ApptDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const t = await getTranslations("dashboard");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
@@ -42,9 +44,9 @@ export default async function ApptDetailPage({
         <Link href="/dashboard/randevular" className="text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold brand-gradient-text">Randevu Detayı</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">{t("apptDetail.title")}</h1>
         <Badge variant="outline" className={cn("ml-auto", STATUS_BADGE_CLASSES[a.status])}>
-          {STATUS_LABELS[a.status]}
+          {t(STATUS_LABEL_KEYS[a.status])}
         </Badge>
         {a.status !== "tamamlandi" && a.status !== "iptal" && a.status !== "gelmedi" && (
           <Link
@@ -52,7 +54,7 @@ export default async function ApptDetailPage({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           >
             <Pencil className="h-3.5 w-3.5" />
-            Düzenle
+            {t("apptDetail.editButton")}
           </Link>
         )}
       </div>
@@ -142,7 +144,7 @@ export default async function ApptDetailPage({
           href={`/dashboard/musteriler/${a.customer_id}`}
           className="block text-sm text-primary hover:underline"
         >
-          Müşteri geçmişini görüntüle →
+          {t("apptDetail.customerHistoryLink")} →
         </Link>
       )}
 
