@@ -65,9 +65,26 @@ export default function YeniRandevuPage() {
   const [showServiceDropdown, setShowServiceDropdown] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [fromWaitlistId, setFromWaitlistId] = useState<string | null>(null);
 
   useEffect(() => {
     setFavorites(getFavorites());
+    // useSearchParams statik prerender'da Suspense istediği için window'dan okunur
+    const qs = new URLSearchParams(window.location.search);
+    const prefillName = qs.get("customer_name") || "";
+    const prefillPhone = qs.get("customer_phone") || "";
+    const prefillStaffId = qs.get("staff_id") || "";
+    const prefillServiceId = qs.get("service_id") || "";
+    setFromWaitlistId(qs.get("from_waitlist"));
+    if (prefillName || prefillPhone || prefillStaffId) {
+      setForm((f) => ({
+        ...f,
+        customer_name: prefillName || f.customer_name,
+        customer_phone: prefillPhone || f.customer_phone,
+        staff_id: prefillStaffId || f.staff_id,
+      }));
+    }
+
     Promise.all([
       fetch("/api/staff").then((r) => r.json()),
       fetch("/api/services").then((r) => r.json()),
@@ -82,6 +99,13 @@ export default function YeniRandevuPage() {
         setOrgLocationUrl(orgData.org?.location_url || "");
         const settings = (orgData.org?.settings_json ?? {}) as Record<string, unknown>;
         setWaTemplate(typeof settings.wa_appointment_template === "string" ? settings.wa_appointment_template : null);
+
+        if (prefillServiceId) {
+          const svc = (servicesData.services || []).find((s: Service) => s.id === prefillServiceId);
+          if (svc) {
+            setSelectedServices([{ id: svc.id, name: svc.name, price: Number(svc.price), duration_minutes: svc.duration_minutes }]);
+          }
+        }
       })
       .catch(() => toast.error("Veriler yüklenemedi"))
       .finally(() => setDataLoading(false));
@@ -168,6 +192,14 @@ export default function YeniRandevuPage() {
 
     if (res.ok) {
       toast.success("Randevu oluşturuldu");
+
+      if (fromWaitlistId) {
+        fetch(`/api/waitlist/${fromWaitlistId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "booked" }),
+        }).catch(() => {});
+      }
 
       // Otomatik WhatsApp mesajı: hazır metinle müşterinin sohbetini aç
       if (sendWaMessage && form.customer_phone) {

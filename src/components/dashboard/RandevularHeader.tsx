@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { QuickBookSheet } from "./QuickBookSheet";
 import { HomeButton } from "./HomeButton";
-import { LayoutList } from "lucide-react";
+import { LayoutList, ListPlus } from "lucide-react";
 
 interface StaffCard {
   id: string;
@@ -41,6 +41,13 @@ export function RandevularHeader({ orgId, staff, services }: Props) {
         <HomeButton />
       </div>
       <div className="flex items-center gap-2">
+        <Link
+          href="/dashboard/bekleme-listesi"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium hover:bg-accent transition-colors"
+        >
+          <ListPlus className="h-4 w-4" />
+          {t("waitlist")}
+        </Link>
         <Link
           href="/dashboard/randevular/yeni"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium hover:bg-accent transition-colors"

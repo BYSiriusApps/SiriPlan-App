@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Search, Plus, Sparkles, PenLine } from "lucide-react";
 import { SERVICE_CATALOG, searchCatalog, type CatalogService } from "@/lib/services/catalog";
+import { CURRENCIES } from "@/lib/currency";
 
 const CATEGORIES = [
   { value: "sac", label: "Saç" },
@@ -40,6 +41,7 @@ export default function YeniHizmetPage() {
     name: "",
     duration_minutes: "45",
     price: "",
+    currency: "TRY",
     category_tag: "genel",
     description: "",
     contributes_loyalty: true,
@@ -98,6 +100,7 @@ export default function YeniHizmetPage() {
         name: form.name.trim(),
         duration_minutes: parseInt(form.duration_minutes) || 30,
         price: form.price ? parseFloat(form.price) : 0,
+        currency: form.currency,
         category_tag: form.category_tag,
         description: form.description || null,
         contributes_loyalty: form.contributes_loyalty,
@@ -228,15 +231,25 @@ export default function YeniHizmetPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label>Fiyat (₺)</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={form.price}
-                    onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                    placeholder="örn. 500 (opsiyonel)"
-                  />
+                  <Label>Fiyat</Label>
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={form.price}
+                      onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+                      placeholder="örn. 500 (opsiyonel)"
+                    />
+                    <Select value={form.currency} onValueChange={(v) => v && setForm((f) => ({ ...f, currency: v }))}>
+                      <SelectTrigger className="w-[90px] shrink-0"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {CURRENCIES.map((c) => (
+                          <SelectItem key={c.value} value={c.value}>{c.value}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <p className="text-[11px] text-muted-foreground">
                     Boş bırakırsanız fiyat randevu tamamlanırken girilebilir.
                   </p>

@@ -71,6 +71,7 @@ Standart widget'lar:
   | Gelmedi | Müşteri randevuya gelmedi (no-show) |
 
 - Randevu detay sayfasından durum güncellenebilir, düzenlenebilir; düzenleme/iptal işlemlerinde de otomatik bildirim tetiklenir.
+- **Adisyon**: Randevu detayındaki "Adisyon" butonu, hizmet/fiyat/bahşiş/toplam ve ödeme yöntemini gösteren yazdırılabilir bir fiş açar (yazıcıya gönderme veya PDF olarak kaydetme).
 
 ## 5. Müşteri Yönetimi
 
@@ -89,6 +90,7 @@ Standart widget'lar:
 - **Personel Davet Et** akışıyla yeni personel e-posta/telefon ile panele davet edilir.
 - Her personelin **rolü** (örn. sahip, yönetici, personel) ve buna bağlı **varsayılan yetkileri** vardır; gerekirse kişi bazında özel yetki override'ı tanımlanabilir (iki katmanlı yetki sistemi: rol bazlı varsayılan + kişiye özel istisna).
 - Personel detay sayfasında çalışma saatleri, izinler ve panel dili tercihi (bildirimlerin hangi dilde gideceği) ayarlanır.
+- **Maaş Hesaplama**: Personel → "Maaş Hesapla" sayfasından, her personel için seçilen ay bazında sabit taban maaş + (tamamlanan randevu cirosu × komisyon oranı) + bahşişler toplanarak ödenecek tutar hesaplanır; "Gider Olarak Kaydet" ile tek tıkla Gelir-Gider'e işlenir. Taban maaş ve komisyon oranı personelin detay sayfasından tanımlanır.
 
 ## 8. Kampanyalar
 

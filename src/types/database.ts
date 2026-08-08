@@ -49,6 +49,8 @@ export interface Organization {
   sms_username: string | null;
   sms_password: string | null;
   sms_sender_id: string | null;
+  kdv_enabled: boolean;
+  kdv_rate: number;
   kvkk_notice_text: string | null;
   settings_json: Record<string, unknown>;
   created_at: string;
@@ -88,6 +90,7 @@ export interface Staff {
   start_time: string;
   end_time: string;
   commission_rate: number;
+  base_salary: number;
   display_order: number;
   created_at: string;
 }
@@ -99,6 +102,7 @@ export interface Service {
   description: string | null;
   duration_minutes: number;
   price: number;
+  currency: "TRY" | "USD" | "EUR";
   category_tag: string;
   contributes_loyalty: boolean;
   is_active: boolean;

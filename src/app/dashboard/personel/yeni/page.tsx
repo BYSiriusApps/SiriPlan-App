@@ -22,6 +22,7 @@ export default function PersonelYeniPage() {
     phone: "",
     email: "",
     commission_rate: "0",
+    base_salary: "0",
     start_time: "09:00",
     end_time: "18:00",
     working_days: [1, 2, 3, 4, 5] as number[],
@@ -48,6 +49,7 @@ export default function PersonelYeniPage() {
       body: JSON.stringify({
         ...form,
         commission_rate: (parseFloat(form.commission_rate) || 0) / 100,
+        base_salary: parseFloat(form.base_salary) || 0,
       }),
     });
     setLoading(false);
@@ -103,6 +105,17 @@ export default function PersonelYeniPage() {
                   max="100"
                   value={form.commission_rate}
                   onChange={(e) => setForm((f) => ({ ...f, commission_rate: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Sabit Taban Maaş (₺)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.base_salary}
+                  onChange={(e) => setForm((f) => ({ ...f, base_salary: e.target.value }))}
+                  placeholder="0"
                 />
               </div>
               <div className="space-y-1">

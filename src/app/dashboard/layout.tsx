@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { HelpAssistant } from "@/components/dashboard/HelpAssistant";
+import { AiAssistantProvider } from "@/components/dashboard/AiAssistantContext";
 import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -35,32 +36,38 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <div className="flex min-h-screen bg-background">
-        {/* Desktop sidebar — hidden on mobile */}
-        <div className="hidden md:flex">
-          <Sidebar
-            orgName={org.name}
-            plan={org.plan}
-            role={role}
-            trialEndsAt={org.trial_ends_at ?? undefined}
-            activeOrgId={org.id}
-            memberships={memberships}
-            isPlatformAdmin={isAdmin}
-          />
+      <AiAssistantProvider>
+        <div className="flex min-h-screen bg-background">
+          {/* Desktop sidebar — hidden on mobile and when printing (adisyon vb.) */}
+          <div className="hidden md:flex print:hidden">
+            <Sidebar
+              orgName={org.name}
+              plan={org.plan}
+              role={role}
+              trialEndsAt={org.trial_ends_at ?? undefined}
+              activeOrgId={org.id}
+              memberships={memberships}
+              isPlatformAdmin={isAdmin}
+            />
+          </div>
+
+          {/* Main content — add bottom padding on mobile for nav bar */}
+          <main className="dashboard-shell flex-1 overflow-auto pb-16 md:pb-0">
+            {children}
+          </main>
+
+          {/* Mobile bottom navigation */}
+          <div className="print:hidden">
+            <MobileNav role={role} orgSlug={org.slug} />
+          </div>
+
+          <div className="print:hidden">
+            <HelpAssistant />
+          </div>
+
+          <Toaster position="top-right" richColors />
         </div>
-
-        {/* Main content — add bottom padding on mobile for nav bar */}
-        <main className="dashboard-shell flex-1 overflow-auto pb-16 md:pb-0">
-          {children}
-        </main>
-
-        {/* Mobile bottom navigation */}
-        <MobileNav role={role} />
-
-        <HelpAssistant />
-
-        <Toaster position="top-right" richColors />
-      </div>
+      </AiAssistantProvider>
     </NextIntlClientProvider>
   );
 }

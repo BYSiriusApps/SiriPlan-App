@@ -3,10 +3,13 @@ import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { isSupportedLanguage } from "@/lib/languages";
 
-// Migration 009/014 uygulanmamış veritabanlarında PostgREST bu kolonu
-// tanımaz; personel kaydı dil tercihi olmadan yine de oluşturulabilsin.
+// Migration 009/014/20260808 uygulanmamış veritabanlarında PostgREST bu
+// kolonları tanımaz; personel kaydı bunlar olmadan yine de oluşturulabilsin.
 function isMissingLanguageColumn(message: string): boolean {
   return message.includes("preferred_language");
+}
+function isMissingBaseSalaryColumn(message: string): boolean {
+  return message.includes("base_salary");
 }
 
 export async function GET(req: NextRequest) {
@@ -30,7 +33,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { full_name, role, phone, email, commission_rate, start_time, end_time, working_days, preferred_language } = body;
+  const { full_name, role, phone, email, commission_rate, base_salary, start_time, end_time, working_days, preferred_language } = body;
 
   if (!full_name) return NextResponse.json({ error: "İsim zorunlu" }, { status: 400 });
 
@@ -78,6 +81,7 @@ export async function POST(req: NextRequest) {
     phone: phone || null,
     email: email || null,
     commission_rate: clampedRate,
+    base_salary: Math.max(0, parseFloat(base_salary) || 0),
     start_time: start_time || "09:00",
     end_time: end_time || "18:00",
     working_days: working_days || [1, 2, 3, 4, 5],
@@ -89,6 +93,10 @@ export async function POST(req: NextRequest) {
 
   if (error && isMissingLanguageColumn(error.message)) {
     delete insertRow.preferred_language;
+    ({ data, error } = await supabase.from("staff").insert(insertRow).select().single());
+  }
+  if (error && isMissingBaseSalaryColumn(error.message)) {
+    delete insertRow.base_salary;
     ({ data, error } = await supabase.from("staff").insert(insertRow).select().single());
   }
 

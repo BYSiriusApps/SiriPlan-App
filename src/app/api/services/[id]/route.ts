@@ -45,7 +45,7 @@ export async function PATCH(
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
 
-  const allowed = ["name", "price", "duration_minutes", "description", "category_tag", "is_active", "contributes_loyalty", "is_bookable_online"];
+  const allowed = ["name", "price", "currency", "duration_minutes", "description", "category_tag", "is_active", "contributes_loyalty", "is_bookable_online"];
   const updates: Record<string, unknown> = {};
   for (const key of allowed) {
     if (key in body) updates[key] = body[key];

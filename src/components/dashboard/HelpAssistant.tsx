@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { X, Send, Bot, Minimize2, LifeBuoy } from "lucide-react";
+import { useAiAssistant } from "./AiAssistantContext";
 
 interface Message {
   role: "user" | "assistant";
@@ -11,7 +12,7 @@ interface Message {
 
 export function HelpAssistant() {
   const t = useTranslations("dashboard.aiAssistant");
-  const [open, setOpen] = useState(false);
+  const { open, setOpen } = useAiAssistant();
   const [minimized, setMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([{ role: "assistant", text: t("greeting") }]);
   const [input, setInput] = useState("");
@@ -65,11 +66,13 @@ export function HelpAssistant() {
 
   return (
     <>
+      {/* Mobilde sabit yuvarlak buton kaldırıldı — "+ Randevu" düğmesiyle çakışıyordu.
+          Mobilde asistana soldan açılan menüden erişilir; masaüstünde buton kalır. */}
       {!open && (
         <button
           onClick={handleOpen}
           aria-label={t("openLabel")}
-          className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 w-14 h-14 rounded-full bg-primary shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all flex items-center justify-center"
+          className="hidden md:flex fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-primary shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all items-center justify-center"
         >
           <LifeBuoy className="w-6 h-6 text-white" />
         </button>

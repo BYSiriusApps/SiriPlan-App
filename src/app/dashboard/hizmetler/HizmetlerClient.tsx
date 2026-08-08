@@ -9,11 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { cn } from "@/lib/utils";
 import { Scissors, Clock, Star, Pencil, Loader2, Trash2, Users, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import type { Service, Staff } from "@/types/database";
+import { CURRENCIES, formatServicePrice } from "@/lib/currency";
 
 const CATEGORY_COLORS: Record<string, string> = {
   sac: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
@@ -41,7 +43,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [editForm, setEditForm] = useState({ name: "", price: "", duration_minutes: "", is_bookable_online: true });
+  const [editForm, setEditForm] = useState({ name: "", price: "", currency: "TRY", duration_minutes: "", is_bookable_online: true });
 
   async function openDetail(svc: Service) {
     setDetailTarget(svc);
@@ -68,6 +70,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
     setEditForm({
       name: detailTarget.name,
       price: String(detailTarget.price),
+      currency: detailTarget.currency ?? "TRY",
       duration_minutes: String(detailTarget.duration_minutes),
       is_bookable_online: detailTarget.is_bookable_online,
     });
@@ -84,6 +87,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
       body: JSON.stringify({
         name: editForm.name.trim(),
         price: parseFloat(editForm.price) || 0,
+        currency: editForm.currency,
         duration_minutes: parseInt(editForm.duration_minutes) || detailTarget.duration_minutes,
         is_bookable_online: editForm.is_bookable_online,
       }),
@@ -186,7 +190,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-right shrink-0">
-                          <p className="font-bold text-sm">₺{Number(service.price).toLocaleString("tr-TR")}</p>
+                          <p className="font-bold text-sm">{formatServicePrice(service.price, service.currency)}</p>
                           <p className="text-xs text-muted-foreground flex items-center justify-end gap-1">
                             <Clock className="h-3 w-3" />
                             {service.duration_minutes}dk
@@ -236,7 +240,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
                     <p className="text-2xl font-bold text-primary">
-                      ₺{Number(detailTarget.price).toLocaleString("tr-TR")}
+                      {formatServicePrice(detailTarget.price, detailTarget.currency)}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">{t("servicesPage.detailPriceLabel")}</p>
                   </div>
@@ -301,15 +305,24 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <Label>Fiyat (₺)</Label>
-                            <Input
-                              className="mt-1"
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              value={editForm.price}
-                              onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))}
-                            />
+                            <Label>Fiyat</Label>
+                            <div className="flex gap-1.5 mt-1">
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={editForm.price}
+                                onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))}
+                              />
+                              <Select value={editForm.currency} onValueChange={(v) => v && setEditForm((f) => ({ ...f, currency: v }))}>
+                                <SelectTrigger className="w-[86px] shrink-0"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  {CURRENCIES.map((c) => (
+                                    <SelectItem key={c.value} value={c.value}>{c.value}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
                           </div>
                           <div>
                             <Label>Süre (dk)</Label>

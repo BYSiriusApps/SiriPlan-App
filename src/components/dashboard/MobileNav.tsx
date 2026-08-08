@@ -5,9 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Calendar, BookOpen, Users, Settings } from "lucide-react";
-import { ThemePicker } from "@/components/layout/ThemePicker";
-import { LanguagePicker } from "@/components/layout/LanguagePicker";
-import { LogoutButtonMobile } from "@/components/dashboard/LogoutButton";
+import { MobileSideMenu } from "@/components/dashboard/MobileSideMenu";
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
 
@@ -19,7 +17,7 @@ const MOBILE_NAV = [
   { href: "/dashboard/ayarlar",    icon: Settings,        tKey: "settings",      minRole: "owner" },
 ];
 
-export function MobileNav({ role = "staff" }: { role?: string }) {
+export function MobileNav({ role = "staff", orgSlug }: { role?: string; orgSlug?: string }) {
   const pathname = usePathname();
   const t = useTranslations("dashboard");
   const userRank = ROLE_RANK[role] ?? 0;
@@ -50,16 +48,7 @@ export function MobileNav({ role = "staff" }: { role?: string }) {
         );
       })}
 
-      <div className="flex-1 flex flex-col items-center justify-center py-1">
-        <LanguagePicker variant="muted" />
-      </div>
-
-      <div className="flex-1 flex flex-col items-center justify-center py-1">
-        <ThemePicker />
-        <span className="text-[10px] font-medium text-muted-foreground mt-0.5">{t("theme")}</span>
-      </div>
-
-      <LogoutButtonMobile />
+      <MobileSideMenu role={role} orgSlug={orgSlug} />
     </nav>
   );
 }

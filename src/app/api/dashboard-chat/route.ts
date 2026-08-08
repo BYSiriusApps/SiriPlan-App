@@ -136,12 +136,23 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
       "Randevuyu \"Tamamlandı\" olarak işaretlerken ödeme yöntemini (Nakit/Kart/Havale/Diğer), varsa bahşişi ve hizmet fiyatı dışında alınan ekstra ücreti girebilirsiniz — bunlar otomatik olarak Gelir-Gider tablosuna işlenir.",
   },
   {
+    keywords: ["adisyon", "hesap fişi", "fiş yazdır", "fiş bas"],
+    answer:
+      "Randevu detay sayfasındaki \"Adisyon\" butonuyla, o randevuya ait hizmet, fiyat, bahşiş, toplam tutar ve ödeme yöntemini gösteren yazdırılabilir bir fiş açılır. Sağ üstteki \"Yazdır\" butonuyla doğrudan yazıcıya gönderebilir veya PDF olarak kaydedebilirsiniz.",
+  },
+  {
+    keywords: ["maaş hesap", "maaş öde", "personel maaş", "komisyon hesap", "taban maaş", "prim hesap"],
+    answer:
+      "Personel → \"Maaş Hesapla\" sayfasında, seçtiğiniz ay için her personelin ödemesini görürsünüz: sabit taban maaş + (o ay tamamlanan randevu cirosu × komisyon oranı) + bahşişler = toplam. " +
+      "Taban maaş ve komisyon oranını personelin kendi detay sayfasından düzenlersiniz. Hesaplanan toplamı \"Gider Olarak Kaydet\" butonuyla tek tıkla Gelir-Gider tablosuna işleyebilirsiniz.",
+  },
+  {
     keywords: ["ödeme yap", "abonelik", "plan seç", "starter", "pro plan", "business plan", "plan fiyat", "kredi kartı", "deneme süresi", "stripe"],
     answer:
       "14 gün ücretsiz deneme ile başlarsınız, kredi kartı gerekmez. Planlar:\n" +
-      "• Starter — 1 şube/3 personel, 300 randevu/ay, online randevu sayfası, WhatsApp hatırlatma, sadakat kartı, temel ciro raporu, CSV export.\n" +
-      "• Pro — sınırsız personel & randevu, kampanya modülü, müşteri skoru, Haftanın Elemanı, Google Calendar senkronizasyonu, bekleme listesi, PDF export, KDV hesaplama.\n" +
-      "• Business — sınırsız şube & personel, tüm Pro özellikleri, AI WhatsApp/IG asistanı, white-label, API erişimi, öncelikli destek, özel entegrasyonlar, özel hesap yöneticisi.\n" +
+      "• Starter — 1 şube/5 personel, 300 randevu/ay, online randevu sayfası, WhatsApp hatırlatma, sadakat kartı, temel ciro raporu, CSV export.\n" +
+      "• Pro — sınırsız personel & randevu, kampanya modülü, müşteri skoru, Haftanın Elemanı, bekleme listesi, PDF export, KDV hesaplama.\n" +
+      "• Business — sınırsız şube & personel, tüm Pro özellikleri, AI WhatsApp/IG asistanı, öncelikli destek, özel entegrasyonlar, özel hesap yöneticisi.\n" +
       "Deneme süresi dolmadan Ayarlar → Abonelik'ten plan seçip ödeme yapabilir, aktif abonelikte fatura/kart bilgilerinizi \"Stripe Müşteri Portalı\" butonundan yönetebilirsiniz.",
   },
   {

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
@@ -200,6 +200,8 @@ export default function AyarlarPage() {
         sms_username: org.sms_username,
         sms_password: org.sms_password,
         sms_sender_id: org.sms_sender_id,
+        kdv_enabled: org.kdv_enabled ?? false,
+        kdv_rate: org.kdv_rate ?? 20,
         has_auto_booking: org.has_auto_booking ?? false,
         kvkk_notice_text: org.kvkk_notice_text,
         settings_json: org.settings_json ?? {},
@@ -837,6 +839,45 @@ export default function AyarlarPage() {
           <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 text-xs text-muted-foreground space-y-1">
             <p className="font-medium text-blue-700 dark:text-blue-400">Maliyet hakkında</p>
             <p>SMS başına yaklaşık 0,08–0,20 TL arası (paket boyutuna göre) — sağlayıcı sitesinden kredi paketi satın almanız gerekir, aylık sabit ücret yoktur.</p>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* KDV Hesaplama */}
+      <SectionCard
+        icon={Percent}
+        iconClassName="text-amber-600"
+        title="KDV Hesaplama"
+        description="Gelir & Gider raporlarında tahmini KDV tutarını görmek için oranınızı girin. Girdiğiniz gelir tutarlarının KDV dahil olduğu varsayılır."
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
+            <Checkbox
+              id="kdv_enabled"
+              checked={org.kdv_enabled ?? false}
+              onCheckedChange={(checked) => setField("kdv_enabled", !!checked)}
+              className="mt-0.5"
+            />
+            <label htmlFor="kdv_enabled" className="cursor-pointer flex-1">
+              <p className="text-sm font-medium">KDV hesaplaması açık</p>
+              <p className="text-xs text-muted-foreground">
+                Açıkken Gelir & Gider sayfasında tahmini KDV tutarı gösterilir.
+              </p>
+            </label>
+          </div>
+
+          <div className="max-w-[160px]">
+            <Label>KDV Oranı (%)</Label>
+            <Input
+              className="mt-1"
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              value={org.kdv_rate ?? 20}
+              onChange={(e) => setField("kdv_rate", Number(e.target.value))}
+            />
+            <p className="text-xs text-muted-foreground mt-1">Türkiye&apos;de genel oran %20&apos;dir.</p>
           </div>
         </div>
       </SectionCard>

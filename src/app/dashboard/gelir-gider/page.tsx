@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import {
   TrendingUp, TrendingDown, Wallet, Plus, Trash2, Loader2,
   DollarSign, ArrowUpCircle, ArrowDownCircle, RefreshCw, Pencil,
-  ToggleLeft, ToggleRight, RepeatIcon, ChevronDown, ChevronUp,
+  ToggleLeft, ToggleRight, RepeatIcon, ChevronDown, ChevronUp, Percent,
 } from "lucide-react";
 
 type Expense = {
@@ -107,6 +107,19 @@ export default function GelirGiderPage() {
 
   const [form, setForm] = useState(EMPTY_FORM);
 
+  const [kdvEnabled, setKdvEnabled] = useState(false);
+  const [kdvRate, setKdvRate] = useState(20);
+
+  useEffect(() => {
+    fetch("/api/org")
+      .then((r) => r.json())
+      .then((d) => {
+        setKdvEnabled(!!d.org?.kdv_enabled);
+        setKdvRate(Number(d.org?.kdv_rate ?? 20));
+      })
+      .catch(() => {});
+  }, []);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     const url = viewMode === "yillik"
@@ -130,6 +143,8 @@ export default function GelirGiderPage() {
   const totalGelir = entries.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
   const totalGider = entries.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
   const netKar = totalGelir - totalGider;
+  // Girilen gelir tutarlarının KDV dahil olduğu varsayılır — brüt tutardan KDV payı ayrıştırılır.
+  const kdvTutari = kdvEnabled ? totalGelir * (kdvRate / (100 + kdvRate)) : 0;
 
   const visible = entries.filter((e) => filterType === "all" || e.type === filterType);
 
@@ -533,7 +548,7 @@ export default function GelirGiderPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className={`grid grid-cols-1 sm:grid-cols-3 ${kdvEnabled ? "lg:grid-cols-4" : ""} gap-4`}>
         <div className="kpi-tile p-5 flex items-center gap-4 bg-emerald-50/60 dark:bg-emerald-950/20">
           <div className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 shrink-0">
             <ArrowUpCircle className="h-5 w-5 text-emerald-600" />
@@ -568,6 +583,19 @@ export default function GelirGiderPage() {
             </p>
           </div>
         </div>
+
+        {kdvEnabled && (
+          <div className="kpi-tile p-5 flex items-center gap-4 bg-amber-50/60 dark:bg-amber-950/20">
+            <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/30 shrink-0">
+              <Percent className="h-5 w-5 text-amber-600" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">Tahmini KDV (%{kdvRate})</p>
+              <p className="text-2xl font-bold text-amber-700 dark:text-amber-400 tabular-nums tracking-tight">{fmt(kdvTutari)}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Gelir tutarının KDV dahil olduğu varsayılır</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Yıllık kümülatif tablo */}

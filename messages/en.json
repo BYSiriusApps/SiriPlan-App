@@ -83,7 +83,7 @@
       "name": "Starter",
       "desc": "Perfect starting point for small salons",
       "features": [
-        "1 location, 3 staff",
+        "1 location, 5 staff",
         "300 appointments/month",
         "Online booking page",
         "WhatsApp reminders",
@@ -98,11 +98,9 @@
       "features": [
         "1 location, unlimited staff",
         "Unlimited appointments",
-        "AI WhatsApp/IG assistant",
         "Campaign module",
         "Customer score system",
         "Staff of the Week gamification",
-        "Google Calendar sync",
         "Waiting list",
         "PDF report export",
         "VAT calculation"
@@ -115,8 +113,7 @@
         "Unlimited locations",
         "Unlimited staff",
         "All Pro features",
-        "White label (your own domain)",
-        "API access",
+        "AI WhatsApp/IG assistant",
         "Priority support",
         "Custom integrations",
         "Dedicated account manager"
@@ -252,6 +249,7 @@
     "overview": "Overview",
     "calendar": "Calendar",
     "appointments": "Appointments",
+    "waitlist": "Waitlist",
     "customers": "Customers",
     "staff": "Staff",
     "services": "Services",

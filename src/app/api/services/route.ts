@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, duration_minutes, price, category_tag, description, contributes_loyalty } = body;
+  const { name, duration_minutes, price, category_tag, description, contributes_loyalty, currency } = body;
 
   if (!name || !duration_minutes) {
     return NextResponse.json({ error: "Ad ve süre zorunlu" }, { status: 400 });
@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
       name,
       duration_minutes: parseInt(duration_minutes),
       price: price !== undefined && price !== null && price !== "" ? parseFloat(price) : 0,
+      currency: ["TRY", "USD", "EUR"].includes(currency) ? currency : "TRY",
       category_tag: category_tag || "genel",
       description: description || null,
       contributes_loyalty: contributes_loyalty ?? true,

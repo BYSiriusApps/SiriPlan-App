@@ -35,6 +35,7 @@ interface StaffData {
   phone: string | null;
   email: string | null;
   commission_rate: number;
+  base_salary: number;
   start_time: string;
   end_time: string;
   working_days: number[];
@@ -169,6 +170,7 @@ export default function PersonelDetayPage() {
     phone: "",
     email: "",
     commission_rate: "0",
+    base_salary: "0",
     start_time: "09:00",
     end_time: "18:00",
     working_days: [] as number[],
@@ -190,6 +192,7 @@ export default function PersonelDetayPage() {
           phone: s.phone || "",
           email: s.email || "",
           commission_rate: String(Math.round((s.commission_rate || 0) * 100)),
+          base_salary: String(s.base_salary ?? 0),
           start_time: s.start_time || "09:00",
           end_time: s.end_time || "18:00",
           working_days: s.working_days || [],
@@ -222,6 +225,7 @@ export default function PersonelDetayPage() {
       body: JSON.stringify({
         ...form,
         commission_rate: (parseFloat(form.commission_rate) || 0) / 100,
+        base_salary: parseFloat(form.base_salary) || 0,
         telegram_chat_id: form.telegram_chat_id || null,
         whatsapp_number: form.whatsapp_number || null,
         preferred_language: form.preferred_language || null,
@@ -315,6 +319,17 @@ export default function PersonelDetayPage() {
                   max="100"
                   value={form.commission_rate}
                   onChange={(e) => setForm((f) => ({ ...f, commission_rate: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Sabit Taban Maaş (₺)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.base_salary}
+                  onChange={(e) => setForm((f) => ({ ...f, base_salary: e.target.value }))}
+                  placeholder="0"
                 />
               </div>
               <div className="space-y-1">

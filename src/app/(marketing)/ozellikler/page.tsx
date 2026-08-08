@@ -25,7 +25,7 @@ const featureGroups = [
       {
         icon: Smartphone,
         title: "Bekleme Listesi",
-        desc: "Dolu saatlerde müşterileri bekleme listesine ekleyin. İptal olduğunda otomatik bildirim gidip sırası gelen müşteriyi davet edin.",
+        desc: "Dolu saatlerde müşterileri bekleme listesine ekleyin, tek tıkla bilgilendirin ve randevuya çevirin.",
         badge: "Pro+",
       },
       {
@@ -52,13 +52,13 @@ const featureGroups = [
         icon: Bot,
         title: "WhatsApp AI Asistanı",
         desc: "7/24 müşteri sorularını yanıtlar, randevu alır, ön ödeme toplar. Sizi uyandırmaz, işinizi yürütür.",
-        badge: "Pro+",
+        badge: "Business",
       },
       {
         icon: MessageSquare,
         title: "Instagram DM Otomasyonu",
         desc: "\"Fiyatlarınız nedir?\" sorularına anında yanıt. Randevu linkini DM üzerinden paylaşır.",
-        badge: "Pro+",
+        badge: "Business",
       },
       {
         icon: Bell,
@@ -129,7 +129,7 @@ const featureGroups = [
       {
         icon: BarChart3,
         title: "Gerçek Zamanlı Ciro Dashboard",
-        desc: "Bugünkü, bu haftaki ve bu ayki gelirinizi anlık takip edin. KDV dahil/hariç filtreleme.",
+        desc: "Bugünkü, bu haftaki ve bu ayki gelirinizi anlık takip edin. Tahmini KDV tutarını otomatik görün.",
         badge: "Tüm Planlar",
       },
       {

@@ -83,7 +83,7 @@
       "name": "Starter",
       "desc": "Küçük salonlar için mükemmel başlangıç",
       "features": [
-        "1 şube, 3 personel",
+        "1 şube, 5 personel",
         "300 randevu/ay",
         "Online randevu sayfası",
         "WhatsApp hatırlatma",
@@ -98,11 +98,9 @@
       "features": [
         "1 şube, sınırsız personel",
         "Sınırsız randevu",
-        "AI WhatsApp/IG asistanı",
         "Kampanya modülü",
         "Müşteri skoru sistemi",
         "Haftanın Elemanı gamification",
-        "Google Calendar sync",
         "Bekleme listesi",
         "PDF rapor export",
         "KDV hesaplama"
@@ -115,8 +113,7 @@
         "Sınırsız şube",
         "Sınırsız personel",
         "Tüm Pro özellikleri",
-        "Beyaz etiket (kendi domaininiz)",
-        "API erişimi",
+        "AI WhatsApp/IG asistanı",
         "Öncelikli destek",
         "Özel entegrasyonlar",
         "Dedicated account manager"
@@ -252,6 +249,7 @@
     "overview": "Genel Bakış",
     "calendar": "Takvim",
     "appointments": "Randevular",
+    "waitlist": "Bekleme Listesi",
     "customers": "Müşteriler",
     "staff": "Personel",
     "services": "Hizmetler",

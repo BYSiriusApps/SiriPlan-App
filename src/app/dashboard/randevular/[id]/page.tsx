@@ -7,7 +7,7 @@ import { tr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { ArrowLeft, Phone, User, Scissors, Clock, CreditCard, Pencil } from "lucide-react";
+import { ArrowLeft, Phone, User, Scissors, Clock, CreditCard, Pencil, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Appointment } from "@/types/database";
 import ApptActions from "./appt-actions";
@@ -48,6 +48,13 @@ export default async function ApptDetailPage({
         <Badge variant="outline" className={cn("ml-auto", STATUS_BADGE_CLASSES[a.status])}>
           {t(STATUS_LABEL_KEYS[a.status])}
         </Badge>
+        <Link
+          href={`/dashboard/randevular/${id}/adisyon`}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+        >
+          <Receipt className="h-3.5 w-3.5" />
+          Adisyon
+        </Link>
         {a.status !== "tamamlandi" && a.status !== "iptal" && a.status !== "gelmedi" && (
           <Link
             href={`/dashboard/randevular/${id}/duzenle`}

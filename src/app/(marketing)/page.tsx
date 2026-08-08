@@ -220,7 +220,7 @@ export default async function HomePage() {
               return (
                 <Card
                   key={plan.key}
-                  className={`relative ${plan.highlight ? "border-primary shadow-lg shadow-primary/10 scale-[1.02]" : "border-border"}`}
+                  className={`relative overflow-visible ${plan.highlight ? "border-primary shadow-lg shadow-primary/10 scale-[1.02] z-10" : "border-border"}`}
                 >
                   {plan.highlight && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">

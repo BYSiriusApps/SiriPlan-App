@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { UserCog, Phone, Mail } from "lucide-react";
+import { UserCog, Phone, Mail, Wallet } from "lucide-react";
 import { ContactLinks } from "@/components/dashboard/ContactLinks";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { StaffInviteDialog } from "@/components/dashboard/StaffInviteDialog";
@@ -90,6 +90,13 @@ export default async function PersonelPage() {
         </div>
         {(m.role === "owner" || !!member.permissions_json?.manage_staff) && (
           <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard/personel/maas-hesaplama"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-accent transition-colors"
+            >
+              <Wallet className="h-4 w-4" />
+              Maaş Hesapla
+            </Link>
             <StaffInviteDialog
               staffList={(staff || []).map((s) => ({ id: s.id, full_name: s.full_name }))}
             />
