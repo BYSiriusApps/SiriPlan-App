@@ -89,8 +89,10 @@
         "WhatsApp reminders",
         "Loyalty card system",
         "Basic revenue report",
-        "Data export (CSV)"
-      ]
+        "Data export (CSV)",
+        "Email support"
+      ],
+      "notIncluded": ["AI WhatsApp assistant", "Campaign module", "Customer score system"]
     },
     "pro": {
       "name": "Pro",
@@ -104,7 +106,8 @@
         "Waiting list",
         "PDF report export",
         "VAT calculation"
-      ]
+      ],
+      "notIncluded": ["AI WhatsApp/IG assistant"]
     },
     "business": {
       "name": "Business",
@@ -116,7 +119,8 @@
         "AI WhatsApp/IG assistant",
         "Priority support",
         "Custom integrations",
-        "Dedicated account manager"
+        "Dedicated account manager",
+        "SLA guarantee"
       ]
     }
   },
@@ -153,6 +157,242 @@
       "desc": "Our team migrates your data with a guarantee",
       "price": "$99 one-time"
     }
+  },
+  "pricingPage": {
+    "metaDescription": "Siriplan pricing — Starter $39/mo, Pro $69/mo, Business $119/mo. 14-day free trial, no credit card required.",
+    "heroBadge": "14-Day Free Trial — No Credit Card Required",
+    "heroTitle": "Transparent Pricing,",
+    "heroTitleHighlight": "No Surprises",
+    "heroSubtitle": "Choose a plan that fits your business size. Upgrade, downgrade, or cancel anytime.",
+    "faqTitle": "Frequently Asked Questions",
+    "faq": {
+      "q1": "Is the 14-day trial really free?",
+      "a1": "Yes, no credit card required. Use all Pro features for 14 days, and continue if you like it.",
+      "q2": "Can I cancel anytime?",
+      "a2": "Always. No long-term contracts or penalties. You can cancel your subscription instantly from the dashboard.",
+      "q3": "Will I lose my data?",
+      "a3": "No. Even if you cancel, you can access your data for 30 days and download it as JSON/Excel.",
+      "q4": "How does billing work?",
+      "a4": "Secure payment via Stripe. Choose monthly or annual billing. Save 18% with annual billing.",
+      "q5": "Can I manage multiple locations?",
+      "a5": "You can manage unlimited locations on the Business plan. Starter/Pro can be extended with the Extra Location add-on."
+    },
+    "ctaTitle": "Still Undecided?",
+    "ctaSubtitle": "Request a demo — our team will walk you through the best plan for your salon in 30 minutes.",
+    "ctaPrimary": "Try It Free",
+    "ctaSecondary": "Request a Demo"
+  },
+  "featuresPage": {
+    "metaDescription": "All of Siriplan's features — AI booking, customer management, campaign module, revenue analytics, and much more.",
+    "heroBadge": "30+ Features — One Platform",
+    "heroTitle": "Everything to Grow",
+    "heroTitleHighlight": "Your Salon, Right Here",
+    "heroSubtitle": "From appointment automation to AI assistants, customer scoring to gamification — every tool to take your business to the next level, all under one roof.",
+    "ctaTrial": "Try Free for 14 Days",
+    "ctaPricing": "See Pricing",
+    "badgeAll": "All Plans",
+    "badgePro": "Pro+",
+    "badgeBusiness": "Business",
+    "groups": {
+      "booking": {
+        "category": "Appointment Management",
+        "items": {
+          "multiChannel": { "title": "Multi-Channel Online Booking", "desc": "Take bookings 24/7 via website, WhatsApp, Instagram DM, and QR code. Automatic conflict detection — double-booking never happens." },
+          "waitlist": { "title": "Waiting List", "desc": "Add customers to the waiting list when slots are full, notify them with one click, and convert them to appointments." },
+          "qr": { "title": "QR Code Booking", "desc": "Stick it on your salon door or print it on business cards. Customers scan and their appointment is ready." },
+          "reminders": { "title": "Automatic Reminders", "desc": "WhatsApp, SMS, and email reminders before appointments. Reduce your no-show rate by 60%." }
+        }
+      },
+      "ai": {
+        "category": "AI & Automation",
+        "items": {
+          "whatsappAI": { "title": "WhatsApp AI Assistant", "desc": "Answers customer questions 24/7, books appointments, collects deposits. Doesn't wake you up, runs your business." },
+          "instagramDm": { "title": "Instagram DM Automation", "desc": "Instant replies to \"What are your prices?\" questions. Shares the booking link via DM." },
+          "birthday": { "title": "Birthday Campaigns", "desc": "Sends automatic special offer messages on customer birthdays. Personalized, timely, effective." }
+        }
+      },
+      "crm": {
+        "category": "Customer & CRM",
+        "items": {
+          "score": { "title": "Customer Score (0-100)", "desc": "Automatic score for every customer based on visit frequency, spending, and loyalty. Recognize your most valuable customers." },
+          "loyalty": { "title": "Loyalty Card", "desc": "Customizable reward system like 10 appointments = 1 free service. Increases customer retention." },
+          "campaigns": { "title": "Campaign Module", "desc": "Win back inactive customers, run campaigns on special days. Targeted WhatsApp/SMS delivery." }
+        }
+      },
+      "staff": {
+        "category": "Staff Management",
+        "items": {
+          "staffOfWeek": { "title": "Staff of the Week", "desc": "Weekly ranking based on appointment count, customer satisfaction, and revenue. Motivation skyrockets." },
+          "badges": { "title": "Monthly Badges", "desc": "Badges like \"Champion of the Month\" and \"Customer Favorite\" gamify your staff." },
+          "commission": { "title": "Commission Tracking", "desc": "Automatically calculates each staff member's monthly revenue, commission, and payroll." }
+        }
+      },
+      "finance": {
+        "category": "Reports & Finance",
+        "items": {
+          "dashboard": { "title": "Real-Time Revenue Dashboard", "desc": "Track today's, this week's, and this month's revenue instantly. See estimated VAT automatically." },
+          "pdfExcel": { "title": "PDF & Excel Reports", "desc": "PDF for your accountant, Excel for your own analysis. Ready reports in one click." },
+          "stripe": { "title": "Stripe Payments", "desc": "Pre-payment, subscription, or one-time payment before appointments. Card support for 100+ countries." }
+        }
+      },
+      "tech": {
+        "category": "Technical & Security",
+        "items": {
+          "kvkk": { "title": "KVKK-Compliant Infrastructure", "desc": "Customer data is stored in compliance with Turkish KVKK regulations. End-to-end encryption." },
+          "migration": { "title": "Easy Data Migration", "desc": "One-click import from your existing booking software or Excel. Data loss never happens." },
+          "portability": { "title": "Data Portability", "desc": "Download all your data as JSON, Excel, or CSV anytime. You're never locked into any platform." },
+          "multilingual": { "title": "Multi-Language & Multi-Currency", "desc": "TR, EN, RU, AR language support. Pricing in TRY, USD, EUR." },
+          "uptime": { "title": "99.9% Uptime Guarantee", "desc": "Built on BY Sirius Group infrastructure. Maintenance is announced in advance, zero downtime is the goal." }
+        }
+      }
+    },
+    "finalCta": {
+      "title": "Try All Features Free for 14 Days",
+      "subtitle": "No credit card required. Cancel anytime. Your data is always yours.",
+      "button": "Create Free Account"
+    }
+  },
+  "integrationsPage": {
+    "metaDescription": "Siriplan integrations — WhatsApp, Instagram, Google Calendar, Stripe, and more.",
+    "heroEyebrow": "Integrations",
+    "heroTitle": "All Your Tools",
+    "heroTitleHighlight": "In One Platform",
+    "heroSubtitle": "From WhatsApp to Google Calendar, Stripe to Instagram — seamless integration with the apps you already use.",
+    "statusActive": "Active",
+    "statusSoon": "Coming Soon",
+    "items": {
+      "whatsapp": { "name": "WhatsApp Business", "category": "Messaging", "desc": "Send automatic reminders, appointment confirmations, and campaign messages to customers. 24/7 replies with the AI assistant." },
+      "instagram": { "name": "Instagram DM", "category": "Social Media", "desc": "AI-powered automatic replies to Instagram DMs. Appointment questions, pricing info, and routing." },
+      "googleCalendar": { "name": "Google Calendar", "category": "Calendar", "desc": "Sync appointments with your staff's Google Calendar. Automatic conflict alerts." },
+      "stripe": { "name": "Stripe", "category": "Payments", "desc": "Secure pre-payments and subscription management. Card support in 100+ countries, automatic invoicing." },
+      "email": { "name": "Email (Resend)", "category": "Notifications", "desc": "Appointment confirmation, reminder, and campaign emails. Customizable HTML templates." },
+      "googleAnalytics": { "name": "Google Analytics", "category": "Analytics", "desc": "Track your online booking page's traffic, conversions, and user behavior." },
+      "sms": { "name": "SMS Notifications", "category": "Messaging", "desc": "Send SMS reminders and confirmations to customers who don't use WhatsApp. Connects with your own Netgsm, VatanSMS, or İletimerkezi account." },
+      "qr": { "name": "QR Code", "category": "Booking", "desc": "Stick a QR code on your salon door or business card — customers book directly." },
+      "ai": { "name": "OpenAI / Claude AI", "category": "Artificial Intelligence", "desc": "Powerful language model infrastructure for the WhatsApp, Instagram, and in-panel AI assistant." }
+    },
+    "missingTitle": "Missing an Integration?",
+    "missingDesc": "Suggest the integration you need — active users get priority on the list.",
+    "missingButton": "Send a Suggestion",
+    "ctaTitle": "Try All Integrations Free",
+    "ctaSubtitle": "All integrations are included during your 14-day trial.",
+    "ctaButton": "Start Free"
+  },
+  "aboutPage": {
+    "metaDescription": "Learn about BY Sirius Group Ai & Technology Co Ltd. and Siriplan.",
+    "heroTitle": "Taking Your Business",
+    "heroTitleHighlight": "Into the Future, with Technology",
+    "heroSubtitle": "Siriplan is an AI-powered appointment and business management platform developed under <strong>BY Sirius Group Ai & Technology Co Ltd.</strong>, serving more than 10 industries.",
+    "aboutTitle": "Who Is BY Sirius Group?",
+    "aboutP1": "<strong>BY Sirius Group Ai & Technology Co Ltd.</strong> is a technology company operating in artificial intelligence, SaaS solutions, and digital transformation. Since our founding, we have been building innovative products to make businesses' digitalization journey easier.",
+    "aboutP2": "As BY Sirius Group Ai & Technology Co Ltd.'s flagship product, Siriplan provides appointment management and operational efficiency for a wide range of industries — from hair salons to clinics, barbershops to spas.",
+    "websiteButton": "bysirius.com",
+    "stats": {
+      "sectors": "Industries Supported",
+      "businesses": "Active Businesses",
+      "uptime": "Uptime Guarantee",
+      "support": "AI Support"
+    },
+    "valuesTitle": "Our Values",
+    "values": {
+      "innovation": { "title": "Innovation", "desc": "We maximize business efficiency with AI and automation technologies." },
+      "reliability": { "title": "Reliability", "desc": "We stand by you with KVKK-compliant infrastructure, end-to-end encryption, and a 99.9% uptime guarantee." },
+      "customerFocus": { "title": "Customer Focus", "desc": "We build solutions by understanding the unique needs of every industry." },
+      "globalVision": { "title": "Global Vision", "desc": "From Turkey to the world — we support international growth with our multilingual platform." }
+    },
+    "ctaTitle": "Have Questions?",
+    "ctaSubtitle": "Get in touch with our team, let's find the best solution for you together.",
+    "ctaContact": "Contact Us"
+  },
+  "contactPage": {
+    "metaDescription": "Get in touch with the Siriplan team. Let us answer your questions and find the best solution for you together.",
+    "heroEyebrow": "Contact",
+    "heroTitle": "How Can We",
+    "heroTitleHighlight": "Help You?",
+    "heroSubtitle": "Get in touch with our team for your questions. Our average response time is 2 hours.",
+    "infoTitle": "Contact Information",
+    "info": {
+      "email": { "label": "Email" },
+      "phone": { "label": "Phone / WhatsApp" },
+      "address": { "label": "Address", "value": "BY Sirius Group Ai & Technology Co Ltd., Turkey" },
+      "hours": { "label": "Business Hours", "value": "Mon–Fri 09:00–18:00" }
+    },
+    "whatsappCtaTitle": "Message Us on WhatsApp",
+    "whatsappCtaDesc": "Preferred channel for a fast response",
+    "formTitle": "Send a Message",
+    "formSubtitle": "We'll get back to you within 2 hours.",
+    "fieldName": "Full Name",
+    "fieldNamePlaceholder": "Your name",
+    "fieldPhone": "Phone",
+    "fieldEmail": "Email",
+    "fieldEmailPlaceholder": "email@domain.com",
+    "fieldSubject": "Subject",
+    "fieldSubjectPlaceholder": "How can we help?",
+    "fieldMessage": "Your Message",
+    "fieldMessagePlaceholder": "Share the details, let's find the best solution for you...",
+    "kvkkConsent": "I have read and accept the <kvkkLink>KVKK Disclosure Notice</kvkkLink> and <gizlilikLink>Privacy Policy</gizlilikLink>.",
+    "submitButton": "Send Message",
+    "otherChannelsTitle": "Other Support Channels",
+    "emailSupport": "Email Support",
+    "whatsappSupport": "WhatsApp Support",
+    "bySirius": "BY Sirius Group"
+  },
+  "faqPage": {
+    "metaDescription": "All the frequently asked questions and answers about Siriplan. Booking, pricing, technical support, and more.",
+    "heroEyebrow": "FAQ",
+    "heroTitle": "Frequently Asked",
+    "heroTitleHighlight": "Questions",
+    "heroSubtitle": "If you can't find what you're looking for, reach us via WhatsApp or email.",
+    "categories": {
+      "general": {
+        "title": "General",
+        "items": {
+          "q1": { "q": "What is Siriplan?", "a": "Siriplan is an AI-powered appointment and business management platform built for hair salons, barbershops, beauty salons, spas, clinics, and more. It's developed by BY Sirius Group Ai & Technology Co Ltd." },
+          "q2": { "q": "Which industries does it serve?", "a": "We offer tailored solutions for 10+ industries, including hair salons, barbershops, beauty salons, spa & massage, nail salons, aesthetic clinics, makeup studios, tattoo studios, dietitians, and brow & lash studios." },
+          "q3": { "q": "Can I use the app in English?", "a": "Yes. The platform supports Turkish, English, Russian, and Arabic. You can change your language preference in settings." },
+          "q4": { "q": "Can I manage multiple locations?", "a": "Yes. You can manage unlimited locations on the Business plan. Starter and Pro plans have an extra-location add-on option." }
+        }
+      },
+      "pricing": {
+        "title": "Pricing & Trial",
+        "items": {
+          "q1": { "q": "Is the 14-day trial really free?", "a": "Yes, no credit card information is required. You can use all Pro plan features free for 14 days." },
+          "q2": { "q": "Are the prices in dollars?", "a": "Prices are in USD. Payment is processed securely via Stripe. Please contact us for payment in Turkish lira." },
+          "q3": { "q": "Can I cancel anytime?", "a": "Yes, you can cancel anytime with no commitment or penalty. Even after cancelling, you keep access to and can download your data for 30 days." },
+          "q4": { "q": "How much do I save with the annual plan?", "a": "An 18% discount applies with annual billing. For example, the Pro plan is $57/mo (billed $684/yr) instead of $69/mo." }
+        }
+      },
+      "booking": {
+        "title": "Booking & Customers",
+        "items": {
+          "q1": { "q": "How do customers book appointments?", "a": "They can book 24/7 via the website, WhatsApp, Instagram DM, and QR code. Conflict checking is automatic." },
+          "q2": { "q": "How does the WhatsApp reminder work?", "a": "A WhatsApp message is sent to the customer at set times before the appointment (e.g. 24 hours, 2 hours before). It reduces your no-show rate by up to 60%." },
+          "q3": { "q": "What does the customer score system do?", "a": "Every customer is assigned a score from 0-100 based on visit frequency, spending, and loyalty. You can recognize your valuable customers and offer them priority booking and special deals." },
+          "q4": { "q": "Is there a waiting list?", "a": "Yes, the waiting list feature is available. Add customers to the queue when slots are full, notify them with one click, and convert them to appointments." }
+        }
+      },
+      "ai": {
+        "title": "AI & Automation",
+        "items": {
+          "q1": { "q": "What does the AI assistant do?", "a": "It reads WhatsApp and Instagram DMs 24/7, answers pricing and booking questions, and books appointments on the customer's behalf. Your business keeps running while you sleep." },
+          "q2": { "q": "Can the AI assistant give wrong information?", "a": "The AI assistant only answers based on the services, prices, and availability you've defined. It routes questions beyond that to \"Please contact us directly.\"" },
+          "q3": { "q": "How does the campaign module work?", "a": "Build a customer list based on specific criteria (haven't visited in 3 months, upcoming birthdays, etc.) and send bulk WhatsApp/SMS/email messages." }
+        }
+      },
+      "tech": {
+        "title": "Technical & Security",
+        "items": {
+          "q1": { "q": "Can I move my data to another system?", "a": "Yes. You can download all your data in JSON, Excel, or CSV format anytime. You're never locked into any platform." },
+          "q2": { "q": "Can I import data from my current system?", "a": "Yes. One-click data import from your current booking software or Excel is supported. With our Professional Data Migration service, our team can do it for you." },
+          "q3": { "q": "Is it KVKK-compliant?", "a": "Yes. Customer data is stored in compliance with KVKK regulations, end-to-end encryption is applied, and data can be processed on servers in Turkey." },
+          "q4": { "q": "Does the app go down?", "a": "We target 99.9% uptime on BY Sirius Group infrastructure. Planned maintenance is announced in advance and usually takes place at night." }
+        }
+      }
+    },
+    "contactCtaTitle": "Couldn't Find Your Answer?",
+    "contactCtaSubtitle": "Our team gets back to you within 2 hours. You can choose WhatsApp for a faster response.",
+    "contactButton": "Contact Us",
+    "whatsappButton": "Message on WhatsApp"
   },
   "categories": {
     "title": "What's Your Business?",

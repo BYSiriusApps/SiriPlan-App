@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Mail, Lock, Zap } from "lucide-react";
+import { Loader2, Mail, Lock, Eye, EyeOff, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 // Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (handleDemoLogin) korunuyor.
@@ -18,6 +18,7 @@ export default function GirisPage() {
   const [demoLoading, setDemoLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
   async function doLogin(identifier: string, p: string, remember = true) {
@@ -127,13 +128,22 @@ export default function GirisPage() {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="password"
-                type="password"
-                placeholder="••••••••"
-                className="pl-9"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                className="pl-9 pr-9"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                tabIndex={-1}
+                aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
           <div className="flex items-center gap-2">

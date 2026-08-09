@@ -5,6 +5,7 @@ import { Building2, Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -71,7 +72,9 @@ export function OrgSwitcher({ activeOrgId, memberships }: Props) {
         <ChevronsUpDown className="h-3 w-3 shrink-0 opacity-50" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-60">
-        <DropdownMenuLabel className="text-xs">İşletmeleriniz</DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-xs">İşletmeleriniz</DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {memberships.map((m) => (
           <DropdownMenuItem

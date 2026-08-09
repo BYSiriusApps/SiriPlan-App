@@ -9,8 +9,10 @@ export function toWaPhone(phone: string) {
 
 /**
  * Kart içinde (Link ile sarılı alanlarda) kullanılan ara / WhatsApp /
- * e-posta kısayolları. Server component'te onClick kullanılamadığı için
- * client component — tıklamada kartın kendi navigasyonunu durdurur.
+ * e-posta kısayolları. `<button>` olarak render edilir (`<a>` değil) —
+ * bu bileşen her zaman bir `<Link>`/`<a>` içine yerleştirildiği için,
+ * içeride de `<a>` kullanmak geçersiz "a içinde a" HTML iç içeliği
+ * yaratıp hydration hatasına ve tıklamaların bozulmasına yol açıyordu.
  */
 export function ContactLinks({
   phone,
@@ -22,41 +24,48 @@ export function ContactLinks({
   size?: "sm" | "md";
 }) {
   const icon = size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5";
-  const stop = (e: React.MouseEvent) => e.stopPropagation();
+
+  function go(e: React.MouseEvent, href: string, external?: boolean) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (external) {
+      window.open(href, "_blank", "noopener,noreferrer");
+    } else {
+      window.location.href = href;
+    }
+  }
 
   return (
     <span className="inline-flex gap-1 shrink-0">
       {phone && (
         <>
-          <a
-            href={`tel:${phone}`}
+          <button
+            type="button"
             title="Ara"
             className="p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 transition-colors"
-            onClick={stop}
+            onClick={(e) => go(e, `tel:${phone}`)}
           >
             <Phone className={icon} />
-          </a>
-          <a
-            href={`https://wa.me/${toWaPhone(phone)}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          </button>
+          <button
+            type="button"
             title="WhatsApp"
             className="p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20 text-green-500 transition-colors"
-            onClick={stop}
+            onClick={(e) => go(e, `https://wa.me/${toWaPhone(phone)}`, true)}
           >
             <MessageCircle className={icon} />
-          </a>
+          </button>
         </>
       )}
       {email && (
-        <a
-          href={`mailto:${email}`}
+        <button
+          type="button"
           title="E-posta gönder"
           className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-primary transition-colors"
-          onClick={stop}
+          onClick={(e) => go(e, `mailto:${email}`)}
         >
           <Mail className={icon} />
-        </a>
+        </button>
       )}
     </span>
   );

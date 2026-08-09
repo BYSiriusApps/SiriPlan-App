@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember, getMemberships, isPlatformAdmin } from "@/lib/active-org";
+import { getSubscriptionLock } from "@/lib/subscription-lock";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { HelpAssistant } from "@/components/dashboard/HelpAssistant";
 import { AiAssistantProvider } from "@/components/dashboard/AiAssistantContext";
+import { SubscriptionLockBanner } from "@/components/dashboard/SubscriptionLockBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -21,12 +23,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!org) redirect("/auth/kayit");
 
-  if (org.plan === "trial" && org.trial_ends_at) {
-    const trialEnd = new Date(org.trial_ends_at);
-    if (trialEnd < new Date()) {
-      redirect("/auth/plan-sec?expired=1");
-    }
-  }
+  // Deneme süresi dolan veya ödemesi başarısız olan işletmeler paneli
+  // görüntülemeye devam edebilir (redirect yok); yeni işlemler proxy.ts'te
+  // API seviyesinde engellenir. Burada sadece uyarı şeridi gösterilir.
+  const subscriptionLock = getSubscriptionLock(org);
 
   const [memberships, isAdmin, messages] = await Promise.all([
     getMemberships(supabase),
@@ -53,6 +53,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
           {/* Main content — add bottom padding on mobile for nav bar */}
           <main className="dashboard-shell flex-1 overflow-auto pb-16 md:pb-0">
+            {subscriptionLock.locked && subscriptionLock.reason && (
+              <SubscriptionLockBanner reason={subscriptionLock.reason} />
+            )}
             {children}
           </main>
 

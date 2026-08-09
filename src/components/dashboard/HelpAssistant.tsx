@@ -67,12 +67,13 @@ export function HelpAssistant() {
   return (
     <>
       {/* Mobilde sabit yuvarlak buton kaldırıldı — "+ Randevu" düğmesiyle çakışıyordu.
-          Mobilde asistana soldan açılan menüden erişilir; masaüstünde buton kalır. */}
+          Mobilde asistana soldan açılan menüden erişilir; masaüstünde sol alt köşede kalır
+          (sağ alt köşe ana sayfadaki sabit "+ Randevu" düğmesine ayrılmış, bkz. dashboard/page.tsx). */}
       {!open && (
         <button
           onClick={handleOpen}
           aria-label={t("openLabel")}
-          className="hidden md:flex fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-primary shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all items-center justify-center"
+          className="hidden md:flex fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full bg-primary shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all items-center justify-center"
         >
           <LifeBuoy className="w-6 h-6 text-white" />
         </button>
@@ -80,7 +81,7 @@ export function HelpAssistant() {
 
       {open && (
         <div
-          className={`fixed z-40 right-4 md:right-6 transition-all duration-300 shadow-2xl shadow-black/20 rounded-2xl border border-border overflow-hidden flex flex-col bg-background ${
+          className={`fixed z-40 left-4 md:left-6 transition-all duration-300 shadow-2xl shadow-black/20 rounded-2xl border border-border overflow-hidden flex flex-col bg-background ${
             minimized
               ? "bottom-20 md:bottom-6 w-72 h-14"
               : "bottom-20 md:bottom-6 w-[calc(100vw-2rem)] sm:w-[360px] h-[70vh] max-h-[520px]"
