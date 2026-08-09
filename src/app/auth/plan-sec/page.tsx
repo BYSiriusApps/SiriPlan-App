@@ -4,8 +4,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle, Mail, Phone, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { isMobileAppUserAgent } from "@/lib/mobile-app-shared";
+
+const SUPPORT_EMAIL = "destek@siriplan.com";
+const SUPPORT_PHONE = "+905355032634";
 
 const PLANS = [
   {
@@ -73,11 +77,16 @@ export default function PlanSecPage() {
   // null = bilinmiyor (henüz yüklenmedi), true = deneme aktif, false = süresi dolmuş
   const [trialActive, setTrialActive] = useState<boolean | null>(null);
   const [expired, setExpired] = useState(false);
+  // Native mobil uygulama (App Store/Play Store) mağaza kurallarına uymak için
+  // fiyat/satın alma arayüzü göstermez — yalnızca client-side'da anlaşılabilir
+  // çünkü bu sayfa "use client" (bkz. lib/mobile-app-shared.ts).
+  const [mobileApp, setMobileApp] = useState(false);
 
   // ?expired=1 — dashboard süresi dolduğu için yönlendirdiyse banner göster
   // (useSearchParams statik prerender'da Suspense istediği için window'dan okunur)
   useEffect(() => {
     setExpired(new URLSearchParams(window.location.search).get("expired") === "1");
+    setMobileApp(isMobileAppUserAgent(navigator.userAgent));
   }, []);
 
   // Aktif işletmenin deneme durumunu öğren — "devam et" davranışını belirler
@@ -141,9 +150,74 @@ export default function PlanSecPage() {
     window.location.href = "/dashboard";
   }
 
+  // Native mobil uygulama: mağaza kurallarına uymak için fiyat, "Satın Al"
+  // butonu veya ödeme sayfasına link göstermeyiz. Deneme hâlâ aktifse tek
+  // seçenek "ücretsiz denemeye devam et"; deneme dolmuşsa yalnızca destek
+  // iletişimi sunulur (bkz. MobileTrialEndedScreen — dashboard'a girince
+  // zaten aynı ekranı görecek, burada da tutarlı davranıyoruz).
+  if (mobileApp) {
+    const trialEnded = expired || trialActive === false;
+    return (
+      <div className="relative min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30">
+        <a
+          href="/dashboard"
+          className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Panele Dön
+        </a>
+        <div className="w-full max-w-sm text-center space-y-5">
+          <h1 className="text-xl font-bold">
+            {trialEnded ? "Deneme Süreniz Sona Erdi" : "14 Gün Ücretsiz Deneme"}
+          </h1>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {trialEnded
+              ? "Hesabınızı yeniden etkinleştirmek için müşteri destek ekibimizle iletişime geçin."
+              : "Panele erişmeye hemen başlayabilirsiniz. Plan yükseltme ve ödeme işlemleri web sitemiz üzerinden yapılır."}
+          </p>
+
+          {trialEnded ? (
+            <div className="space-y-2.5">
+              <a
+                href={`tel:${SUPPORT_PHONE}`}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+              >
+                <Phone className="h-4 w-4" />
+                Bizi Arayın
+              </a>
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-border font-medium hover:bg-accent transition-colors"
+              >
+                <Mail className="h-4 w-4" />
+                {SUPPORT_EMAIL}
+              </a>
+            </div>
+          ) : (
+            <button
+              onClick={handleTrial}
+              disabled={trialLoading}
+              className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {trialLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              Panele Git
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 py-12 px-4">
       <div className="max-w-5xl mx-auto">
+        <a
+          href="/dashboard"
+          className="inline-flex items-center gap-1.5 mb-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Panele Dön
+        </a>
         <div className="text-center mb-10">
           {(expired || trialActive === false) && (
             <div className="max-w-lg mx-auto mb-6 flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 px-4 py-3 text-left">

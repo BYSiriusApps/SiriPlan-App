@@ -224,6 +224,54 @@ export async function sendBirthdayEmail(data: {
   });
 }
 
+export async function sendTrialEndingEmail(data: {
+  to: string;
+  orgName: string;
+  ownerName?: string;
+  daysLeft: number; // 2 = bitmeye 2 gün kala, 0 = bittiği gün
+}) {
+  if (!emailEnabled()) return;
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
+  const upgradeLink = `${appUrl}/auth/plan-sec`;
+  const isToday = data.daysLeft <= 0;
+
+  const content = `
+    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">
+      ${isToday ? "⏳ Ücretsiz Deneme Süreniz Bugün Sona Eriyor" : "⏳ Ücretsiz Deneme Süreniz 2 Gün Sonra Sona Eriyor"}
+    </h2>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
+      Merhaba ${data.ownerName ? `<strong>${esc(data.ownerName)}</strong>, ` : ""}<strong>${esc(data.orgName)}</strong> için 14 günlük ücretsiz deneme süreniz
+      ${isToday ? "bugün doluyor." : "2 gün içinde dolacak."}
+    </p>
+
+    <p style="margin:0 0 20px;font-size:14px;color:#374151;line-height:1.6;">
+      Randevu takviminize, müşteri kayıtlarınıza ve tüm verilerinize erişiminizin kesintisiz devam etmesi için
+      bir plan seçmeniz yeterli — verileriniz güvende, hiçbir şey silinmiyor.
+    </p>
+
+    <a href="${upgradeLink}"
+       style="display:inline-block;padding:12px 28px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+      siriplan.com'da Plan Seç →
+    </a>
+
+    <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
+      Sorularınız için <a href="mailto:destek@siriplan.com" style="color:#e11d48;text-decoration:none;">destek@siriplan.com</a> adresinden veya
+      <a href="https://wa.me/905355032634" style="color:#25D366;text-decoration:none;">WhatsApp</a> üzerinden ulaşabilirsiniz.<br/>
+      İyi çalışmalar! ✨
+    </p>
+  `;
+
+  await getResend().emails.send({
+    from: `Siriplan <${FROM}>`,
+    to: data.to,
+    subject: isToday
+      ? `⏳ Deneme Süreniz Bugün Doluyor — ${data.orgName}`
+      : `⏳ Deneme Süreniz 2 Gün Sonra Doluyor — ${data.orgName}`,
+    html: baseLayout(content, "Siriplan"),
+  });
+}
+
 export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: number) {
   if (!emailEnabled()) return;
 

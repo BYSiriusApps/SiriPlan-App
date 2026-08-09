@@ -1,13 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
+import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, CreditCard, Zap, Sparkles, Building2 } from "lucide-react";
+import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail } from "lucide-react";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import Link from "next/link";
+
+const SUPPORT_EMAIL = "destek@siriplan.com";
 
 const PLAN_DETAILS = {
   trial: { name: "Deneme", icon: Zap, color: "text-gray-600" },
@@ -23,6 +26,8 @@ export default async function AbonelikPage() {
 
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
+
+  const mobileApp = await isMobileApp();
 
   const org = (member as unknown as { org_id: string; organizations: Record<string, unknown> }).organizations as {
     plan: string; subscription_status: string; trial_ends_at?: string;
@@ -111,32 +116,31 @@ export default async function AbonelikPage() {
         </CardContent>
       </Card>
 
-      {/* Actions */}
-      <div className="space-y-3">
-        {org.plan === "trial" || org.plan === "starter" ? (
-          <Link
-            href="/auth/plan-sec"
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
-          >
-            <Sparkles className="h-4 w-4" />
-            Pro'ya Yükselt
-          </Link>
-        ) : null}
-
-        {org.plan !== "trial" && (
-          <form action="/api/stripe/portal" method="POST">
-            <button
-              type="submit"
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-border font-medium hover:bg-accent transition-colors"
+      {/* Actions — mobil uygulamada mağaza kurallarına uymak için fiyat/ödeme
+          linki gösterilmez, yalnızca destek iletişimi sunulur. */}
+      {mobileApp ? (
+        <a
+          href={`mailto:${SUPPORT_EMAIL}`}
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-border font-medium hover:bg-accent transition-colors"
+        >
+          <Mail className="h-4 w-4" />
+          Plan değişikliği için destek ile iletişime geçin
+        </a>
+      ) : (
+        <div className="space-y-3">
+          {org.plan === "trial" || org.plan === "starter" ? (
+            <Link
+              href="/auth/plan-sec"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
             >
-              <CreditCard className="h-4 w-4" />
-              Stripe Müşteri Portalı
-            </button>
-          </form>
-        )}
-      </div>
+              <Sparkles className="h-4 w-4" />
+              Pro'ya Yükselt
+            </Link>
+          ) : null}
+        </div>
+      )}
 
-      {org.plan === "trial" && (
+      {org.plan === "trial" && !mobileApp && (
         <p className="text-xs text-center text-muted-foreground">
           Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir.
           Plan seçmeden önce kredi kartı gerekmez.

@@ -1,12 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember, getMemberships, isPlatformAdmin } from "@/lib/active-org";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
+import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { HelpAssistant } from "@/components/dashboard/HelpAssistant";
 import { AiAssistantProvider } from "@/components/dashboard/AiAssistantContext";
 import { SubscriptionLockBanner } from "@/components/dashboard/SubscriptionLockBanner";
+import { MobileTrialEndedScreen } from "@/components/dashboard/MobileTrialEndedScreen";
 import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -28,11 +30,25 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // API seviyesinde engellenir. Burada sadece uyarı şeridi gösterilir.
   const subscriptionLock = getSubscriptionLock(org);
 
-  const [memberships, isAdmin, messages] = await Promise.all([
+  const [memberships, isAdmin, messages, mobileApp] = await Promise.all([
     getMemberships(supabase),
     isPlatformAdmin(supabase),
     getMessages(),
+    isMobileApp(),
   ]);
+
+  // Native mobil uygulama (App Store/Play Store) mağaza kurallarına uymak için
+  // fiyat/ödeme arayüzü içeremez. Deneme süresi dolan/ödemesi başarısız olan
+  // işletmeler için web'deki "banner + panel" soft-lock yerine, mobil
+  // uygulamada fiyat veya ödeme linki içermeyen tam ekran bilgilendirme
+  // gösterilir (bkz. MobileTrialEndedScreen). Web davranışı değişmez.
+  if (mobileApp && subscriptionLock.locked && subscriptionLock.reason) {
+    return (
+      <NextIntlClientProvider messages={messages}>
+        <MobileTrialEndedScreen reason={subscriptionLock.reason} />
+      </NextIntlClientProvider>
+    );
+  }
 
   return (
     <NextIntlClientProvider messages={messages}>

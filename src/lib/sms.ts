@@ -115,3 +115,34 @@ export async function sendSms({ toPhone, orgId, message }: SendSmsParams): Promi
       return { skipped: true, reason: "unknown_provider" };
   }
 }
+
+/**
+ * Platform seviyesinde (Siriplan'ın kendi hesabından) SMS gönderimi —
+ * org'ların kendi müşteri SMS ayarlarından bağımsız. Deneme süresi bitimi
+ * gibi platform bildirimleri için kullanılır; org'un sms_* alanları yerine
+ * PLATFORM_SMS_* env değişkenlerini kullanır.
+ */
+export async function sendPlatformSms(toPhone: string, message: string): Promise<SendSmsResult> {
+  const provider = process.env.PLATFORM_SMS_PROVIDER as SmsProvider | undefined;
+  const username = process.env.PLATFORM_SMS_USERNAME;
+  const password = process.env.PLATFORM_SMS_PASSWORD;
+  const senderId = process.env.PLATFORM_SMS_SENDER_ID || null;
+
+  if (!provider || !username || !password) {
+    return { skipped: true, reason: "platform_sms_not_configured" };
+  }
+
+  const creds = { username, password, senderId };
+  const to = toLocalPhone(toPhone);
+
+  switch (provider) {
+    case "netgsm":
+      return sendViaNetgsm(creds, to, message);
+    case "vatansms":
+      return sendViaVatansms(creds, to, message);
+    case "iletimerkezi":
+      return sendViaIletimerkezi(creds, to, message);
+    default:
+      return { skipped: true, reason: "unknown_provider" };
+  }
+}
