@@ -86,12 +86,27 @@ export async function findAvailableStaff(
   appointmentAt: string,
   durationMinutes: number
 ): Promise<string | null> {
-  const { data: candidates } = await supabase
+  const { data: assigned } = await supabase
     .from("staff_services")
     .select("staff:staff!inner(id, org_id, is_active, start_time, end_time, working_days)")
     .eq("service_id", serviceId);
 
-  for (const row of candidates || []) {
+  // staff_services'te bu hizmete kimse atanmamışsa (salon sahibi hiç kısıtlama
+  // yapmamış olabilir — çoğu işletme için varsayılan durum budur), online randevu
+  // sayfasındaki müsaitlik gösterimiyle tutarlı olması için tüm aktif personeli
+  // aday kabul et. Aksi halde "Farketmez" ile hiç randevu alınamaz (bkz. bu
+  // fonksiyonun tetiklediği "Seçilen saatte uygun personel yok" hatası).
+  let candidates: { staff: unknown }[] = assigned ?? [];
+  if (candidates.length === 0) {
+    const { data: allStaff } = await supabase
+      .from("staff")
+      .select("id, org_id, is_active, start_time, end_time, working_days")
+      .eq("org_id", orgId)
+      .eq("is_active", true);
+    candidates = (allStaff ?? []).map((s) => ({ staff: s }));
+  }
+
+  for (const row of candidates) {
     const staff = row.staff as unknown as CandidateStaff;
     if (!staff || staff.org_id !== orgId || !staff.is_active) continue;
     if (!isWithinWorkingHours(appointmentAt, durationMinutes, staff)) continue;
