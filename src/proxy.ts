@@ -37,7 +37,11 @@ const PUBLIC_API_WRITE_PREFIXES = [
 
 // Deneme süresi dolan / ödemesi başarısız olan işletmeler için yazma
 // işlemlerine izin verilen uç noktalar: kimlik doğrulama, ayarlar sayfası,
-// abonelik/ödeme akışı ve dış servis webhook'ları.
+// abonelik/ödeme akışı, dış servis webhook'ları ve — kritik olarak —
+// randevu oluşturma/düzenleme/iptal. Ödeme sorunu olan bir işletmenin asıl
+// gelir kaynağı (randevu almak) kilitlenirse borcunu ödeyecek geliri de
+// kesilmiş olur; bu yüzden randevu akışı ödeme durumundan bağımsız açık
+// tutulur, sadece abonelik/ayarlar sayfaları ve premium eklentiler kısıtlanır.
 const SUBSCRIPTION_LOCK_EXEMPT_PREFIXES = [
   "/api/auth",
   "/api/org", // ayarlar sayfasının kaydet işlemi
@@ -45,6 +49,9 @@ const SUBSCRIPTION_LOCK_EXEMPT_PREFIXES = [
   "/api/webhooks",
   "/api/admin",
   "/api/dashboard-chat", // yardım asistanı — hesap durumu hakkında yönlendirir
+  "/api/appointments", // randevu oluşturma/düzenleme/iptal — asla kilitlenmemeli
+  "/api/customers", // randevu akışında otomatik müşteri kaydı
+  "/api/staff-time-off", // personel izin/kapalı gün kaydı — takvim bütünlüğü için
 ];
 
 // No URL-based locale routing — locale is stored in a cookie and read
