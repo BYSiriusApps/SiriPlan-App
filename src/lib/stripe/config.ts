@@ -15,7 +15,7 @@ export const PLANS = {
     price_monthly: 39,
     price_annual: 32,
     max_staff: 5,
-    max_appointments_monthly: 300,
+    max_appointments_monthly: 500,
     features: {
       feature_ai: false,
       feature_campaigns: false,

@@ -150,7 +150,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
     keywords: ["ödeme yap", "abonelik", "plan seç", "starter", "pro plan", "business plan", "plan fiyat", "kredi kartı", "deneme süresi", "stripe"],
     answer:
       "14 gün ücretsiz deneme ile başlarsınız, kredi kartı gerekmez. Planlar:\n" +
-      "• Starter — 1 şube/5 personel, 300 randevu/ay, online randevu sayfası, WhatsApp hatırlatma, sadakat kartı, temel ciro raporu, CSV export.\n" +
+      "• Starter — 1 şube/5 personel, 500 randevu/ay, online randevu sayfası, WhatsApp hatırlatma, sadakat kartı, temel ciro raporu, CSV export.\n" +
       "• Pro — sınırsız personel & randevu, kampanya modülü, müşteri skoru, Haftanın Elemanı, bekleme listesi, PDF export, KDV hesaplama.\n" +
       "• Business — sınırsız şube & personel, tüm Pro özellikleri, AI WhatsApp/IG asistanı, öncelikli destek, özel entegrasyonlar, özel hesap yöneticisi.\n" +
       "Deneme süresi dolmadan Ayarlar → Abonelik'ten plan seçip ödeme yapabilir, aktif abonelikte fatura/kart bilgilerinizi \"Stripe Müşteri Portalı\" butonundan yönetebilirsiniz.",

@@ -61,7 +61,7 @@ export function AdminOrgTable({ orgs }: { orgs: AdminOrgRow[] }) {
     plan: "trial",
     subscription_status: "active",
     max_staff: 3,
-    max_appointments_monthly: 300,
+    max_appointments_monthly: 500,
     trial_ends_at: "",
   });
 
@@ -77,7 +77,7 @@ export function AdminOrgTable({ orgs }: { orgs: AdminOrgRow[] }) {
       plan: org.plan,
       subscription_status: org.subscription_status,
       max_staff: org.max_staff ?? 3,
-      max_appointments_monthly: org.max_appointments_monthly ?? 300,
+      max_appointments_monthly: org.max_appointments_monthly ?? 500,
       trial_ends_at: org.trial_ends_at ? org.trial_ends_at.slice(0, 10) : "",
     });
     setEditing(org);

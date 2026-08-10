@@ -23,7 +23,7 @@ const PLANS = [
     description: "Küçük işletmeler için ideal başlangıç",
     features: [
       "5 personel",
-      "300 randevu/ay",
+      "500 randevu/ay",
       "Online randevu sayfası",
       "WhatsApp hatırlatma",
       "Müşteri yönetimi",
