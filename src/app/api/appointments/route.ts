@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { findAvailableStaff, isStaffOnTimeOff } from "@/lib/staff-availability";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
+import { normalizePhone } from "@/lib/phone";
 
 const ExtraServiceSchema = z.object({
   id: z.string().uuid(),
@@ -52,6 +53,9 @@ export async function POST(req: NextRequest) {
   }
 
   const data = parsed.data;
+  // Aynı numaranın "0555 123 45 67" / "+90 555..." gibi farklı yazımlarla
+  // mükerrer müşteri kaydı oluşturmasını önlemek için tek biçime indirger.
+  data.customer_phone = normalizePhone(data.customer_phone);
   const supabase = await createClient();
 
   // Server-side quota: check max_appointments_monthly

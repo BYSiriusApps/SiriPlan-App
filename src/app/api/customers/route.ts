@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { normalizePhone } from "@/lib/phone";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -41,6 +42,10 @@ export async function POST(req: NextRequest) {
   if (!full_name || !phone) {
     return NextResponse.json({ error: "Ad ve telefon zorunlu" }, { status: 400 });
   }
+  const normalizedPhone = normalizePhone(phone);
+  if (normalizedPhone.length < 10) {
+    return NextResponse.json({ error: "Geçersiz telefon numarası" }, { status: 400 });
+  }
   if (preferred_language && !["tr", "en", "ru", "ar"].includes(preferred_language)) {
     return NextResponse.json({ error: "Geçersiz dil" }, { status: 400 });
   }
@@ -52,12 +57,25 @@ export async function POST(req: NextRequest) {
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
 
+  const { data: dup } = await supabase
+    .from("customers")
+    .select("id, full_name")
+    .eq("org_id", member.org_id)
+    .eq("phone", normalizedPhone)
+    .maybeSingle();
+  if (dup) {
+    return NextResponse.json(
+      { error: `Bu telefon numarası zaten kayıtlı (${dup.full_name})` },
+      { status: 409 }
+    );
+  }
+
   const { data, error } = await supabase
     .from("customers")
     .insert({
       org_id: member.org_id,
       full_name,
-      phone,
+      phone: normalizedPhone,
       email: email || null,
       birth_date: birth_date || null,
       gender: gender || null,

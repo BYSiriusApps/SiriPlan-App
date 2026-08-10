@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { normalizePhone } from "@/lib/phone";
 
 function parseCSV(text: string): Record<string, string>[] {
   const lines = text.split(/\r?\n/).filter((l) => l.trim());
@@ -127,7 +128,7 @@ export async function POST(req: NextRequest) {
         {
           org_id: member.org_id,
           full_name: cust.full_name,
-          phone: cust.phone.replace(/\s/g, ""),
+          phone: normalizePhone(cust.phone),
           email: cust.email || null,
           birth_date: cust.birth_date || null,
           notes: cust.notes || null,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAppointment } from "@/lib/notify";
+import { normalizePhone } from "@/lib/phone";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -53,12 +54,13 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     .single();
 
   // Find or create customer
+  const normalizedPhone = normalizePhone(reqRow.customer_phone);
   let customerId: string | null = null;
   const { data: existingCustomer } = await supabase
     .from("customers")
     .select("id")
     .eq("org_id", member.org_id)
-    .eq("phone", reqRow.customer_phone)
+    .eq("phone", normalizedPhone)
     .single();
 
   if (existingCustomer) {
@@ -69,7 +71,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       .insert({
         org_id: member.org_id,
         full_name: reqRow.customer_name,
-        phone: reqRow.customer_phone,
+        phone: normalizedPhone,
         email: reqRow.customer_email,
         source: reqRow.source,
       })
