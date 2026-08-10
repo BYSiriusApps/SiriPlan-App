@@ -1,19 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
+
+// token 48 karakterlik hex üretiliyor (011_staff_invites_permissions_quota: encode(gen_random_bytes(24), 'hex'))
+const TOKEN_RE = /^[a-f0-9]{16,64}$/i;
+
+/**
+ * Davet token'ı sahipliği tek başına yetki kanıtıdır (public/cancel,
+ * public/consent uçlarındaki aynı desen) — bu yüzden okuma/kabul admin
+ * (service role) client ile yapılır ve RLS'e bağlı kalınmaz. Daha önce
+ * bunun için "anon" rolüne genel bir SELECT policy'si vardı ama token'ı
+ * kontrol etmiyordu; herkes tüm bekleyen davetleri listeleyebiliyordu —
+ * bkz. 20260809_fix_staff_invitations_rls_leak.sql.
+ */
 
 /** POST /api/staff/invite/accept — token + giriş yapmış kullanıcı → org_member oluştur */
 export async function POST(req: NextRequest) {
-  const { token } = await req.json();
-  if (!token || typeof token !== "string") {
-    return NextResponse.json({ error: "Token zorunludur" }, { status: 400 });
+  const { token } = await req.json().catch(() => ({}));
+  if (typeof token !== "string" || !TOKEN_RE.test(token)) {
+    return NextResponse.json({ error: "Geçersiz davet bağlantısı" }, { status: 400 });
   }
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Önce giriş yapmalısınız" }, { status: 401 });
 
+  const admin = await createAdminClient();
+
   // Find valid invite
-  const { data: invite, error: fetchErr } = await supabase
+  const { data: invite, error: fetchErr } = await admin
     .from("staff_invitations")
     .select("*")
     .eq("token", token)
@@ -29,7 +43,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Check if user already in this org
-  const { data: existing } = await supabase
+  const { data: existing } = await admin
     .from("org_members")
     .select("id")
     .eq("org_id", invite.org_id)
@@ -41,7 +55,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Create org_member
-  const { error: memberErr } = await supabase
+  const { error: memberErr } = await admin
     .from("org_members")
     .insert({
       org_id: invite.org_id,
@@ -56,7 +70,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Mark invite as accepted
-  await supabase
+  await admin
     .from("staff_invitations")
     .update({ status: "accepted", accepted_at: new Date().toISOString() })
     .eq("id", invite.id);
@@ -66,12 +80,14 @@ export async function POST(req: NextRequest) {
 
 /** GET /api/staff/invite/accept?token=xxx — token bilgisini ön yüze göster (e-posta/org adı) */
 export async function GET(req: NextRequest) {
-  const token = new URL(req.url).searchParams.get("token");
-  if (!token) return NextResponse.json({ error: "Token zorunlu" }, { status: 400 });
+  const token = new URL(req.url).searchParams.get("token") ?? "";
+  if (!TOKEN_RE.test(token)) {
+    return NextResponse.json({ error: "Geçersiz davet bağlantısı" }, { status: 400 });
+  }
 
-  const supabase = await createClient();
+  const admin = await createAdminClient();
 
-  const { data: invite, error } = await supabase
+  const { data: invite, error } = await admin
     .from("staff_invitations")
     .select("role, expires_at, organizations(name), staff(full_name)")
     .eq("token", token)
