@@ -1,93 +1,91 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Kullanım Koşulları",
-  description: "Siriplan kullanım koşulları ve hizmet şartları.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return {
+    title: t("termsPage.pageTitle"),
+    description: t("termsPage.metaDescription"),
+  };
+}
 
-export default function KosullarPage() {
+export default async function KosullarPage() {
+  const t = await getTranslations();
+  const strong = (chunks: React.ReactNode) => <strong>{chunks}</strong>;
+  const s3Items = t.raw("termsPage.s3Items") as string[];
+  const translationNote = t("termsPage.translationNote");
+
   return (
     <div className="container mx-auto px-4 py-16 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-2">Kullanım Koşulları</h1>
-      <p className="text-sm text-muted-foreground mb-10">Son güncelleme: Ocak 2026</p>
+      <h1 className="text-3xl font-bold mb-2">{t("termsPage.pageTitle")}</h1>
+      <p className="text-sm text-muted-foreground mb-2">{t("termsPage.lastUpdated")}</p>
+      {translationNote && (
+        <p className="text-sm text-muted-foreground italic mb-8">{translationNote}</p>
+      )}
+      {!translationNote && <div className="mb-10" />}
 
       <div className="prose prose-sm dark:prose-invert max-w-none space-y-8">
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">1. Taraflar ve Kapsam</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s1Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Bu Kullanım Koşulları, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> ("Siriplan", "biz") ile
-            platformu kullanan bireyler ve işletmeler ("Kullanıcı") arasındaki hukuki ilişkiyi düzenler.
-            Platformu kullanarak bu koşulları kabul etmiş sayılırsınız.
+            {t.rich("termsPage.s1P", { strong })}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">2. Hizmet Tanımı</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s2Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Siriplan; randevu yönetimi, müşteri takibi, personel yönetimi, kampanya modülü ve ciro raporlaması
-            gibi işletme yönetim araçları sunan SaaS (Hizmet Olarak Yazılım) platformudur.
-            Platform erişimi seçilen abonelik planı kapsamında sağlanır.
+            {t("termsPage.s2P")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">3. Kullanıcı Yükümlülükleri</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s3Title")}</h2>
           <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-            <li>Platforma yalnızca yetkili kişilerin erişim sağlamasından siz sorumlusunuz.</li>
-            <li>Hesap bilgilerinizi gizli tutmak zorundasınız.</li>
-            <li>Platform yasadışı, yanıltıcı veya zararlı amaçlarla kullanılamaz.</li>
-            <li>Müşteri verilerini yalnızca hizmet sunumu amacıyla işleyebilirsiniz.</li>
-            <li>KVKK ve diğer ilgili mevzuata uyum sağlamak kullanıcının sorumluluğundadır.</li>
+            {s3Items.map((item) => <li key={item}>{item}</li>)}
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">4. Ücretlendirme ve Abonelik</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s4Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Abonelik ücretleri seçilen plana göre aylık veya yıllık olarak tahsil edilir.
-            Yıllık planda %18 indirim uygulanır. Deneme süresi sonunda ücretlendirme başlar;
-            istediğiniz zaman iptal edebilirsiniz. İptal sonrası mevcut dönem sonuna kadar erişim devam eder.
-            İade politikamız için support@bysirius.com ile iletişime geçebilirsiniz.
+            {t("termsPage.s4P")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">5. Hizmet Kesintileri ve Sorumluluk Sınırları</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s5Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Platform %99,9 uptime hedefiyle çalışır; ancak bakım veya teknik nedenlerle kısa süreli
-            kesintiler yaşanabilir. BY Sirius Group Ai & Technology Co Ltd., dolaylı, arızi veya sonuçta ortaya çıkan zararlardan
-            sorumlu tutulamaz. Sorumluluğumuz, ilgili ay içinde ödediğiniz abonelik ücretiyle sınırlıdır.
+            {t("termsPage.s5P")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">6. Fikri Mülkiyet</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s6Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Platform, tasarım ve yazılımının tüm fikri mülkiyet hakları BY Sirius Group Ai & Technology Co Ltd.'e aittir.
-            Kullanıcılar platforma yükledikleri içerik ve verilerin haklarını saklı tutar.
+            {t("termsPage.s6P")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">7. Sözleşmenin Feshi</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s7Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Kullanım koşullarının ihlali durumunda hesabınız önceden bildirmeksizin askıya alınabilir veya kapatılabilir.
-            Hesap kapatma öncesinde verilerinizi dışa aktarma hakkına sahipsiniz.
+            {t("termsPage.s7P")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">8. Uygulanacak Hukuk</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s8Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Bu sözleşme Türk Hukuku'na tabidir. Uyuşmazlıklarda İstanbul Mahkemeleri ve İcra Daireleri yetkilidir.
+            {t("termsPage.s8P")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">9. İletişim</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s9Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Sorularınız için: <strong>legal@bysirius.com</strong> &nbsp;|&nbsp; <strong>bysirius.com</strong>
+            {t.rich("termsPage.s9P", { strong })}
           </p>
         </section>
 

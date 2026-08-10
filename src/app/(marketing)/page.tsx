@@ -34,6 +34,7 @@ const CATEGORY_META = [
   { key: "tattoo",      icon: "🖋"    },
   { key: "dietitian",   icon: "🥗"    },
   { key: "eyebrow",     icon: "👁"    },
+  { key: "petGrooming", icon: "🐾"    },
 ] as const;
 
 const PLAN_META = [

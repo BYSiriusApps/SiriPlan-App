@@ -26,6 +26,7 @@ export async function Footer() {
     { key: "spa",         href: "/kategori/spa"        },
     { key: "nail",        href: "/kategori/nail"       },
     { key: "aesthetic",   href: "/kategori/estetik"    },
+    { key: "petGrooming", href: "/kategori/petkuafor"  },
   ] as const;
 
   const companyLinks = [

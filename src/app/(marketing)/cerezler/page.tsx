@@ -1,78 +1,84 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Çerez Politikası",
-  description: "Siriplan çerez politikası — çerezlerin nasıl kullanıldığını öğrenin.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return {
+    title: t("cookiesPage.pageTitle"),
+    description: t("cookiesPage.metaDescription"),
+  };
+}
 
-export default function CerezlerPage() {
+export default async function CerezlerPage() {
+  const t = await getTranslations();
+  const strong = (chunks: React.ReactNode) => <strong>{chunks}</strong>;
+  const s3Items = t.raw("cookiesPage.s3Items") as string[];
+  const translationNote = t("cookiesPage.translationNote");
+
   return (
     <div className="container mx-auto px-4 py-16 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-2">Çerez Politikası</h1>
-      <p className="text-sm text-muted-foreground mb-10">Son güncelleme: Ocak 2026</p>
+      <h1 className="text-3xl font-bold mb-2">{t("cookiesPage.pageTitle")}</h1>
+      <p className="text-sm text-muted-foreground mb-2">{t("cookiesPage.lastUpdated")}</p>
+      {translationNote && (
+        <p className="text-sm text-muted-foreground italic mb-8">{translationNote}</p>
+      )}
+      {!translationNote && <div className="mb-10" />}
 
       <div className="prose prose-sm dark:prose-invert max-w-none space-y-8">
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">1. Çerez Nedir?</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("cookiesPage.s1Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Çerezler (cookies), web siteleri tarafından tarayıcınıza yerleştirilen küçük metin dosyalarıdır.
-            Siriplan platformu, daha iyi bir kullanıcı deneyimi sunmak ve hizmet kalitesini artırmak amacıyla çerezlerden faydalanır.
+            {t("cookiesPage.s1P")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">2. Kullandığımız Çerez Türleri</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("cookiesPage.s2Title")}</h2>
 
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-sm mb-1">Zorunlu Çerezler</h3>
+              <h3 className="font-semibold text-sm mb-1">{t("cookiesPage.s2Necessary.title")}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Platformun temel işlevleri için gereklidir. Oturum yönetimi, güvenlik doğrulaması ve tercih kaydetme bu kategoride yer alır.
-                Bu çerezler devre dışı bırakılamaz.
+                {t("cookiesPage.s2Necessary.desc")}
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-sm mb-1">Analitik Çerezler</h3>
+              <h3 className="font-semibold text-sm mb-1">{t("cookiesPage.s2Analytics.title")}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Platform kullanımını ölçmek ve hizmetleri iyileştirmek amacıyla anonim istatistikler toplar.
-                Hangi sayfaların en çok ziyaret edildiğini anlamamıza yardımcı olur.
+                {t("cookiesPage.s2Analytics.desc")}
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-sm mb-1">İşlevsellik Çerezleri</h3>
+              <h3 className="font-semibold text-sm mb-1">{t("cookiesPage.s2Functional.title")}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Dil tercihi, tema seçimi (koyu/açık mod) gibi kişiselleştirme ayarlarınızı hatırlamak için kullanılır.
+                {t("cookiesPage.s2Functional.desc")}
               </p>
             </div>
           </div>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">3. Çerez Yönetimi</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("cookiesPage.s3Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Tarayıcı ayarlarınızdan çerezleri engelleyebilir veya silebilirsiniz. Ancak zorunlu çerezlerin engellenmesi
-            platformun düzgün çalışmasını olumsuz etkileyebilir.
+            {t("cookiesPage.s3P")}
           </p>
           <ul className="list-disc list-inside space-y-1 text-muted-foreground mt-2 text-sm">
-            <li>Chrome: Ayarlar → Gizlilik ve Güvenlik → Çerezler</li>
-            <li>Firefox: Tercihler → Gizlilik ve Güvenlik</li>
-            <li>Safari: Tercihler → Gizlilik</li>
+            {s3Items.map((item) => <li key={item}>{item}</li>)}
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">4. Üçüncü Taraf Çerezler</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("cookiesPage.s4Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Ödeme altyapısı (Stripe) gibi üçüncü taraf hizmet sağlayıcılar kendi çerezlerini yerleştirebilir.
-            Bu çerezler ilgili sağlayıcının gizlilik politikasına tabidir.
+            {t("cookiesPage.s4P")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">5. İletişim</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("cookiesPage.s5Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Çerez politikamıza ilişkin sorularınız için: <strong>privacy@bysirius.com</strong>
+            {t.rich("cookiesPage.s5P", { strong })}
           </p>
         </section>
 

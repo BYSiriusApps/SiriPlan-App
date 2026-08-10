@@ -1,87 +1,87 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Gizlilik Politikası",
-  description: "Siriplan gizlilik politikası — kişisel verilerinizi nasıl işlediğimizi öğrenin.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return {
+    title: t("privacyPage.pageTitle"),
+    description: t("privacyPage.metaDescription"),
+  };
+}
 
-export default function GizlilikPage() {
+export default async function GizlilikPage() {
+  const t = await getTranslations();
+  const strong = (chunks: React.ReactNode) => <strong>{chunks}</strong>;
+  const s2Items = t.raw("privacyPage.s2Items") as string[];
+  const s3Items = t.raw("privacyPage.s3Items") as string[];
+  const s6Items = t.raw("privacyPage.s6Items") as string[];
+  const translationNote = t("privacyPage.translationNote");
+
   return (
     <div className="container mx-auto px-4 py-16 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-2">Gizlilik Politikası</h1>
-      <p className="text-sm text-muted-foreground mb-10">Son güncelleme: Ocak 2026</p>
+      <h1 className="text-3xl font-bold mb-2">{t("privacyPage.pageTitle")}</h1>
+      <p className="text-sm text-muted-foreground mb-2">{t("privacyPage.lastUpdated")}</p>
+      {translationNote && (
+        <p className="text-sm text-muted-foreground italic mb-8">{translationNote}</p>
+      )}
+      {!translationNote && <div className="mb-10" />}
 
       <div className="prose prose-sm dark:prose-invert max-w-none space-y-8">
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">1. Veri Sorumlusu</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s1Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Bu gizlilik politikası, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> ("Şirket", "biz", "bize") tarafından işletilen <strong>Siriplan</strong> platformu için geçerlidir.
-            Şirket, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında veri sorumlusu sıfatını taşımaktadır.
+            {t.rich("privacyPage.s1P1", { strong })}
           </p>
           <p className="text-muted-foreground leading-relaxed mt-2">
-            <strong>Web sitesi:</strong> bysirius.com &nbsp;|&nbsp; <strong>E-posta:</strong> privacy@bysirius.com
+            {t.rich("privacyPage.s1P2", { strong })}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">2. Toplanan Kişisel Veriler</h2>
-          <p className="text-muted-foreground leading-relaxed mb-2">Platform kullanımı sırasında aşağıdaki veriler işlenebilir:</p>
+          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s2Title")}</h2>
+          <p className="text-muted-foreground leading-relaxed mb-2">{t("privacyPage.s2Intro")}</p>
           <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-            <li>Ad, soyad, e-posta adresi ve telefon numarası</li>
-            <li>İşletme adı, adresi ve sektör bilgisi</li>
-            <li>Randevu geçmişi ve müşteri kayıtları</li>
-            <li>Ödeme ve fatura bilgileri (kart detayları saklanmaz; Stripe tarafından işlenir)</li>
-            <li>IP adresi, tarayıcı türü ve kullanım istatistikleri</li>
+            {s2Items.map((item) => <li key={item}>{item}</li>)}
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">3. Verilerin İşlenme Amaçları</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s3Title")}</h2>
           <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-            <li>Platform hizmetlerinin sunulması ve yönetimi</li>
-            <li>Abonelik ve ödeme işlemlerinin gerçekleştirilmesi</li>
-            <li>Müşteri desteği ve teknik yardım sağlanması</li>
-            <li>Güvenlik, dolandırıcılık önleme ve yasal yükümlülüklerin yerine getirilmesi</li>
-            <li>Ürün geliştirme ve hizmet kalitesinin artırılması</li>
+            {s3Items.map((item) => <li key={item}>{item}</li>)}
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">4. Veri Güvenliği</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s4Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Verileriniz SSL/TLS şifrelemesi ile korunur. Sunucu altyapımız endüstri standardı güvenlik protokollerine uymaktadır.
-            Ödeme bilgileriniz hiçbir zaman sunucularımızda saklanmaz; tüm ödeme işlemleri PCI-DSS uyumlu Stripe altyapısı üzerinden gerçekleşir.
+            {t("privacyPage.s4P")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">5. Üçüncü Taraf Paylaşımı</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s5Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Kişisel verileriniz, hizmet sunumu için zorunlu olmadıkça üçüncü taraflarla paylaşılmaz.
-            Yalnızca; ödeme (Stripe), bildirim (WhatsApp/SMS) ve altyapı hizmetleri sağlayıcıları ile veri işleme sözleşmesi çerçevesinde paylaşım yapılabilir.
+            {t("privacyPage.s5P")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">6. Haklarınız</h2>
-          <p className="text-muted-foreground leading-relaxed mb-2">KVKK Madde 11 kapsamında aşağıdaki haklara sahipsiniz:</p>
+          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s6Title")}</h2>
+          <p className="text-muted-foreground leading-relaxed mb-2">{t("privacyPage.s6Intro")}</p>
           <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-            <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
-            <li>Verilerinize erişim ve kopyasını talep etme</li>
-            <li>Yanlış veya eksik verilerin düzeltilmesini isteme</li>
-            <li>Verilerin silinmesini veya yok edilmesini talep etme</li>
-            <li>Veri işlemeye itiraz etme</li>
+            {s6Items.map((item) => <li key={item}>{item}</li>)}
           </ul>
           <p className="text-muted-foreground leading-relaxed mt-3">
-            Talepleriniz için: <strong>privacy@bysirius.com</strong>
+            {t.rich("privacyPage.s6Contact", { strong })}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">7. Politika Değişiklikleri</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s7Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir.
+            {t("privacyPage.s7P")}
           </p>
         </section>
 

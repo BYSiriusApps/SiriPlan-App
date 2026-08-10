@@ -84,7 +84,7 @@
       "desc": "Perfect starting point for small salons",
       "features": [
         "1 location, 5 staff",
-        "300 appointments/month",
+        "500 appointments/month",
         "Online booking page",
         "WhatsApp reminders",
         "Loyalty card system",
@@ -105,9 +105,10 @@
         "Staff of the Week gamification",
         "Waiting list",
         "PDF report export",
-        "VAT calculation"
+        "VAT calculation",
+        "Personal booking link (siriplan.com/your-salon)"
       ],
-      "notIncluded": ["AI WhatsApp/IG assistant"]
+      "notIncluded": ["AI WhatsApp/IG assistant", "Custom domain"]
     },
     "business": {
       "name": "Business",
@@ -117,6 +118,7 @@
         "Unlimited staff",
         "All Pro features",
         "AI WhatsApp/IG assistant",
+        "Custom domain",
         "Priority support",
         "Custom integrations",
         "Dedicated account manager",
@@ -394,6 +396,195 @@
     "contactButton": "Contact Us",
     "whatsappButton": "Message on WhatsApp"
   },
+  "kvkkPage": {
+    "metaDescription": "Disclosure notice under Turkish Law No. 6698 on the Protection of Personal Data (KVKK).",
+    "pageTitle": "KVKK Disclosure Notice",
+    "lawSubtitle": "Turkish Law No. 6698 on the Protection of Personal Data",
+    "lastUpdated": "Last updated: January 2026",
+    "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
+    "controllerTitle": "Data Controller",
+    "controllerP1": "As <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (the \"Company\"), we process your personal data as the data controller under Law No. 6698 on the Protection of Personal Data (\"KVKK\"), for the purposes described below and in compliance with applicable law.",
+    "controllerContact": "<strong>Website:</strong> bysirius.com | <strong>Email:</strong> kvkk@bysirius.com",
+    "dataTitle": "Personal Data We Process",
+    "dataTableCategory": "Data Category",
+    "dataTableExamples": "Examples",
+    "dataRows": {
+      "identity": { "category": "Identity", "examples": "First and last name" },
+      "contact": { "category": "Contact", "examples": "Email, phone number" },
+      "business": { "category": "Business", "examples": "Business name, address, industry" },
+      "transaction": { "category": "Transaction", "examples": "Appointment and invoice records" },
+      "technical": { "category": "Technical", "examples": "IP address, browser information" }
+    },
+    "purposeTitle": "Processing Purposes and Legal Grounds",
+    "purposeItems": [
+      "Establishment and performance of the contract (KVKK Art. 5/2-c)",
+      "Fulfillment of legal obligations (KVKK Art. 5/2-ç)",
+      "Protection of our legitimate interests (KVKK Art. 5/2-f)",
+      "Marketing communications with your explicit consent (KVKK Art. 5/1)"
+    ],
+    "transferTitle": "Data Transfers",
+    "transferP": "Your personal data may be transferred to our payment infrastructure (Stripe), notification services, and hosting providers under data processing agreements, within the scope of Articles 8 and 9 of KVKK. Transfers abroad take place only where adequate protection is ensured.",
+    "rightsTitle": "Your Rights Under KVKK Article 11",
+    "rightsItems": [
+      "Learn whether your personal data is being processed",
+      "Request information if it has been processed",
+      "Learn the purpose of processing and whether the data is used in accordance with that purpose",
+      "Know the third parties to whom the data is transferred domestically or abroad",
+      "Request correction of incomplete or inaccurate data",
+      "Request deletion or destruction of the data",
+      "Object to adverse consequences arising from processing carried out solely through automated systems",
+      "Request compensation for any damages"
+    ],
+    "applicationTitle": "How to Apply",
+    "applicationP1": "You can use the following channels to exercise your rights under KVKK:",
+    "applicationEmail": "<strong>Email:</strong> kvkk@bysirius.com",
+    "applicationWeb": "<strong>Web:</strong> bysirius.com/iletisim",
+    "applicationP2": "Your requests will be finalized within 30 days at the latest, after identity verification."
+  },
+  "privacyPage": {
+    "metaDescription": "Siriplan privacy policy — learn how we process your personal data.",
+    "pageTitle": "Privacy Policy",
+    "lastUpdated": "Last updated: January 2026",
+    "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
+    "s1Title": "1. Data Controller",
+    "s1P1": "This privacy policy applies to the <strong>Siriplan</strong> platform operated by <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (the \"Company\", \"we\", \"us\"). The Company acts as the data controller under Law No. 6698 on the Protection of Personal Data (KVKK).",
+    "s1P2": "<strong>Website:</strong> bysirius.com | <strong>Email:</strong> privacy@bysirius.com",
+    "s2Title": "2. Personal Data We Collect",
+    "s2Intro": "The following data may be processed while using the platform:",
+    "s2Items": [
+      "First name, last name, email address, and phone number",
+      "Business name, address, and industry information",
+      "Appointment history and customer records",
+      "Payment and billing information (card details are not stored; processed by Stripe)",
+      "IP address, browser type, and usage statistics"
+    ],
+    "s3Title": "3. Purposes of Processing",
+    "s3Items": [
+      "Providing and managing platform services",
+      "Processing subscriptions and payments",
+      "Providing customer support and technical assistance",
+      "Security, fraud prevention, and fulfilling legal obligations",
+      "Product development and improving service quality"
+    ],
+    "s4Title": "4. Data Security",
+    "s4P": "Your data is protected with SSL/TLS encryption. Our server infrastructure complies with industry-standard security protocols. Your payment information is never stored on our servers; all payment transactions are processed through PCI-DSS compliant Stripe infrastructure.",
+    "s5Title": "5. Third-Party Sharing",
+    "s5P": "Your personal data is not shared with third parties unless required to provide the service. Sharing only occurs with payment (Stripe), notification (WhatsApp/SMS), and infrastructure service providers under data processing agreements.",
+    "s6Title": "6. Your Rights",
+    "s6Intro": "Under Article 11 of KVKK, you have the following rights:",
+    "s6Items": [
+      "Learn whether your personal data is being processed",
+      "Request access to and a copy of your data",
+      "Request correction of inaccurate or incomplete data",
+      "Request deletion or destruction of your data",
+      "Object to the processing of your data"
+    ],
+    "s6Contact": "For your requests: <strong>privacy@bysirius.com</strong>",
+    "s7Title": "7. Policy Changes",
+    "s7P": "Changes to this policy will be announced through the platform. Continuing to use the platform after changes take effect means you accept the updated policy."
+  },
+  "termsPage": {
+    "metaDescription": "Siriplan terms of service and terms of use.",
+    "pageTitle": "Terms of Service",
+    "lastUpdated": "Last updated: January 2026",
+    "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
+    "s1Title": "1. Parties and Scope",
+    "s1P": "These Terms of Service govern the legal relationship between <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Siriplan\", \"we\") and the individuals and businesses using the platform (the \"User\"). By using the platform, you are deemed to have accepted these terms.",
+    "s2Title": "2. Service Description",
+    "s2P": "Siriplan is a SaaS (Software as a Service) platform offering business management tools such as appointment management, customer tracking, staff management, a campaign module, and revenue reporting. Platform access is provided within the scope of the selected subscription plan.",
+    "s3Title": "3. User Obligations",
+    "s3Items": [
+      "You are responsible for ensuring that only authorized individuals access the platform.",
+      "You must keep your account information confidential.",
+      "The platform may not be used for illegal, misleading, or harmful purposes.",
+      "You may only process customer data for the purpose of providing the service.",
+      "Compliance with KVKK and other applicable regulations is the user's responsibility."
+    ],
+    "s4Title": "4. Pricing and Subscription",
+    "s4P": "Subscription fees are charged monthly or annually depending on the selected plan. An 18% discount applies to the annual plan. Billing begins at the end of the trial period; you can cancel at any time. After cancellation, access continues until the end of the current billing period. Contact support@bysirius.com for our refund policy.",
+    "s5Title": "5. Service Interruptions and Limitation of Liability",
+    "s5P": "The platform operates with a 99.9% uptime target; however, brief interruptions may occur due to maintenance or technical reasons. BY Sirius Group Ai & Technology Co Ltd. shall not be liable for indirect, incidental, or consequential damages. Our liability is limited to the subscription fee you paid in the relevant month.",
+    "s6Title": "6. Intellectual Property",
+    "s6P": "All intellectual property rights to the platform, its design, and software belong to BY Sirius Group Ai & Technology Co Ltd. Users retain the rights to the content and data they upload to the platform.",
+    "s7Title": "7. Termination",
+    "s7P": "Your account may be suspended or terminated without prior notice in the event of a violation of these terms of use. You have the right to export your data before account closure.",
+    "s8Title": "8. Governing Law",
+    "s8P": "This agreement is governed by Turkish Law. Istanbul Courts and Enforcement Offices have jurisdiction over any disputes.",
+    "s9Title": "9. Contact",
+    "s9P": "For your questions: <strong>legal@bysirius.com</strong> | <strong>bysirius.com</strong>"
+  },
+  "cookiesPage": {
+    "metaDescription": "Siriplan cookie policy — learn how cookies are used.",
+    "pageTitle": "Cookie Policy",
+    "lastUpdated": "Last updated: January 2026",
+    "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
+    "s1Title": "1. What Is a Cookie?",
+    "s1P": "Cookies are small text files placed on your browser by websites. The Siriplan platform uses cookies to provide a better user experience and improve service quality.",
+    "s2Title": "2. Types of Cookies We Use",
+    "s2Necessary": { "title": "Necessary Cookies", "desc": "Required for the platform's core functions. This category includes session management, security verification, and preference storage. These cookies cannot be disabled." },
+    "s2Analytics": { "title": "Analytics Cookies", "desc": "Collect anonymous statistics to measure platform usage and improve our services. They help us understand which pages are visited most." },
+    "s2Functional": { "title": "Functionality Cookies", "desc": "Used to remember your personalization settings, such as language preference and theme selection (dark/light mode)." },
+    "s3Title": "3. Managing Cookies",
+    "s3P": "You can block or delete cookies from your browser settings. However, blocking necessary cookies may negatively affect the platform's proper functioning.",
+    "s3Items": [
+      "Chrome: Settings → Privacy and Security → Cookies",
+      "Firefox: Preferences → Privacy and Security",
+      "Safari: Preferences → Privacy"
+    ],
+    "s4Title": "4. Third-Party Cookies",
+    "s4P": "Third-party service providers, such as our payment infrastructure (Stripe), may place their own cookies. These cookies are subject to the relevant provider's privacy policy.",
+    "s5Title": "5. Contact",
+    "s5P": "For questions about our cookie policy: <strong>privacy@bysirius.com</strong>"
+  },
+  "demoPage": {
+    "metaDescription": "Discover all of Siriplan's features with a live demo.",
+    "heroBadge": "Live Demo",
+    "heroTitle": "Discover Siriplan",
+    "heroSubtitle": "Test all the features in your own salon with a 14-day free trial. No credit card required.",
+    "videoTitle": "Demo Video",
+    "videoComingSoon": "Coming soon",
+    "featuresTitle": "What Will You See in the Demo?",
+    "features": {
+      "booking": { "title": "Appointment Management", "desc": "Daily calendar view, conflict checking, multi-channel support" },
+      "crm": { "title": "Customer CRM", "desc": "0-100 loyalty score, birthday campaigns, VIP customer tracking" },
+      "revenue": { "title": "Revenue & Reports", "desc": "Real-time revenue tracking, 6-month trend analysis, staff-based reports" },
+      "ai": { "title": "AI Assistant", "desc": "24/7 automatic replies to WhatsApp and Instagram DMs, smart appointment suggestions" },
+      "gamification": { "title": "Gamification", "desc": "Staff of the Week, monthly badges, staff performance ranking" }
+    },
+    "ctaTitle": "Get Started Now",
+    "ctaSubtitle": "Instead of watching a demo, try it directly with your own salon. All features free for 14 days.",
+    "ctaPrimary": "Create Free Account",
+    "ctaSecondary": "Contact Us",
+    "footNote": "✓ No credit card required · ✓ 14 days free · ✓ Cancel anytime"
+  },
+  "careersPage": {
+    "metaDescription": "Career opportunities at BY Sirius Group — remote work, competitive salary, technology-driven environment.",
+    "heroEyebrow": "BY Sirius Group Careers",
+    "heroTitle": "Let's Build the Future",
+    "heroTitleHighlight": "Together",
+    "heroSubtitle": "If you're looking for a career opportunity at one of Turkey's leading companies in AI and SaaS, you're in the right place.",
+    "applyButton": "Send Application",
+    "perksTitle": "Why BY Sirius?",
+    "perks": {
+      "remoteWork": { "title": "Fully Remote", "desc": "Work from anywhere in Turkey — from home or a coworking space." },
+      "fastGrowth": { "title": "Fast Growth", "desc": "Roles and responsibilities with real impact, in a startup environment." },
+      "benefits": { "title": "Health & Benefits", "desc": "Private health insurance, meal card, education budget." },
+      "aiCulture": { "title": "AI-First Culture", "desc": "We work with the latest AI tools every day." }
+    },
+    "openingsTitle": "Open Positions",
+    "jobs": {
+      "fullstack": { "title": "Senior Full-Stack Developer", "team": "Product & Engineering", "type": "Full-Time · Remote", "tags": ["Next.js", "TypeScript", "Supabase", "AI"] },
+      "growth": { "title": "Growth & Marketing Specialist", "team": "Growth", "type": "Full-Time · Remote", "tags": ["SaaS", "SEO", "Content", "Analytics"] },
+      "customerSuccess": { "title": "Customer Success Manager", "team": "Customer Success", "type": "Full-Time · Hybrid Istanbul", "tags": ["SaaS", "Customer Relations", "Turkish", "CRM"] },
+      "designer": { "title": "UI/UX Designer", "team": "Design", "type": "Freelance / Project-Based", "tags": ["Figma", "Mobile", "Web", "User Research"] }
+    },
+    "applyLink": "Apply",
+    "noPositionText": "Can't find a suitable position?",
+    "openApplication": "Send an open application",
+    "ctaTitle": "Want to Use Our Product?",
+    "ctaSubtitle": "Try Siriplan before joining our team.",
+    "ctaButton": "Try Free for 14 Days"
+  },
   "categories": {
     "title": "What's Your Business?",
     "subtitle": "Customized solution for all beauty and personal care businesses",
@@ -406,7 +597,8 @@
     "makeup": "Makeup Studio",
     "tattoo": "Tattoo Studio",
     "dietitian": "Dietitian",
-    "eyebrow": "Brow & Lash"
+    "eyebrow": "Brow & Lash",
+    "petGrooming": "Pet Grooming"
   },
   "testimonials": {
     "title": "What Businesses Say",
@@ -626,6 +818,8 @@
       "addButton": "Add Appointment",
       "sheetTitle": "Quick Booking",
       "staffLabel": "Staff",
+      "staffAnyOption": "No preference (Auto-assign)",
+      "staffAnyHint": "Assigned automatically to the least busy available staff",
       "customerLabel": "Customer",
       "searchPlaceholder": "Search by name or phone...",
       "visitsCount": "{count} visits",
@@ -645,7 +839,8 @@
       "errorPhoneRequired": "Customer phone is required",
       "errorDateRequired": "Date/time is required",
       "errorCreateFailed": "Couldn't create appointment",
-      "successCreated": "Appointment created!"
+      "successCreated": "Appointment created!",
+      "successCreatedAutoAssigned": "Appointment created! Assigned staff: {name}"
     },
     "apptActions": {
       "internalNoteTitle": "Internal Note",
