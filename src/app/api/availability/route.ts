@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { istanbulDateStr, istanbulMinutesOfDay } from "@/lib/istanbul-time";
 
 export const runtime = "edge";
 
@@ -84,10 +85,12 @@ export async function GET(req: NextRequest) {
     .lte("appointment_at", dayEnd)
     .not("status", "in", '("iptal","gelmedi")');
 
-  // Convert existing appointments to occupied minute ranges
+  // Convert existing appointments to occupied minute ranges (İstanbul yerel saatine göre —
+  // sunucu UTC çalışır, ham getHours() var olan randevuları 3 saat kaydırıp
+  // dolu saatleri boşmuş gibi gösteriyordu).
   const occupied: Array<{ start: number; end: number }> = (existing || []).map((a) => {
     const d = new Date(a.appointment_at);
-    const startMin = d.getHours() * 60 + d.getMinutes();
+    const startMin = istanbulMinutesOfDay(d);
     return { start: startMin, end: startMin + a.duration_minutes };
   });
 
@@ -99,13 +102,13 @@ export async function GET(req: NextRequest) {
     return !occupied.some((o) => slotStart < o.end && slotEnd > o.start);
   });
 
-  // Don't return past slots for today
+  // Don't return past slots for today (İstanbul yerel saatine göre)
   const now = new Date();
-  const todayStr = now.toISOString().slice(0, 10);
+  const todayStr = istanbulDateStr(now);
   const finalSlots = date === todayStr
     ? available.filter((s) => {
         const [h, m] = s.split(":").map(Number);
-        return h * 60 + m > now.getHours() * 60 + now.getMinutes() + 30;
+        return h * 60 + m > istanbulMinutesOfDay(now) + 30;
       })
     : available;
 

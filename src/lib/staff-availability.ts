@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { istanbulDateStr, istanbulDayOfWeek, istanbulMinutesOfDay } from "@/lib/istanbul-time";
 
 export interface StaffScheduleRow {
   start_time: string;
@@ -13,13 +14,13 @@ export function isWithinWorkingHours(
   staff: StaffScheduleRow
 ): boolean {
   const d = new Date(appointmentAt);
-  if (!staff.working_days.includes(d.getDay())) return false;
+  if (!staff.working_days.includes(istanbulDayOfWeek(d))) return false;
 
   const [sh, sm] = staff.start_time.split(":").map(Number);
   const [eh, em] = staff.end_time.split(":").map(Number);
   const startMin = sh * 60 + sm;
   const endMin = eh * 60 + em;
-  const apptStartMin = d.getHours() * 60 + d.getMinutes();
+  const apptStartMin = istanbulMinutesOfDay(d);
   const apptEndMin = apptStartMin + durationMinutes;
   return apptStartMin >= startMin && apptEndMin <= endMin;
 }
@@ -31,7 +32,7 @@ export async function isStaffOnTimeOff(
   staffId: string,
   appointmentAt: string
 ): Promise<boolean> {
-  const dateStr = appointmentAt.slice(0, 10);
+  const dateStr = istanbulDateStr(new Date(appointmentAt));
   const { data } = await supabase
     .from("staff_time_off")
     .select("id")
