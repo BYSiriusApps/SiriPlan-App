@@ -297,9 +297,11 @@ export async function POST(req: NextRequest) {
   const finalDuration = data.total_duration_override ?? service.duration_minutes;
 
   // Panelden (giriş yapmış, org üyesi) girilen randevular direkt onaylı düşer.
-  // Herkese açık rezervasyon widget'ından (/r/[slug], anonim) gelenler, has_auto_booking
-  // açıksa (ve plan destekliyorsa) da direkt onaylanır; aksi halde onay bekler.
-  const webAutoBookingEligible = data.source === "web" && !!org.has_auto_booking && planAllowsAutoBooking;
+  // Herkese açık rezervasyon widget'ından (/r/[slug], anonim) gelenler VARSAYILAN
+  // OLARAK direkt onaylanır (deneme/Starter dahil — ilk kayıttan itibaren sürtünmesiz
+  // rezervasyon deneyimi). Manuel onay kuyruğu ("bekliyor") sadece Pro/Business'ta,
+  // salon sahibi has_auto_booking'i bilinçli olarak KAPATIRSA devreye girer.
+  const webAutoBookingEligible = data.source === "web" && (!planAllowsAutoBooking || !!org.has_auto_booking);
   const initialStatus = isPanelBooking || webAutoBookingEligible ? "onaylandi" : "talep";
 
   let appt: Record<string, unknown>;

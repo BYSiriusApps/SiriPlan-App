@@ -631,7 +631,7 @@ export default function AyarlarPage() {
       <SectionCard
         icon={CalendarCheck}
         title={t("settingsPage.onlineBookingSettingsTitle")}
-        description="Online randevu sayfanızdan (/r/...) gelen talepler varsayılan olarak onayınızı bekler."
+        description="Online randevu sayfanızdan (/r/...) gelen randevular varsayılan olarak otomatik onaylanır ve takvime düşer."
       >
         {(org.plan === "pro" || org.plan === "business") ? (
           <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
@@ -644,13 +644,16 @@ export default function AyarlarPage() {
             <label htmlFor="has_auto_booking" className="cursor-pointer flex-1">
               <p className="text-sm font-medium">Online randevuları otomatik onayla</p>
               <p className="text-xs text-muted-foreground">
-                Açarsanız online sayfadan gelen randevular beklemeden direkt onaylanır ve takvime düşer.
+                Açıksa online sayfadan gelen randevular beklemeden direkt onaylanır ve takvime düşer.
+                Kapatırsanız, randevular siz onaylayana kadar &quot;bekliyor&quot; kuyruğunda tutulur
+                (manuel onay kuyruğu Pro/Business planına özeldir).
               </p>
             </label>
           </div>
         ) : (
           <div className="p-3 rounded-lg bg-muted/50 border border-border text-xs text-muted-foreground">
-            Otomatik onay, Pro veya Business planında kullanılabilir.
+            Online randevularınız otomatik onaylanıp takvime düşer. Randevuları onaylamadan önce
+            gözden geçirmek isterseniz, bu manuel onay kuyruğu Pro veya Business planında kullanılabilir.
           </div>
         )}
       </SectionCard>
