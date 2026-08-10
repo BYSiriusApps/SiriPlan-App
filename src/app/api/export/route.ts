@@ -5,6 +5,15 @@ import * as XLSX from "xlsx";
 import { startOfDay, endOfDay, format as formatDate } from "date-fns";
 import { tr } from "date-fns/locale";
 
+// PDF/Gün Sonu raporları müşteri adı/telefon gibi herkese açık randevu
+// formundan gelen alanları ham HTML'e gömüyor — bu alanlar escape edilmezse
+// raporu açan salon sahibinin oturumunda stored XSS çalışır.
+function escapeHtml(value: unknown): string {
+  return String(value ?? "").replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string
+  ));
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format") || "json"; // json | csv | excel | pdf
@@ -148,9 +157,9 @@ export async function GET(req: NextRequest) {
 
     const custRows = (customers || []).slice(0, 100).map((c) => `
       <tr>
-        <td>${c.full_name}</td>
-        <td>${c.phone}</td>
-        <td>${c.email || "-"}</td>
+        <td>${escapeHtml(c.full_name)}</td>
+        <td>${escapeHtml(c.phone)}</td>
+        <td>${escapeHtml(c.email) || "-"}</td>
         <td>${Number(c.total_spend).toLocaleString("tr-TR")} ₺</td>
         <td>${c.visit_count}</td>
         <td>${c.score}</td>
@@ -158,8 +167,8 @@ export async function GET(req: NextRequest) {
 
     const svcRows = (services || []).map((s) => `
       <tr>
-        <td>${s.name}</td>
-        <td>${s.category_tag}</td>
+        <td>${escapeHtml(s.name)}</td>
+        <td>${escapeHtml(s.category_tag)}</td>
         <td>${s.duration_minutes} dk</td>
         <td>${Number(s.price).toLocaleString("tr-TR")} ₺</td>
         <td>${s.is_active ? "Aktif" : "Pasif"}</td>
@@ -169,7 +178,7 @@ export async function GET(req: NextRequest) {
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>${orgName} — Siriplan Raporu</title>
+<title>${escapeHtml(orgName)} — Siriplan Raporu</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: Arial, sans-serif; font-size: 12px; color: #333; padding: 24px; }
@@ -192,7 +201,7 @@ export async function GET(req: NextRequest) {
 </style>
 </head>
 <body>
-<h1>${orgName}</h1>
+<h1>${escapeHtml(orgName)}</h1>
 <p class="meta">Siriplan tarafından oluşturuldu — ${new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" })}</p>
 
 <div class="summary">
@@ -285,17 +294,17 @@ async function buildGunSonuPdf(
   const apptRows = dAppts.map((a) => `
     <tr>
       <td>${formatDate(new Date(a.appointment_at), "HH:mm")}</td>
-      <td>${a.customer_name}</td>
-      <td>${a.service?.name ?? "-"}${a.staff?.full_name ? ` · ${a.staff.full_name}` : ""}</td>
-      <td>${STATUS_TR[a.status] ?? a.status}</td>
+      <td>${escapeHtml(a.customer_name)}</td>
+      <td>${escapeHtml(a.service?.name ?? "-")}${a.staff?.full_name ? ` · ${escapeHtml(a.staff.full_name)}` : ""}</td>
+      <td>${STATUS_TR[a.status] ?? escapeHtml(a.status)}</td>
       <td style="text-align:right">${Number(a.price).toLocaleString("tr-TR")} ₺</td>
     </tr>`).join("");
 
   const expenseRows = (dayExpenses ?? []).map((e) => `
     <tr>
       <td>${e.type === "gelir" ? "Gelir" : "Gider"}</td>
-      <td>${e.category ?? "-"}</td>
-      <td>${e.description ?? "-"}</td>
+      <td>${escapeHtml(e.category ?? "-")}</td>
+      <td>${escapeHtml(e.description ?? "-")}</td>
       <td style="text-align:right">${e.type === "gelir" ? "+" : "-"}${Number(e.amount).toLocaleString("tr-TR")} ₺</td>
     </tr>`).join("");
 
@@ -303,7 +312,7 @@ async function buildGunSonuPdf(
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>${orgName} — Gün Sonu Özeti</title>
+<title>${escapeHtml(orgName)} — Gün Sonu Özeti</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: Arial, sans-serif; font-size: 12px; color: #333; padding: 24px; }
@@ -327,7 +336,7 @@ async function buildGunSonuPdf(
 </style>
 </head>
 <body>
-<h1>${orgName}</h1>
+<h1>${escapeHtml(orgName)}</h1>
 <p class="meta">Gün Sonu Özeti — ${formatDate(reportDay, "d MMMM yyyy, EEEE", { locale: tr })}</p>
 
 <div class="summary">
