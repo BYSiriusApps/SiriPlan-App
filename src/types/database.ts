@@ -52,6 +52,7 @@ export interface Organization {
   kdv_enabled: boolean;
   kdv_rate: number;
   kvkk_notice_text: string | null;
+  timezone: string;
   settings_json: Record<string, unknown>;
   created_at: string;
   updated_at: string;

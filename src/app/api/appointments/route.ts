@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   // Server-side quota: check max_appointments_monthly
   const { data: org } = await supabase
     .from("organizations")
-    .select("max_appointments_monthly, subscription_status, trial_ends_at, has_auto_booking, plan")
+    .select("max_appointments_monthly, subscription_status, trial_ends_at, has_auto_booking, plan, timezone")
     .eq("id", data.org_id)
     .single();
 
@@ -190,18 +190,20 @@ export async function POST(req: NextRequest) {
   // aksi halde seçilen personelin o tarihte izinli olmadığını doğrula.
   const requestedDuration = data.total_duration_override ?? service.duration_minutes;
   let resolvedStaffId: string | null = data.staff_id ?? null;
+  const orgTimezone = org.timezone || "Europe/Istanbul";
   if (data.auto_assign_staff) {
     resolvedStaffId = await findAvailableStaff(
       adminSupabase,
       data.org_id,
       data.service_id,
       data.appointment_at,
-      requestedDuration
+      requestedDuration,
+      orgTimezone
     );
     if (!resolvedStaffId) {
       return NextResponse.json({ error: "Seçilen saatte uygun personel yok." }, { status: 409 });
     }
-  } else if (resolvedStaffId && (await isStaffOnTimeOff(adminSupabase, data.org_id, resolvedStaffId, data.appointment_at))) {
+  } else if (resolvedStaffId && (await isStaffOnTimeOff(adminSupabase, data.org_id, resolvedStaffId, data.appointment_at, orgTimezone))) {
     return NextResponse.json({ error: "Personel bu tarihte izinli." }, { status: 409 });
   }
   if (!resolvedStaffId) {
@@ -361,7 +363,7 @@ export async function POST(req: NextRequest) {
   // için email girilmemiş olsa bile bu kanal her zaman devreye girer.
   // Sadece gerçekten onaylanmış randevularda gönderilir.
   if (initialStatus === "onaylandi") {
-    const { date, time } = formatApptDateTime(data.appointment_at);
+    const { date, time } = formatApptDateTime(data.appointment_at, orgTimezone);
     sendPurposeTemplate({
       toPhone: data.customer_phone,
       orgId: data.org_id,
@@ -391,6 +393,7 @@ export async function POST(req: NextRequest) {
         staffName: (staffRow as { full_name: string } | null)?.full_name ?? "",
         appointmentAt: new Date(data.appointment_at),
         cancelToken: (appt as { cancel_token?: string }).cancel_token,
+        timeZone: orgTimezone,
       }).catch(() => {});
     }
   }

@@ -13,6 +13,7 @@ import { Loader2, Building2, Mail, Lock, Phone, User, AlertCircle, CheckCircle2 
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
+import { TIMEZONE_OPTIONS } from "@/lib/timezones";
 
 function isMobileDevice() {
   if (typeof navigator === "undefined") return false;
@@ -40,13 +41,16 @@ const BUSINESS_TYPES = [
 ];
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
-const PHONE_RE = /^(\+90|0090|90)?[- ]?5\d{2}[- ]?\d{3}[- ]?\d{2}[- ]?\d{2}$/;
 
-function normalizePhone(raw: string) {
-  const digits = raw.replace(/\D/g, "");
-  if (digits.startsWith("90") && digits.length === 12) return "0" + digits.slice(2);
-  if (digits.length === 10 && digits.startsWith("5")) return "0" + digits;
-  return digits.length === 11 ? digits : raw;
+/** Ülke kodu + yerel numarayı depolama biçimine indirger. TR (90) için mevcut
+ * "0555..." formatı korunur (geri uyum); diğer ülkeler için "+" olmadan
+ * ülke kodu + numara ("72445551234" gibi) — toWaPhone/normalizePhone bunu
+ * zaten doğru işliyor. Kullanıcı yanlışlıkla başına 0 koysa bile temizlenir.
+ */
+function buildPhone(countryCode: string, localPhone: string) {
+  const cc = countryCode.replace(/\D/g, "") || "90";
+  const local = localPhone.replace(/\D/g, "").replace(/^0+/, "");
+  return cc === "90" ? "0" + local : cc + local;
 }
 
 export default function KayitPage() {
@@ -56,7 +60,8 @@ export default function KayitPage() {
   const [selectedLocale, setSelectedLocale] = useState("tr");
   const [form, setForm] = useState({
     salonName: "", type: "kuafor", fullName: "",
-    email: "", phone: "", password: "",
+    email: "", phone: "", countryCode: "90", password: "",
+    timezone: "Europe/Istanbul",
   });
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
@@ -68,7 +73,7 @@ export default function KayitPage() {
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
     if (field === "email") setEmailError("");
-    if (field === "phone") setPhoneError("");
+    if (field === "phone" || field === "countryCode") setPhoneError("");
   }
 
   function validateEmail(email: string) {
@@ -80,10 +85,18 @@ export default function KayitPage() {
     return true;
   }
 
-  function validatePhone(phone: string) {
-    if (!phone.trim()) { setPhoneError("Telefon numarası zorunludur."); return false; }
-    if (!PHONE_RE.test(phone.trim())) {
-      setPhoneError("Geçerli bir Türkiye numarası girin (örn: 0532 123 45 67)");
+  function validatePhone(phone: string, countryCode: string) {
+    const digits = phone.replace(/\D/g, "");
+    if (!digits) { setPhoneError("Telefon numarası zorunludur."); return false; }
+    const cc = countryCode.replace(/\D/g, "") || "90";
+    if (cc === "90") {
+      const local = digits.replace(/^0+/, "");
+      if (!/^5\d{9}$/.test(local)) {
+        setPhoneError("Geçerli bir cep telefonu numarası girin (örn: 532 123 45 67)");
+        return false;
+      }
+    } else if (digits.length < 6 || digits.length > 14) {
+      setPhoneError("Geçerli bir telefon numarası girin.");
       return false;
     }
     setPhoneError("");
@@ -93,7 +106,7 @@ export default function KayitPage() {
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     if (!validateEmail(form.email)) return;
-    if (!validatePhone(form.phone)) return;
+    if (!validatePhone(form.phone, form.countryCode)) return;
     if (form.password.length < 8) { toast.error("Şifre en az 8 karakter olmalı."); return; }
     if (!form.salonName.trim()) { toast.error("İşletme adı zorunludur."); return; }
     if (!kvkkChecked || !gizlilikChecked) {
@@ -115,8 +128,9 @@ export default function KayitPage() {
           password: form.password,
           salonName: form.salonName.trim(),
           fullName: form.fullName.trim(),
-          phone: normalizePhone(form.phone),
+          phone: buildPhone(form.countryCode, form.phone),
           businessType: form.type,
+          timezone: form.timezone,
           locale: selectedLocale,
           kvkkConsent: kvkkChecked,
           marketingConsent: marketingChecked,
@@ -258,15 +272,38 @@ export default function KayitPage() {
             </div>
             <div className="space-y-1.5">
               <Label>Telefon <span className="text-red-500">*</span></Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input type="tel" inputMode="tel" placeholder="05xx xxx xxxx"
-                  className={`pl-9 ${phoneError ? "border-red-500" : ""}`}
-                  value={form.phone} onChange={(e) => set("phone", e.target.value)}
-                  onBlur={() => form.phone && validatePhone(form.phone)} required />
+              <div className="flex gap-1.5">
+                <div className="relative w-[4.5rem] shrink-0">
+                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">+</span>
+                  <Input inputMode="numeric" placeholder="90" title="Ülke kodu"
+                    className="pl-4 pr-1 text-center"
+                    value={form.countryCode}
+                    onChange={(e) => set("countryCode", e.target.value.replace(/\D/g, "").slice(0, 4))}
+                    maxLength={4} required />
+                </div>
+                <div className="relative flex-1">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input type="tel" inputMode="tel" placeholder="5xx xxx xx xx"
+                    className={`pl-9 ${phoneError ? "border-red-500" : ""}`}
+                    value={form.phone} onChange={(e) => set("phone", e.target.value)}
+                    onBlur={() => form.phone && validatePhone(form.phone, form.countryCode)} required />
+                </div>
               </div>
               {phoneError && <p className="text-xs text-red-500 mt-0.5">{phoneError}</p>}
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Saat Dilimi</Label>
+            <Select value={form.timezone} onValueChange={(v) => set("timezone", v ?? "Europe/Istanbul")}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {TIMEZONE_OPTIONS.map((tz) => (
+                  <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">Randevularınız bu saat dilimine göre hesaplanır, dilediğiniz zaman Ayarlar&apos;dan değiştirebilirsiniz.</p>
           </div>
 
           <div className="space-y-1.5">

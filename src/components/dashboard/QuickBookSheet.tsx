@@ -359,7 +359,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">{t("phoneLabel")}</Label>
                   <Input
-                    placeholder="05xx xxx xx xx"
+                    placeholder="5xx xxx xx xx"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     type="tel"

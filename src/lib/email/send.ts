@@ -32,6 +32,7 @@ export interface AppointmentEmailData {
   cancelToken?: string;
   orgAddress?: string;
   locationUrl?: string;
+  timeZone?: string;
 }
 
 function baseLayout(content: string, orgName: string) {
@@ -79,17 +80,18 @@ function baseLayout(content: string, orgName: string) {
 </html>`;
 }
 
-const APPOINTMENT_TZ = "Europe/Istanbul";
+const DEFAULT_APPOINTMENT_TZ = "Europe/Istanbul";
 
-function formatTR(date: Date) {
-  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: APPOINTMENT_TZ });
+function formatTR(date: Date, timeZone: string = DEFAULT_APPOINTMENT_TZ) {
+  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone });
 }
-function formatTime(date: Date) {
-  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: APPOINTMENT_TZ });
+function formatTime(date: Date, timeZone: string = DEFAULT_APPOINTMENT_TZ) {
+  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone });
 }
 
 export async function sendConfirmationEmail(data: AppointmentEmailData) {
   if (!emailEnabled()) return;
+  const tz = data.timeZone || DEFAULT_APPOINTMENT_TZ;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
   const cancelLink = data.cancelToken
@@ -103,11 +105,11 @@ export async function sendConfirmationEmail(data: AppointmentEmailData) {
     <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;">
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">📅 Tarih</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt)}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt, tz)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">🕐 Saat</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt)}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt, tz)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">💇 Hizmet</span>
@@ -137,7 +139,7 @@ export async function sendConfirmationEmail(data: AppointmentEmailData) {
   await getResend().emails.send({
     from: `${fromName(data.orgName)} <${FROM}>`,
     to: data.to,
-    subject: `Randevunuz Onaylandı — ${formatTR(data.appointmentAt)} ${formatTime(data.appointmentAt)}`,
+    subject: `Randevunuz Onaylandı — ${formatTR(data.appointmentAt, tz)} ${formatTime(data.appointmentAt, tz)}`,
     html: baseLayout(content, data.orgName),
   });
 }
@@ -274,6 +276,7 @@ export async function sendTrialEndingEmail(data: {
 
 export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: number) {
   if (!emailEnabled()) return;
+  const tz = data.timeZone || DEFAULT_APPOINTMENT_TZ;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
   const cancelLink = data.cancelToken
@@ -305,11 +308,11 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
     <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;">
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">📅 Tarih</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt)}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt, tz)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">🕐 Saat</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt)}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt, tz)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">💇 Hizmet</span>
@@ -353,7 +356,7 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
     to: data.to,
     subject: isImminent
       ? `⏰ Randevunuz ${hoursAway} Saat Sonra — ${data.orgName}`
-      : `📅 ${formatTR(data.appointmentAt)} ${formatTime(data.appointmentAt)} Randevunuzu Unutmayın — ${data.orgName}`,
+      : `📅 ${formatTR(data.appointmentAt, tz)} ${formatTime(data.appointmentAt, tz)} Randevunuzu Unutmayın — ${data.orgName}`,
     html: baseLayout(content, data.orgName),
   });
 }

@@ -32,6 +32,13 @@ export default async function TakvimPage({
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
+  const { data: orgTzRow } = await supabase
+    .from("organizations")
+    .select("timezone")
+    .eq("id", member.org_id)
+    .single();
+  const orgTimeZone = orgTzRow?.timezone || "Europe/Istanbul";
+
   const view: CalendarView = ["day", "week", "month"].includes(params.view ?? "")
     ? (params.view as CalendarView)
     : "week";
@@ -39,7 +46,7 @@ export default async function TakvimPage({
   // "Bugün" sunucunun (UTC) değil, Türkiye saatinin tarihine göre belirlenir —
   // aksi halde gece yarısından sonra TR'de "bugün" iken sunucuda hâlâ "dün"
   // olduğu saatlerde haftalık görünüm bir hafta geriden başlıyordu.
-  const todayInIstanbul = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
+  const todayInIstanbul = new Intl.DateTimeFormat("en-CA", { timeZone: orgTimeZone }).format(new Date());
   const validDate = params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date)
     ? new Date(params.date + "T12:00:00")
     : new Date(todayInIstanbul + "T12:00:00");

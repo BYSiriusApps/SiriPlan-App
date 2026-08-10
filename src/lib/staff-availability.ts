@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { istanbulDateStr, istanbulDayOfWeek, istanbulMinutesOfDay } from "@/lib/istanbul-time";
+import { DEFAULT_ORG_TIMEZONE, istanbulDateStr, istanbulDayOfWeek, istanbulMinutesOfDay } from "@/lib/istanbul-time";
 
 export interface StaffScheduleRow {
   start_time: string;
@@ -7,20 +7,22 @@ export interface StaffScheduleRow {
   working_days: number[];
 }
 
-/** staff.start_time/end_time/working_days'e göre randevunun mesai içinde olup olmadığını kontrol eder. */
+/** staff.start_time/end_time/working_days'e göre randevunun mesai içinde olup olmadığını kontrol eder.
+ * timeZone verilmezse geriye dönük uyumluluk için Europe/Istanbul kullanılır. */
 export function isWithinWorkingHours(
   appointmentAt: string,
   durationMinutes: number,
-  staff: StaffScheduleRow
+  staff: StaffScheduleRow,
+  timeZone: string = DEFAULT_ORG_TIMEZONE
 ): boolean {
   const d = new Date(appointmentAt);
-  if (!staff.working_days.includes(istanbulDayOfWeek(d))) return false;
+  if (!staff.working_days.includes(istanbulDayOfWeek(d, timeZone))) return false;
 
   const [sh, sm] = staff.start_time.split(":").map(Number);
   const [eh, em] = staff.end_time.split(":").map(Number);
   const startMin = sh * 60 + sm;
   const endMin = eh * 60 + em;
-  const apptStartMin = istanbulMinutesOfDay(d);
+  const apptStartMin = istanbulMinutesOfDay(d, timeZone);
   const apptEndMin = apptStartMin + durationMinutes;
   return apptStartMin >= startMin && apptEndMin <= endMin;
 }
@@ -30,9 +32,10 @@ export async function isStaffOnTimeOff(
   supabase: SupabaseClient,
   orgId: string,
   staffId: string,
-  appointmentAt: string
+  appointmentAt: string,
+  timeZone: string = DEFAULT_ORG_TIMEZONE
 ): Promise<boolean> {
-  const dateStr = istanbulDateStr(new Date(appointmentAt));
+  const dateStr = istanbulDateStr(new Date(appointmentAt), timeZone);
   const { data } = await supabase
     .from("staff_time_off")
     .select("id")
@@ -90,7 +93,8 @@ export async function findAvailableStaff(
   orgId: string,
   serviceId: string,
   appointmentAt: string,
-  durationMinutes: number
+  durationMinutes: number,
+  timeZone: string = DEFAULT_ORG_TIMEZONE
 ): Promise<string | null> {
   const { data: assigned } = await supabase
     .from("staff_services")
@@ -116,16 +120,19 @@ export async function findAvailableStaff(
   for (const row of candidates) {
     const staff = row.staff as unknown as CandidateStaff;
     if (!staff || staff.org_id !== orgId || !staff.is_active) continue;
-    if (!isWithinWorkingHours(appointmentAt, durationMinutes, staff)) continue;
-    if (await isStaffOnTimeOff(supabase, orgId, staff.id, appointmentAt)) continue;
+    if (!isWithinWorkingHours(appointmentAt, durationMinutes, staff, timeZone)) continue;
+    if (await isStaffOnTimeOff(supabase, orgId, staff.id, appointmentAt, timeZone)) continue;
     if (await hasOverlappingAppointment(supabase, staff.id, appointmentAt, durationMinutes)) continue;
     available.push(staff);
   }
   if (available.length === 0) return null;
   if (available.length === 1) return available[0].id;
 
-  // Uygun personeller arasından o gün en az randevusu olanı bul.
-  const dateStr = appointmentAt.slice(0, 10);
+  // Uygun personeller arasından o gün (işletmenin yerel timezone'ında) en az
+  // randevusu olanı bul — appointment_at gerçek UTC anı olduğu için düz string
+  // slice yerine timezone'a göre gün sınırı hesaplanmalı (gece yarısına yakın
+  // randevularda yanlış güne düşmesin).
+  const dateStr = istanbulDateStr(new Date(appointmentAt), timeZone);
   const { data: dayAppts } = await supabase
     .from("appointments")
     .select("staff_id")

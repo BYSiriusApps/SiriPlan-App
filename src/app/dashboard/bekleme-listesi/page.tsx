@@ -269,7 +269,7 @@ export default function BeklemeListesiPage() {
             </div>
             <div>
               <Label>Telefon *</Label>
-              <Input className="mt-1" type="tel" value={form.customer_phone} onChange={(e) => setForm((f) => ({ ...f, customer_phone: e.target.value }))} placeholder="05xx..." />
+              <Input className="mt-1" type="tel" value={form.customer_phone} onChange={(e) => setForm((f) => ({ ...f, customer_phone: e.target.value }))} placeholder="5xx xxx xx xx" />
             </div>
             <div>
               <Label>Hizmet (opsiyonel)</Label>

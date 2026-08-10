@@ -10,6 +10,16 @@ const VALID_BUSINESS_TYPES = new Set([
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
+function safeTimezone(tz: unknown): string {
+  if (typeof tz !== "string" || !tz) return "Europe/Istanbul";
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: tz });
+    return tz;
+  } catch {
+    return "Europe/Istanbul";
+  }
+}
+
 function slugify(text: string) {
   return text
     .toLowerCase()
@@ -26,12 +36,13 @@ export async function POST(req: NextRequest) {
   if (!body) return NextResponse.json({ error: "Invalid body" }, { status: 400 });
 
   const VALID_LOCALES = new Set(["tr", "en", "ru", "ar"]);
-  const { email, password, salonName, fullName, phone, businessType, locale, kvkkConsent, marketingConsent } = body as {
+  const { email, password, salonName, fullName, phone, businessType, timezone, locale, kvkkConsent, marketingConsent } = body as {
     email: string; password: string; salonName: string;
     fullName: string; phone: string; businessType: string;
-    locale?: string; kvkkConsent: boolean; marketingConsent: boolean;
+    timezone?: string; locale?: string; kvkkConsent: boolean; marketingConsent: boolean;
   };
   const safeLocale = locale && VALID_LOCALES.has(locale) ? locale : "tr";
+  const orgTimezone = safeTimezone(timezone);
 
   if (!email || !password || !salonName || !fullName) {
     return NextResponse.json({ error: "Eksik alanlar" }, { status: 400 });
@@ -92,6 +103,7 @@ export async function POST(req: NextRequest) {
       subscription_status: "active",
       trial_ends_at: trialEndsAt,
       locale: safeLocale,
+      timezone: orgTimezone,
     })
     .select("id")
     .single();

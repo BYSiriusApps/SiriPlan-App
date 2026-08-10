@@ -89,7 +89,7 @@ export default function MusteriYeniPage() {
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                  placeholder="05xx xxx xx xx"
+                  placeholder="5xx xxx xx xx"
                   required
                 />
               </div>

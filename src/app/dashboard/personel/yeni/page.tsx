@@ -124,7 +124,7 @@ export default function PersonelYeniPage() {
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                  placeholder="05xx..."
+                  placeholder="5xx xxx xx xx"
                 />
               </div>
               <div className="space-y-1">

@@ -133,11 +133,12 @@ export async function sendPurposeTemplate({
   return { sent: true, template: templateName };
 }
 
-/** Randevu tarihinden {{date}}/{{time}} param çiftini üretir (Europe/Istanbul). */
-export function formatApptDateTime(appointmentAt: string): { date: string; time: string } {
+/** Randevu tarihinden {{date}}/{{time}} param çiftini üretir. timeZone verilmezse
+ * geriye dönük uyumluluk için Europe/Istanbul kullanılır. */
+export function formatApptDateTime(appointmentAt: string, timeZone: string = "Europe/Istanbul"): { date: string; time: string } {
   const d = new Date(appointmentAt);
   const parts = new Intl.DateTimeFormat("tr-TR", {
-    timeZone: "Europe/Istanbul",
+    timeZone,
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

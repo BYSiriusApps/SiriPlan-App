@@ -51,6 +51,13 @@ export async function GET(req: NextRequest) {
 
   if (!staff) return NextResponse.json({ error: "Staff not found" }, { status: 404 });
 
+  const { data: orgRow } = await supabase
+    .from("organizations")
+    .select("timezone")
+    .eq("id", staff.org_id ?? "")
+    .single();
+  const timeZone = orgRow?.timezone || "Europe/Istanbul";
+
   // Check if staff works on this day
   const dayOfWeek = new Date(date + "T12:00:00").getDay(); // 0=Sun
   if (!(staff.working_days as number[]).includes(dayOfWeek)) {
@@ -90,7 +97,7 @@ export async function GET(req: NextRequest) {
   // dolu saatleri boşmuş gibi gösteriyordu).
   const occupied: Array<{ start: number; end: number }> = (existing || []).map((a) => {
     const d = new Date(a.appointment_at);
-    const startMin = istanbulMinutesOfDay(d);
+    const startMin = istanbulMinutesOfDay(d, timeZone);
     return { start: startMin, end: startMin + a.duration_minutes };
   });
 
@@ -104,11 +111,11 @@ export async function GET(req: NextRequest) {
 
   // Don't return past slots for today (İstanbul yerel saatine göre)
   const now = new Date();
-  const todayStr = istanbulDateStr(now);
+  const todayStr = istanbulDateStr(now, timeZone);
   const finalSlots = date === todayStr
     ? available.filter((s) => {
         const [h, m] = s.split(":").map(Number);
-        return h * 60 + m > istanbulMinutesOfDay(now) + 30;
+        return h * 60 + m > istanbulMinutesOfDay(now, timeZone) + 30;
       })
     : available;
 

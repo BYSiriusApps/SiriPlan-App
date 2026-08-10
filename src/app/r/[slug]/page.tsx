@@ -531,7 +531,7 @@ function BookingWizard({
                 <Label>{t("phoneLabel")}</Label>
                 <Input
                   type="tel"
-                  placeholder="05xx xxx xxxx"
+                  placeholder="5xx xxx xx xx"
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                   className="mt-1.5 h-11 rounded-xl"

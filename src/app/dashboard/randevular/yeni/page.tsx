@@ -269,7 +269,7 @@ export default function YeniRandevuPage() {
                       type="tel"
                       value={form.customer_phone}
                       onChange={(e) => setForm((f) => ({ ...f, customer_phone: e.target.value }))}
-                      placeholder="05xx..."
+                      placeholder="5xx xxx xx xx"
                       required
                     />
                   </div>

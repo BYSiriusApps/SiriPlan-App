@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { TIMEZONE_OPTIONS } from "@/lib/timezones";
 import { DEFAULT_WA_TEMPLATE, WA_TEMPLATE_VARS, renderWaTemplate } from "@/lib/wa-template";
 import {
   DEFAULT_WA_TEMPLATE_STYLES,
@@ -189,6 +190,7 @@ export default function AyarlarPage() {
         whatsapp_number: org.whatsapp_number,
         telegram_chat_id: org.telegram_chat_id,
         locale: org.locale,
+        timezone: org.timezone || "Europe/Istanbul",
         working_hours_json: org.working_hours_json,
         custom_reminder_message: org.custom_reminder_message,
         custom_cancellation_message: org.custom_cancellation_message,
@@ -390,7 +392,7 @@ export default function AyarlarPage() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label>Telefon</Label>
-            <Input className="mt-1" value={org.phone || ""} onChange={(e) => setField("phone", e.target.value)} placeholder="05xx xxx xxxx" />
+            <Input className="mt-1" value={org.phone || ""} onChange={(e) => setField("phone", e.target.value)} placeholder="5xx xxx xx xx" />
           </div>
           <div>
             <Label>E-posta</Label>
@@ -418,6 +420,18 @@ export default function AyarlarPage() {
               </SelectContent>
             </Select>
           </div>
+        </div>
+        <div>
+          <Label>Saat Dilimi</Label>
+          <Select value={org.timezone || "Europe/Istanbul"} onValueChange={(v) => setField("timezone", v ?? "Europe/Istanbul")}>
+            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {TIMEZONE_OPTIONS.map((tz) => (
+                <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground mt-1">Çalışma saatleri, müsaitlik ve randevu bildirimleri bu saat dilimine göre hesaplanır.</p>
         </div>
         <div className="space-y-1">
           <Label>Konum (Google Maps Linki)</Label>

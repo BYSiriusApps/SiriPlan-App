@@ -91,7 +91,12 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (touchesSchedule && previous) {
     const targetStaffId = (updates.staff_id as string | undefined) ?? previous.staff_id;
     const targetAt = (updates.appointment_at as string | undefined) ?? previous.appointment_at;
-    if (targetStaffId && (await isStaffOnTimeOff(supabase, member.org_id, targetStaffId, targetAt))) {
+    const { data: orgTz } = await supabase
+      .from("organizations")
+      .select("timezone")
+      .eq("id", member.org_id)
+      .single();
+    if (targetStaffId && (await isStaffOnTimeOff(supabase, member.org_id, targetStaffId, targetAt, orgTz?.timezone || "Europe/Istanbul"))) {
       return NextResponse.json({ error: "Personel bu tarihte izinli." }, { status: 409 });
     }
   }
