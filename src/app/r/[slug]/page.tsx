@@ -138,33 +138,38 @@ function BookingWizard({
   async function handleSubmit() {
     if (!org || !selectedService || (!selectedStaff && !anyStaff) || !selectedDate || !selectedSlot || !kvkkAccepted) return;
     setSubmitting(true);
-    const appointmentAt = new Date(`${selectedDate}T${selectedSlot}:00`).toISOString();
-    const res = await fetch("/api/appointments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        org_id: org.id,
-        customer_name: form.name,
-        customer_phone: form.phone,
-        customer_email: form.email || undefined,
-        ...(anyStaff ? { auto_assign_staff: true } : { staff_id: selectedStaff!.id }),
-        service_id: selectedService.id,
-        appointment_at: appointmentAt,
-        note: form.note || undefined,
-        source: "web",
-        kvkk_consent: kvkkAccepted,
-        marketing_consent: marketingAccepted,
-        kvkk_notice_snapshot: renderKvkkNotice(org.kvkk_notice_text, org.name),
-        preferred_language: lang,
-      }),
-    });
-    if (res.ok) {
-      setDone(true);
-    } else {
-      const err = await res.json();
-      toast.error(err.error || t("genericError"));
+    try {
+      const appointmentAt = new Date(`${selectedDate}T${selectedSlot}:00`).toISOString();
+      const res = await fetch("/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          org_id: org.id,
+          customer_name: form.name,
+          customer_phone: form.phone,
+          customer_email: form.email || undefined,
+          ...(anyStaff ? { auto_assign_staff: true } : { staff_id: selectedStaff!.id }),
+          service_id: selectedService.id,
+          appointment_at: appointmentAt,
+          note: form.note || undefined,
+          source: "web",
+          kvkk_consent: kvkkAccepted,
+          marketing_consent: marketingAccepted,
+          kvkk_notice_snapshot: renderKvkkNotice(org.kvkk_notice_text, org.name),
+          preferred_language: lang,
+        }),
+      });
+      if (res.ok) {
+        setDone(true);
+      } else {
+        const err = await res.json().catch(() => null);
+        toast.error(err?.error || t("genericError"));
+      }
+    } catch {
+      toast.error(t("genericError"));
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   // Next 14 days for date picker
