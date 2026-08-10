@@ -78,7 +78,12 @@ interface CandidateStaff extends StaffScheduleRow {
   is_active: boolean;
 }
 
-/** "Farketmez" seçildiğinde, hizmeti verebilen ve o saatte müsait olan ilk personeli bulur. */
+/**
+ * "Farketmez" seçildiğinde, hizmeti verebilen ve o saatte müsait olan personeller
+ * arasından, o gün içinde en az randevusu olanı (yoğunluğa göre dengeli dağıtım)
+ * seçer. Örn. A personeli o gün 3 randevu almışsa, B personeli 1 almışsa, "Farketmez"
+ * randevusu B'ye atanır.
+ */
 export async function findAvailableStaff(
   supabase: SupabaseClient,
   orgId: string,
@@ -106,13 +111,34 @@ export async function findAvailableStaff(
     candidates = (allStaff ?? []).map((s) => ({ staff: s }));
   }
 
+  const available: CandidateStaff[] = [];
   for (const row of candidates) {
     const staff = row.staff as unknown as CandidateStaff;
     if (!staff || staff.org_id !== orgId || !staff.is_active) continue;
     if (!isWithinWorkingHours(appointmentAt, durationMinutes, staff)) continue;
     if (await isStaffOnTimeOff(supabase, orgId, staff.id, appointmentAt)) continue;
     if (await hasOverlappingAppointment(supabase, staff.id, appointmentAt, durationMinutes)) continue;
-    return staff.id;
+    available.push(staff);
   }
-  return null;
+  if (available.length === 0) return null;
+  if (available.length === 1) return available[0].id;
+
+  // Uygun personeller arasından o gün en az randevusu olanı bul.
+  const dateStr = appointmentAt.slice(0, 10);
+  const { data: dayAppts } = await supabase
+    .from("appointments")
+    .select("staff_id")
+    .eq("org_id", orgId)
+    .not("status", "in", '("iptal","gelmedi")')
+    .gte("appointment_at", `${dateStr}T00:00:00`)
+    .lte("appointment_at", `${dateStr}T23:59:59`)
+    .in("staff_id", available.map((s) => s.id));
+
+  const counts = new Map<string, number>();
+  for (const a of dayAppts ?? []) {
+    counts.set(a.staff_id, (counts.get(a.staff_id) ?? 0) + 1);
+  }
+
+  available.sort((a, b) => (counts.get(a.id) ?? 0) - (counts.get(b.id) ?? 0));
+  return available[0].id;
 }

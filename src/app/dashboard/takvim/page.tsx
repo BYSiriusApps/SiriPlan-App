@@ -36,9 +36,13 @@ export default async function TakvimPage({
     ? (params.view as CalendarView)
     : "week";
   // Bozuk ?date= değeri Invalid Date → format() çöker; sıkı doğrula.
+  // "Bugün" sunucunun (UTC) değil, Türkiye saatinin tarihine göre belirlenir —
+  // aksi halde gece yarısından sonra TR'de "bugün" iken sunucuda hâlâ "dün"
+  // olduğu saatlerde haftalık görünüm bir hafta geriden başlıyordu.
+  const todayInIstanbul = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
   const validDate = params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date)
     ? new Date(params.date + "T12:00:00")
-    : new Date();
+    : new Date(todayInIstanbul + "T12:00:00");
   const baseDate = isNaN(validDate.getTime()) ? new Date() : validDate;
 
   // Görünüme göre görünür gün aralığı + gezinme hedefleri
@@ -113,7 +117,7 @@ export default async function TakvimPage({
       .gte("ends_on", format(gridStart, "yyyy-MM-dd")),
   ]);
 
-  const today = format(new Date(), "yyyy-MM-dd");
+  const today = todayInIstanbul;
 
   // Personel rolündeki kullanıcı yalnızca kendi randevularını görür/filtreler
   const lockedStaffId = member.role === "staff" ? member.staff_id : null;

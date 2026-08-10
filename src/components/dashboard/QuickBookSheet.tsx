@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Search, User, Scissors, Clock, Phone, Star, Loader2, X, Check, MessageCircle } from "lucide-react";
+import { Plus, Search, User, Scissors, Clock, Phone, Star, Loader2, X, Check, MessageCircle, Shuffle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { DateTimeSlotPicker, nextSlot } from "@/components/dashboard/DateTimeSlotPicker";
@@ -36,6 +36,9 @@ interface CustomerHit {
   email?: string | null;
   total_visits?: number;
 }
+
+/** Personel seçiminde "Farketmez" için kullanılan sentinel değer — backend'e auto_assign_staff olarak iletilir. */
+const ANY_STAFF = "__any__";
 
 interface Props {
   /** Pre-selected staff when opening from a staff column in CalendarGrid */
@@ -149,6 +152,8 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     if (!customerPhone.trim()) { toast.error(t("errorPhoneRequired")); return; }
     if (!appointmentAt) { toast.error(t("errorDateRequired")); return; }
 
+    const isAutoAssign = selectedStaffId === ANY_STAFF;
+
     setLoading(true);
     try {
       const res = await fetch("/api/appointments", {
@@ -156,7 +161,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           org_id: orgId,
-          staff_id: selectedStaffId,
+          ...(isAutoAssign ? { auto_assign_staff: true } : { staff_id: selectedStaffId }),
           service_id: selectedServiceId,
           customer_name: customerName.trim(),
           customer_phone: customerPhone.trim(),
@@ -173,7 +178,15 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
         return;
       }
 
-      toast.success(t("successCreated"));
+      // "Farketmez" seçildiyse backend'in gerçekte atadığı personeli response'tan al.
+      const resolvedStaffId = (json.appointment?.staff_id as string | undefined) ?? selectedStaffId;
+      const resolvedStaffName = staff.find((s) => s.id === resolvedStaffId)?.full_name;
+
+      toast.success(
+        isAutoAssign && resolvedStaffName
+          ? t("successCreatedAutoAssigned", { name: resolvedStaffName })
+          : t("successCreated")
+      );
 
       // Hazır mesajla müşterinin WhatsApp sohbetini aç (tek dokunuşla gönderilir)
       if (sendWaMessage && customerPhone.trim()) {
@@ -182,7 +195,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           salon: orgName || "Salonumuz",
           appointmentAt,
           hizmet: selectedService?.name,
-          personel: staff.find((s) => s.id === selectedStaffId)?.full_name,
+          personel: resolvedStaffName,
           address: orgAddress,
           locationUrl: orgLocationUrl,
         });
@@ -221,6 +234,27 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
               <User className="h-3.5 w-3.5" /> {t("staffLabel")}
             </Label>
             <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedStaffId(ANY_STAFF)}
+                className={cn(
+                  "col-span-2 flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all",
+                  selectedStaffId === ANY_STAFF
+                    ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                    : "border-border hover:bg-accent"
+                )}
+              >
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                  <Shuffle className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{t("staffAnyOption")}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{t("staffAnyHint")}</p>
+                </div>
+                {selectedStaffId === ANY_STAFF && (
+                  <Check className="h-3.5 w-3.5 text-primary ml-auto shrink-0" />
+                )}
+              </button>
               {staff.map((s) => (
                 <button
                   key={s.id}
