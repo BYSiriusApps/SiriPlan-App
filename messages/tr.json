@@ -69,7 +69,7 @@
     "subtitle": "Aylık veya yıllık ödeme yapın, istediğiniz zaman iptal edin.",
     "monthly": "Aylık",
     "annual": "Yıllık",
-    "annualSave": "%18 Tasarruf",
+    "annualSave": "%11 Tasarruf",
     "trial": "14 gün ücretsiz deneme",
     "noCard": "Kredi kartı gerekmez",
     "perMonth": "/ay",
@@ -83,7 +83,7 @@
       "name": "Starter",
       "desc": "Küçük salonlar için mükemmel başlangıç",
       "features": [
-        "1 şube, 5 personel",
+        "1 şube, 8 personel",
         "500 randevu/ay",
         "Online randevu sayfası",
         "WhatsApp hatırlatma",
@@ -161,7 +161,7 @@
     }
   },
   "pricingPage": {
-    "metaDescription": "Siriplan fiyatlandırma — Starter $39/ay, Pro $69/ay, Business $119/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
+    "metaDescription": "Siriplan fiyatlandırma — Starter $36/ay, Pro $63/ay, Business $113/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
     "heroBadge": "14 Gün Ücretsiz — Kredi Kartı Gerekmez",
     "heroTitle": "Şeffaf Fiyatlandırma,",
     "heroTitleHighlight": "Sürpriz Yok",
@@ -175,7 +175,7 @@
       "q3": "Verilerimi kaybeder miyim?",
       "a3": "Hayır. İptal etseniz bile 30 gün boyunca verilerinize erişebilir, JSON/Excel olarak indirebilirsiniz.",
       "q4": "Faturalama nasıl çalışıyor?",
-      "a4": "Stripe ile güvenli ödeme. Aylık veya yıllık seçebilirsiniz. Yıllıkta %18 tasarruf edersiniz.",
+      "a4": "Stripe ile güvenli ödeme. Aylık veya yıllık seçebilirsiniz. Yıllıkta %11'e varan tasarruf edersiniz.",
       "q5": "Birden fazla şube yönetebilir miyim?",
       "a5": "Business planında sınırsız şube yönetebilirsiniz. Starter/Pro için Ek Şube Paketi eklenerek genişletilebilir."
     },
@@ -361,7 +361,7 @@
           "q1": { "q": "14 günlük deneme gerçekten ücretsiz mi?", "a": "Evet, herhangi bir kredi kartı bilgisi gerekmez. 14 gün boyunca Pro planın tüm özelliklerini ücretsiz kullanabilirsiniz." },
           "q2": { "q": "Fiyatlar dolara mı?", "a": "Fiyatlar USD cinsindendir. Stripe ile güvenli ödeme yapılır. Türk lirası ile ödeme için lütfen iletişime geçin." },
           "q3": { "q": "İstediğim zaman iptal edebilir miyim?", "a": "Evet, herhangi bir taahhüt veya ceza olmaksızın istediğiniz zaman iptal edebilirsiniz. İptal etseniz bile 30 gün boyunca verilerinize erişim ve indirme hakkınız devam eder." },
-          "q4": { "q": "Yıllık planla ne kadar tasarruf ediyorum?", "a": "Yıllık ödeme tercihinde %18 indirim uygulanır. Örneğin Pro plan aylık $69 yerine $57/ay'dan (yıllık $684) kullanılabilir." }
+          "q4": { "q": "Yıllık planla ne kadar tasarruf ediyorum?", "a": "Yıllık ödeme tercihinde plana göre %9-%12 arası indirim uygulanır. Örneğin Pro plan aylık $63 yerine $57/ay'dan (yıllık $684) kullanılabilir." }
         }
       },
       "booking": {
@@ -501,7 +501,7 @@
       "KVKK ve diğer ilgili mevzuata uyum sağlamak kullanıcının sorumluluğundadır."
     ],
     "s4Title": "4. Ücretlendirme ve Abonelik",
-    "s4P": "Abonelik ücretleri seçilen plana göre aylık veya yıllık olarak tahsil edilir. Yıllık planda %18 indirim uygulanır. Deneme süresi sonunda ücretlendirme başlar; istediğiniz zaman iptal edebilirsiniz. İptal sonrası mevcut dönem sonuna kadar erişim devam eder. İade politikamız için support@bysirius.com ile iletişime geçebilirsiniz.",
+    "s4P": "Abonelik ücretleri seçilen plana göre aylık veya yıllık olarak tahsil edilir. Yıllık planda %11'e varan indirim uygulanır. Deneme süresi sonunda ücretlendirme başlar; istediğiniz zaman iptal edebilirsiniz. İptal sonrası mevcut dönem sonuna kadar erişim devam eder. İade politikamız için support@bysirius.com ile iletişime geçebilirsiniz.",
     "s5Title": "5. Hizmet Kesintileri ve Sorumluluk Sınırları",
     "s5P": "Platform %99,9 uptime hedefiyle çalışır; ancak bakım veya teknik nedenlerle kısa süreli kesintiler yaşanabilir. BY Sirius Group Ai & Technology Co Ltd., dolaylı, arızi veya sonuçta ortaya çıkan zararlardan sorumlu tutulamaz. Sorumluluğumuz, ilgili ay içinde ödediğiniz abonelik ücretiyle sınırlıdır.",
     "s6Title": "6. Fikri Mülkiyet",

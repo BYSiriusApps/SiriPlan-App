@@ -164,7 +164,7 @@ export default async function RootLayout({
                   operatingSystem: "Web, iOS, Android",
                   offers: {
                     "@type": "Offer",
-                    price: "39",
+                    price: "36",
                     priceCurrency: "USD",
                     description: "Starter plan — 7 days free trial",
                   },

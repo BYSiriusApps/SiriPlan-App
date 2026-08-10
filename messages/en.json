@@ -69,7 +69,7 @@
     "subtitle": "Pay monthly or annually, cancel anytime.",
     "monthly": "Monthly",
     "annual": "Annual",
-    "annualSave": "Save 18%",
+    "annualSave": "Save 11%",
     "trial": "14-day free trial",
     "noCard": "No credit card required",
     "perMonth": "/mo",
@@ -83,7 +83,7 @@
       "name": "Starter",
       "desc": "Perfect starting point for small salons",
       "features": [
-        "1 location, 5 staff",
+        "1 location, 8 staff",
         "500 appointments/month",
         "Online booking page",
         "WhatsApp reminders",
@@ -161,7 +161,7 @@
     }
   },
   "pricingPage": {
-    "metaDescription": "Siriplan pricing — Starter $39/mo, Pro $69/mo, Business $119/mo. 14-day free trial, no credit card required.",
+    "metaDescription": "Siriplan pricing — Starter $36/mo, Pro $63/mo, Business $113/mo. 14-day free trial, no credit card required.",
     "heroBadge": "14-Day Free Trial — No Credit Card Required",
     "heroTitle": "Transparent Pricing,",
     "heroTitleHighlight": "No Surprises",
@@ -175,7 +175,7 @@
       "q3": "Will I lose my data?",
       "a3": "No. Even if you cancel, you can access your data for 30 days and download it as JSON/Excel.",
       "q4": "How does billing work?",
-      "a4": "Secure payment via Stripe. Choose monthly or annual billing. Save 18% with annual billing.",
+      "a4": "Secure payment via Stripe. Choose monthly or annual billing. Save up to 11% with annual billing.",
       "q5": "Can I manage multiple locations?",
       "a5": "You can manage unlimited locations on the Business plan. Starter/Pro can be extended with the Extra Location add-on."
     },
@@ -361,7 +361,7 @@
           "q1": { "q": "Is the 14-day trial really free?", "a": "Yes, no credit card information is required. You can use all Pro plan features free for 14 days." },
           "q2": { "q": "Are the prices in dollars?", "a": "Prices are in USD. Payment is processed securely via Stripe. Please contact us for payment in Turkish lira." },
           "q3": { "q": "Can I cancel anytime?", "a": "Yes, you can cancel anytime with no commitment or penalty. Even after cancelling, you keep access to and can download your data for 30 days." },
-          "q4": { "q": "How much do I save with the annual plan?", "a": "An 18% discount applies with annual billing. For example, the Pro plan is $57/mo (billed $684/yr) instead of $69/mo." }
+          "q4": { "q": "How much do I save with the annual plan?", "a": "A 9-12% discount applies with annual billing, depending on the plan. For example, the Pro plan is $57/mo (billed $684/yr) instead of $63/mo." }
         }
       },
       "booking": {
@@ -501,7 +501,7 @@
       "Compliance with KVKK and other applicable regulations is the user's responsibility."
     ],
     "s4Title": "4. Pricing and Subscription",
-    "s4P": "Subscription fees are charged monthly or annually depending on the selected plan. An 18% discount applies to the annual plan. Billing begins at the end of the trial period; you can cancel at any time. After cancellation, access continues until the end of the current billing period. Contact support@bysirius.com for our refund policy.",
+    "s4P": "Subscription fees are charged monthly or annually depending on the selected plan. A discount of up to 11% applies to the annual plan. Billing begins at the end of the trial period; you can cancel at any time. After cancellation, access continues until the end of the current billing period. Contact support@bysirius.com for our refund policy.",
     "s5Title": "5. Service Interruptions and Limitation of Liability",
     "s5P": "The platform operates with a 99.9% uptime target; however, brief interruptions may occur due to maintenance or technical reasons. BY Sirius Group Ai & Technology Co Ltd. shall not be liable for indirect, incidental, or consequential damages. Our liability is limited to the subscription fee you paid in the relevant month.",
     "s6Title": "6. Intellectual Property",
