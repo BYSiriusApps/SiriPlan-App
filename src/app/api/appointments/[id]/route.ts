@@ -54,23 +54,23 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
   }
 
-  // Durum, personel veya saat değişikliği: personel yalnızca kendi üzerine
-  // atanan randevu üzerinde işlem yapabilir (sahip/yönetici kısıtlamasız).
+  // Personel yalnızca kendi üzerine atanan randevu üzerinde işlem yapabilir —
+  // notlar, müşteri iletişim bilgileri dahil hangi alan güncellenirse
+  // güncellensin (sahip/yönetici kısıtlamasız). Önceden bu kontrol yalnızca
+  // durum/personel/saat değişince çalışıyordu; başka personele ait bir
+  // randevunun iç notu/telefonu gibi alanlar korumasız kalıyordu.
   const touchesSchedule = "staff_id" in updates || "appointment_at" in updates;
-  let previous: { status: string; staff_id: string | null; customer_name: string; appointment_at: string; duration_minutes: number } | null = null;
-  if (typeof updates.status === "string" || touchesSchedule) {
-    const { data: current } = await supabase
-      .from("appointments")
-      .select("status, staff_id, customer_name, appointment_at, duration_minutes")
-      .eq("id", id)
-      .eq("org_id", member.org_id)
-      .single();
-    if (!current) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
-    if (member.role === "staff" && current.staff_id !== member.staff_id) {
-      return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
-    }
-    previous = current;
+  const { data: current } = await supabase
+    .from("appointments")
+    .select("status, staff_id, customer_name, appointment_at, duration_minutes")
+    .eq("id", id)
+    .eq("org_id", member.org_id)
+    .single();
+  if (!current) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
+  if (member.role === "staff" && current.staff_id !== member.staff_id) {
+    return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
   }
+  const previous = current;
 
   // When service changes, sync price and duration from the new service
   if (updates.service_id) {
