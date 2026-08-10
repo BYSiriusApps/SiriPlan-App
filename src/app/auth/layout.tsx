@@ -1,4 +1,5 @@
 import { BySiriusBadge } from "@/components/layout/BySiriusBadge";
+import { AuthLogoLink } from "@/components/layout/AuthLogoLink";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -9,14 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
-            <a href="/" className="inline-flex items-center gap-2 group">
-              <img
-                src="/icons/icon-mark.png"
-                alt="Siriplan"
-                className="w-10 h-10 rounded-xl shadow-lg group-hover:scale-105 transition-transform"
-              />
-              <span className="text-2xl font-bold text-foreground">Siriplan</span>
-            </a>
+            <AuthLogoLink />
           </div>
 
           {children}
