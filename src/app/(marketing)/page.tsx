@@ -38,9 +38,9 @@ const CATEGORY_META = [
 ] as const;
 
 const PLAN_META = [
-  { key: "starter",  monthly: "$36", annual: "$32",  annualTotal: "$384",    highlight: false },
-  { key: "pro",      monthly: "$63", annual: "$57",  annualTotal: "$684",    highlight: true  },
-  { key: "business", monthly: "$113",annual: "$99",  annualTotal: "$1.188",  highlight: false },
+  { key: "starter",  monthly: "$36", annual: "$30",  annualTotal: "$354",    highlight: false },
+  { key: "pro",      monthly: "$63", annual: "$52",  annualTotal: "$620",    highlight: true  },
+  { key: "business", monthly: "$113",annual: "$93",  annualTotal: "$1.112",  highlight: false },
 ] as const;
 
 const ADDON_META = [

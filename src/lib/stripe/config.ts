@@ -13,7 +13,7 @@ export const PLANS = {
     monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || "",
     annual: process.env.STRIPE_PRICE_STARTER_ANNUAL || "",
     price_monthly: 36,
-    price_annual: 32,
+    price_annual: 30,
     max_staff: 8,
     max_appointments_monthly: 500,
     features: {
@@ -29,7 +29,7 @@ export const PLANS = {
     monthly: process.env.STRIPE_PRICE_PRO_MONTHLY || "",
     annual: process.env.STRIPE_PRICE_PRO_ANNUAL || "",
     price_monthly: 63,
-    price_annual: 57,
+    price_annual: 52,
     max_staff: 999,
     max_appointments_monthly: 999999,
     features: {
@@ -45,7 +45,7 @@ export const PLANS = {
     monthly: process.env.STRIPE_PRICE_BUSINESS_MONTHLY || "",
     annual: process.env.STRIPE_PRICE_BUSINESS_ANNUAL || "",
     price_monthly: 113,
-    price_annual: 99,
+    price_annual: 93,
     max_staff: 999,
     max_appointments_monthly: 999999,
     features: {

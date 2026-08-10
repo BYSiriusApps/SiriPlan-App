@@ -7,9 +7,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getTranslations } from "next-intl/server";
 
 const PLAN_META = [
-  { key: "starter", monthly: "$36", annual: "$32", annualTotal: "$384", href: "/auth/kayit", highlight: false },
-  { key: "pro", monthly: "$63", annual: "$57", annualTotal: "$684", href: "/auth/kayit", highlight: true },
-  { key: "business", monthly: "$113", annual: "$99", annualTotal: "$1.188", href: "/iletisim", highlight: false },
+  { key: "starter", monthly: "$36", annual: "$30", annualTotal: "$354", href: "/auth/kayit", highlight: false },
+  { key: "pro", monthly: "$63", annual: "$52", annualTotal: "$620", href: "/auth/kayit", highlight: true },
+  { key: "business", monthly: "$113", annual: "$93", annualTotal: "$1.112", href: "/iletisim", highlight: false },
 ] as const;
 
 const ADDON_META = [

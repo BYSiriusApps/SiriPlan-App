@@ -17,7 +17,8 @@ const PLANS = [
     name: "Starter",
     icon: Zap,
     monthly: 36,
-    annual: 32,
+    annual: 30,
+    annualTotal: 354,
     color: "border-blue-200 dark:border-blue-800",
     highlight: "",
     description: "Küçük işletmeler için ideal başlangıç",
@@ -35,7 +36,8 @@ const PLANS = [
     name: "Pro",
     icon: Sparkles,
     monthly: 63,
-    annual: 57,
+    annual: 52,
+    annualTotal: 620,
     color: "border-primary ring-2 ring-primary",
     highlight: "Çok Satan",
     description: "Büyüyen işletmeler için eksiksiz araç seti",
@@ -56,7 +58,8 @@ const PLANS = [
     name: "Business",
     icon: Building2,
     monthly: 113,
-    annual: 99,
+    annual: 93,
+    annualTotal: 1112,
     color: "border-purple-200 dark:border-purple-800",
     highlight: "",
     description: "Zincir ve büyük ölçekli işletmeler için",
@@ -271,7 +274,7 @@ export default function PlanSecPage() {
                     <span className="text-muted-foreground text-sm">/ay</span>
                     {annual && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        ${plan.monthly * 12 - plan.annual * 12} yıllık tasarruf
+                        ${plan.monthly * 12 - plan.annualTotal} yıllık tasarruf
                       </p>
                     )}
                   </div>
