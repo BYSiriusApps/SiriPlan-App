@@ -34,6 +34,11 @@ export interface Organization {
   feature_gamification: boolean;
   feature_api: boolean;
   feature_whitelabel: boolean;
+  feature_website: boolean;
+  website_enabled: boolean;
+  website_palette: "rose" | "ocean" | "sage" | "dark" | "sunset" | "midnight";
+  google_review_url: string | null;
+  website_tagline: string | null;
   wa_token: string | null;
   wa_phone_number_id: string | null;
   ig_page_access_token: string | null;
@@ -101,13 +106,25 @@ export interface Service {
   org_id: string;
   name: string;
   description: string | null;
-  duration_minutes: number;
-  price: number;
+  duration_minutes: number | null;
+  price: number | null;
   currency: "TRY" | "USD" | "EUR";
   category_tag: string;
+  category_id: string | null;
+  photo_url: string | null;
   contributes_loyalty: boolean;
   is_active: boolean;
   is_bookable_online: boolean;
+  display_order: number;
+  created_at: string;
+}
+
+export interface ServiceCategory {
+  id: string;
+  org_id: string;
+  name: string;
+  color: string | null;
+  photo_url: string | null;
   display_order: number;
   created_at: string;
 }

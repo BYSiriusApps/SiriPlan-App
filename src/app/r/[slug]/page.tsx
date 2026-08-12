@@ -12,9 +12,11 @@ import { Loader2, CheckCircle2, ChevronRight, ChevronLeft, Calendar, Clock } fro
 import { toast } from "sonner";
 import { format, addDays, type Locale as DateFnsLocale } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
-import type { Service, Staff, Organization } from "@/types/database";
+import type { Service, Staff, Organization, ServiceCategory } from "@/types/database";
 import { renderKvkkNotice } from "@/lib/kvkk";
 import { SUPPORTED_LANGUAGES, isSupportedLanguage, type LanguageCode } from "@/lib/languages";
+import { websiteThemeStyle } from "@/lib/website-palettes";
+import { MapPin, Star as StarIcon } from "lucide-react";
 
 import trMessages from "../../../../messages/tr.json";
 import enMessages from "../../../../messages/en.json";
@@ -29,6 +31,46 @@ const MESSAGES: Record<LanguageCode, AbstractIntlMessages> = {
 };
 
 const DATE_FNS_LOCALES: Record<LanguageCode, DateFnsLocale> = { tr, en: enUS, ru, ar };
+
+function ServiceButton({
+  service, index, onSelect, label,
+}: {
+  service: Service;
+  index: number;
+  onSelect: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      className="animate-fade-up w-full text-left p-4 rounded-2xl border border-border bg-card/70 backdrop-blur-sm transition-all hover:border-primary hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 group relative overflow-hidden"
+      style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
+    >
+      <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary/0 group-hover:bg-primary transition-colors" />
+      <div className="flex items-center gap-3">
+        {service.photo_url && (
+          <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 relative">
+            <img src={service.photo_url} alt={service.name} className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-semibold group-hover:text-primary transition-colors truncate">{service.name}</p>
+            {service.description && <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{service.description}</p>}
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <Clock className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">{service.duration_minutes} {label}</span>
+            </div>
+          </div>
+          <div className="text-right shrink-0 flex items-center gap-1">
+            <p className="font-heading text-lg font-bold text-primary tabular-nums">₺{Number(service.price).toLocaleString("tr-TR")}</p>
+            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
 
 export default function PublicBookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -63,6 +105,7 @@ function BookingWizard({
   const [step, setStep] = useState(0);
   const [org, setOrg] = useState<Organization | null>(null);
   const [services, setServices] = useState<Service[]>([]);
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
@@ -84,12 +127,15 @@ function BookingWizard({
   // Load org data
   useEffect(() => {
     const supabase = createClient();
-    supabase.from("organizations").select("*, services(*), staff(*)").eq("slug", slug).single()
+    supabase.from("organizations").select("*, services(*), staff(*), service_categories(*)").eq("slug", slug).single()
       .then(({ data }) => {
         if (!data) return;
         setOrg(data as Organization);
         setServices((data.services || []).filter((s: Service) => s.is_active && s.is_bookable_online !== false));
         setStaff((data.staff || []).filter((s: Staff) => s.is_active));
+        setCategories(
+          ((data.service_categories || []) as ServiceCategory[]).sort((a, b) => a.display_order - b.display_order)
+        );
         if (!manualLangOverride.current && isSupportedLanguage(data.locale)) {
           setLang(data.locale);
         }
@@ -266,11 +312,64 @@ function BookingWizard({
     );
   }
 
+  const websiteMode = !!(org.feature_website && org.website_enabled);
+  const categorizedGroups = categories
+    .map((cat) => ({
+      category: cat,
+      items: services.filter((s) => s.category_id === cat.id),
+    }))
+    .filter((g) => g.items.length > 0);
+  const uncategorizedServices = services.filter((s) => !s.category_id);
+
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-rose-50 via-background to-amber-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30">
+    <div
+      className="min-h-screen relative bg-gradient-to-br from-rose-50 via-background to-amber-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30"
+      style={websiteMode ? websiteThemeStyle(org.website_palette) : undefined}
+    >
       {/* Ambient decorative glow — pure atmosphere, no interaction */}
       <div className="pointer-events-none fixed -top-40 -right-32 w-[520px] h-[520px] rounded-full bg-primary/10 dark:bg-primary/15 blur-3xl" />
       <div className="pointer-events-none fixed top-1/3 -left-40 w-96 h-96 rounded-full bg-amber-200/25 dark:bg-purple-900/15 blur-3xl" />
+
+      {/* Website Modu: kapak fotoğrafı + tanıtım yazısı + adres/yorum kısayolları */}
+      {websiteMode && (org.cover_url || org.website_tagline || org.location_url || org.google_review_url) && (
+        <div className="relative bg-[var(--w-background)] text-[var(--w-foreground)]">
+          {org.cover_url && (
+            <div className="relative h-40 sm:h-56 w-full overflow-hidden">
+              <img src={org.cover_url} alt={org.name} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+            </div>
+          )}
+          <div className="max-w-xl mx-auto px-4 py-4 space-y-3">
+            {org.website_tagline && (
+              <p className="text-sm leading-relaxed opacity-90">{org.website_tagline}</p>
+            )}
+            {(org.location_url || org.google_review_url) && (
+              <div className="flex flex-wrap gap-2">
+                {org.location_url && (
+                  <a
+                    href={org.location_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--w-primary)] text-[var(--w-primary-foreground)] hover:opacity-90 transition-opacity"
+                  >
+                    <MapPin className="h-3.5 w-3.5" /> Yol Tarifi Al
+                  </a>
+                )}
+                {org.google_review_url && (
+                  <a
+                    href={org.google_review_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-current opacity-90 hover:opacity-100 transition-opacity"
+                  >
+                    <StarIcon className="h-3.5 w-3.5" /> Değerlendirmeler
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Salon header */}
       <div className="relative bg-card/90 backdrop-blur-sm border-b border-border/70">
@@ -340,30 +439,45 @@ function BookingWizard({
                 )}
               </div>
             )}
-            {services.map((s, i) => (
-              <button
-                key={s.id}
-                onClick={() => { setSelectedService(s); setStep(1); }}
-                className="animate-fade-up w-full text-left p-4 rounded-2xl border border-border bg-card/70 backdrop-blur-sm transition-all hover:border-primary hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 group relative overflow-hidden"
-                style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}
-              >
-                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary/0 group-hover:bg-primary transition-colors" />
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-semibold group-hover:text-primary transition-colors truncate">{s.name}</p>
-                    {s.description && <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{s.description}</p>}
-                    <div className="flex items-center gap-1.5 mt-1.5">
-                      <Clock className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">{s.duration_minutes} {t("minutesShort")}</span>
+            {websiteMode && categorizedGroups.length > 0 ? (
+              <div className="space-y-6">
+                {categorizedGroups.map(({ category, items }) => (
+                  <div key={category.id}>
+                    <div className="flex items-center gap-2.5 mb-2.5">
+                      {category.photo_url ? (
+                        <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 relative">
+                          <img src={category.photo_url} alt={category.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : null}
+                      <h3 className="font-heading font-semibold text-sm uppercase tracking-wide text-muted-foreground">
+                        {category.name}
+                      </h3>
+                    </div>
+                    <div className="space-y-2.5">
+                      {items.map((s, i) => (
+                        <ServiceButton key={s.id} service={s} index={i} onSelect={() => { setSelectedService(s); setStep(1); }} label={t("minutesShort")} />
+                      ))}
                     </div>
                   </div>
-                  <div className="text-right shrink-0 flex items-center gap-1">
-                    <p className="font-heading text-lg font-bold text-primary tabular-nums">₺{Number(s.price).toLocaleString("tr-TR")}</p>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                ))}
+                {uncategorizedServices.length > 0 && (
+                  <div>
+                    <h3 className="font-heading font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-2.5">
+                      Diğer Hizmetler
+                    </h3>
+                    <div className="space-y-2.5">
+                      {uncategorizedServices.map((s, i) => (
+                        <ServiceButton key={s.id} service={s} index={i} onSelect={() => { setSelectedService(s); setStep(1); }} label={t("minutesShort")} />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                )}
+              </div>
+            ) : (
+              services.map((s, i) => (
+                <ServiceButton key={s.id} service={s} index={i} onSelect={() => { setSelectedService(s); setStep(1); }} label={t("minutesShort")} />
+              ))
+            )}
           </div>
         )}
 

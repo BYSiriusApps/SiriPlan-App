@@ -40,10 +40,20 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, duration_minutes, price, category_tag, description, contributes_loyalty, currency } = body;
+  const {
+    name, duration_minutes, price, category_tag, category_id, photo_url,
+    description, contributes_loyalty, currency, is_bookable_online,
+  } = body;
 
-  if (!name || !duration_minutes) {
-    return NextResponse.json({ error: "Ad ve süre zorunlu" }, { status: 400 });
+  if (!name) {
+    return NextResponse.json({ error: "Ad zorunlu" }, { status: 400 });
+  }
+
+  const bookableOnline = is_bookable_online ?? true;
+  const hasDuration = duration_minutes !== undefined && duration_minutes !== null && duration_minutes !== "";
+  const hasPrice = price !== undefined && price !== null && price !== "";
+  if (bookableOnline && (!hasDuration || !hasPrice)) {
+    return NextResponse.json({ error: "Online randevuya açık hizmetler için süre ve fiyat zorunlu" }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -58,12 +68,15 @@ export async function POST(req: NextRequest) {
     .insert({
       org_id: member.org_id,
       name,
-      duration_minutes: parseInt(duration_minutes),
-      price: price !== undefined && price !== null && price !== "" ? parseFloat(price) : 0,
+      duration_minutes: hasDuration ? parseInt(duration_minutes) : null,
+      price: hasPrice ? parseFloat(price) : null,
       currency: ["TRY", "USD", "EUR"].includes(currency) ? currency : "TRY",
       category_tag: category_tag || "genel",
+      category_id: category_id || null,
+      photo_url: photo_url || null,
       description: description || null,
       contributes_loyalty: contributes_loyalty ?? true,
+      is_bookable_online: bookableOnline,
       is_active: true,
     })
     .select()

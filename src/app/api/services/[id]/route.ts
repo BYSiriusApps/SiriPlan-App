@@ -45,13 +45,31 @@ export async function PATCH(
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
 
-  const allowed = ["name", "price", "currency", "duration_minutes", "description", "category_tag", "is_active", "contributes_loyalty", "is_bookable_online"];
+  const allowed = [
+    "name", "price", "currency", "duration_minutes", "description", "category_tag",
+    "category_id", "photo_url", "is_active", "contributes_loyalty", "is_bookable_online",
+  ];
   const updates: Record<string, unknown> = {};
   for (const key of allowed) {
     if (key in body) updates[key] = body[key];
   }
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
+  }
+
+  const { data: current } = await supabase
+    .from("services")
+    .select("price, duration_minutes, is_bookable_online")
+    .eq("id", id)
+    .eq("org_id", member.org_id)
+    .single();
+  if (!current) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  const nextBookable = "is_bookable_online" in updates ? updates.is_bookable_online : current.is_bookable_online;
+  const nextPrice = "price" in updates ? updates.price : current.price;
+  const nextDuration = "duration_minutes" in updates ? updates.duration_minutes : current.duration_minutes;
+  if (nextBookable && (nextPrice === null || nextPrice === undefined || nextDuration === null || nextDuration === undefined)) {
+    return NextResponse.json({ error: "Online randevuya açık hizmetler için süre ve fiyat zorunlu" }, { status: 400 });
   }
 
   const { data, error } = await supabase

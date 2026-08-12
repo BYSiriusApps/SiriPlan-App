@@ -103,6 +103,7 @@ export async function POST(req: NextRequest) {
           feature_gamification: false,
           feature_api: false,
           feature_whitelabel: false,
+          feature_website: false,
         }).eq("id", org.id);
         await writeAuditLog(org.id, "subscription.canceled", { event: event.id });
       }

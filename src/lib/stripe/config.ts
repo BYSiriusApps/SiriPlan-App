@@ -22,6 +22,7 @@ export const PLANS = {
       feature_gamification: false,
       feature_api: false,
       feature_whitelabel: false,
+      feature_website: false,
     },
   },
   pro: {
@@ -38,6 +39,7 @@ export const PLANS = {
       feature_gamification: true,
       feature_api: false,
       feature_whitelabel: false,
+      feature_website: true,
     },
   },
   business: {
@@ -54,6 +56,7 @@ export const PLANS = {
       feature_gamification: true,
       feature_api: true,
       feature_whitelabel: true,
+      feature_website: true,
     },
   },
 } as const;

@@ -34,13 +34,19 @@ interface SelectedService {
   duration_minutes: number;
 }
 
+/** Vitrin-only hizmetlerin (fiyat/süre tanımsız) randevu oluşturmada seçilmesini engeller. */
+type BookableService = Service & { price: number; duration_minutes: number };
+function isBookable(s: Service): s is BookableService {
+  return s.is_bookable_online && s.price != null && s.duration_minutes != null;
+}
+
 export default function YeniRandevuPage() {
   const t = useTranslations("dashboard");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [staff, setStaff] = useState<Staff[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<BookableService[]>([]);
   const [orgId, setOrgId] = useState<string>("");
   const [orgName, setOrgName] = useState<string>("");
   const [orgAddress, setOrgAddress] = useState<string>("");
@@ -92,7 +98,8 @@ export default function YeniRandevuPage() {
     ])
       .then(([staffData, servicesData, orgData]) => {
         setStaff(staffData.staff || []);
-        setServices(servicesData.services || []);
+        const bookableServices = ((servicesData.services || []) as Service[]).filter(isBookable);
+        setServices(bookableServices);
         setOrgId(orgData.org?.id || "");
         setOrgName(orgData.org?.name || "");
         setOrgAddress(orgData.org?.address || "");
@@ -101,7 +108,7 @@ export default function YeniRandevuPage() {
         setWaTemplate(typeof settings.wa_appointment_template === "string" ? settings.wa_appointment_template : null);
 
         if (prefillServiceId) {
-          const svc = (servicesData.services || []).find((s: Service) => s.id === prefillServiceId);
+          const svc = bookableServices.find((s) => s.id === prefillServiceId);
           if (svc) {
             setSelectedServices([{ id: svc.id, name: svc.name, price: Number(svc.price), duration_minutes: svc.duration_minutes }]);
           }
@@ -137,7 +144,7 @@ export default function YeniRandevuPage() {
   const otherServices = filteredServices.filter((s) => !favorites.includes(s.id));
   const sortedServices = [...favoriteServices, ...otherServices];
 
-  function selectService(svc: Service) {
+  function selectService(svc: BookableService) {
     const item: SelectedService = {
       id: svc.id,
       name: svc.name,

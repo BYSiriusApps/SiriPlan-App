@@ -13,6 +13,9 @@ import { toast } from "sonner";
 import { ArrowLeft, Loader2, Search, Plus, Sparkles, PenLine } from "lucide-react";
 import { SERVICE_CATALOG, searchCatalog, type CatalogService } from "@/lib/services/catalog";
 import { CURRENCIES } from "@/lib/currency";
+import type { ServiceCategory } from "@/types/database";
+
+const NO_CATEGORY = "__none__";
 
 const CATEGORIES = [
   { value: "sac", label: "Saç" },
@@ -36,6 +39,7 @@ export default function YeniHizmetPage() {
   const [catalogSearch, setCatalogSearch] = useState("");
   const [addingIds, setAddingIds] = useState<Set<string>>(new Set());
   const [addedNames, setAddedNames] = useState<Set<string>>(new Set());
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
 
   const [form, setForm] = useState({
     name: "",
@@ -43,6 +47,7 @@ export default function YeniHizmetPage() {
     price: "",
     currency: "TRY",
     category_tag: "genel",
+    category_id: NO_CATEGORY,
     description: "",
     contributes_loyalty: true,
   });
@@ -51,6 +56,10 @@ export default function YeniHizmetPage() {
     fetch("/api/org")
       .then((r) => r.json())
       .then((d) => { if (d.org?.type) setOrgType(d.org.type); })
+      .catch(() => {});
+    fetch("/api/service-categories")
+      .then((r) => r.json())
+      .then((d) => setCategories(d.categories || []))
       .catch(() => {});
   }, []);
 
@@ -102,6 +111,7 @@ export default function YeniHizmetPage() {
         price: form.price ? parseFloat(form.price) : 0,
         currency: form.currency,
         category_tag: form.category_tag,
+        category_id: form.category_id === NO_CATEGORY ? null : form.category_id,
         description: form.description || null,
         contributes_loyalty: form.contributes_loyalty,
       }),
@@ -278,6 +288,24 @@ export default function YeniHizmetPage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {categories.length > 0 && (
+                <div className="space-y-1">
+                  <Label>Website Kategorisi (opsiyonel)</Label>
+                  <Select value={form.category_id} onValueChange={(v) => v && setForm((f) => ({ ...f, category_id: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NO_CATEGORY}>Kategorisiz</SelectItem>
+                      {categories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    Website Modu&apos;nda hizmetler bu kategoriye göre gruplanır.
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-1">
                 <Label>Açıklama (opsiyonel)</Label>

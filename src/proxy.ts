@@ -10,6 +10,7 @@ const MANAGER_ROUTES = [
   "/dashboard/gelir-gider",
   "/dashboard/veri-gocu",
   "/dashboard/personel",
+  "/dashboard/website-ayarlari",
 ];
 
 // Routes that require "owner" role
@@ -52,6 +53,7 @@ const SUBSCRIPTION_LOCK_EXEMPT_PREFIXES = [
   "/api/appointments", // randevu oluşturma/düzenleme/iptal — asla kilitlenmemeli
   "/api/customers", // randevu akışında otomatik müşteri kaydı
   "/api/staff-time-off", // personel izin/kapalı gün kaydı — takvim bütünlüğü için
+  "/api/account", // hesap silme — deneme/ödeme durumundan bağımsız her zaman açık olmalı
 ];
 
 // No URL-based locale routing — locale is stored in a cookie and read

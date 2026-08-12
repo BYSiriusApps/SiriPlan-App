@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,9 +13,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { cn } from "@/lib/utils";
-import { Scissors, Clock, Star, Pencil, Loader2, Trash2, Users, ChevronRight } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { resizeImageFile } from "@/lib/image-resize";
+import {
+  Scissors, Clock, Star, Pencil, Loader2, Trash2, Users, ChevronRight,
+  ArrowUp, ArrowDown, ImagePlus, X,
+} from "lucide-react";
 import { toast } from "sonner";
-import type { Service, Staff } from "@/types/database";
+import type { Service, ServiceCategory, Staff } from "@/types/database";
 import { CURRENCIES, formatServicePrice } from "@/lib/currency";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -28,14 +34,19 @@ const CATEGORY_COLORS: Record<string, string> = {
   diger: "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300",
 };
 
+const NO_CATEGORY = "__none__";
+
 interface Props {
   initialServices: Service[];
+  initialCategories: ServiceCategory[];
   canEdit: boolean;
+  orgId: string;
 }
 
-export function HizmetlerClient({ initialServices, canEdit }: Props) {
+export function HizmetlerClient({ initialServices, initialCategories, canEdit, orgId }: Props) {
   const t = useTranslations("dashboard");
   const [services, setServices] = useState<Service[]>(initialServices);
+  const [categories] = useState<ServiceCategory[]>(initialCategories);
   const [detailTarget, setDetailTarget] = useState<Service | null>(null);
   const [detailStaff, setDetailStaff] = useState<Staff[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -43,7 +54,13 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [editForm, setEditForm] = useState({ name: "", price: "", currency: "TRY", duration_minutes: "", is_bookable_online: true });
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [movingId, setMovingId] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [editForm, setEditForm] = useState({
+    name: "", price: "", currency: "TRY", duration_minutes: "",
+    is_bookable_online: true, category_id: NO_CATEGORY,
+  });
 
   async function openDetail(svc: Service) {
     setDetailTarget(svc);
@@ -69,10 +86,11 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
     if (!detailTarget) return;
     setEditForm({
       name: detailTarget.name,
-      price: String(detailTarget.price),
+      price: detailTarget.price !== null ? String(detailTarget.price) : "",
       currency: detailTarget.currency ?? "TRY",
-      duration_minutes: String(detailTarget.duration_minutes),
+      duration_minutes: detailTarget.duration_minutes !== null ? String(detailTarget.duration_minutes) : "",
       is_bookable_online: detailTarget.is_bookable_online,
+      category_id: detailTarget.category_id ?? NO_CATEGORY,
     });
     setEditing(true);
     setConfirmDelete(false);
@@ -80,16 +98,21 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
 
   async function handleSave() {
     if (!detailTarget) return;
+    if (editForm.is_bookable_online && (!editForm.price.trim() || !editForm.duration_minutes.trim())) {
+      toast.error(t("servicesPage.onlineRequiresPriceDuration"));
+      return;
+    }
     setSaving(true);
     const res = await fetch(`/api/services/${detailTarget.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: editForm.name.trim(),
-        price: parseFloat(editForm.price) || 0,
+        price: editForm.price.trim() ? parseFloat(editForm.price) : null,
         currency: editForm.currency,
-        duration_minutes: parseInt(editForm.duration_minutes) || detailTarget.duration_minutes,
+        duration_minutes: editForm.duration_minutes.trim() ? parseInt(editForm.duration_minutes) : null,
         is_bookable_online: editForm.is_bookable_online,
+        category_id: editForm.category_id === NO_CATEGORY ? null : editForm.category_id,
       }),
     });
     setSaving(false);
@@ -119,7 +142,106 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
     }
   }
 
-  const categories = [...new Set(services.map((s) => s.category_tag))];
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !detailTarget) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Lütfen bir resim dosyası seçin");
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Dosya boyutu 3MB'dan küçük olmalı");
+      return;
+    }
+    setUploadingPhoto(true);
+    const resized = await resizeImageFile(file);
+    const supabase = createClient();
+    const ext = resized.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${orgId}/services/${detailTarget.id}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("service-photos")
+      .upload(path, resized, { upsert: true, cacheControl: "3600" });
+    if (upErr) {
+      toast.error("Yükleme başarısız: " + upErr.message);
+      setUploadingPhoto(false);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("service-photos").getPublicUrl(path);
+    const photo_url = `${pub.publicUrl}?t=${Date.now()}`;
+    const res = await fetch(`/api/services/${detailTarget.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo_url }),
+    });
+    setUploadingPhoto(false);
+    if (res.ok) {
+      const { service } = await res.json();
+      setServices((prev) => prev.map((s) => (s.id === service.id ? service : s)));
+      setDetailTarget(service);
+      toast.success("Fotoğraf güncellendi");
+    } else {
+      toast.error("Kaydedilemedi");
+    }
+  }
+
+  async function handlePhotoRemove() {
+    if (!detailTarget) return;
+    setUploadingPhoto(true);
+    const res = await fetch(`/api/services/${detailTarget.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo_url: null }),
+    });
+    setUploadingPhoto(false);
+    if (res.ok) {
+      const { service } = await res.json();
+      setServices((prev) => prev.map((s) => (s.id === service.id ? service : s)));
+      setDetailTarget(service);
+    }
+  }
+
+  async function moveService(svc: Service, direction: "up" | "down", siblings: Service[]) {
+    setMovingId(svc.id);
+    const res = await fetch(`/api/services/${svc.id}/reorder`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ direction }),
+    });
+    setMovingId(null);
+    if (!res.ok) {
+      toast.error("Sıralama değiştirilemedi");
+      return;
+    }
+    const idx = siblings.findIndex((s) => s.id === svc.id);
+    const targetIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= siblings.length) return;
+    const target = siblings[targetIdx];
+    setServices((prev) => prev.map((s) => {
+      if (s.id === svc.id) return { ...s, display_order: target.display_order };
+      if (s.id === target.id) return { ...s, display_order: svc.display_order };
+      return s;
+    }));
+  }
+
+  const categorySorted = [...categories].sort((a, b) => a.display_order - b.display_order);
+  const categorizedGroups = categorySorted
+    .map((cat) => ({
+      key: cat.id,
+      label: cat.name,
+      services: services.filter((s) => s.category_id === cat.id).sort((a, b) => a.display_order - b.display_order),
+    }))
+    .filter((g) => g.services.length > 0);
+
+  const uncategorized = services.filter((s) => !s.category_id);
+  const legacyTags = [...new Set(uncategorized.map((s) => s.category_tag))];
+  const legacyGroups = legacyTags.map((tag) => ({
+    key: tag,
+    label: tag,
+    services: uncategorized.filter((s) => s.category_tag === tag).sort((a, b) => a.display_order - b.display_order),
+  }));
+
+  const groups = [...categorizedGroups, ...legacyGroups];
 
   return (
     <div className="p-6 space-y-6">
@@ -145,68 +267,90 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
         </Link>
       </div>
 
-      {categories.map((cat) => (
-        <div key={cat}>
+      {groups.map((group) => (
+        <div key={group.key}>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 capitalize">
-            {cat}
+            {group.label}
           </h2>
           <div className="space-y-2">
-            {services
-              .filter((s) => s.category_tag === cat)
-              .map((service) => (
-                <Card
-                  key={service.id}
-                  className="kpi-tile border-0 shadow-none group cursor-pointer"
-                  onClick={() => openDetail(service)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
+            {group.services.map((service, idx) => (
+              <Card
+                key={service.id}
+                className="kpi-tile border-0 shadow-none group cursor-pointer"
+                onClick={() => openDetail(service)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    {service.photo_url ? (
+                      <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 relative">
+                        <Image src={service.photo_url} alt={service.name} fill sizes="40px" className="object-cover" />
+                      </div>
+                    ) : (
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                         <Scissors className="h-5 w-5 text-primary" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-sm">{service.name}</p>
-                          <Badge
-                            variant="outline"
-                            className={cn("text-[10px]", CATEGORY_COLORS[service.category_tag] || CATEGORY_COLORS.genel)}
-                          >
-                            {service.category_tag}
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-sm">{service.name}</p>
+                        <Badge
+                          variant="outline"
+                          className={cn("text-[10px]", CATEGORY_COLORS[service.category_tag] || CATEGORY_COLORS.genel)}
+                        >
+                          {service.category_tag}
+                        </Badge>
+                        {!service.is_active && (
+                          <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                            {t("servicesPage.inactiveBadge")}
                           </Badge>
-                          {!service.is_active && (
-                            <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                              {t("servicesPage.inactiveBadge")}
-                            </Badge>
-                          )}
-                          {!service.is_bookable_online && (
-                            <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                              {t("servicesPage.hiddenOnlineBadge")}
-                            </Badge>
-                          )}
-                        </div>
-                        {service.description && (
-                          <p className="text-xs text-muted-foreground truncate mt-0.5">{service.description}</p>
+                        )}
+                        {!service.is_bookable_online && (
+                          <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                            {t("servicesPage.hiddenOnlineBadge")}
+                          </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-right shrink-0">
-                          <p className="font-bold text-sm">{formatServicePrice(service.price, service.currency)}</p>
-                          <p className="text-xs text-muted-foreground flex items-center justify-end gap-1">
-                            <Clock className="h-3 w-3" />
-                            {service.duration_minutes}dk
-                          </p>
-                          {service.contributes_loyalty && (
-                            <p className="text-[10px] text-amber-600 flex items-center justify-end gap-0.5">
-                              <Star className="h-3 w-3 fill-amber-500" />{t("servicesPage.loyaltyPointsHint")}
-                            </p>
-                          )}
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                      </div>
+                      {service.description && (
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{service.description}</p>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        variant="ghost" size="icon" className="h-6 w-6"
+                        disabled={idx === 0 || movingId === service.id}
+                        onClick={() => moveService(service, "up", group.services)}
+                      >
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost" size="icon" className="h-6 w-6"
+                        disabled={idx === group.services.length - 1 || movingId === service.id}
+                        onClick={() => moveService(service, "down", group.services)}
+                      >
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right shrink-0">
+                        <p className="font-bold text-sm">
+                          {service.price !== null ? formatServicePrice(service.price, service.currency) : t("servicesPage.noPriceSet")}
+                        </p>
+                        <p className="text-xs text-muted-foreground flex items-center justify-end gap-1">
+                          <Clock className="h-3 w-3" />
+                          {service.duration_minutes !== null ? `${service.duration_minutes}dk` : "—"}
+                        </p>
+                        {service.contributes_loyalty && (
+                          <p className="text-[10px] text-amber-600 flex items-center justify-end gap-0.5">
+                            <Star className="h-3 w-3 fill-amber-500" />{t("servicesPage.loyaltyPointsHint")}
+                          </p>
+                        )}
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       ))}
@@ -220,7 +364,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
 
       {/* Detail / Edit Dialog */}
       <Dialog open={!!detailTarget} onOpenChange={(o) => { if (!o) closeDetail(); }}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           {detailTarget && (
             <>
               <DialogHeader>
@@ -236,18 +380,51 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
               </DialogHeader>
 
               <div className="space-y-4 pt-1">
+                {/* Photo */}
+                {canEdit && (
+                  <div>
+                    <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+                    {detailTarget.photo_url ? (
+                      <div className="relative rounded-xl overflow-hidden h-32 w-full">
+                        <Image src={detailTarget.photo_url} alt={detailTarget.name} fill className="object-cover" />
+                        <div className="absolute top-2 right-2 flex gap-1.5">
+                          <Button size="icon" variant="secondary" className="h-7 w-7" onClick={() => photoInputRef.current?.click()} disabled={uploadingPhoto}>
+                            {uploadingPhoto ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Pencil className="h-3.5 w-3.5" />}
+                          </Button>
+                          <Button size="icon" variant="secondary" className="h-7 w-7" onClick={handlePhotoRemove} disabled={uploadingPhoto}>
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="outline" className="w-full gap-2 h-16 border-dashed"
+                        onClick={() => photoInputRef.current?.click()}
+                        disabled={uploadingPhoto}
+                      >
+                        {uploadingPhoto ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+                        {t("servicesPage.addPhotoButton")}
+                      </Button>
+                    )}
+                  </div>
+                )}
+
                 {/* Price & Duration */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
                     <p className="text-2xl font-bold text-primary">
-                      {formatServicePrice(detailTarget.price, detailTarget.currency)}
+                      {detailTarget.price !== null ? formatServicePrice(detailTarget.price, detailTarget.currency) : "—"}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">{t("servicesPage.detailPriceLabel")}</p>
                   </div>
                   <div className="rounded-xl bg-muted/50 border p-3 text-center">
                     <p className="text-2xl font-bold">
-                      {detailTarget.duration_minutes}
-                      <span className="text-sm font-normal text-muted-foreground">dk</span>
+                      {detailTarget.duration_minutes !== null ? (
+                        <>
+                          {detailTarget.duration_minutes}
+                          <span className="text-sm font-normal text-muted-foreground">dk</span>
+                        </>
+                      ) : "—"}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">{t("servicesPage.detailDurationLabel")}</p>
                   </div>
@@ -303,6 +480,20 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                             onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
                           />
                         </div>
+                        {categories.length > 0 && (
+                          <div>
+                            <Label>{t("servicesPage.categoryLabel")}</Label>
+                            <Select value={editForm.category_id} onValueChange={(v) => v && setEditForm((f) => ({ ...f, category_id: v }))}>
+                              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value={NO_CATEGORY}>{t("servicesPage.noCategory")}</SelectItem>
+                                {categorySorted.map((c) => (
+                                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
                         <div className="grid grid-cols-2 gap-3">
                           <div>
                             <Label>Fiyat</Label>
@@ -311,6 +502,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                                 type="number"
                                 min="0"
                                 step="0.01"
+                                placeholder={t("servicesPage.priceOptionalPlaceholder")}
                                 value={editForm.price}
                                 onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))}
                               />
@@ -331,6 +523,7 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                               type="number"
                               min="5"
                               step="5"
+                              placeholder={t("servicesPage.durationOptionalPlaceholder")}
                               value={editForm.duration_minutes}
                               onChange={(e) => setEditForm((f) => ({ ...f, duration_minutes: e.target.value }))}
                             />
@@ -344,6 +537,9 @@ export function HizmetlerClient({ initialServices, canEdit }: Props) {
                           />
                           Online randevu sayfasında göster
                         </label>
+                        {!editForm.is_bookable_online && (
+                          <p className="text-xs text-muted-foreground">{t("servicesPage.priceOptionalHint")}</p>
+                        )}
                         <div className="flex gap-2">
                           <Button variant="outline" className="flex-1" onClick={() => setEditing(false)}>
                             {t("servicesPage.cancelButton")}

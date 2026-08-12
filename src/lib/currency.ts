@@ -8,7 +8,8 @@ export const CURRENCIES: { value: ServiceCurrency; label: string }[] = [
   { value: "EUR", label: "€ EUR — Euro" },
 ];
 
-export function formatServicePrice(price: number, currency?: string | null): string {
+export function formatServicePrice(price: number | null, currency?: string | null): string {
+  if (price === null || price === undefined) return "";
   const symbol = CURRENCY_SYMBOL[currency ?? "TRY"] ?? "₺";
   return `${symbol}${Number(price).toLocaleString("tr-TR")}`;
 }
