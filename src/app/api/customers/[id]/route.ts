@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 type Params = { params: Promise<{ id: string }> };
 
-const ALLOWED = ["online_booking_blocked", "preferred_language"];
+const ALLOWED = ["online_booking_blocked", "preferred_language", "birth_date"];
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
@@ -29,6 +29,13 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     !["tr", "en", "ru", "ar"].includes(updates.preferred_language as string)
   ) {
     return NextResponse.json({ error: "Geçersiz dil" }, { status: 400 });
+  }
+  if (
+    "birth_date" in updates &&
+    updates.birth_date !== null &&
+    !/^\d{4}-\d{2}-\d{2}$/.test(updates.birth_date as string)
+  ) {
+    return NextResponse.json({ error: "Geçersiz doğum tarihi" }, { status: 400 });
   }
 
   const { data, error } = await supabase

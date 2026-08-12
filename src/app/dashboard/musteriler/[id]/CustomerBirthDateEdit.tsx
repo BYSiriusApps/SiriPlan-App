@@ -5,14 +5,13 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Pencil } from "lucide-react";
-import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 
 interface Props {
   customerId: string;
-  preferredLanguage: string | null;
+  birthDate: string | null;
 }
 
-export default function CustomerLanguageSelect({ customerId, preferredLanguage }: Props) {
+export default function CustomerBirthDateEdit({ customerId, birthDate }: Props) {
   const router = useRouter();
   const t = useTranslations("dashboard");
   const [saving, setSaving] = useState(false);
@@ -23,7 +22,7 @@ export default function CustomerLanguageSelect({ customerId, preferredLanguage }
       const res = await fetch(`/api/customers/${customerId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ preferred_language: value || null }),
+        body: JSON.stringify({ birth_date: value || null }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "İşlem başarısız");
@@ -36,22 +35,16 @@ export default function CustomerLanguageSelect({ customerId, preferredLanguage }
   }
 
   return (
-    <label className="flex items-center gap-1 cursor-pointer" title={t("changeLanguageTitle")}>
+    <label className="flex items-center gap-1 cursor-pointer" title={t("changeBirthDateTitle")}>
       <Pencil className="h-3 w-3 text-muted-foreground shrink-0" />
-      <select
-        value={preferredLanguage ?? ""}
+      <input
+        type="date"
+        value={birthDate ?? ""}
         onChange={(e) => handleChange(e.target.value)}
         disabled={saving}
-        title={t("changeLanguageTitle")}
+        title={t("changeBirthDateTitle")}
         className="h-6 text-[11px] rounded-md border border-input bg-background px-1.5 focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
-      >
-        <option value="">{t("noLanguage")}</option>
-        {SUPPORTED_LANGUAGES.map((l) => (
-          <option key={l.code} value={l.code}>
-            {l.flag} {l.name}
-          </option>
-        ))}
-      </select>
+      />
     </label>
   );
 }

@@ -13,6 +13,7 @@ import type { Customer, Appointment } from "@/types/database";
 import SendKvkkLinkButton from "./SendKvkkLinkButton";
 import BlockOnlineBookingToggle from "./BlockOnlineBookingToggle";
 import CustomerLanguageSelect from "./CustomerLanguageSelect";
+import CustomerBirthDateEdit from "./CustomerBirthDateEdit";
 import { STATUS_LABEL_KEYS } from "@/lib/appointment-status";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 
@@ -95,12 +96,17 @@ export default async function MusteriDetailPage({
                 <span>{c.email}</span>
               </div>
             )}
-            {c.birth_date && (
-              <div className="flex items-center gap-2">
-                <Gift className="h-4 w-4 text-muted-foreground" />
-                <span>{format(new Date(c.birth_date), "d MMMM", { locale: tr })} doğumlu</span>
+            <div className="flex items-center gap-2">
+              <Gift className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="text-xs text-muted-foreground">
+                {c.birth_date
+                  ? `${format(new Date(c.birth_date), "d MMMM", { locale: tr })} doğumlu`
+                  : "Doğum tarihi belirtilmedi"}
+              </span>
+              <div className="ml-auto">
+                <CustomerBirthDateEdit customerId={c.id} birthDate={c.birth_date} />
               </div>
-            )}
+            </div>
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
               <span className="text-xs text-muted-foreground">
