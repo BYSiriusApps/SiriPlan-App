@@ -9,6 +9,7 @@ import { HelpAssistant } from "@/components/dashboard/HelpAssistant";
 import { AiAssistantProvider } from "@/components/dashboard/AiAssistantContext";
 import { SubscriptionLockBanner } from "@/components/dashboard/SubscriptionLockBanner";
 import { MobileTrialEndedScreen } from "@/components/dashboard/MobileTrialEndedScreen";
+import { RouteTransition } from "@/components/dashboard/RouteTransition";
 import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -72,7 +73,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             {subscriptionLock.locked && subscriptionLock.reason && (
               <SubscriptionLockBanner reason={subscriptionLock.reason} />
             )}
-            {children}
+            <RouteTransition>{children}</RouteTransition>
           </main>
 
           {/* Mobile bottom navigation */}

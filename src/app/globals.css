@@ -575,6 +575,20 @@
   animation: soft-float 9s ease-in-out infinite;
 }
 
+/* Native WebView'da alt bar/FAB'ın home indicator'ın altında kalmaması için */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Dashboard sayfa geçişleri — sekme değiştikçe hafif fade+kaydırma (bkz. RouteTransition) */
+@keyframes route-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-route-fade {
+  animation: route-fade 220ms ease-out both;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;

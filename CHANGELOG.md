@@ -1,5 +1,39 @@
 # Changelog
 
+## 2026-08-11 — Native uygulama kabuğu cilası
+
+Mobil panelin "web sitesi" değil "gerçek uygulama" gibi hissettirmesi için
+düşük riskli, bağımlılıksız görsel/his cilası (App Store/Play Store
+başvurusu öncesi). Fotoğraflı/marka renkli "vitrin" randevu sayfası (Pro
+özelliği) ayrı bir işe ertelendi — kapsamı ve gerekçesi için bkz.
+`C:\Users\OZGUN\.claude\plans\typed-wishing-peach.md`.
+
+### Eklendi
+- **Safe-area desteği**: `viewport.viewportFit: "cover"` (`src/app/layout.tsx`),
+  `.safe-bottom` utility'si artık gerçekten tanımlı (`src/app/globals.css`,
+  `MobileNav.tsx`'in zaten kullandığı ama no-op olan class), alt "+ Randevu"
+  FAB'ı da `env(safe-area-inset-bottom)` hesaba katıyor
+  (`src/app/dashboard/page.tsx`) — iPhone home indicator'ın altında kalmıyor.
+- **Sayfa geçiş animasyonu**: `src/components/dashboard/RouteTransition.tsx`
+  (yeni, kütüphanesiz — `usePathname()` key'iyle remount tetikleyip
+  `.animate-route-fade` CSS keyframe'ini oynatır), `dashboard/layout.tsx`'te
+  `{children}` bunun içine alındı.
+- **InstallPwaCard native uygulamada gizlendi**: `SiriPlanApp` UA işaretçisi
+  görülürse "Ana Ekrana Ekle" PWA kartı hiç render edilmiyor (zaten mağaza
+  üzerinden kurulu bir uygulamada anlamsız/kafa karıştırıcı olurdu).
+
+### Değiştirildi
+- `public/manifest.json`: `theme_color`/`background_color` `#0a1c4a` (lacivert)
+  → `#e11d48` (gül kurusu) — `layout.tsx` viewport themeColor'ı, `mask-icon` ve
+  `msapplication-TileColor` ile artık tutarlı, tek marka rengi.
+
+### Ertelendi (ayrı iş, plan dosyasında belgeli)
+- Maskable Android ikonu — yeni, iç %80 güvenli alana sıkıştırılmış bir görsel
+  asseti gerektiriyor, mağaza incelemesini engellemiyor.
+- Pro/Business vitrin randevu sayfası (hizmet fotoğrafı + marka rengi temalı
+  `/r/[slug]`) — migration + storage bucket + RLS + panel + public sayfa
+  değişikliği gerektiren gerçek bir özellik, teslim baskısı altında yapılmadı.
+
 ## 2026-08-10 — Mobil uygulama (App Store / Google Play) mağaza uyumluluğu
 
 Native mobil uygulama (WebView tabanlı iOS/Android sarmalayıcı) mağaza incelemesinden

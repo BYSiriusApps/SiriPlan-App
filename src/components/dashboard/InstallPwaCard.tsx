@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { Button } from "@/components/ui/button";
 import { Smartphone, Share, PlusSquare, MonitorSmartphone, CheckCircle2 } from "lucide-react";
+import { isMobileAppUserAgent } from "@/lib/mobile-app-shared";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -19,9 +20,13 @@ export function InstallPwaCard() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [isIos, setIsIos] = useState(false);
+  // Native uygulama (App Store/Play Store) içinde zaten "kurulu" — PWA'ya
+  // ana ekrana ekleme yönergesi göstermek kafa karıştırır, kart gizlenir.
+  const [isNativeApp, setIsNativeApp] = useState(false);
 
   useEffect(() => {
     setIsIos(/iphone|ipad|ipod/i.test(navigator.userAgent));
+    setIsNativeApp(isMobileAppUserAgent(navigator.userAgent));
     if (window.matchMedia("(display-mode: standalone)").matches) setInstalled(true);
 
     const onPrompt = (e: Event) => {
@@ -45,6 +50,8 @@ export function InstallPwaCard() {
     if (outcome === "accepted") setInstalled(true);
     setDeferredPrompt(null);
   }
+
+  if (isNativeApp) return null;
 
   return (
     <GlassCard3D className="glass-card" glow intensity={3}>

@@ -833,7 +833,7 @@ export default async function DashboardPage() {
       {/* ── Sabit "+ Randevu" düğmesi (mobil kullanım için) ── */}
       <Link
         href="/dashboard/randevular/yeni"
-        className="fixed bottom-20 right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-1.5 px-4 py-3 rounded-full font-bold text-sm shadow-2xl hover:scale-105 transition-transform bg-primary text-primary-foreground neon-primary"
+        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-1.5 px-4 py-3 rounded-full font-bold text-sm shadow-2xl hover:scale-105 transition-transform bg-primary text-primary-foreground neon-primary"
       >
         <Plus className="h-4 w-4" /> {t("homePage.newApptButton")}
       </Link>
