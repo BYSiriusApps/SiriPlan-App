@@ -481,8 +481,11 @@
       "Object to the processing of your data"
     ],
     "s6Contact": "For your requests: <strong>privacy@bysirius.com</strong>",
-    "s7Title": "7. Policy Changes",
-    "s7P": "Changes to this policy will be announced through the platform. Continuing to use the platform after changes take effect means you accept the updated policy."
+    "s8Title": "8. Account Deletion and Data Retention",
+    "s8P1": "As a business owner, you can request to delete your account directly from within the app via Settings > Delete My Account. Once processed, your login credentials are permanently removed, all staff access to your business is revoked, and your subscription is cancelled.",
+    "s8P2": "Your business's contact details and the personal identifiers in your customer records (name, phone, email) are anonymized. Financial records such as appointment and revenue history may be retained in anonymized, aggregate form for the legally required retention period under Turkish Commercial Code.",
+    "s9Title": "9. Policy Changes",
+    "s9P": "Changes to this policy will be announced through the platform. Continuing to use the platform after changes take effect means you accept the updated policy."
   },
   "termsPage": {
     "metaDescription": "Siriplan terms of service and terms of use.",

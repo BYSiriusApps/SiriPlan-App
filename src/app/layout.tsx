@@ -6,8 +6,7 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getLocale } from "next-intl/server";
-
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "";
+import { CookieConsent } from "@/components/analytics/CookieConsent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -202,23 +201,8 @@ export default async function RootLayout({
             }
           `}
         </Script>
-        {/* Google Analytics 4 */}
-        {GA_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="ga4-init" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_ID}', { page_path: window.location.pathname });
-              `}
-            </Script>
-          </>
-        )}
+        {/* Google Analytics 4 — yalnızca çerez onayından sonra yüklenir, bkz CookieConsent */}
+        <CookieConsent />
         {/* Vercel Analytics & Speed Insights */}
         <Analytics />
         <SpeedInsights />

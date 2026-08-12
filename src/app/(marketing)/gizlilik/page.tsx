@@ -79,9 +79,19 @@ export default async function GizlilikPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s7Title")}</h2>
+          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s8Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            {t("privacyPage.s7P")}
+            {t("privacyPage.s8P1")}
+          </p>
+          <p className="text-muted-foreground leading-relaxed mt-2">
+            {t("privacyPage.s8P2")}
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s9Title")}</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            {t("privacyPage.s9P")}
           </p>
         </section>
 

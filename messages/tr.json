@@ -481,8 +481,11 @@
       "Veri işlemeye itiraz etme"
     ],
     "s6Contact": "Talepleriniz için: <strong>privacy@bysirius.com</strong>",
-    "s7Title": "7. Politika Değişiklikleri",
-    "s7P": "Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir."
+    "s8Title": "8. Hesap Silme ve Veri Saklama",
+    "s8P1": "İşletme sahibi olarak Ayarlar > Hesabımı Sil bölümünden hesabınızı doğrudan uygulama içinden silme talebinde bulunabilirsiniz. Talebiniz işlendiğinde giriş bilgileriniz kalıcı olarak silinir, işletmenize ait tüm personel erişimleri kapatılır ve aboneliğiniz iptal edilir.",
+    "s8P2": "İşletmenize ait iletişim bilgileri ile müşteri kayıtlarınızdaki kişisel tanımlayıcı bilgiler (isim, telefon, e-posta) anonimleştirilir. Randevu ve ciro geçmişi gibi mali nitelikli kayıtlar, Türk Ticaret Kanunu uyarınca öngörülen yasal saklama süresi boyunca kimliği doğrudan tespit edilemeyecek şekilde istatistiksel olarak saklanabilir.",
+    "s9Title": "9. Politika Değişiklikleri",
+    "s9P": "Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir."
   },
   "termsPage": {
     "metaDescription": "Siriplan kullanım koşulları ve hizmet şartları.",

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { getActiveMemberClient } from "@/lib/active-org-client";
@@ -11,8 +12,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, Trash2, AlertTriangle, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { HomeButton } from "@/components/dashboard/HomeButton";
@@ -113,9 +122,12 @@ function SectionCard({
   );
 }
 
+const DELETE_CONFIRM_PHRASE = "HESABIMI SİL";
+
 export default function AyarlarPage() {
   const t = useTranslations("dashboard");
   const tsp = useTranslations("dashboard.staffPermissions");
+  const router = useRouter();
   const [org, setOrg] = useState<Partial<Organization> | null>(null);
   const [staffList, setStaffList] = useState<StaffListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,6 +136,34 @@ export default function AyarlarPage() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [locating, setLocating] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  async function handleDeleteAccount() {
+    if (deleteConfirmText !== DELETE_CONFIRM_PHRASE) return;
+    setDeletingAccount(true);
+    try {
+      const res = await fetch("/api/account/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirm: deleteConfirmText }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || "Hesap silinemedi, lütfen destek ile iletişime geçin");
+        setDeletingAccount(false);
+        return;
+      }
+      toast.success("Hesabınız silindi");
+      const supabase = createClient();
+      await supabase.auth.signOut().catch(() => {});
+      router.push("/auth/giris");
+    } catch {
+      toast.error("Hesap silinemedi, lütfen destek ile iletişime geçin");
+      setDeletingAccount(false);
+    }
+  }
 
   function useMyLocation() {
     if (!navigator.geolocation) {
@@ -1029,6 +1069,60 @@ export default function AyarlarPage() {
           )}
         </div>
       </SectionCard>
+
+      <SectionCard icon={AlertTriangle} iconClassName="text-destructive" title="Tehlikeli Bölge">
+        <p className="text-sm text-muted-foreground">
+          Hesabınızı sildiğinizde giriş bilgileriniz ve işletmenizin tüm personel erişimleri kalıcı olarak
+          kapatılır, aboneliğiniz iptal edilir. Müşteri kayıtlarınız silinmez, kişisel tanımlayıcı bilgileri
+          (isim, telefon, e-posta) anonimleştirilir; randevu/ciro geçmişi yasal muhasebe saklama süresi
+          boyunca istatistiksel olarak tutulmaya devam eder. Bu işlem geri alınamaz.
+        </p>
+        <Button
+          variant="destructive"
+          className="w-full gap-2 rounded-full"
+          onClick={() => setDeleteDialogOpen(true)}
+        >
+          <Trash2 className="h-4 w-4" />
+          Hesabımı Sil
+        </Button>
+      </SectionCard>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) setDeleteConfirmText("");
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hesabını silmek üzeresin</DialogTitle>
+            <DialogDescription>
+              Bu işlem geri alınamaz. Onaylamak için aşağıya <strong>{DELETE_CONFIRM_PHRASE}</strong> yazın.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            value={deleteConfirmText}
+            onChange={(e) => setDeleteConfirmText(e.target.value)}
+            placeholder={DELETE_CONFIRM_PHRASE}
+            autoFocus
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Vazgeç
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleteConfirmText !== DELETE_CONFIRM_PHRASE || deletingAccount}
+              onClick={handleDeleteAccount}
+              className="gap-2"
+            >
+              {deletingAccount ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              Kalıcı Olarak Sil
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Button className="w-full gap-2 rounded-full" onClick={handleSave} disabled={saving}>
         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
