@@ -454,9 +454,10 @@ export default async function DashboardPage() {
             ) : (
               <>
                 {(pendingRequests ?? []).map((r) => (
-                  <div
+                  <Link
                     key={r.id}
-                    className="flex items-center gap-3 rounded-xl px-3 py-2.5"
+                    href="/dashboard/bekleyen-istekler"
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:opacity-80 transition-opacity"
                     style={{ background: "color-mix(in oklch, var(--chart-4) 12%, transparent)", border: "1px solid color-mix(in oklch, var(--chart-4) 30%, transparent)" }}
                   >
                     <span
@@ -473,7 +474,7 @@ export default async function DashboardPage() {
                         {format(new Date(r.appointment_at), "d MMM HH:mm", { locale: dateFnsLocale })} · {t("homePage.autoMsgSent")}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
                 {appts.filter((a) => a.status === "talep").slice(0, 2).map((a) => (
                   <div

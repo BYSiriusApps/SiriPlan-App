@@ -688,6 +688,7 @@
     "calendar": "Calendar",
     "appointments": "Appointments",
     "waitlist": "Waitlist",
+    "pendingRequests": "Pending Requests",
     "customers": "Customers",
     "staff": "Staff",
     "services": "Services",

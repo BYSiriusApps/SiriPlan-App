@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Calendar, BookOpen, Users, UserCog,
   Scissors, Megaphone, BarChart3, Import, Settings,
-  CreditCard, Wallet, ExternalLink, ChevronRight, ShieldCheck, ListPlus, Globe,
+  CreditCard, Wallet, ExternalLink, ChevronRight, ShieldCheck, ListPlus, Globe, Inbox,
 } from "lucide-react";
 import { OrgSwitcher } from "@/components/dashboard/OrgSwitcher";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/takvim",        icon: Calendar,        tKey: "calendar",       minRole: "staff"   },
   { href: "/dashboard/randevular",    icon: BookOpen,        tKey: "appointments",   minRole: "staff"   },
   { href: "/dashboard/bekleme-listesi", icon: ListPlus,      tKey: "waitlist",       minRole: "staff"   },
+  { href: "/dashboard/bekleyen-istekler", icon: Inbox,       tKey: "pendingRequests", minRole: "staff"  },
   { href: "/dashboard/musteriler",    icon: Users,           tKey: "customers",      minRole: "staff"   },
   { href: "/dashboard/personel",      icon: UserCog,         tKey: "staff",          minRole: "manager" },
   { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "staff"   },

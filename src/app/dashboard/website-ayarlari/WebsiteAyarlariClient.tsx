@@ -13,13 +13,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Globe, Save, Loader2, Check, ImageUp, X, MapPin, Star, Plus,
   ArrowUp, ArrowDown, Pencil, Trash2, ExternalLink, Copy, ImagePlus,
+  Scissors,
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Organization, Service, ServiceCategory } from "@/types/database";
+import { formatServicePrice } from "@/lib/currency";
+
+const NO_CATEGORY = "__none__";
 
 function SectionCard({
   icon: Icon,
@@ -57,8 +62,14 @@ interface Props {
 export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, initialServices }: Props) {
   const [org, setOrg] = useState<Organization>(initialOrg);
   const [categories, setCategories] = useState<ServiceCategory[]>(initialCategories);
-  const services = initialServices;
+  const [services, setServices] = useState<Service[]>(initialServices);
   const [saving, setSaving] = useState(false);
+  const [newServiceName, setNewServiceName] = useState("");
+  const [newServiceCategoryId, setNewServiceCategoryId] = useState(NO_CATEGORY);
+  const [newServicePrice, setNewServicePrice] = useState("");
+  const [newServiceDuration, setNewServiceDuration] = useState("");
+  const [addingService, setAddingService] = useState(false);
+  const [serviceBusyId, setServiceBusyId] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [locating, setLocating] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
@@ -264,6 +275,93 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     if (res.ok) {
       const { category } = await res.json();
       setCategories((prev) => prev.map((c) => (c.id === catId ? category : c)));
+    }
+  }
+
+  async function handleAddService() {
+    if (!newServiceName.trim()) return;
+    setAddingService(true);
+    const hasPrice = !!newServicePrice.trim();
+    const hasDuration = !!newServiceDuration.trim();
+    const res = await fetch("/api/services", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: newServiceName.trim(),
+        category_id: newServiceCategoryId === NO_CATEGORY ? null : newServiceCategoryId,
+        price: hasPrice ? newServicePrice : undefined,
+        duration_minutes: hasDuration ? newServiceDuration : undefined,
+        is_bookable_online: hasPrice && hasDuration,
+      }),
+    });
+    setAddingService(false);
+    if (res.ok) {
+      const { service } = await res.json();
+      setServices((prev) => [...prev, service]);
+      setNewServiceName("");
+      setNewServiceCategoryId(NO_CATEGORY);
+      setNewServicePrice("");
+      setNewServiceDuration("");
+      toast.success("Hizmet eklendi");
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || "Hizmet eklenemedi");
+    }
+  }
+
+  async function handleDeleteService(id: string) {
+    setServiceBusyId(id);
+    const res = await fetch(`/api/services/${id}`, { method: "DELETE" });
+    setServiceBusyId(null);
+    if (res.ok) {
+      setServices((prev) => prev.filter((s) => s.id !== id));
+      toast.success("Hizmet kaldırıldı");
+    } else {
+      toast.error("Hizmet kaldırılamadı");
+    }
+  }
+
+  async function handleServiceCategoryChange(id: string, categoryId: string) {
+    setServiceBusyId(id);
+    const res = await fetch(`/api/services/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category_id: categoryId === NO_CATEGORY ? null : categoryId }),
+    });
+    setServiceBusyId(null);
+    if (res.ok) {
+      const { service } = await res.json();
+      setServices((prev) => prev.map((s) => (s.id === id ? service : s)));
+    } else {
+      toast.error("Kategori güncellenemedi");
+    }
+  }
+
+  async function handleServicePhotoUpload(id: string, file: File) {
+    setServiceBusyId(id);
+    const resized = await resizeImageFile(file);
+    const supabase = createClient();
+    const ext = resized.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${org.id}/services/${id}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("service-photos")
+      .upload(path, resized, { upsert: true, cacheControl: "3600" });
+    if (upErr) {
+      toast.error("Yükleme başarısız: " + upErr.message);
+      setServiceBusyId(null);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("service-photos").getPublicUrl(path);
+    const photo_url = `${pub.publicUrl}?t=${Date.now()}`;
+    const res = await fetch(`/api/services/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo_url }),
+    });
+    setServiceBusyId(null);
+    if (res.ok) {
+      const { service } = await res.json();
+      setServices((prev) => prev.map((s) => (s.id === id ? service : s)));
     }
   }
 
@@ -490,8 +588,108 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
           </div>
         )}
         <Link href="/dashboard/hizmetler" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
-          Hizmetleri düzenle (fotoğraf, fiyat, kategori ataması) <ExternalLink className="h-3 w-3" />
+          Hizmetler sayfasında toplu düzenle <ExternalLink className="h-3 w-3" />
         </Link>
+      </SectionCard>
+
+      {/* Services */}
+      <SectionCard
+        icon={Scissors}
+        title="Hizmetler"
+        description="Website sayfanızda görünecek hizmetleri buradan ekleyip çıkarabilir, fotoğraf yükleyip kategoriye atayabilirsiniz. Fiyat ve süreyi boş bırakırsanız hizmet sadece vitrin amaçlı gösterilir, online randevu alınamaz."
+      >
+        <div className="space-y-2 p-3 rounded-lg border border-dashed border-border">
+          <Input
+            placeholder="Yeni hizmet adı (örn. Fön Çekimi)"
+            value={newServiceName}
+            onChange={(e) => setNewServiceName(e.target.value)}
+          />
+          <div className="grid grid-cols-3 gap-2">
+            <Select value={newServiceCategoryId} onValueChange={(v) => v && setNewServiceCategoryId(v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Kategori">
+                  {() => (newServiceCategoryId === NO_CATEGORY ? "Kategorisiz" : sortedCategories.find((c) => c.id === newServiceCategoryId)?.name ?? "Kategori")}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_CATEGORY}>Kategorisiz</SelectItem>
+                {sortedCategories.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              type="number" min="0" step="0.01" placeholder="Fiyat (opsiyonel)"
+              value={newServicePrice}
+              onChange={(e) => setNewServicePrice(e.target.value)}
+            />
+            <Input
+              type="number" min="5" step="5" placeholder="Süre dk (opsiyonel)"
+              value={newServiceDuration}
+              onChange={(e) => setNewServiceDuration(e.target.value)}
+            />
+          </div>
+          <Button onClick={handleAddService} disabled={addingService || !newServiceName.trim()} className="w-full gap-1.5">
+            {addingService ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            Hizmet Ekle
+          </Button>
+        </div>
+
+        {services.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-4">Henüz hizmet eklenmedi.</p>
+        ) : (
+          <div className="space-y-2">
+            {services.map((svc) => {
+              const busy = serviceBusyId === svc.id;
+              return (
+                <div key={svc.id} className="flex items-center gap-2.5 p-2.5 rounded-lg border border-border">
+                  <label className="w-10 h-10 rounded-lg overflow-hidden shrink-0 relative bg-muted cursor-pointer">
+                    {svc.photo_url ? (
+                      <Image src={svc.photo_url} alt={svc.name} fill className="object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImagePlus className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    )}
+                    <input
+                      type="file" accept="image/*" className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) handleServicePhotoUpload(svc.id, f); }}
+                    />
+                  </label>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{svc.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {svc.price !== null ? formatServicePrice(svc.price, svc.currency) : "Fiyat belirtilmemiş"}
+                      {svc.duration_minutes !== null ? ` • ${svc.duration_minutes} dk` : ""}
+                    </p>
+                  </div>
+                  <Select
+                    value={svc.category_id ?? NO_CATEGORY}
+                    onValueChange={(v) => v && handleServiceCategoryChange(svc.id, v)}
+                  >
+                    <SelectTrigger className="w-[140px] h-8 shrink-0 text-xs">
+                      <SelectValue>
+                        {() => (svc.category_id ? sortedCategories.find((c) => c.id === svc.category_id)?.name ?? "Kategorisiz" : "Kategorisiz")}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NO_CATEGORY}>Kategorisiz</SelectItem>
+                      {sortedCategories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0"
+                    disabled={busy} onClick={() => handleDeleteService(svc.id)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </SectionCard>
     </div>
   );
