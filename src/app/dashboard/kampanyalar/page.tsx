@@ -33,9 +33,13 @@ export default async function KampanyalarPage() {
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  const featureCampaigns = (member as unknown as { org_id: string; organizations: { feature_campaigns: boolean } }).organizations?.feature_campaigns;
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("feature_campaigns")
+    .eq("id", member.org_id)
+    .single();
 
-  if (!featureCampaigns) {
+  if (!org?.feature_campaigns) {
     return (
       <div className="p-6 max-w-2xl">
         <div className="text-center py-16">

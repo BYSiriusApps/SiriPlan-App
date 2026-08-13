@@ -1,6 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { resolveCampaignRecipients, renderCampaignMessage } from "@/lib/campaign-segment";
+import { sendSms } from "@/lib/sms";
+
+function normalizePhone(phone: string): string {
+  const digits = (phone || "").replace(/\D/g, "");
+  if (digits.startsWith("90")) return digits;
+  if (digits.startsWith("0")) return "90" + digits.slice(1);
+  if (digits.length === 10) return "90" + digits;
+  return digits;
+}
+
+async function sendWhatsappFreeform(
+  { waToken, waPhoneNumberId }: { waToken: string; waPhoneNumberId: string },
+  toPhone: string,
+  message: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  let res: Response;
+  try {
+    res = await fetch(`https://graph.facebook.com/v19.0/${waPhoneNumberId}/messages`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${waToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: normalizePhone(toPhone),
+        type: "text",
+        text: { body: message },
+      }),
+    });
+  } catch {
+    return { ok: false, error: "WhatsApp API'sine ulaşılamadı" };
+  }
+
+  if (res.ok) return { ok: true };
+  const detail = await res.text().catch(() => "");
+  return { ok: false, error: detail || "WhatsApp API hatası" };
+}
 
 export async function POST(
   req: NextRequest,
@@ -25,61 +61,85 @@ export async function POST(
   if (fetchErr || !campaign) return NextResponse.json({ error: "Kampanya bulunamadı" }, { status: 404 });
   if (campaign.status === "sent") return NextResponse.json({ error: "Zaten gönderildi" }, { status: 400 });
 
-  // Build customer segment
-  let custQuery = supabase
-    .from("customers")
-    .select("id, full_name, phone")
-    .eq("org_id", member.org_id);
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("name, wa_token, wa_phone_number_id")
+    .eq("id", member.org_id)
+    .single();
 
-  const seg = (campaign.segment_json ?? {}) as Record<string, unknown>;
+  if (!org) return NextResponse.json({ error: "İşletme bulunamadı" }, { status: 404 });
 
-  // Validate all numeric filter values to prevent injection
-  const minScore = Number(seg.min_score);
-  const maxScore = Number(seg.max_score);
-  const inactiveDays = Math.floor(Number(seg.inactive_days));
+  const recipients = await resolveCampaignRecipients(supabase, member.org_id, campaign.segment_json);
 
-  if (seg.min_score !== undefined && !isNaN(minScore) && minScore >= 0) {
-    custQuery = custQuery.gte("score", minScore);
-  }
-  if (seg.max_score !== undefined && !isNaN(maxScore) && maxScore >= 0) {
-    custQuery = custQuery.lte("score", maxScore);
-  }
-  if (seg.inactive_days !== undefined && !isNaN(inactiveDays) && inactiveDays > 0 && inactiveDays <= 3650) {
-    const cutoff = new Date(Date.now() - inactiveDays * 86400_000).toISOString();
-    custQuery = custQuery.or(`last_visit_at.lt.${cutoff},last_visit_at.is.null`);
+  if (recipients.length === 0) {
+    await supabase
+      .from("campaigns")
+      .update({ status: "failed", sent_count: 0, sent_at: new Date().toISOString() })
+      .eq("id", id);
+    return NextResponse.json({ error: "Bu segmentte kampanya bildirimi onaylı müşteri bulunamadı" }, { status: 400 });
   }
 
-  // Kampanya oluşturulurken elle seçilen müşteriler (filtreleme/seçme paneli)
-  if (Array.isArray(seg.customer_ids) && seg.customer_ids.length > 0) {
-    const ids = (seg.customer_ids as unknown[])
-      .filter((v): v is string => typeof v === "string")
-      .slice(0, 500);
-    if (ids.length > 0) custQuery = custQuery.in("id", ids);
+  const channel = campaign.channel === "sms" ? "sms" : "whatsapp";
+  const waConfigured = !!(org.wa_token && org.wa_phone_number_id);
+
+  const logs: { campaign_id: string; customer_id: string; phone: string; status: string; error_msg: string | null }[] = [];
+  let sentCount = 0;
+
+  for (const c of recipients) {
+    if (!c.phone) {
+      logs.push({ campaign_id: id, customer_id: c.id, phone: "", status: "failed", error_msg: "Telefon numarası yok" });
+      continue;
+    }
+
+    const message = renderCampaignMessage(campaign.message_template, {
+      customerName: c.full_name,
+      orgName: org.name,
+      lastVisitAt: c.last_visit_at,
+    });
+
+    if (channel === "sms") {
+      const result = await sendSms({ toPhone: c.phone, orgId: member.org_id, message });
+      if ("sent" in result) {
+        sentCount++;
+        logs.push({ campaign_id: id, customer_id: c.id, phone: c.phone, status: "sent", error_msg: null });
+      } else if ("skipped" in result) {
+        logs.push({ campaign_id: id, customer_id: c.id, phone: c.phone, status: "failed", error_msg: `SMS gönderilemedi: ${result.reason}` });
+      } else {
+        logs.push({ campaign_id: id, customer_id: c.id, phone: c.phone, status: "failed", error_msg: result.detail || result.error });
+      }
+    } else {
+      if (!waConfigured) {
+        logs.push({ campaign_id: id, customer_id: c.id, phone: c.phone, status: "failed", error_msg: "WhatsApp Business hesabı bağlı değil" });
+        continue;
+      }
+      const result = await sendWhatsappFreeform(
+        { waToken: org.wa_token!, waPhoneNumberId: org.wa_phone_number_id! },
+        c.phone,
+        message
+      );
+      if (result.ok) {
+        sentCount++;
+        logs.push({ campaign_id: id, customer_id: c.id, phone: c.phone, status: "sent", error_msg: null });
+      } else {
+        logs.push({ campaign_id: id, customer_id: c.id, phone: c.phone, status: "failed", error_msg: result.error });
+      }
+    }
   }
 
-  // KVKK: yalnızca kampanya bildirimi onayı olan müşterilere gönderilir
-  custQuery = custQuery.eq("marketing_consent", true);
-
-  const { data: customers } = await custQuery.limit(500);
-  const sentCount = customers?.length || 0;
-
-  // Log each recipient
-  if (customers && customers.length > 0) {
-    await supabase.from("campaign_logs").insert(
-      customers.map((c) => ({
-        campaign_id: id,
-        customer_id: c.id,
-        status: "queued",
-        sent_at: new Date().toISOString(),
-      }))
-    );
+  if (logs.length > 0) {
+    await supabase.from("campaign_logs").insert(logs);
   }
 
-  // Mark campaign as sent
+  const finalStatus = sentCount > 0 ? "sent" : "failed";
   await supabase
     .from("campaigns")
-    .update({ status: "sent", sent_count: sentCount, sent_at: new Date().toISOString() })
+    .update({ status: finalStatus, sent_count: sentCount, sent_at: new Date().toISOString() })
     .eq("id", id);
 
-  return NextResponse.json({ success: true, sent_count: sentCount });
+  return NextResponse.json({
+    success: sentCount > 0,
+    sent_count: sentCount,
+    failed_count: logs.length - sentCount,
+    total: recipients.length,
+  });
 }

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Megaphone, Users, Search, X, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Megaphone, Users, Search, X, Check, AlertCircle } from "lucide-react";
 
 interface PickerCustomer {
   id: string;
@@ -40,6 +40,7 @@ const TEMPLATES: Record<string, string> = {
 export default function YeniKampanyaPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     type: "birthday",
@@ -96,6 +97,7 @@ export default function YeniKampanyaPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSubmitError(null);
     if (!form.name.trim()) return toast.error("Kampanya adı zorunlu");
     if (!form.message_template.trim()) return toast.error("Mesaj şablonu zorunlu");
     if (!kvkkConsent) return toast.error("KVKK onayı zorunludur. Müşterilerin rızasını doğrulayın.");
@@ -111,27 +113,36 @@ export default function YeniKampanyaPage() {
     }
 
     setLoading(true);
-    const res = await fetch("/api/campaigns", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: form.name.trim(),
-        type: form.type,
-        message_template: form.message_template,
-        channel: form.channel,
-        segment_json: segment,
-        scheduled_at: form.scheduled_at || null,
-      }),
-    });
-    setLoading(false);
+    try {
+      const res = await fetch("/api/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          type: form.type,
+          message_template: form.message_template,
+          channel: form.channel,
+          segment_json: segment,
+          scheduled_at: form.scheduled_at || null,
+        }),
+      });
 
-    if (res.ok) {
-      toast.success("Kampanya oluşturuldu");
-      router.push("/dashboard/kampanyalar");
-      router.refresh();
-    } else {
-      const err = await res.json();
-      toast.error(err.error || "Hata oluştu");
+      if (res.ok) {
+        const data = await res.json();
+        toast.success("Kampanya oluşturuldu — şimdi gönderebilirsiniz");
+        router.push(`/dashboard/kampanyalar/${data.campaign.id}?created=1`);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        const msg = err.error || "Kampanya oluşturulamadı, bilinmeyen bir hata oluştu";
+        setSubmitError(msg);
+        toast.error(msg);
+      }
+    } catch {
+      const msg = "Sunucuya ulaşılamadı, internet bağlantınızı kontrol edip tekrar deneyin";
+      setSubmitError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -145,6 +156,13 @@ export default function YeniKampanyaPage() {
         </Link>
         <h1 className="text-xl font-bold brand-gradient-text">Yeni Kampanya</h1>
       </div>
+
+      {submitError && (
+        <div className="flex items-start gap-2 mb-4 p-3 rounded-xl border-2 border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20 text-sm text-red-700 dark:text-red-400">
+          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+          <span>{submitError}</span>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Type selection */}
