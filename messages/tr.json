@@ -92,7 +92,7 @@
         "Veri export (CSV)",
         "E-posta desteği"
       ],
-      "notIncluded": ["AI WhatsApp asistanı", "Kampanya modülü", "Müşteri skoru sistemi"]
+      "notIncluded": ["AI WhatsApp asistanı", "Kampanya modülü", "Müşteri skoru sistemi", "Website modu"]
     },
     "pro": {
       "name": "Pro",
@@ -106,7 +106,8 @@
         "Bekleme listesi",
         "PDF rapor export",
         "KDV hesaplama",
-        "Kişisel randevu linki (siriplan.com/salon-adin)"
+        "Kişisel randevu linki (siriplan.com/salon-adin)",
+        "Website modu — renk paleti, kategori foto ve Google yorumlarıyla özelleştirilmiş randevu sayfası"
       ],
       "notIncluded": ["AI WhatsApp/IG asistanı", "Özel alan adı (custom domain)"]
     },
@@ -201,6 +202,7 @@
         "category": "Randevu Yönetimi",
         "items": {
           "multiChannel": { "title": "Çok Kanallı Online Randevu", "desc": "Web sitesi, WhatsApp, Instagram DM ve QR kod üzerinden 7/24 randevu alın. Çakışma kontrolü otomatik, çift randevu asla yaşanmaz." },
+          "website": { "title": "Website Modu", "desc": "Randevu linkinizi; renk paleti, kapak fotoğrafı, kategorili hizmet listesi ve Google yorumlarıyla tam bir işletme sayfasına dönüştürün." },
           "waitlist": { "title": "Bekleme Listesi", "desc": "Dolu saatlerde müşterileri bekleme listesine ekleyin, tek tıkla bilgilendirin ve randevuya çevirin." },
           "qr": { "title": "QR Kod Randevu", "desc": "Salonunuzun kapısına yapıştırın, kartvizite basın. Müşteri kamerası açsın, randevusu hazır olsun." },
           "reminders": { "title": "Otomatik Hatırlatmalar", "desc": "Randevu öncesi WhatsApp, SMS ve e-posta hatırlatmaları. Gelmeme (no-show) oranınızı %60 azaltın." }

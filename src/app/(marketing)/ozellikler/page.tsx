@@ -13,6 +13,7 @@ const GROUP_META = [
     bg: "bg-rose-50 dark:bg-rose-950/30",
     items: [
       { key: "multiChannel", icon: Calendar, badge: "all" },
+      { key: "website", icon: Globe, badge: "pro" },
       { key: "waitlist", icon: Smartphone, badge: "pro" },
       { key: "qr", icon: QrCode, badge: "all" },
       { key: "reminders", icon: Bell, badge: "all" },

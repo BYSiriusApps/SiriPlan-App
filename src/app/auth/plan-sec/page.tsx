@@ -51,6 +51,7 @@ const PLANS = [
       "Bekleme listesi",
       "KDV hesaplama",
       "Veri göçü (mevcut sistemden)",
+      "Website modu (özelleştirilebilir randevu sayfası)",
     ],
   },
   {

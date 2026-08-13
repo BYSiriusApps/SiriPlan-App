@@ -92,7 +92,7 @@
         "Data export (CSV)",
         "Email support"
       ],
-      "notIncluded": ["AI WhatsApp assistant", "Campaign module", "Customer score system"]
+      "notIncluded": ["AI WhatsApp assistant", "Campaign module", "Customer score system", "Website mode"]
     },
     "pro": {
       "name": "Pro",
@@ -106,7 +106,8 @@
         "Waiting list",
         "PDF report export",
         "VAT calculation",
-        "Personal booking link (siriplan.com/your-salon)"
+        "Personal booking link (siriplan.com/your-salon)",
+        "Website mode — customizable booking page with color palette, category photos and Google reviews"
       ],
       "notIncluded": ["AI WhatsApp/IG assistant", "Custom domain"]
     },
@@ -201,6 +202,7 @@
         "category": "Appointment Management",
         "items": {
           "multiChannel": { "title": "Multi-Channel Online Booking", "desc": "Take bookings 24/7 via website, WhatsApp, Instagram DM, and QR code. Automatic conflict detection — double-booking never happens." },
+          "website": { "title": "Website Mode", "desc": "Turn your booking link into a full business page — color palette, cover photo, categorized services and Google reviews." },
           "waitlist": { "title": "Waiting List", "desc": "Add customers to the waiting list when slots are full, notify them with one click, and convert them to appointments." },
           "qr": { "title": "QR Code Booking", "desc": "Stick it on your salon door or print it on business cards. Customers scan and their appointment is ready." },
           "reminders": { "title": "Automatic Reminders", "desc": "WhatsApp, SMS, and email reminders before appointments. Reduce your no-show rate by 60%." }
