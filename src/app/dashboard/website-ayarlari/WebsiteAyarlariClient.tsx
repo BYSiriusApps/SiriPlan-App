@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -68,7 +68,13 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
 
-  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/r/${org.slug}` : `/r/${org.slug}`;
+  // SSR ile client'ta aynı ilk render'ı vermek için origin sadece mount sonrası eklenir
+  // (yoksa server "/r/slug" render eder, client "https://.../r/slug" render eder — hydration mismatch).
+  const relativeUrl = `/r/${org.slug}`;
+  const [publicUrl, setPublicUrl] = useState(relativeUrl);
+  useEffect(() => {
+    setPublicUrl(`${window.location.origin}${relativeUrl}`);
+  }, [relativeUrl]);
 
   function setField<K extends keyof Organization>(field: K, value: Organization[K]) {
     setOrg((prev) => ({ ...prev, [field]: value }));
@@ -286,7 +292,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       {/* Public link + on/off */}
       <SectionCard icon={Globe} title="Randevu Sayfanız">
         <div className="flex items-center gap-2 p-2.5 rounded-lg border border-border bg-muted/30">
-          <Link href={publicUrl} target="_blank" className="flex-1 text-sm font-medium text-primary truncate hover:underline flex items-center gap-1.5">
+          <Link href={relativeUrl} target="_blank" className="flex-1 text-sm font-medium text-primary truncate hover:underline flex items-center gap-1.5">
             <ExternalLink className="h-3.5 w-3.5 shrink-0" />
             {publicUrl}
           </Link>
