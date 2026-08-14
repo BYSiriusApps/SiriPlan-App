@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email/send";
 import { notifyAdminNewSignup } from "@/lib/notify-admin";
 import { seedDefaultServices } from "@/lib/services/seed";
+import { TRIAL_PLAN_LIMITS } from "@/lib/entitlements";
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
@@ -52,6 +53,8 @@ export async function GET(req: NextRequest) {
           plan: "trial",
           subscription_status: "active",
           trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+          // Deneme = Pro seviyesi: personel/randevu sınırsız (bkz. lib/entitlements)
+          ...TRIAL_PLAN_LIMITS,
         })
         .select("id")
         .single();
@@ -61,7 +64,7 @@ export async function GET(req: NextRequest) {
         const newSlug = slug + "-" + Math.random().toString(36).slice(2, 4);
         const { data: org2 } = await admin
           .from("organizations")
-          .insert({ slug: newSlug, name: salonName, type, phone: phone || null, email: user.email!, plan: "trial", subscription_status: "active", trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() })
+          .insert({ slug: newSlug, name: salonName, type, phone: phone || null, email: user.email!, plan: "trial", subscription_status: "active", trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), ...TRIAL_PLAN_LIMITS })
           .select("id").single();
         if (org2) {
           await admin.from("org_members").insert({ org_id: org2.id, user_id: user.id, role: "owner" });

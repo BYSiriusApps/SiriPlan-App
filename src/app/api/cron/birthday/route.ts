@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendBirthdayEmail } from "@/lib/email/send";
+import { getEntitlements } from "@/lib/entitlements";
 import { format } from "date-fns";
 
 export const runtime = "nodejs";
@@ -20,12 +21,13 @@ export async function POST(req: NextRequest) {
     organizations?: {
       slug: string; wa_token?: string; wa_phone_number_id?: string;
       name: string; feature_campaigns?: boolean;
+      plan?: string | null; trial_ends_at?: string | null;
     };
   };
 
   const { data: customers } = await supabase
     .from("customers")
-    .select("id, org_id, full_name, phone, email, birth_date, organizations(slug, wa_token, wa_phone_number_id, name, feature_campaigns)")
+    .select("id, org_id, full_name, phone, email, birth_date, organizations(slug, wa_token, wa_phone_number_id, name, feature_campaigns, plan, trial_ends_at)")
     .not("birth_date", "is", null)
     .limit(10000);
 
@@ -39,7 +41,8 @@ export async function POST(req: NextRequest) {
 
   for (const c of todayBirthdays) {
     const org = c.organizations;
-    if (!org?.feature_campaigns) continue;
+    // Deneme süresi Pro'ya denk: kampanya yetkisi etkin yetkiden hesaplanır.
+    if (!org || !getEntitlements(org).feature_campaigns) continue;
 
     const bookingUrl = `${appUrl}/r/${org.slug}`;
 

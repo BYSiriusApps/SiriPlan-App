@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
+import { getEntitlements, isTrialActive } from "@/lib/entitlements";
 import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,6 +39,13 @@ export default async function AbonelikPage() {
 
   const planDetail = PLAN_DETAILS[org.plan as keyof typeof PLAN_DETAILS] || PLAN_DETAILS.trial;
   const Icon = planDetail.icon;
+
+  // Deneme süresi Pro'ya denk: özellik listesi ve limitler etkin yetkiden okunur,
+  // böylece kullanıcı deneme boyunca gerçekten neye erişebildiğini net görür.
+  const ent = getEntitlements(org);
+  const trialActive = isTrialActive(org);
+  const maxStaff = trialActive ? 999 : org.max_staff;
+  const maxAppointments = trialActive ? 999999 : org.max_appointments_monthly;
 
   return (
     <div className="p-6 max-w-2xl space-y-6">
@@ -79,7 +87,14 @@ export default async function AbonelikPage() {
               <Icon className={`h-6 w-6 ${planDetail.color}`} />
             </div>
             <div>
-              <p className="text-xl font-bold">{planDetail.name} Planı</p>
+              <p className="text-xl font-bold">
+                {planDetail.name} Planı
+                {trialActive && (
+                  <span className="ml-2 align-middle text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                    Pro özellikleri açık
+                  </span>
+                )}
+              </p>
               {org.plan === "trial" && org.trial_ends_at && (
                 <p className="text-sm text-muted-foreground">
                   Deneme {format(new Date(org.trial_ends_at), "d MMMM yyyy", { locale: tr })} tarihinde bitiyor
@@ -91,21 +106,22 @@ export default async function AbonelikPage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="kpi-tile p-3 text-center">
               <p className="text-xs text-muted-foreground">Max Personel</p>
-              <p className="font-bold text-lg tabular-nums mt-0.5">{org.max_staff === 999 ? "Sınırsız" : org.max_staff}</p>
+              <p className="font-bold text-lg tabular-nums mt-0.5">{maxStaff === 999 ? "Sınırsız" : maxStaff}</p>
             </div>
             <div className="kpi-tile p-3 text-center">
               <p className="text-xs text-muted-foreground">Max Randevu/Ay</p>
-              <p className="font-bold text-lg tabular-nums mt-0.5">{org.max_appointments_monthly === 999999 ? "Sınırsız" : org.max_appointments_monthly}</p>
+              <p className="font-bold text-lg tabular-nums mt-0.5">{maxAppointments === 999999 ? "Sınırsız" : maxAppointments}</p>
             </div>
           </div>
 
           <div className="space-y-2">
             {[
-              { label: "AI Asistanı", enabled: org.feature_ai },
-              { label: "Kampanya Modülü", enabled: org.feature_campaigns },
-              { label: "Gamification", enabled: org.feature_gamification },
-              { label: "API Erişimi", enabled: org.feature_api },
-              { label: "White-Label", enabled: org.feature_whitelabel },
+              { label: "Website Modu", enabled: ent.feature_website },
+              { label: "Kampanya Modülü", enabled: ent.feature_campaigns },
+              { label: "Gamification", enabled: ent.feature_gamification },
+              { label: "AI Asistanı", enabled: ent.feature_ai },
+              { label: "API Erişimi", enabled: ent.feature_api },
+              { label: "White-Label", enabled: ent.feature_whitelabel },
             ].map((f) => (
               <div key={f.label} className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className={`h-4 w-4 ${f.enabled ? "text-green-600" : "text-muted-foreground/40"}`} />
@@ -134,7 +150,7 @@ export default async function AbonelikPage() {
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
             >
               <Sparkles className="h-4 w-4" />
-              Pro'ya Yükselt
+              {org.plan === "trial" ? "Planları Karşılaştır & Aboneliği Başlat" : "Pro'ya Yükselt"}
             </Link>
           ) : null}
         </div>
@@ -142,8 +158,8 @@ export default async function AbonelikPage() {
 
       {org.plan === "trial" && !mobileApp && (
         <p className="text-xs text-center text-muted-foreground">
-          Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir.
-          Plan seçmeden önce kredi kartı gerekmez.
+          Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez.
+          Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz.
         </p>
       )}
     </div>

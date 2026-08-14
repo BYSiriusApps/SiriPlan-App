@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { sendWelcomeEmail } from "@/lib/email/send";
 import { notifyAdminNewSignup } from "@/lib/notify-admin";
 import { seedDefaultServices } from "@/lib/services/seed";
+import { TRIAL_PLAN_LIMITS } from "@/lib/entitlements";
 
 const VALID_BUSINESS_TYPES = new Set([
   "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik",
@@ -102,6 +103,8 @@ export async function POST(req: NextRequest) {
       plan: "trial",
       subscription_status: "active",
       trial_ends_at: trialEndsAt,
+      // Deneme = Pro seviyesi: personel/randevu sınırsız (bkz. lib/entitlements)
+      ...TRIAL_PLAN_LIMITS,
       locale: safeLocale,
       timezone: orgTimezone,
     })

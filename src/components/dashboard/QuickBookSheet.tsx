@@ -74,6 +74,8 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
   // Otomatik WhatsApp bilgilendirme mesajı
   const [sendWaMessage, setSendWaMessage] = useState(true);
+  const sendWaTouchedRef = useRef(false);
+  const [metaAutoOnayActive, setMetaAutoOnayActive] = useState(false);
   const [orgName, setOrgName] = useState("");
   const [orgAddress, setOrgAddress] = useState("");
   const [orgLocationUrl, setOrgLocationUrl] = useState("");
@@ -88,6 +90,12 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
         setOrgLocationUrl(d.org?.location_url ?? "");
         const s = (d.org?.settings_json ?? {}) as Record<string, unknown>;
         setWaTemplate(typeof s.wa_appointment_template === "string" ? s.wa_appointment_template : null);
+        // Meta üzerinden otomatik onay mesajı varsayılan olarak açık (wa_notify_onay !== false).
+        // Aktifse manuel gönderim mükerrerliği önlemek için bu kutuyu varsayılan kapalı başlat —
+        // kullanıcı zaten elle değiştirdiyse (sendWaTouchedRef) dokunma.
+        const metaActive = s.wa_notify_onay !== false;
+        setMetaAutoOnayActive(metaActive);
+        if (metaActive && !sendWaTouchedRef.current) setSendWaMessage(false);
       })
       .catch(() => {});
   }, []);
@@ -434,7 +442,10 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
             <input
               type="checkbox"
               checked={sendWaMessage}
-              onChange={(e) => setSendWaMessage(e.target.checked)}
+              onChange={(e) => {
+                sendWaTouchedRef.current = true;
+                setSendWaMessage(e.target.checked);
+              }}
               className="mt-0.5 h-4 w-4 rounded accent-green-600 shrink-0"
             />
             <span className="min-w-0">
@@ -445,6 +456,11 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
               <span className="block text-xs text-muted-foreground mt-0.5">
                 {t("sendWaHint")}
               </span>
+              {metaAutoOnayActive && sendWaMessage && (
+                <span className="block text-[11px] mt-1 text-amber-600 dark:text-amber-500 font-medium">
+                  {t("sendWaMetaActiveHint")}
+                </span>
+              )}
             </span>
           </label>
 

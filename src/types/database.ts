@@ -119,6 +119,15 @@ export interface Service {
   created_at: string;
 }
 
+export interface ServiceCategoryPhoto {
+  id: string;
+  org_id: string;
+  category_id: string;
+  url: string;
+  display_order: number;
+  created_at: string;
+}
+
 export interface ServiceCategory {
   id: string;
   org_id: string;
@@ -127,6 +136,7 @@ export interface ServiceCategory {
   photo_url: string | null;
   display_order: number;
   created_at: string;
+  service_category_photos?: ServiceCategoryPhoto[];
 }
 
 export interface Customer {

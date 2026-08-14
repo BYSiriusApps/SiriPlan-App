@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
+import { getEntitlements } from "@/lib/entitlements";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Globe } from "lucide-react";
@@ -23,7 +24,10 @@ export default async function WebsiteAyarlariPage() {
     .eq("id", member.org_id)
     .single();
 
-  if (!org?.feature_website) {
+  // Deneme süresi Pro'ya denk olduğundan feature_website kolonu değil, etkin
+  // yetki (plan + trial_ends_at'ten hesaplanan) baz alınır.
+  const websiteEntitled = getEntitlements(member.organizations).feature_website;
+  if (!websiteEntitled) {
     return (
       <div className="p-6 max-w-2xl">
         <div className="flex items-center gap-3 mb-6">
@@ -52,7 +56,7 @@ export default async function WebsiteAyarlariPage() {
   }
 
   const [{ data: categories }, { data: services }] = await Promise.all([
-    supabase.from("service_categories").select("*").eq("org_id", member.org_id).order("display_order"),
+    supabase.from("service_categories").select("*, service_category_photos(*)").eq("org_id", member.org_id).order("display_order"),
     supabase.from("services").select("*").eq("org_id", member.org_id).order("display_order"),
   ]);
 

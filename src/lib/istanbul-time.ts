@@ -54,6 +54,14 @@ export function istanbulMinutesOfDay(date: Date, timeZone: string = DEFAULT_ORG_
   return h * 60 + m;
 }
 
+/** Verilen anın işletme yerel saatindeki "HH:mm" gösterimi. */
+export function istanbulTimeStr(date: Date, timeZone: string = DEFAULT_ORG_TIMEZONE): string {
+  const parts = getHmFormatter(timeZone).formatToParts(date);
+  const h = parts.find((p) => p.type === "hour")?.value ?? "00";
+  const m = parts.find((p) => p.type === "minute")?.value ?? "00";
+  return `${h}:${m}`;
+}
+
 /** Verilen anın işletme yerel saatindeki haftanın günü (0=Pazar...6=Cumartesi, Date.getDay() ile aynı). */
 export function istanbulDayOfWeek(date: Date, timeZone: string = DEFAULT_ORG_TIMEZONE): number {
   const weekday = getWeekdayFormatter(timeZone).format(date);

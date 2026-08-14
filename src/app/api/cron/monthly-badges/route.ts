@@ -20,11 +20,13 @@ export async function POST(req: NextRequest) {
   const monthEnd = endOfMonth(lastMonth).toISOString();
   const badgeMonth = format(startOfMonth(lastMonth), "yyyy-MM-dd");
 
+  // Gamification'a sahip aktif işletmeler + aktif deneme (Pro'ya denk) işletmeler.
+  const nowIso = new Date().toISOString();
   const { data: orgs } = await supabase
     .from("organizations")
     .select("id")
-    .eq("feature_gamification", true)
-    .eq("subscription_status", "active");
+    .eq("subscription_status", "active")
+    .or(`feature_gamification.eq.true,and(plan.eq.trial,trial_ends_at.gt.${nowIso})`);
 
   if (!orgs || orgs.length === 0) return NextResponse.json({ processed: 0 });
 

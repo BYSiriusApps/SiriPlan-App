@@ -16,6 +16,7 @@ import type { Service, Staff, Organization, ServiceCategory } from "@/types/data
 import { renderKvkkNotice } from "@/lib/kvkk";
 import { SUPPORTED_LANGUAGES, isSupportedLanguage, type LanguageCode } from "@/lib/languages";
 import { websiteThemeStyle } from "@/lib/website-palettes";
+import { getEntitlements } from "@/lib/entitlements";
 import { MapPin, Star as StarIcon } from "lucide-react";
 
 import trMessages from "../../../../messages/tr.json";
@@ -145,7 +146,7 @@ function BookingWizard({
   useEffect(() => {
     if (!org) return;
     const supabase = createClient();
-    supabase.from("service_categories").select("*").eq("org_id", org.id)
+    supabase.from("service_categories").select("*, service_category_photos(*)").eq("org_id", org.id)
       .then(({ data, error }) => {
         if (error || !data) return;
         setCategories([...data].sort((a, b) => a.display_order - b.display_order));
@@ -322,7 +323,8 @@ function BookingWizard({
     );
   }
 
-  const websiteMode = !!(org.feature_website && org.website_enabled);
+  // Deneme süresi Pro'ya denk: website modu etkin yetkiden hesaplanır.
+  const websiteMode = !!(getEntitlements(org).feature_website && org.website_enabled);
   const categorizedGroups = categories
     .map((cat) => ({
       category: cat,
@@ -463,6 +465,17 @@ function BookingWizard({
                         {category.name}
                       </h3>
                     </div>
+                    {category.service_category_photos && category.service_category_photos.length > 0 && (
+                      <div className="flex gap-2 overflow-x-auto pb-2 mb-2.5 -mx-1 px-1">
+                        {[...category.service_category_photos]
+                          .sort((a, b) => a.display_order - b.display_order)
+                          .map((p) => (
+                            <div key={p.id} className="w-20 h-20 rounded-xl overflow-hidden shrink-0 relative">
+                              <img src={p.url} alt={category.name} className="w-full h-full object-cover" />
+                            </div>
+                          ))}
+                      </div>
+                    )}
                     <div className="space-y-2.5">
                       {items.map((s, i) => (
                         <ServiceButton key={s.id} service={s} index={i} onSelect={() => { setSelectedService(s); setStep(1); }} label={t("minutesShort")} />

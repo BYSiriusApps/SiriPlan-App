@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Globe, Save, Loader2, Check, ImageUp, X, MapPin, Star, Plus,
   ArrowUp, ArrowDown, Pencil, Trash2, ExternalLink, Copy, ImagePlus,
-  Scissors,
+  Scissors, Images,
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ import type { Organization, Service, ServiceCategory } from "@/types/database";
 import { formatServicePrice } from "@/lib/currency";
 
 const NO_CATEGORY = "__none__";
+const MAX_CATEGORY_PHOTOS = 20;
 
 function SectionCard({
   icon: Icon,
@@ -78,6 +79,8 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
   const [categoryBusyId, setCategoryBusyId] = useState<string | null>(null);
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
+  const [galleryUploadingId, setGalleryUploadingId] = useState<string | null>(null);
+  const [galleryDeletingId, setGalleryDeletingId] = useState<string | null>(null);
 
   // SSR ile client'ta aynı ilk render'ı vermek için origin sadece mount sonrası eklenir
   // (yoksa server "/r/slug" render eder, client "https://.../r/slug" render eder — hydration mismatch).
@@ -275,6 +278,58 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     if (res.ok) {
       const { category } = await res.json();
       setCategories((prev) => prev.map((c) => (c.id === catId ? category : c)));
+    }
+  }
+
+  async function handleCategoryGalleryUpload(catId: string, file: File) {
+    const existing = categories.find((c) => c.id === catId)?.service_category_photos ?? [];
+    if (existing.length >= MAX_CATEGORY_PHOTOS) {
+      toast.error(`Bir kategoriye en fazla ${MAX_CATEGORY_PHOTOS} fotoğraf eklenebilir`);
+      return;
+    }
+    setGalleryUploadingId(catId);
+    const resized = await resizeImageFile(file);
+    const supabase = createClient();
+    const ext = resized.name.split(".").pop()?.toLowerCase() || "jpg";
+    const photoId = crypto.randomUUID();
+    const path = `${org.id}/categories/${catId}/${photoId}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("service-photos")
+      .upload(path, resized, { upsert: true, cacheControl: "3600" });
+    if (upErr) {
+      toast.error("Yükleme başarısız: " + upErr.message);
+      setGalleryUploadingId(null);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("service-photos").getPublicUrl(path);
+    const url = `${pub.publicUrl}?t=${Date.now()}`;
+    const res = await fetch(`/api/service-categories/${catId}/photos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+    setGalleryUploadingId(null);
+    if (res.ok) {
+      const { photo } = await res.json();
+      setCategories((prev) => prev.map((c) => (
+        c.id === catId ? { ...c, service_category_photos: [...(c.service_category_photos ?? []), photo] } : c
+      )));
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || "Fotoğraf eklenemedi");
+    }
+  }
+
+  async function handleCategoryGalleryDelete(catId: string, photoId: string) {
+    setGalleryDeletingId(photoId);
+    const res = await fetch(`/api/service-categories/${catId}/photos/${photoId}`, { method: "DELETE" });
+    setGalleryDeletingId(null);
+    if (res.ok) {
+      setCategories((prev) => prev.map((c) => (
+        c.id === catId ? { ...c, service_category_photos: (c.service_category_photos ?? []).filter((p) => p.id !== photoId) } : c
+      )));
+    } else {
+      toast.error("Fotoğraf silinemedi");
     }
   }
 
@@ -581,6 +636,51 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" disabled={busy} onClick={() => handleDeleteCategory(cat.id)}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
+                  </div>
+                </div>
+              );
+            })}
+
+            {sortedCategories.map((cat) => {
+              const photos = [...(cat.service_category_photos ?? [])].sort((a, b) => a.display_order - b.display_order);
+              const uploading = galleryUploadingId === cat.id;
+              const atLimit = photos.length >= MAX_CATEGORY_PHOTOS;
+              return (
+                <div key={`gallery-${cat.id}`} className="p-2.5 rounded-lg border border-dashed border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
+                    <Images className="h-3.5 w-3.5" /> {cat.name} — Galeri ({photos.length}/{MAX_CATEGORY_PHOTOS})
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {photos.map((p) => (
+                      <div key={p.id} className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-muted group">
+                        <Image src={p.url} alt="" fill className="object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => handleCategoryGalleryDelete(cat.id, p.id)}
+                          disabled={galleryDeletingId === p.id}
+                          className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          {galleryDeletingId === p.id ? (
+                            <Loader2 className="h-4 w-4 text-white animate-spin" />
+                          ) : (
+                            <X className="h-4 w-4 text-white" />
+                          )}
+                        </button>
+                      </div>
+                    ))}
+                    {atLimit ? (
+                      <div className="w-14 h-14 rounded-lg border border-dashed flex items-center justify-center text-[10px] text-muted-foreground text-center px-1 shrink-0">
+                        {MAX_CATEGORY_PHOTOS}/{MAX_CATEGORY_PHOTOS}
+                      </div>
+                    ) : (
+                      <label className="w-14 h-14 rounded-lg border border-dashed flex items-center justify-center cursor-pointer hover:bg-muted/40 shrink-0">
+                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4 text-muted-foreground" />}
+                        <input
+                          type="file" accept="image/*" className="hidden" disabled={uploading}
+                          onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) handleCategoryGalleryUpload(cat.id, f); }}
+                        />
+                      </label>
+                    )}
                   </div>
                 </div>
               );

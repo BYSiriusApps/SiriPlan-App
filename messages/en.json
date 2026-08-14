@@ -842,6 +842,7 @@
       "notePlaceholder": "Special request, note...",
       "sendWaLabel": "Send a WhatsApp message to customer",
       "sendWaHint": "WhatsApp opens with a ready-made message once saved.",
+      "sendWaMetaActiveHint": "Automatic confirmation via Meta is already active — checking this too may send the customer the same message twice.",
       "submitButton": "Create Appointment",
       "errorStaffRequired": "Please select a staff member",
       "errorServiceRequired": "Please select a service",

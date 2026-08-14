@@ -14,6 +14,7 @@ import {
   Clock, BarChart3, Wallet, Users, Scissors,
 } from "lucide-react";
 import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
+import { istanbulTimeStr, istanbulDateStr, DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
 import Link from "next/link";
 import { LiveClock } from "@/components/ui/LiveClock";
 import { QuickActionsPanel } from "@/components/dashboard/QuickActionsPanel";
@@ -78,6 +79,13 @@ export default async function DashboardPage() {
   if (!member) redirect("/auth/kayit");
   const orgId = member.org_id;
   const orgName = (member as { org_id: string; organizations?: { name?: string } }).organizations?.name ?? t("homePage.yourBusiness");
+
+  const { data: orgTzRow } = await supabase
+    .from("organizations")
+    .select("timezone")
+    .eq("id", orgId)
+    .single();
+  const orgTimeZone = orgTzRow?.timezone || DEFAULT_ORG_TIMEZONE;
 
   const now = new Date();
   const todayStart = startOfDay(now).toISOString();
@@ -253,9 +261,10 @@ export default async function DashboardPage() {
   );
   const upcoming: NextAppt[] = [...liveNow, ...futureList].slice(0, 5);
 
+  const todayInOrgTz = istanbulDateStr(now, orgTimeZone);
   const dayLabel = (iso: string) => {
     const d = new Date(iso);
-    const diff = differenceInCalendarDays(d, now);
+    const diff = differenceInCalendarDays(new Date(istanbulDateStr(d, orgTimeZone)), new Date(todayInOrgTz));
     if (diff === 0) return "";
     if (diff === 1) return `${t("homePage.tomorrow")} `;
     return `${format(d, "d MMM", { locale: dateFnsLocale })} `;
@@ -354,7 +363,7 @@ export default async function DashboardPage() {
                       <span className="text-muted-foreground"> ({a.service?.name ?? "—"})</span>
                     </span>
                     <span className="tabular-nums shrink-0 text-primary">
-                      {dayLabel(a.appointment_at)}{format(new Date(a.appointment_at), "HH:mm")}
+                      {dayLabel(a.appointment_at)}{istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)}
                     </span>
                   </Link>
                 ))
@@ -411,7 +420,7 @@ export default async function DashboardPage() {
                     className="flex items-center gap-2.5 text-[13px] leading-snug hover:opacity-80 transition-opacity"
                   >
                     <span className="tabular-nums shrink-0 w-12 text-primary font-semibold flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> {format(new Date(a.appointment_at), "HH:mm")}
+                      <Clock className="h-3 w-3" /> {istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)}
                     </span>
                     <span className="truncate flex-1 text-foreground">{a.customer_name}</span>
                     {a.staff?.full_name && (
@@ -471,7 +480,7 @@ export default async function DashboardPage() {
                         {t("homePage.apptApprovalLabel", { name: r.customer_name })}
                       </p>
                       <p className="text-[11px] text-muted-foreground">
-                        {format(new Date(r.appointment_at), "d MMM HH:mm", { locale: dateFnsLocale })} · {t("homePage.autoMsgSent")}
+                        {format(new Date(r.appointment_at), "d MMM", { locale: dateFnsLocale })} {istanbulTimeStr(new Date(r.appointment_at), orgTimeZone)} · {t("homePage.autoMsgSent")}
                       </p>
                     </div>
                   </Link>
@@ -490,7 +499,7 @@ export default async function DashboardPage() {
                         {t("homePage.awaitingApprovalLabel", { name: a.customer_name })}
                       </p>
                       <p className="text-[11px] text-muted-foreground">
-                        {t("today")} {format(new Date(a.appointment_at), "HH:mm")} · {a.service?.name}
+                        {t("today")} {istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)} · {a.service?.name}
                       </p>
                     </div>
                     <Link

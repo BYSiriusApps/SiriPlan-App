@@ -842,6 +842,7 @@
       "notePlaceholder": "Özel istek, not...",
       "sendWaLabel": "Müşteriye WhatsApp mesajı gönder",
       "sendWaHint": "Kaydedince hazır bilgilendirme metniyle WhatsApp açılır.",
+      "sendWaMetaActiveHint": "Meta üzerinden otomatik onay mesajı zaten aktif — bunu da işaretlerseniz müşteri aynı bilgiyi iki kez alabilir.",
       "submitButton": "Randevu Oluştur",
       "errorStaffRequired": "Personel seçiniz",
       "errorServiceRequired": "Hizmet seçiniz",

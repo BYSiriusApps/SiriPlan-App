@@ -53,6 +53,9 @@ const PLANS = [
       "Veri göçü (mevcut sistemden)",
       "Website modu (özelleştirilebilir randevu sayfası)",
     ],
+    // "Tüm Starter özellikleri" sonrası gelenler Starter'da OLMAYAN Pro farkı —
+    // kartta ayrı bir "Pro Farkı" bölümünde vurgulanır (bkz. render).
+    proDeltaFrom: 3,
   },
   {
     key: "business",
@@ -238,6 +241,12 @@ export default function PlanSecPage() {
               ? "İstediğiniz zaman iptal"
               : "14 gün ücretsiz deneme • İstediğiniz zaman iptal"}
           </p>
+          {trialActive === true && !expired && (
+            <p className="mt-3 max-w-xl mx-auto text-sm text-muted-foreground">
+              Şu an <strong className="text-foreground">Pro özelliklerini denemedesiniz</strong>. Aşağıda
+              Starter ve Pro'yu yan yana karşılaştırıp size uygun planla aboneliğinizi başlatabilirsiniz.
+            </p>
+          )}
 
           <div className="flex items-center justify-center gap-3 mt-6">
             <span className={annual ? "text-muted-foreground" : "font-semibold"}>Aylık</span>
@@ -282,12 +291,27 @@ export default function PlanSecPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <ul className="space-y-2">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                        {f}
-                      </li>
-                    ))}
+                    {plan.features.map((f, i) => {
+                      const deltaFrom = (plan as { proDeltaFrom?: number }).proDeltaFrom;
+                      const isDelta = deltaFrom !== undefined && i >= deltaFrom;
+                      const showDivider = deltaFrom !== undefined && i === deltaFrom;
+                      return (
+                        <div key={f}>
+                          {showDivider && (
+                            <div className="flex items-center gap-2 pt-2 pb-1">
+                              <Sparkles className="h-3.5 w-3.5 text-primary" />
+                              <span className="text-[11px] font-semibold uppercase tracking-wide text-primary">
+                                Starter'a ek olarak Pro Farkı
+                              </span>
+                            </div>
+                          )}
+                          <li className={`flex items-start gap-2 text-sm ${isDelta ? "font-medium text-primary" : ""}`}>
+                            <CheckCircle2 className={`h-4 w-4 mt-0.5 shrink-0 ${isDelta ? "text-primary" : "text-primary/70"}`} />
+                            {f}
+                          </li>
+                        </div>
+                      );
+                    })}
                   </ul>
                   <Button
                     className="w-full"

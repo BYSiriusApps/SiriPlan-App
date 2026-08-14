@@ -8,6 +8,7 @@ import { z } from "zod";
 import { findAvailableStaff, isStaffOnTimeOff } from "@/lib/staff-availability";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 import { normalizePhone } from "@/lib/phone";
+import { isTrialActive } from "@/lib/entitlements";
 
 const ExtraServiceSchema = z.object({
   id: z.string().uuid(),
@@ -93,8 +94,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Personel seçimi zorunlu" }, { status: 400 });
   }
 
-  // Dışarıdan randevu akışı (has_auto_booking) yalnızca Pro/Business planlarında aktif
-  const planAllowsAutoBooking = org.plan === "pro" || org.plan === "business";
+  // Dışarıdan randevu akışı (has_auto_booking) Pro/Business ve aktif deneme
+  // (Pro'ya denk) planlarında aktif
+  const planAllowsAutoBooking =
+    org.plan === "pro" || org.plan === "business" || isTrialActive(org);
   if (isExternalSource && org.has_auto_booking && !planAllowsAutoBooking) {
     return NextResponse.json(
       { error: "Otomatik randevu özelliği Pro veya Business planı gerektirir." },

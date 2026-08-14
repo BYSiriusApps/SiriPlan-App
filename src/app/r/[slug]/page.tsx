@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getEntitlements } from "@/lib/entitlements";
 import { PublicBookingClient } from "./PublicBookingClient";
 
 // select("*") kasıtlı: website_* kolonları henüz Supabase'e uygulanmamış bir
@@ -21,6 +22,8 @@ async function fetchOrgMeta(slug: string) {
     logo_url?: string | null;
     feature_website?: boolean;
     website_enabled?: boolean;
+    plan?: string | null;
+    trial_ends_at?: string | null;
   } | null;
 }
 
@@ -29,7 +32,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const org = await fetchOrgMeta(slug);
   if (!org) return {};
 
-  const showWebsite = !!(org.feature_website && org.website_enabled);
+  // Deneme süresi Pro'ya denk: website modu etkin yetkiden hesaplanır.
+  const showWebsite = !!(getEntitlements(org).feature_website && org.website_enabled);
   const title = org.name;
   const description = org.website_tagline || `${org.name} — online randevu al`;
   const image = org.cover_url || org.logo_url || undefined;

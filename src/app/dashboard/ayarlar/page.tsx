@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, Trash2, AlertTriangle, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, Trash2, AlertTriangle, KeyRound, Globe, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -242,6 +242,8 @@ export default function AyarlarPage() {
         sms_username: org.sms_username,
         sms_password: org.sms_password,
         sms_sender_id: org.sms_sender_id,
+        wa_token: org.wa_token,
+        wa_phone_number_id: org.wa_phone_number_id,
         kdv_enabled: org.kdv_enabled ?? false,
         kdv_rate: org.kdv_rate ?? 20,
         has_auto_booking: org.has_auto_booking ?? false,
@@ -554,6 +556,35 @@ export default function AyarlarPage() {
                 </p>
               </div>
             </details>
+
+            {org.plan !== "pro" && org.plan !== "business" && (
+              <div className="flex items-start gap-3 p-3.5 rounded-xl border border-primary/30 bg-primary/5">
+                <Globe className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-foreground">Randevu sayfanızı web sitesine dönüştürün →</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Renk paleti, kapak fotoğrafı, hizmet kategorileri ve fotoğraflarla donatılmış,
+                    satış artırıcı bir işletme sayfası — mevcut randevu linkinizde, ek bir adres olmadan.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-2.5">
+                    <Link
+                      href="/dashboard/abonelik"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                      Pro Plana Geç
+                    </Link>
+                    <a
+                      href="/r/sirius-demo-salon"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-border hover:bg-muted transition-colors"
+                    >
+                      Örnek Web Sitesini Görüntüle
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <p className="text-sm text-muted-foreground">Randevu linkiniz oluşturulamadı, lütfen destek ekibiyle iletişime geçin.</p>
@@ -616,8 +647,15 @@ export default function AyarlarPage() {
         icon={MessageCircle}
         iconClassName="text-green-600"
         title={t("settingsPage.autoMessageTitle")}
-        description="Yeni randevu oluşturulduğunda müşteriye gönderilen bilgilendirme metni. Tarih ve saat her randevuda otomatik doldurulur."
+        description="Randevu ekranlarındaki (Yeni Randevu / Hızlı Randevu) 'Müşteriye WhatsApp mesajı gönder' kutusu işaretlendiğinde kendi WhatsApp'ınızdan elle gönderdiğiniz metin budur. Tarih ve saat her randevuda otomatik doldurulur."
       >
+        <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
+          <p className="text-xs text-amber-700 dark:text-amber-400">
+            Bu, aşağıdaki <strong>&quot;WhatsApp Bildirim Ayarları&quot;</strong> bölümündeki Meta otomatik
+            onay mesajından farklı bir kanaldır. İkisi birlikte açıksa müşteri aynı bilgiyi iki kez
+            alabilir — birini kapalı tutmanız önerilir.
+          </p>
+        </div>
         <div className="flex gap-1.5 flex-wrap items-center">
           <span className="text-xs text-muted-foreground">Şablon seç:</span>
           {APPOINTMENT_TEMPLATE_PRESETS.map((preset) => (
@@ -736,7 +774,13 @@ export default function AyarlarPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label>Hangi işlemler için WhatsApp bildirimi gönderilsin?</Label>
+            <Label>Meta üzerinden hangi işlemlerde otomatik WhatsApp mesajı gönderilsin?</Label>
+            <p className="text-xs text-muted-foreground">
+              Bu mesajlar Sirius&apos;un ortak WhatsApp Business numarasından, Meta onaylı şablonla otomatik
+              gider. Bir olayı kapatırsanız o olay için otomatik mesaj gitmez — dilerseniz randevu
+              ekranındaki &quot;Müşteriye WhatsApp mesajı gönder&quot; kutusuyla kendi WhatsApp&apos;ınızdan
+              elle gönderebilirsiniz. İkisini birden açık tutmayın, aksi halde müşteri aynı bilgiyi iki kez alır.
+            </p>
             <div className="grid gap-2 pt-1 sm:grid-cols-3">
               {(
                 [
@@ -896,6 +940,50 @@ export default function AyarlarPage() {
           <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 text-xs text-muted-foreground space-y-1">
             <p className="font-medium text-blue-700 dark:text-blue-400">Maliyet hakkında</p>
             <p>SMS başına yaklaşık 0,08–0,20 TL arası (paket boyutuna göre) — sağlayıcı sitesinden kredi paketi satın almanız gerekir, aylık sabit ücret yoktur.</p>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* WhatsApp Business Bağlantısı — kampanya gönderimi + gelen mesajlara otomatik yanıt için */}
+      <SectionCard
+        icon={KeyRound}
+        iconClassName="text-green-600"
+        title="WhatsApp Business Bağlantısı"
+        description="Randevu onay/hatırlatma/iptal mesajları Siriplan'ın kendi WhatsApp hattından otomatik gider, bunun için bir şey yapmanıza gerek yok. Aşağıdaki bağlantı yalnızca Kampanyalar modülünden gönderdiğiniz pazarlama mesajlarının ve gelen mesajlara otomatik yanıtın kendi WhatsApp Business numaranızdan gitmesi içindir."
+      >
+        <div className="space-y-3">
+          <div>
+            <Label>Kalıcı Erişim Belirteci (Access Token)</Label>
+            <Input
+              type="password"
+              className="mt-1"
+              value={org.wa_token || ""}
+              onChange={(e) => setField("wa_token", e.target.value || null)}
+              placeholder="Meta for Developers → WhatsApp → API Setup"
+            />
+          </div>
+          <div>
+            <Label>Telefon Numarası Kimliği (Phone Number ID)</Label>
+            <Input
+              className="mt-1"
+              value={org.wa_phone_number_id || ""}
+              onChange={(e) => setField("wa_phone_number_id", e.target.value || null)}
+              placeholder="örn. 109876543210987"
+            />
+          </div>
+          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50 text-xs text-muted-foreground space-y-1">
+            <p className="font-medium text-green-700 dark:text-green-400">Nasıl alınır?</p>
+            <p>
+              <a href="https://business.facebook.com/wa/manage/home" target="_blank" rel="noopener noreferrer" className="underline">
+                Meta Business Suite
+              </a>{" "}
+              üzerinden bir WhatsApp Business hesabı bağlayıp{" "}
+              <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener noreferrer" className="underline">
+                Meta for Developers
+              </a>{" "}
+              &gt; uygulamanız &gt; WhatsApp &gt; API Setup sayfasından kalıcı erişim belirtecini ve telefon numarası kimliğini kopyalayın.
+              Bu alanlar boşken kampanyalarınız WhatsApp kanalında gönderilemez (SMS kanalını kullanabilirsiniz).
+            </p>
           </div>
         </div>
       </SectionCard>

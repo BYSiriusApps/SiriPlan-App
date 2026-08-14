@@ -53,6 +53,8 @@ export default function YeniRandevuPage() {
   const [orgLocationUrl, setOrgLocationUrl] = useState<string>("");
   const [waTemplate, setWaTemplate] = useState<string | null>(null);
   const [sendWaMessage, setSendWaMessage] = useState(true);
+  const sendWaTouchedRef = useRef(false);
+  const [metaAutoOnayActive, setMetaAutoOnayActive] = useState(false);
   const [kvkkAttested, setKvkkAttested] = useState(false);
 
   const [form, setForm] = useState({
@@ -106,6 +108,12 @@ export default function YeniRandevuPage() {
         setOrgLocationUrl(orgData.org?.location_url || "");
         const settings = (orgData.org?.settings_json ?? {}) as Record<string, unknown>;
         setWaTemplate(typeof settings.wa_appointment_template === "string" ? settings.wa_appointment_template : null);
+        // Meta üzerinden otomatik onay mesajı varsayılan olarak açık (wa_notify_onay !== false).
+        // Aktifse manuel gönderim mükerrerliği önlemek için bu kutuyu varsayılan kapalı başlat —
+        // kullanıcı zaten elle değiştirdiyse (sendWaTouchedRef) dokunma.
+        const metaActive = settings.wa_notify_onay !== false;
+        setMetaAutoOnayActive(metaActive);
+        if (metaActive && !sendWaTouchedRef.current) setSendWaMessage(false);
 
         if (prefillServiceId) {
           const svc = bookableServices.find((s) => s.id === prefillServiceId);
@@ -466,7 +474,10 @@ export default function YeniRandevuPage() {
                   <input
                     type="checkbox"
                     checked={sendWaMessage}
-                    onChange={(e) => setSendWaMessage(e.target.checked)}
+                    onChange={(e) => {
+                      sendWaTouchedRef.current = true;
+                      setSendWaMessage(e.target.checked);
+                    }}
                     className="mt-0.5 h-4 w-4 rounded accent-green-600 shrink-0"
                   />
                   <span className="min-w-0">
@@ -478,6 +489,12 @@ export default function YeniRandevuPage() {
                       Randevu oluşturulunca hazır bilgilendirme metniyle WhatsApp açılır —
                       göndermek için tek dokunuş yeter. Metni Ayarlar&apos;dan değiştirebilirsiniz.
                     </span>
+                    {metaAutoOnayActive && sendWaMessage && (
+                      <span className="block text-[11px] mt-1 text-amber-600 dark:text-amber-500 font-medium">
+                        Meta üzerinden otomatik onay mesajı zaten aktif — bunu da işaretlerseniz müşteri
+                        aynı bilgiyi iki kez alabilir. Kapatmak için Ayarlar → WhatsApp Bildirim Ayarları&apos;na bakın.
+                      </span>
+                    )}
                     {form.customer_name && form.appointment_at && (
                       <span className="block text-[11px] mt-1.5 p-2 rounded-lg bg-background/80 border border-border text-muted-foreground italic">
                         &quot;{renderWaTemplate(waTemplate, {
