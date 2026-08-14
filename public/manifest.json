@@ -1,4 +1,5 @@
 {
+  "id": "/dashboard",
   "name": "Siriplan — Akıllı Randevu Yönetimi",
   "short_name": "Siriplan",
   "description": "Kuaför, berber, güzellik salonu ve spa için AI destekli randevu yönetim platformu",
@@ -60,6 +61,36 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-narrow.png",
+      "sizes": "430x932",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Siriplan ana sayfa — mobil görünüm"
+    },
+    {
+      "src": "/screenshots/booking-narrow.png",
+      "sizes": "430x932",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Herkese açık online randevu sayfası — mobil görünüm"
+    },
+    {
+      "src": "/screenshots/home-wide.png",
+      "sizes": "1440x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Siriplan ana sayfa — masaüstü görünüm"
+    },
+    {
+      "src": "/screenshots/booking-wide.png",
+      "sizes": "1440x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Herkese açık online randevu sayfası — masaüstü görünüm"
     }
   ],
   "shortcuts": [

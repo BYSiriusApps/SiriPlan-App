@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle, Mail, Phone, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { isMobileAppUserAgent } from "@/lib/mobile-app-shared";
+import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
 
 const SUPPORT_EMAIL = "destek@siriplan.com";
 const SUPPORT_PHONE = "+905355032634";
@@ -93,7 +93,7 @@ export default function PlanSecPage() {
   // (useSearchParams statik prerender'da Suspense istediği için window'dan okunur)
   useEffect(() => {
     setExpired(new URLSearchParams(window.location.search).get("expired") === "1");
-    setMobileApp(isMobileAppUserAgent(navigator.userAgent));
+    setMobileApp(isMobileAppUserAgent(navigator.userAgent) || hasMobileAppCookie(document.cookie));
   }, []);
 
   // Aktif işletmenin deneme durumunu öğren — "devam et" davranışını belirler

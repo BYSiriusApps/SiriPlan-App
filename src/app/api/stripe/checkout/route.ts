@@ -2,10 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getStripe, PLANS, type PlanKey } from "@/lib/stripe/config";
 import { createClient } from "@/lib/supabase/server";
+import { isMobileApp } from "@/lib/mobile-app";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
+  // Mağaza kurallarına uyum: native uygulama (App Store/Play Store) içinden
+  // ödeme oturumu asla oluşturulmamalı — /auth/plan-sec ve /dashboard/abonelik
+  // zaten bu durumda buton göstermiyor, burada sunucu tarafında da kapatıyoruz
+  // (UI atlansa/bypass edilse dahi satın alma akışı native taraftan hiç açılmasın).
+  if (await isMobileApp()) {
+    return NextResponse.json(
+      { error: "Bu işlem mobil uygulama içinden yapılamaz. Lütfen web'den devam edin veya destek ile iletişime geçin." },
+      { status: 403 }
+    );
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

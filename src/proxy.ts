@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "./lib/supabase/middleware";
 import { getSubscriptionLock } from "./lib/subscription-lock";
+import { MOBILE_APP_COOKIE } from "./lib/mobile-app-shared";
 
 // Routes that require at minimum "manager" role
 const MANAGER_ROUTES = [
@@ -62,10 +63,33 @@ const SUBSCRIPTION_LOCK_EXEMPT_PREFIXES = [
   "/api/account", // hesap silme — deneme/ödeme durumundan bağımsız her zaman açık olmalı
 ];
 
+// Android Trusted Web Activity (PWABuilder'ın ürettiği Play Store paketi) ilk
+// açılışta isteğe `Referer: android-app://<paket-adı>` ekler — bu, native UA
+// değiştirilemediği için Android'de "native uygulama içindeyim" için tek
+// güvenilir sinyal (bkz. lib/mobile-app-shared.ts). Bu, tüm dönüş noktalarını
+// tek tek değiştirmemek için proxy()'nin ürettiği response'a en dışta
+// uygulanır — hangi kod yolundan dönerse dönsün (redirect/json/sessionResponse)
+// cookie set edilmiş olur.
+function isAndroidTwaReferer(request: NextRequest): boolean {
+  return !!request.headers.get("referer")?.startsWith("android-app://");
+}
+
 // No URL-based locale routing — locale is stored in a cookie and read
 // by next-intl's getRequestConfig (src/i18n/request.ts).
 // This keeps dashboard URLs clean: /dashboard not /tr/dashboard.
 export async function proxy(request: NextRequest) {
+  const response = await proxyInner(request);
+  if (response && isAndroidTwaReferer(request)) {
+    response.cookies.set(MOBILE_APP_COOKIE, "1", {
+      maxAge: 60 * 60 * 24 * 365,
+      path: "/",
+      sameSite: "lax",
+    });
+  }
+  return response;
+}
+
+async function proxyInner(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (

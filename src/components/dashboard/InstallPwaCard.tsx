@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { Button } from "@/components/ui/button";
 import { Smartphone, Share, PlusSquare, MonitorSmartphone, CheckCircle2 } from "lucide-react";
-import { isMobileAppUserAgent } from "@/lib/mobile-app-shared";
+import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -26,7 +26,7 @@ export function InstallPwaCard() {
 
   useEffect(() => {
     setIsIos(/iphone|ipad|ipod/i.test(navigator.userAgent));
-    setIsNativeApp(isMobileAppUserAgent(navigator.userAgent));
+    setIsNativeApp(isMobileAppUserAgent(navigator.userAgent) || hasMobileAppCookie(document.cookie));
     if (window.matchMedia("(display-mode: standalone)").matches) setInstalled(true);
 
     const onPrompt = (e: Event) => {
