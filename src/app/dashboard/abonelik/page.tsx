@@ -11,7 +11,7 @@ import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import Link from "next/link";
 
-const SUPPORT_EMAIL = "destek@siriplan.com";
+const SUPPORT_EMAIL = "info@bysirius.com";
 
 const PLAN_DETAILS = {
   trial: { name: "Deneme", icon: Zap, color: "text-gray-600" },

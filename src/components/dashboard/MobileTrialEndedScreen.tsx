@@ -2,7 +2,7 @@ import { Phone, Mail, Clock, AlertTriangle } from "lucide-react";
 import type { SubscriptionLockReason } from "@/lib/subscription-lock";
 
 const SUPPORT_PHONE = process.env.PLATFORM_SUPPORT_PHONE || "+905355032634";
-const SUPPORT_EMAIL = "destek@siriplan.com";
+const SUPPORT_EMAIL = "info@bysirius.com";
 
 /**
  * Native mobil uygulamada (App Store/Play Store) deneme süresi dolan veya

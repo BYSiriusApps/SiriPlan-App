@@ -9,6 +9,7 @@ import { findAvailableStaff, isStaffOnTimeOff } from "@/lib/staff-availability";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 import { normalizePhone } from "@/lib/phone";
 import { isTrialActive } from "@/lib/entitlements";
+import { getSubscriptionLock } from "@/lib/subscription-lock";
 
 const ExtraServiceSchema = z.object({
   id: z.string().uuid(),
@@ -68,11 +69,12 @@ export async function POST(req: NextRequest) {
 
   if (!org) return NextResponse.json({ error: "Organizasyon bulunamadı" }, { status: 404 });
 
-  // Block booking if org is not active/in-trial
-  const isActive =
-    org.subscription_status === "active" ||
-    (org.trial_ends_at && new Date(org.trial_ends_at) > new Date());
-  if (!isActive) {
+  // Block booking if org is subscription-locked (trial dolmuş veya ödeme başarısız).
+  // NOT: subscription_status kolonu kayıtta 'active' olarak yazılır ve trial bittiğinde
+  // otomatik değişmez — bu yüzden ham "subscription_status === 'active'" kontrolü trial
+  // dolsa da hep true döner. getSubscriptionLock plan+trial_ends_at'i esas alır.
+  const lock = getSubscriptionLock(org);
+  if (lock.locked) {
     return NextResponse.json({ error: "Bu salon şu an aktif aboneliğe sahip değil." }, { status: 403 });
   }
 

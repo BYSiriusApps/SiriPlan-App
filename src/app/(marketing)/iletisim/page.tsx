@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { getTranslations } from "next-intl/server";
 
 const CONTACT_META = [
-  { key: "email", icon: Mail, value: "destek@siriplan.com", href: "mailto:destek@siriplan.com", color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-950/30" },
+  { key: "email", icon: Mail, value: "info@bysirius.com", href: "mailto:info@bysirius.com", color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-950/30" },
   { key: "phone", icon: Phone, value: "+90 535 503 26 34", href: "https://wa.me/905355032634", color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
   { key: "address", icon: MapPin, href: "https://bysirius.com", color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-950/30" },
   { key: "hours", icon: Clock, href: null, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/30" },
@@ -104,7 +104,7 @@ export default async function IletisimPage() {
                 {t("contactPage.formSubtitle")}
               </p>
               <form
-                action="mailto:destek@siriplan.com"
+                action="mailto:info@bysirius.com"
                 method="post"
                 encType="text/plain"
                 className="space-y-4"
@@ -162,12 +162,12 @@ export default async function IletisimPage() {
           <h2 className="text-xl font-bold mb-6">{t("contactPage.otherChannelsTitle")}</h2>
           <div className="grid sm:grid-cols-3 gap-4">
             <a
-              href="mailto:destek@siriplan.com"
+              href="mailto:info@bysirius.com"
               className="p-5 bg-card rounded-xl border border-border hover:border-primary/40 transition-all group"
             >
               <Mail className="w-6 h-6 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
               <p className="font-semibold text-sm mb-1">{t("contactPage.emailSupport")}</p>
-              <p className="text-xs text-muted-foreground">destek@siriplan.com</p>
+              <p className="text-xs text-muted-foreground">info@bysirius.com</p>
             </a>
             <a
               href="https://wa.me/905355032634"

@@ -8,7 +8,7 @@ import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle, Mail, P
 import { toast } from "sonner";
 import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
 
-const SUPPORT_EMAIL = "destek@siriplan.com";
+const SUPPORT_EMAIL = "info@bysirius.com";
 const SUPPORT_PHONE = "+905355032634";
 
 const PLANS = [

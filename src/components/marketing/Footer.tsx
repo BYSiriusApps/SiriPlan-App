@@ -61,11 +61,11 @@ export async function Footer() {
             {/* Contact quick links */}
             <div className="space-y-1.5 mb-4">
               <a
-                href="mailto:destek@siriplan.com"
+                href="mailto:info@bysirius.com"
                 className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Mail className="w-3 h-3 shrink-0" />
-                destek@siriplan.com
+                info@bysirius.com
               </a>
               <a
                 href="https://wa.me/905355032634"

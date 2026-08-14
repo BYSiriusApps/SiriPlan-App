@@ -90,7 +90,7 @@ export default async function DemoPage() {
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-            <Link href="mailto:destek@siriplan.com">
+            <Link href="mailto:info@bysirius.com">
               <Button size="lg" variant="outline" className="h-12 px-8">
                 {t("demoPage.ctaSecondary")}
               </Button>

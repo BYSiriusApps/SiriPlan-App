@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const CONTACT_LINE = "📧 destek@siriplan.com veya 💬 WhatsApp: +90 535 503 26 34 üzerinden bize ulaşabilirsiniz.";
+const CONTACT_LINE = "📧 info@bysirius.com veya 💬 WhatsApp: +90 535 503 26 34 üzerinden bize ulaşabilirsiniz.";
 
 /**
  * Panel içi yardım asistanının bilgi tabanı — tamamen statik (LLM/API anahtarı gerekmez).

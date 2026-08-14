@@ -60,7 +60,7 @@ export function ChatWidget() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: "Bağlantı hatası. destek@siriplan.com adresinden bize ulaşabilirsiniz." },
+        { role: "assistant", text: "Bağlantı hatası. info@bysirius.com adresinden bize ulaşabilirsiniz." },
       ]);
     } finally {
       setLoading(false);

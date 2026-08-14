@@ -107,6 +107,7 @@ function BookingWizard({
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
+  const [staffServiceMap, setStaffServiceMap] = useState<Record<string, string[]>>({});
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [anyStaff, setAnyStaff] = useState(false);
@@ -130,17 +131,34 @@ function BookingWizard({
   // etkilenmemeli — kategoriler o durumda sessizce boş listeye düşer.
   useEffect(() => {
     const supabase = createClient();
-    supabase.from("organizations").select("*, services(*), staff(*)").eq("slug", slug).single()
+    supabase.from("organizations").select("*, services(*), staff(*), staff_services(staff_id, service_id)").eq("slug", slug).single()
       .then(({ data }) => {
         if (!data) return;
         setOrg(data as Organization);
         setServices((data.services || []).filter((s: Service) => s.is_active && s.is_bookable_online !== false));
         setStaff((data.staff || []).filter((s: Staff) => s.is_active));
+        const map: Record<string, string[]> = {};
+        for (const row of (data.staff_services || []) as { staff_id: string; service_id: string }[]) {
+          (map[row.service_id] ??= []).push(row.staff_id);
+        }
+        setStaffServiceMap(map);
         if (!manualLangOverride.current && isSupportedLanguage(data.locale)) {
           setLang(data.locale);
         }
       });
   }, [slug, setLang]);
+
+  // Seçilen hizmete atanmış personel varsa (staff_services), sadece onları göster —
+  // aksi halde (kısıtlama yoksa) tüm aktif personel aday kabul edilir. Bu, backend'in
+  // findAvailableStaff fallback mantığıyla (bkz. staff-availability.ts) birebir aynı
+  // olmalı; aksi halde "Farketmez" seçiminde UI'da müsait görünen bir saat backend'de
+  // "Seçilen saatte uygun personel yok" hatası verebilir.
+  const eligibleStaff = (() => {
+    if (!selectedService) return staff;
+    const assignedIds = staffServiceMap[selectedService.id];
+    if (!assignedIds || assignedIds.length === 0) return staff;
+    return staff.filter((s) => assignedIds.includes(s.id));
+  })();
 
   // Kategoriler org id'ye bağlı olduğundan, org yüklendikten sonra ayrıca çekilir.
   useEffect(() => {
@@ -176,7 +194,7 @@ function BookingWizard({
   useEffect(() => {
     if ((!selectedStaff && !anyStaff) || !selectedService || !selectedDate || !org) return;
     setLoadingSlots(true);
-    const candidateStaff = anyStaff ? staff : selectedStaff ? [selectedStaff] : [];
+    const candidateStaff = anyStaff ? eligibleStaff : selectedStaff ? [selectedStaff] : [];
     Promise.all(
       candidateStaff.map((s) =>
         fetch(`/api/availability?slug=${org.slug}&staff_id=${s.id}&service_id=${selectedService.id}&date=${selectedDate}`)
@@ -190,7 +208,7 @@ function BookingWizard({
         setSlots(merged);
       })
       .finally(() => setLoadingSlots(false));
-  }, [selectedStaff, anyStaff, staff, selectedService, selectedDate, org]);
+  }, [selectedStaff, anyStaff, eligibleStaff, selectedService, selectedDate, org]);
 
   async function handleSubmit() {
     if (!org || !selectedService || (!selectedStaff && !anyStaff) || !selectedDate || !selectedSlot || !kvkkAccepted) return;
@@ -544,7 +562,7 @@ function BookingWizard({
                     </div>
                   </div>
                 </button>
-                {staff.map((s) => (
+                {eligibleStaff.map((s) => (
                   <button
                     key={s.id}
                     onClick={() => { setAnyStaff(false); setSelectedStaff(s); setSelectedSlot(""); }}

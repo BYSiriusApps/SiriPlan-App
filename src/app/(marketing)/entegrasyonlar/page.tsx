@@ -83,7 +83,7 @@ export default async function EntegrasyonlarPage() {
             <p className="text-sm text-muted-foreground mb-4">
               {t("integrationsPage.missingDesc")}
             </p>
-            <a href="mailto:destek@siriplan.com?subject=Entegrasyon Önerisi">
+            <a href="mailto:info@bysirius.com?subject=Entegrasyon Önerisi">
               <Button variant="outline" className="gap-2">
                 {t("integrationsPage.missingButton")} <ArrowRight className="w-4 h-4" />
               </Button>

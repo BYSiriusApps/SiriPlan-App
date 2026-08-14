@@ -7,7 +7,7 @@ const SYSTEM_PROMPT = `Sen Siriplan'ın AI destek asistanısın. Siriplan, BY Si
 
 Temel bilgiler:
 - Platform: siriplan.com
-- Destek: destek@siriplan.com | WhatsApp: +90 535 503 26 34
+- Destek: info@bysirius.com | WhatsApp: +90 535 503 26 34
 - Fiyatlar: Starter $36/ay, Pro $63/ay, Business $113/ay
 - 14 gün ücretsiz deneme, kredi kartı gerekmez
 - Desteklenen sektörler: Kuaför, Berber, Güzellik Salonu, SPA & Masaj, Nail Salon, Estetik Klinik, Makyaj Stüdyosu, Tattoo Studio, Diyetisyen, Kaş & Kirpik
@@ -33,7 +33,7 @@ Kurallar:
 - Sadece Siriplan ve salon/randevu yönetimi hakkında konuş
 - Kısa ve net cevaplar ver (2-4 cümle)
 - Randevu almak veya kayıt olmak isteyenleri /auth/kayit sayfasına yönlendir
-- Teknik destek için destek@siriplan.com veya WhatsApp'ı öner
+- Teknik destek için info@bysirius.com veya WhatsApp'ı öner
 - Bilmediğin konularda ekibimizle iletişime geçmelerini öner
 - Türkçe veya İngilizce konuşabilirsin`;
 
@@ -53,7 +53,7 @@ function getStaticResponse(message: string): string {
     return "Siriplan şu sektörlere özel çözüm sunuyor: Kuaför, Berber, Güzellik Salonu, SPA & Masaj, Nail Salon, Estetik Klinik, Makyaj Stüdyosu, Tattoo Studio, Diyetisyen, Kaş & Kirpik.";
   }
   if (msg.includes("iletisim") || msg.includes("contact") || msg.includes("destek") || msg.includes("support")) {
-    return "Bize ulaşmak için: 📧 destek@siriplan.com | 💬 WhatsApp: wa.me/905355032634 | 🌐 siriplan.com/iletisim — Ortalama yanıt süremiz 2 saattir.";
+    return "Bize ulaşmak için: 📧 info@bysirius.com | 💬 WhatsApp: wa.me/905355032634 | 🌐 siriplan.com/iletisim — Ortalama yanıt süremiz 2 saattir.";
   }
   if (msg.includes("kayıt") || msg.includes("başla") || msg.includes("sign up") || msg.includes("register")) {
     return "Ücretsiz hesap oluşturmak çok kolay! siriplan.com/auth/kayit adresine gidin, 2 dakikada hesabınız hazır. Kredi kartı gerekmez.";
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ response });
   } catch {
     return NextResponse.json({
-      response: "Şu an yanıt veremiyorum. Lütfen destek@siriplan.com veya WhatsApp üzerinden ulaşın.",
+      response: "Şu an yanıt veremiyorum. Lütfen info@bysirius.com veya WhatsApp üzerinden ulaşın.",
     });
   }
 }

@@ -609,7 +609,7 @@ export default function AyarlarPage() {
             <p className="text-sm font-medium text-foreground">WhatsApp Business</p>
             <p className="text-xs text-muted-foreground">
               Entegrasyon için{" "}
-              <a href="mailto:destek@bysirius.com" className="text-primary hover:underline">destek ekibi</a>
+              <a href="mailto:info@bysirius.com" className="text-primary hover:underline">destek ekibi</a>
               {" "}ile iletişime geçin.
             </p>
           </div>

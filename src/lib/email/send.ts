@@ -174,7 +174,7 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
     </a>
 
     <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
-      Herhangi bir sorunuz için <a href="mailto:destek@siriplan.com" style="color:#e11d48;text-decoration:none;">destek@siriplan.com</a> adresinden veya
+      Herhangi bir sorunuz için <a href="mailto:info@bysirius.com" style="color:#e11d48;text-decoration:none;">info@bysirius.com</a> adresinden veya
       <a href="https://wa.me/905355032634" style="color:#25D366;text-decoration:none;">WhatsApp</a> üzerinden ulaşabilirsiniz.<br/>
       İyi çalışmalar! ✨
     </p>
@@ -258,7 +258,7 @@ export async function sendTrialEndingEmail(data: {
     </a>
 
     <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
-      Sorularınız için <a href="mailto:destek@siriplan.com" style="color:#e11d48;text-decoration:none;">destek@siriplan.com</a> adresinden veya
+      Sorularınız için <a href="mailto:info@bysirius.com" style="color:#e11d48;text-decoration:none;">info@bysirius.com</a> adresinden veya
       <a href="https://wa.me/905355032634" style="color:#25D366;text-decoration:none;">WhatsApp</a> üzerinden ulaşabilirsiniz.<br/>
       İyi çalışmalar! ✨
     </p>
