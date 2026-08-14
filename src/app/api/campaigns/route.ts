@@ -36,6 +36,12 @@ export async function POST(req: NextRequest) {
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
   if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
+  // İleri bir tarih seçildiyse kampanya "scheduled" olarak kaydedilir ve
+  // cron (/api/cron/campaigns) o tarih geldiğinde otomatik gönderir; geçmiş
+  // bir tarih ya da tarih seçilmediyse hemen gönderime hazır taslak kalır.
+  const scheduledAtIso = scheduled_at || null;
+  const isFutureSchedule = !!scheduledAtIso && new Date(scheduledAtIso).getTime() > Date.now();
+
   const { data, error } = await supabase
     .from("campaigns")
     .insert({
@@ -45,9 +51,9 @@ export async function POST(req: NextRequest) {
       message_template,
       channel,
       segment_json,
-      status: "draft",
+      status: isFutureSchedule ? "scheduled" : "draft",
       sent_count: 0,
-      scheduled_at: scheduled_at || null,
+      scheduled_at: scheduledAtIso,
     })
     .select()
     .single();

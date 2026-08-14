@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
+import { getEntitlements } from "@/lib/entitlements";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,13 +34,9 @@ export default async function KampanyalarPage() {
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  const { data: org } = await supabase
-    .from("organizations")
-    .select("feature_campaigns")
-    .eq("id", member.org_id)
-    .single();
-
-  if (!org?.feature_campaigns) {
+  // Deneme süresi Pro'ya denk olduğundan etkin yetki baz alınır (feature_campaigns
+  // kolonu deneme sırasında false kalır, plan+trial_ends_at'ten hesaplanır).
+  if (!getEntitlements(member.organizations).feature_campaigns) {
     return (
       <div className="p-6 max-w-2xl">
         <div className="text-center py-16">

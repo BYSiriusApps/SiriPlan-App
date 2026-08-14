@@ -34,6 +34,12 @@ const PUBLIC_API_WRITE_PREFIXES = [
   "/api/appointments",
   "/api/public",
   "/api/webhooks",
+  // pg_cron (net.http_post) ve Vercel Cron'un POST ile tetiklediği uçlar —
+  // hiçbiri tarayıcı oturumu taşımaz, kendi içlerinde CRON_SECRET bearer
+  // token kontrolü var. Bu istisna olmadan buradaki oturum kontrolü daha
+  // route'a hiç ulaşmadan 401 döndürüyordu (örn. WhatsApp hatırlatma cron'u).
+  "/api/cron",
+  "/api/whatsapp/send-template",
 ];
 
 // Deneme süresi dolan / ödemesi başarısız olan işletmeler için yazma

@@ -42,7 +42,7 @@ export default async function KampanyaDetayPage({
     .order("sent_at", { ascending: false });
 
   let previewCount: number | null = null;
-  if (campaign.status === "draft") {
+  if (campaign.status === "draft" || campaign.status === "scheduled") {
     const recipients = await resolveCampaignRecipients(supabase, member.org_id, campaign.segment_json);
     previewCount = recipients.length;
   }

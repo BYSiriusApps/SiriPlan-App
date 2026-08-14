@@ -33,6 +33,7 @@ export interface CampaignLogRow {
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   draft: { label: "Taslak", className: "bg-gray-100 text-gray-700 dark:bg-gray-900/30" },
+  scheduled: { label: "Planlandı", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30" },
   sending: { label: "Gönderiliyor", className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30" },
   sent: { label: "Gönderildi", className: "bg-green-100 text-green-700 dark:bg-green-900/30" },
   failed: { label: "Başarısız", className: "bg-red-100 text-red-700 dark:bg-red-900/30" },
@@ -165,14 +166,22 @@ export default function KampanyaDetayClient({
         </CardContent>
       </Card>
 
-      {campaign.status === "draft" && (
+      {(campaign.status === "draft" || campaign.status === "scheduled") && (
         <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Users className="h-4 w-4" /> Gönderime Hazır
+              <Users className="h-4 w-4" /> {campaign.status === "scheduled" ? "Planlandı" : "Gönderime Hazır"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            {campaign.status === "scheduled" && campaign.scheduled_at && (
+              <p className="text-sm text-muted-foreground">
+                <strong className="text-foreground">
+                  {format(new Date(campaign.scheduled_at), "d MMM yyyy HH:mm", { locale: tr })}
+                </strong>{" "}
+                tarihinde otomatik gönderilecek. Beklemeden hemen göndermek isterseniz aşağıdaki butonu kullanabilirsiniz.
+              </p>
+            )}
             <p className="text-sm text-muted-foreground">
               Bu kampanya şu anda <strong className="text-foreground">{previewCount ?? 0} müşteriye</strong> ({CHANNEL_LABELS[campaign.channel] ?? campaign.channel} ile) gönderilecek.
             </p>

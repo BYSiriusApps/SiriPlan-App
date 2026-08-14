@@ -12,6 +12,12 @@ export interface ActiveOrgInfo {
   trial_ends_at?: string | null;
   max_staff?: number | null;
   max_appointments_monthly?: number | null;
+  feature_ai?: boolean | null;
+  feature_campaigns?: boolean | null;
+  feature_gamification?: boolean | null;
+  feature_api?: boolean | null;
+  feature_whitelabel?: boolean | null;
+  feature_website?: boolean | null;
 }
 
 export interface ActiveMember {
@@ -29,7 +35,7 @@ export interface Membership {
 }
 
 const MEMBER_SELECT =
-  "org_id, role, staff_id, permissions_json, organizations(id, name, slug, plan, subscription_status, trial_ends_at, max_staff, max_appointments_monthly)";
+  "org_id, role, staff_id, permissions_json, organizations(id, name, slug, plan, subscription_status, trial_ends_at, max_staff, max_appointments_monthly, feature_ai, feature_campaigns, feature_gamification, feature_api, feature_whitelabel, feature_website)";
 
 /**
  * Kullanıcının aktif işletme üyeliğini döndürür.
