@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "./lib/supabase/middleware";
 import { getSubscriptionLock } from "./lib/subscription-lock";
-import { MOBILE_APP_COOKIE } from "./lib/mobile-app-shared";
+import { MOBILE_APP_COOKIE, isMobileAppUserAgent, isMobileAppCookieValue } from "./lib/mobile-app-shared";
 
 // Routes that require at minimum "manager" role
 const MANAGER_ROUTES = [
@@ -74,6 +74,35 @@ function isAndroidTwaReferer(request: NextRequest): boolean {
   return !!request.headers.get("referer")?.startsWith("android-app://");
 }
 
+function isMobileAppRequest(request: NextRequest): boolean {
+  return (
+    isMobileAppUserAgent(request.headers.get("user-agent")) ||
+    isMobileAppCookieValue(request.cookies.get(MOBILE_APP_COOKIE)?.value) ||
+    isAndroidTwaReferer(request)
+  );
+}
+
+// Native uygulama (App Store/Play Store) mağaza kurallarına uyum için yalnızca
+// "giriş ekranı + yönetici paneli" gibi davranmalı — hesap oluşturma, plan
+// seçimi/ödeme ve pazarlama sayfaları kasıtlı olarak DIŞARIDA bırakılıyor.
+// assetlinks.json doğrulandıktan sonra Android'de siriplan.com'a giden HER link
+// (WhatsApp daveti, şifre sıfırlama e-postası vb.) otomatik olarak uygulama
+// içinde açılabilir; bu yüzden "buton gizleme" tek başına yeterli değil —
+// native taraf bu sayfalara asla ulaşamamalı. Personel daveti/e-posta
+// doğrulama/şifre sıfırlama gibi meşru hesap işlemleri istisna: bunlar yeni
+// abonelik başlatmaz, sadece mevcut hesapla ilgili işlemlerdir.
+const MOBILE_APP_ALLOWED_PREFIXES = [
+  "/dashboard",
+  "/admin",
+  "/api",
+  "/auth/giris",
+  "/auth/callback",
+  "/auth/davet",
+  "/auth/dogrula",
+  "/auth/sifre-sifirla",
+  "/auth/yeni-sifre",
+];
+
 // No URL-based locale routing — locale is stored in a cookie and read
 // by next-intl's getRequestConfig (src/i18n/request.ts).
 // This keeps dashboard URLs clean: /dashboard not /tr/dashboard.
@@ -98,6 +127,13 @@ async function proxyInner(request: NextRequest) {
     pathname.match(/\.\w+$/)
   ) {
     return undefined;
+  }
+
+  if (
+    isMobileAppRequest(request) &&
+    !MOBILE_APP_ALLOWED_PREFIXES.some((p) => pathname.startsWith(p))
+  ) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // updateSession refreshes the Supabase session cookie and handles
