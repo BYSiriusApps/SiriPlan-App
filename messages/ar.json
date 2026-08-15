@@ -1099,6 +1099,8 @@
       "chooseServiceTitle": "اختر الخدمة",
       "noServicesAvailable": "لا توجد حاليًا خدمات متاحة للحجز عبر الإنترنت.",
       "callToBook": "يمكنك الاتصال بنا للحجز:",
+      "bookingClosedTitle": "الحجز عبر الإنترنت غير متاح مؤقتًا",
+      "bookingClosedMessage": "لا يقبل هذا العمل حجوزات عبر الإنترنت حاليًا. يرجى الاتصال مباشرة للحجز:",
       "minutesShort": "د",
       "chooseStaffTitle": "اختر الموظف",
       "anyStaffLabel": "لا يهم",

@@ -1099,6 +1099,8 @@
       "chooseServiceTitle": "Hizmet Seçin",
       "noServicesAvailable": "Şu anda online randevu alınabilecek bir hizmet bulunmuyor.",
       "callToBook": "Randevu almak için bizi arayabilirsiniz:",
+      "bookingClosedTitle": "Online Randevu Şu An Kapalı",
+      "bookingClosedMessage": "Bu işletme şu anda online randevu alamıyor. Randevu almak için lütfen doğrudan arayın:",
       "minutesShort": "dk",
       "chooseStaffTitle": "Personel Seçin",
       "anyStaffLabel": "Farketmez",

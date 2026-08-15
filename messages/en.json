@@ -1099,6 +1099,8 @@
       "chooseServiceTitle": "Choose a Service",
       "noServicesAvailable": "No services are currently available for online booking.",
       "callToBook": "You can call us to book an appointment:",
+      "bookingClosedTitle": "Online Booking Temporarily Unavailable",
+      "bookingClosedMessage": "This business isn't taking online bookings right now. Please call directly to book:",
       "minutesShort": "min",
       "chooseStaffTitle": "Choose Staff",
       "anyStaffLabel": "No preference",

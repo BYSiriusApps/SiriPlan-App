@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DEFAULT_ORG_TIMEZONE, istanbulDateStr, istanbulDayOfWeek, istanbulMinutesOfDay } from "@/lib/istanbul-time";
+import { resolveEligibleStaffIds } from "@/lib/staff-eligibility";
 
 export interface StaffScheduleRow {
   start_time: string;
@@ -87,6 +88,10 @@ interface CandidateStaff extends StaffScheduleRow {
  * arasından, o gün içinde en az randevusu olanı (yoğunluğa göre dengeli dağıtım)
  * seçer. Örn. A personeli o gün 3 randevu almışsa, B personeli 1 almışsa, "Farketmez"
  * randevusu B'ye atanır.
+ *
+ * Aday listesi resolveEligibleStaffIds (bkz. staff-eligibility.ts) ile belirlenir —
+ * bu, frontend'in (PublicBookingClient) müşteriye "müsait" diye gösterdiği personel
+ * listesiyle birebir aynı kuralı kullanır. Ayrı ayrı yazılmasın.
  */
 export async function findAvailableStaff(
   supabase: SupabaseClient,
@@ -96,30 +101,28 @@ export async function findAvailableStaff(
   durationMinutes: number,
   timeZone: string = DEFAULT_ORG_TIMEZONE
 ): Promise<string | null> {
-  const { data: assigned } = await supabase
-    .from("staff_services")
-    .select("staff:staff!inner(id, org_id, is_active, start_time, end_time, working_days)")
-    .eq("service_id", serviceId);
+  const { data: allStaff } = await supabase
+    .from("staff")
+    .select("id, org_id, is_active, start_time, end_time, working_days")
+    .eq("org_id", orgId)
+    .eq("is_active", true);
+  const activeStaff: CandidateStaff[] = (allStaff ?? []) as CandidateStaff[];
 
-  // staff_services'te bu hizmete kimse atanmamışsa (salon sahibi hiç kısıtlama
-  // yapmamış olabilir — çoğu işletme için varsayılan durum budur), online randevu
-  // sayfasındaki müsaitlik gösterimiyle tutarlı olması için tüm aktif personeli
-  // aday kabul et. Aksi halde "Farketmez" ile hiç randevu alınamaz (bkz. bu
-  // fonksiyonun tetiklediği "Seçilen saatte uygun personel yok" hatası).
-  let candidates: { staff: unknown }[] = assigned ?? [];
-  if (candidates.length === 0) {
-    const { data: allStaff } = await supabase
-      .from("staff")
-      .select("id, org_id, is_active, start_time, end_time, working_days")
-      .eq("org_id", orgId)
-      .eq("is_active", true);
-    candidates = (allStaff ?? []).map((s) => ({ staff: s }));
-  }
+  const { data: assignedRows } = await supabase
+    .from("staff_services")
+    .select("staff_id")
+    .eq("service_id", serviceId);
+  const assignedIds = (assignedRows ?? []).map((r) => r.staff_id as string);
+
+  // staff_services'te bu hizmete kimse atanmamışsa, ya da atanan personelin
+  // hepsi sonradan pasife alınmışsa, tüm aktif personeli aday kabul et —
+  // aksi halde "Farketmez" ile hiç randevu alınamaz (bkz. bu fonksiyonun
+  // tetiklediği "Seçilen saatte uygun personel yok" hatası).
+  const eligibleIds = new Set(resolveEligibleStaffIds(activeStaff.map((s) => s.id), assignedIds));
+  const candidates = activeStaff.filter((s) => eligibleIds.has(s.id));
 
   const available: CandidateStaff[] = [];
-  for (const row of candidates) {
-    const staff = row.staff as unknown as CandidateStaff;
-    if (!staff || staff.org_id !== orgId || !staff.is_active) continue;
+  for (const staff of candidates) {
     if (!isWithinWorkingHours(appointmentAt, durationMinutes, staff, timeZone)) continue;
     if (await isStaffOnTimeOff(supabase, orgId, staff.id, appointmentAt, timeZone)) continue;
     if (await hasOverlappingAppointment(supabase, staff.id, appointmentAt, durationMinutes)) continue;

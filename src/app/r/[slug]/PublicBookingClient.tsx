@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle2, ChevronRight, ChevronLeft, Calendar, Clock } from "lucide-react";
+import { Loader2, CheckCircle2, ChevronRight, ChevronLeft, Calendar, Clock, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { format, addDays, type Locale as DateFnsLocale } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
@@ -17,6 +17,8 @@ import { renderKvkkNotice } from "@/lib/kvkk";
 import { SUPPORTED_LANGUAGES, isSupportedLanguage, type LanguageCode } from "@/lib/languages";
 import { websiteThemeStyle } from "@/lib/website-palettes";
 import { getEntitlements } from "@/lib/entitlements";
+import { getSubscriptionLock } from "@/lib/subscription-lock";
+import { resolveEligibleStaffIds } from "@/lib/staff-eligibility";
 import { MapPin, Star as StarIcon } from "lucide-react";
 
 import trMessages from "../../../../messages/tr.json";
@@ -163,9 +165,9 @@ function BookingWizard({
   // "Seçilen saatte uygun personel yok" hatası verebilir.
   const eligibleStaff = (() => {
     if (!selectedService) return staff;
-    const assignedIds = staffServiceMap[selectedService.id];
-    if (!assignedIds || assignedIds.length === 0) return staff;
-    return staff.filter((s) => assignedIds.includes(s.id));
+    const assignedIds = staffServiceMap[selectedService.id] ?? [];
+    const eligibleIds = new Set(resolveEligibleStaffIds(staff.map((s) => s.id), assignedIds));
+    return staff.filter((s) => eligibleIds.has(s.id));
   })();
 
   // Kategoriler org id'ye bağlı olduğundan, org yüklendikten sonra ayrıca çekilir.
@@ -293,6 +295,38 @@ function BookingWizard({
           <Loader2 className="h-7 w-7 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground font-medium tracking-wide">{t("loadingPage")}</p>
         </div>
+      </div>
+    );
+  }
+
+  // Abonelik/deneme süresi dolmuş işletmeler online randevu alamaz (bkz.
+  // getSubscriptionLock — /api/appointments zaten bunu 403 ile reddediyor).
+  // Müşteriyi tüm sihirbazı doldurup sonda hataya çarpmak yerine, en baştan
+  // sadece işletmenin telefon numarasını göster.
+  const subscriptionLock = getSubscriptionLock(org);
+  if (subscriptionLock.locked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-rose-50 via-background to-amber-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 p-4">
+        <Card className="relative max-w-md w-full text-center border-0 shadow-2xl shadow-primary/10 overflow-hidden">
+          <div className="h-1.5 w-full bg-gradient-to-r from-primary via-accent to-primary" />
+          <CardContent className="p-8">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+              <Phone className="h-7 w-7 text-primary" />
+            </div>
+            <h2 className="font-heading text-xl font-bold mb-2">{org.name}</h2>
+            <p className="font-heading text-lg font-semibold mb-2">{t("bookingClosedTitle")}</p>
+            <p className="text-muted-foreground text-sm mb-5">{t("bookingClosedMessage")}</p>
+            {org.phone ? (
+              <a
+                href={`tel:${org.phone}`}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-primary-foreground shadow-lg shadow-primary/25"
+                style={{ background: "linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--accent) 55%, var(--primary)))" }}
+              >
+                <Phone className="h-4 w-4" /> {org.phone}
+              </a>
+            ) : null}
+          </CardContent>
+        </Card>
       </div>
     );
   }
