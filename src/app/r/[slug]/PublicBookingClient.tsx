@@ -131,15 +131,23 @@ function BookingWizard({
   // etkilenmemeli — kategoriler o durumda sessizce boş listeye düşer.
   useEffect(() => {
     const supabase = createClient();
-    supabase.from("organizations").select("*, services(*), staff(*), staff_services(staff_id, service_id)").eq("slug", slug).single()
+    // staff_services'in organizations'a doğrudan FK'si yok (sadece staff_id/service_id
+    // içeriyor) — bu yüzden organizations altında sibling olarak embed edilemez, PostgREST
+    // "relationship bulunamadı" hatası verir ve sorgu sessizce başarısız olup org hiç set
+    // edilmez (sonsuz "yükleniyor" ekranı). staff üzerinden nested embed edilirse staff_id
+    // FK'si geçerli olduğundan çalışır.
+    supabase.from("organizations").select("*, services(*), staff(*, staff_services(service_id))").eq("slug", slug).single()
       .then(({ data }) => {
         if (!data) return;
         setOrg(data as Organization);
         setServices((data.services || []).filter((s: Service) => s.is_active && s.is_bookable_online !== false));
-        setStaff((data.staff || []).filter((s: Staff) => s.is_active));
+        const activeStaff = (data.staff || []).filter((s: Staff) => s.is_active);
+        setStaff(activeStaff);
         const map: Record<string, string[]> = {};
-        for (const row of (data.staff_services || []) as { staff_id: string; service_id: string }[]) {
-          (map[row.service_id] ??= []).push(row.staff_id);
+        for (const s of activeStaff as (Staff & { staff_services?: { service_id: string }[] })[]) {
+          for (const row of s.staff_services || []) {
+            (map[row.service_id] ??= []).push(s.id);
+          }
         }
         setStaffServiceMap(map);
         if (!manualLangOverride.current && isSupportedLanguage(data.locale)) {

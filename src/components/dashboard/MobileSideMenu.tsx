@@ -14,7 +14,7 @@ import { useAiAssistant } from "@/components/dashboard/AiAssistantContext";
 import { cn } from "@/lib/utils";
 import {
   Menu, Bot, Link2, Copy, Check, MessageCircle,
-  UserCog, Scissors, ListPlus, Megaphone, BarChart3, Wallet, Import, CreditCard,
+  UserCog, Scissors, ListPlus, Megaphone, Globe, BarChart3, Wallet, Import, CreditCard,
 } from "lucide-react";
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
@@ -24,6 +24,7 @@ const SECONDARY_NAV = [
   { href: "/dashboard/hizmetler", icon: Scissors, tKey: "services", minRole: "staff" },
   { href: "/dashboard/bekleme-listesi", icon: ListPlus, tKey: "waitlist", minRole: "staff" },
   { href: "/dashboard/kampanyalar", icon: Megaphone, tKey: "campaigns", minRole: "manager" },
+  { href: "/dashboard/website-ayarlari", icon: Globe, tKey: "websiteSettings", minRole: "manager" },
   { href: "/dashboard/raporlar", icon: BarChart3, tKey: "reports", minRole: "manager" },
   { href: "/dashboard/gelir-gider", icon: Wallet, tKey: "income", minRole: "manager" },
   { href: "/dashboard/veri-gocu", icon: Import, tKey: "dataMigration", minRole: "manager" },
