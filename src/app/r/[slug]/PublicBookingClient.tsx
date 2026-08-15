@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { NextIntlClientProvider, useTranslations, type AbstractIntlMessages } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -163,12 +163,16 @@ function BookingWizard({
   // findAvailableStaff fallback mantığıyla (bkz. staff-availability.ts) birebir aynı
   // olmalı; aksi halde "Farketmez" seçiminde UI'da müsait görünen bir saat backend'de
   // "Seçilen saatte uygun personel yok" hatası verebilir.
-  const eligibleStaff = (() => {
+  // useMemo şart: bu değer olmadan her render'da yeni bir dizi referansı
+  // üretilir, aşağıdaki "saat müsaitliği" effect'i buna bağımlı olduğundan
+  // (satır ~221) her render'ı yeniden tetikler → sonsuz döngü → saat seçimi
+  // ekranda sürekli "yükleniyor" spinner'ında donup asla açılmaz.
+  const eligibleStaff = useMemo(() => {
     if (!selectedService) return staff;
     const assignedIds = staffServiceMap[selectedService.id] ?? [];
     const eligibleIds = new Set(resolveEligibleStaffIds(staff.map((s) => s.id), assignedIds));
     return staff.filter((s) => eligibleIds.has(s.id));
-  })();
+  }, [staff, staffServiceMap, selectedService]);
 
   // Kategoriler org id'ye bağlı olduğundan, org yüklendikten sonra ayrıca çekilir.
   useEffect(() => {
