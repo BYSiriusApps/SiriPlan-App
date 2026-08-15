@@ -19,6 +19,7 @@ export interface Organization {
   logo_url: string | null;
   cover_url: string | null;
   instagram_handle: string | null;
+  tiktok_handle: string | null;
   whatsapp_number: string | null;
   telegram_chat_id: string | null;
   working_hours_json: Record<string, { open: string; close: string } | null>;

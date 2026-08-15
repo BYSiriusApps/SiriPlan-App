@@ -227,6 +227,7 @@ export default function AyarlarPage() {
         location_url: org.location_url,
         logo_url: org.logo_url,
         instagram_handle: org.instagram_handle,
+        tiktok_handle: org.tiktok_handle,
         whatsapp_number: org.whatsapp_number,
         telegram_chat_id: org.telegram_chat_id,
         locale: org.locale,
@@ -599,6 +600,15 @@ export default function AyarlarPage() {
             <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-muted text-muted-foreground text-sm">@</span>
             <Input className="rounded-l-none" value={org.instagram_handle || ""} onChange={(e) => setField("instagram_handle", e.target.value)} placeholder="salonadınız" />
           </div>
+          <p className="text-[11px] text-muted-foreground mt-1">Website modu açıksa randevu sayfanızda ikon olarak gösterilir.</p>
+        </div>
+        <div>
+          <Label>TikTok Kullanıcı Adı</Label>
+          <div className="flex mt-1">
+            <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-muted text-muted-foreground text-sm">@</span>
+            <Input className="rounded-l-none" value={org.tiktok_handle || ""} onChange={(e) => setField("tiktok_handle", e.target.value)} placeholder="salonadınız" />
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">Website modu açıksa randevu sayfanızda ikon olarak gösterilir.</p>
         </div>
         <div>
           <Label>WhatsApp Numarası (Müşterilere gösterilecek)</Label>

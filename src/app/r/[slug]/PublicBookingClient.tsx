@@ -19,7 +19,18 @@ import { websiteThemeStyle } from "@/lib/website-palettes";
 import { getEntitlements } from "@/lib/entitlements";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
 import { resolveEligibleStaffIds } from "@/lib/staff-eligibility";
-import { MapPin, Star as StarIcon } from "lucide-react";
+import { MapPin, Star as StarIcon, Instagram } from "lucide-react";
+
+// lucide-react'ta marka ikonu olarak TikTok bulunmuyor (Instagram/Facebook gibi
+// birkaç istisna dışında marka logoları desteklenmiyor) — resmi TikTok notu
+// buraya inline SVG olarak eklendi, ek bir paket bağımlılığı gerekmesin diye.
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M16.6 5.82c-.9-.86-1.42-2.05-1.42-3.37h-3.03v13.6c0 1.55-1.26 2.8-2.8 2.8a2.8 2.8 0 0 1-2.8-2.8 2.8 2.8 0 0 1 2.8-2.8c.26 0 .5.03.74.1V10.3a5.8 5.8 0 0 0-.74-.05A5.83 5.83 0 0 0 3.55 16.08 5.83 5.83 0 0 0 9.38 21.9a5.83 5.83 0 0 0 5.83-5.82V9.01a8.36 8.36 0 0 0 4.88 1.56V7.55c-1.24 0-2.39-.4-3.33-1.08-.06-.04-.11-.09-.16-.13Z" />
+    </svg>
+  );
+}
 
 import trMessages from "../../../../messages/tr.json";
 import enMessages from "../../../../messages/en.json";
@@ -407,7 +418,7 @@ function BookingWizard({
       <div className="pointer-events-none fixed top-1/3 -left-40 w-96 h-96 rounded-full bg-amber-200/25 dark:bg-purple-900/15 blur-3xl" />
 
       {/* Website Modu: kapak fotoğrafı + tanıtım yazısı + adres/yorum kısayolları */}
-      {websiteMode && (org.cover_url || org.website_tagline || org.location_url || org.google_review_url) && (
+      {websiteMode && (org.cover_url || org.website_tagline || org.location_url || org.google_review_url || org.instagram_handle || org.tiktok_handle) && (
         <div className="relative bg-[var(--w-background)] text-[var(--w-foreground)]">
           {org.cover_url && (
             <div className="relative h-40 sm:h-56 w-full overflow-hidden">
@@ -419,8 +430,8 @@ function BookingWizard({
             {org.website_tagline && (
               <p className="text-sm leading-relaxed opacity-90">{org.website_tagline}</p>
             )}
-            {(org.location_url || org.google_review_url) && (
-              <div className="flex flex-wrap gap-2">
+            {(org.location_url || org.google_review_url || org.instagram_handle || org.tiktok_handle) && (
+              <div className="flex flex-wrap items-center gap-2">
                 {org.location_url && (
                   <a
                     href={org.location_url}
@@ -439,6 +450,28 @@ function BookingWizard({
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-current opacity-90 hover:opacity-100 transition-opacity"
                   >
                     <StarIcon className="h-3.5 w-3.5" /> Değerlendirmeler
+                  </a>
+                )}
+                {org.instagram_handle && (
+                  <a
+                    href={`https://instagram.com/${org.instagram_handle.replace(/^@/, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-current opacity-90 hover:opacity-100 transition-opacity shrink-0"
+                  >
+                    <Instagram className="h-3.5 w-3.5" />
+                  </a>
+                )}
+                {org.tiktok_handle && (
+                  <a
+                    href={`https://www.tiktok.com/@${org.tiktok_handle.replace(/^@/, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="TikTok"
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-current opacity-90 hover:opacity-100 transition-opacity shrink-0"
+                  >
+                    <TikTokIcon className="h-3.5 w-3.5" />
                   </a>
                 )}
               </div>
