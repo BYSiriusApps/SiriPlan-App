@@ -138,7 +138,7 @@ export async function sendPurposeTemplate({
 export function formatApptDateTime(appointmentAt: string, timeZone: string = "Europe/Istanbul"): { date: string; time: string } {
   const d = new Date(appointmentAt);
   const parts = new Intl.DateTimeFormat("tr-TR", {
-    timeZone,
+    timeZone: timeZone,
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

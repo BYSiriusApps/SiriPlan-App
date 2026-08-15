@@ -56,7 +56,7 @@ function buildMessage(
   const date = new Date(appt.appointment_at).toLocaleString("tr-TR", {
     dateStyle: "medium",
     timeStyle: "short",
-    timeZone,
+    timeZone: timeZone,
   });
   const source = sourceLabel(appt.source);
   const locationLine = locationLink ? `📍 ${locationLink}\n` : "";

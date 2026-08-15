@@ -15,10 +15,19 @@ const hmFormatterCache = new Map<string, Intl.DateTimeFormat>();
 const weekdayFormatterCache = new Map<string, Intl.DateTimeFormat>();
 const dateFormatterCache = new Map<string, Intl.DateTimeFormat>();
 
+// NOT: Intl.DateTimeFormat seçeneklerinde { timeZone } kısayol (shorthand) söz
+// dizimi bilerek KULLANILMIYOR — bu projenin Turbopack production minifier'ı
+// (bkz. AGENTS.md, standart Next.js'ten farklı) bu üç fonksiyon findAvailableStaff
+// üzerinden iç içe çağrıldığında (istanbulDayOfWeek → getWeekdayFormatter)
+// parametre isimlerini yeniden adlandırırken shorthand property'nin işaret ettiği
+// değişkeni güncellemeyi atlıyor; üretimde "ReferenceError: timeZone is not
+// defined" ile "Farketmez" (auto-assign) randevu akışını çökertiyordu (müşteri
+// tarafında anlamsız "Bir hata oluştu" mesajına dönüşüyordu). Açık
+// "timeZone: timeZone" yazımı bu minifier hatasını tetiklemiyor.
 function getHmFormatter(timeZone: string): Intl.DateTimeFormat {
   let f = hmFormatterCache.get(timeZone);
   if (!f) {
-    f = new Intl.DateTimeFormat("en-GB", { timeZone, hour: "2-digit", minute: "2-digit", hour12: false });
+    f = new Intl.DateTimeFormat("en-GB", { timeZone: timeZone, hour: "2-digit", minute: "2-digit", hour12: false });
     hmFormatterCache.set(timeZone, f);
   }
   return f;
@@ -27,7 +36,7 @@ function getHmFormatter(timeZone: string): Intl.DateTimeFormat {
 function getWeekdayFormatter(timeZone: string): Intl.DateTimeFormat {
   let f = weekdayFormatterCache.get(timeZone);
   if (!f) {
-    f = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" });
+    f = new Intl.DateTimeFormat("en-US", { timeZone: timeZone, weekday: "short" });
     weekdayFormatterCache.set(timeZone, f);
   }
   return f;
@@ -36,7 +45,7 @@ function getWeekdayFormatter(timeZone: string): Intl.DateTimeFormat {
 function getDateFormatter(timeZone: string): Intl.DateTimeFormat {
   let f = dateFormatterCache.get(timeZone);
   if (!f) {
-    f = new Intl.DateTimeFormat("en-CA", { timeZone });
+    f = new Intl.DateTimeFormat("en-CA", { timeZone: timeZone });
     dateFormatterCache.set(timeZone, f);
   }
   return f;
