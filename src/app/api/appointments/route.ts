@@ -46,6 +46,22 @@ const CreateSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Bu route'un altındaki her adım (özellikle findAvailableStaff/isStaffOnTimeOff
+  // gibi veri bütünlüğüne bağımlı sorgular) beklenmedik/bozuk veriyle çökebilir.
+  // Çökme durumunda Next.js JSON değil HTML hata sayfası döner — müşteri tarafında
+  // (PublicBookingClient) res.json() parse hatası "Bir hata oluştu" gibi anlamsız bir
+  // genel mesaja düşer ve gerçek sebep hiç loglanmaz. Bu dış try/catch, randevu API'sinin
+  // hangi güncelleme/veri durumu olursa olsun HER ZAMAN anlamlı bir JSON hata döndürmesini
+  // garanti eder — müşteri randevu linki asla "sessizce" kırılmasın.
+  try {
+    return await handleCreateAppointment(req);
+  } catch (err) {
+    console.error("POST /api/appointments crashed:", err);
+    return NextResponse.json({ error: "Randevu oluşturulamadı, lütfen tekrar deneyin." }, { status: 500 });
+  }
+}
+
+async function handleCreateAppointment(req: NextRequest) {
   const body = await req.json();
   const parsed = CreateSchema.safeParse(body);
   if (!parsed.success) {

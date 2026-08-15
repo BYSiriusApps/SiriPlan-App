@@ -16,11 +16,19 @@ export function isWithinWorkingHours(
   staff: StaffScheduleRow,
   timeZone: string = DEFAULT_ORG_TIMEZONE
 ): boolean {
+  // Eksik/bozuk mesai verisi (örn. eski bir kayıt, ya da başka bir güncelleme
+  // sırasında yanlışlıkla null bırakılmış working_days/start_time/end_time)
+  // bu fonksiyonu çökertip randevu oluşturma akışını tamamen kilitlememeli —
+  // veri eksikse o personel için saat kısıtı uygulanmaz (aday listesinden
+  // düşürülmez), en kötü ihtimalle "her saat müsait" varsayılır.
+  if (!Array.isArray(staff.working_days) || !staff.start_time || !staff.end_time) return true;
+
   const d = new Date(appointmentAt);
-  if (!staff.working_days.includes(istanbulDayOfWeek(d, timeZone))) return false;
+  if (!staff.working_days.map(Number).includes(istanbulDayOfWeek(d, timeZone))) return false;
 
   const [sh, sm] = staff.start_time.split(":").map(Number);
   const [eh, em] = staff.end_time.split(":").map(Number);
+  if ([sh, sm, eh, em].some((n) => Number.isNaN(n))) return true;
   const startMin = sh * 60 + sm;
   const endMin = eh * 60 + em;
   const apptStartMin = istanbulMinutesOfDay(d, timeZone);

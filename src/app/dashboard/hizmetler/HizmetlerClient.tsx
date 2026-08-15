@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,7 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 import { resizeImageFile } from "@/lib/image-resize";
 import {
   Scissors, Clock, Star, Pencil, Loader2, Trash2, Users, ChevronRight,
-  ArrowUp, ArrowDown, ImagePlus, X,
+  ArrowUp, ArrowDown, ImagePlus, X, Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Service, ServiceCategory, Staff } from "@/types/database";
@@ -50,6 +50,10 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
   const [detailTarget, setDetailTarget] = useState<Service | null>(null);
   const [detailStaff, setDetailStaff] = useState<Staff[]>([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [allStaff, setAllStaff] = useState<Staff[]>([]);
+  const [editingStaff, setEditingStaff] = useState(false);
+  const [staffSelection, setStaffSelection] = useState<Set<string>>(new Set());
+  const [savingStaff, setSavingStaff] = useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -62,9 +66,18 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
     is_bookable_online: true, category_id: NO_CATEGORY,
   });
 
+  useEffect(() => {
+    if (!canEdit) return;
+    fetch("/api/staff")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setAllStaff(d?.staff || []))
+      .catch(() => {});
+  }, [canEdit]);
+
   async function openDetail(svc: Service) {
     setDetailTarget(svc);
     setEditing(false);
+    setEditingStaff(false);
     setConfirmDelete(false);
     setDetailStaff([]);
     setLoadingDetail(true);
@@ -79,7 +92,41 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
   function closeDetail() {
     setDetailTarget(null);
     setEditing(false);
+    setEditingStaff(false);
     setConfirmDelete(false);
+  }
+
+  function startEditStaff() {
+    setStaffSelection(new Set(detailStaff.map((s) => s.id)));
+    setEditingStaff(true);
+  }
+
+  function toggleStaffSelection(staffId: string) {
+    setStaffSelection((prev) => {
+      const next = new Set(prev);
+      if (next.has(staffId)) next.delete(staffId);
+      else next.add(staffId);
+      return next;
+    });
+  }
+
+  async function handleSaveStaff() {
+    if (!detailTarget) return;
+    setSavingStaff(true);
+    const res = await fetch(`/api/services/${detailTarget.id}/staff`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ staff_ids: Array.from(staffSelection) }),
+    });
+    setSavingStaff(false);
+    if (res.ok) {
+      setDetailStaff(allStaff.filter((s) => staffSelection.has(s.id)));
+      setEditingStaff(false);
+      toast.success("Personel ataması güncellendi");
+    } else {
+      const d = await res.json().catch(() => null);
+      toast.error(d?.error || "Güncellenemedi");
+    }
   }
 
   function startEdit() {
@@ -436,14 +483,65 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
 
                 {/* Staff list */}
                 <div>
-                  <p className="text-sm font-semibold flex items-center gap-1.5 mb-2">
-                    <Users className="h-4 w-4" />
-                    {t("servicesPage.staffListTitle")}
-                  </p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-semibold flex items-center gap-1.5">
+                      <Users className="h-4 w-4" />
+                      {t("servicesPage.staffListTitle")}
+                    </p>
+                    {canEdit && !editingStaff && !loadingDetail && (
+                      <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={startEditStaff}>
+                        <Pencil className="h-3 w-3" /> Düzenle
+                      </Button>
+                    )}
+                  </div>
                   {loadingDetail ? (
                     <div className="flex items-center gap-2 text-muted-foreground text-sm py-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Yükleniyor…
+                    </div>
+                  ) : editingStaff ? (
+                    <div className="space-y-3">
+                      <p className="text-xs text-muted-foreground">
+                        Hiçbiri seçilmezse tüm aktif personel bu hizmeti verebilir kabul edilir (kısıtlama yok).
+                      </p>
+                      {allStaff.length === 0 ? (
+                        <p className="text-sm text-muted-foreground py-1">Kayıtlı personel yok.</p>
+                      ) : (
+                        <div className="space-y-1.5 max-h-56 overflow-y-auto">
+                          {allStaff.map((s) => {
+                            const checked = staffSelection.has(s.id);
+                            return (
+                              <label
+                                key={s.id}
+                                className="flex items-center gap-2.5 p-2 rounded-lg bg-muted/40 cursor-pointer hover:bg-muted/70 transition-colors"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() => toggleStaffSelection(s.id)}
+                                  className="rounded text-primary"
+                                />
+                                <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center font-semibold text-primary text-xs shrink-0">
+                                  {s.full_name[0]}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium truncate">{s.full_name}</p>
+                                  {s.role && <p className="text-xs text-muted-foreground truncate">{s.role}</p>}
+                                </div>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                      <div className="flex gap-2">
+                        <Button variant="outline" className="flex-1" onClick={() => setEditingStaff(false)} disabled={savingStaff}>
+                          {t("servicesPage.cancelButton")}
+                        </Button>
+                        <Button className="flex-1 gap-1.5" onClick={handleSaveStaff} disabled={savingStaff}>
+                          {savingStaff ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                          {t("servicesPage.saveButton")}
+                        </Button>
+                      </div>
                     </div>
                   ) : detailStaff.length === 0 ? (
                     <p className="text-sm text-muted-foreground py-1">
