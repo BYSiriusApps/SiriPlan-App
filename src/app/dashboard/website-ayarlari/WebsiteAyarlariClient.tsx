@@ -704,7 +704,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
             value={newServiceName}
             onChange={(e) => setNewServiceName(e.target.value)}
           />
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <Select value={newServiceCategoryId} onValueChange={(v) => v && setNewServiceCategoryId(v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Kategori">
