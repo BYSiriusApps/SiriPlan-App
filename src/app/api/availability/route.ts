@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { istanbulDateStr, istanbulMinutesOfDay } from "@/lib/istanbul-time";
+import { createAdminClient } from "@/lib/supabase/server";
+import { istanbulDateStr, istanbulMinutesOfDay, zonedWallTimeToUtc } from "@/lib/istanbul-time";
+import { limitByIp, tooManyRequests } from "@/lib/rate-limit";
 
-export const runtime = "edge";
+// Bu uç herkese açık (anonim randevu sayfası kullanır) ve artık service role ile
+// çalışıyor — anon rolünün appointments/staff tablolarına doğrudan erişimi
+// kaldırıldı (bkz. 20260817_public_data_lockdown.sql). Service role Node
+// runtime'ı gerektirdiği için edge'den nodejs'e alındı.
+export const runtime = "nodejs";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 // Generate time slots between start and end, every `step` minutes
 function generateSlots(startTime: string, endTime: string, durationMins: number, stepMins = 15) {
@@ -31,14 +39,41 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing params" }, { status: 400 });
   }
 
-  const supabase = await createClient();
+  // Girdi doğrulaması: staffId aşağıda PostgREST'in `.or(...)` filtre metnine
+  // string olarak GÖMÜLÜYOR. Doğrulanmazsa saldırgan `staff_id.eq.x,org_id.eq.y`
+  // gibi bir değerle filtre mantığını değiştirebilir (PostgREST filtre
+  // enjeksiyonu). UUID/tarih biçimi zorunlu kılınarak bu kapatılıyor.
+  if (!UUID_RE.test(staffId) || !UUID_RE.test(serviceId) || !DATE_RE.test(date)) {
+    return NextResponse.json({ error: "Geçersiz parametre" }, { status: 400 });
+  }
+  // "Farketmez" akışında her personel için bir istek atılır; bir salonun 15
+  // personeli varsa tek ziyaretçi 15 istek yapabilir. Tavan buna göre geniş
+  // tutuldu, yine de takvim kazıma denemelerini keser.
+  const limit = limitByIp(req, "availability", 240, 60_000);
+  if (!limit.ok) return tooManyRequests(limit) as unknown as NextResponse;
+
+  const supabase = await createAdminClient();
+
+  // Salon slug'ı üzerinden org çözülür. Önceden org, doğrudan staff_id'den
+  // türetiliyordu ve slug hiç doğrulanmıyordu — başka bir salonun personel
+  // id'si verilerek o personelin çalışma saatleri ve dolu saatleri
+  // sorgulanabiliyordu. Artık personel/hizmetin bu org'a ait olması şart.
+  const { data: orgRow } = await supabase
+    .from("organizations")
+    .select("id, timezone")
+    .eq("slug", orgSlug)
+    .maybeSingle();
+
+  if (!orgRow) return NextResponse.json({ error: "Salon bulunamadı" }, { status: 404 });
+  const timeZone = orgRow.timezone || "Europe/Istanbul";
 
   // Get service duration
   const { data: service } = await supabase
     .from("services")
     .select("duration_minutes")
     .eq("id", serviceId)
-    .single();
+    .eq("org_id", orgRow.id)
+    .maybeSingle();
 
   if (!service) return NextResponse.json({ error: "Service not found" }, { status: 404 });
 
@@ -47,16 +82,10 @@ export async function GET(req: NextRequest) {
     .from("staff")
     .select("org_id, start_time, end_time, working_days")
     .eq("id", staffId)
-    .single();
+    .eq("org_id", orgRow.id)
+    .maybeSingle();
 
   if (!staff) return NextResponse.json({ error: "Staff not found" }, { status: 404 });
-
-  const { data: orgRow } = await supabase
-    .from("organizations")
-    .select("timezone")
-    .eq("id", staff.org_id ?? "")
-    .single();
-  const timeZone = orgRow?.timezone || "Europe/Istanbul";
 
   // Check if staff works on this day
   const dayOfWeek = new Date(date + "T12:00:00").getDay(); // 0=Sun
@@ -80,16 +109,21 @@ export async function GET(req: NextRequest) {
   // Generate all theoretical slots
   const allSlots = generateSlots(staff.start_time, staff.end_time, service.duration_minutes);
 
-  // Get existing appointments for that day and staff
-  const dayStart = `${date}T00:00:00`;
-  const dayEnd = `${date}T23:59:59`;
+  // Get existing appointments for that day and staff.
+  // Sınırlar işletmenin saat dilimine göre MUTLAK ana çevrilir: ham
+  // "2026-08-20T00:00:00" metni veritabanı oturumunun saat diliminde (UTC)
+  // yorumlanıyordu, bu yüzden UTC+3'te gece yarısına yakın randevular yanlış
+  // güne düşüp dolu saatler boş görünebiliyordu.
+  const dayStart = zonedWallTimeToUtc(date, "00:00", timeZone).toISOString();
+  const dayEnd = new Date(zonedWallTimeToUtc(date, "00:00", timeZone).getTime() + 24 * 60 * 60 * 1000).toISOString();
 
   const { data: existing } = await supabase
     .from("appointments")
     .select("appointment_at, duration_minutes")
+    .eq("org_id", orgRow.id)
     .eq("staff_id", staffId)
     .gte("appointment_at", dayStart)
-    .lte("appointment_at", dayEnd)
+    .lt("appointment_at", dayEnd)
     .not("status", "in", '("iptal","gelmedi")');
 
   // Convert existing appointments to occupied minute ranges (İstanbul yerel saatine göre —

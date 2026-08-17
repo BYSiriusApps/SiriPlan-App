@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
+import { limitByIp, tooManyRequests } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -15,7 +16,7 @@ type ApptRow = {
   customer_name: string;
   customer_phone: string;
   cancel_token: string;
-  organizations?: { name: string } | null;
+  organizations?: { name: string; timezone?: string | null } | null;
   staff?: { full_name: string } | null;
   service?: { name: string } | null;
 };
@@ -24,13 +25,19 @@ async function findByToken(token: string) {
   const supabase = await createAdminClient();
   const { data } = await supabase
     .from("appointments")
-    .select("id, org_id, status, appointment_at, customer_name, customer_phone, cancel_token, organizations(name), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+    .select("id, org_id, status, appointment_at, customer_name, customer_phone, cancel_token, organizations(name, timezone), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
     .eq("cancel_token", token)
     .single();
   return { supabase, appt: data as unknown as ApptRow | null };
 }
 
 export async function GET(req: NextRequest) {
+  // cancel_token 32 haneli hex — kaba kuvvetle tahmin edilemez, ama sınırsız
+  // deneme hakkı bırakmak gereksiz. Bu tavan aynı zamanda geçerli token'ları
+  // toplu sorgulayan botları da keser.
+  const limit = limitByIp(req, "public-cancel-read", 60, 10 * 60 * 1000);
+  if (!limit.ok) return tooManyRequests(limit) as unknown as NextResponse;
+
   const token = req.nextUrl.searchParams.get("token") ?? "";
   if (!TOKEN_RE.test(token)) {
     return NextResponse.json({ error: "Geçersiz bağlantı." }, { status: 400 });
@@ -55,6 +62,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  // Her başarılı iptal müşteriye bir WhatsApp şablonu gönderir (ücretli) —
+  // token tahmini denemelerinin yanı sıra bu maliyeti de sınırlar.
+  const limit = limitByIp(req, "public-cancel", 20, 10 * 60 * 1000);
+  if (!limit.ok) return tooManyRequests(limit) as unknown as NextResponse;
+
   const body = await req.json().catch(() => null);
   const token = typeof body?.token === "string" ? body.token : "";
   if (!TOKEN_RE.test(token)) {
@@ -86,7 +98,10 @@ export async function POST(req: NextRequest) {
   }
 
   if (appt.customer_phone) {
-    const { date, time } = formatApptDateTime(appt.appointment_at);
+    // Saat, işletmenin kendi saat diliminde yazılmalı — parametre verilmediğinde
+    // her zaman Europe/Istanbul varsayılıyordu, farklı saat dilimindeki
+    // salonların müşterilerine yanlış saat gönderiliyordu.
+    const { date, time } = formatApptDateTime(appt.appointment_at, appt.organizations?.timezone || undefined);
     sendPurposeTemplate({
       toPhone: appt.customer_phone,
       orgId: appt.org_id,

@@ -34,6 +34,12 @@ const securityHeaders = [
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
+      // X-Frame-Options'ın CSP karşılığı. Modern tarayıcılar X-Frame-Options
+      // yerine bunu dikkate alır; ikisi birlikte tutuluyor (eski tarayıcılar
+      // için XFO, yeni tarayıcılar ve Mozilla Observatory için frame-ancestors).
+      // Clickjacking'e karşı: siriplan.com panelinin başka bir sitenin
+      // iframe'ine gömülüp tıklamaların çalınmasını engeller.
+      "frame-ancestors 'self'",
     ].join("; "),
   },
 ];

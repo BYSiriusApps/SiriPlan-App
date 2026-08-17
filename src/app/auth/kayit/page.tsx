@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -62,7 +62,13 @@ export default function KayitPage() {
     salonName: "", type: "kuafor", fullName: "",
     email: "", phone: "", countryCode: "90", password: "",
     timezone: "Europe/Istanbul",
+    // Honeypot — ekranda görünmez, sadece otomatik form doldurucular doldurur
+    // (bkz. lib/bot-guard.ts). Sunucu bu alan doluysa kaydı reddeder.
+    website: "",
   });
+  // Formun açıldığı an — sunucu "insan bu formu 2.5 saniyeden kısa sürede
+  // dolduramaz" kontrolü için kullanır.
+  const formStartedAt = useRef<number>(Date.now());
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [kvkkChecked, setKvkkChecked] = useState(false);
@@ -134,6 +140,8 @@ export default function KayitPage() {
           locale: selectedLocale,
           kvkkConsent: kvkkChecked,
           marketingConsent: marketingChecked,
+          website: form.website,
+          form_started_at: formStartedAt.current,
         }),
       });
 
@@ -227,6 +235,21 @@ export default function KayitPage() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleRegister} className="space-y-3">
+          {/*
+            Honeypot: görsel olarak yok, klavye sırasında yok, ekran okuyucudan
+            gizli. Gerçek kullanıcı asla dolduramaz; spam botları neredeyse her
+            zaman doldurur ve sunucu tarafında kayıt sessizce reddedilir.
+          */}
+          <input
+            type="text"
+            name="website"
+            value={form.website}
+            onChange={(e) => set("website", e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+          />
           <div className="space-y-1.5">
             <Label>İşletme Türü</Label>
             <Select value={form.type} onValueChange={(v) => set("type", v ?? "kuafor")}>

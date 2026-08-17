@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { sendReminderEmail } from "@/lib/email/send";
 import { googleMapsLink } from "@/lib/wa-template";
 import { addHours, differenceInHours } from "date-fns";
+import { isCronAuthorized } from "@/lib/webhook-signature";
 
 export const runtime = "nodejs";
 
@@ -26,7 +27,7 @@ type ApptWithRelations = {
 };
 
 export async function POST(req: NextRequest) {
-  if (req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isCronAuthorized(req.headers.get("authorization"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

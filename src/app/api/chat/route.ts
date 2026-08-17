@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { limitByIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -67,10 +68,27 @@ function getStaticResponse(message: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    // Bu uç kimlik doğrulaması olmadan Gemini'ye erişim veriyordu: herkes
+    // siriplan.com/api/chat üzerinden bizim API anahtarımızla sınırsız LLM
+    // çağrısı yapabilir, faturayı bize çıkarabilirdi. IP başına saatlik tavan +
+    // mesaj uzunluğu sınırı bu kötüye kullanımı ekonomik olmaktan çıkarır.
+    const limit = limitByIp(req, "chat", 20, 60 * 60 * 1000);
+    if (!limit.ok) {
+      return NextResponse.json(
+        { response: "Çok fazla soru gönderildi. Lütfen biraz bekleyin veya info@bysirius.com adresinden bize yazın." },
+        { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+      );
+    }
+
     const { message } = await req.json();
 
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Mesaj gerekli" }, { status: 400 });
+    }
+    // Token maliyeti girdi uzunluğuyla doğru orantılı — uzun metin yapıştırarak
+    // maliyet şişirmeyi engeller. Gerçek bir destek sorusu 1000 karakteri aşmaz.
+    if (message.length > 1000) {
+      return NextResponse.json({ error: "Mesaj çok uzun." }, { status: 400 });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;

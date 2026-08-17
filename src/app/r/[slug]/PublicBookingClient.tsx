@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { NextIntlClientProvider, useTranslations, type AbstractIntlMessages } from "next-intl";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +18,8 @@ import { websiteThemeStyle } from "@/lib/website-palettes";
 import { getEntitlements } from "@/lib/entitlements";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
 import { resolveEligibleStaffIds } from "@/lib/staff-eligibility";
+import { zonedWallTimeToUtc, DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
+import { HONEYPOT_FIELD } from "@/lib/bot-guard";
 import { MapPin, Star as StarIcon, Instagram } from "lucide-react";
 
 // lucide-react'ta marka ikonu olarak TikTok bulunmuyor (Instagram/Facebook gibi
@@ -133,40 +134,55 @@ function BookingWizard({
 
   const [form, setForm] = useState({
     name: "", phone: "", email: "", note: "",
+    // Honeypot — ekranda görünmez, sadece botlar doldurur (bkz. lib/bot-guard.ts).
+    website: "",
   });
+  // Formun ekrana geldiği an; sunucu tarafı "insan bu formu 2.5 saniyeden
+  // kısa sürede dolduramaz" kontrolü için kullanır.
+  const formStartedAt = useRef<number>(Date.now());
   const [kvkkAccepted, setKvkkAccepted] = useState(false);
   const [marketingAccepted, setMarketingAccepted] = useState(false);
   const [showKvkkText, setShowKvkkText] = useState(false);
 
-  // Load org data. service_categories ayrı sorgulanır: tablo henüz Supabase'e
-  // uygulanmamış bir migration'a bağlıysa (örn. deploy migration'dan önce
-  // yapıldıysa) bu sorgu hata verse bile ana randevu akışı (org/services/staff)
-  // etkilenmemeli — kategoriler o durumda sessizce boş listeye düşer.
+  // Salon verisi artık Supabase'den DOĞRUDAN çekilmiyor.
+  //
+  // Önceden burada `organizations.select("*")` vardı; organizations tablosunda
+  // wa_token / ig_page_access_token / sms_password / stripe_customer_id gibi
+  // entegrasyon sırları duruyor ve bunlar her randevu sayfası ziyaretinde
+  // tarayıcıya iniyordu (aynı şekilde staff tablosundan personel telefonu,
+  // e-postası, prim oranı). /api/public/salon sunucu tarafında çalışır ve
+  // yalnızca beyaz listedeki güvenli kolonları döndürür.
+  //
+  // Kategoriler de aynı yanıtın içinde gelir; tablo henüz Supabase'e
+  // uygulanmamışsa sunucu tarafında sessizce boş listeye düşer, ana randevu
+  // akışı (org/services/staff) bundan etkilenmez.
   useEffect(() => {
-    const supabase = createClient();
-    // staff_services'in organizations'a doğrudan FK'si yok (sadece staff_id/service_id
-    // içeriyor) — bu yüzden organizations altında sibling olarak embed edilemez, PostgREST
-    // "relationship bulunamadı" hatası verir ve sorgu sessizce başarısız olup org hiç set
-    // edilmez (sonsuz "yükleniyor" ekranı). staff üzerinden nested embed edilirse staff_id
-    // FK'si geçerli olduğundan çalışır.
-    supabase.from("organizations").select("*, services(*), staff(*, staff_services(service_id))").eq("slug", slug).single()
-      .then(({ data }) => {
-        if (!data) return;
-        setOrg(data as Organization);
-        setServices((data.services || []).filter((s: Service) => s.is_active && s.is_bookable_online !== false));
-        const activeStaff = (data.staff || []).filter((s: Staff) => s.is_active);
+    let cancelled = false;
+    fetch(`/api/public/salon?slug=${encodeURIComponent(slug)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.org) return;
+        const orgData = data.org as Organization;
+        setOrg(orgData);
+        setServices(
+          ((data.services as Service[]) || []).filter((s) => s.is_active && s.is_bookable_online !== false)
+        );
+        const activeStaff = ((data.staff as Staff[]) || []).filter((s) => s.is_active);
         setStaff(activeStaff);
         const map: Record<string, string[]> = {};
-        for (const s of activeStaff as (Staff & { staff_services?: { service_id: string }[] })[]) {
-          for (const row of s.staff_services || []) {
-            (map[row.service_id] ??= []).push(s.id);
-          }
+        for (const row of (data.staff_services as { staff_id: string; service_id: string }[]) || []) {
+          (map[row.service_id] ??= []).push(row.staff_id);
         }
         setStaffServiceMap(map);
-        if (!manualLangOverride.current && isSupportedLanguage(data.locale)) {
-          setLang(data.locale);
+        setCategories(
+          [...((data.categories as ServiceCategory[]) || [])].sort((a, b) => a.display_order - b.display_order)
+        );
+        if (!manualLangOverride.current && isSupportedLanguage(orgData.locale)) {
+          setLang(orgData.locale);
         }
-      });
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, [slug, setLang]);
 
   // Seçilen hizmete atanmış personel varsa (staff_services), sadece onları göster —
@@ -184,17 +200,6 @@ function BookingWizard({
     const eligibleIds = new Set(resolveEligibleStaffIds(staff.map((s) => s.id), assignedIds));
     return staff.filter((s) => eligibleIds.has(s.id));
   }, [staff, staffServiceMap, selectedService]);
-
-  // Kategoriler org id'ye bağlı olduğundan, org yüklendikten sonra ayrıca çekilir.
-  useEffect(() => {
-    if (!org) return;
-    const supabase = createClient();
-    supabase.from("service_categories").select("*, service_category_photos(*)").eq("org_id", org.id)
-      .then(({ data, error }) => {
-        if (error || !data) return;
-        setCategories([...data].sort((a, b) => a.display_order - b.display_order));
-      });
-  }, [org]);
 
   // Dönen müşteri tespiti: telefon numarası yeterince uzunsa (10+ hane),
   // daha önce kaydettiği dil tercihi varsa sayfayı o dile geçirir.
@@ -239,7 +244,16 @@ function BookingWizard({
     if (!org || !selectedService || (!selectedStaff && !anyStaff) || !selectedDate || !selectedSlot || !kvkkAccepted) return;
     setSubmitting(true);
     try {
-      const appointmentAt = new Date(`${selectedDate}T${selectedSlot}:00`).toISOString();
+      // Saat dilimi: müsait saatler /api/availability tarafından SALONUN saat
+      // diliminde üretiliyor. `new Date("...T14:30:00")` ise metni ZİYARETÇİNİN
+      // saat diliminde yorumlar — yurt dışından (veya saati yanlış kurulmuş bir
+      // telefondan) randevu alan müşteride ekranda seçilen saat ile kaydedilen
+      // saat birbirini tutmuyordu. Dönüşüm her zaman salonun saat dilimine göre.
+      const appointmentAt = zonedWallTimeToUtc(
+        selectedDate,
+        selectedSlot,
+        org.timezone || DEFAULT_ORG_TIMEZONE
+      ).toISOString();
       const res = await fetch("/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -257,6 +271,10 @@ function BookingWizard({
           marketing_consent: marketingAccepted,
           kvkk_notice_snapshot: renderKvkkNotice(org.kvkk_notice_text, org.name),
           preferred_language: lang,
+          // Bot savunması (bkz. lib/bot-guard.ts): görünmez alan + form açılış
+          // damgası. Gerçek kullanıcı için ikisi de tamamen görünmez.
+          website: form.website,
+          form_started_at: formStartedAt.current,
         }),
       });
       if (res.ok) {
@@ -752,6 +770,22 @@ function BookingWizard({
             </div>
 
             <div className="space-y-3.5">
+              {/*
+                Honeypot: ekran okuyuculardan ve klavye sırasından tamamen çıkarılmış,
+                görsel olarak yok. Gerçek kullanıcı asla dolduramaz; "tüm input'ları
+                doldur" mantığıyla çalışan spam botları neredeyse her zaman doldurur.
+                Sunucu tarafı bu alan doluysa isteği sessizce reddeder.
+              */}
+              <input
+                type="text"
+                name={HONEYPOT_FIELD}
+                value={form.website}
+                onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+              />
               <div>
                 <Label>{t("nameLabel")}</Label>
                 <Input

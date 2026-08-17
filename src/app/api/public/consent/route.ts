@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { renderKvkkNotice } from "@/lib/kvkk";
+import { limitByIp, tooManyRequests } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -41,6 +42,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  // Token tahmin denemelerini ve customer_consents tablosuna sahte kayıt
+  // yağdırma (KVKK kayıt bütünlüğü) girişimlerini sınırlar.
+  const limit = limitByIp(req, "public-consent", 20, 10 * 60 * 1000);
+  if (!limit.ok) return tooManyRequests(limit) as unknown as NextResponse;
+
   const body = await req.json().catch(() => null);
   const token = typeof body?.token === "string" ? body.token : "";
   if (!TOKEN_RE.test(token)) {

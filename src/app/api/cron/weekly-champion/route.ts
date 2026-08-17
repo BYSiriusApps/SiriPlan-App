@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { startOfWeek, endOfWeek, subWeeks, format } from "date-fns";
+import { isCronAuthorized } from "@/lib/webhook-signature";
 
 export const runtime = "nodejs";
 
 function verifyCronSecret(req: NextRequest) {
-  const auth = req.headers.get("authorization");
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
+  return isCronAuthorized(req.headers.get("authorization"));
 }
 
 export async function POST(req: NextRequest) {

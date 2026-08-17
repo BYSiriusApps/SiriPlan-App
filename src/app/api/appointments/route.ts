@@ -10,6 +10,8 @@ import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send
 import { normalizePhone } from "@/lib/phone";
 import { isTrialActive } from "@/lib/entitlements";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
+import { limitByIp, hit, clientIp, tooManyRequests } from "@/lib/rate-limit";
+import { detectBot, BOT_REJECTION_MESSAGE } from "@/lib/bot-guard";
 
 const ExtraServiceSchema = z.object({
   id: z.string().uuid(),
@@ -40,6 +42,11 @@ const CreateSchema = z.object({
   kvkk_notice_snapshot: z.string().optional(),
   kvkk_captured_via: z.enum(["inline_web", "staff_attested"]).optional(),
   preferred_language: z.enum(["tr", "en", "ru", "ar"]).optional(),
+  // Bot savunması — istemcideki gizli alan ve form açılış damgası
+  // (bkz. lib/bot-guard.ts). Panelden gelen isteklerde bulunmaz, o yüzden
+  // opsiyonel; kontrol yalnızca anonim akışta uygulanır.
+  website: z.string().optional(),
+  form_started_at: z.number().optional(),
 }).refine((d) => d.auto_assign_staff || !!d.staff_id, {
   message: "Personel seçimi zorunlu",
   path: ["staff_id"],
@@ -76,8 +83,16 @@ async function handleCreateAppointment(req: NextRequest) {
   data.customer_phone = normalizePhone(data.customer_phone);
   const supabase = await createClient();
 
+  // Bu uç herkese açıktır (anonim /r/[slug] rezervasyonu) ve her başarılı
+  // çağrıda WhatsApp şablonu + e-posta + Telegram bildirimi tetikler — yani
+  // salonun kotasından PARA harcatır. Veri okuma/yazma artık service role ile
+  // yapılıyor (anon rolünün tablolara doğrudan erişimi kaldırıldı,
+  // bkz. 20260817_public_data_lockdown.sql), bu yüzden yetki ve kötüye kullanım
+  // kontrollerinin tamamı bu dosyada açıkça yapılmak zorunda.
+  const db = await createAdminClient();
+
   // Server-side quota: check max_appointments_monthly
-  const { data: org } = await supabase
+  const { data: org } = await db
     .from("organizations")
     .select("max_appointments_monthly, subscription_status, trial_ends_at, has_auto_booking, plan, timezone")
     .eq("id", data.org_id)
@@ -104,6 +119,78 @@ async function handleCreateAppointment(req: NextRequest) {
     isPanelBooking = callingMember?.org_id === data.org_id;
   }
 
+  // appointment_at şema düzeyinde sadece `string` — geçerli bir tarih olduğu
+  // hiç doğrulanmıyordu. Bozuk değer aşağıdaki müsaitlik hesabını ve takvimi
+  // bozar; çok uzak tarihler ise takvimi çöple doldurmanın kolay yoludur.
+  const apptDate = new Date(data.appointment_at);
+  if (Number.isNaN(apptDate.getTime())) {
+    return NextResponse.json({ error: "Geçersiz randevu tarihi." }, { status: 400 });
+  }
+  const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+  if (apptDate.getTime() > Date.now() + ONE_YEAR_MS) {
+    return NextResponse.json({ error: "Randevu tarihi çok ileri bir tarihte." }, { status: 400 });
+  }
+  // Geçmişe randevu girmek panelde meşrudur (kayıt tamamlama); anonim akışta değil.
+  if (!isPanelBooking && apptDate.getTime() < Date.now() - 60 * 60 * 1000) {
+    return NextResponse.json({ error: "Geçmiş bir tarihe randevu alınamaz." }, { status: 400 });
+  }
+
+  // Kaynak etiketi: anonim istemci "manual"/"telefon"/"yuzyuze" gibi panel içi
+  // kaynakları taklit edip raporları kirletebiliyordu.
+  if (!isPanelBooking && !["web", "website", "whatsapp", "instagram", "tiktok"].includes(data.source)) {
+    data.source = "web";
+  }
+
+  // ── Bot / kötüye kullanım savunması (yalnızca anonim akış) ─────
+  // Panelden randevu giren personel kısıtlanmaz — bir kuaför gün içinde arka
+  // arkaya onlarca randevu girebilir ve bu tamamen meşrudur. Kısıtlar sadece
+  // herkese açık rezervasyon sayfasından gelen isteklere uygulanır.
+  if (!isPanelBooking) {
+    const botCheck = detectBot({
+      honeypot: data.website,
+      formStartedAt: data.form_started_at,
+      textFields: [data.customer_name, data.note],
+    });
+    if (botCheck.bot) {
+      // Kasıtlı olarak 400 + muğlak mesaj: hangi sinyale takıldığını söylemek
+      // saldırgana bir sonraki denemede neyi düzelteceğini öğretir.
+      console.warn("[bot-guard] randevu isteği reddedildi:", botCheck.reason, clientIp(req));
+      return NextResponse.json({ error: BOT_REJECTION_MESSAGE }, { status: 400 });
+    }
+
+    // IP başına saatlik tavan: gerçek bir müşteri kendisi ve yakınları için
+    // günde birkaç randevu alır; bir bot dakikada yüzlercesini dener.
+    const ipLimit = limitByIp(req, "book", 10, 60 * 60 * 1000);
+    if (!ipLimit.ok) return tooManyRequests(ipLimit) as unknown as NextResponse;
+
+    // Telefon başına tavan: IP değiştiren (proxy/mobil ağ) botlar tek numarayla
+    // takvimi doldurmaya çalışırsa burada durur.
+    const phoneLimit = hit(`book-phone:${data.customer_phone}`, 5, 60 * 60 * 1000);
+    if (!phoneLimit.ok) {
+      return NextResponse.json(
+        { error: "Bu telefon numarasıyla kısa sürede çok fazla randevu oluşturuldu. Lütfen salonu arayın." },
+        { status: 429 }
+      );
+    }
+
+    // Kalıcı katman (bellek serverless örnekleri arasında paylaşılmaz):
+    // aynı numaranın son 24 saatte açtığı iptal edilmemiş randevu sayısı.
+    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { count: recentCount } = await db
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", data.org_id)
+      .eq("customer_phone", data.customer_phone)
+      .neq("status", "iptal")
+      .gte("created_at", dayAgo);
+    if (recentCount !== null && recentCount >= 5) {
+      return NextResponse.json(
+        { error: "Bu telefon numarası için açık randevu sayısı sınırına ulaşıldı. Lütfen salonu arayın." },
+        { status: 429 }
+      );
+    }
+  }
+
   // ── Otomatik Randevu Akışı ────────────────────────────────────
   // instagram/whatsapp kaynağından gelen istekler has_auto_booking flag'ine göre
   // ya direkt appointments'a düşer ya da onay kuyruğuna gönderilir.
@@ -126,11 +213,11 @@ async function handleCreateAppointment(req: NextRequest) {
   if (isExternalSource && !org.has_auto_booking) {
     // Onay gerekiyor: appointment_requests tablosuna yaz
     const [{ data: svcForReq }, { data: staffForReq }] = await Promise.all([
-      supabase.from("services").select("name, price, duration_minutes").eq("id", data.service_id).eq("org_id", data.org_id).single(),
-      supabase.from("staff").select("full_name").eq("id", data.staff_id).single(),
+      db.from("services").select("name, price, duration_minutes").eq("id", data.service_id).eq("org_id", data.org_id).single(),
+      db.from("staff").select("full_name").eq("id", data.staff_id).eq("org_id", data.org_id).single(),
     ]);
 
-    const { data: reqRow, error: reqErr } = await supabase
+    const { data: reqRow, error: reqErr } = await db
       .from("appointment_requests")
       .insert({
         org_id: data.org_id,
@@ -176,7 +263,7 @@ async function handleCreateAppointment(req: NextRequest) {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
 
-    const { count } = await supabase
+    const { count } = await db
       .from("appointments")
       .select("id", { count: "exact", head: true })
       .eq("org_id", data.org_id)
@@ -192,9 +279,9 @@ async function handleCreateAppointment(req: NextRequest) {
   }
 
   // Get service for price/duration
-  const { data: service } = await supabase
+  const { data: service } = await db
     .from("services")
-    .select("price, duration_minutes, name")
+    .select("price, duration_minutes, name, is_active, is_bookable_online")
     .eq("id", data.service_id)
     .eq("org_id", data.org_id)
     .single();
@@ -203,9 +290,59 @@ async function handleCreateAppointment(req: NextRequest) {
     return NextResponse.json({ error: "Service not found" }, { status: 404 });
   }
 
-  // Find or create customer — admin client: anonim /r/[slug] rezervasyonlarında
-  // caller'ın customers tablosunda org_member RLS'i geçecek bir oturumu olmayabilir.
-  const adminSupabase = await createAdminClient();
+  // Anonim akışta hizmet gerçekten online rezervasyona açık olmalı. Hizmet
+  // listesi istemcide filtreleniyordu; pasif/online'a kapalı bir hizmetin id'si
+  // elle gönderilerek rezervasyon yapılabiliyordu.
+  if (!isPanelBooking && (service.is_active === false || service.is_bookable_online === false)) {
+    return NextResponse.json({ error: "Bu hizmet online randevuya kapalı." }, { status: 403 });
+  }
+
+  // ── Fiyat/süre bütünlüğü ───────────────────────────────────────
+  // total_price_override / total_duration_override alanları panelin çok
+  // hizmetli randevu girişi için var. Bu uç herkese açık olduğundan, anonim
+  // bir istemci bunları gövdeye koyarak randevu ücretini kendi belirleyebilir
+  // (ör. 0 TL) ve süreyi 5 dakikaya indirip çakışma korumasını delebilirdi.
+  // Anonim akışta override'lar yok sayılır; fiyat ve süre veritabanındaki
+  // hizmet kayıtlarından yeniden hesaplanır.
+  if (!isPanelBooking) {
+    const extraIds = data.extra_services_json.map((s) => s.id);
+    let extraPrice = 0;
+    let extraDuration = 0;
+    if (extraIds.length) {
+      const { data: extraRows } = await db
+        .from("services")
+        .select("id, price, duration_minutes")
+        .eq("org_id", data.org_id)
+        .eq("is_active", true)
+        .in("id", extraIds);
+      const found = new Set((extraRows ?? []).map((r) => (r as { id: string }).id));
+      if (extraIds.some((id) => !found.has(id))) {
+        return NextResponse.json({ error: "Seçilen ek hizmetlerden biri geçersiz." }, { status: 400 });
+      }
+      for (const row of extraRows ?? []) {
+        extraPrice += Number((row as { price: number }).price) || 0;
+        extraDuration += Number((row as { duration_minutes: number }).duration_minutes) || 0;
+      }
+      // İstemcinin gönderdiği isim/fiyat bilgileri de veritabanıyla değiştirilir —
+      // extra_services_json randevu detayında olduğu gibi gösteriliyor.
+      data.extra_services_json = (extraRows ?? []).map((r) => {
+        const row = r as { id: string; price: number; duration_minutes: number };
+        return {
+          id: row.id,
+          name: data.extra_services_json.find((e) => e.id === row.id)?.name ?? "",
+          price: Number(row.price) || 0,
+          duration_minutes: Number(row.duration_minutes) || 0,
+        };
+      });
+    }
+    data.total_price_override = (Number(service.price) || 0) + extraPrice;
+    data.total_duration_override = (Number(service.duration_minutes) || 0) + extraDuration;
+  }
+
+  // Müşteri kaydı ve randevu yazımı service role ile yapılır (bkz. yukarıdaki
+  // `db`); anonim /r/[slug] rezervasyonlarında caller'ın RLS'i geçecek bir
+  // oturumu yoktur.
+  const adminSupabase = db;
 
   // ── Personel çözümleme: "farketmez" seçildiyse uygun bir personel bul,
   // aksi halde seçilen personelin o tarihte izinli olmadığını doğrula.
@@ -333,7 +470,7 @@ async function handleCreateAppointment(req: NextRequest) {
 
   let appt: Record<string, unknown>;
   try {
-    const { data: insertedAppt, error } = await supabase
+    const { data: insertedAppt, error } = await db
       .from("appointments")
       .insert({
         org_id: data.org_id,
@@ -395,12 +532,12 @@ async function handleCreateAppointment(req: NextRequest) {
 
   // Send confirmation email
   if (data.customer_email) {
-    const { data: org } = await supabase
+    const { data: org } = await db
       .from("organizations")
       .select("name")
       .eq("id", data.org_id)
       .single();
-    const { data: staffRow } = await supabase
+    const { data: staffRow } = await db
       .from("staff")
       .select("full_name")
       .eq("id", resolvedStaffId)

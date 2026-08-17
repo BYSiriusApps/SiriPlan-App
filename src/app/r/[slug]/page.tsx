@@ -1,20 +1,38 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import { getEntitlements } from "@/lib/entitlements";
 import { PublicBookingClient } from "./PublicBookingClient";
 
-// select("*") kasıtlı: website_* kolonları henüz Supabase'e uygulanmamış bir
-// migration'a bağlıysa bile bu sorgu hata vermemeli — org bulunamadı sanılıp
-// herkese açık randevu sayfası 404'e düşmemeli. Eksik kolonlar sadece
-// undefined döner (falsy), showWebsite hesaplaması güvenle false'a düşer.
+// Bu sayfa herkese açıktır (oturum yok). Önceden anon rolüyle sorgulanıyordu;
+// anon rolünün organizations tablosuna doğrudan erişimi kaldırıldığı için
+// (bkz. 20260817_public_data_lockdown.sql) sunucu tarafında service role ile
+// okunur. Kolonlar açıkça sayılır: `select("*")` bu tabloda wa_token /
+// sms_password / ig_page_access_token gibi sırları da getirir ve bunların
+// sayfa yükünde (RSC payload) istemciye ulaşma riski vardır.
+//
+// Yeni bir website_* kolonu henüz Supabase'e uygulanmamış olabileceği için
+// liste iki parçalı okunur: zorunlu çekirdek alanlar başarısız olursa sayfa
+// 404'e düşer, opsiyonel alanlar hata verirse sessizce yok sayılır — herkese
+// açık randevu sayfası hiçbir migration gecikmesinde kırılmamalı.
+const ORG_META_CORE = "id, slug, name, logo_url, cover_url, plan, subscription_status, trial_ends_at, feature_website";
+const ORG_META_OPTIONAL = "website_enabled, website_tagline";
+
 async function fetchOrgMeta(slug: string) {
-  const supabase = await createClient();
-  const { data } = await supabase
+  const supabase = await createAdminClient();
+  let { data } = await supabase
     .from("organizations")
-    .select("*")
+    .select(`${ORG_META_CORE}, ${ORG_META_OPTIONAL}`)
     .eq("slug", slug)
     .maybeSingle();
+
+  if (!data) {
+    ({ data } = await supabase
+      .from("organizations")
+      .select(ORG_META_CORE)
+      .eq("slug", slug)
+      .maybeSingle());
+  }
   return data as {
     name: string;
     website_tagline?: string | null;

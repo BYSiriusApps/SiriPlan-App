@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendPurposeTemplate } from "@/lib/wa-templates/send";
 import type { WaParamSource, WaPurpose } from "@/lib/wa-templates/registry";
+import { isCronAuthorized } from "@/lib/webhook-signature";
 
 export const runtime = "nodejs";
 
@@ -20,7 +21,7 @@ interface SendTemplateBody {
 }
 
 export async function POST(req: NextRequest) {
-  if (req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isCronAuthorized(req.headers.get("authorization"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendCampaignNow } from "@/lib/campaign-send";
+import { isCronAuthorized } from "@/lib/webhook-signature";
 
 export const runtime = "nodejs";
 
@@ -12,7 +13,7 @@ export const runtime = "nodejs";
  * hatırlatmalarındaki net.http_post deseni gibi.
  */
 export async function POST(req: NextRequest) {
-  if (req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isCronAuthorized(req.headers.get("authorization"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

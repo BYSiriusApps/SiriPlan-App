@@ -81,3 +81,74 @@ export function istanbulDayOfWeek(date: Date, timeZone: string = DEFAULT_ORG_TIM
 export function istanbulDateStr(date: Date, timeZone: string = DEFAULT_ORG_TIMEZONE): string {
   return getDateFormatter(timeZone).format(date);
 }
+
+/**
+ * İŞLETME yerel duvar saatini ("2026-08-20", "14:30") mutlak UTC anına çevirir.
+ *
+ * NEDEN GEREKLİ: Randevu sayfası müsait saatleri /api/availability'den alır ve o
+ * uç saatleri İŞLETMENİN saat diliminde üretir. Ama tarayıcı tarafında
+ * `new Date("2026-08-20T14:30:00").toISOString()` yazıldığında JavaScript bu
+ * metni ZİYARETÇİNİN saat diliminde yorumlar. Almanya'dan (veya saat dilimi
+ * yanlış kurulmuş bir telefondan) İstanbul'daki bir salona randevu alan müşteri,
+ * ekranda "14:30" seçtiği hâlde veritabanına 15:30/16:30 olarak yazılıyordu —
+ * müşteri ile salon farklı saat bekliyordu. Bu fonksiyon dönüşümü her zaman
+ * işletmenin saat dilimine göre yapar, ziyaretçinin cihazından bağımsız olarak.
+ *
+ * Yöntem: önce naif bir UTC anı varsayılır, sonra o anın hedef saat dilimindeki
+ * karşılığıyla arasındaki fark (offset) düşülür. İkinci geçiş, yaz saati
+ * sınırında offset'in değiştiği kenar durumları düzeltir.
+ *
+ * @param dateStr "YYYY-MM-DD"
+ * @param timeStr "HH:mm"
+ */
+export function zonedWallTimeToUtc(
+  dateStr: string,
+  timeStr: string,
+  timeZone: string = DEFAULT_ORG_TIMEZONE
+): Date {
+  const [y, mo, d] = dateStr.split("-").map(Number);
+  const [h, mi] = timeStr.split(":").map(Number);
+  const naiveUtc = Date.UTC(y, (mo ?? 1) - 1, d ?? 1, h ?? 0, mi ?? 0, 0, 0);
+
+  let guess = naiveUtc;
+  for (let i = 0; i < 2; i++) {
+    guess = naiveUtc - tzOffsetMs(new Date(guess), timeZone);
+  }
+  return new Date(guess);
+}
+
+/** Verilen anda `timeZone`'un UTC'ye göre farkı (ms). UTC+3 için +10800000. */
+function tzOffsetMs(at: Date, timeZone: string): number {
+  const parts = getOffsetFormatter(timeZone).formatToParts(at);
+  const pick = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? "0");
+  // en-GB + hour12:false gece yarısını "24" olarak döndürür (bilinen Intl tuhaflığı);
+  // Date.UTC'ye 24 verilirse gün bir ileri kayar ve offset 24 saat yanlış çıkar.
+  const hour = pick("hour") % 24;
+  const asUtc = Date.UTC(
+    pick("year"),
+    pick("month") - 1,
+    pick("day"),
+    hour,
+    pick("minute"),
+    pick("second")
+  );
+  // formatToParts saniyeyi 0-59 döndürür; milisaniye farkı önemsiz olduğu için atılır.
+  return asUtc - Math.floor(at.getTime() / 1000) * 1000;
+}
+
+const offsetFormatterCache = new Map<string, Intl.DateTimeFormat>();
+
+function getOffsetFormatter(timeZone: string): Intl.DateTimeFormat {
+  let f = offsetFormatterCache.get(timeZone);
+  if (!f) {
+    // shorthand { timeZone } KULLANILMIYOR — yukarıdaki minifier notuna bakınız.
+    f = new Intl.DateTimeFormat("en-GB", {
+      timeZone: timeZone,
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit",
+      hour12: false,
+    });
+    offsetFormatterCache.set(timeZone, f);
+  }
+  return f;
+}

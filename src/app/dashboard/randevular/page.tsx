@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { cn } from "@/lib/utils";
+import { cn, sanitizeFilterValue } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Calendar } from "lucide-react";
@@ -64,7 +64,12 @@ export default async function RandevularPage({
 
     if (params.status) query = query.eq("status", params.status);
     if (searchTerm) {
-      query = query.or(`customer_name.ilike.%${searchTerm}%,customer_phone.ilike.%${searchTerm}%`);
+      // PostgREST filtre dilinde anlamı olan karakterler temizlenir
+      // (bkz. lib/utils.ts → sanitizeFilterValue).
+      const safeTerm = sanitizeFilterValue(searchTerm);
+      if (safeTerm) {
+        query = query.or(`customer_name.ilike.%${safeTerm}%,customer_phone.ilike.%${safeTerm}%`);
+      }
     }
     if (params.from) {
       query = query.gte("appointment_at", new Date(params.from + "T00:00:00").toISOString());

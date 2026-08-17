@@ -82,11 +82,17 @@ function baseLayout(content: string, orgName: string) {
 
 const DEFAULT_APPOINTMENT_TZ = "Europe/Istanbul";
 
+// `{ timeZone }` kısayol (shorthand) söz dizimi KULLANILMIYOR — bu projenin
+// Turbopack production minifier'ı parametre adını yeniden adlandırırken
+// shorthand property'nin işaret ettiği değişkeni güncellemeyi atlayıp üretimde
+// "ReferenceError: timeZone is not defined" üretiyor (bkz. lib/istanbul-time.ts
+// başındaki not ve dee8ba0 numaralı düzeltme). Açık "timeZone: timeZone"
+// yazımı bu hatayı tetiklemiyor.
 function formatTR(date: Date, timeZone: string = DEFAULT_APPOINTMENT_TZ) {
-  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone });
+  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: timeZone });
 }
 function formatTime(date: Date, timeZone: string = DEFAULT_APPOINTMENT_TZ) {
-  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone });
+  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: timeZone });
 }
 
 export async function sendConfirmationEmail(data: AppointmentEmailData) {

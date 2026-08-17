@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { normalizePhone } from "@/lib/phone";
+import { sanitizeFilterValue } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -26,7 +27,15 @@ export async function GET(req: NextRequest) {
     .range(offset, offset + limit - 1);
 
   if (search) {
-    query = query.or(`full_name.ilike.%${search}%,phone.ilike.%${search}%`);
+    // `.or()` argümanı PostgREST'in kendi filtre dilidir; virgül/parantez gibi
+    // karakterler yeni filtre koşulu açar. Ham kullanıcı girdisi buraya
+    // gömüldüğünde sorgu mantığı değiştirilebiliyordu (PostgREST filtre
+    // enjeksiyonu). Kiracı izolasyonu ayrıca `.eq("org_id", …)` ve RLS ile
+    // korunuyor, yine de girdi burada temizleniyor.
+    const safeSearch = sanitizeFilterValue(search);
+    if (safeSearch) {
+      query = query.or(`full_name.ilike.%${safeSearch}%,phone.ilike.%${safeSearch}%`);
+    }
   }
 
   const { data, error, count } = await query;

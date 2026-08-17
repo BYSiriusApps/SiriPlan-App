@@ -4,6 +4,8 @@ import { sendWelcomeEmail } from "@/lib/email/send";
 import { notifyAdminNewSignup } from "@/lib/notify-admin";
 import { seedDefaultServices } from "@/lib/services/seed";
 import { TRIAL_PLAN_LIMITS } from "@/lib/entitlements";
+import { limitByIp, clientIp, tooManyRequests } from "@/lib/rate-limit";
+import { detectBot, BOT_REJECTION_MESSAGE } from "@/lib/bot-guard";
 
 const VALID_BUSINESS_TYPES = new Set([
   "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik",
@@ -33,6 +35,19 @@ function slugify(text: string) {
 }
 
 export async function POST(req: NextRequest) {
+  // Kayıt ucu botlar için en cazip hedef: her başarılı çağrı bir Supabase auth
+  // kullanıcısı, bir organizasyon, varsayılan hizmet kataloğu, bir hoş geldin
+  // e-postası (Resend kotası) ve bir Telegram admin bildirimi üretir. Üstelik
+  // e-posta doğrulaması `email_confirm: true` ile atlandığı için sahte adresle
+  // sınırsız 14 günlük deneme hesabı açılabiliyordu.
+  const ipLimit = limitByIp(req, "register", 5, 60 * 60 * 1000);
+  if (!ipLimit.ok) {
+    return tooManyRequests(
+      ipLimit,
+      "Bu ağdan kısa sürede çok fazla kayıt denemesi yapıldı. Lütfen daha sonra tekrar deneyin."
+    ) as unknown as NextResponse;
+  }
+
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid body" }, { status: 400 });
 
@@ -42,6 +57,27 @@ export async function POST(req: NextRequest) {
     fullName: string; phone: string; businessType: string;
     timezone?: string; locale?: string; kvkkConsent: boolean; marketingConsent: boolean;
   };
+
+  const botCheck = detectBot({
+    honeypot: (body as { website?: unknown }).website,
+    formStartedAt: (body as { form_started_at?: unknown }).form_started_at,
+    textFields: [salonName, fullName],
+    email: typeof email === "string" ? email : null,
+  });
+  if (botCheck.bot) {
+    console.warn("[bot-guard] kayıt reddedildi:", botCheck.reason, clientIp(req));
+    // Tek kullanımlık e-posta için açık mesaj verilir (kullanıcı düzeltebilir);
+    // diğer sinyallerde muğlak kalınır ki bot neyi düzelteceğini öğrenmesin.
+    return NextResponse.json(
+      {
+        error:
+          botCheck.reason === "disposable_email"
+            ? "Geçici/tek kullanımlık e-posta adresleriyle kayıt olunamıyor. Lütfen kalıcı bir e-posta adresi kullanın."
+            : BOT_REJECTION_MESSAGE,
+      },
+      { status: 400 }
+    );
+  }
   const safeLocale = locale && VALID_LOCALES.has(locale) ? locale : "tr";
   const orgTimezone = safeTimezone(timezone);
 
@@ -71,6 +107,28 @@ export async function POST(req: NextRequest) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
+  // Kalıcı kayıt sınırı. Yukarıdaki hız sınırı bellekte tutulur ve serverless
+  // örnekleri arasında paylaşılmaz; bu kontrol veritabanına bakar, dolayısıyla
+  // örnek değiştirerek atlatılamaz. organizations.signup_ip kolonu için bkz.
+  // 20260817_public_data_lockdown.sql. Kolon henüz uygulanmamışsa sorgu hata
+  // verir — bu durumda kayıt akışı ENGELLENMEZ, sadece bu ek katman devre dışı
+  // kalır (mevcut hız sınırı ve bot kontrolleri çalışmaya devam eder).
+  const signupIp = clientIp(req);
+  if (signupIp !== "unknown") {
+    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { count, error: ipCountErr } = await admin
+      .from("organizations")
+      .select("id", { count: "exact", head: true })
+      .eq("signup_ip", signupIp)
+      .gte("created_at", dayAgo);
+    if (!ipCountErr && count !== null && count >= 3) {
+      return NextResponse.json(
+        { error: "Bu ağdan son 24 saatte çok fazla işletme hesabı açıldı. Lütfen info@bysirius.com ile iletişime geçin." },
+        { status: 429 }
+      );
+    }
+  }
+
   // 1. Create user with email already confirmed
   const { data: newUser, error: createErr } = await admin.auth.admin.createUser({
     email,
@@ -92,26 +150,39 @@ export async function POST(req: NextRequest) {
   const slug = slugify(salonName) + "-" + Math.random().toString(36).slice(2, 6);
   const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
 
-  const { data: org, error: orgErr } = await admin
+  const orgPayload = {
+    slug,
+    name: salonName,
+    type: safeBusinessType,
+    phone: phone || null,
+    email,
+    plan: "trial",
+    subscription_status: "active",
+    trial_ends_at: trialEndsAt,
+    // Deneme = Pro seviyesi: personel/randevu sınırsız (bkz. lib/entitlements)
+    ...TRIAL_PLAN_LIMITS,
+    locale: safeLocale,
+    timezone: orgTimezone,
+  };
+
+  // signup_ip kolonu henüz uygulanmamış olabilir (migration sırası) — bu durumda
+  // insert 42703 ile döner ve kolonsuz payload'la yeniden denenir. Kayıt akışı
+  // bir güvenlik iyileştirmesi yüzünden asla kırılmamalı.
+  let { data: org, error: orgErr } = await admin
     .from("organizations")
-    .insert({
-      slug,
-      name: salonName,
-      type: safeBusinessType,
-      phone: phone || null,
-      email,
-      plan: "trial",
-      subscription_status: "active",
-      trial_ends_at: trialEndsAt,
-      // Deneme = Pro seviyesi: personel/randevu sınırsız (bkz. lib/entitlements)
-      ...TRIAL_PLAN_LIMITS,
-      locale: safeLocale,
-      timezone: orgTimezone,
-    })
+    .insert({ ...orgPayload, signup_ip: signupIp === "unknown" ? null : signupIp })
     .select("id")
     .single();
 
   if (orgErr) {
+    ({ data: org, error: orgErr } = await admin
+      .from("organizations")
+      .insert(orgPayload)
+      .select("id")
+      .single());
+  }
+
+  if (orgErr || !org) {
     // Clean up user
     await admin.auth.admin.deleteUser(userId);
     return NextResponse.json({ error: "İşletme oluşturulamadı." }, { status: 500 });
