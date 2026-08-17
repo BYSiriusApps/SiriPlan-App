@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendReminderEmail } from "@/lib/email/send";
+import { translateStoredName } from "@/lib/services/catalog-i18n";
 import { googleMapsLink } from "@/lib/wa-template";
 import { addHours, differenceInHours } from "date-fns";
 import { isCronAuthorized } from "@/lib/webhook-signature";
@@ -64,13 +65,26 @@ export async function POST(req: NextRequest) {
     ),
   ];
   const emailByCustomer = new Map<string, string>();
+  // Hatırlatma müşteriye gider — metin ve hizmet adı müşterinin dilinde olmalı.
+  const langByCustomer = new Map<string, string>();
   if (customerIds.length > 0) {
-    const { data: customerRows } = await supabase
+    // preferred_language kolonu bir sebeple yoksa sorgu komple hata verir ve
+    // O GÜNKÜ TÜM HATIRLATMALAR sessizce gitmez. Bu yüzden iki aşamalı okunur:
+    // dil alınamazsa hatırlatma Türkçe gider ama MUTLAKA gider.
+    let customerRows: { id: string; email?: string; preferred_language?: string | null }[] = [];
+    const withLang = await supabase
       .from("customers")
-      .select("id, email")
+      .select("id, email, preferred_language")
       .in("id", customerIds);
-    for (const c of (customerRows || []) as { id: string; email?: string }[]) {
+    if (withLang.error) {
+      const fallback = await supabase.from("customers").select("id, email").in("id", customerIds);
+      customerRows = (fallback.data || []) as typeof customerRows;
+    } else {
+      customerRows = (withLang.data || []) as typeof customerRows;
+    }
+    for (const c of customerRows) {
       if (c.email) emailByCustomer.set(c.id, c.email);
+      if (c.preferred_language) langByCustomer.set(c.id, c.preferred_language);
     }
   }
 
@@ -83,18 +97,20 @@ export async function POST(req: NextRequest) {
     const hoursAway = Math.max(1, differenceInHours(apptAt, now));
 
     const customerEmail = appt.customer_id ? emailByCustomer.get(appt.customer_id) : undefined;
+    const customerLang = appt.customer_id ? langByCustomer.get(appt.customer_id) : undefined;
     if (customerEmail) {
       try {
         await sendReminderEmail({
           to: customerEmail,
           customerName: appt.customer_name,
           orgName: org.name,
-          serviceName: appt.service?.name ?? "",
+          serviceName: translateStoredName(appt.service?.name, customerLang),
           staffName: appt.staff?.full_name ?? "",
           appointmentAt: apptAt,
           cancelToken: appt.cancel_token,
           orgAddress: org.address ?? "",
           locationUrl: org.location_url?.trim() || (org.address?.trim() ? googleMapsLink(org.address.trim()) : ""),
+          locale: customerLang,
         }, hoursAway);
       } catch {}
     }
@@ -117,18 +133,20 @@ export async function POST(req: NextRequest) {
     const hoursAway = Math.max(1, differenceInHours(apptAt, now));
 
     const customerEmail = appt.customer_id ? emailByCustomer.get(appt.customer_id) : undefined;
+    const customerLang = appt.customer_id ? langByCustomer.get(appt.customer_id) : undefined;
     if (customerEmail) {
       try {
         await sendReminderEmail({
           to: customerEmail,
           customerName: appt.customer_name,
           orgName: org.name,
-          serviceName: appt.service?.name ?? "",
+          serviceName: translateStoredName(appt.service?.name, customerLang),
           staffName: appt.staff?.full_name ?? "",
           appointmentAt: apptAt,
           cancelToken: appt.cancel_token,
           orgAddress: org.address ?? "",
           locationUrl: org.location_url?.trim() || (org.address?.trim() ? googleMapsLink(org.address.trim()) : ""),
+          locale: customerLang,
         }, hoursAway);
       } catch {}
     }

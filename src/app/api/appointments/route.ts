@@ -12,6 +12,7 @@ import { isTrialActive } from "@/lib/entitlements";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
 import { limitByIp, hit, clientIp, tooManyRequests } from "@/lib/rate-limit";
 import { detectBot, BOT_REJECTION_MESSAGE } from "@/lib/bot-guard";
+import { translateStoredName } from "@/lib/services/catalog-i18n";
 
 const ExtraServiceSchema = z.object({
   id: z.string().uuid(),
@@ -547,11 +548,15 @@ async function handleCreateAppointment(req: NextRequest) {
         to: data.customer_email,
         customerName: data.customer_name,
         orgName: (org as { name: string }).name,
-        serviceName: service.name,
+        // Müşteri randevu sayfasında hizmeti hangi dilde seçtiyse e-postada da
+        // onu görsün (bkz. services/catalog-i18n). Katalogda karşılığı olmayan,
+        // salonun kendi yazdığı adlar aynen kalır.
+        serviceName: translateStoredName(service.name, data.preferred_language),
         staffName: (staffRow as { full_name: string } | null)?.full_name ?? "",
         appointmentAt: new Date(data.appointment_at),
         cancelToken: (appt as { cancel_token?: string }).cancel_token,
         timeZone: orgTimezone,
+        locale: data.preferred_language,
       }).catch(() => {});
     }
   }

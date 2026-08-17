@@ -424,6 +424,90 @@ export function translateCatalogService(name: string, locale: CatalogLocale): st
   return map.get(name) ?? name;
 }
 
+/** Bir adın 4 dildeki karşılığı; ad katalogda yoksa (salonun kendi yazdığı hizmet) null. */
+export type NameVariants = Record<CatalogLocale, string>;
+
+/**
+ * Katalogda birebir bulunmayan ama sahada sık kullanılan yazım varyantları.
+ *
+ * SADECE ters aramada (kayıtlı ad → çeviri) kullanılır; katalog seçicisinde
+ * görünmezler, yoksa aynı hizmet iki kez listelenirdi. Canlı veride ölçülen
+ * eşleşmeyen adlardan türetildi — tahminle değil, gerçek kayıtlara bakılarak.
+ */
+const ALIAS_ROWS: Row[] = [
+  ["Saç Kesimi", "Haircut", "Стрижка", "قص الشعر"],
+  ["Kaş Alma", "Brow Shaping", "Коррекция формы бровей", "تحديد الحواجب"],
+  ["Diğer", "Other", "Другое", "أخرى"],
+];
+
+let reverseIndex: Map<string, Row> | null = null;
+
+/**
+ * Ters arama: kayıtlı ad HANGİ dilde yazılmış olursa olsun satırını bulur.
+ * Hizmetler veritabanına kayıt anındaki dilde yazıldığı için (bkz. seed.ts)
+ * bir salonun hizmetleri Türkçe de Rusça da olabilir; ziyaretçinin diline
+ * çevirebilmek için her dildeki varyant aynı satıra işaret etmeli.
+ *
+ * 4 dilin tüm varyantları (1175 anahtar) çakışmasız doğrulandı — aynı metin
+ * iki farklı hizmete denk gelmiyor.
+ */
+function getReverseIndex(): Map<string, Row> {
+  if (reverseIndex) return reverseIndex;
+  const index = new Map<string, Row>();
+  // Sıra önemli: gerçek katalog satırları önce eklenir, takma adlar en sonda —
+  // çakışma olursa katalogdaki asıl kayıt kazanır.
+  for (const row of [...SERVICE_ROWS, ...CATEGORY_ROWS, ...ALIAS_ROWS]) {
+    for (const variant of row) {
+      const key = variant.trim();
+      if (!index.has(key)) index.set(key, row);
+    }
+  }
+  reverseIndex = index;
+  return index;
+}
+
+export function catalogNameVariants(name: string): NameVariants | null {
+  if (!name) return null;
+  const row = getReverseIndex().get(name.trim());
+  if (!row) return null;
+  return { tr: row[0], en: row[1], ru: row[2], ar: row[3] };
+}
+
+/**
+ * Kayıtlı bir hizmet/kategori adını verilen dile çevirir.
+ * Katalogda karşılığı yoksa (salonun kendi yazdığı ad) ad AYNEN döner —
+ * bu fonksiyon hiçbir koşulda boş/undefined üretmez, bildirim metinlerinde
+ * güvenle kullanılabilir.
+ */
+export function translateStoredName(name: string | null | undefined, locale?: string | null): string {
+  if (!name) return "";
+  if (!locale || locale === "tr") {
+    const trRow = catalogNameVariants(name);
+    return trRow ? trRow.tr : name;
+  }
+  const variants = catalogNameVariants(name);
+  if (!variants) return name;
+  return variants[locale as CatalogLocale] ?? name;
+}
+
+/**
+ * Verilen adlar için "ad → 4 dildeki karşılığı" sözlüğü üretir; katalogda
+ * bulunmayan (salonun elle yazdığı/düzenlediği) adlar sözlüğe HİÇ girmez.
+ *
+ * Herkese açık randevu sayfası bu küçük sözlüğü sunucudan alır — 300 satırlık
+ * tam çeviri tablosunun istemci paketine inmesine gerek kalmaz; tipik bir
+ * salonda yalnızca kendi hizmetleri kadar (30-50) kayıt taşınır.
+ */
+export function buildNameI18nMap(names: Array<string | null | undefined>): Record<string, NameVariants> {
+  const out: Record<string, NameVariants> = {};
+  for (const name of names) {
+    if (!name || out[name]) continue;
+    const variants = catalogNameVariants(name);
+    if (variants) out[name] = variants;
+  }
+  return out;
+}
+
 /** Test/bakım amaçlı: çevirisi eksik kalan katalog kaydı var mı? */
 export function findUntranslatedCatalogEntries(names: string[], labels: string[]): string[] {
   const known = new Set([...SERVICE_ROWS.map((r) => r[0]), ...CATEGORY_ROWS.map((r) => r[0])]);

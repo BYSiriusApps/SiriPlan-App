@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendBirthdayEmail } from "@/lib/email/send";
+import { emailStrings } from "@/lib/email/i18n";
 import { getEntitlements } from "@/lib/entitlements";
 import { format } from "date-fns";
 import { isCronAuthorized } from "@/lib/webhook-signature";
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   type CustomerWithOrg = {
     id: string; org_id: string; full_name: string; phone: string; email?: string | null;
-    birth_date?: string | null;
+    birth_date?: string | null; preferred_language?: string | null;
     organizations?: {
       slug: string; wa_token?: string; wa_phone_number_id?: string;
       name: string; feature_campaigns?: boolean;
@@ -26,11 +27,25 @@ export async function POST(req: NextRequest) {
     };
   };
 
-  const { data: customers } = await supabase
+  // Müşteri dili okunamazsa (kolon yoksa) mesajlar Türkçe gider ama MUTLAKA gider —
+  // bir dil alanı yüzünden o günün tüm doğum günü mesajları düşmemeli.
+  const ORG_JOIN = "organizations(slug, wa_token, wa_phone_number_id, name, feature_campaigns, plan, trial_ends_at)";
+  let customers: unknown[] | null = null;
+  const withLang = await supabase
     .from("customers")
-    .select("id, org_id, full_name, phone, email, birth_date, organizations(slug, wa_token, wa_phone_number_id, name, feature_campaigns, plan, trial_ends_at)")
+    .select(`id, org_id, full_name, phone, email, birth_date, preferred_language, ${ORG_JOIN}`)
     .not("birth_date", "is", null)
     .limit(10000);
+  if (withLang.error) {
+    const fallback = await supabase
+      .from("customers")
+      .select(`id, org_id, full_name, phone, email, birth_date, ${ORG_JOIN}`)
+      .not("birth_date", "is", null)
+      .limit(10000);
+    customers = fallback.data;
+  } else {
+    customers = withLang.data;
+  }
 
   const todayBirthdays = ((customers || []) as unknown as CustomerWithOrg[]).filter((c) => {
     if (!c.birth_date) return false;
@@ -46,17 +61,13 @@ export async function POST(req: NextRequest) {
     if (!org || !getEntitlements(org).feature_campaigns) continue;
 
     const bookingUrl = `${appUrl}/r/${org.slug}`;
+    // Müşteriye giden metin müşterinin dilinde; dil yoksa Türkçe.
+    const S = emailStrings(c.preferred_language);
 
     // WhatsApp kanalı
     if (org.wa_token && org.wa_phone_number_id && c.phone) {
       const to = c.phone.replace(/\D/g, "").replace(/^0/, "90");
-      const message = `🎂 Doğum günün kutlu olsun, ${c.full_name}!
-
-${org.name} ailesi olarak bu özel günde yanındayız.
-
-Seni misafir etmek ve güzel hissettirmek isteriz. Bu ay yapacağın ziyarette sana özel %10 indirim sunuyoruz! 🎁
-
-Randevu için: ${bookingUrl}`;
+      const message = S.birthdayWhatsApp(c.full_name, org.name, bookingUrl);
 
       const res = await fetch(`https://graph.facebook.com/v19.0/${org.wa_phone_number_id}/messages`, {
         method: "POST",
@@ -80,6 +91,7 @@ Randevu için: ${bookingUrl}`;
           customerName: c.full_name,
           orgName: org.name,
           bookingUrl,
+          locale: c.preferred_language,
         });
         sentEmail++;
       } catch {}

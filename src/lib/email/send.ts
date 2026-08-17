@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { emailStrings } from "@/lib/email/i18n";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
@@ -33,11 +34,14 @@ export interface AppointmentEmailData {
   orgAddress?: string;
   locationUrl?: string;
   timeZone?: string;
+  /** Müşterinin dili (customers.preferred_language). Verilmezse Türkçe — mevcut davranışın aynısı. */
+  locale?: string | null;
 }
 
-function baseLayout(content: string, orgName: string) {
+function baseLayout(content: string, orgName: string, locale?: string | null) {
+  const S = emailStrings(locale);
   return `<!DOCTYPE html>
-<html lang="tr">
+<html lang="${S.htmlLang}"${S.rtl ? ' dir="rtl"' : ''}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -65,7 +69,7 @@ function baseLayout(content: string, orgName: string) {
           <tr>
             <td style="background:#f9fafb;padding:20px 32px;text-align:center;border-top:1px solid #e5e7eb;">
               <p style="margin:0;font-size:11px;color:#9ca3af;">
-                Bu e-posta Siriplan tarafından ${esc(orgName)} adına gönderilmiştir.<br/>
+                ${esc(S.footerNote(orgName))}<br/>
                 <a href="https://siriplan.com" style="color:#e11d48;text-decoration:none;">siriplan.com</a>
                 &nbsp;·&nbsp;
                 <a href="https://bysirius.com" style="color:#9ca3af;text-decoration:none;">BY Sirius Group Ai & Technology Co Ltd.</a>
@@ -88,16 +92,19 @@ const DEFAULT_APPOINTMENT_TZ = "Europe/Istanbul";
 // "ReferenceError: timeZone is not defined" üretiyor (bkz. lib/istanbul-time.ts
 // başındaki not ve dee8ba0 numaralı düzeltme). Açık "timeZone: timeZone"
 // yazımı bu hatayı tetiklemiyor.
-function formatTR(date: Date, timeZone: string = DEFAULT_APPOINTMENT_TZ) {
-  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: timeZone });
+function formatTR(date: Date, timeZone: string = DEFAULT_APPOINTMENT_TZ, locale?: string | null) {
+  return date.toLocaleDateString(emailStrings(locale).intlLocale, { day: "numeric", month: "long", year: "numeric", timeZone: timeZone });
 }
-function formatTime(date: Date, timeZone: string = DEFAULT_APPOINTMENT_TZ) {
-  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: timeZone });
+function formatTime(date: Date, timeZone: string = DEFAULT_APPOINTMENT_TZ, locale?: string | null) {
+  return date.toLocaleTimeString(emailStrings(locale).intlLocale, { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: timeZone });
 }
 
 export async function sendConfirmationEmail(data: AppointmentEmailData) {
   if (!emailEnabled()) return;
   const tz = data.timeZone || DEFAULT_APPOINTMENT_TZ;
+  // Müşteriye giden metin müşterinin dilinde; dil yoksa Türkçe (eski davranış).
+  const S = emailStrings(data.locale);
+  const loc = data.locale;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
   const cancelLink = data.cancelToken
@@ -105,48 +112,48 @@ export async function sendConfirmationEmail(data: AppointmentEmailData) {
     : null;
 
   const content = `
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Randevunuz Onaylandı ✅</h2>
-    <p style="margin:0 0 24px;font-size:15px;color:#6b7280;">Merhaba <strong>${esc(data.customerName)}</strong>, randevunuz başarıyla oluşturuldu.</p>
+    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">${S.confirmTitle}</h2>
+    <p style="margin:0 0 24px;font-size:15px;color:#6b7280;">${S.confirmIntro(esc(data.customerName))}</p>
 
     <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;">
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">📅 Tarih</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt, tz)}</span>
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelDate}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt, tz, loc)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">🕐 Saat</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt, tz)}</span>
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelTime}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt, tz, loc)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">💇 Hizmet</span>
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelService}</span>
         <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.serviceName)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">👤 Uzman</span>
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelStaff}</span>
         <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.staffName)}</span>
       </td></tr>
     </table>
 
     ${cancelLink ? `
     <p style="margin:0 0 16px;font-size:13px;color:#6b7280;">
-      Gelemeseniz lütfen en geç 2 saat öncesinde iptal edin:
+      ${S.confirmCancelHint}
     </p>
     <a href="${cancelLink}" style="display:inline-block;padding:10px 24px;background:#fee2e2;color:#dc2626;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:20px;">
-      Randevuyu İptal Et
+      ${S.cancelButton}
     </a>
     ` : ""}
 
     <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
-      Herhangi bir sorunuz için <strong>${esc(data.orgName)}</strong> ile iletişime geçin.<br/>
-      İyi günler dileriz! ✨
+      ${S.confirmQuestions(esc(data.orgName))}<br/>
+      ${S.confirmClosing}
     </p>
   `;
 
   await getResend().emails.send({
     from: `${fromName(data.orgName)} <${FROM}>`,
     to: data.to,
-    subject: `Randevunuz Onaylandı — ${formatTR(data.appointmentAt, tz)} ${formatTime(data.appointmentAt, tz)}`,
-    html: baseLayout(content, data.orgName),
+    subject: S.confirmSubject(formatTR(data.appointmentAt, tz, loc), formatTime(data.appointmentAt, tz, loc)),
+    html: baseLayout(content, data.orgName, loc),
   });
 }
 
@@ -199,36 +206,39 @@ export async function sendBirthdayEmail(data: {
   customerName: string;
   orgName: string;
   bookingUrl: string;
+  /** Müşterinin dili; verilmezse Türkçe (eski davranış). */
+  locale?: string | null;
 }) {
   if (!emailEnabled()) return;
+  const S = emailStrings(data.locale);
 
   const content = `
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">🎂 Doğum Gününüz Kutlu Olsun!</h2>
+    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">${S.birthdayTitle}</h2>
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
-      Sevgili <strong>${esc(data.customerName)}</strong>, <strong>${esc(data.orgName)}</strong> ailesi olarak bu özel gününüzü kutlarız!
+      ${S.birthdayIntro(esc(data.customerName), esc(data.orgName))}
     </p>
 
     <table role="presentation" width="100%" style="background:#fdf2f8;border-radius:12px;padding:20px;margin-bottom:24px;">
       <tr><td style="padding:6px 0;text-align:center;">
-        <span style="font-size:15px;font-weight:600;color:#be185d;">🎁 Bu ay yapacağınız ziyarette size özel %10 indirim!</span>
+        <span style="font-size:15px;font-weight:600;color:#be185d;">${S.birthdayOffer}</span>
       </td></tr>
     </table>
 
     <a href="${data.bookingUrl}"
        style="display:inline-block;padding:12px 28px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
-      Hemen Randevu Al →
+      ${S.birthdayCta}
     </a>
 
     <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
-      Sizi misafir etmekten mutluluk duyarız! ✨
+      ${S.birthdayClosing}
     </p>
   `;
 
   await getResend().emails.send({
     from: `${fromName(data.orgName)} <${FROM}>`,
     to: data.to,
-    subject: `🎂 Doğum Gününüz Kutlu Olsun, ${data.customerName}! — ${data.orgName}`,
-    html: baseLayout(content, data.orgName),
+    subject: S.birthdaySubject(data.customerName, data.orgName),
+    html: baseLayout(content, data.orgName, data.locale),
   });
 }
 
@@ -283,6 +293,8 @@ export async function sendTrialEndingEmail(data: {
 export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: number) {
   if (!emailEnabled()) return;
   const tz = data.timeZone || DEFAULT_APPOINTMENT_TZ;
+  const S = emailStrings(data.locale);
+  const loc = data.locale;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
   const cancelLink = data.cancelToken
@@ -299,43 +311,42 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
 
   const content = `
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">
-      ${isImminent ? "⏰ Randevunuz Yaklaşıyor!" : "📅 Randevu Hatırlatması"}
+      ${isImminent ? S.reminderTitleImminent : S.reminderTitle}
     </h2>
     <p style="margin:0 0 24px;font-size:15px;color:#6b7280;">
-      Merhaba <strong>${esc(data.customerName)}</strong>,
       ${isImminent
-        ? `randevunuz <strong>${hoursAway} saat</strong> sonra!`
+        ? S.reminderIntroImminent(esc(data.customerName), hoursAway)
         : isToday
-          ? `bugünkü randevunuzu hatırlatmak istedik.`
-          : `yaklaşan randevunuzu hatırlatmak istedik.`
+          ? S.reminderIntroToday(esc(data.customerName))
+          : S.reminderIntroUpcoming(esc(data.customerName))
       }
     </p>
 
     <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;">
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">📅 Tarih</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt, tz)}</span>
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelDate}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt, tz, loc)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">🕐 Saat</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt, tz)}</span>
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelTime}</span>
+        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt, tz, loc)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">💇 Hizmet</span>
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelService}</span>
         <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.serviceName)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">👤 Uzman</span>
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelStaff}</span>
         <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.staffName)}</span>
       </td></tr>
       ${locationLink ? `
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">📍 Konum</span>
-        <a href="${locationLink}" style="font-size:15px;font-weight:600;color:#e11d48;text-decoration:none;">${data.orgAddress ? esc(data.orgAddress) : "Haritada Görüntüle"}</a>
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelLocation}</span>
+        <a href="${locationLink}" style="font-size:15px;font-weight:600;color:#e11d48;text-decoration:none;">${data.orgAddress ? esc(data.orgAddress) : S.viewOnMap}</a>
       </td></tr>
       ` : data.orgAddress ? `
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">📍 Konum</span>
+        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelLocation}</span>
         <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.orgAddress)}</span>
       </td></tr>
       ` : ""}
@@ -343,17 +354,17 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
 
     ${detailLink ? `
     <a href="${detailLink}" style="display:inline-block;padding:10px 24px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:12px;margin-right:8px;">
-      Randevu Detayını Görüntüle
+      ${S.detailButton}
     </a>
     ` : ""}
     ${cancelLink ? `
     <a href="${cancelLink}" style="display:inline-block;padding:10px 24px;background:#fee2e2;color:#dc2626;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:20px;">
-      Randevuyu İptal Et
+      ${S.cancelButton}
     </a>
     ` : ""}
 
     <p style="margin:16px 0 0;font-size:13px;color:#6b7280;">
-      Sizi görmekten mutluluk duyacağız! ✨
+      ${S.reminderClosing}
     </p>
   `;
 
@@ -361,8 +372,8 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
     from: `${fromName(data.orgName)} <${FROM}>`,
     to: data.to,
     subject: isImminent
-      ? `⏰ Randevunuz ${hoursAway} Saat Sonra — ${data.orgName}`
-      : `📅 ${formatTR(data.appointmentAt, tz)} ${formatTime(data.appointmentAt, tz)} Randevunuzu Unutmayın — ${data.orgName}`,
-    html: baseLayout(content, data.orgName),
+      ? S.reminderSubjectImminent(hoursAway, data.orgName)
+      : S.reminderSubject(formatTR(data.appointmentAt, tz, loc), formatTime(data.appointmentAt, tz, loc), data.orgName),
+    html: baseLayout(content, data.orgName, loc),
   });
 }

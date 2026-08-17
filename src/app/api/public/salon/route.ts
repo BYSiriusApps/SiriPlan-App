@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { limitByIp, tooManyRequests } from "@/lib/rate-limit";
+import { buildNameI18nMap } from "@/lib/services/catalog-i18n";
 
 export const runtime = "nodejs";
 
@@ -104,6 +105,17 @@ export async function GET(req: NextRequest) {
     staffIds.has((row as { staff_id: string }).staff_id)
   );
 
+  // Hizmet/kategori adları veritabanına salonun kayıt olduğu dilde yazılır
+  // (bkz. services/seed.ts). Ziyaretçi randevu sayfasında başka bir dil
+  // seçtiğinde adları GÖRÜNTÜLEME ANINDA çevirebilmek için, yalnızca katalogda
+  // karşılığı bulunan adların 4 dilli sözlüğü gönderilir. Salonun kendi yazdığı
+  // adlar sözlüğe girmez; istemci onları olduğu gibi gösterir.
+  // Bu alan yalnızca gösterim içindir — randevu her yerde service_id ile kurulur.
+  const nameI18n = buildNameI18nMap([
+    ...(services ?? []).map((s) => (s as unknown as { name: string | null }).name),
+    ...(categories ?? []).map((c) => (c as unknown as { name: string | null }).name),
+  ]);
+
   return NextResponse.json(
     {
       org,
@@ -111,6 +123,7 @@ export async function GET(req: NextRequest) {
       staff: staff ?? [],
       staff_services: scopedStaffServices,
       categories: categories ?? [],
+      name_i18n: nameI18n,
     },
     {
       // Salon bilgisi sık değişmez; kısa süreli CDN önbelleği hem sayfayı

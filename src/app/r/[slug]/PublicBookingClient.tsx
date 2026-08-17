@@ -48,12 +48,14 @@ const MESSAGES: Record<LanguageCode, AbstractIntlMessages> = {
 const DATE_FNS_LOCALES: Record<LanguageCode, DateFnsLocale> = { tr, en: enUS, ru, ar };
 
 function ServiceButton({
-  service, index, onSelect, label,
+  service, index, onSelect, label, displayName,
 }: {
   service: Service;
   index: number;
   onSelect: () => void;
   label: string;
+  /** Ziyaretcinin dilindeki ad (bkz. localizeName) — katalog disi adlarda kayitli adin aynisi. */
+  displayName: string;
 }) {
   return (
     <button
@@ -65,12 +67,12 @@ function ServiceButton({
       <div className="flex items-center gap-3">
         {service.photo_url && (
           <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 relative">
-            <img src={service.photo_url} alt={service.name} className="w-full h-full object-cover" />
+            <img src={service.photo_url} alt={displayName} className="w-full h-full object-cover" />
           </div>
         )}
         <div className="flex-1 min-w-0 flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-semibold group-hover:text-primary transition-colors truncate">{service.name}</p>
+            <p className="font-semibold group-hover:text-primary transition-colors truncate">{displayName}</p>
             {service.description && <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{service.description}</p>}
             <div className="flex items-center gap-1.5 mt-1.5">
               <Clock className="h-3 w-3 text-muted-foreground" />
@@ -122,6 +124,9 @@ function BookingWizard({
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [staffServiceMap, setStaffServiceMap] = useState<Record<string, string[]>>({});
+  // "kayitli ad -> 4 dildeki karsiligi" sozlugu; /api/public/salon yalnizca
+  // katalogda karsiligi bulunan adlari gonderir (bkz. buildNameI18nMap).
+  const [nameI18n, setNameI18n] = useState<Record<string, Partial<Record<LanguageCode, string>>>>({});
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [anyStaff, setAnyStaff] = useState(false);
@@ -174,6 +179,7 @@ function BookingWizard({
           (map[row.service_id] ??= []).push(row.staff_id);
         }
         setStaffServiceMap(map);
+        setNameI18n((data.name_i18n as Record<string, Partial<Record<LanguageCode, string>>>) || {});
         setCategories(
           [...((data.categories as ServiceCategory[]) || [])].sort((a, b) => a.display_order - b.display_order)
         );
@@ -194,6 +200,19 @@ function BookingWizard({
   // üretilir, aşağıdaki "saat müsaitliği" effect'i buna bağımlı olduğundan
   // (satır ~221) her render'ı yeniden tetikler → sonsuz döngü → saat seçimi
   // ekranda sürekli "yükleniyor" spinner'ında donup asla açılmaz.
+  /**
+   * Hizmet/kategori adını ziyaretçinin seçtiği dile çevirir — SADECE GÖSTERİM.
+   *
+   * Adlar veritabanına salonun kayıt olduğu dilde yazılır; ziyaretçi başka bir
+   * dil seçtiğinde katalog karşılığı varsa o dilde gösterilir. Salonun kendi
+   * yazdığı/düzenlediği adlar sözlükte bulunmaz ve olduğu gibi gösterilir.
+   *
+   * Randevu her yerde service_id ile kurulur (bkz. handleSubmit) — bu çeviri
+   * gönderilen veriyi, bildirimleri veya hatırlatmaları etkilemez.
+   */
+  const localizeName = (name?: string | null): string =>
+    name ? nameI18n[name]?.[lang] ?? name : "";
+
   const eligibleStaff = useMemo(() => {
     if (!selectedService) return staff;
     const assignedIds = staffServiceMap[selectedService.id] ?? [];
@@ -380,7 +399,7 @@ function BookingWizard({
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/70 mb-1">{t("confirmedBadge")}</p>
             <h2 className="font-heading text-3xl font-bold mb-2 text-balance">{t("successTitle")}</h2>
             <p className="text-muted-foreground mb-6 text-sm">
-              {t("successMessage", { service: selectedService?.name ?? "" })}
+              {t("successMessage", { service: localizeName(selectedService?.name) })}
             </p>
             <div className="rounded-2xl border border-border/70 bg-muted/30 p-4 text-sm space-y-2.5 text-left mb-6">
               <div className="flex items-center justify-between gap-3">
@@ -403,7 +422,7 @@ function BookingWizard({
               </div>
               <div className="flex items-center justify-between gap-3">
                 <span className="text-muted-foreground">{t("summaryService")}</span>
-                <span className="font-medium text-right">{selectedService?.name}</span>
+                <span className="font-medium text-right">{localizeName(selectedService?.name)}</span>
               </div>
             </div>
             <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
@@ -573,11 +592,11 @@ function BookingWizard({
                     <div className="flex items-center gap-2.5 mb-2.5">
                       {category.photo_url ? (
                         <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 relative">
-                          <img src={category.photo_url} alt={category.name} className="w-full h-full object-cover" />
+                          <img src={category.photo_url} alt={localizeName(category.name)} className="w-full h-full object-cover" />
                         </div>
                       ) : null}
                       <h3 className="font-heading font-semibold text-sm uppercase tracking-wide text-muted-foreground">
-                        {category.name}
+                        {localizeName(category.name)}
                       </h3>
                     </div>
                     {category.service_category_photos && category.service_category_photos.length > 0 && (
@@ -593,7 +612,7 @@ function BookingWizard({
                     )}
                     <div className="space-y-2.5">
                       {items.map((s, i) => (
-                        <ServiceButton key={s.id} service={s} index={i} onSelect={() => { setSelectedService(s); setStep(1); }} label={t("minutesShort")} />
+                        <ServiceButton key={s.id} service={s} displayName={localizeName(s.name)} index={i} onSelect={() => { setSelectedService(s); setStep(1); }} label={t("minutesShort")} />
                       ))}
                     </div>
                   </div>
@@ -605,7 +624,7 @@ function BookingWizard({
                     </h3>
                     <div className="space-y-2.5">
                       {uncategorizedServices.map((s, i) => (
-                        <ServiceButton key={s.id} service={s} index={i} onSelect={() => { setSelectedService(s); setStep(1); }} label={t("minutesShort")} />
+                        <ServiceButton key={s.id} service={s} displayName={localizeName(s.name)} index={i} onSelect={() => { setSelectedService(s); setStep(1); }} label={t("minutesShort")} />
                       ))}
                     </div>
                   </div>
@@ -613,7 +632,7 @@ function BookingWizard({
               </div>
             ) : (
               services.map((s, i) => (
-                <ServiceButton key={s.id} service={s} index={i} onSelect={() => { setSelectedService(s); setStep(1); }} label={t("minutesShort")} />
+                <ServiceButton key={s.id} service={s} displayName={localizeName(s.name)} index={i} onSelect={() => { setSelectedService(s); setStep(1); }} label={t("minutesShort")} />
               ))
             )}
           </div>
@@ -634,7 +653,7 @@ function BookingWizard({
 
             {selectedService && (
               <div className="flex items-center gap-2 p-3 rounded-2xl bg-primary/5 border border-primary/20">
-                <Badge variant="secondary" className="font-heading">{selectedService.name}</Badge>
+                <Badge variant="secondary" className="font-heading">{localizeName(selectedService.name)}</Badge>
                 <span className="text-sm text-muted-foreground tabular-nums">₺{Number(selectedService.price).toLocaleString("tr-TR")} • {selectedService.duration_minutes}{t("minutesShort")}</span>
               </div>
             )}
@@ -764,7 +783,7 @@ function BookingWizard({
                 <Clock className="h-4 w-4 ml-2" />
                 <span className="font-semibold text-foreground tabular-nums">{selectedSlot}</span>
               </div>
-              <p><span className="text-muted-foreground">{t("serviceLabel")}</span> <span className="font-medium">{selectedService?.name}</span></p>
+              <p><span className="text-muted-foreground">{t("serviceLabel")}</span> <span className="font-medium">{localizeName(selectedService?.name)}</span></p>
               <p><span className="text-muted-foreground">{t("staffLabel")}</span> <span className="font-medium">{anyStaff ? t("autoAssignLabel") : selectedStaff?.full_name}</span></p>
               <p className="font-heading font-bold text-primary text-lg pt-1">₺{Number(selectedService?.price || 0).toLocaleString("tr-TR")}</p>
             </div>
