@@ -1182,7 +1182,34 @@
       "marketingOptIn": "أرغب في تلقي معلومات عن الحملات والعروض (اختياري)",
       "confirmButton": "تأكيد الموعد",
       "confirmHint": "سيتم تأكيد موعدك فورًا. سيتم إرسال تذكير عبر واتساب.",
-      "genericError": "حدث خطأ."
+      "genericError": "حدث خطأ.",
+      "otherServices": "خدمات أخرى",
+      "directionsButton": "الاتجاهات",
+      "callButton": "اتصل",
+      "reviewsButton": "التقييمات",
+      "newAppointmentButton": "حجز موعد آخر",
+      "pickServiceFirst": "يرجى اختيار خدمة أولاً",
+      "closeLabel": "إغلاق",
+      "bookNowButton": "احجز الآن",
+      "showcaseServicesEyebrow": "خدماتنا",
+      "showcaseServicesTitle": "ماذا نقدم",
+      "servicesCount": "{count} خدمة",
+      "fromPrice": "ابتداءً من {price}",
+      "workingHoursTitle": "ساعات العمل",
+      "closedLabel": "مغلق",
+      "locationTitle": "العنوان والموقع",
+      "bookingSectionEyebrow": "الحجز",
+      "bookingSectionTitle": "احجز موعدك",
+      "bookingSectionSubtitle": "اختر الموظف والوقت واترك بياناتك — التأكيد فوري.",
+      "weekdays": {
+        "mon": "الإثنين",
+        "tue": "الثلاثاء",
+        "wed": "الأربعاء",
+        "thu": "الخميس",
+        "fri": "الجمعة",
+        "sat": "السبت",
+        "sun": "الأحد"
+      }
     }
   }
 }

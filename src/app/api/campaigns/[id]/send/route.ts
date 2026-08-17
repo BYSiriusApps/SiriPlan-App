@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { sendCampaignNow } from "@/lib/campaign-send";
+import { logAudit } from "@/lib/audit";
 
 export async function POST(
   req: NextRequest,
@@ -28,6 +29,24 @@ export async function POST(
   if (!campaign) return NextResponse.json({ error: "Kampanya bulunamadı" }, { status: 404 });
 
   const result = await sendCampaignNow(supabase, id);
+
+  // KVKK denetim izi: toplu WhatsApp/SMS gönderimi müşteri iletişim verisinin
+  // işlendiği en geniş kapsamlı eylem — "kim bu mesajı kime gönderdi" sorusunun
+  // cevabı kayda geçmeli. Başarısız denemeler de yazılır (kasıtlı kötüye
+  // kullanım denemesi de bir izdir).
+  await logAudit({
+    orgId: member.org_id, userId: user.id, action: "campaign_bulk_send",
+    tableName: "campaigns", recordId: id,
+    details: {
+      role: member.role,
+      ok: result.ok,
+      sent_count: result.ok ? result.sent_count : 0,
+      failed_count: result.ok ? result.failed_count : 0,
+      total: result.ok ? result.total : 0,
+      error: result.ok ? null : result.error,
+    },
+    req,
+  });
 
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
 

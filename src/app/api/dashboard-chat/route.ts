@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { limitByIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -233,10 +234,25 @@ function getStaticResponse(message: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    // Bu uç LLM çağırmaz (yanıtlar statik), dolayısıyla maliyet riski yok; yine
+    // de kimlik doğrulaması istemeyen bir POST ucu olduğu için kaba kuvvetle
+    // sunucu kaynağı tüketilmesine karşı üst sınır konuyor. Gerçek kullanımda
+    // bir personel dakikada birkaç soru sorar; 60/dk fazlasıyla geniş.
+    const limit = limitByIp(req, "dashboard-chat", 60, 60 * 1000);
+    if (!limit.ok) {
+      return NextResponse.json(
+        { response: `Çok fazla istek gönderildi. Lütfen biraz bekleyin. ${CONTACT_LINE}` },
+        { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+      );
+    }
+
     const { message } = await req.json();
 
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Mesaj gerekli" }, { status: 400 });
+    }
+    if (message.length > 1000) {
+      return NextResponse.json({ error: "Mesaj çok uzun." }, { status: 400 });
     }
 
     return NextResponse.json({ response: getStaticResponse(message) });

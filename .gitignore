@@ -42,3 +42,7 @@ dev-output.log
 next-env.d.ts
 
 .vercel
+
+# demo görsel üretimi sırasında oluşan geçici dosyalar
+/.tmp-scripts/
+/scripts/demo-assets/generated/

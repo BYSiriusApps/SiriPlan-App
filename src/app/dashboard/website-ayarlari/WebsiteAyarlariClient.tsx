@@ -6,6 +6,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { resizeImageFile } from "@/lib/image-resize";
 import { WEBSITE_PALETTES, type WebsitePaletteKey } from "@/lib/website-palettes";
+import { WEBSITE_LAYOUTS, resolveWebsiteLayout, type WebsiteLayoutKey } from "@/lib/website-layouts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Globe, Save, Loader2, Check, ImageUp, X, MapPin, Star, Plus,
   ArrowUp, ArrowDown, Pencil, Trash2, ExternalLink, Copy, ImagePlus,
-  Scissors, Images,
+  Scissors, Images, LayoutTemplate,
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -81,6 +82,9 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
   const [editingCategoryName, setEditingCategoryName] = useState("");
   const [galleryUploadingId, setGalleryUploadingId] = useState<string | null>(null);
   const [galleryDeletingId, setGalleryDeletingId] = useState<string | null>(null);
+  // Şablon ayrı state: kolon henüz veritabanında yoksa org.website_layout
+  // undefined gelir ve seçim yine de ekranda çalışsın istiyoruz.
+  const [layout, setLayout] = useState<WebsiteLayoutKey>(resolveWebsiteLayout(initialOrg.website_layout));
 
   // SSR ile client'ta aynı ilk render'ı vermek için origin sadece mount sonrası eklenir
   // (yoksa server "/r/slug" render eder, client "https://.../r/slug" render eder — hydration mismatch).
@@ -97,17 +101,34 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
   async function handleSave() {
     setSaving(true);
     const supabase = createClient();
-    const { error } = await supabase
+    const base = {
+      website_enabled: org.website_enabled,
+      website_palette: org.website_palette,
+      website_tagline: org.website_tagline,
+      google_review_url: org.google_review_url,
+      address: org.address,
+      location_url: org.location_url,
+    };
+
+    let { error } = await supabase
       .from("organizations")
-      .update({
-        website_enabled: org.website_enabled,
-        website_palette: org.website_palette,
-        website_tagline: org.website_tagline,
-        google_review_url: org.google_review_url,
-        address: org.address,
-        location_url: org.location_url,
-      })
+      .update({ ...base, website_layout: layout })
       .eq("id", org.id);
+
+    // website_layout migration'ı henüz uygulanmadıysa TÜM kayıt düşerdi
+    // (renk, adres, tanıtım yazısı dahil). Şablon dışındaki ayarlar kaydedilsin,
+    // eksik olan tek şey açıkça söylensin.
+    const layoutColumnMissing =
+      !!error && (error.code === "42703" || error.code === "PGRST204" || /website_layout/.test(error.message));
+    if (layoutColumnMissing) {
+      ({ error } = await supabase.from("organizations").update(base).eq("id", org.id));
+      if (!error) {
+        setSaving(false);
+        toast.warning("Ayarlar kaydedildi, ancak şablon seçimi kaydedilemedi — website_layout migration'ı henüz uygulanmamış.");
+        return;
+      }
+    }
+
     setSaving(false);
     if (error) {
       toast.error("Kayıt başarısız: " + error.message);
@@ -468,6 +489,73 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
             </p>
           </label>
         </div>
+      </SectionCard>
+
+      {/* Sayfa şablonu */}
+      <SectionCard
+        icon={LayoutTemplate}
+        title="Sayfa Şablonu"
+        description="Randevu linkinizin yerleşimi. Renk paletinden bağımsızdır — istediğiniz şablonu istediğiniz renkle birleştirebilirsiniz."
+      >
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(Object.entries(WEBSITE_LAYOUTS) as [WebsiteLayoutKey, typeof WEBSITE_LAYOUTS[WebsiteLayoutKey]][]).map(
+            ([key, def]) => {
+              const active = layout === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setLayout(key)}
+                  className={`text-left rounded-2xl border-2 overflow-hidden transition-all ${
+                    active ? "border-primary bg-primary/5 shadow-sm shadow-primary/10" : "border-border hover:border-primary/40"
+                  }`}
+                >
+                  {/* Minyatür önizleme — gerçek sayfanın iskeletini temsil eder */}
+                  <div className="h-24 bg-muted/50 p-2.5 flex flex-col gap-1.5">
+                    {key === "classic" ? (
+                      <>
+                        <div className="h-3 rounded bg-primary/25" />
+                        <div className="h-2 w-1/3 rounded bg-foreground/15" />
+                        <div className="flex gap-1 mt-0.5">
+                          <div className="h-2 w-6 rounded-full bg-primary/40" />
+                          <div className="h-2 w-6 rounded-full bg-foreground/10" />
+                          <div className="h-2 w-6 rounded-full bg-foreground/10" />
+                        </div>
+                        <div className="h-2.5 rounded bg-foreground/10" />
+                        <div className="h-2.5 rounded bg-foreground/10" />
+                        <div className="h-2.5 rounded bg-foreground/10" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="h-9 rounded bg-gradient-to-br from-primary/45 to-primary/20 flex items-end p-1">
+                          <div className="h-1.5 w-1/2 rounded bg-white/70" />
+                        </div>
+                        <div className="grid grid-cols-4 gap-1">
+                          <div className="h-4 rounded bg-foreground/15" />
+                          <div className="h-4 rounded bg-foreground/15" />
+                          <div className="h-4 rounded bg-foreground/15" />
+                          <div className="h-4 rounded bg-foreground/15" />
+                        </div>
+                        <div className="h-2.5 rounded bg-foreground/10" />
+                        <div className="h-3 rounded-full bg-primary/40 mt-auto" />
+                      </>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="text-sm font-semibold flex items-center gap-1.5">
+                      {def.label}
+                      {active && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{def.description}</p>
+                  </div>
+                </button>
+              );
+            }
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Seçim <strong>Kaydet</strong> ile uygulanır. Sonucu görmek için yukarıdaki randevu linkinizi açın.
+        </p>
       </SectionCard>
 
       {/* Palette */}

@@ -41,6 +41,13 @@ const PUBLIC_API_WRITE_PREFIXES = [
   // route'a hiç ulaşmadan 401 döndürüyordu (örn. WhatsApp hatırlatma cron'u).
   "/api/cron",
   "/api/whatsapp/send-template",
+  // Pazarlama sayfalarındaki destek sohbeti (bkz. components/marketing/
+  // ChatWidget.tsx — (marketing)/layout.tsx üzerinden TÜM tanıtım sayfalarında
+  // gösteriliyor). Ziyaretçilerin tanımı gereği oturumu yoktur; bu istisna
+  // olmadan widget'a yazılan her mesaj daha route'a ulaşmadan 401'e düşüyordu.
+  // Kötüye kullanım koruması ucun kendi içinde: IP başına saatte 20 istek +
+  // 1000 karakter sınırı (route.ts).
+  "/api/chat",
 ];
 
 // Deneme süresi dolan / ödemesi başarısız olan işletmeler için yazma
@@ -72,6 +79,34 @@ const SUBSCRIPTION_LOCK_EXEMPT_PREFIXES = [
 // cookie set edilmiş olur.
 function isAndroidTwaReferer(request: NextRequest): boolean {
   return !!request.headers.get("referer")?.startsWith("android-app://");
+}
+
+// Yazma isteklerinde kaynak (origin) doğrulaması — CSRF savunmasının ikinci
+// katmanı.
+//
+// NEDEN: Supabase oturum çerezi SameSite=Lax'tır; bu, üçüncü taraf bir sitenin
+// <form> POST'unu engeller ama tüm tarayıcı/WebView sürümlerinde aynı katılıkta
+// uygulanmaz ve gelecekte bir uçta `credentials: "include"` gerektiren bir
+// entegrasyon eklenirse sessizce delinebilir. Tarayıcı, aynı-köken olsa bile
+// her POST/PUT/PATCH/DELETE isteğine `Origin` başlığını EKLER — dolayısıyla
+// başlık varsa ve host'umuzla eşleşmiyorsa istek başka bir sitenin sayfasından
+// geliyordur ve reddedilir.
+//
+// Origin YOKSA reddetmiyoruz: sunucudan sunucuya çağrılar (Meta/Stripe
+// webhook'ları, pg_cron ve Vercel Cron POST'ları, curl ile yapılan sağlık
+// kontrolleri) bu başlığı hiç göndermez. Onların yetkisi kendi imza/bearer
+// token kontrolleriyle zaten sağlanıyor.
+function isCrossSiteWrite(request: NextRequest): boolean {
+  const origin = request.headers.get("origin");
+  if (!origin) return false;
+  // Android Trusted Web Activity ve bazı WebView'lar opak kaynak gönderebilir;
+  // bunlar tarayıcı sekmesi bağlamı olmadığı için CSRF taşıyıcısı değildir.
+  if (origin === "null") return false;
+  try {
+    return new URL(origin).host !== request.nextUrl.host;
+  } catch {
+    return true; // ayrıştırılamayan Origin → güvenme
+  }
 }
 
 function isMobileAppRequest(request: NextRequest): boolean {
@@ -134,6 +169,16 @@ async function proxyInner(request: NextRequest) {
     !MOBILE_APP_ALLOWED_PREFIXES.some((p) => pathname.startsWith(p))
   ) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // Başka bir sitenin sayfasından gelen yazma isteklerini, oturum çerezi
+  // taşınmış olsa bile en başta kes (bkz. isCrossSiteWrite).
+  if (
+    pathname.startsWith("/api/") &&
+    WRITE_METHODS.has(request.method) &&
+    isCrossSiteWrite(request)
+  ) {
+    return NextResponse.json({ error: "Cross-origin request blocked" }, { status: 403 });
   }
 
   // updateSession refreshes the Supabase session cookie and handles

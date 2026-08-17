@@ -1182,7 +1182,34 @@
       "marketingOptIn": "I want to hear about campaigns and offers (optional)",
       "confirmButton": "Confirm Appointment",
       "confirmHint": "Your appointment will be confirmed instantly. A WhatsApp reminder will be sent.",
-      "genericError": "An error occurred."
+      "genericError": "An error occurred.",
+      "otherServices": "Other Services",
+      "directionsButton": "Get Directions",
+      "callButton": "Call",
+      "reviewsButton": "Reviews",
+      "newAppointmentButton": "Book Another Appointment",
+      "pickServiceFirst": "Please choose a service first",
+      "closeLabel": "Close",
+      "bookNowButton": "Book Now",
+      "showcaseServicesEyebrow": "Our Services",
+      "showcaseServicesTitle": "What we do",
+      "servicesCount": "{count} services",
+      "fromPrice": "from {price}",
+      "workingHoursTitle": "Opening Hours",
+      "closedLabel": "Closed",
+      "locationTitle": "Address & Location",
+      "bookingSectionEyebrow": "Booking",
+      "bookingSectionTitle": "Book Your Appointment",
+      "bookingSectionSubtitle": "Pick your stylist and time, leave your details — confirmed instantly.",
+      "weekdays": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday"
+      }
     }
   }
 }

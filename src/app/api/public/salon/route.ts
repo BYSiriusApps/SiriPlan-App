@@ -33,6 +33,13 @@ const ORG_PUBLIC_COLUMNS = [
   "plan", "subscription_status", "trial_ends_at", "feature_website",
 ].join(", ");
 
+// Migration'lar bu projede elle uygulanıyor: kod Vercel'e çıktığı anda kolon
+// henüz veritabanında olmayabilir. Eksik kolon isteyen bir select TÜM sorguyu
+// 42703 ile düşürür ve herkese açık randevu sayfası "Salon bulunamadı"ya
+// dönerdi. Bu yüzden yeni kolonlar ayrı okunur: yoksa sessizce yok sayılır,
+// istemci varsayılana düşer (bkz. resolveWebsiteLayout).
+const ORG_OPTIONAL_COLUMNS = ["website_layout"].join(", ");
+
 const SERVICE_PUBLIC_COLUMNS = [
   "id", "org_id", "name", "description", "duration_minutes", "price", "currency",
   "category_tag", "category_id", "photo_url", "is_active", "is_bookable_online", "display_order",
@@ -60,11 +67,19 @@ export async function GET(req: NextRequest) {
   // okuma buradan, kolon beyaz listesiyle geçiyor.
   const supabase = await createAdminClient();
 
-  const { data: org } = await supabase
+  let { data: org } = await supabase
     .from("organizations")
-    .select(ORG_PUBLIC_COLUMNS)
+    .select(`${ORG_PUBLIC_COLUMNS}, ${ORG_OPTIONAL_COLUMNS}`)
     .eq("slug", slug)
     .maybeSingle();
+
+  if (!org) {
+    ({ data: org } = await supabase
+      .from("organizations")
+      .select(ORG_PUBLIC_COLUMNS)
+      .eq("slug", slug)
+      .maybeSingle());
+  }
 
   if (!org) {
     return NextResponse.json({ error: "Salon bulunamadı." }, { status: 404 });

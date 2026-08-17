@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { logAudit } from "@/lib/audit";
 import * as XLSX from "xlsx";
 import { startOfDay, endOfDay, format as formatDate } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -31,6 +32,10 @@ export async function GET(req: NextRequest) {
   const orgId = member.org_id;
 
   if (format === "pdf" && gun && /^\d{4}-\d{2}-\d{2}$/.test(gun)) {
+    await logAudit({
+      orgId, userId: user.id, action: "data_export", tableName: "appointments",
+      details: { format: "pdf", scope: "gun_sonu", gun, role: member.role }, req,
+    });
     return buildGunSonuPdf(supabase, orgId, gun);
   }
 
@@ -51,6 +56,20 @@ export async function GET(req: NextRequest) {
   ]);
 
   const today = new Date().toISOString().slice(0, 10);
+
+  // KVKK denetim izi: bu çağrı işletmenin TÜM müşteri listesini (ad, telefon,
+  // e-posta, doğum tarihi, harcama geçmişi) tek dosyada dışarı çıkarır — veri
+  // sızıntısı incelemesinde en kritik olay bu. Kim/ne zaman/hangi IP kayda geçer.
+  await logAudit({
+    orgId, userId: user.id, action: "data_export", tableName: "customers",
+    details: {
+      format,
+      role: member.role,
+      customer_count: customers?.length ?? 0,
+      appointment_count: appointments?.length ?? 0,
+    },
+    req,
+  });
 
   if (format === "json") {
     const exportData = {

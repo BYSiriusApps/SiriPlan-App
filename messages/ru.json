@@ -1182,7 +1182,34 @@
       "marketingOptIn": "Хочу получать информацию об акциях и предложениях (необязательно)",
       "confirmButton": "Подтвердить запись",
       "confirmHint": "Ваша запись будет подтверждена мгновенно. Будет отправлено напоминание в WhatsApp.",
-      "genericError": "Произошла ошибка."
+      "genericError": "Произошла ошибка.",
+      "otherServices": "Другие услуги",
+      "directionsButton": "Маршрут",
+      "callButton": "Позвонить",
+      "reviewsButton": "Отзывы",
+      "newAppointmentButton": "Записаться ещё раз",
+      "pickServiceFirst": "Сначала выберите услугу",
+      "closeLabel": "Закрыть",
+      "bookNowButton": "Записаться",
+      "showcaseServicesEyebrow": "Наши услуги",
+      "showcaseServicesTitle": "Чем мы занимаемся",
+      "servicesCount": "услуг: {count}",
+      "fromPrice": "от {price}",
+      "workingHoursTitle": "Часы работы",
+      "closedLabel": "Закрыто",
+      "locationTitle": "Адрес и расположение",
+      "bookingSectionEyebrow": "Запись",
+      "bookingSectionTitle": "Запишитесь на приём",
+      "bookingSectionSubtitle": "Выберите мастера и время, оставьте контакты — подтверждение мгновенное.",
+      "weekdays": {
+        "mon": "Понедельник",
+        "tue": "Вторник",
+        "wed": "Среда",
+        "thu": "Четверг",
+        "fri": "Пятница",
+        "sat": "Суббота",
+        "sun": "Воскресенье"
+      }
     }
   }
 }

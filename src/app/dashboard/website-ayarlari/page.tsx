@@ -16,13 +16,25 @@ export default async function WebsiteAyarlariPage() {
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  const { data: org } = await supabase
+  // Migration'lar elle uygulandığı için kod, kolondan önce canlıya çıkabilir:
+  // eksik kolon isteyen select tüm satırı düşürür ve ayar sayfası boş açılırdı.
+  // Yeni kolonlar ayrı denenir, yoksa sessizce eski liste ile devam edilir.
+  const ORG_COLUMNS =
+    "id, slug, feature_website, website_enabled, website_palette, google_review_url, website_tagline, address, location_url, logo_url, cover_url";
+
+  let { data: org } = await supabase
     .from("organizations")
-    .select(
-      "id, slug, feature_website, website_enabled, website_palette, google_review_url, website_tagline, address, location_url, logo_url, cover_url"
-    )
+    .select(`${ORG_COLUMNS}, website_layout`)
     .eq("id", member.org_id)
-    .single();
+    .maybeSingle();
+
+  if (!org) {
+    ({ data: org } = await supabase
+      .from("organizations")
+      .select(ORG_COLUMNS)
+      .eq("id", member.org_id)
+      .maybeSingle());
+  }
 
   // Deneme süresi Pro'ya denk olduğundan feature_website kolonu değil, etkin
   // yetki (plan + trial_ends_at'ten hesaplanan) baz alınır.

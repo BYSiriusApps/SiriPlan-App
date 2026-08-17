@@ -1182,7 +1182,34 @@
       "marketingOptIn": "Kampanya ve fırsatlardan haberdar olmak istiyorum (opsiyonel)",
       "confirmButton": "Randevuyu Onayla",
       "confirmHint": "Randevunuz anında onaylanacak. WhatsApp hatırlatması gönderilecek.",
-      "genericError": "Bir hata oluştu."
+      "genericError": "Bir hata oluştu.",
+      "otherServices": "Diğer Hizmetler",
+      "directionsButton": "Yol Tarifi Al",
+      "callButton": "Ara",
+      "reviewsButton": "Değerlendirmeler",
+      "newAppointmentButton": "Yeni Randevu Al",
+      "pickServiceFirst": "Önce bir hizmet seçin",
+      "closeLabel": "Kapat",
+      "bookNowButton": "Randevu Al",
+      "showcaseServicesEyebrow": "Hizmetlerimiz",
+      "showcaseServicesTitle": "Ne yapıyoruz?",
+      "servicesCount": "{count} hizmet",
+      "fromPrice": "{price} ve üzeri",
+      "workingHoursTitle": "Çalışma Saatleri",
+      "closedLabel": "Kapalı",
+      "locationTitle": "Adres & Konum",
+      "bookingSectionEyebrow": "Randevu",
+      "bookingSectionTitle": "Randevunuzu Oluşturun",
+      "bookingSectionSubtitle": "Personel ve saati seçin, bilgilerinizi bırakın — anında onaylanır.",
+      "weekdays": {
+        "mon": "Pazartesi",
+        "tue": "Salı",
+        "wed": "Çarşamba",
+        "thu": "Perşembe",
+        "fri": "Cuma",
+        "sat": "Cumartesi",
+        "sun": "Pazar"
+      }
     }
   }
 }

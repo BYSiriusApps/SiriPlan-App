@@ -38,6 +38,8 @@ export interface Organization {
   feature_website: boolean;
   website_enabled: boolean;
   website_palette: "rose" | "ocean" | "sage" | "dark" | "sunset" | "midnight";
+  /** Randevu sayfası yerleşimi — bkz. lib/website-layouts.ts. Migration gecikirse alan hiç gelmeyebilir. */
+  website_layout?: "classic" | "showcase" | null;
   google_review_url: string | null;
   website_tagline: string | null;
   wa_token: string | null;
