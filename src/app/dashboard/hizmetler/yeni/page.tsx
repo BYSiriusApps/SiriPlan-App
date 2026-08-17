@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,27 +11,24 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Search, Plus, Sparkles, PenLine } from "lucide-react";
-import { SERVICE_CATALOG, searchCatalog, type CatalogService } from "@/lib/services/catalog";
+import { getCatalog, searchCatalog, type CatalogService } from "@/lib/services/catalog";
+import type { CatalogLocale } from "@/lib/services/catalog-i18n";
+import { isSupportedLanguage } from "@/lib/languages";
 import { CURRENCIES } from "@/lib/currency";
 import type { ServiceCategory } from "@/types/database";
 
 const NO_CATEGORY = "__none__";
 
-const CATEGORIES = [
-  { value: "sac", label: "Saç" },
-  { value: "cilt", label: "Cilt" },
-  { value: "tirnak", label: "Tırnak" },
-  { value: "kas", label: "Kaş & Kirpik" },
-  { value: "spa", label: "Spa & Masaj" },
-  { value: "lazer", label: "Lazer & Epilasyon" },
-  { value: "genel", label: "Genel" },
-  { value: "diger", label: "Diğer" },
-];
+// Etiketler dashboard.serviceCategories altından çevrilir; buradaki değerler
+// veritabanına yazılan sabit category_tag anahtarlarıdır ve dile göre DEĞİŞMEZ.
+const CATEGORY_VALUES = ["sac", "cilt", "tirnak", "kas", "spa", "lazer", "genel", "diger"] as const;
 
 type Tab = "catalog" | "manual";
 
 export default function YeniHizmetPage() {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
+  const catalogLocale: CatalogLocale = isSupportedLanguage(locale) ? locale : "tr";
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("catalog");
   const [orgType, setOrgType] = useState("kuafor");
@@ -63,9 +60,9 @@ export default function YeniHizmetPage() {
       .catch(() => {});
   }, []);
 
-  const catalog = SERVICE_CATALOG[orgType] || SERVICE_CATALOG["kuafor"];
+  const catalog = getCatalog(orgType, catalogLocale);
   const searchResults: CatalogService[] = catalogSearch.length >= 1
-    ? searchCatalog(orgType, catalogSearch)
+    ? searchCatalog(orgType, catalogSearch, catalogLocale)
     : [];
 
   async function addFromCatalog(svc: CatalogService) {
@@ -86,13 +83,13 @@ export default function YeniHizmetPage() {
       });
       if (res.ok) {
         setAddedNames((s) => new Set(s).add(key));
-        toast.success(`"${svc.name}" eklendi`);
+        toast.success(t("serviceNew.addedToast", { name: svc.name }));
       } else {
         const err = await res.json();
-        toast.error(err.error || "Eklenemedi");
+        toast.error(err.error || t("serviceNew.addFailed"));
       }
     } catch {
-      toast.error("Bağlantı hatası");
+      toast.error(t("serviceNew.connectionError"));
     } finally {
       setAddingIds((s) => { const n = new Set(s); n.delete(key); return n; });
     }
@@ -100,7 +97,7 @@ export default function YeniHizmetPage() {
 
   async function handleManualSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim()) return toast.error("Hizmet adı zorunlu");
+    if (!form.name.trim()) return toast.error(t("serviceNew.nameRequired"));
     setLoading(true);
     const res = await fetch("/api/services", {
       method: "POST",
@@ -118,12 +115,12 @@ export default function YeniHizmetPage() {
     });
     setLoading(false);
     if (res.ok) {
-      toast.success("Hizmet eklendi");
+      toast.success(t("serviceNew.serviceAdded"));
       router.push("/dashboard/hizmetler");
       router.refresh();
     } else {
       const err = await res.json();
-      toast.error(err.error || "Hata oluştu");
+      toast.error(err.error || t("serviceNew.genericError"));
     }
   }
 
@@ -166,7 +163,7 @@ export default function YeniHizmetPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Hizmet ara... (örn: manikür, keratin, botoks)"
+              placeholder={t("serviceNew.searchPlaceholder")}
               className="pl-9"
               value={catalogSearch}
               onChange={(e) => setCatalogSearch(e.target.value)}
@@ -178,7 +175,7 @@ export default function YeniHizmetPage() {
             <div className="space-y-2">
               {searchResults.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  &quot;{catalogSearch}&quot; bulunamadı — Manuel Gir sekmesinden ekleyebilirsiniz
+                  {t("serviceNew.searchEmpty", { query: catalogSearch })}
                 </p>
               ) : (
                 searchResults.map((svc) => (
@@ -230,18 +227,18 @@ export default function YeniHizmetPage() {
           <CardContent>
             <form onSubmit={handleManualSubmit} className="space-y-4">
               <div className="space-y-1">
-                <Label>Hizmet Adı *</Label>
+                <Label>{t("serviceNew.nameLabel")} *</Label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="örn. Özel Saç Bakımı"
+                  placeholder={t("serviceNew.namePlaceholder")}
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label>Fiyat</Label>
+                  <Label>{t("serviceNew.priceLabel")}</Label>
                   <div className="flex gap-1.5">
                     <Input
                       type="number"
@@ -249,7 +246,7 @@ export default function YeniHizmetPage() {
                       step="0.01"
                       value={form.price}
                       onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                      placeholder="örn. 500 (opsiyonel)"
+                      placeholder={t("serviceNew.pricePlaceholder")}
                     />
                     <Select value={form.currency} onValueChange={(v) => v && setForm((f) => ({ ...f, currency: v }))}>
                       <SelectTrigger className="w-[90px] shrink-0"><SelectValue /></SelectTrigger>
@@ -261,11 +258,11 @@ export default function YeniHizmetPage() {
                     </Select>
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    Boş bırakırsanız fiyat randevu tamamlanırken girilebilir.
+                    {t("serviceNew.priceHint")}
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <Label>Süre (dakika) *</Label>
+                  <Label>{t("serviceNew.durationLabel")} *</Label>
                   <Input
                     type="number"
                     min="5"
@@ -278,12 +275,12 @@ export default function YeniHizmetPage() {
               </div>
 
               <div className="space-y-1">
-                <Label>Kategori</Label>
+                <Label>{t("serviceNew.categoryLabel")}</Label>
                 <Select value={form.category_tag} onValueChange={(v) => v && setForm((f) => ({ ...f, category_tag: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((c) => (
-                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    {CATEGORY_VALUES.map((c) => (
+                      <SelectItem key={c} value={c}>{t(`serviceCategories.${c}`)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -291,28 +288,28 @@ export default function YeniHizmetPage() {
 
               {categories.length > 0 && (
                 <div className="space-y-1">
-                  <Label>Website Kategorisi (opsiyonel)</Label>
+                  <Label>{t("serviceNew.websiteCategoryLabel")}</Label>
                   <Select value={form.category_id} onValueChange={(v) => v && setForm((f) => ({ ...f, category_id: v }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NO_CATEGORY}>Kategorisiz</SelectItem>
+                      <SelectItem value={NO_CATEGORY}>{t("serviceNew.websiteCategoryNone")}</SelectItem>
                       {categories.map((c) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <p className="text-[11px] text-muted-foreground">
-                    Website Modu&apos;nda hizmetler bu kategoriye göre gruplanır.
+                    {t("serviceNew.websiteCategoryHint")}
                   </p>
                 </div>
               )}
 
               <div className="space-y-1">
-                <Label>Açıklama (opsiyonel)</Label>
+                <Label>{t("serviceNew.descriptionLabel")}</Label>
                 <Input
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  placeholder="Kısa açıklama..."
+                  placeholder={t("serviceNew.descriptionPlaceholder")}
                 />
               </div>
 
@@ -323,7 +320,7 @@ export default function YeniHizmetPage() {
                   onChange={(e) => setForm((f) => ({ ...f, contributes_loyalty: e.target.checked }))}
                   className="accent-primary"
                 />
-                <span className="text-sm">Sadakat puanı kazandırsın</span>
+                <span className="text-sm">{t("serviceNew.loyaltyLabel")}</span>
               </label>
 
               <Button type="submit" className="w-full" disabled={loading}>
@@ -351,7 +348,7 @@ function ServiceCatalogRow({
     <div className="data-row flex items-center justify-between px-3 py-2.5 rounded-lg border border-border/60 hover:bg-primary/5 transition-colors">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">{svc.name}</p>
-        <p className="text-xs text-muted-foreground">{svc.duration} dk</p>
+        <p className="text-xs text-muted-foreground">{svc.duration} {t("minutesShort")}</p>
       </div>
       <div className="flex items-center gap-3 ml-3">
         <span className="text-sm font-semibold text-primary">₺{svc.price.toLocaleString("tr-TR")}</span>

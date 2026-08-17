@@ -134,7 +134,8 @@ export async function POST(req: NextRequest) {
 
   // 3b. Hizmet listesini iş türüne göre otomatik doldur — işletme sahibi sıfırdan
   // eklemek yerine dolu bir listeyle başlar, istemediklerini kaldırabilir.
-  await seedDefaultServices(admin, org.id, safeBusinessType);
+  // Hizmet adları kayıt sırasında seçili dilde yazılır (bkz. services/catalog-i18n).
+  await seedDefaultServices(admin, org.id, safeBusinessType, safeLocale);
 
   // 4. Send welcome email via Resend (fire-and-forget, ortak şablon)
   sendWelcomeEmail({ to: email, salonName, ownerName: fullName }).catch(() => {});

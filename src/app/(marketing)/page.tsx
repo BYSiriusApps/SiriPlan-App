@@ -80,8 +80,8 @@ export default async function HomePage() {
   const t = await getTranslations();
 
   const stats = [
-    { value: "2.000+", label: t("stats.businesses")  },
-    { value: "500K+",  label: t("stats.appointments") },
+    { value: "100+",   label: t("stats.businesses")  },
+    { value: "4.000+", label: t("stats.appointments") },
     { value: "%99.9",  label: t("stats.uptime")       },
     { value: "4.8/5",  label: t("stats.satisfaction") },
   ];

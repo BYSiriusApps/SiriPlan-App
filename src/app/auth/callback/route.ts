@@ -38,6 +38,9 @@ export async function GET(req: NextRequest) {
     const type = (meta.business_type as string) || "kuafor";
     const fullName = (meta.full_name as string) || user.email!.split("@")[0];
     const slug = (meta.pending_slug as string) || (salonName ?? "salon") + "-" + Math.random().toString(36).slice(2, 6);
+    // Katalogdan otomatik eklenen hizmetler kullanıcının dilinde yazılsın:
+    // önce hesaba kayıtlı tercih, yoksa arayüzün NEXT_LOCALE çerezi.
+    const seedLocale = (meta.locale as string) || req.cookies.get("NEXT_LOCALE")?.value || null;
 
     if (salonName) {
       const admin = await createAdminClient();
@@ -69,13 +72,13 @@ export async function GET(req: NextRequest) {
         if (org2) {
           await admin.from("org_members").insert({ org_id: org2.id, user_id: user.id, role: "owner" });
           await admin.from("staff").insert({ org_id: org2.id, full_name: fullName, role: "Salon Sahibi", is_active: true });
-          await seedDefaultServices(admin, org2.id, type);
+          await seedDefaultServices(admin, org2.id, type, seedLocale);
           notifyAdminNewSignup({ salonName, ownerName: fullName, email: user.email!, phone, businessType: type }).catch(() => {});
         }
       } else if (org) {
         await admin.from("org_members").insert({ org_id: org.id, user_id: user.id, role: "owner" });
         await admin.from("staff").insert({ org_id: org.id, full_name: fullName, role: "Salon Sahibi", is_active: true });
-        await seedDefaultServices(admin, org.id, type);
+        await seedDefaultServices(admin, org.id, type, seedLocale);
 
         sendWelcomeEmail({ to: user.email!, salonName, ownerName: fullName }).catch(() => {});
         notifyAdminNewSignup({ salonName, ownerName: fullName, email: user.email!, phone, businessType: type }).catch(() => {});

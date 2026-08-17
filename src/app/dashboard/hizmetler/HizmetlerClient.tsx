@@ -45,6 +45,10 @@ interface Props {
 
 export function HizmetlerClient({ initialServices, initialCategories, canEdit, orgId }: Props) {
   const t = useTranslations("dashboard");
+  // category_tag serbest metin olabildiği için (eski kayıtlar, elle girilenler)
+  // çeviri yoksa etiketin kendisi gösterilir — eksik anahtar hata fırlatmasın.
+  const categoryTagLabel = (tag: string) =>
+    tag && t.has(`serviceCategories.${tag}`) ? t(`serviceCategories.${tag}`) : tag;
   const [services, setServices] = useState<Service[]>(initialServices);
   const [categories] = useState<ServiceCategory[]>(initialCategories);
   const [detailTarget, setDetailTarget] = useState<Service | null>(null);
@@ -122,10 +126,10 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
     if (res.ok) {
       setDetailStaff(allStaff.filter((s) => staffSelection.has(s.id)));
       setEditingStaff(false);
-      toast.success("Personel ataması güncellendi");
+      toast.success(t("servicesPage.staffAssignSaved"));
     } else {
       const d = await res.json().catch(() => null);
-      toast.error(d?.error || "Güncellenemedi");
+      toast.error(d?.error || t("servicesPage.updateFailed"));
     }
   }
 
@@ -168,10 +172,10 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
       setServices((prev) => prev.map((s) => (s.id === service.id ? service : s)));
       setDetailTarget(service);
       setEditing(false);
-      toast.success("Hizmet güncellendi");
+      toast.success(t("servicesPage.serviceUpdated"));
     } else {
       const d = await res.json();
-      toast.error(d.error || "Güncellenemedi");
+      toast.error(d.error || t("servicesPage.updateFailed"));
     }
   }
 
@@ -183,9 +187,9 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
     if (res.ok) {
       setServices((prev) => prev.filter((s) => s.id !== detailTarget.id));
       closeDetail();
-      toast.success("Hizmet kaldırıldı");
+      toast.success(t("servicesPage.serviceRemoved"));
     } else {
-      toast.error("Hizmet kaldırılamadı");
+      toast.error(t("servicesPage.serviceRemoveFailed"));
     }
   }
 
@@ -194,11 +198,11 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
     e.target.value = "";
     if (!file || !detailTarget) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("Lütfen bir resim dosyası seçin");
+      toast.error(t("servicesPage.pickImageFile"));
       return;
     }
     if (file.size > 3 * 1024 * 1024) {
-      toast.error("Dosya boyutu 3MB'dan küçük olmalı");
+      toast.error(t("servicesPage.fileTooLarge"));
       return;
     }
     setUploadingPhoto(true);
@@ -210,7 +214,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
       .from("service-photos")
       .upload(path, resized, { upsert: true, cacheControl: "3600" });
     if (upErr) {
-      toast.error("Yükleme başarısız: " + upErr.message);
+      toast.error(t("servicesPage.uploadFailed", { error: upErr.message }));
       setUploadingPhoto(false);
       return;
     }
@@ -226,9 +230,9 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
       const { service } = await res.json();
       setServices((prev) => prev.map((s) => (s.id === service.id ? service : s)));
       setDetailTarget(service);
-      toast.success("Fotoğraf güncellendi");
+      toast.success(t("servicesPage.photoUpdated"));
     } else {
-      toast.error("Kaydedilemedi");
+      toast.error(t("servicesPage.saveFailed"));
     }
   }
 
@@ -257,7 +261,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
     });
     setMovingId(null);
     if (!res.ok) {
-      toast.error("Sıralama değiştirilemedi");
+      toast.error(t("servicesPage.reorderFailed"));
       return;
     }
     const idx = siblings.findIndex((s) => s.id === svc.id);
@@ -284,7 +288,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
   const legacyTags = [...new Set(uncategorized.map((s) => s.category_tag))];
   const legacyGroups = legacyTags.map((tag) => ({
     key: tag,
-    label: tag,
+    label: categoryTagLabel(tag),
     services: uncategorized.filter((s) => s.category_tag === tag).sort((a, b) => a.display_order - b.display_order),
   }));
 
@@ -304,7 +308,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
             </div>
             <HomeButton />
           </div>
-          <p className="text-muted-foreground text-sm mt-1">{services.length} hizmet</p>
+          <p className="text-muted-foreground text-sm mt-1">{t("servicesPage.countLabel", { count: services.length })}</p>
         </div>
         <Link
           href="/dashboard/hizmetler/yeni"
@@ -344,7 +348,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
                           variant="outline"
                           className={cn("text-[10px]", CATEGORY_COLORS[service.category_tag] || CATEGORY_COLORS.genel)}
                         >
-                          {service.category_tag}
+                          {categoryTagLabel(service.category_tag)}
                         </Badge>
                         {!service.is_active && (
                           <Badge variant="outline" className="text-[10px] text-muted-foreground">
@@ -384,7 +388,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
                         </p>
                         <p className="text-xs text-muted-foreground flex items-center justify-end gap-1">
                           <Clock className="h-3 w-3" />
-                          {service.duration_minutes !== null ? `${service.duration_minutes}dk` : "—"}
+                          {service.duration_minutes !== null ? `${service.duration_minutes}${t("minutesShort")}` : "—"}
                         </p>
                         {service.contributes_loyalty && (
                           <p className="text-[10px] text-amber-600 flex items-center justify-end gap-0.5">
@@ -421,7 +425,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
                     variant="outline"
                     className={cn("text-[10px] font-normal", CATEGORY_COLORS[detailTarget.category_tag] || CATEGORY_COLORS.genel)}
                   >
-                    {detailTarget.category_tag}
+                    {categoryTagLabel(detailTarget.category_tag)}
                   </Badge>
                 </DialogTitle>
               </DialogHeader>
@@ -469,7 +473,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
                       {detailTarget.duration_minutes !== null ? (
                         <>
                           {detailTarget.duration_minutes}
-                          <span className="text-sm font-normal text-muted-foreground">dk</span>
+                          <span className="text-sm font-normal text-muted-foreground">{t("minutesShort")}</span>
                         </>
                       ) : "—"}
                     </p>
@@ -490,22 +494,22 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
                     </p>
                     {canEdit && !editingStaff && !loadingDetail && (
                       <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={startEditStaff}>
-                        <Pencil className="h-3 w-3" /> Düzenle
+                        <Pencil className="h-3 w-3" /> {t("servicesPage.editButton")}
                       </Button>
                     )}
                   </div>
                   {loadingDetail ? (
                     <div className="flex items-center gap-2 text-muted-foreground text-sm py-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Yükleniyor…
+                      {t("servicesPage.loadingText")}
                     </div>
                   ) : editingStaff ? (
                     <div className="space-y-3">
                       <p className="text-xs text-muted-foreground">
-                        Hiçbiri seçilmezse tüm aktif personel bu hizmeti verebilir kabul edilir (kısıtlama yok).
+                        {t("servicesPage.staffAssignHint")}
                       </p>
                       {allStaff.length === 0 ? (
-                        <p className="text-sm text-muted-foreground py-1">Kayıtlı personel yok.</p>
+                        <p className="text-sm text-muted-foreground py-1">{t("servicesPage.noStaffRegistered")}</p>
                       ) : (
                         <div className="space-y-1.5 max-h-56 overflow-y-auto">
                           {allStaff.map((s) => {
@@ -571,7 +575,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
                       <div className="space-y-3">
                         <p className="text-sm font-semibold">{t("servicesPage.editServiceTitle")}</p>
                         <div>
-                          <Label>Hizmet Adı</Label>
+                          <Label>{t("servicesPage.nameLabel")}</Label>
                           <Input
                             className="mt-1"
                             value={editForm.name}
@@ -594,7 +598,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
                         )}
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <Label>Fiyat</Label>
+                            <Label>{t("servicesPage.priceLabel")}</Label>
                             <div className="flex gap-1.5 mt-1">
                               <Input
                                 type="number"
@@ -615,7 +619,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
                             </div>
                           </div>
                           <div>
-                            <Label>Süre (dk)</Label>
+                            <Label>{t("servicesPage.durationLabel")}</Label>
                             <Input
                               className="mt-1"
                               type="number"
@@ -633,7 +637,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
                             checked={editForm.is_bookable_online}
                             onChange={(e) => setEditForm((f) => ({ ...f, is_bookable_online: e.target.checked }))}
                           />
-                          Online randevu sayfasında göster
+                          {t("servicesPage.showOnlineLabel")}
                         </label>
                         {!editForm.is_bookable_online && (
                           <p className="text-xs text-muted-foreground">{t("servicesPage.priceOptionalHint")}</p>

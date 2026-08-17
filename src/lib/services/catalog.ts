@@ -1,3 +1,9 @@
+import {
+  translateCatalogCategory,
+  translateCatalogService,
+  type CatalogLocale,
+} from "@/lib/services/catalog-i18n";
+
 export interface CatalogService {
   name: string;
   duration: number;
@@ -504,14 +510,44 @@ export const SERVICE_CATALOG: Record<string, CatalogCategory[]> = {
   tattoo: TATTOO,
 };
 
-export function searchCatalog(businessType: string, query: string): CatalogService[] {
+/**
+ * Katalogun verilen dildeki hâli. Kategori etiketleri ve hizmet adları çevrilir;
+ * `category` (sac/cilt/tirnak…) etiketi, süre ve fiyat değişmez — bunlar dilden
+ * bağımsız veri alanlarıdır ve randevu akışının bağlı olduğu kısımdır.
+ *
+ * Türkçe için ekstra bir kopya üretilmez (referans aynen döner), böylece mevcut
+ * davranış birebir korunur.
+ */
+export function getCatalog(businessType: string, locale: CatalogLocale = "tr"): CatalogCategory[] {
+  const catalog = SERVICE_CATALOG[businessType] || SERVICE_CATALOG["kuafor"];
+  if (locale === "tr") return catalog;
+  return catalog.map((cat) => ({
+    ...cat,
+    label: translateCatalogCategory(cat.label, locale),
+    services: cat.services.map((svc) => ({ ...svc, name: translateCatalogService(svc.name, locale) })),
+  }));
+}
+
+/**
+ * Katalogda arama. Kullanıcı hangi dilde görüyorsa o dildeki adlar üzerinden arar;
+ * ayrıca Türkçe orijinal ad da taranır — böylece Türkçe hizmet adını bilen bir
+ * kullanıcı İngilizce arayüzde de sonucu bulabilir.
+ */
+export function searchCatalog(
+  businessType: string,
+  query: string,
+  locale: CatalogLocale = "tr"
+): CatalogService[] {
   const catalog = SERVICE_CATALOG[businessType] || [];
-  const q = query.toLowerCase().trim();
+  const q = query.toLocaleLowerCase("tr").trim();
   if (!q) return [];
   const results: CatalogService[] = [];
   for (const cat of catalog) {
     for (const svc of cat.services) {
-      if (svc.name.toLowerCase().includes(q)) results.push(svc);
+      const localized = translateCatalogService(svc.name, locale);
+      const matches =
+        localized.toLocaleLowerCase("tr").includes(q) || svc.name.toLocaleLowerCase("tr").includes(q);
+      if (matches) results.push(locale === "tr" ? svc : { ...svc, name: localized });
     }
   }
   return results;

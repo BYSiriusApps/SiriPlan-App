@@ -24,7 +24,7 @@ export default async function HakkimizdaPage() {
 
   const stats = [
     { value: "10+", label: t("aboutPage.stats.sectors") },
-    { value: "2.000+", label: t("aboutPage.stats.businesses") },
+    { value: "100+", label: t("aboutPage.stats.businesses") },
     { value: "%99.9", label: t("aboutPage.stats.uptime") },
     { value: "7/24", label: t("aboutPage.stats.support") },
   ];

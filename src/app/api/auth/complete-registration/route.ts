@@ -8,11 +8,15 @@ import { TRIAL_PLAN_LIMITS } from "@/lib/entitlements";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const { userId, salonName, type, phone, email, fullName, slug } = await req.json();
+  const { userId, salonName, type, phone, email, fullName, slug, locale } = await req.json();
 
   if (!userId || !salonName || !slug || !email) {
     return NextResponse.json({ error: "Eksik bilgi" }, { status: 400 });
   }
+
+  // Katalogdan otomatik eklenen hizmetler kullanıcının dilinde yazılsın —
+  // istek gövdesinde dil gelmediyse arayüzün NEXT_LOCALE çerezine düşülür.
+  const seedLocale = (typeof locale === "string" ? locale : null) || req.cookies.get("NEXT_LOCALE")?.value || null;
 
   const supabase = await createAdminClient();
 
@@ -45,7 +49,7 @@ export async function POST(req: NextRequest) {
         .single();
       if (orgError2 || !org2) return NextResponse.json({ error: orgError2?.message }, { status: 500 });
       await supabase.from("org_members").insert({ org_id: org2.id, user_id: userId, role: "owner" });
-      await seedDefaultServices(supabase, org2.id, type || "kuafor");
+      await seedDefaultServices(supabase, org2.id, type || "kuafor", seedLocale);
       notifyAdminNewSignup({ salonName, ownerName: fullName || email.split("@")[0], email, phone, businessType: type }).catch(() => {});
       return NextResponse.json({ orgId: org2.id, slug: newSlug });
     }
@@ -71,7 +75,7 @@ export async function POST(req: NextRequest) {
     is_active: true,
   });
 
-  await seedDefaultServices(supabase, org.id, type || "kuafor");
+  await seedDefaultServices(supabase, org.id, type || "kuafor", seedLocale);
 
   // Send welcome email (fire and forget — don't block the response)
   sendWelcomeEmail({
