@@ -142,10 +142,15 @@ export function ShowcaseLayout({
                   {category.photo_url && (
                     <div className="relative h-36 sm:h-44 w-full overflow-hidden">
                       <img src={category.photo_url} alt={localizeName(category.name)} loading="lazy" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      {/* Kategori kapağı salonun kendi yüklediği fotoğraf — açık tonlu
+                          bir fotoğrafta beyaz başlık okunmaz hâle geliyordu. Alt yarıya
+                          güçlü bir karartma + metne gölge: her fotoğrafta okunur kalır. */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-4">
-                        <h3 className="font-heading text-xl sm:text-2xl font-bold text-white">{localizeName(category.name)}</h3>
-                        <p className="text-xs text-white/75">
+                        <h3 className="font-heading text-xl sm:text-2xl font-bold text-white [text-shadow:0_1px_6px_rgb(0_0_0/0.6)]">
+                          {localizeName(category.name)}
+                        </h3>
+                        <p className="text-xs text-white/85 [text-shadow:0_1px_4px_rgb(0_0_0/0.6)]">
                           {t("servicesCount", { count: items.length })}
                           {from !== null ? ` · ${t("fromPrice", { price: formatServicePrice(from, items[0]?.currency) })}` : ""}
                         </p>
