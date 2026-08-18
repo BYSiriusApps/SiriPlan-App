@@ -6,7 +6,9 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getLocale } from "next-intl/server";
+import { headers } from "next/headers";
 import { CookieConsent } from "@/components/analytics/CookieConsent";
+import { CSP_NONCE_HEADER } from "@/lib/csp";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -121,6 +123,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
+  // Panel sayfalarında (bkz. lib/csp.ts) CSP nonce'lu çalışır; buradaki inline
+  // script'ler imzalanmazsa tarayıcı onları sessizce engeller. Nonce'suz
+  // yollarda (pazarlama, /r/[slug]) başlık boştur ve öznitelik hiç basılmaz —
+  // o sayfalarda politika zaten 'unsafe-inline' ile çalışıyor.
+  const nonce = (await headers()).get(CSP_NONCE_HEADER) ?? undefined;
   return (
     <html
       lang={locale}
@@ -138,6 +145,7 @@ export default async function RootLayout({
         {/* JSON-LD: Organization + SoftwareApplication */}
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -189,10 +197,10 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider nonce={nonce}>{children}</ThemeProvider>
         {/* PWA kurulabilirlik: fetch handler'lı service worker kaydı (Chrome/Android
             "Ana ekrana ekle" istemi bunu şart koşuyor — yoksa istem hiç tetiklenmiyor) */}
-        <Script id="sw-register" strategy="afterInteractive">
+        <Script id="sw-register" strategy="afterInteractive" nonce={nonce}>
           {`
             if ('serviceWorker' in navigator) {
               window.addEventListener('load', () => {
@@ -202,7 +210,7 @@ export default async function RootLayout({
           `}
         </Script>
         {/* Google Analytics 4 — yalnızca çerez onayından sonra yüklenir, bkz CookieConsent */}
-        <CookieConsent />
+        <CookieConsent nonce={nonce} />
         {/* Vercel Analytics & Speed Insights */}
         <Analytics />
         <SpeedInsights />

@@ -1,4 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+// Bildirim gönderimi service_role ile yapılır. NEDEN: bu modülün ana çağıranı
+// herkese açık online randevu akışıdır (/api/appointments → anonim ziyaretçi).
+// Kullanıcı kapsamlı istemci o akışta "anon" rolüyle çalışır ve anon rolünün
+// organizations/staff/org_members tablolarına erişimi kaldırıldı (bkz.
+// 20260817_public_data_lockdown.sql) — bu yüzden org satırı null dönüyor ve
+// salon sahibine giden Telegram/WhatsApp bildirimi sessizce hiç gönderilmiyordu.
+// Buradaki org_id her zaman sunucu tarafında doğrulanmış bir akıştan gelir.
+import { createAdminClient } from "@/lib/supabase/server";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
 import { googleMapsLink } from "@/lib/wa-template";
@@ -103,7 +110,7 @@ async function dispatch(recipient: Recipient, message: string): Promise<void> {
 /** Notify salon owner + assigned staff about a confirmed appointment */
 export async function notifyAppointment(appt: AppointmentForNotify): Promise<void> {
   try {
-    const supabase = await createClient();
+    const supabase = await createAdminClient();
 
     // Resolve service and staff names
     const staffTargetId = appt.assigned_staff_id ?? appt.staff_id;
@@ -207,7 +214,7 @@ export async function notifyAppointmentRequest(
   req: AppointmentForNotify & { serviceName?: string; staffName?: string }
 ): Promise<void> {
   try {
-    const supabase = await createClient();
+    const supabase = await createAdminClient();
 
     const { data: orgRow } = await supabase
       .from("organizations")

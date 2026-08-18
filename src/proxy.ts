@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "./lib/supabase/middleware";
 import { getSubscriptionLock } from "./lib/subscription-lock";
 import { MOBILE_APP_COOKIE, isMobileAppUserAgent, isMobileAppCookieValue } from "./lib/mobile-app-shared";
+import { CSP_NONCE_HEADER, buildCsp, generateNonce, isNonceEnabled, pathNeedsNonce } from "./lib/csp";
 
 // Routes that require at minimum "manager" role
 const MANAGER_ROUTES = [
@@ -138,11 +139,27 @@ const MOBILE_APP_ALLOWED_PREFIXES = [
   "/auth/yeni-sifre",
 ];
 
+// Bu istek için CSP nonce'u üretilmeli mi?
+//
+// Yalnızca panel BELGE isteklerinde: nonce'un tek işi, Next.js'in sayfaya
+// bastığı inline script'leri imzalamak. Prefetch istekleri (next/link) ve
+// yazma istekleri HTML üretmez; onlara nonce basmak boşuna iş olur ve her
+// prefetch'te farklı bir nonce üretildiği için kafa karıştırıcı olurdu.
+function shouldIssueNonce(request: NextRequest): boolean {
+  if (!isNonceEnabled()) return false;
+  if (request.method !== "GET" && request.method !== "HEAD") return false;
+  if (!pathNeedsNonce(request.nextUrl.pathname)) return false;
+  if (request.headers.get("next-router-prefetch")) return false;
+  if (request.headers.get("purpose") === "prefetch") return false;
+  return true;
+}
+
 // No URL-based locale routing — locale is stored in a cookie and read
 // by next-intl's getRequestConfig (src/i18n/request.ts).
 // This keeps dashboard URLs clean: /dashboard not /tr/dashboard.
 export async function proxy(request: NextRequest) {
-  const response = await proxyInner(request);
+  const nonce = shouldIssueNonce(request) ? generateNonce() : null;
+  const response = await proxyInner(request, nonce);
   if (response && isAndroidTwaReferer(request)) {
     response.cookies.set(MOBILE_APP_COOKIE, "1", {
       maxAge: 60 * 60 * 24 * 365,
@@ -150,10 +167,18 @@ export async function proxy(request: NextRequest) {
       sameSite: "lax",
     });
   }
+  // CSP'nin TEK çıkış noktası (bkz. lib/csp.ts). next.config.ts artık bu
+  // başlığı basmıyor — iki yerden basılsaydı tarayıcıya iki politika gider,
+  // tarayıcı ikisinin kesişimini uygular ve panel sessizce kırılırdı.
+  // proxyInner'ın undefined döndüğü tek durum statik varlıklardır
+  // (_next/, favicon, uzantılı dosyalar); onların CSP'ye ihtiyacı yok.
+  if (response) {
+    response.headers.set("Content-Security-Policy", buildCsp(nonce));
+  }
   return response;
 }
 
-async function proxyInner(request: NextRequest) {
+async function proxyInner(request: NextRequest, nonce: string | null) {
   const { pathname } = request.nextUrl;
 
   if (
@@ -183,7 +208,13 @@ async function proxyInner(request: NextRequest) {
 
   // updateSession refreshes the Supabase session cookie and handles
   // basic auth redirect (/dashboard → /auth/giris if not logged in).
-  const sessionResponse = await updateSession(request);
+  // Nonce, İSTEK başlığı olarak iletilir: Next.js hem kendi inline
+  // script'lerini imzalamak için hem de sunucu bileşenlerinin headers()
+  // ile okuyabilmesi için (bkz. app/layout.tsx) buradan alır.
+  const sessionResponse = await updateSession(
+    request,
+    nonce ? { [CSP_NONCE_HEADER]: nonce } : undefined
+  );
 
   // If updateSession already redirected (e.g. not authenticated), honour it.
   if (sessionResponse.status === 307 || sessionResponse.status === 308 || sessionResponse.status === 302) {

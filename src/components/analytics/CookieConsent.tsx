@@ -22,7 +22,7 @@ function readConsent(): Consent {
  * client-side çalışıyor). Reddedilirse hiçbir analytics script'i
  * enjekte edilmez.
  */
-export function CookieConsent() {
+export function CookieConsent({ nonce }: { nonce?: string }) {
   const [consent, setConsent] = useState<Consent>(null);
   const [hydrated, setHydrated] = useState(false);
 
@@ -43,8 +43,9 @@ export function CookieConsent() {
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
             strategy="afterInteractive"
+            nonce={nonce}
           />
-          <Script id="ga4-init" strategy="afterInteractive">
+          <Script id="ga4-init" strategy="afterInteractive" nonce={nonce}>
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
