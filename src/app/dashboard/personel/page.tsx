@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
+import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,6 +39,8 @@ export default async function PersonelPage() {
 
   const m = { org_id: orgId, role: member.role };
   const maxStaff = (orgData as { max_staff?: number } | null)?.max_staff || 3;
+  // Native uygulamada mağaza kuralları gereği plan yükseltme çağrısı gösterilmez.
+  const mobileApp = await isMobileApp();
   const settings = ((orgData as { settings_json?: Record<string, unknown> | null } | null)?.settings_json ?? {}) as Record<string, unknown>;
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
@@ -116,8 +119,14 @@ export default async function PersonelPage() {
       {(staff?.length || 0) >= maxStaff && (
         <Card className="border-amber-200 bg-amber-50 dark:bg-amber-900/20">
           <CardContent className="p-4 text-sm text-amber-800 dark:text-amber-300">
-            Personel limitinize ulaştınız. Daha fazla eklemek için{" "}
-            <Link href="/dashboard/abonelik" className="underline font-medium">planınızı yükseltin</Link>.
+            {mobileApp ? (
+              "Personel limitinize ulaştınız."
+            ) : (
+              <>
+                Personel limitinize ulaştınız. Daha fazla eklemek için{" "}
+                <Link href="/dashboard/abonelik" className="underline font-medium">planınızı yükseltin</Link>.
+              </>
+            )}
           </CardContent>
         </Card>
       )}

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getEntitlements } from "@/lib/entitlements";
+import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Globe } from "lucide-react";
@@ -40,6 +41,7 @@ export default async function WebsiteAyarlariPage() {
   // yetki (plan + trial_ends_at'ten hesaplanan) baz alınır.
   const websiteEntitled = getEntitlements(member.organizations).feature_website;
   if (!websiteEntitled) {
+    const mobileApp = await isMobileApp();
     return (
       <div className="p-6 max-w-2xl">
         <div className="flex items-center gap-3 mb-6">
@@ -56,12 +58,18 @@ export default async function WebsiteAyarlariPage() {
             Renk paleti, kapak fotoğrafı, hizmet kategorileri ve fotoğraflarla donatılmış, satış artırıcı bir
             işletme sayfası — mevcut randevu linkinizde, ek bir adres olmadan.
           </p>
-          <Link
-            href="/dashboard/abonelik"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
-          >
-            Pro Plana Geç →
-          </Link>
+          {/* Native uygulamada (App Store/Play Store) mağaza kuralları gereği
+              plan yükseltme çağrısı gösterilmez; yalnızca durum bilgisi verilir. */}
+          {mobileApp ? (
+            <p className="text-sm text-muted-foreground">Bu modül mevcut planınıza dahil değil.</p>
+          ) : (
+            <Link
+              href="/dashboard/abonelik"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+            >
+              Pro Plana Geç →
+            </Link>
+          )}
         </div>
       </div>
     );

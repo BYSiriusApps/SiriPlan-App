@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
+import { useIsMobileApp } from "@/lib/use-mobile-app";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { TIMEZONE_OPTIONS } from "@/lib/timezones";
 import { DEFAULT_WA_TEMPLATE, WA_TEMPLATE_VARS, renderWaTemplate } from "@/lib/wa-template";
@@ -139,6 +140,8 @@ export default function AyarlarPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
+  // Native uygulamada mağaza kuralları gereği plan yükseltme çağrısı gösterilmez.
+  const mobileApp = useIsMobileApp();
 
   async function handleDeleteAccount() {
     if (deleteConfirmText !== DELETE_CONFIRM_PHRASE) return;
@@ -558,7 +561,7 @@ export default function AyarlarPage() {
               </div>
             </details>
 
-            {org.plan !== "pro" && org.plan !== "business" && (
+            {org.plan !== "pro" && org.plan !== "business" && !mobileApp && (
               <div className="flex items-start gap-3 p-3.5 rounded-xl border border-primary/30 bg-primary/5">
                 <Globe className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div className="min-w-0 flex-1">

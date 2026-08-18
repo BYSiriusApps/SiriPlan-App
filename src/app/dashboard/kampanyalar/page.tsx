@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getEntitlements } from "@/lib/entitlements";
+import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,7 @@ export default async function KampanyalarPage() {
   // Deneme süresi Pro'ya denk olduğundan etkin yetki baz alınır (feature_campaigns
   // kolonu deneme sırasında false kalır, plan+trial_ends_at'ten hesaplanır).
   if (!getEntitlements(member.organizations).feature_campaigns) {
+    const mobileApp = await isMobileApp();
     return (
       <div className="p-6 max-w-2xl">
         <div className="text-center py-16">
@@ -45,12 +47,18 @@ export default async function KampanyalarPage() {
           <p className="text-muted-foreground mb-6">
             Müşterilere otomatik doğum günü mesajı, inaktif müşteri takibi ve özel kampanyalar gönderin.
           </p>
-          <Link
-            href="/dashboard/abonelik"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
-          >
-            Pro Plana Geç →
-          </Link>
+          {/* Native uygulamada (App Store/Play Store) mağaza kuralları gereği
+              plan yükseltme çağrısı gösterilmez; yalnızca durum bilgisi verilir. */}
+          {mobileApp ? (
+            <p className="text-sm text-muted-foreground">Bu modül mevcut planınıza dahil değil.</p>
+          ) : (
+            <Link
+              href="/dashboard/abonelik"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+            >
+              Pro Plana Geç →
+            </Link>
+          )}
         </div>
       </div>
     );

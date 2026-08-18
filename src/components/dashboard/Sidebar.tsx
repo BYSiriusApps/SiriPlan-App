@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Calendar, BookOpen, Users, UserCog,
   Scissors, Megaphone, BarChart3, Import, Settings,
-  CreditCard, Wallet, ExternalLink, ChevronRight, ShieldCheck, ListPlus, Globe, Inbox,
+  CreditCard, Wallet, ChevronRight, ShieldCheck, ListPlus, Globe, Inbox,
 } from "lucide-react";
 import { OrgSwitcher } from "@/components/dashboard/OrgSwitcher";
 import { Badge } from "@/components/ui/badge";
@@ -185,31 +185,8 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Bottom — BySirius + theme picker */}
+      {/* Bottom — theme picker */}
       <div className="px-4 py-4 space-y-3 border-t border-sidebar-border">
-        <a
-          href="https://bysirius.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2.5 p-2.5 rounded-xl group transition-all duration-200 bg-sidebar-accent/30 hover:bg-sidebar-accent/60 border border-sidebar-border"
-        >
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-            style={{
-              background: "linear-gradient(135deg, var(--sidebar-primary), color-mix(in oklch, var(--sidebar-primary) 60%, oklch(0.50 0.15 280)))",
-            }}
-          >
-            BY
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-semibold text-sidebar-foreground/80 leading-none mb-0.5">
-              {t("websitePromo")}
-            </p>
-            <p className="text-[10px] text-sidebar-foreground/50 truncate">bysirius.com</p>
-          </div>
-          <ExternalLink className="h-3 w-3 text-sidebar-foreground/40 group-hover:text-sidebar-foreground/70 transition-colors shrink-0" />
-        </a>
-
         <div className="flex items-center justify-between px-1">
           <span className="text-[10px] text-sidebar-foreground/40 font-medium tracking-wide">
             by <span className="text-sidebar-foreground/70">BySirius</span>

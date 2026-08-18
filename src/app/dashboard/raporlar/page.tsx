@@ -184,12 +184,12 @@ export default async function RaporlarPage({
               {/* Native date input GET formu — JS gerektirmez, geçmiş tarih seçilebilir */}
               <form method="GET" action="/dashboard/raporlar">
                 <input
+                  key={dayParam}
                   type="date"
                   name="gun"
                   defaultValue={dayParam}
                   max={format(now, "yyyy-MM-dd")}
                   className="px-2 py-1.5 rounded-lg border border-border bg-background text-sm"
-                  // Tarih değişince formu otomatik gönder
                 />
                 <button type="submit" className="ml-1.5 px-3 py-1.5 rounded-lg border text-sm hover:bg-accent transition-colors">
                   Getir
