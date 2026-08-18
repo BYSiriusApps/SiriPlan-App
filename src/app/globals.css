@@ -1,7 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* "midnight" (Gece Yarısı Mor) da koyu bir tema: --background/--foreground
+   değerleri koyu zemin + açık yazı. Bu varyant yalnızca `.dark`'ı kapsadığı
+   sürece midnight temasında `dark:bg-amber-900/20` gibi tüm koyu tema
+   sınıfları sessizce devre dışı kalıyor, açık tema renkleri (rose-50 gibi)
+   açık zemin olarak boyanıyor ve üzerine gelen açık renkli yazı okunmuyordu. */
+@custom-variant dark (&:is(.dark *, .midnight *));
 
 @theme inline {
   --color-background: var(--background);

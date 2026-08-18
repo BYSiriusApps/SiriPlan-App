@@ -66,7 +66,17 @@ export default function VeriGocuPage() {
       const res = await fetch("/api/import", { method: "POST", body: formData });
       const data = await res.json();
       if (res.ok) {
-        toast.success(`${data.imported} kayıt başarıyla aktarıldı!`);
+        // Zaten kayıtlı olanlar "aktarılmadı" değil "mükerrer" — kullanıcı 0
+        // kayıt gördüğünde dosyasında mı yoksa sistemde mi sorun var bilmeli.
+        const parts: string[] = [];
+        if (data.duplicates) parts.push(`${data.duplicates} kayıt zaten mevcuttu`);
+        if (data.skipped) parts.push(`${data.skipped} satır atlandı`);
+        const detail = parts.length ? ` (${parts.join(", ")})` : "";
+        if (data.imported > 0) {
+          toast.success(`${data.imported} kayıt başarıyla aktarıldı!${detail}`);
+        } else {
+          toast.info(`Yeni kayıt eklenmedi.${detail}`);
+        }
       } else {
         toast.error(data.error || "İçe aktarma başarısız.");
       }
@@ -184,7 +194,7 @@ export default function VeriGocuPage() {
                   <strong>Not:</strong>{" "}
                   {selectedSource === "salonappy" && "Randevu programınızdan CSV olarak veri dışa aktarın: Ayarlar → Veri Dışa Aktar"}
                   {selectedSource === "arvengo" && "Mevcut yazılımınızdan dışa aktarın: Panel → Raporlar → Excel veya CSV İndir"}
-                  {selectedSource === "excel" && "İlk sütun: Ad Soyad, İkinci: Telefon, Üçüncü: E-posta (opsiyonel)"}
+                  {selectedSource === "excel" && "Sütun başlıkları: Ad Soyad, Telefon (zorunlu) · E-posta, Doğum Tarihi, Notlar, Toplam Ziyaret, Toplam Harcama, Son Ziyaret (opsiyonel). CSV, Excel ve JSON desteklenir."}
                 </p>
               </div>
 
@@ -200,14 +210,14 @@ export default function VeriGocuPage() {
                   ) : (
                     <>
                       <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm font-medium">CSV veya Excel dosyası seçin</p>
+                      <p className="text-sm font-medium">CSV, Excel veya JSON dosyası seçin</p>
                       <p className="text-xs text-muted-foreground mt-1">veya sürükle-bırak</p>
                     </>
                   )}
                   <input
                     type="file"
                     className="hidden"
-                    accept=".csv,.xlsx,.xls"
+                    accept=".csv,.xlsx,.xls,.xlsm,.json,.txt"
                     disabled={importing}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
@@ -222,21 +232,24 @@ export default function VeriGocuPage() {
       </Card>
 
       {/* Steps */}
-      <Card className="border-0 shadow-sm bg-gradient-to-br from-rose-50 to-fuchsia-50 dark:from-rose-950/30 dark:to-fuchsia-950/30">
+      {/* Zemin sabit rose/fuchsia yerine tema renginden türetiliyor: koyu
+          temalarda (Gece Modu, Gece Yarısı Mor) açık pembe zemin üzerine açık
+          renkli yazı düşüyor ve metin okunmuyordu. */}
+      <Card className="border border-primary/15 shadow-sm bg-gradient-to-br from-primary/10 to-primary/5 text-card-foreground">
         <CardContent className="p-5">
-          <p className="text-sm font-semibold mb-3">Rakip uygulamadan geçiş yapmak mı istiyorsunuz?</p>
+          <p className="text-sm font-semibold mb-3 text-foreground">Rakip uygulamadan geçiş yapmak mı istiyorsunuz?</p>
           <div className="space-y-2">
             {[
               "Yukarıdan kaynak seçin",
-              "CSV dosyanızı yükleyin",
+              "CSV, Excel veya JSON dosyanızı yükleyin",
               "Verileriniz otomatik aktarılır",
-              "Tüm geçmişiniz korunur",
+              "Ziyaret ve harcama geçmişi korunur",
             ].map((step, i) => (
               <div key={step} className="flex items-center gap-2 text-sm">
                 <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0">
                   {i + 1}
                 </div>
-                <span>{step}</span>
+                <span className="text-foreground">{step}</span>
                 {i < 3 && <ArrowRight className="h-3 w-3 text-muted-foreground ml-auto" />}
               </div>
             ))}
