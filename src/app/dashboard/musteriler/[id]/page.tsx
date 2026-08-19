@@ -134,7 +134,6 @@ export default async function MusteriDetailPage({
                       : "verildi"
                     : "yok"}
                 </span>
-                {!c.kvkk_consent && <SendKvkkLinkButton customerId={c.id} phone={c.phone} />}
               </div>
               <div className="flex items-center gap-2">
                 {c.marketing_consent ? (
@@ -151,6 +150,18 @@ export default async function MusteriDetailPage({
                     : "— onay verilmedi"}
                 </span>
               </div>
+              {/* Onay linki, KVKK VEYA kampanya onayı eksik olan her müşteride
+                  görünür. Eskiden yalnızca KVKK onayı hiç yokken çıkıyordu;
+                  oysa /onay/[token] sayfası ikisini birden topluyor ve
+                  kampanya izni olmayan müşteriye kampanya gönderilemiyor
+                  (bkz. lib/campaign-segment.ts marketing_consent filtresi). */}
+              {(!c.kvkk_consent || !c.marketing_consent) && (
+                <SendKvkkLinkButton
+                  customerId={c.id}
+                  phone={c.phone}
+                  hasKvkk={!!c.kvkk_consent}
+                />
+              )}
               <div className="flex items-center gap-2 pt-1">
                 {c.online_booking_blocked ? (
                   <Ban className="h-4 w-4 shrink-0 text-red-500" />

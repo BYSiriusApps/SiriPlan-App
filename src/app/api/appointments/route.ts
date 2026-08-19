@@ -48,6 +48,9 @@ const CreateSchema = z.object({
   // opsiyonel; kontrol yalnızca anonim akışta uygulanır.
   website: z.string().optional(),
   form_started_at: z.number().optional(),
+  // İsteğin hangi arayüzden geldiği. Yalnızca herkese açık randevu sayfası
+  // "public" gönderir; panel formları hiçbir şey göndermez (bkz. isPanelBooking).
+  booking_context: z.enum(["public", "panel"]).optional(),
 }).refine((d) => d.auto_assign_staff || !!d.staff_id, {
   message: "Personel seçimi zorunlu",
   path: ["staff_id"],
@@ -66,6 +69,20 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("POST /api/appointments crashed:", err);
     return NextResponse.json({ error: "Randevu oluşturulamadı, lütfen tekrar deneyin." }, { status: 500 });
+  }
+}
+
+/**
+ * Referer başlığından yalnızca yol kısmını çıkarır. Başlık istemci tarafından
+ * uydurulabilir; burada yalnızca "panel mi, herkese açık sayfa mı" ayrımı için
+ * ipucu olarak kullanılıyor ve tek başına yetki vermiyor.
+ */
+function safePathFromReferer(referer: string | null): string {
+  if (!referer) return "";
+  try {
+    return new URL(referer).pathname;
+  } catch {
+    return "";
   }
 }
 
@@ -113,11 +130,30 @@ async function handleCreateAppointment(req: NextRequest) {
   // Panelden (giriş yapmış, org üyesi) girilen randevular ile anonim
   // /r/[slug] self-servis rezervasyonlarını ayırt etmek için erkenden çözülür —
   // hem çakışma engeli (online_booking_blocked) hem initialStatus hesaplaması bunu kullanır.
-  const { data: { user: callingUser } } = await supabase.auth.getUser();
+  //
+  // DİKKAT — oturumun VARLIĞI tek başına "panelden girildi" demek DEĞİLDİR:
+  // salon sahibi kendi tarayıcısında panele girmişken herkese açık randevu
+  // linkini (/r/[slug]) açtığında, aynı origin'e giden fetch oturum çerezini de
+  // taşır. Eskiden yalnızca üyeliğe bakıldığı için bu istekler "panel" sayılıyor
+  // ve online randevusu ENGELLENMİŞ müşteri linkten randevu alabiliyordu
+  // (aynı şekilde online'a kapalı hizmet, geçmiş tarih ve fiyat/süre override
+  // korumaları da atlanıyordu). Bu yüzden iki koşul birden aranır:
+  //   1) istek herkese açık sayfadan geldiğini beyan etmemiş olmalı,
+  //   2) çağıran gerçekten bu işletmenin üyesi olmalı.
+  // (1) istemciden gelir ama güvenliği zayıflatmaz: anonim biri "panel" dese de
+  // (2) üyelik kontrolüne takılır. Panel formları bu alanı göndermez, dolayısıyla
+  // önbellekte kalmış eski panel paketleri de eskisi gibi çalışmaya devam eder.
+  const fromPublicPage =
+    data.booking_context === "public" ||
+    /^\/r\//.test(safePathFromReferer(req.headers.get("referer")));
+
   let isPanelBooking = false;
-  if (callingUser) {
-    const callingMember = await getActiveMember(supabase);
-    isPanelBooking = callingMember?.org_id === data.org_id;
+  if (!fromPublicPage) {
+    const { data: { user: callingUser } } = await supabase.auth.getUser();
+    if (callingUser) {
+      const callingMember = await getActiveMember(supabase);
+      isPanelBooking = callingMember?.org_id === data.org_id;
+    }
   }
 
   // appointment_at şema düzeyinde sadece `string` — geçerli bir tarih olduğu
@@ -188,6 +224,23 @@ async function handleCreateAppointment(req: NextRequest) {
       return NextResponse.json(
         { error: "Bu telefon numarası için açık randevu sayısı sınırına ulaşıldı. Lütfen salonu arayın." },
         { status: 429 }
+      );
+    }
+
+    // "Online randevu engelli" müşteri kontrolü SELF-SERVİS AKIŞIN TAMAMI için
+    // burada yapılır. Aşağıda müşteri kaydı zaten okunuyor ama orası
+    // appointment_requests (WhatsApp/Instagram onay kuyruğu) dalından SONRA
+    // geldiği için engellenen müşteri o kanaldan istek açmaya devam edebiliyordu.
+    const { data: blockRow } = await db
+      .from("customers")
+      .select("online_booking_blocked")
+      .eq("org_id", data.org_id)
+      .eq("phone", data.customer_phone)
+      .maybeSingle();
+    if (blockRow?.online_booking_blocked) {
+      return NextResponse.json(
+        { error: "Bu saat için online randevu alınamıyor. Lütfen bizi arayın." },
+        { status: 403 }
       );
     }
   }

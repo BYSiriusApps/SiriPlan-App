@@ -585,13 +585,23 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Dashboard sayfa geçişleri — sekme değiştikçe hafif fade+kaydırma (bkz. RouteTransition) */
+/* Dashboard sayfa geçişleri — sekme değiştikçe hafif fade+kaydırma (bkz. RouteTransition)
+ *
+ * DİKKAT — fill-mode `both` OLMAMALI. `both` biterken `transform: translateY(0)`
+ * değerini kalıcı olarak elemente yapıştırır; transform'u `none` olmayan her
+ * element, içindeki `position: fixed` kutular için yeni bir "containing block"
+ * yaratır. Bu wrapper tüm panel sayfalarını sardığı için, sayfa içindeki her
+ * `fixed inset-0` katman (modal arka planı vb.) ekran yerine SAYFANIN TAMAMI
+ * kadar büyüyordu: modal ekranın ortası yerine kaydırılmış içeriğin ortasında
+ * açılıyor, karartma da görünmüyordu. `backwards` yalnızca animasyon
+ * başlamadan önceki kareyi uygular, bitince transform tamamen kalkar.
+ */
 @keyframes route-fade {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-route-fade {
-  animation: route-fade 220ms ease-out both;
+  animation: route-fade 220ms ease-out backwards;
 }
 
 /* Smooth scrolling */

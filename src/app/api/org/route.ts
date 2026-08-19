@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR } from "@/lib/tax-number";
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -31,12 +32,20 @@ export async function PATCH(req: NextRequest) {
   if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const ALLOWED = [
-    "name", "type", "phone", "email", "address", "city",
+    "name", "type", "phone", "email", "address", "city", "tax_number",
     "instagram_handle", "whatsapp_number", "working_hours_json", "locale", "settings_json",
   ];
   const updates: Record<string, unknown> = {};
   for (const key of ALLOWED) {
     if (key in body) updates[key] = body[key];
+  }
+
+  if ("tax_number" in updates) {
+    const digits = normalizeTaxNumber(updates.tax_number);
+    if (!isValidTaxNumber(digits)) {
+      return NextResponse.json({ error: TAX_NUMBER_ERROR }, { status: 400 });
+    }
+    updates.tax_number = digits || null;
   }
 
   const { data, error } = await supabase

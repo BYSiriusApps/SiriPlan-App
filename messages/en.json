@@ -906,6 +906,7 @@
     "permissions": {
       "view_customers": "Can view customers",
       "edit_customers": "Can edit customers",
+      "delete_customers": "Can delete customers",
       "view_reports": "Can view reports",
       "edit_services": "Can edit services",
       "manage_staff": "Can manage staff",
@@ -934,6 +935,9 @@
       "permissionsLabel": "Permissions",
       "saveButton": "Save Permissions",
       "savedToast": "Permissions updated",
+      "noPermissionText": "Only the owner or users with the manage-staff permission can edit staff permissions.",
+      "ownerTargetText": "This record belongs to the business owner — permissions cannot be changed here.",
+      "selfEditText": "You cannot change your own permissions. Ask the business owner for changes.",
       "saveFailedToast": "Couldn't update permissions"
     },
     "staffInvite": {

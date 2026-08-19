@@ -33,6 +33,7 @@ import {
   WA_REMINDER_OFFSET_PRESETS,
 } from "@/lib/wa-templates/registry";
 import { DEFAULT_KVKK_NOTICE_TEMPLATE, renderKvkkNotice } from "@/lib/kvkk";
+import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
 import QRCode from "qrcode";
 
 const APPOINTMENT_TEMPLATE_PRESETS: { key: string; label: string; text: string }[] = [
@@ -216,17 +217,20 @@ export default function AyarlarPage() {
 
   async function handleSave() {
     if (!org) return;
+    if (org.tax_number && !isValidTaxNumber(org.tax_number)) {
+      toast.error(TAX_NUMBER_ERROR);
+      return;
+    }
     setSaving(true);
     const supabase = createClient();
-    const { error } = await supabase
-      .from("organizations")
-      .update({
+    const payload: Record<string, unknown> = {
         name: org.name,
         type: org.type,
         phone: org.phone,
         email: org.email,
         address: org.address,
         city: org.city,
+        tax_number: org.tax_number || null,
         location_url: org.location_url,
         logo_url: org.logo_url,
         instagram_handle: org.instagram_handle,
@@ -253,8 +257,17 @@ export default function AyarlarPage() {
         has_auto_booking: org.has_auto_booking ?? false,
         kvkk_notice_text: org.kvkk_notice_text,
         settings_json: org.settings_json ?? {},
-      })
-      .eq("id", org.id!);
+    };
+
+    let { error } = await supabase.from("organizations").update(payload).eq("id", org.id!);
+
+    // tax_number kolonu henüz uygulanmamışsa (migration sırası) yalnızca bu alan
+    // düşürülüp aynı payload tekrar denenir — tüm ayarlar sayfası tek bir yeni
+    // alan yüzünden kaydedilemez hâle gelmemeli.
+    if (error && /tax_number/.test(error.message)) {
+      delete payload.tax_number;
+      ({ error } = await supabase.from("organizations").update(payload).eq("id", org.id!));
+    }
 
     if (error) {
       toast.error("Kayıt başarısız: " + error.message);
@@ -444,6 +457,23 @@ export default function AyarlarPage() {
             <Label>E-posta</Label>
             <Input className="mt-1" type="email" value={org.email || ""} onChange={(e) => setField("email", e.target.value)} />
           </div>
+        </div>
+        <div>
+          <Label>
+            VKN / TC Kimlik No{" "}
+            <span className="text-xs font-normal text-muted-foreground">(isteğe bağlı)</span>
+          </Label>
+          <Input
+            className="mt-1"
+            inputMode="numeric"
+            maxLength={TAX_NUMBER_MAX_LENGTH}
+            value={org.tax_number || ""}
+            onChange={(e) => setField("tax_number", normalizeTaxNumber(e.target.value))}
+            placeholder="Vergi No (10 hane) veya TCKN (11 hane)"
+          />
+          {org.tax_number && !isValidTaxNumber(org.tax_number) && (
+            <p className="text-xs text-red-500 mt-1">{TAX_NUMBER_ERROR}</p>
+          )}
         </div>
         <div>
           <Label>Adres</Label>

@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import type { Customer } from "@/types/database";
 import { CustomerList } from "@/components/dashboard/CustomerList";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { hasPermission } from "@/lib/permissions";
 
 export default async function MusterilerPage({
   searchParams,
@@ -26,6 +27,9 @@ export default async function MusterilerPage({
   const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
+  // Silme butonu yalnızca yetkisi olanlara çizilir; asıl denetim
+  // DELETE /api/customers/[id] içinde tekrar yapılır (bkz. lib/permissions).
+  const canDelete = hasPermission(member, "delete_customers");
 
   // Tüm liste tek seferde gelir; arama/sıralama istemcide anında yapılır.
   const { data: customers } = await supabase
@@ -58,6 +62,7 @@ export default async function MusterilerPage({
         customers={(customers ?? []) as Customer[]}
         showPhoneButtons={showPhoneButtons}
         initialKampanya={params.kampanya === "1"}
+        canDelete={canDelete}
       />
     </div>
   );

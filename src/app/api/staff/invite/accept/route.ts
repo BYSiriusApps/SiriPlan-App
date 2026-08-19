@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { sanitizePermissions } from "@/lib/permissions";
 
 // token 48 karakterlik hex üretiliyor (011_staff_invites_permissions_quota: encode(gen_random_bytes(24), 'hex'))
 const TOKEN_RE = /^[a-f0-9]{16,64}$/i;
@@ -54,15 +55,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Bu organizasyona zaten üyesiniz" }, { status: 409 });
   }
 
-  // Create org_member
+  // Create org_member. Rol ve izinler burada bir kez daha daraltılır: davet
+  // satırı service role ile okunduğu için (RLS yok), davet oluşturulurken
+  // yapılan doğrulamaya körü körüne güvenilmez — "owner" rolü hiçbir davetle
+  // verilemez, izinler yalnızca bilinen anahtarlardan oluşur.
+  const inviteRole = invite.role === "manager" ? "manager" : "staff";
   const { error: memberErr } = await admin
     .from("org_members")
     .insert({
       org_id: invite.org_id,
       user_id: user.id,
-      role: invite.role,
+      role: inviteRole,
       staff_id: invite.staff_id ?? null,
-      permissions_json: invite.permissions_json,
+      permissions_json: sanitizePermissions(invite.permissions_json),
     });
 
   if (memberErr) {

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
+import { DEFAULT_PERMS, OWNER_ONLY_PERMS, sanitizePermissions } from "@/lib/permissions";
 
 const InviteSchema = z.object({
   staff_id: z.string().uuid().optional(),
@@ -40,6 +41,15 @@ export async function POST(req: NextRequest) {
   if (member.role !== "owner" && !member.permissions_json?.manage_staff) {
     return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
   }
+  // Yönetici rolünü yalnızca sahip devredebilir; aksi halde manage_staff
+  // verilmiş bir yönetici kendine denk yetkide sınırsız yönetici üretebilirdi.
+  // Kontrol burada, bekleyen davetler iptal edilmeden önce yapılır.
+  if (member.role !== "owner" && data.role === "manager") {
+    return NextResponse.json(
+      { error: "Yönetici rolünde davet yalnızca işletme sahibi tarafından gönderilebilir" },
+      { status: 403 }
+    );
+  }
 
   // Org info + plan check
   const { data: org } = await supabase
@@ -75,27 +85,18 @@ export async function POST(req: NextRequest) {
       .eq("status", "pending");
   }
 
-  // Build default permissions based on role
-  const defaultPermissions =
-    data.role === "manager"
-      ? {
-          view_customers: true, edit_customers: true,
-          view_reports: true, edit_services: true,
-          manage_staff: false, view_financials: true,
-          manage_campaigns: true, view_calendar: true,
-          create_appointments: true, edit_appointments: true,
-          cancel_appointments: true,
-        }
-      : {
-          view_customers: true, edit_customers: false,
-          view_reports: false, edit_services: false,
-          manage_staff: false, view_financials: false,
-          manage_campaigns: false, view_calendar: true,
-          create_appointments: true, edit_appointments: true,
-          cancel_appointments: false,
-        };
+  // Rol varsayılanları + davet edenin yaptığı ince ayar. Gelen nesne yalnızca
+  // bilinen izin anahtarlarına indirgenir (bkz. lib/permissions) — eskiden
+  // z.record(z.boolean()) uydurma anahtarları da olduğu gibi kaydediyordu.
+  const mergedPermissions = {
+    ...DEFAULT_PERMS[data.role],
+    ...sanitizePermissions(data.permissions_json),
+  };
 
-  const mergedPermissions = { ...defaultPermissions, ...data.permissions_json };
+  // Sahibe özel izinler (manage_staff) davetle de devredilemez.
+  if (member.role !== "owner") {
+    for (const key of OWNER_ONLY_PERMS) mergedPermissions[key] = false;
+  }
 
   // Create invitation
   const { data: invite, error: inviteErr } = await supabase

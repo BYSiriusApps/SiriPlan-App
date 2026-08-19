@@ -11,14 +11,47 @@ import { RandevularHeader } from "@/components/dashboard/RandevularHeader";
 import { RandevuCard } from "@/components/dashboard/RandevuCard";
 import { RandevularFilters } from "@/components/dashboard/RandevularFilters";
 import { STATUS_LABEL_KEYS } from "@/lib/appointment-status";
+import { DEFAULT_ORG_TIMEZONE, istanbulDateStr, zonedWallTimeToUtc } from "@/lib/istanbul-time";
 
 const DEFAULT_LIMIT = 100;
 const SEARCH_LIMIT = 300;
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** "2026-08-19" → "2026-08-20". Aralık üst sınırını "ertesi günün 00:00'ı" olarak kurmak için. */
+function nextDayStr(day: string): string {
+  const [y, m, d] = day.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10);
+}
+
+/**
+ * URL'den gelen tarih parametresi. Biçim tutmuyorsa yok sayılır: bozuk bir
+ * değer aşağıdaki dönüşümde Invalid Date üretip toISOString()'de sayfayı
+ * komple çökertirdi (randevu listesi asla erişilemez hâle gelmemeli).
+ */
+function safeDay(value: string | undefined): string | undefined {
+  if (!value || !DAY_RE.test(value)) return undefined;
+  const [y, m, d] = value.split("-").map(Number);
+  const probe = new Date(Date.UTC(y, m - 1, d));
+  return probe.getUTCFullYear() === y && probe.getUTCMonth() === m - 1 && probe.getUTCDate() === d
+    ? value
+    : undefined;
+}
 
 export default async function RandevularPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; q?: string; from?: string; to?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    q?: string;
+    from?: string;
+    to?: string;
+    /** Personel kırılımı — geçerli bir UUID değilse yok sayılır. */
+    personel?: string;
+    /** "yeni" (yeniden eskiye) | "eski" (eskiden yeniye) */
+    sirala?: string;
+    /** "1" → yalnızca bugünün randevuları (işletmenin saat dilimine göre) */
+    bugun?: string;
+  }>;
 }) {
   const params = await searchParams;
   const t = await getTranslations("dashboard");
@@ -29,7 +62,7 @@ export default async function RandevularPage({
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  const [{ data: staff }, { data: services }] = await Promise.all([
+  const [{ data: staff }, { data: services }, { data: orgTzRow }] = await Promise.all([
     supabase
       .from("staff")
       .select("id, full_name, avatar_url, role")
@@ -42,27 +75,55 @@ export default async function RandevularPage({
       .eq("org_id", member.org_id)
       .eq("is_active", true)
       .order("display_order"),
+    supabase.from("organizations").select("timezone").eq("id", member.org_id).single(),
   ]);
 
+  // Tarih filtreleri işletmenin saat diliminde yorumlanır. Sunucu UTC'de
+  // çalıştığı için `new Date("2026-08-19T00:00:00")` İstanbul'da günün ilk üç
+  // saatini (00:00–03:00) aralığın dışında bırakıyordu.
+  const orgTimezone = (orgTzRow as { timezone?: string } | null)?.timezone || DEFAULT_ORG_TIMEZONE;
+
   const searchTerm = params.q?.trim();
-  const hasDateRange = !!(params.from || params.to);
+  const todayOnly = params.bugun === "1";
+  // PostgREST'e ham parametre geçmemek için: yalnızca UUID biçimi kabul edilir.
+  const staffFilter =
+    params.personel && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.personel)
+      ? params.personel
+      : undefined;
+  const sortParam = params.sirala === "yeni" || params.sirala === "eski" ? params.sirala : undefined;
+
+  const todayStr = istanbulDateStr(new Date(), orgTimezone);
+  const fromDay = safeDay(params.from);
+  const toDay = safeDay(params.to);
+  const hasDateRange = !!(fromDay || toDay);
   // Aramada veya tarih aralığında son 100 kaydın dışına çıkmak gerekir —
   // geçmiş randevular sistemde saklı kalır, sadece varsayılan listede görünmez.
-  const isFiltered = !!searchTerm || hasDateRange;
+  const isFiltered = !!searchTerm || hasDateRange || todayOnly || !!staffFilter || !!sortParam;
 
   const baseSelect = "*, staff:staff!appointments_staff_id_fkey(full_name), service:services(name, duration_minutes)";
 
   let appointments: Appointment[] | null;
 
   if (isFiltered) {
+    // Sıralama: kullanıcı bir düğmeye bastıysa o kazanır. Basmadıysa tek bir
+    // güne bakılıyorsa (Bugün) sabahtan akşama, aksi halde yeniden eskiye —
+    // geçmişe dönük aramada en son randevu en üstte olsun.
+    const ascending = sortParam ? sortParam === "eski" : todayOnly;
+
     let query = supabase
       .from("appointments")
       .select(baseSelect)
       .eq("org_id", member.org_id)
-      .order("appointment_at", { ascending: true })
+      .order("appointment_at", { ascending })
       .limit(SEARCH_LIMIT);
 
     if (params.status) query = query.eq("status", params.status);
+    if (staffFilter) query = query.eq("staff_id", staffFilter);
+    if (todayOnly) {
+      query = query
+        .gte("appointment_at", zonedWallTimeToUtc(todayStr, "00:00", orgTimezone).toISOString())
+        .lt("appointment_at", zonedWallTimeToUtc(nextDayStr(todayStr), "00:00", orgTimezone).toISOString());
+    }
     if (searchTerm) {
       // PostgREST filtre dilinde anlamı olan karakterler temizlenir
       // (bkz. lib/utils.ts → sanitizeFilterValue).
@@ -71,11 +132,11 @@ export default async function RandevularPage({
         query = query.or(`customer_name.ilike.%${safeTerm}%,customer_phone.ilike.%${safeTerm}%`);
       }
     }
-    if (params.from) {
-      query = query.gte("appointment_at", new Date(params.from + "T00:00:00").toISOString());
+    if (!todayOnly && fromDay) {
+      query = query.gte("appointment_at", zonedWallTimeToUtc(fromDay, "00:00", orgTimezone).toISOString());
     }
-    if (params.to) {
-      query = query.lte("appointment_at", new Date(params.to + "T23:59:59").toISOString());
+    if (!todayOnly && toDay) {
+      query = query.lt("appointment_at", zonedWallTimeToUtc(nextDayStr(toDay), "00:00", orgTimezone).toISOString());
     }
 
     const { data } = await query;
@@ -122,8 +183,12 @@ export default async function RandevularPage({
     const sp = new URLSearchParams();
     if (status) sp.set("status", status);
     if (params.q) sp.set("q", params.q);
-    if (params.from) sp.set("from", params.from);
-    if (params.to) sp.set("to", params.to);
+    if (fromDay) sp.set("from", fromDay);
+    if (toDay) sp.set("to", toDay);
+    // Durum sekmesi değişince diğer filtreler kaybolmasın.
+    if (staffFilter) sp.set("personel", staffFilter);
+    if (sortParam) sp.set("sirala", sortParam);
+    if (todayOnly) sp.set("bugun", "1");
     const qs = sp.toString();
     return qs ? `/dashboard/randevular?${qs}` : "/dashboard/randevular";
   }
@@ -146,7 +211,15 @@ export default async function RandevularPage({
         }))}
       />
 
-      <RandevularFilters q={params.q} from={params.from} to={params.to} />
+      <RandevularFilters
+        q={params.q}
+        from={fromDay}
+        to={toDay}
+        staff={(staff ?? []).map((s) => ({ id: s.id, full_name: s.full_name }))}
+        staffId={staffFilter}
+        sort={sortParam}
+        bugun={todayOnly}
+      />
 
       {/* Status filters */}
       <div className="flex gap-2 flex-wrap">

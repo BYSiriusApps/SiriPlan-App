@@ -209,6 +209,12 @@ export function BookingWizard({
           appointment_at: appointmentAt,
           note: form.note || undefined,
           source: "web",
+          // Bu istek herkese açık randevu sayfasından geliyor. Salon sahibi
+          // kendi tarayıcısında panele girmişken bu linki açtığında oturum
+          // çerezi /api/appointments'a da gider ve istek "panelden girilmiş"
+          // sanılıyordu — engellenen müşteri, online'a kapalı hizmet ve fiyat
+          // koruması dahil tüm anonim akış kontrolleri sessizce atlanıyordu.
+          booking_context: "public",
           kvkk_consent: kvkkAccepted,
           marketing_consent: marketingAccepted,
           kvkk_notice_snapshot: renderKvkkNotice(org.kvkk_notice_text, org.name),

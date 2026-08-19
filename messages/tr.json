@@ -906,6 +906,7 @@
     "permissions": {
       "view_customers": "Müşterileri görsün",
       "edit_customers": "Müşterileri düzenleyebilsin",
+      "delete_customers": "Müşteri silebilsin",
       "view_reports": "Raporları görsün",
       "edit_services": "Hizmetleri düzenleyebilsin",
       "manage_staff": "Personeli yönetebilsin",
@@ -934,6 +935,9 @@
       "permissionsLabel": "İzinler",
       "saveButton": "Yetkileri Kaydet",
       "savedToast": "Yetkiler güncellendi",
+      "noPermissionText": "Personel yetkilerini yalnızca işletme sahibi veya personel yönetme izni olan kullanıcılar düzenleyebilir.",
+      "ownerTargetText": "Bu kayıt işletme sahibine ait — yetkileri buradan değiştirilemez.",
+      "selfEditText": "Kendi yetkilerinizi değiştiremezsiniz. Değişiklik için işletme sahibine başvurun.",
       "saveFailedToast": "Yetkiler güncellenemedi"
     },
     "staffInvite": {

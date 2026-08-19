@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { waMessageLink } from "@/lib/wa-template";
+import { normalizePhone } from "@/lib/phone";
 
 /**
  * Panel-yetkili: müşteri o an yanında değilken (telefon/geçmiş kayıt) KVKK
@@ -18,10 +19,33 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => ({}));
   const customerId = typeof body.customer_id === "string" ? body.customer_id : undefined;
-  const phone = typeof body.phone === "string" ? body.phone : undefined;
-  if (!phone) return NextResponse.json({ error: "Telefon gerekli" }, { status: 400 });
+  const rawPhone = typeof body.phone === "string" ? body.phone : undefined;
+  if (!rawPhone) return NextResponse.json({ error: "Telefon gerekli" }, { status: 400 });
 
   const admin = await createAdminClient();
+
+  // customer_id gövdeden geliyor ve bu uç service_role ile yazıyor. Sahiplik
+  // doğrulanmazsa bir salon, BAŞKA bir salonun müşteri id'siyle onay isteği
+  // üretebilir; müşteri linke tıkladığında /api/public/consent o id üzerinden
+  // yabancı işletmenin müşteri kaydındaki kvkk/pazarlama onaylarını günceller.
+  // Telefon da müşterinin kendi kaydından alınır: gövdedeki numaraya güvenilseydi
+  // onay, kaydın numarasından farklı bir numara adına kayda geçebilirdi.
+  let phone = normalizePhone(rawPhone);
+  if (customerId) {
+    const { data: owned } = await admin
+      .from("customers")
+      .select("id, phone")
+      .eq("id", customerId)
+      .eq("org_id", member.org_id)
+      .maybeSingle();
+    if (!owned) {
+      return NextResponse.json({ error: "Müşteri bulunamadı" }, { status: 404 });
+    }
+    phone = normalizePhone(owned.phone ?? rawPhone);
+  }
+  if (phone.length < 10) {
+    return NextResponse.json({ error: "Geçersiz telefon numarası" }, { status: 400 });
+  }
   const token = randomBytes(16).toString("hex");
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 

@@ -102,6 +102,7 @@ export default async function PersonelPage() {
             </Link>
             <StaffInviteDialog
               staffList={(staff || []).map((s) => ({ id: s.id, full_name: s.full_name }))}
+              viewerIsOwner={m.role === "owner"}
             />
             {m.role === "owner" && (staff?.length || 0) < maxStaff && (
               <Link

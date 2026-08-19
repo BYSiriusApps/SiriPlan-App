@@ -15,6 +15,8 @@ export interface Organization {
   email: string | null;
   address: string | null;
   city: string | null;
+  /** VKN (10 hane) veya TCKN (11 hane) — opsiyonel. Migration gecikirse alan hiç gelmeyebilir. */
+  tax_number?: string | null;
   location_url: string | null;
   logo_url: string | null;
   cover_url: string | null;

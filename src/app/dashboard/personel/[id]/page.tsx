@@ -15,9 +15,9 @@ import { toast } from "sonner";
 import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell, ShieldCheck, Activity, CalendarX, Trash2 } from "lucide-react";
 import type { StaffTimeOff } from "@/types/database";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
-import { PERM_KEYS, DEFAULT_PERMS } from "@/lib/permissions";
+import { DEFAULT_PERMS } from "@/lib/permissions";
 import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
-import { StaffInviteDialog } from "@/components/dashboard/StaffInviteDialog";
+import { StaffInviteDialog, PermissionChecklist } from "@/components/dashboard/StaffInviteDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
@@ -68,7 +68,10 @@ export default function PersonelDetayPage() {
   // Giriş hesabı yetkileri (org_members.role + permissions_json)
   const [permsLoading, setPermsLoading] = useState(true);
   const [permsSaving, setPermsSaving] = useState(false);
+  const [permsForbidden, setPermsForbidden] = useState(false);
   const [linked, setLinked] = useState(false);
+  const [isSelf, setIsSelf] = useState(false);
+  const [targetIsOwner, setTargetIsOwner] = useState(false);
   const [memberRole, setMemberRole] = useState<"staff" | "manager">("staff");
   const [perms, setPerms] = useState<Record<string, boolean>>(DEFAULT_PERMS.staff);
   const [viewerRole, setViewerRole] = useState<string>("staff");
@@ -76,17 +79,22 @@ export default function PersonelDetayPage() {
 
   useEffect(() => {
     fetch(`/api/staff/${id}/permissions`)
-      .then((r) => r.json())
-      .then((d) => {
+      .then(async (r) => ({ ok: r.ok, body: await r.json().catch(() => ({})) }))
+      .then(({ ok, body: d }) => {
+        // 403 → bu kullanıcı yetki yönetemez. Eskiden hata gövdesi de normal
+        // yanıt gibi işleniyor ve "bu personelin hesabı yok" yazıyordu.
+        if (!ok) { setPermsForbidden(true); return; }
         setLinked(!!d.linked);
+        setIsSelf(!!d.isSelf);
+        setTargetIsOwner(d.role === "owner");
         setViewerRole(d.viewerRole ?? "staff");
         setViewerCanManageStaff(!!d.viewerPermissions?.manage_staff);
-        if (d.linked) {
+        if (d.linked && d.role !== "owner") {
           setMemberRole(d.role === "manager" ? "manager" : "staff");
           setPerms({ ...DEFAULT_PERMS[d.role === "manager" ? "manager" : "staff"], ...(d.permissions_json ?? {}) });
         }
       })
-      .catch(() => {})
+      .catch(() => setPermsForbidden(true))
       .finally(() => setPermsLoading(false));
   }, [id]);
 
@@ -147,6 +155,11 @@ export default function PersonelDetayPage() {
       toast.error("İzin silinemedi");
     }
   }
+
+  /** Yetki yönetebilir mi? (davet gönderme + izin düzenleme) */
+  const canManagePerms = viewerRole === "owner" || viewerCanManageStaff;
+  /** Kendi yetkisini kimse değiştiremez — sunucu da aynı kuralı uygular. */
+  const canEditPerms = canManagePerms && !isSelf && !targetIsOwner;
 
   async function handleSavePerms() {
     setPermsSaving(true);
@@ -486,24 +499,37 @@ export default function PersonelDetayPage() {
             <div className="flex justify-center py-6">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
+          ) : permsForbidden ? (
+            <p className="text-sm text-muted-foreground">{t("noPermissionText")}</p>
           ) : !linked ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 {t("noAccountText")}
-                {viewerRole === "owner" || viewerCanManageStaff
-                  ? t("noAccountOwnerHint")
-                  : t("noAccountStaffHint")}
+                {canManagePerms ? t("noAccountOwnerHint") : t("noAccountStaffHint")}
               </p>
-              {(viewerRole === "owner" || viewerCanManageStaff) && (
-                <StaffInviteDialog staffList={[]} preselectedStaffId={id} />
+              {canManagePerms && (
+                <StaffInviteDialog
+                  staffList={[]}
+                  preselectedStaffId={id}
+                  viewerIsOwner={viewerRole === "owner"}
+                />
               )}
             </div>
+          ) : targetIsOwner ? (
+            <p className="text-sm text-muted-foreground">{t("ownerTargetText")}</p>
           ) : (
             <div className="space-y-4">
+              {isSelf && (
+                <p className="text-xs rounded-lg border border-amber-200 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 px-3 py-2">
+                  {t("selfEditText")}
+                </p>
+              )}
+
               <div className="space-y-1">
                 <Label className="text-xs">{t("roleLabel")}</Label>
                 <Select
                   value={memberRole}
+                  disabled={!canEditPerms}
                   onValueChange={(v) => {
                     const role = (v ?? "staff") as "staff" | "manager";
                     setMemberRole(role);
@@ -515,7 +541,12 @@ export default function PersonelDetayPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="staff">{t("roleStaff")}</SelectItem>
-                    <SelectItem value="manager">{t("roleManager")}</SelectItem>
+                    {/* Yönetici rolünü yalnızca işletme sahibi verebilir —
+                        aksi halde manage_staff yetkisi olan bir yönetici
+                        sınırsız yeni yönetici üretebilirdi. */}
+                    {(viewerRole === "owner" || memberRole === "manager") && (
+                      <SelectItem value="manager">{t("roleManager")}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground">
@@ -523,29 +554,24 @@ export default function PersonelDetayPage() {
                 </p>
               </div>
 
-              <div className="space-y-1.5 pt-2 border-t">
+              <div className="space-y-2 pt-2 border-t">
                 <Label className="text-xs font-medium">{t("permissionsLabel")}</Label>
-                <div className="grid sm:grid-cols-2 gap-1.5">
-                  {PERM_KEYS.map((key) => (
-                    <label key={key} className="flex items-center gap-2 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={!!perms[key]}
-                        onChange={() => setPerms((p) => ({ ...p, [key]: !p[key] }))}
-                        className="rounded text-primary"
-                      />
-                      <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-                        {tp(key)}
-                      </span>
-                    </label>
-                  ))}
-                </div>
+                <PermissionChecklist
+                  permissions={perms}
+                  onToggle={(key) => setPerms((p) => ({ ...p, [key]: !p[key] }))}
+                  viewerIsOwner={viewerRole === "owner"}
+                  label={tp}
+                  idPrefix="staff"
+                  disabled={!canEditPerms}
+                />
               </div>
 
-              <Button size="sm" onClick={handleSavePerms} disabled={permsSaving} className="gap-1.5">
-                {permsSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
-                {t("saveButton")}
-              </Button>
+              {canEditPerms && (
+                <Button size="sm" onClick={handleSavePerms} disabled={permsSaving} className="gap-1.5">
+                  {permsSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+                  {t("saveButton")}
+                </Button>
+              )}
             </div>
           )}
         </CardContent>

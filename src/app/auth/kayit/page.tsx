@@ -9,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Building2, Mail, Lock, Phone, User, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Loader2, Building2, Mail, Lock, Phone, User, AlertCircle, CheckCircle2, Hash } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { TIMEZONE_OPTIONS } from "@/lib/timezones";
+import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
 
 function isMobileDevice() {
   if (typeof navigator === "undefined") return false;
@@ -61,6 +62,7 @@ export default function KayitPage() {
   const [form, setForm] = useState({
     salonName: "", type: "kuafor", fullName: "",
     email: "", phone: "", countryCode: "90", password: "",
+    taxNumber: "",
     timezone: "Europe/Istanbul",
     // Honeypot — ekranda görünmez, sadece otomatik form doldurucular doldurur
     // (bkz. lib/bot-guard.ts). Sunucu bu alan doluysa kaydı reddeder.
@@ -71,6 +73,7 @@ export default function KayitPage() {
   const formStartedAt = useRef<number>(Date.now());
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [taxError, setTaxError] = useState("");
   const [kvkkChecked, setKvkkChecked] = useState(false);
   const [gizlilikChecked, setGizlilikChecked] = useState(false);
   const [marketingChecked, setMarketingChecked] = useState(false);
@@ -80,6 +83,7 @@ export default function KayitPage() {
     setForm((f) => ({ ...f, [field]: value }));
     if (field === "email") setEmailError("");
     if (field === "phone" || field === "countryCode") setPhoneError("");
+    if (field === "taxNumber") setTaxError("");
   }
 
   function validateEmail(email: string) {
@@ -113,6 +117,7 @@ export default function KayitPage() {
     e.preventDefault();
     if (!validateEmail(form.email)) return;
     if (!validatePhone(form.phone, form.countryCode)) return;
+    if (!isValidTaxNumber(form.taxNumber)) { setTaxError(TAX_NUMBER_ERROR); toast.error(TAX_NUMBER_ERROR); return; }
     if (form.password.length < 8) { toast.error("Şifre en az 8 karakter olmalı."); return; }
     if (!form.salonName.trim()) { toast.error("İşletme adı zorunludur."); return; }
     if (!kvkkChecked || !gizlilikChecked) {
@@ -135,6 +140,7 @@ export default function KayitPage() {
           salonName: form.salonName.trim(),
           fullName: form.fullName.trim(),
           phone: buildPhone(form.countryCode, form.phone),
+          taxNumber: form.taxNumber || undefined,
           businessType: form.type,
           timezone: form.timezone,
           locale: selectedLocale,
@@ -269,6 +275,28 @@ export default function KayitPage() {
               <Input placeholder="Salon Adınız" className="pl-9" value={form.salonName}
                 onChange={(e) => set("salonName", e.target.value)} required minLength={2} maxLength={60} />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>
+              VKN / TC Kimlik No{" "}
+              <span className="text-xs font-normal text-muted-foreground">(isteğe bağlı)</span>
+            </Label>
+            <div className="relative">
+              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                inputMode="numeric"
+                placeholder="Vergi No (10 hane) veya TCKN (11 hane)"
+                className={`pl-9 ${taxError ? "border-red-500" : ""}`}
+                value={form.taxNumber}
+                onChange={(e) => set("taxNumber", normalizeTaxNumber(e.target.value))}
+                onBlur={() => { if (!isValidTaxNumber(form.taxNumber)) setTaxError(TAX_NUMBER_ERROR); }}
+                maxLength={TAX_NUMBER_MAX_LENGTH}
+              />
+            </div>
+            {taxError
+              ? <p className="text-xs text-red-500 mt-0.5">{taxError}</p>
+              : <p className="text-xs text-muted-foreground">Faturalandırma için kullanılır, sonradan Ayarlar&apos;dan da girebilirsiniz.</p>}
           </div>
 
           <div className="space-y-1.5">

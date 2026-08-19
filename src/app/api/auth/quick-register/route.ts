@@ -6,6 +6,7 @@ import { seedDefaultServices } from "@/lib/services/seed";
 import { TRIAL_PLAN_LIMITS } from "@/lib/entitlements";
 import { limitByIp, clientIp, tooManyRequests } from "@/lib/rate-limit";
 import { detectBot, BOT_REJECTION_MESSAGE } from "@/lib/bot-guard";
+import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR } from "@/lib/tax-number";
 
 const VALID_BUSINESS_TYPES = new Set([
   "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik",
@@ -57,6 +58,12 @@ export async function POST(req: NextRequest) {
     fullName: string; phone: string; businessType: string;
     timezone?: string; locale?: string; kvkkConsent: boolean; marketingConsent: boolean;
   };
+
+  // VKN/TCKN opsiyonel — boş gelebilir, doluysa 10 veya 11 hane olmalı.
+  const taxNumber = normalizeTaxNumber((body as { taxNumber?: unknown }).taxNumber);
+  if (!isValidTaxNumber(taxNumber)) {
+    return NextResponse.json({ error: TAX_NUMBER_ERROR }, { status: 400 });
+  }
 
   const botCheck = detectBot({
     honeypot: (body as { website?: unknown }).website,
@@ -165,12 +172,16 @@ export async function POST(req: NextRequest) {
     timezone: orgTimezone,
   };
 
-  // signup_ip kolonu henüz uygulanmamış olabilir (migration sırası) — bu durumda
-  // insert 42703 ile döner ve kolonsuz payload'la yeniden denenir. Kayıt akışı
-  // bir güvenlik iyileştirmesi yüzünden asla kırılmamalı.
+  // signup_ip ve tax_number kolonları henüz uygulanmamış olabilir (migration
+  // sırası) — bu durumda insert 42703 ile döner ve bu kolonlar olmadan yeniden
+  // denenir. Kayıt akışı bir güvenlik/alan eklemesi yüzünden asla kırılmamalı.
   let { data: org, error: orgErr } = await admin
     .from("organizations")
-    .insert({ ...orgPayload, signup_ip: signupIp === "unknown" ? null : signupIp })
+    .insert({
+      ...orgPayload,
+      signup_ip: signupIp === "unknown" ? null : signupIp,
+      tax_number: taxNumber || null,
+    })
     .select("id")
     .single();
 
