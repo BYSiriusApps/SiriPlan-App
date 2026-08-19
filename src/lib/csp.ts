@@ -57,6 +57,53 @@ export function generateNonce(): string {
  */
 const isDev = process.env.NODE_ENV === "development";
 
+/** Tarayıcı ihlal raporlarının gönderileceği uç (bkz. api/csp-report). */
+export const CSP_REPORT_URI = "/api/csp-report";
+
+/**
+ * FAZ 2 — yalnızca RAPORLAYAN aday politika.
+ *
+ * Faz 3'te uygulamayı düşündüğümüz sıkılaştırmaları, HİÇBİR ŞEYİ ENGELLEMEDEN
+ * canlıda ölçmek için. Tarayıcı bu politikayı ihlal eden bir şey görürse
+ * sayfayı bozmaz, sadece /api/csp-report'a bir rapor yollar.
+ *
+ * Aday sıkılaştırmalar:
+ *   • style-src'den 'unsafe-inline' kaldırılır → recharts/sonner gerçekten
+ *     nonce'suz <style> enjekte ediyor mu, VARSAYMAK yerine ölçeriz.
+ *   • frame-ancestors 'self' → 'none' (panelin kendi iframe'ine bile gerek yok).
+ *
+ * Varsayılan KAPALI: açmak için CSP_REPORT_ONLY=1. Kapalıyken ikinci başlık
+ * hiç gönderilmez, dolayısıyla ne ek bant genişliği ne de rapor trafiği olur.
+ */
+export function isReportOnlyEnabled(): boolean {
+  return process.env.CSP_REPORT_ONLY === "1" || process.env.CSP_REPORT_ONLY === "true";
+}
+
+export function buildCandidateCsp(nonce?: string | null): string {
+  const scriptSrc = nonce
+    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`
+    : `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com`;
+
+  return [
+    "default-src 'self'",
+    scriptSrc,
+    // ÖLÇÜLEN VARSAYIM: 'unsafe-inline' olmadan panel kaç ihlal üretiyor?
+    nonce ? `style-src 'self' 'nonce-${nonce}'` : "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com https://www.google-analytics.com",
+    "font-src 'self'",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://graph.facebook.com https://www.google-analytics.com https://www.googletagmanager.com",
+    "frame-src https://js.stripe.com https://hooks.stripe.com",
+    "worker-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    // upgrade-insecure-requests BİLEREK YOK: tarayıcı bu direktifi report-only
+    // politikada yok sayar ve her sayfada konsola uyarı basar. Uygulanan
+    // politikada (buildCsp) duruyor, orası zaten geçerli yer.
+    `report-uri ${CSP_REPORT_URI}`,
+  ].join("; ");
+}
 export function buildCsp(nonce?: string | null): string {
   // 'strict-dynamic': nonce'lu bir script'in YÜKLEDİĞİ script'lere de güvenilir.
   // Stripe.js, @stripe/stripe-js tarafından çalışma zamanında <script> olarak
@@ -96,5 +143,8 @@ export function buildCsp(nonce?: string | null): string {
     // otomatik https'e yükseltilir — karışık içerik (mixed content) yoluyla
     // oturum çerezinin düz metin gitmesini engeller.
     "upgrade-insecure-requests",
+    // Engellenen (enforce) bir ihlal canlıda bir şeyin BOZULDUĞU anlamına
+    // gelir; report-uri olmadan bunu ancak kullanıcı şikâyetinden duyarız.
+    `report-uri ${CSP_REPORT_URI}`,
   ].join("; ");
 }

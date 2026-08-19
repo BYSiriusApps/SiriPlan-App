@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "./lib/supabase/middleware";
 import { getSubscriptionLock } from "./lib/subscription-lock";
 import { MOBILE_APP_COOKIE, isMobileAppUserAgent, isMobileAppCookieValue } from "./lib/mobile-app-shared";
-import { CSP_NONCE_HEADER, buildCsp, generateNonce, isNonceEnabled, pathNeedsNonce } from "./lib/csp";
+import { CSP_NONCE_HEADER, buildCsp, buildCandidateCsp, generateNonce, isNonceEnabled, isReportOnlyEnabled, pathNeedsNonce } from "./lib/csp";
 
 // Routes that require at minimum "manager" role
 const MANAGER_ROUTES = [
@@ -49,6 +49,10 @@ const PUBLIC_API_WRITE_PREFIXES = [
   // Kötüye kullanım koruması ucun kendi içinde: IP başına saatte 20 istek +
   // 1000 karakter sınırı (route.ts).
   "/api/chat",
+  // Tarayıcının CSP ihlal raporu. Oturumsuz sayfalardan da (pazarlama,
+  // /r/[slug]) gelir; buradaki genel "yazma için oturum şart" kuralına
+  // takılırsa tam da en çok ihtiyaç duyduğumuz raporlar 401 ile kaybolur.
+  "/api/csp-report",
 ];
 
 // Deneme süresi dolan / ödemesi başarısız olan işletmeler için yazma
@@ -69,6 +73,7 @@ const SUBSCRIPTION_LOCK_EXEMPT_PREFIXES = [
   "/api/customers", // randevu akışında otomatik müşteri kaydı
   "/api/staff-time-off", // personel izin/kapalı gün kaydı — takvim bütünlüğü için
   "/api/account", // hesap silme — deneme/ödeme durumundan bağımsız her zaman açık olmalı
+  "/api/csp-report", // telemetri — abonelik durumuyla ilgisi yok
 ];
 
 // Android Trusted Web Activity (PWABuilder'ın ürettiği Play Store paketi) ilk
@@ -174,6 +179,12 @@ export async function proxy(request: NextRequest) {
   // (_next/, favicon, uzantılı dosyalar); onların CSP'ye ihtiyacı yok.
   if (response) {
     response.headers.set("Content-Security-Policy", buildCsp(nonce));
+    // FAZ 2: aday (daha sıkı) politika yalnızca RAPORLAYICI olarak eklenir —
+    // hiçbir şeyi engellemez, sadece Faz 3'te neyin kırılacağını ölçer.
+    // CSP_REPORT_ONLY=1 verilmedikçe bu başlık hiç gönderilmez.
+    if (isReportOnlyEnabled()) {
+      response.headers.set("Content-Security-Policy-Report-Only", buildCandidateCsp(nonce));
+    }
   }
   return response;
 }
