@@ -46,3 +46,6 @@ next-env.d.ts
 # demo görsel üretimi sırasında oluşan geçici dosyalar
 /.tmp-scripts/
 /scripts/demo-assets/generated/
+
+# Claude Code yerel araç önbelleği (13MB vendored skill betikleri + kişisel ayarlar)
+.claude/

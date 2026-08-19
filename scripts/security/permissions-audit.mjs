@@ -106,14 +106,19 @@ async function signIn(a) {
 
 // ─── Uygulama oturumu (çerezli) ──────────────────────────────
 async function appLogin(a) {
+  // /api/auth/login sözleşmesi: { identifier, password } — identifier e-posta
+  // veya telefon olabilir (bkz. src/app/api/auth/login/route.ts).
   const res = await fetch(`${APP_BASE}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: a.email, password: a.password }),
+    body: JSON.stringify({ identifier: a.email, password: a.password }),
   });
   const setCookie = res.headers.getSetCookie?.() ?? [];
   const cookie = setCookie.map((c) => c.split(";")[0]).join("; ");
-  if (!cookie) throw new Error(`${a.label} uygulama girişi başarısız (${res.status})`);
+  if (!res.ok || !cookie) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`${a.label} uygulama girişi başarısız (${res.status}) ${body.slice(0, 120)}`);
+  }
   return cookie;
 }
 
@@ -207,12 +212,30 @@ async function main() {
 
   // Sahibin gözünden personel listesi → staff_id'ler
   const staffList = await api("/api/staff", { cookie: cookie.owner });
-  const rows = staffList.json?.staff ?? staffList.json ?? [];
-  const byName = (n) => rows.find((s) => (s.full_name ?? "").toLowerCase().includes(n));
-  const elif = byName("elif demir");   // personel1.demo
-  const murat = byName("murat");        // yonetici.demo
+  const rows = staffList.json?.staff ?? [];
+  // staff_id eşlemesi org_members üzerinden çözülür — personel adı yerine
+  // gerçek üyelik satırına bakmak testi isim değişikliklerine bağışık kılar.
+  const members = (await rest(`org_members?org_id=eq.${DEMO_ORG}&select=user_id,role,staff_id`, { token: tok.owner })).json ?? [];
+  const uid = async (t) => (await (await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: ANON_KEY, Authorization: `Bearer ${t}` },
+  })).json()).id;
+  const uidOwner = await uid(tok.owner);
+  const uidStaff = await uid(tok.staff);
+  const staffMember = members.find((m) => m.user_id === uidStaff);
+  const ownerMember = members.find((m) => m.user_id === uidOwner);
+  const elif = staffMember?.staff_id ? { id: staffMember.staff_id } : null;
+  const ownerStaffId = ownerMember?.staff_id;
 
-  record(!!elif, "Test personeli (Elif Demir) bulundu", elif ? `staff_id=${elif.id}` : `${rows.length} personel döndü`);
+  record(!!elif, "Test personelinin üyelik/staff eşlemesi bulundu",
+    elif ? `staff_id=${elif.id}, rol=${staffMember.role}` : `${rows.length} personel, ${members.length} üyelik döndü`);
+
+  // Test personelinin izinleri birkaç denemede yazılıyor — orijinali sakla,
+  // katman sonunda aynen geri yaz.
+  let elifOriginal = null;
+  if (elif) {
+    const snap = await api(`/api/staff/${elif.id}/permissions`, { cookie: cookie.owner });
+    elifOriginal = snap.json?.permissions_json ?? null;
+  }
 
   if (elif) {
     // 2a) Personel rolü yetki uçlarına hiç erişememeli
@@ -224,12 +247,63 @@ async function main() {
     });
     record(staffPatch.status === 403, "Personel rolü yetki yükseltemiyor", `HTTP ${staffPatch.status}`);
 
-    // 2b) manage_staff'i OLMAYAN yönetici de erişememeli
-    const mgrGet = await api(`/api/staff/${elif.id}/permissions`, { cookie: cookie.manager });
-    const mgrPerms = (await api("/api/org", { cookie: cookie.manager })).json;
-    record(mgrGet.status === 403,
-      "manage_staff'i olmayan yönetici yetki uçlarına erişemiyor (eski açık kapandı)",
-      `HTTP ${mgrGet.status}${mgrPerms ? "" : ""}`);
+    // 2b) manage_staff'i OLMAYAN yönetici erişememeli.
+    //
+    // Demo yöneticisinde bu izin AÇIK olduğu için (200 dönmesi doğru davranış),
+    // asıl açığı ölçmek üzere izin GEÇİCİ olarak kapatılır, 403 doğrulanır ve
+    // hemen eski hâline döndürülür. Geri alma finally'de garanti altındadır.
+    const mgrMember = members.find((m) => m.role === "manager" && m.staff_id);
+    if (mgrMember) {
+      const before = await api(`/api/staff/${mgrMember.staff_id}/permissions`, { cookie: cookie.owner });
+      const original = before.json?.permissions_json ?? {};
+      const hadManageStaff = !!original.manage_staff;
+      try {
+        if (hadManageStaff) {
+          await api(`/api/staff/${mgrMember.staff_id}/permissions`, {
+            cookie: cookie.owner, method: "PATCH",
+            body: { permissions_json: { ...original, manage_staff: false } },
+          });
+        }
+        // Yönetici oturumu izni yeniden okusun diye taze giriş
+        const freshMgr = await appLogin(ACCOUNTS.manager);
+        const mgrGet = await api(`/api/staff/${elif.id}/permissions`, { cookie: freshMgr });
+        const mgrPatch = await api(`/api/staff/${elif.id}/permissions`, {
+          cookie: freshMgr, method: "PATCH", body: { permissions_json: { manage_staff: true } },
+        });
+        record(mgrGet.status === 403 && mgrPatch.status === 403,
+          "manage_staff'i OLMAYAN yönetici yetki uçlarına erişemiyor (eski açık kapandı)",
+          `GET ${mgrGet.status}, PATCH ${mgrPatch.status}`);
+      } finally {
+        if (hadManageStaff) {
+          const restore = await api(`/api/staff/${mgrMember.staff_id}/permissions`, {
+            cookie: cookie.owner, method: "PATCH", body: { permissions_json: original },
+          });
+          const ok = !!restore.json?.permissions_json?.manage_staff;
+          record(ok, "Yöneticinin manage_staff izni eski hâline döndürüldü",
+            ok ? "geri alındı" : "GERİ ALINAMADI — elle kontrol edin!");
+          if (!ok) leftovers.push(`org_members.staff_id=${mgrMember.staff_id} manage_staff geri alınamadı`);
+        }
+      }
+    } else {
+      record(true, "Demo org'da staff_id eşlemesi olan yönetici yok — test atlandı", "");
+    }
+
+    // 2b-2) manage_staff'i olan yönetici, manager rolü / manage_staff DEVREDEMEZ
+    const mgrEscalate = await api(`/api/staff/${elif.id}/permissions`, {
+      cookie: cookie.manager, method: "PATCH", body: { role: "manager" },
+    });
+    record(mgrEscalate.status === 403,
+      "Yönetici (manage_staff'li olsa da) yeni yönetici üretemiyor",
+      `HTTP ${mgrEscalate.status} — ${mgrEscalate.json?.error ?? ""}`);
+
+    const mgrGrant = await api(`/api/staff/${elif.id}/permissions`, {
+      cookie: cookie.manager, method: "PATCH",
+      body: { permissions_json: { view_customers: true, manage_staff: true } },
+    });
+    const granted = !!mgrGrant.json?.permissions_json?.manage_staff;
+    record(mgrGrant.status === 200 && !granted,
+      "Yönetici, personele manage_staff izni veremiyor (sessizce yok sayılır)",
+      `HTTP ${mgrGrant.status}, manage_staff=${granted}`);
 
     // 2c) Sahip erişebilmeli (meşru yol bozulmadı)
     const ownerGet = await api(`/api/staff/${elif.id}/permissions`, { cookie: cookie.owner });
@@ -247,15 +321,26 @@ async function main() {
       `kaydedilen anahtarlar: ${Object.keys(saved).join(", ") || "—"}`);
   }
 
-  if (murat) {
-    // 2e) Sahip kendi satırını düzenleyememeli
-    const ownerStaffRow = rows.find((s) => (s.full_name ?? "").toLowerCase().includes("selin"));
-    if (ownerStaffRow) {
-      const self = await api(`/api/staff/${ownerStaffRow.id}/permissions`, {
-        cookie: cookie.owner, method: "PATCH", body: { role: "staff" },
-      });
-      record(self.status === 403, "Sahip kendi üyeliğini bu uçtan değiştiremiyor", `HTTP ${self.status}`);
-    }
+  // 2e) Kimse kendi üyeliğini bu uçtan değiştiremez
+  if (ownerStaffId) {
+    const self = await api(`/api/staff/${ownerStaffId}/permissions`, {
+      cookie: cookie.owner, method: "PATCH", body: { role: "staff" },
+    });
+    record(self.status === 403, "Sahip kendi üyeliğini bu uçtan değiştiremiyor",
+      `HTTP ${self.status} — ${self.json?.error ?? ""}`);
+  } else {
+    record(true, "Sahibin staff_id eşlemesi yok — kendi satırı bu uçtan zaten erişilemez", "staff_id=null");
+  }
+
+  // Test personelinin izinlerini eski hâline döndür
+  if (elif && elifOriginal) {
+    const restored = await api(`/api/staff/${elif.id}/permissions`, {
+      cookie: cookie.owner, method: "PATCH", body: { permissions_json: elifOriginal },
+    });
+    const same = JSON.stringify(restored.json?.permissions_json ?? {}) === JSON.stringify(elifOriginal);
+    record(same, "Test personelinin izinleri eski hâline döndürüldü",
+      same ? "geri alındı" : `beklenen ${JSON.stringify(elifOriginal)}, gelen ${JSON.stringify(restored.json?.permissions_json)}`);
+    if (!same) leftovers.push(`org_members.staff_id=${elif.id} izinleri geri alınamadı`);
   }
 
   // 2f) Personel davet gönderemez
