@@ -132,6 +132,16 @@ function isMobileAppRequest(request: NextRequest): boolean {
 // native taraf bu sayfalara asla ulaşamamalı. Personel daveti/e-posta
 // doğrulama/şifre sıfırlama gibi meşru hesap işlemleri istisna: bunlar yeni
 // abonelik başlatmaz, sadece mevcut hesapla ilgili işlemlerdir.
+//
+// İŞLETMENİN KENDİ MÜŞTERİ SAYFALARI İSTİSNA (/r/, /randevu/, /onay/):
+// Bunlar Siriplan'ın pazarlama sayfaları değil, salonun kendi randevu
+// sayfası, randevu detay ve KVKK onay ekranlarıdır — üzerlerinde Siriplan
+// fiyatı, plan yükseltme veya hesap açma çağrısı YOKTUR (tek dış bağlantı
+// footer'daki bysirius.com). Bunlar engellenince salon sahibi Ayarlar'daki
+// "Randevu linkim" ve "Örnek Web Sitesini Görüntüle" bağlantılarına
+// dokunduğunda kendi sayfasını göremiyor, /dashboard'a geri atılıyordu
+// (Android TWA, Chrome'un çerez kavanozunu paylaştığı için `sp_app=1`
+// çerezi normal mobil Chrome'a da bulaşır ve etki uygulama dışına taşar).
 const MOBILE_APP_ALLOWED_PREFIXES = [
   "/dashboard",
   "/admin",
@@ -142,6 +152,9 @@ const MOBILE_APP_ALLOWED_PREFIXES = [
   "/auth/dogrula",
   "/auth/sifre-sifirla",
   "/auth/yeni-sifre",
+  "/r/",       // salonun herkese açık randevu sayfası + /r/iptal/[token]
+  "/randevu/", // randevu detay (token'lı, müşteriye gönderilen link)
+  "/onay/",    // KVKK / kampanya onay ekranı (token'lı)
 ];
 
 // Bu istek için CSP nonce'u üretilmeli mi?
