@@ -98,7 +98,7 @@ export default async function PersonelPage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-accent transition-colors"
             >
               <Wallet className="h-4 w-4" />
-              Maaş Hesapla
+              {t("staffPage.salaryCalc")}
             </Link>
             <StaffInviteDialog
               staffList={(staff || []).map((s) => ({ id: s.id, full_name: s.full_name }))}
@@ -109,7 +109,7 @@ export default async function PersonelPage() {
                 href="/dashboard/personel/yeni"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
               >
-                {t("addStaff")}
+                {t("staffPage.addStaff")}
               </Link>
             )}
           </div>
@@ -121,11 +121,18 @@ export default async function PersonelPage() {
         <Card className="border-amber-200 bg-amber-50 dark:bg-amber-900/20">
           <CardContent className="p-4 text-sm text-amber-800 dark:text-amber-300">
             {mobileApp ? (
-              "Personel limitinize ulaştınız."
+              t("staffPage.limitNative")
             ) : (
               <>
-                Personel limitinize ulaştınız. Daha fazla eklemek için{" "}
-                <Link href="/dashboard/abonelik" className="underline font-medium">planınızı yükseltin</Link>.
+                {/* React öğesi taşıyan yer tutucu için t() değil t.rich() gerekir;
+                    t() yalnızca düz metin/sayı kabul eder. */}
+                {t.rich("staffPage.upgradePrompt", {
+                  link: (chunks) => (
+                    <Link href="/dashboard/abonelik" className="underline font-medium">
+                      {chunks}
+                    </Link>
+                  ),
+                })}
               </>
             )}
           </CardContent>
@@ -139,7 +146,7 @@ export default async function PersonelPage() {
         {!staff || staff.length === 0 ? (
           <div className="col-span-full text-center py-12 text-muted-foreground">
             <UserCog className="h-10 w-10 mx-auto mb-3 opacity-30" />
-            <p>Henüz personel eklenmemiş</p>
+            <p>{t("staffPage.emptyState")}</p>
           </div>
         ) : (
           (staff as (Staff & { staff_services?: { services?: { name: string } }[] })[]).map((s) => (

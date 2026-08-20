@@ -61,6 +61,15 @@ const isDev = process.env.NODE_ENV === "development";
 export const CSP_REPORT_URI = "/api/csp-report";
 
 /**
+ * Cloudflare Turnstile (iletişim formu CAPTCHA'sı). Widget hem bir script
+ * indirir hem de bulmacayı bir iframe içinde açar — bu yüzden hem script-src
+ * hem frame-src'de olmak zorunda. NEXT_PUBLIC_TURNSTILE_SITE_KEY tanımlı
+ * değilken hiçbir istek çıkmaz; kaynağın listede durması zarar vermez, ama
+ * anahtar eklendiği gün CSP yüzünden sessizce bozulmayı da engeller.
+ */
+const TURNSTILE_ORIGIN = "https://challenges.cloudflare.com";
+
+/**
  * FAZ 2 — yalnızca RAPORLAYAN aday politika.
  *
  * Faz 3'te uygulamayı düşündüğümüz sıkılaştırmaları, HİÇBİR ŞEYİ ENGELLEMEDEN
@@ -82,7 +91,7 @@ export function isReportOnlyEnabled(): boolean {
 export function buildCandidateCsp(nonce?: string | null): string {
   const scriptSrc = nonce
     ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`
-    : `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com`;
+    : `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com ${TURNSTILE_ORIGIN}`;
 
   return [
     "default-src 'self'",
@@ -91,8 +100,8 @@ export function buildCandidateCsp(nonce?: string | null): string {
     nonce ? `style-src 'self' 'nonce-${nonce}'` : "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com https://www.google-analytics.com",
     "font-src 'self'",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://graph.facebook.com https://www.google-analytics.com https://www.googletagmanager.com",
-    "frame-src https://js.stripe.com https://hooks.stripe.com",
+    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://graph.facebook.com https://www.google-analytics.com https://www.googletagmanager.com ${TURNSTILE_ORIGIN}`,
+    `frame-src https://js.stripe.com https://hooks.stripe.com ${TURNSTILE_ORIGIN}`,
     "worker-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -115,7 +124,7 @@ export function buildCsp(nonce?: string | null): string {
   // düşer ve Stripe ödeme akışı orada da bozulmaz.
   const scriptSrc = nonce
     ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com`
-    : `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com`;
+    : `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com ${TURNSTILE_ORIGIN}`;
 
   return [
     "default-src 'self'",
@@ -127,8 +136,8 @@ export function buildCsp(nonce?: string | null): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com https://www.google-analytics.com",
     "font-src 'self'",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://graph.facebook.com https://www.google-analytics.com https://www.googletagmanager.com",
-    "frame-src https://js.stripe.com https://hooks.stripe.com",
+    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://graph.facebook.com https://www.google-analytics.com https://www.googletagmanager.com ${TURNSTILE_ORIGIN}`,
+    `frame-src https://js.stripe.com https://hooks.stripe.com ${TURNSTILE_ORIGIN}`,
     // PWA service worker (kurulabilirlik + "ana ekrana ekle") aynı origin'den
     // kayıt oluyor — 'none' bunu tamamen engelliyordu.
     "worker-src 'self'",

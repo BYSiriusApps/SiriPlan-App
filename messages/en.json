@@ -92,7 +92,12 @@
         "Data export (CSV)",
         "Email support"
       ],
-      "notIncluded": ["AI WhatsApp assistant", "Campaign module", "Customer score system", "Website mode"]
+      "notIncluded": [
+        "AI WhatsApp assistant",
+        "Campaign module",
+        "Customer score system",
+        "Website mode"
+      ]
     },
     "pro": {
       "name": "Pro",
@@ -107,9 +112,12 @@
         "PDF report export",
         "VAT calculation",
         "Personal booking link (siriplan.com/your-salon)",
-        "Website mode — customizable booking page with color palette, category photos and Google reviews"
+        "Website mode — customizable booking page with color palette and category photos"
       ],
-      "notIncluded": ["AI WhatsApp/IG assistant", "Custom domain"]
+      "notIncluded": [
+        "AI WhatsApp/IG assistant",
+        "Custom domain"
+      ]
     },
     "business": {
       "name": "Business",
@@ -201,53 +209,119 @@
       "booking": {
         "category": "Appointment Management",
         "items": {
-          "multiChannel": { "title": "Multi-Channel Online Booking", "desc": "Take bookings 24/7 via website, WhatsApp, Instagram DM, and QR code. Automatic conflict detection — double-booking never happens." },
-          "website": { "title": "Website Mode", "desc": "Turn your booking link into a full business page — color palette, cover photo, categorized services and Google reviews." },
-          "waitlist": { "title": "Waiting List", "desc": "Add customers to the waiting list when slots are full, notify them with one click, and convert them to appointments." },
-          "qr": { "title": "QR Code Booking", "desc": "Stick it on your salon door or print it on business cards. Customers scan and their appointment is ready." },
-          "reminders": { "title": "Automatic Reminders", "desc": "WhatsApp, SMS, and email reminders before appointments. Reduce your no-show rate by 60%." }
+          "multiChannel": {
+            "title": "Multi-Channel Online Booking",
+            "desc": "Take bookings 24/7 via website, WhatsApp, Instagram DM, and QR code. Automatic conflict detection — double-booking never happens."
+          },
+          "website": {
+            "title": "Website Mode",
+            "desc": "Turn your booking link into a full business page — color palette, cover photo and categorized services."
+          },
+          "waitlist": {
+            "title": "Waiting List",
+            "desc": "Add customers to the waiting list when slots are full, notify them with one click, and convert them to appointments."
+          },
+          "qr": {
+            "title": "QR Code Booking",
+            "desc": "Stick it on your salon door or print it on business cards. Customers scan and their appointment is ready."
+          },
+          "reminders": {
+            "title": "Automatic Reminders",
+            "desc": "WhatsApp, SMS, and email reminders before appointments. Reduce your no-show rate by 60%."
+          }
         }
       },
       "ai": {
         "category": "AI & Automation",
         "items": {
-          "whatsappAI": { "title": "WhatsApp AI Assistant", "desc": "Answers customer questions 24/7, books appointments, collects deposits. Doesn't wake you up, runs your business." },
-          "instagramDm": { "title": "Instagram DM Automation", "desc": "Instant replies to \"What are your prices?\" questions. Shares the booking link via DM." },
-          "birthday": { "title": "Birthday Campaigns", "desc": "Sends automatic special offer messages on customer birthdays. Personalized, timely, effective." }
+          "whatsappAI": {
+            "title": "WhatsApp AI Assistant",
+            "desc": "Answers customer questions 24/7, books appointments, collects deposits. Doesn't wake you up, runs your business."
+          },
+          "instagramDm": {
+            "title": "Instagram DM Automation",
+            "desc": "Instant replies to \"What are your prices?\" questions. Shares the booking link via DM."
+          },
+          "birthday": {
+            "title": "Birthday Campaigns",
+            "desc": "Sends automatic special offer messages on customer birthdays. Personalized, timely, effective."
+          }
         }
       },
       "crm": {
         "category": "Customer & CRM",
         "items": {
-          "score": { "title": "Customer Score (0-100)", "desc": "Automatic score for every customer based on visit frequency, spending, and loyalty. Recognize your most valuable customers." },
-          "loyalty": { "title": "Loyalty Card", "desc": "Customizable reward system like 10 appointments = 1 free service. Increases customer retention." },
-          "campaigns": { "title": "Campaign Module", "desc": "Win back inactive customers, run campaigns on special days. Targeted WhatsApp/SMS delivery." }
+          "score": {
+            "title": "Customer Score (0-100)",
+            "desc": "Automatic score for every customer based on visit frequency, spending, and loyalty. Recognize your most valuable customers."
+          },
+          "loyalty": {
+            "title": "Loyalty Card",
+            "desc": "Customizable reward system like 10 appointments = 1 free service. Increases customer retention."
+          },
+          "campaigns": {
+            "title": "Campaign Module",
+            "desc": "Win back inactive customers, run campaigns on special days. Targeted WhatsApp/SMS delivery."
+          }
         }
       },
       "staff": {
         "category": "Staff Management",
         "items": {
-          "staffOfWeek": { "title": "Staff of the Week", "desc": "Weekly ranking based on appointment count, customer satisfaction, and revenue. Motivation skyrockets." },
-          "badges": { "title": "Monthly Badges", "desc": "Badges like \"Champion of the Month\" and \"Customer Favorite\" gamify your staff." },
-          "commission": { "title": "Commission Tracking", "desc": "Automatically calculates each staff member's monthly revenue, commission, and payroll." }
+          "staffOfWeek": {
+            "title": "Staff of the Week",
+            "desc": "Weekly ranking based on appointment count, customer satisfaction, and revenue. Motivation skyrockets."
+          },
+          "badges": {
+            "title": "Monthly Badges",
+            "desc": "Badges like \"Champion of the Month\" and \"Customer Favorite\" gamify your staff."
+          },
+          "commission": {
+            "title": "Commission Tracking",
+            "desc": "Automatically calculates each staff member's monthly revenue, commission, and payroll."
+          }
         }
       },
       "finance": {
         "category": "Reports & Finance",
         "items": {
-          "dashboard": { "title": "Real-Time Revenue Dashboard", "desc": "Track today's, this week's, and this month's revenue instantly. See estimated VAT automatically." },
-          "pdfExcel": { "title": "PDF & Excel Reports", "desc": "PDF for your accountant, Excel for your own analysis. Ready reports in one click." },
-          "stripe": { "title": "Stripe Payments", "desc": "Pre-payment, subscription, or one-time payment before appointments. Card support for 100+ countries." }
+          "dashboard": {
+            "title": "Real-Time Revenue Dashboard",
+            "desc": "Track today's, this week's, and this month's revenue instantly. See estimated VAT automatically."
+          },
+          "pdfExcel": {
+            "title": "PDF & Excel Reports",
+            "desc": "PDF for your accountant, Excel for your own analysis. Ready reports in one click."
+          },
+          "stripe": {
+            "title": "Stripe Payments",
+            "desc": "Pre-payment, subscription, or one-time payment before appointments. Card support for 100+ countries."
+          }
         }
       },
       "tech": {
         "category": "Technical & Security",
         "items": {
-          "kvkk": { "title": "KVKK-Compliant Infrastructure", "desc": "Customer data is stored in compliance with Turkish KVKK regulations. End-to-end encryption." },
-          "migration": { "title": "Easy Data Migration", "desc": "One-click import from your existing booking software or Excel. Data loss never happens." },
-          "portability": { "title": "Data Portability", "desc": "Download all your data as JSON, Excel, or CSV anytime. You're never locked into any platform." },
-          "multilingual": { "title": "Multi-Language & Multi-Currency", "desc": "TR, EN, RU, AR language support. Pricing in TRY, USD, EUR." },
-          "uptime": { "title": "99.9% Uptime Guarantee", "desc": "Built on BY Sirius Group infrastructure. Maintenance is announced in advance, zero downtime is the goal." }
+          "kvkk": {
+            "title": "KVKK-Compliant Infrastructure",
+            "desc": "Customer data is stored in compliance with Turkish KVKK regulations. End-to-end encryption."
+          },
+          "migration": {
+            "title": "Easy Data Migration",
+            "desc": "One-click import from your existing booking software or Excel. Data loss never happens."
+          },
+          "portability": {
+            "title": "Data Portability",
+            "desc": "Download all your data as JSON, Excel, or CSV anytime. You're never locked into any platform."
+          },
+          "multilingual": {
+            "title": "Multi-Language & Multi-Currency",
+            "desc": "TR, EN, RU, AR language support. Pricing in TRY, USD, EUR."
+          },
+          "uptime": {
+            "title": "99.9% Uptime Guarantee",
+            "desc": "Built on BY Sirius Group infrastructure. Maintenance is announced in advance, zero downtime is the goal."
+          }
         }
       }
     },
@@ -266,15 +340,51 @@
     "statusActive": "Active",
     "statusSoon": "Coming Soon",
     "items": {
-      "whatsapp": { "name": "WhatsApp Business", "category": "Messaging", "desc": "Send automatic reminders, appointment confirmations, and campaign messages to customers. 24/7 replies with the AI assistant." },
-      "instagram": { "name": "Instagram DM", "category": "Social Media", "desc": "AI-powered automatic replies to Instagram DMs. Appointment questions, pricing info, and routing." },
-      "googleCalendar": { "name": "Google Calendar", "category": "Calendar", "desc": "Sync appointments with your staff's Google Calendar. Automatic conflict alerts." },
-      "stripe": { "name": "Stripe", "category": "Payments", "desc": "Secure pre-payments and subscription management. Card support in 100+ countries, automatic invoicing." },
-      "email": { "name": "Email (Resend)", "category": "Notifications", "desc": "Appointment confirmation, reminder, and campaign emails. Customizable HTML templates." },
-      "googleAnalytics": { "name": "Google Analytics", "category": "Analytics", "desc": "Track your online booking page's traffic, conversions, and user behavior." },
-      "sms": { "name": "SMS Notifications", "category": "Messaging", "desc": "Send SMS reminders and confirmations to customers who don't use WhatsApp. Connects with your own Netgsm, VatanSMS, or İletimerkezi account." },
-      "qr": { "name": "QR Code", "category": "Booking", "desc": "Stick a QR code on your salon door or business card — customers book directly." },
-      "ai": { "name": "OpenAI / Claude AI", "category": "Artificial Intelligence", "desc": "Powerful language model infrastructure for the WhatsApp, Instagram, and in-panel AI assistant." }
+      "whatsapp": {
+        "name": "WhatsApp Business",
+        "category": "Messaging",
+        "desc": "Send automatic reminders, appointment confirmations, and campaign messages to customers. 24/7 replies with the AI assistant."
+      },
+      "instagram": {
+        "name": "Instagram DM",
+        "category": "Social Media",
+        "desc": "AI-powered automatic replies to Instagram DMs. Appointment questions, pricing info, and routing."
+      },
+      "googleCalendar": {
+        "name": "Google Calendar",
+        "category": "Calendar",
+        "desc": "Sync appointments with your staff's Google Calendar. Automatic conflict alerts."
+      },
+      "stripe": {
+        "name": "Stripe",
+        "category": "Payments",
+        "desc": "Secure pre-payments and subscription management. Card support in 100+ countries, automatic invoicing."
+      },
+      "email": {
+        "name": "Email (Resend)",
+        "category": "Notifications",
+        "desc": "Appointment confirmation, reminder, and campaign emails. Customizable HTML templates."
+      },
+      "googleAnalytics": {
+        "name": "Google Analytics",
+        "category": "Analytics",
+        "desc": "Track your online booking page's traffic, conversions, and user behavior."
+      },
+      "sms": {
+        "name": "SMS Notifications",
+        "category": "Messaging",
+        "desc": "Send SMS reminders and confirmations to customers who don't use WhatsApp. Connects with your own Netgsm, VatanSMS, or İletimerkezi account."
+      },
+      "qr": {
+        "name": "QR Code",
+        "category": "Booking",
+        "desc": "Stick a QR code on your salon door or business card — customers book directly."
+      },
+      "ai": {
+        "name": "OpenAI / Claude AI",
+        "category": "Artificial Intelligence",
+        "desc": "Powerful language model infrastructure for the WhatsApp, Instagram, and in-panel AI assistant."
+      }
     },
     "missingTitle": "Missing an Integration?",
     "missingDesc": "Suggest the integration you need — active users get priority on the list.",
@@ -300,10 +410,22 @@
     },
     "valuesTitle": "Our Values",
     "values": {
-      "innovation": { "title": "Innovation", "desc": "We maximize business efficiency with AI and automation technologies." },
-      "reliability": { "title": "Reliability", "desc": "We stand by you with KVKK-compliant infrastructure, end-to-end encryption, and a 99.9% uptime guarantee." },
-      "customerFocus": { "title": "Customer Focus", "desc": "We build solutions by understanding the unique needs of every industry." },
-      "globalVision": { "title": "Global Vision", "desc": "From Turkey to the world — we support international growth with our multilingual platform." }
+      "innovation": {
+        "title": "Innovation",
+        "desc": "We maximize business efficiency with AI and automation technologies."
+      },
+      "reliability": {
+        "title": "Reliability",
+        "desc": "We stand by you with KVKK-compliant infrastructure, end-to-end encryption, and a 99.9% uptime guarantee."
+      },
+      "customerFocus": {
+        "title": "Customer Focus",
+        "desc": "We build solutions by understanding the unique needs of every industry."
+      },
+      "globalVision": {
+        "title": "Global Vision",
+        "desc": "From Turkey to the world — we support international growth with our multilingual platform."
+      }
     },
     "ctaTitle": "Have Questions?",
     "ctaSubtitle": "Get in touch with our team, let's find the best solution for you together.",
@@ -317,10 +439,20 @@
     "heroSubtitle": "Get in touch with our team for your questions. Our average response time is 2 hours.",
     "infoTitle": "Contact Information",
     "info": {
-      "email": { "label": "Email" },
-      "phone": { "label": "Phone / WhatsApp" },
-      "address": { "label": "Address", "value": "BY Sirius Group Ai & Technology Co Ltd., Turkey" },
-      "hours": { "label": "Business Hours", "value": "Mon–Fri 09:00–18:00" }
+      "email": {
+        "label": "Email"
+      },
+      "phone": {
+        "label": "Phone / WhatsApp"
+      },
+      "address": {
+        "label": "Address",
+        "value": "BY Sirius Group Ai & Technology Co Ltd., Turkey"
+      },
+      "hours": {
+        "label": "Business Hours",
+        "value": "Mon–Fri 09:00–18:00"
+      }
     },
     "whatsappCtaTitle": "Message Us on WhatsApp",
     "whatsappCtaDesc": "Preferred channel for a fast response",
@@ -337,6 +469,11 @@
     "fieldMessagePlaceholder": "Share the details, let's find the best solution for you...",
     "kvkkConsent": "I have read and accept the <kvkkLink>KVKK Disclosure Notice</kvkkLink> and <gizlilikLink>Privacy Policy</gizlilikLink>.",
     "submitButton": "Send Message",
+    "formSending": "Sending...",
+    "formError": "Your message could not be sent. Please try again or email info@bysirius.com.",
+    "formSuccessTitle": "We Got Your Message",
+    "formSuccessDesc": "We'll get back to you as soon as possible. For urgent matters you can also reach us on WhatsApp.",
+    "formSendAnother": "Send Another Message",
     "otherChannelsTitle": "Other Support Channels",
     "emailSupport": "Email Support",
     "whatsappSupport": "WhatsApp Support",
@@ -352,45 +489,102 @@
       "general": {
         "title": "General",
         "items": {
-          "q1": { "q": "What is Siriplan?", "a": "Siriplan is an AI-powered appointment and business management platform built for hair salons, barbershops, beauty salons, spas, clinics, and more. It's developed by BY Sirius Group Ai & Technology Co Ltd." },
-          "q2": { "q": "Which industries does it serve?", "a": "We offer tailored solutions for 10+ industries, including hair salons, barbershops, beauty salons, spa & massage, nail salons, aesthetic clinics, makeup studios, tattoo studios, dietitians, and brow & lash studios." },
-          "q3": { "q": "Can I use the app in English?", "a": "Yes. The platform supports Turkish, English, Russian, and Arabic. You can change your language preference in settings." },
-          "q4": { "q": "Can I manage multiple locations?", "a": "Yes. You can manage unlimited locations on the Business plan. Starter and Pro plans have an extra-location add-on option." }
+          "q1": {
+            "q": "What is Siriplan?",
+            "a": "Siriplan is an AI-powered appointment and business management platform built for hair salons, barbershops, beauty salons, spas, clinics, and more. It's developed by BY Sirius Group Ai & Technology Co Ltd."
+          },
+          "q2": {
+            "q": "Which industries does it serve?",
+            "a": "We offer tailored solutions for 10+ industries, including hair salons, barbershops, beauty salons, spa & massage, nail salons, aesthetic clinics, makeup studios, tattoo studios, dietitians, and brow & lash studios."
+          },
+          "q3": {
+            "q": "Can I use the app in English?",
+            "a": "Yes. The platform supports Turkish, English, Russian, and Arabic. You can change your language preference in settings."
+          },
+          "q4": {
+            "q": "Can I manage multiple locations?",
+            "a": "Yes. You can manage unlimited locations on the Business plan. Starter and Pro plans have an extra-location add-on option."
+          }
         }
       },
       "pricing": {
         "title": "Pricing & Trial",
         "items": {
-          "q1": { "q": "Is the 14-day trial really free?", "a": "Yes, no credit card information is required. You can use all Pro plan features free for 14 days." },
-          "q2": { "q": "Are the prices in dollars?", "a": "Prices are in USD. Payment is processed securely via Stripe. Please contact us for payment in Turkish lira." },
-          "q3": { "q": "Can I cancel anytime?", "a": "Yes, you can cancel anytime with no commitment or penalty. Even after cancelling, you keep access to and can download your data for 30 days." },
-          "q4": { "q": "How much do I save with the annual plan?", "a": "An 18% discount applies with annual billing. For example, the Pro plan is $52/mo (billed $620/yr) instead of $63/mo." }
+          "q1": {
+            "q": "Is the 14-day trial really free?",
+            "a": "Yes, no credit card information is required. You can use all Pro plan features free for 14 days."
+          },
+          "q2": {
+            "q": "Are the prices in dollars?",
+            "a": "Prices are in USD. Payment is processed securely via Stripe. Please contact us for payment in Turkish lira."
+          },
+          "q3": {
+            "q": "Can I cancel anytime?",
+            "a": "Yes, you can cancel anytime with no commitment or penalty. Even after cancelling, you keep access to and can download your data for 30 days."
+          },
+          "q4": {
+            "q": "How much do I save with the annual plan?",
+            "a": "An 18% discount applies with annual billing. For example, the Pro plan is $52/mo (billed $620/yr) instead of $63/mo."
+          }
         }
       },
       "booking": {
         "title": "Booking & Customers",
         "items": {
-          "q1": { "q": "How do customers book appointments?", "a": "They can book 24/7 via the website, WhatsApp, Instagram DM, and QR code. Conflict checking is automatic." },
-          "q2": { "q": "How does the WhatsApp reminder work?", "a": "A WhatsApp message is sent to the customer at set times before the appointment (e.g. 24 hours, 2 hours before). It reduces your no-show rate by up to 60%." },
-          "q3": { "q": "What does the customer score system do?", "a": "Every customer is assigned a score from 0-100 based on visit frequency, spending, and loyalty. You can recognize your valuable customers and offer them priority booking and special deals." },
-          "q4": { "q": "Is there a waiting list?", "a": "Yes, the waiting list feature is available. Add customers to the queue when slots are full, notify them with one click, and convert them to appointments." }
+          "q1": {
+            "q": "How do customers book appointments?",
+            "a": "They can book 24/7 via the website, WhatsApp, Instagram DM, and QR code. Conflict checking is automatic."
+          },
+          "q2": {
+            "q": "How does the WhatsApp reminder work?",
+            "a": "A WhatsApp message is sent to the customer at set times before the appointment (e.g. 24 hours, 2 hours before). It reduces your no-show rate by up to 60%."
+          },
+          "q3": {
+            "q": "What does the customer score system do?",
+            "a": "Every customer is assigned a score from 0-100 based on visit frequency, spending, and loyalty. You can recognize your valuable customers and offer them priority booking and special deals."
+          },
+          "q4": {
+            "q": "Is there a waiting list?",
+            "a": "Yes, the waiting list feature is available. Add customers to the queue when slots are full, notify them with one click, and convert them to appointments."
+          }
         }
       },
       "ai": {
         "title": "AI & Automation",
         "items": {
-          "q1": { "q": "What does the AI assistant do?", "a": "It reads WhatsApp and Instagram DMs 24/7, answers pricing and booking questions, and books appointments on the customer's behalf. Your business keeps running while you sleep." },
-          "q2": { "q": "Can the AI assistant give wrong information?", "a": "The AI assistant only answers based on the services, prices, and availability you've defined. It routes questions beyond that to \"Please contact us directly.\"" },
-          "q3": { "q": "How does the campaign module work?", "a": "Build a customer list based on specific criteria (haven't visited in 3 months, upcoming birthdays, etc.) and send bulk WhatsApp/SMS/email messages." }
+          "q1": {
+            "q": "What does the AI assistant do?",
+            "a": "It reads WhatsApp and Instagram DMs 24/7, answers pricing and booking questions, and books appointments on the customer's behalf. Your business keeps running while you sleep."
+          },
+          "q2": {
+            "q": "Can the AI assistant give wrong information?",
+            "a": "The AI assistant only answers based on the services, prices, and availability you've defined. It routes questions beyond that to \"Please contact us directly.\""
+          },
+          "q3": {
+            "q": "How does the campaign module work?",
+            "a": "Build a customer list based on specific criteria (haven't visited in 3 months, upcoming birthdays, etc.) and send bulk WhatsApp/SMS/email messages."
+          }
         }
       },
       "tech": {
         "title": "Technical & Security",
         "items": {
-          "q1": { "q": "Can I move my data to another system?", "a": "Yes. You can download all your data in JSON, Excel, or CSV format anytime. You're never locked into any platform." },
-          "q2": { "q": "Can I import data from my current system?", "a": "Yes. One-click data import from your current booking software or Excel is supported. With our Professional Data Migration service, our team can do it for you." },
-          "q3": { "q": "Is it KVKK-compliant?", "a": "Yes. Customer data is stored in compliance with KVKK regulations, end-to-end encryption is applied, and data can be processed on servers in Turkey." },
-          "q4": { "q": "Does the app go down?", "a": "We target 99.9% uptime on BY Sirius Group infrastructure. Planned maintenance is announced in advance and usually takes place at night." }
+          "q1": {
+            "q": "Can I move my data to another system?",
+            "a": "Yes. You can download all your data in JSON, Excel, or CSV format anytime. You're never locked into any platform."
+          },
+          "q2": {
+            "q": "Can I import data from my current system?",
+            "a": "Yes. One-click data import from your current booking software or Excel is supported. With our Professional Data Migration service, our team can do it for you."
+          },
+          "q3": {
+            "q": "Is it KVKK-compliant?",
+            "a": "Yes. Customer data is stored in compliance with KVKK regulations, end-to-end encryption is applied, and data can be processed on servers in Turkey."
+          },
+          "q4": {
+            "q": "Does the app go down?",
+            "a": "We target 99.9% uptime on BY Sirius Group infrastructure. Planned maintenance is announced in advance and usually takes place at night."
+          }
         }
       }
     },
@@ -412,11 +606,26 @@
     "dataTableCategory": "Data Category",
     "dataTableExamples": "Examples",
     "dataRows": {
-      "identity": { "category": "Identity", "examples": "First and last name" },
-      "contact": { "category": "Contact", "examples": "Email, phone number" },
-      "business": { "category": "Business", "examples": "Business name, address, industry" },
-      "transaction": { "category": "Transaction", "examples": "Appointment and invoice records" },
-      "technical": { "category": "Technical", "examples": "IP address, browser information" }
+      "identity": {
+        "category": "Identity",
+        "examples": "First and last name"
+      },
+      "contact": {
+        "category": "Contact",
+        "examples": "Email, phone number"
+      },
+      "business": {
+        "category": "Business",
+        "examples": "Business name, address, industry"
+      },
+      "transaction": {
+        "category": "Transaction",
+        "examples": "Appointment and invoice records"
+      },
+      "technical": {
+        "category": "Technical",
+        "examples": "IP address, browser information"
+      }
     },
     "purposeTitle": "Processing Purposes and Legal Grounds",
     "purposeItems": [
@@ -527,9 +736,18 @@
     "s1Title": "1. What Is a Cookie?",
     "s1P": "Cookies are small text files placed on your browser by websites. The Siriplan platform uses cookies to provide a better user experience and improve service quality.",
     "s2Title": "2. Types of Cookies We Use",
-    "s2Necessary": { "title": "Necessary Cookies", "desc": "Required for the platform's core functions. This category includes session management, security verification, and preference storage. These cookies cannot be disabled." },
-    "s2Analytics": { "title": "Analytics Cookies", "desc": "Collect anonymous statistics to measure platform usage and improve our services. They help us understand which pages are visited most." },
-    "s2Functional": { "title": "Functionality Cookies", "desc": "Used to remember your personalization settings, such as language preference and theme selection (dark/light mode)." },
+    "s2Necessary": {
+      "title": "Necessary Cookies",
+      "desc": "Required for the platform's core functions. This category includes session management, security verification, and preference storage. These cookies cannot be disabled."
+    },
+    "s2Analytics": {
+      "title": "Analytics Cookies",
+      "desc": "Collect anonymous statistics to measure platform usage and improve our services. They help us understand which pages are visited most."
+    },
+    "s2Functional": {
+      "title": "Functionality Cookies",
+      "desc": "Used to remember your personalization settings, such as language preference and theme selection (dark/light mode)."
+    },
     "s3Title": "3. Managing Cookies",
     "s3P": "You can block or delete cookies from your browser settings. However, blocking necessary cookies may negatively affect the platform's proper functioning.",
     "s3Items": [
@@ -551,45 +769,32 @@
     "videoComingSoon": "Coming soon",
     "featuresTitle": "What Will You See in the Demo?",
     "features": {
-      "booking": { "title": "Appointment Management", "desc": "Daily calendar view, conflict checking, multi-channel support" },
-      "crm": { "title": "Customer CRM", "desc": "0-100 loyalty score, birthday campaigns, VIP customer tracking" },
-      "revenue": { "title": "Revenue & Reports", "desc": "Real-time revenue tracking, 6-month trend analysis, staff-based reports" },
-      "ai": { "title": "AI Assistant", "desc": "24/7 automatic replies to WhatsApp and Instagram DMs, smart appointment suggestions" },
-      "gamification": { "title": "Gamification", "desc": "Staff of the Week, monthly badges, staff performance ranking" }
+      "booking": {
+        "title": "Appointment Management",
+        "desc": "Daily calendar view, conflict checking, multi-channel support"
+      },
+      "crm": {
+        "title": "Customer CRM",
+        "desc": "0-100 loyalty score, birthday campaigns, VIP customer tracking"
+      },
+      "revenue": {
+        "title": "Revenue & Reports",
+        "desc": "Real-time revenue tracking, 6-month trend analysis, staff-based reports"
+      },
+      "ai": {
+        "title": "AI Assistant",
+        "desc": "24/7 automatic replies to WhatsApp and Instagram DMs, smart appointment suggestions"
+      },
+      "gamification": {
+        "title": "Gamification",
+        "desc": "Staff of the Week, monthly badges, staff performance ranking"
+      }
     },
     "ctaTitle": "Get Started Now",
     "ctaSubtitle": "Instead of watching a demo, try it directly with your own salon. All features free for 14 days.",
     "ctaPrimary": "Create Free Account",
     "ctaSecondary": "Contact Us",
     "footNote": "✓ No credit card required · ✓ 14 days free · ✓ Cancel anytime"
-  },
-  "careersPage": {
-    "metaDescription": "Career opportunities at BY Sirius Group — remote work, competitive salary, technology-driven environment.",
-    "heroEyebrow": "BY Sirius Group Careers",
-    "heroTitle": "Let's Build the Future",
-    "heroTitleHighlight": "Together",
-    "heroSubtitle": "If you're looking for a career opportunity at one of Turkey's leading companies in AI and SaaS, you're in the right place.",
-    "applyButton": "Send Application",
-    "perksTitle": "Why BY Sirius?",
-    "perks": {
-      "remoteWork": { "title": "Fully Remote", "desc": "Work from anywhere in Turkey — from home or a coworking space." },
-      "fastGrowth": { "title": "Fast Growth", "desc": "Roles and responsibilities with real impact, in a startup environment." },
-      "benefits": { "title": "Health & Benefits", "desc": "Private health insurance, meal card, education budget." },
-      "aiCulture": { "title": "AI-First Culture", "desc": "We work with the latest AI tools every day." }
-    },
-    "openingsTitle": "Open Positions",
-    "jobs": {
-      "fullstack": { "title": "Senior Full-Stack Developer", "team": "Product & Engineering", "type": "Full-Time · Remote", "tags": ["Next.js", "TypeScript", "Supabase", "AI"] },
-      "growth": { "title": "Growth & Marketing Specialist", "team": "Growth", "type": "Full-Time · Remote", "tags": ["SaaS", "SEO", "Content", "Analytics"] },
-      "customerSuccess": { "title": "Customer Success Manager", "team": "Customer Success", "type": "Full-Time · Hybrid Istanbul", "tags": ["SaaS", "Customer Relations", "Turkish", "CRM"] },
-      "designer": { "title": "UI/UX Designer", "team": "Design", "type": "Freelance / Project-Based", "tags": ["Figma", "Mobile", "Web", "User Research"] }
-    },
-    "applyLink": "Apply",
-    "noPositionText": "Can't find a suitable position?",
-    "openApplication": "Send an open application",
-    "ctaTitle": "Want to Use Our Product?",
-    "ctaSubtitle": "Try Siriplan before joining our team.",
-    "ctaButton": "Try Free for 14 Days"
   },
   "categories": {
     "title": "What's Your Business?",
@@ -623,7 +828,6 @@
     "company": "Company",
     "about": "About Us",
     "contact": "Contact",
-    "careers": "Careers",
     "legal": "Legal",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
@@ -705,13 +909,88 @@
     },
     "campaignsPage": {
       "eyebrow": "Marketing",
-      "subtitle": "Send automatic messages to your customers"
+      "subtitle": "Send automatic messages to your customers",
+      "lockedTitle": "Campaign Module",
+      "lockedDescription": "Send automatic birthday messages, re-engagement campaigns and custom campaigns to your customers.",
+      "lockedNative": "This module is not included in your current plan.",
+      "upgrade": "Upgrade to Pro",
+      "createCampaign": "+ Create Campaign",
+      "marketingReach": "{count} customers approved marketing updates — you can email / SMS them.",
+      "viewList": "View list →",
+      "historyTitle": "Campaign History",
+      "emptyHistory": "No campaigns created yet",
+      "status": {
+        "draft": "Draft",
+        "scheduled": "Scheduled",
+        "sending": "Sending",
+        "sent": "Sent",
+        "failed": "Failed"
+      },
+      "types": {
+        "birthday": "🎂 Birthday",
+        "inactive": "💤 Inactive customer",
+        "custom": "✏️ Custom",
+        "birthdayDesc": "Automatically send birthday wishes every day",
+        "inactiveDesc": "Send a 'We missed you' message to customers who have been inactive for 60+ days",
+        "customDesc": "Build your own segment and send a message"
+      },
+      "sentCount": "sent",
+      "scheduledLabel": "Scheduled: {date}",
+      "draftLabel": "Draft"
     },
     "staffPage": {
-      "eyebrow": "Team"
+      "eyebrow": "Team",
+      "limitReached": "You have reached your staff limit.",
+      "upgradePrompt": "You have reached your staff limit. To add more, <link>upgrade your plan</link>.",
+      "emptyState": "No staff added yet",
+      "salaryCalc": "Calculate Salary",
+      "addStaff": "+ Add Staff",
+      "limitNative": "You reached your staff limit."
     },
     "customersPage": {
       "eyebrow": "CRM"
+    },
+    "customerList": {
+      "searchPlaceholder": "Search by name or phone...",
+      "clearSearch": "Clear search",
+      "sort": {
+        "lastVisit": "Last Visit",
+        "name": "Name",
+        "score": "Score",
+        "spend": "Spend",
+        "visits": "Visits"
+      },
+      "direction": {
+        "nameAsc": "A → Z",
+        "nameDesc": "Z → A",
+        "lastVisitAsc": "Oldest first",
+        "lastVisitDesc": "Newest first",
+        "defaultAsc": "Low to high",
+        "defaultDesc": "High to low"
+      },
+      "toggleSort": "Change sort direction",
+      "marketingOnly": "Marketing Approved",
+      "clearFilters": "Clear filters",
+      "resultCount": "Showing {count} customers",
+      "resultCountWithFilter": "Showing {count} customers (out of {total})",
+      "marketingApproved": "{count} marketing approved",
+      "noResults": "No customer matches your search",
+      "noCustomers": "No customers yet",
+      "call": "Call",
+      "whatsapp": "WhatsApp",
+      "deleteCustomer": "Delete customer",
+      "deleteCustomerAria": "Delete {name}",
+      "marketingAcceptedTitle": "Marketing consent given",
+      "marketingMissingTitle": "No marketing consent",
+      "visit": "Visits",
+      "spend": "Spending",
+      "score": "Points",
+      "lastVisit": "Last: {date}",
+      "deleteDialogTitle": "Delete customer",
+      "deleteDialogDescription": "<strong>{name}</strong> will be deleted. This action cannot be undone.",
+      "deleteDialogHint": "If the customer has previous appointments, the record is not fully deleted: their name, phone and other personal data are removed; appointment and revenue history is kept anonymous so your reports stay intact.",
+      "cancel": "Cancel",
+      "delete": "Delete"
     },
     "pendingRequestsPage": {
       "subtitle": "Appointment requests received via WhatsApp or Instagram that are awaiting your manual approval."

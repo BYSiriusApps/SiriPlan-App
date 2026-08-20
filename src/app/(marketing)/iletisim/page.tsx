@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Mail, Phone, MapPin, Clock, MessageCircle, Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { getTranslations } from "next-intl/server";
+import { ContactForm } from "./ContactForm";
 
 const CONTACT_META = [
   { key: "email", icon: Mail, value: "info@bysirius.com", href: "mailto:info@bysirius.com", color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-950/30" },
@@ -97,61 +94,9 @@ export default async function IletisimPage() {
               </a>
             </div>
 
-            {/* Right: Form */}
-            <div className="bg-card rounded-2xl border border-border p-6 md:p-8">
-              <h2 className="text-2xl font-bold mb-2">{t("contactPage.formTitle")}</h2>
-              <p className="text-sm text-muted-foreground mb-6">
-                {t("contactPage.formSubtitle")}
-              </p>
-              <form
-                action="mailto:info@bysirius.com"
-                method="post"
-                encType="text/plain"
-                className="space-y-4"
-              >
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="name">{t("contactPage.fieldName")}</Label>
-                    <Input id="name" name="name" placeholder={t("contactPage.fieldNamePlaceholder")} required />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="phone">{t("contactPage.fieldPhone")}</Label>
-                    <Input id="phone" name="phone" placeholder="+90 5xx xxx xx xx" type="tel" />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="email">{t("contactPage.fieldEmail")}</Label>
-                  <Input id="email" name="email" placeholder={t("contactPage.fieldEmailPlaceholder")} type="email" required />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="subject">{t("contactPage.fieldSubject")}</Label>
-                  <Input id="subject" name="subject" placeholder={t("contactPage.fieldSubjectPlaceholder")} required />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="message">{t("contactPage.fieldMessage")}</Label>
-                  <Textarea
-                    id="message"
-                    name="message"
-                    placeholder={t("contactPage.fieldMessagePlaceholder")}
-                    rows={5}
-                    required
-                  />
-                </div>
-                <div className="flex items-start gap-2 text-xs text-muted-foreground">
-                  <input type="checkbox" id="kvkk" name="kvkk" required className="mt-0.5 shrink-0" />
-                  <label htmlFor="kvkk">
-                    {t.rich("contactPage.kvkkConsent", {
-                      kvkkLink: (chunks) => <a href="/kvkk" className="underline hover:text-primary">{chunks}</a>,
-                      gizlilikLink: (chunks) => <a href="/gizlilik" className="underline hover:text-primary">{chunks}</a>,
-                    })}
-                  </label>
-                </div>
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 gap-2">
-                  <Send className="w-4 h-4" />
-                  {t("contactPage.submitButton")}
-                </Button>
-              </form>
-            </div>
+            {/* Right: Form — istemci bileşeni; /api/contact'a gönderir
+                (eski mailto: form'u mobilde sessizce hiçbir yere gitmiyordu). */}
+            <ContactForm />
           </div>
         </div>
       </section>

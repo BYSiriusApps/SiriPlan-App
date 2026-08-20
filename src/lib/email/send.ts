@@ -377,3 +377,63 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
     html: baseLayout(content, data.orgName, loc),
   });
 }
+
+/**
+ * İletişim formundan gelen mesajı destek kutusuna iletir.
+ *
+ * NEDEN reply-to: Gönderen adresi doğrulanmamış kullanıcı girdisidir; `from`
+ * olarak kullanılırsa Resend'in SPF/DKIM'i tutmaz ve mesaj spam'e düşer.
+ * Bu yüzden `from` her zaman kendi alan adımız, ziyaretçinin adresi ise
+ * `replyTo` — destek ekibi "Yanıtla"ya bastığında doğrudan ona gider.
+ */
+export async function sendContactMessageEmail(data: {
+  name: string;
+  email: string;
+  phone?: string | null;
+  subject: string;
+  message: string;
+  ip?: string | null;
+  flags?: string[];
+}) {
+  if (!emailEnabled()) return;
+
+  const to = process.env.CONTACT_NOTIFY_EMAIL ?? "info@bysirius.com";
+
+  const content = `
+    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Yeni İletişim Mesajı</h2>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">siriplan.com/iletisim formundan gönderildi.</p>
+
+    <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:20px;">
+      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">Ad Soyad</td>
+          <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:600;">${esc(data.name)}</td></tr>
+      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">E-posta</td>
+          <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:600;">${esc(data.email)}</td></tr>
+      ${data.phone ? `
+      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">Telefon</td>
+          <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:600;">${esc(data.phone)}</td></tr>
+      ` : ""}
+      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">Konu</td>
+          <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:600;">${esc(data.subject)}</td></tr>
+      ${data.ip ? `
+      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">IP</td>
+          <td style="padding:4px 0;font-size:13px;color:#111827;">${esc(data.ip)}</td></tr>
+      ` : ""}
+    </table>
+
+    <div style="white-space:pre-wrap;font-size:14px;color:#374151;line-height:1.6;padding:16px;border-left:3px solid #e11d48;background:#fff1f2;border-radius:0 8px 8px 0;">${esc(data.message)}</div>
+
+    ${data.flags?.length ? `
+    <p style="margin:20px 0 0;font-size:12px;color:#b45309;background:#fffbeb;border-radius:8px;padding:12px;">
+      ⚠️ Şüpheli sinyaller: ${esc(data.flags.join(", "))} — yanıtlamadan önce göz atın.
+    </p>
+    ` : ""}
+  `;
+
+  await getResend().emails.send({
+    from: `Siriplan İletişim <${FROM}>`,
+    to,
+    replyTo: data.email,
+    subject: `[İletişim] ${data.subject} — ${fromName(data.name)}`,
+    html: baseLayout(content, "Siriplan"),
+  });
+}

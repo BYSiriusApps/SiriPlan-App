@@ -98,6 +98,50 @@ export function isDisposableEmail(email: string): boolean {
 }
 
 /**
+ * Klavye gürültüsü ("Lqxarrk", "Fzvjss") tespiti — isim alanlarında bot imzası.
+ *
+ * BU BİR ENGEL DEĞİL, BİR İŞARETTİR. Dünyada gerçekten sesli harfsiz kümeler
+ * taşıyan isimler var ("Schwartz", "Krzysztof", "Ng"), üstelik latin harfi
+ * kullanmayan isimler burada hiç ölçülemiyor. Bu yüzden çağıran taraf sonucu
+ * yalnızca "şüpheli" etiketi olarak kullanmalı — reddetme gerekçesi olarak asla.
+ *
+ * Üç bağımsız sinyalden herhangi biri yeterli:
+ *   • 4+ ardışık ünsüz  ("Fzvjss")
+ *   • 6+ harfli kelimede ünsüz oranı ≥ %75  ("Lqxarrk" → 6/7)
+ *   • 4+ harfli kelimede hiç sesli harf yok ("qwrt")
+ */
+const VOWELS = new Set("aeıioöuüàáâäãåèéêëìíîïòóôöõùúûüyœæ".split(""));
+
+export function looksLikeGibberish(text: string | null | undefined): boolean {
+  if (typeof text !== "string") return false;
+
+  // Sadece latin harfleri ölçülebilir; kiril/arapça/çince isimler burada
+  // ölçüme girmez ve asla işaretlenmez.
+  const words = text.toLowerCase().split(/[^a-zçğıöşüàáâäãåèéêëìíîïòóôõùúûœæ]+/i).filter(Boolean);
+
+  for (const word of words) {
+    if (word.length < 4) continue;
+
+    let vowelCount = 0;
+    let run = 0;
+    for (const ch of word) {
+      if (VOWELS.has(ch)) {
+        vowelCount++;
+        run = 0;
+      } else {
+        run++;
+        if (run >= 4) return true;
+      }
+    }
+
+    if (vowelCount === 0) return true;
+    if (word.length >= 6 && (word.length - vowelCount) / word.length >= 0.75) return true;
+  }
+
+  return false;
+}
+
+/**
  * Bot yakalandığında kullanıcıya dönülecek mesaj. Kasıtlı olarak MUĞLAK —
  * "honeypot'a takıldın" demek, saldırgana hangi alanı boş bırakması gerektiğini
  * öğretir. Gerçek bir kullanıcı yanlışlıkla takılırsa sayfayı yenilemesi yeterli.

@@ -33,7 +33,6 @@ export async function Footer() {
     { key: "about",   href: "/hakkimizda" },
     { key: "blog",    href: "/blog"       },
     { key: "contact", href: "/iletisim"   },
-    { key: "careers", href: "/kariyer"    },
   ] as const;
 
   const legalLinks = [

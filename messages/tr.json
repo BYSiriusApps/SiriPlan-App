@@ -92,7 +92,12 @@
         "Veri export (CSV)",
         "E-posta desteği"
       ],
-      "notIncluded": ["AI WhatsApp asistanı", "Kampanya modülü", "Müşteri skoru sistemi", "Website modu"]
+      "notIncluded": [
+        "AI WhatsApp asistanı",
+        "Kampanya modülü",
+        "Müşteri skoru sistemi",
+        "Website modu"
+      ]
     },
     "pro": {
       "name": "Pro",
@@ -107,9 +112,12 @@
         "PDF rapor export",
         "KDV hesaplama",
         "Kişisel randevu linki (siriplan.com/salon-adin)",
-        "Website modu — renk paleti, kategori foto ve Google yorumlarıyla özelleştirilmiş randevu sayfası"
+        "Website modu — renk paleti ve kategori fotoğraflarıyla özelleştirilmiş randevu sayfası"
       ],
-      "notIncluded": ["AI WhatsApp/IG asistanı", "Özel alan adı (custom domain)"]
+      "notIncluded": [
+        "AI WhatsApp/IG asistanı",
+        "Özel alan adı (custom domain)"
+      ]
     },
     "business": {
       "name": "Business",
@@ -201,53 +209,119 @@
       "booking": {
         "category": "Randevu Yönetimi",
         "items": {
-          "multiChannel": { "title": "Çok Kanallı Online Randevu", "desc": "Web sitesi, WhatsApp, Instagram DM ve QR kod üzerinden 7/24 randevu alın. Çakışma kontrolü otomatik, çift randevu asla yaşanmaz." },
-          "website": { "title": "Website Modu", "desc": "Randevu linkinizi; renk paleti, kapak fotoğrafı, kategorili hizmet listesi ve Google yorumlarıyla tam bir işletme sayfasına dönüştürün." },
-          "waitlist": { "title": "Bekleme Listesi", "desc": "Dolu saatlerde müşterileri bekleme listesine ekleyin, tek tıkla bilgilendirin ve randevuya çevirin." },
-          "qr": { "title": "QR Kod Randevu", "desc": "Salonunuzun kapısına yapıştırın, kartvizite basın. Müşteri kamerası açsın, randevusu hazır olsun." },
-          "reminders": { "title": "Otomatik Hatırlatmalar", "desc": "Randevu öncesi WhatsApp, SMS ve e-posta hatırlatmaları. Gelmeme (no-show) oranınızı %60 azaltın." }
+          "multiChannel": {
+            "title": "Çok Kanallı Online Randevu",
+            "desc": "Web sitesi, WhatsApp, Instagram DM ve QR kod üzerinden 7/24 randevu alın. Çakışma kontrolü otomatik, çift randevu asla yaşanmaz."
+          },
+          "website": {
+            "title": "Website Modu",
+            "desc": "Randevu linkinizi; renk paleti, kapak fotoğrafı ve kategorili hizmet listesiyle tam bir işletme sayfasına dönüştürün."
+          },
+          "waitlist": {
+            "title": "Bekleme Listesi",
+            "desc": "Dolu saatlerde müşterileri bekleme listesine ekleyin, tek tıkla bilgilendirin ve randevuya çevirin."
+          },
+          "qr": {
+            "title": "QR Kod Randevu",
+            "desc": "Salonunuzun kapısına yapıştırın, kartvizite basın. Müşteri kamerası açsın, randevusu hazır olsun."
+          },
+          "reminders": {
+            "title": "Otomatik Hatırlatmalar",
+            "desc": "Randevu öncesi WhatsApp, SMS ve e-posta hatırlatmaları. Gelmeme (no-show) oranınızı %60 azaltın."
+          }
         }
       },
       "ai": {
         "category": "AI & Otomasyon",
         "items": {
-          "whatsappAI": { "title": "WhatsApp AI Asistanı", "desc": "7/24 müşteri sorularını yanıtlar, randevu alır, ön ödeme toplar. Sizi uyandırmaz, işinizi yürütür." },
-          "instagramDm": { "title": "Instagram DM Otomasyonu", "desc": "\"Fiyatlarınız nedir?\" sorularına anında yanıt. Randevu linkini DM üzerinden paylaşır." },
-          "birthday": { "title": "Doğum Günü Kampanyaları", "desc": "Müşteri doğum günlerinde otomatik özel teklif mesajı gönderir. Kişiselleştirilmiş, zamanlı, etkili." }
+          "whatsappAI": {
+            "title": "WhatsApp AI Asistanı",
+            "desc": "7/24 müşteri sorularını yanıtlar, randevu alır, ön ödeme toplar. Sizi uyandırmaz, işinizi yürütür."
+          },
+          "instagramDm": {
+            "title": "Instagram DM Otomasyonu",
+            "desc": "\"Fiyatlarınız nedir?\" sorularına anında yanıt. Randevu linkini DM üzerinden paylaşır."
+          },
+          "birthday": {
+            "title": "Doğum Günü Kampanyaları",
+            "desc": "Müşteri doğum günlerinde otomatik özel teklif mesajı gönderir. Kişiselleştirilmiş, zamanlı, etkili."
+          }
         }
       },
       "crm": {
         "category": "Müşteri & CRM",
         "items": {
-          "score": { "title": "Müşteri Skoru (0-100)", "desc": "Ziyaret sıklığı, harcama ve sadakate göre her müşteriye otomatik puan. Değerlilerinizi tanıyın." },
-          "loyalty": { "title": "Sadakat Kartı", "desc": "10 randevu = 1 bedava hizmet gibi özelleştirilebilir ödül sistemi. Müşteri bağlılığını artırır." },
-          "campaigns": { "title": "Kampanya Modülü", "desc": "Inaktif müşterileri geri kazanın, özel günlerde kampanya yapın. Hedefli WhatsApp/SMS gönderimi." }
+          "score": {
+            "title": "Müşteri Skoru (0-100)",
+            "desc": "Ziyaret sıklığı, harcama ve sadakate göre her müşteriye otomatik puan. Değerlilerinizi tanıyın."
+          },
+          "loyalty": {
+            "title": "Sadakat Kartı",
+            "desc": "10 randevu = 1 bedava hizmet gibi özelleştirilebilir ödül sistemi. Müşteri bağlılığını artırır."
+          },
+          "campaigns": {
+            "title": "Kampanya Modülü",
+            "desc": "Inaktif müşterileri geri kazanın, özel günlerde kampanya yapın. Hedefli WhatsApp/SMS gönderimi."
+          }
         }
       },
       "staff": {
         "category": "Personel Yönetimi",
         "items": {
-          "staffOfWeek": { "title": "Haftanın Elemanı", "desc": "Randevu sayısı, müşteri memnuniyeti ve ciro bazlı haftalık sıralama. Motivasyon patlar." },
-          "badges": { "title": "Aylık Rozetler", "desc": "\"Bu Ayın Şampiyonu\", \"Müşteri Aşığı\" gibi rozetler personeli oyunlaştırır." },
-          "commission": { "title": "Komisyon Takibi", "desc": "Her personelin aylık cirosunu, komisyonunu ve bordrosunu otomatik hesaplar." }
+          "staffOfWeek": {
+            "title": "Haftanın Elemanı",
+            "desc": "Randevu sayısı, müşteri memnuniyeti ve ciro bazlı haftalık sıralama. Motivasyon patlar."
+          },
+          "badges": {
+            "title": "Aylık Rozetler",
+            "desc": "\"Bu Ayın Şampiyonu\", \"Müşteri Aşığı\" gibi rozetler personeli oyunlaştırır."
+          },
+          "commission": {
+            "title": "Komisyon Takibi",
+            "desc": "Her personelin aylık cirosunu, komisyonunu ve bordrosunu otomatik hesaplar."
+          }
         }
       },
       "finance": {
         "category": "Raporlar & Finans",
         "items": {
-          "dashboard": { "title": "Gerçek Zamanlı Ciro Dashboard", "desc": "Bugünkü, bu haftaki ve bu ayki gelirinizi anlık takip edin. Tahmini KDV tutarını otomatik görün." },
-          "pdfExcel": { "title": "PDF & Excel Rapor", "desc": "Muhasebeci için PDF, kendi analiziniz için Excel. Tek tıkla hazır rapor." },
-          "stripe": { "title": "Stripe Ödeme", "desc": "Randevu öncesi ön ödeme, abonelik veya tek seferlik ödeme. 100+ ülke kart desteği." }
+          "dashboard": {
+            "title": "Gerçek Zamanlı Ciro Dashboard",
+            "desc": "Bugünkü, bu haftaki ve bu ayki gelirinizi anlık takip edin. Tahmini KDV tutarını otomatik görün."
+          },
+          "pdfExcel": {
+            "title": "PDF & Excel Rapor",
+            "desc": "Muhasebeci için PDF, kendi analiziniz için Excel. Tek tıkla hazır rapor."
+          },
+          "stripe": {
+            "title": "Stripe Ödeme",
+            "desc": "Randevu öncesi ön ödeme, abonelik veya tek seferlik ödeme. 100+ ülke kart desteği."
+          }
         }
       },
       "tech": {
         "category": "Teknik & Güvenlik",
         "items": {
-          "kvkk": { "title": "KVKK Uyumlu Altyapı", "desc": "Müşteri verileri Türkiye KVKK mevzuatına uygun saklanır. Uçtan uca şifreleme." },
-          "migration": { "title": "Kolay Veri Göçü", "desc": "Mevcut randevu yazılımınızdan veya Excel'den tek tıkla aktarım. Veri kaybı asla yaşanmaz." },
-          "portability": { "title": "Veri Taşınabilirliği", "desc": "İstediğiniz zaman tüm verilerinizi JSON, Excel veya CSV olarak indirin. Hiçbir platforma bağımlı değilsiniz." },
-          "multilingual": { "title": "Çok Dilli & Çok Para Birimi", "desc": "TR, EN, RU, AR dil desteği. TRY, USD, EUR ile fiyatlandırma." },
-          "uptime": { "title": "%99.9 Uptime Garantisi", "desc": "BY Sirius Group altyapısı üzerinde. Bakım anında bildirilir, kesinti sıfır hedeftir." }
+          "kvkk": {
+            "title": "KVKK Uyumlu Altyapı",
+            "desc": "Müşteri verileri Türkiye KVKK mevzuatına uygun saklanır. Uçtan uca şifreleme."
+          },
+          "migration": {
+            "title": "Kolay Veri Göçü",
+            "desc": "Mevcut randevu yazılımınızdan veya Excel'den tek tıkla aktarım. Veri kaybı asla yaşanmaz."
+          },
+          "portability": {
+            "title": "Veri Taşınabilirliği",
+            "desc": "İstediğiniz zaman tüm verilerinizi JSON, Excel veya CSV olarak indirin. Hiçbir platforma bağımlı değilsiniz."
+          },
+          "multilingual": {
+            "title": "Çok Dilli & Çok Para Birimi",
+            "desc": "TR, EN, RU, AR dil desteği. TRY, USD, EUR ile fiyatlandırma."
+          },
+          "uptime": {
+            "title": "%99.9 Uptime Garantisi",
+            "desc": "BY Sirius Group altyapısı üzerinde. Bakım anında bildirilir, kesinti sıfır hedeftir."
+          }
         }
       }
     },
@@ -266,15 +340,51 @@
     "statusActive": "Aktif",
     "statusSoon": "Yakında",
     "items": {
-      "whatsapp": { "name": "WhatsApp Business", "category": "Mesajlaşma", "desc": "Müşterilere otomatik hatırlatma, randevu teyidi ve kampanya mesajı gönderin. AI asistanı ile 7/24 yanıt." },
-      "instagram": { "name": "Instagram DM", "category": "Sosyal Medya", "desc": "Instagram DM'lerine AI destekli otomatik yanıt. Randevu soruları, fiyat bilgisi ve yönlendirme." },
-      "googleCalendar": { "name": "Google Calendar", "category": "Takvim", "desc": "Randevularınızı personelin Google takvimiyle senkronize edin. Çakışma uyarısı otomatik." },
-      "stripe": { "name": "Stripe", "category": "Ödeme", "desc": "Güvenli ön ödeme ve abonelik yönetimi. 100+ ülkede geçerli kart desteği, otomatik fatura." },
-      "email": { "name": "E-posta (Resend)", "category": "Bildirim", "desc": "Randevu teyidi, hatırlatma ve kampanya e-postaları. Özelleştirilebilir HTML şablonlar." },
-      "googleAnalytics": { "name": "Google Analytics", "category": "Analitik", "desc": "Online randevu sayfanızın trafiğini, dönüşümlerini ve kullanıcı davranışlarını izleyin." },
-      "sms": { "name": "SMS Bildirimleri", "category": "Mesajlaşma", "desc": "WhatsApp kullanmayan müşterilere SMS hatırlatma ve onay mesajı gönderin. Kendi Netgsm, VatanSMS veya İletimerkezi hesabınızla bağlanır." },
-      "qr": { "name": "QR Kod", "category": "Randevu", "desc": "Salonunuzun kapısına veya kartvizite QR kod yapıştırın, müşteriler direkt randevu alsın." },
-      "ai": { "name": "OpenAI / Claude AI", "category": "Yapay Zeka", "desc": "WhatsApp, Instagram ve panel içi AI asistanı için güçlü dil modeli altyapısı." }
+      "whatsapp": {
+        "name": "WhatsApp Business",
+        "category": "Mesajlaşma",
+        "desc": "Müşterilere otomatik hatırlatma, randevu teyidi ve kampanya mesajı gönderin. AI asistanı ile 7/24 yanıt."
+      },
+      "instagram": {
+        "name": "Instagram DM",
+        "category": "Sosyal Medya",
+        "desc": "Instagram DM'lerine AI destekli otomatik yanıt. Randevu soruları, fiyat bilgisi ve yönlendirme."
+      },
+      "googleCalendar": {
+        "name": "Google Calendar",
+        "category": "Takvim",
+        "desc": "Randevularınızı personelin Google takvimiyle senkronize edin. Çakışma uyarısı otomatik."
+      },
+      "stripe": {
+        "name": "Stripe",
+        "category": "Ödeme",
+        "desc": "Güvenli ön ödeme ve abonelik yönetimi. 100+ ülkede geçerli kart desteği, otomatik fatura."
+      },
+      "email": {
+        "name": "E-posta (Resend)",
+        "category": "Bildirim",
+        "desc": "Randevu teyidi, hatırlatma ve kampanya e-postaları. Özelleştirilebilir HTML şablonlar."
+      },
+      "googleAnalytics": {
+        "name": "Google Analytics",
+        "category": "Analitik",
+        "desc": "Online randevu sayfanızın trafiğini, dönüşümlerini ve kullanıcı davranışlarını izleyin."
+      },
+      "sms": {
+        "name": "SMS Bildirimleri",
+        "category": "Mesajlaşma",
+        "desc": "WhatsApp kullanmayan müşterilere SMS hatırlatma ve onay mesajı gönderin. Kendi Netgsm, VatanSMS veya İletimerkezi hesabınızla bağlanır."
+      },
+      "qr": {
+        "name": "QR Kod",
+        "category": "Randevu",
+        "desc": "Salonunuzun kapısına veya kartvizite QR kod yapıştırın, müşteriler direkt randevu alsın."
+      },
+      "ai": {
+        "name": "OpenAI / Claude AI",
+        "category": "Yapay Zeka",
+        "desc": "WhatsApp, Instagram ve panel içi AI asistanı için güçlü dil modeli altyapısı."
+      }
     },
     "missingTitle": "Eksik Entegrasyon mu Var?",
     "missingDesc": "İhtiyacınız olan entegrasyonu önerebilirsiniz — aktif kullanıcılar öncelikli listeye alınır.",
@@ -300,10 +410,22 @@
     },
     "valuesTitle": "Değerlerimiz",
     "values": {
-      "innovation": { "title": "Yenilikçilik", "desc": "AI ve otomasyon teknolojileriyle işletmelerin verimliliğini maksimuma taşırız." },
-      "reliability": { "title": "Güvenilirlik", "desc": "KVKK uyumlu altyapı, uçtan uca şifreleme ve %99,9 uptime garantisiyle yanınızdayız." },
-      "customerFocus": { "title": "Müşteri Odaklılık", "desc": "Her sektörün kendine özgü ihtiyaçlarını anlayarak çözüm üretiriz." },
-      "globalVision": { "title": "Global Vizyon", "desc": "Türkiye'den dünyaya — çok dilli platformumuzla uluslararası büyümeyi destekleriz." }
+      "innovation": {
+        "title": "Yenilikçilik",
+        "desc": "AI ve otomasyon teknolojileriyle işletmelerin verimliliğini maksimuma taşırız."
+      },
+      "reliability": {
+        "title": "Güvenilirlik",
+        "desc": "KVKK uyumlu altyapı, uçtan uca şifreleme ve %99,9 uptime garantisiyle yanınızdayız."
+      },
+      "customerFocus": {
+        "title": "Müşteri Odaklılık",
+        "desc": "Her sektörün kendine özgü ihtiyaçlarını anlayarak çözüm üretiriz."
+      },
+      "globalVision": {
+        "title": "Global Vizyon",
+        "desc": "Türkiye'den dünyaya — çok dilli platformumuzla uluslararası büyümeyi destekleriz."
+      }
     },
     "ctaTitle": "Sorularınız mı var?",
     "ctaSubtitle": "Ekibimizle iletişime geçin, size en uygun çözümü birlikte bulalım.",
@@ -317,10 +439,20 @@
     "heroSubtitle": "Sorularınız için ekibimizle iletişime geçin. Ortalama yanıt süremiz 2 saattir.",
     "infoTitle": "İletişim Bilgileri",
     "info": {
-      "email": { "label": "E-posta" },
-      "phone": { "label": "Telefon / WhatsApp" },
-      "address": { "label": "Adres", "value": "BY Sirius Group Ai & Technology Co Ltd., Türkiye" },
-      "hours": { "label": "Çalışma Saatleri", "value": "Pzt–Cum 09:00–18:00" }
+      "email": {
+        "label": "E-posta"
+      },
+      "phone": {
+        "label": "Telefon / WhatsApp"
+      },
+      "address": {
+        "label": "Adres",
+        "value": "BY Sirius Group Ai & Technology Co Ltd., Türkiye"
+      },
+      "hours": {
+        "label": "Çalışma Saatleri",
+        "value": "Pzt–Cum 09:00–18:00"
+      }
     },
     "whatsappCtaTitle": "WhatsApp'tan Yazın",
     "whatsappCtaDesc": "Hızlı yanıt için tercih edilen kanal",
@@ -337,6 +469,11 @@
     "fieldMessagePlaceholder": "Detayları paylaşın, size en uygun çözümü bulalım...",
     "kvkkConsent": "<kvkkLink>KVKK Aydınlatma Metni</kvkkLink> ve <gizlilikLink>Gizlilik Politikası</gizlilikLink>'nı okudum ve kabul ediyorum.",
     "submitButton": "Mesaj Gönder",
+    "formSending": "Gönderiliyor...",
+    "formError": "Mesaj gönderilemedi. Lütfen tekrar deneyin veya info@bysirius.com adresine yazın.",
+    "formSuccessTitle": "Mesajınız Bize Ulaştı",
+    "formSuccessDesc": "En kısa sürede size dönüş yapacağız. Acil durumlar için WhatsApp'tan da yazabilirsiniz.",
+    "formSendAnother": "Yeni Mesaj Gönder",
     "otherChannelsTitle": "Diğer Destek Kanalları",
     "emailSupport": "E-posta Destek",
     "whatsappSupport": "WhatsApp Destek",
@@ -352,45 +489,102 @@
       "general": {
         "title": "Genel",
         "items": {
-          "q1": { "q": "Siriplan nedir?", "a": "Siriplan, kuaför, berber, güzellik salonu, SPA, klinik ve daha fazlası için geliştirilmiş yapay zeka destekli randevu ve işletme yönetim platformudur. BY Sirius Group Ai & Technology Co Ltd. tarafından geliştirilmiştir." },
-          "q2": { "q": "Hangi sektörlere hitap ediyor?", "a": "Kuaför, berber, güzellik salonu, SPA & masaj, nail salon, estetik klinik, makyaj stüdyosu, tattoo studio, diyetisyen, kaş & kirpik gibi 10'dan fazla sektöre özel çözüm sunuyoruz." },
-          "q3": { "q": "Uygulamayı İngilizce kullanabilir miyim?", "a": "Evet. Platform Türkçe, İngilizce, Rusça ve Arapça desteklemektedir. Dil tercihini ayarlardan değiştirebilirsiniz." },
-          "q4": { "q": "Birden fazla şube yönetebilir miyim?", "a": "Evet. Business planında sınırsız şube yönetebilirsiniz. Starter ve Pro planlar için şube başına ek paket seçeneği mevcuttur." }
+          "q1": {
+            "q": "Siriplan nedir?",
+            "a": "Siriplan, kuaför, berber, güzellik salonu, SPA, klinik ve daha fazlası için geliştirilmiş yapay zeka destekli randevu ve işletme yönetim platformudur. BY Sirius Group Ai & Technology Co Ltd. tarafından geliştirilmiştir."
+          },
+          "q2": {
+            "q": "Hangi sektörlere hitap ediyor?",
+            "a": "Kuaför, berber, güzellik salonu, SPA & masaj, nail salon, estetik klinik, makyaj stüdyosu, tattoo studio, diyetisyen, kaş & kirpik gibi 10'dan fazla sektöre özel çözüm sunuyoruz."
+          },
+          "q3": {
+            "q": "Uygulamayı İngilizce kullanabilir miyim?",
+            "a": "Evet. Platform Türkçe, İngilizce, Rusça ve Arapça desteklemektedir. Dil tercihini ayarlardan değiştirebilirsiniz."
+          },
+          "q4": {
+            "q": "Birden fazla şube yönetebilir miyim?",
+            "a": "Evet. Business planında sınırsız şube yönetebilirsiniz. Starter ve Pro planlar için şube başına ek paket seçeneği mevcuttur."
+          }
         }
       },
       "pricing": {
         "title": "Fiyatlandırma & Deneme",
         "items": {
-          "q1": { "q": "14 günlük deneme gerçekten ücretsiz mi?", "a": "Evet, herhangi bir kredi kartı bilgisi gerekmez. 14 gün boyunca Pro planın tüm özelliklerini ücretsiz kullanabilirsiniz." },
-          "q2": { "q": "Fiyatlar dolara mı?", "a": "Fiyatlar USD cinsindendir. Stripe ile güvenli ödeme yapılır. Türk lirası ile ödeme için lütfen iletişime geçin." },
-          "q3": { "q": "İstediğim zaman iptal edebilir miyim?", "a": "Evet, herhangi bir taahhüt veya ceza olmaksızın istediğiniz zaman iptal edebilirsiniz. İptal etseniz bile 30 gün boyunca verilerinize erişim ve indirme hakkınız devam eder." },
-          "q4": { "q": "Yıllık planla ne kadar tasarruf ediyorum?", "a": "Yıllık ödeme tercihinde %18 indirim uygulanır. Örneğin Pro plan aylık $63 yerine $52/ay'dan (yıllık $620) kullanılabilir." }
+          "q1": {
+            "q": "14 günlük deneme gerçekten ücretsiz mi?",
+            "a": "Evet, herhangi bir kredi kartı bilgisi gerekmez. 14 gün boyunca Pro planın tüm özelliklerini ücretsiz kullanabilirsiniz."
+          },
+          "q2": {
+            "q": "Fiyatlar dolara mı?",
+            "a": "Fiyatlar USD cinsindendir. Stripe ile güvenli ödeme yapılır. Türk lirası ile ödeme için lütfen iletişime geçin."
+          },
+          "q3": {
+            "q": "İstediğim zaman iptal edebilir miyim?",
+            "a": "Evet, herhangi bir taahhüt veya ceza olmaksızın istediğiniz zaman iptal edebilirsiniz. İptal etseniz bile 30 gün boyunca verilerinize erişim ve indirme hakkınız devam eder."
+          },
+          "q4": {
+            "q": "Yıllık planla ne kadar tasarruf ediyorum?",
+            "a": "Yıllık ödeme tercihinde %18 indirim uygulanır. Örneğin Pro plan aylık $63 yerine $52/ay'dan (yıllık $620) kullanılabilir."
+          }
         }
       },
       "booking": {
         "title": "Randevu & Müşteri",
         "items": {
-          "q1": { "q": "Müşteriler nasıl randevu alıyor?", "a": "Web sayfası, WhatsApp, Instagram DM ve QR kod üzerinden 7/24 randevu alabiliyorlar. Çakışma kontrolü otomatik yapılır." },
-          "q2": { "q": "WhatsApp hatırlatması nasıl çalışıyor?", "a": "Randevu öncesi belirlenen saatlerde (24 saat, 2 saat önce gibi) müşteriye WhatsApp mesajı gönderilir. Gelmeme (no-show) oranınızı %60'a kadar azaltır." },
-          "q3": { "q": "Müşteri skoru sistemi ne işe yarar?", "a": "Her müşteriye ziyaret sıklığı, harcama ve sadakate göre 0-100 arası puan atanır. Değerli müşterilerinizi tanıyıp öncelikli randevu ve özel teklifler sunabilirsiniz." },
-          "q4": { "q": "Bekleme listesi var mı?", "a": "Evet, bekleme listesi özelliği mevcuttur. Dolu saatlerde müşterileri sıraya ekleyin, tek tıkla bilgilendirip randevuya çevirin." }
+          "q1": {
+            "q": "Müşteriler nasıl randevu alıyor?",
+            "a": "Web sayfası, WhatsApp, Instagram DM ve QR kod üzerinden 7/24 randevu alabiliyorlar. Çakışma kontrolü otomatik yapılır."
+          },
+          "q2": {
+            "q": "WhatsApp hatırlatması nasıl çalışıyor?",
+            "a": "Randevu öncesi belirlenen saatlerde (24 saat, 2 saat önce gibi) müşteriye WhatsApp mesajı gönderilir. Gelmeme (no-show) oranınızı %60'a kadar azaltır."
+          },
+          "q3": {
+            "q": "Müşteri skoru sistemi ne işe yarar?",
+            "a": "Her müşteriye ziyaret sıklığı, harcama ve sadakate göre 0-100 arası puan atanır. Değerli müşterilerinizi tanıyıp öncelikli randevu ve özel teklifler sunabilirsiniz."
+          },
+          "q4": {
+            "q": "Bekleme listesi var mı?",
+            "a": "Evet, bekleme listesi özelliği mevcuttur. Dolu saatlerde müşterileri sıraya ekleyin, tek tıkla bilgilendirip randevuya çevirin."
+          }
         }
       },
       "ai": {
         "title": "AI & Otomasyon",
         "items": {
-          "q1": { "q": "AI asistanı ne yapıyor?", "a": "7/24 WhatsApp ve Instagram DM'lerini okur, fiyat ve randevu sorularını yanıtlar, müşteri adına randevu oluşturur. Siz uyurken işiniz yürür." },
-          "q2": { "q": "AI asistanı yanlış bilgi verebilir mi?", "a": "AI asistanı yalnızca sizin tanımladığınız hizmet, fiyat ve uygunluk bilgilerine göre yanıt verir. Bunu aşan soruları \"Doğrudan iletişime geçin\" şeklinde yönlendirir." },
-          "q3": { "q": "Kampanya modülü nasıl çalışıyor?", "a": "Belirli kriterlere göre müşteri listesi oluşturun (3 aydır gelmeyenler, doğum günü yaklaşanlar vb.) ve toplu WhatsApp/SMS/e-posta gönderin." }
+          "q1": {
+            "q": "AI asistanı ne yapıyor?",
+            "a": "7/24 WhatsApp ve Instagram DM'lerini okur, fiyat ve randevu sorularını yanıtlar, müşteri adına randevu oluşturur. Siz uyurken işiniz yürür."
+          },
+          "q2": {
+            "q": "AI asistanı yanlış bilgi verebilir mi?",
+            "a": "AI asistanı yalnızca sizin tanımladığınız hizmet, fiyat ve uygunluk bilgilerine göre yanıt verir. Bunu aşan soruları \"Doğrudan iletişime geçin\" şeklinde yönlendirir."
+          },
+          "q3": {
+            "q": "Kampanya modülü nasıl çalışıyor?",
+            "a": "Belirli kriterlere göre müşteri listesi oluşturun (3 aydır gelmeyenler, doğum günü yaklaşanlar vb.) ve toplu WhatsApp/SMS/e-posta gönderin."
+          }
         }
       },
       "tech": {
         "title": "Teknik & Güvenlik",
         "items": {
-          "q1": { "q": "Verilerimi başka bir sisteme taşıyabilir miyim?", "a": "Evet. JSON, Excel ve CSV formatında istediğiniz zaman tüm verilerinizi indirebilirsiniz. Hiçbir platforma bağımlı değilsiniz." },
-          "q2": { "q": "Mevcut sistemdeki verileri aktarabilir miyim?", "a": "Evet. Kullandığınız randevu yazılımından veya Excel'den tek tıkla veri aktarımı desteklenmektedir. Profesyonel Veri Göçü hizmetimizle ekibimiz bunu sizin için yapabilir." },
-          "q3": { "q": "KVKK uyumlu mu?", "a": "Evet. Müşteri verileri KVKK mevzuatına uygun saklanır, uçtan uca şifreleme uygulanır ve veriler Türkiye sunucularında işlenebilir." },
-          "q4": { "q": "Uygulama kapanıyor mu?", "a": "BY Sirius Group altyapısı üzerinde %99.9 uptime hedeflenmektedir. Planlı bakımlar önceden bildirilir ve genellikle gece gerçekleştirilir." }
+          "q1": {
+            "q": "Verilerimi başka bir sisteme taşıyabilir miyim?",
+            "a": "Evet. JSON, Excel ve CSV formatında istediğiniz zaman tüm verilerinizi indirebilirsiniz. Hiçbir platforma bağımlı değilsiniz."
+          },
+          "q2": {
+            "q": "Mevcut sistemdeki verileri aktarabilir miyim?",
+            "a": "Evet. Kullandığınız randevu yazılımından veya Excel'den tek tıkla veri aktarımı desteklenmektedir. Profesyonel Veri Göçü hizmetimizle ekibimiz bunu sizin için yapabilir."
+          },
+          "q3": {
+            "q": "KVKK uyumlu mu?",
+            "a": "Evet. Müşteri verileri KVKK mevzuatına uygun saklanır, uçtan uca şifreleme uygulanır ve veriler Türkiye sunucularında işlenebilir."
+          },
+          "q4": {
+            "q": "Uygulama kapanıyor mu?",
+            "a": "BY Sirius Group altyapısı üzerinde %99.9 uptime hedeflenmektedir. Planlı bakımlar önceden bildirilir ve genellikle gece gerçekleştirilir."
+          }
         }
       }
     },
@@ -412,11 +606,26 @@
     "dataTableCategory": "Veri Kategorisi",
     "dataTableExamples": "Örnekler",
     "dataRows": {
-      "identity": { "category": "Kimlik", "examples": "Ad, soyad" },
-      "contact": { "category": "İletişim", "examples": "E-posta, telefon" },
-      "business": { "category": "İşletme", "examples": "İşletme adı, adres, sektör" },
-      "transaction": { "category": "İşlem", "examples": "Randevu, fatura kayıtları" },
-      "technical": { "category": "Teknik", "examples": "IP adresi, tarayıcı bilgisi" }
+      "identity": {
+        "category": "Kimlik",
+        "examples": "Ad, soyad"
+      },
+      "contact": {
+        "category": "İletişim",
+        "examples": "E-posta, telefon"
+      },
+      "business": {
+        "category": "İşletme",
+        "examples": "İşletme adı, adres, sektör"
+      },
+      "transaction": {
+        "category": "İşlem",
+        "examples": "Randevu, fatura kayıtları"
+      },
+      "technical": {
+        "category": "Teknik",
+        "examples": "IP adresi, tarayıcı bilgisi"
+      }
     },
     "purposeTitle": "İşleme Amaçları ve Hukuki Sebepler",
     "purposeItems": [
@@ -527,9 +736,18 @@
     "s1Title": "1. Çerez Nedir?",
     "s1P": "Çerezler (cookies), web siteleri tarafından tarayıcınıza yerleştirilen küçük metin dosyalarıdır. Siriplan platformu, daha iyi bir kullanıcı deneyimi sunmak ve hizmet kalitesini artırmak amacıyla çerezlerden faydalanır.",
     "s2Title": "2. Kullandığımız Çerez Türleri",
-    "s2Necessary": { "title": "Zorunlu Çerezler", "desc": "Platformun temel işlevleri için gereklidir. Oturum yönetimi, güvenlik doğrulaması ve tercih kaydetme bu kategoride yer alır. Bu çerezler devre dışı bırakılamaz." },
-    "s2Analytics": { "title": "Analitik Çerezler", "desc": "Platform kullanımını ölçmek ve hizmetleri iyileştirmek amacıyla anonim istatistikler toplar. Hangi sayfaların en çok ziyaret edildiğini anlamamıza yardımcı olur." },
-    "s2Functional": { "title": "İşlevsellik Çerezleri", "desc": "Dil tercihi, tema seçimi (koyu/açık mod) gibi kişiselleştirme ayarlarınızı hatırlamak için kullanılır." },
+    "s2Necessary": {
+      "title": "Zorunlu Çerezler",
+      "desc": "Platformun temel işlevleri için gereklidir. Oturum yönetimi, güvenlik doğrulaması ve tercih kaydetme bu kategoride yer alır. Bu çerezler devre dışı bırakılamaz."
+    },
+    "s2Analytics": {
+      "title": "Analitik Çerezler",
+      "desc": "Platform kullanımını ölçmek ve hizmetleri iyileştirmek amacıyla anonim istatistikler toplar. Hangi sayfaların en çok ziyaret edildiğini anlamamıza yardımcı olur."
+    },
+    "s2Functional": {
+      "title": "İşlevsellik Çerezleri",
+      "desc": "Dil tercihi, tema seçimi (koyu/açık mod) gibi kişiselleştirme ayarlarınızı hatırlamak için kullanılır."
+    },
     "s3Title": "3. Çerez Yönetimi",
     "s3P": "Tarayıcı ayarlarınızdan çerezleri engelleyebilir veya silebilirsiniz. Ancak zorunlu çerezlerin engellenmesi platformun düzgün çalışmasını olumsuz etkileyebilir.",
     "s3Items": [
@@ -551,45 +769,32 @@
     "videoComingSoon": "Yakında yayında",
     "featuresTitle": "Demo'da Ne Göreceksiniz?",
     "features": {
-      "booking": { "title": "Randevu Yönetimi", "desc": "Günlük takvim görünümü, çakışma kontrolü, çoklu kanal desteği" },
-      "crm": { "title": "Müşteri CRM", "desc": "0-100 sadakat skoru, doğum günü kampanyaları, VIP müşteri takibi" },
-      "revenue": { "title": "Ciro & Raporlar", "desc": "Gerçek zamanlı gelir takibi, 6 aylık trend analizi, personel bazlı raporlar" },
-      "ai": { "title": "AI Asistanı", "desc": "WhatsApp ve Instagram DM'lerine 7/24 otomatik yanıt, akıllı randevu önerileri" },
-      "gamification": { "title": "Gamification", "desc": "Haftanın Elemanı, aylık rozetler, personel performans sıralaması" }
+      "booking": {
+        "title": "Randevu Yönetimi",
+        "desc": "Günlük takvim görünümü, çakışma kontrolü, çoklu kanal desteği"
+      },
+      "crm": {
+        "title": "Müşteri CRM",
+        "desc": "0-100 sadakat skoru, doğum günü kampanyaları, VIP müşteri takibi"
+      },
+      "revenue": {
+        "title": "Ciro & Raporlar",
+        "desc": "Gerçek zamanlı gelir takibi, 6 aylık trend analizi, personel bazlı raporlar"
+      },
+      "ai": {
+        "title": "AI Asistanı",
+        "desc": "WhatsApp ve Instagram DM'lerine 7/24 otomatik yanıt, akıllı randevu önerileri"
+      },
+      "gamification": {
+        "title": "Gamification",
+        "desc": "Haftanın Elemanı, aylık rozetler, personel performans sıralaması"
+      }
     },
     "ctaTitle": "Hemen Başlayın",
     "ctaSubtitle": "Demo izlemek yerine doğrudan salonunuzla deneyin. 14 gün boyunca tüm özellikler ücretsiz.",
     "ctaPrimary": "Ücretsiz Hesap Oluştur",
     "ctaSecondary": "Bize Ulaşın",
     "footNote": "✓ Kredi kartı gerekmez · ✓ 14 gün ücretsiz · ✓ İstediğin zaman iptal"
-  },
-  "careersPage": {
-    "metaDescription": "BY Sirius Group ile kariyer fırsatları — uzak çalışma, rekabetçi maaş, teknoloji odaklı ortam.",
-    "heroEyebrow": "BY Sirius Group Kariyer",
-    "heroTitle": "Geleceği Birlikte",
-    "heroTitleHighlight": "İnşa Edelim",
-    "heroSubtitle": "Yapay zeka ve SaaS alanında Türkiye'nin öncü şirketlerinden birinde kariyer fırsatı yakalamak istiyorsanız doğru yerdesiniz.",
-    "applyButton": "Başvuru Gönder",
-    "perksTitle": "Neden BY Sirius?",
-    "perks": {
-      "remoteWork": { "title": "Tam Uzak Çalışma", "desc": "Türkiye'nin her yerinden, evinden veya coworking space'ten çalışabilirsin." },
-      "fastGrowth": { "title": "Hızlı Büyüme", "desc": "Startup dinamiğinde, doğrudan etki yaratacağın rol ve sorumluluklar." },
-      "benefits": { "title": "Sağlık & Yan Haklar", "desc": "Özel sağlık sigortası, yemek kartı, eğitim bütçesi." },
-      "aiCulture": { "title": "AI-First Kültür", "desc": "Her gün en yeni AI araçlarını kullanarak iş yapıyoruz." }
-    },
-    "openingsTitle": "Açık Pozisyonlar",
-    "jobs": {
-      "fullstack": { "title": "Senior Full-Stack Developer", "team": "Ürün & Mühendislik", "type": "Tam Zamanlı · Uzak", "tags": ["Next.js", "TypeScript", "Supabase", "AI"] },
-      "growth": { "title": "Growth & Marketing Specialist", "team": "Büyüme", "type": "Tam Zamanlı · Uzak", "tags": ["SaaS", "SEO", "İçerik", "Analitik"] },
-      "customerSuccess": { "title": "Customer Success Manager", "team": "Müşteri Başarısı", "type": "Tam Zamanlı · Hibrit İstanbul", "tags": ["SaaS", "Müşteri İlişkileri", "Türkçe", "CRM"] },
-      "designer": { "title": "UI/UX Designer", "team": "Tasarım", "type": "Freelance / Proje Bazlı", "tags": ["Figma", "Mobil", "Web", "Kullanıcı Araştırması"] }
-    },
-    "applyLink": "Başvur",
-    "noPositionText": "Uygun pozisyon bulamadınız mı?",
-    "openApplication": "Açık başvuru gönderin",
-    "ctaTitle": "Ürünümüzü Kullanmak İster misiniz?",
-    "ctaSubtitle": "Ekibimize katılmadan önce Siriplan'ı deneyin.",
-    "ctaButton": "14 Gün Ücretsiz Deneyin"
   },
   "categories": {
     "title": "Hangi Sektördesiniz?",
@@ -623,7 +828,6 @@
     "company": "Şirket",
     "about": "Hakkımızda",
     "contact": "İletişim",
-    "careers": "Kariyer",
     "legal": "Yasal",
     "privacy": "Gizlilik Politikası",
     "terms": "Kullanım Koşulları",
@@ -705,13 +909,88 @@
     },
     "campaignsPage": {
       "eyebrow": "Pazarlama",
-      "subtitle": "Müşterilerinize otomatik mesajlar gönderin"
+      "subtitle": "Müşterilerinize otomatik mesajlar gönderin",
+      "lockedTitle": "Kampanya Modülü",
+      "lockedDescription": "Müşterilere otomatik doğum günü mesajı, inaktif müşteri takibi ve özel kampanyalar gönderin.",
+      "lockedNative": "Bu modül mevcut planınıza dahil değil.",
+      "upgrade": "Pro Plana Geç",
+      "createCampaign": "+ Kampanya Oluştur",
+      "marketingReach": "{count} müşteri kampanya bildirimi onayı verdi — bunlara e-posta / SMS gönderebilirsiniz.",
+      "viewList": "Listeyi gör →",
+      "historyTitle": "Kampanya Geçmişi",
+      "emptyHistory": "Henüz kampanya oluşturulmadı",
+      "status": {
+        "draft": "Taslak",
+        "scheduled": "Planlandı",
+        "sending": "Gönderiliyor",
+        "sent": "Gönderildi",
+        "failed": "Başarısız"
+      },
+      "types": {
+        "birthday": "🎂 Doğum Günü",
+        "inactive": "💤 İnaktif Müşteri",
+        "custom": "✏️ Özel",
+        "birthdayDesc": "Her gün otomatik olarak doğum günü kutlama mesajı",
+        "inactiveDesc": "60+ gündür gelmeyenlere 'Sizi özledik' mesajı",
+        "customDesc": "Kendi segmentinizi oluşturun ve mesaj gönderin"
+      },
+      "sentCount": "gönderildi",
+      "scheduledLabel": "Planlandı: {date}",
+      "draftLabel": "Taslak"
     },
     "staffPage": {
-      "eyebrow": "Ekip"
+      "eyebrow": "Ekip",
+      "limitReached": "Personel limitinize ulaştınız.",
+      "upgradePrompt": "Personel limitinize ulaştınız. Daha fazla eklemek için <link>planınızı yükseltin</link>.",
+      "emptyState": "Henüz personel eklenmemiş",
+      "salaryCalc": "Maaş Hesapla",
+      "addStaff": "+ Personel Ekle",
+      "limitNative": "Personel limitinize ulaştınız."
     },
     "customersPage": {
       "eyebrow": "CRM"
+    },
+    "customerList": {
+      "searchPlaceholder": "İsim veya telefonla ara...",
+      "clearSearch": "Aramayı temizle",
+      "sort": {
+        "lastVisit": "Son Ziyaret",
+        "name": "İsim",
+        "score": "Skor",
+        "spend": "Harcama",
+        "visits": "Ziyaret"
+      },
+      "direction": {
+        "nameAsc": "A → Z",
+        "nameDesc": "Z → A",
+        "lastVisitAsc": "Eskiden yeniye",
+        "lastVisitDesc": "Yeniden eskiye",
+        "defaultAsc": "Azdan çoka",
+        "defaultDesc": "Çoktan aza"
+      },
+      "toggleSort": "Sıralama yönünü değiştir",
+      "marketingOnly": "Kampanya Onaylı",
+      "clearFilters": "Filtreyi Temizle",
+      "resultCount": "{count} müşteri gösteriliyor",
+      "resultCountWithFilter": "{count} müşteri gösteriliyor (toplam {total})",
+      "marketingApproved": "{count} kampanya onaylı",
+      "noResults": "Aramanıza uyan müşteri bulunamadı",
+      "noCustomers": "Henüz müşteri yok",
+      "call": "Ara",
+      "whatsapp": "WhatsApp",
+      "deleteCustomer": "Müşteriyi sil",
+      "deleteCustomerAria": "{name} kaydını sil",
+      "marketingAcceptedTitle": "Kampanya bildirimi onaylı",
+      "marketingMissingTitle": "Kampanya bildirimi onayı yok",
+      "visit": "Ziyaret",
+      "spend": "Harcama",
+      "score": "Puan",
+      "lastVisit": "Son: {date}",
+      "deleteDialogTitle": "Müşteriyi sil",
+      "deleteDialogDescription": "<strong>{name}</strong> kaydı silinecek. Bu işlem geri alınamaz.",
+      "deleteDialogHint": "Müşterinin geçmiş randevusu varsa kayıt tamamen silinmez: adı, telefonu ve diğer kişisel bilgileri temizlenir; randevu ve ciro geçmişi raporlarınız bozulmasın diye anonim olarak korunur.",
+      "cancel": "Vazgeç",
+      "delete": "Sil"
     },
     "pendingRequestsPage": {
       "subtitle": "WhatsApp veya Instagram üzerinden gelen ve manuel onayınızı bekleyen randevu talepleri."
