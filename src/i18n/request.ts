@@ -38,9 +38,12 @@ async function detectLocale(): Promise<Locale> {
   // 3. IP ülkesine göre varsayılan dil: TR -> tr, Rusça/Arapça konuşulan
   // ülkeler -> ru/ar, kalan her yer -> en.
   const headerStore = await headers();
+  // x-vercel-ip-country önce: Vercel bu başlığı gelen istekte ezdiği için
+  // sahtelenemez (bkz. lib/pricing.ts'teki aynı not). Sahte bir değer yine
+  // de yalnızca dili değiştirir, hiçbir yetki taşımaz.
   const countryCode =
-    headerStore.get("cf-ipcountry") ??
     headerStore.get("x-vercel-ip-country") ??
+    headerStore.get("cf-ipcountry") ??
     headerStore.get("x-country-code") ??
     headerStore.get("x-country") ??
     "";
