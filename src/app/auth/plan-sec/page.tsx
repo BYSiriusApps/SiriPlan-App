@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle, Mail, Phone, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
+import { formatPrice, type PricingCurrency } from "@/lib/pricing";
 
 const SUPPORT_EMAIL = "info@bysirius.com";
 const SUPPORT_PHONE = "+905355032634";
@@ -16,9 +17,6 @@ const PLANS = [
     key: "starter",
     name: "Starter",
     icon: Zap,
-    monthly: 36,
-    annual: 30,
-    annualTotal: 354,
     color: "border-blue-200 dark:border-blue-800",
     highlight: "",
     description: "Küçük işletmeler için ideal başlangıç",
@@ -35,9 +33,6 @@ const PLANS = [
     key: "pro",
     name: "Pro",
     icon: Sparkles,
-    monthly: 63,
-    annual: 52,
-    annualTotal: 620,
     color: "border-primary ring-2 ring-primary",
     highlight: "Çok Satan",
     description: "Büyüyen işletmeler için eksiksiz araç seti",
@@ -53,17 +48,12 @@ const PLANS = [
       "Veri göçü (mevcut sistemden)",
       "Website modu (özelleştirilebilir randevu sayfası)",
     ],
-    // "Tüm Starter özellikleri" sonrası gelenler Starter'da OLMAYAN Pro farkı —
-    // kartta ayrı bir "Pro Farkı" bölümünde vurgulanır (bkz. render).
     proDeltaFrom: 3,
   },
   {
     key: "business",
     name: "Business",
     icon: Building2,
-    monthly: 113,
-    annual: 93,
-    annualTotal: 1112,
     color: "border-purple-200 dark:border-purple-800",
     highlight: "",
     description: "Zincir ve büyük ölçekli işletmeler için",
@@ -75,10 +65,21 @@ const PLANS = [
       "Özel entegrasyonlar",
     ],
   },
-];
+] as const;
+
+const DEFAULT_PRICING = {
+  currency: "TRY" as PricingCurrency,
+  plans: {
+    starter: { monthly: 1752, annual: 17240 },
+    pro: { monthly: 3024, annual: 29756 },
+    business: { monthly: 5424, annual: 53372 },
+  },
+};
 
 export default function PlanSecPage() {
   const [annual, setAnnual] = useState(false);
+  const [currency, setCurrency] = useState<PricingCurrency>("TRY");
+  const [pricing, setPricing] = useState(DEFAULT_PRICING);
   const [loading, setLoading] = useState<string | null>(null);
   const [trialLoading, setTrialLoading] = useState(false);
   // null = bilinmiyor (henüz yüklenmedi), true = deneme aktif, false = süresi dolmuş
@@ -94,6 +95,18 @@ export default function PlanSecPage() {
   useEffect(() => {
     setExpired(new URLSearchParams(window.location.search).get("expired") === "1");
     setMobileApp(isMobileAppUserAgent(navigator.userAgent) || hasMobileAppCookie(document.cookie));
+
+    fetch("/api/pricing/currency")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data?.currency || !data?.plans) return;
+        setCurrency(data.currency);
+        setPricing({ currency: data.currency, plans: data.plans });
+      })
+      .catch(() => {
+        setCurrency("TRY");
+        setPricing(DEFAULT_PRICING);
+      });
   }, []);
 
   // Aktif işletmenin deneme durumunu öğren — "devam et" davranışını belirler
@@ -265,7 +278,10 @@ export default function PlanSecPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {PLANS.map((plan) => {
             const Icon = plan.icon;
-            const price = annual ? plan.annual : plan.monthly;
+            const planPricing = pricing.plans[plan.key];
+            const price = annual ? formatPrice(Math.round(planPricing.annual / 12), currency) : formatPrice(planPricing.monthly, currency);
+            const annualTotal = formatPrice(planPricing.annual, currency);
+            const savings = formatPrice(Math.max(0, planPricing.monthly * 12 - planPricing.annual), currency);
             return (
               <Card key={plan.key} className={`relative ${plan.color} transition-all hover:shadow-xl`}>
                 {plan.highlight && (
@@ -280,11 +296,11 @@ export default function PlanSecPage() {
                   </div>
                   <CardDescription className="text-xs">{plan.description}</CardDescription>
                   <div className="mt-3">
-                    <span className="text-4xl font-bold">${price}</span>
+                    <span className="text-4xl font-bold">{price}</span>
                     <span className="text-muted-foreground text-sm">/ay</span>
                     {annual && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        ${plan.monthly * 12 - plan.annualTotal} yıllık tasarruf
+                        {savings} yıllık tasarruf
                       </p>
                     )}
                   </div>

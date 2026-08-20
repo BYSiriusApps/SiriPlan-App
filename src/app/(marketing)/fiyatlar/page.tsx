@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { ArrowRight, Check, Star, Bot, MessageSquare, Zap, BarChart3, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTranslations } from "next-intl/server";
+import { formatPrice, getAnnualMonthlyEquivalent, getAnnualSavings, getVisitorPricing } from "@/lib/pricing";
 
-const PLAN_META = [
-  { key: "starter", monthly: "$36", annual: "$30", annualTotal: "$354", href: "/auth/kayit", highlight: false },
-  { key: "pro", monthly: "$63", annual: "$52", annualTotal: "$620", href: "/auth/kayit", highlight: true },
-  { key: "business", monthly: "$113", annual: "$93", annualTotal: "$1.112", href: "/iletisim", highlight: false },
-] as const;
+// Fiyatlar ziyaretçinin ülkesine göre değiştiği için (bkz. lib/pricing.ts)
+// sayfa istek başına render edilmeli; statik üretilirse tüm ziyaretçiler
+// build anındaki tek para birimini görürdü.
+export const dynamic = "force-dynamic";
 
 const ADDON_META = [
   { key: "whatsappAI", icon: Bot },
@@ -31,6 +32,21 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function FiyatlarPage() {
   const t = await getTranslations();
+  const pricing = getVisitorPricing(await headers());
+  const planMeta = ([
+    { key: "starter", href: "/auth/kayit", highlight: false },
+    { key: "pro", href: "/auth/kayit", highlight: true },
+    { key: "business", href: "/iletisim", highlight: false },
+  ] as const).map((plan) => {
+    const details = pricing.plans[plan.key];
+    return {
+      ...plan,
+      monthly: formatPrice(details.monthly, pricing.currency),
+      annual: formatPrice(getAnnualMonthlyEquivalent(details.monthly, details.annual), pricing.currency),
+      annualTotal: formatPrice(details.annual, pricing.currency),
+      save: formatPrice(getAnnualSavings(details.monthly, details.annual), pricing.currency),
+    };
+  });
 
   const faqs = [1, 2, 3, 4, 5].map((n) => ({
     q: t(`pricingPage.faq.q${n}`),
@@ -60,7 +76,7 @@ export default async function FiyatlarPage() {
       <section className="py-16">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {PLAN_META.map((plan) => {
+            {planMeta.map((plan) => {
               const features = t.raw(`pricing.${plan.key}.features`) as string[];
               const notIncluded = (t.raw(`pricing.${plan.key}.notIncluded`) as string[] | undefined) ?? [];
               return (
@@ -90,7 +106,7 @@ export default async function FiyatlarPage() {
                         {t("pricing.annualLabel", {
                           annual: plan.annual,
                           total: plan.annualTotal,
-                          save: t("pricing.annualSave"),
+                          save: plan.save,
                         })}
                       </p>
                     </div>

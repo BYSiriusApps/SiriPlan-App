@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import {
   ArrowRight, Star, Zap, Users, TrendingUp, Shield, Sparkles,
   Check, Bot, Calendar, MessageSquare, BarChart3, FileDown,
@@ -8,9 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTranslations } from "next-intl/server";
+import { formatPrice, getAnnualMonthlyEquivalent, getAnnualSavings, getVisitorPricing } from "@/lib/pricing";
 
 // Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (/demo route'u) korunuyor.
 const DEMO_ENABLED = false;
+
+export const dynamic = "force-dynamic";
 
 const FEATURE_META = [
   { key: "booking",   icon: Calendar,       color: "text-rose-500",   bg: "bg-rose-50 dark:bg-rose-950/30"    },
@@ -35,12 +39,6 @@ const CATEGORY_META = [
   { key: "dietitian",   icon: "🥗"    },
   { key: "eyebrow",     icon: "👁"    },
   { key: "petGrooming", icon: "🐾"    },
-] as const;
-
-const PLAN_META = [
-  { key: "starter",  monthly: "$36", annual: "$30",  annualTotal: "$354",    highlight: false },
-  { key: "pro",      monthly: "$63", annual: "$52",  annualTotal: "$620",    highlight: true  },
-  { key: "business", monthly: "$113",annual: "$93",  annualTotal: "$1.112",  highlight: false },
 ] as const;
 
 const ADDON_META = [
@@ -78,6 +76,21 @@ const testimonials = [
 
 export default async function HomePage() {
   const t = await getTranslations();
+  const pricing = getVisitorPricing(await headers());
+  const planMeta = ([
+    { key: "starter", highlight: false },
+    { key: "pro", highlight: true },
+    { key: "business", highlight: false },
+  ] as const).map((plan) => {
+    const details = pricing.plans[plan.key];
+    return {
+      ...plan,
+      monthly: formatPrice(details.monthly, pricing.currency),
+      annual: formatPrice(getAnnualMonthlyEquivalent(details.monthly, details.annual), pricing.currency),
+      annualTotal: formatPrice(details.annual, pricing.currency),
+      save: formatPrice(getAnnualSavings(details.monthly, details.annual), pricing.currency),
+    };
+  });
 
   const stats = [
     { value: "100+",   label: t("stats.businesses")  },
@@ -216,7 +229,7 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {PLAN_META.map((plan) => {
+            {planMeta.map((plan) => {
               const features = t.raw(`pricing.${plan.key}.features`) as string[];
               return (
                 <Card
@@ -241,7 +254,7 @@ export default async function HomePage() {
                       {t("pricing.annualLabel", {
                         annual: plan.annual,
                         total: plan.annualTotal,
-                        save: t("pricing.annualSave"),
+                        save: plan.save,
                       })}
                     </p>
                     <Link href="/auth/kayit">

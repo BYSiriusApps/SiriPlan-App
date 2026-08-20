@@ -5,6 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 const LOCALES = ["tr", "en", "ru", "ar"] as const;
 type Locale = (typeof LOCALES)[number];
 
+/**
+ * Ülke → dil eşlemesi. Kullanıcının AÇIK tercihi (NEXT_LOCALE çerezi veya
+ * hesabına kayıtlı dil) her zaman önce gelir; buradaki eşleme yalnızca hiç
+ * tercih bildirmemiş ilk ziyaretçinin varsayılanını seçer ve sayfadaki dil
+ * değiştiriciyle tek tıkla ezilebilir.
+ */
+const RU_COUNTRIES = ["RU", "BY", "KZ", "KG", "TJ", "UZ", "AM", "MD"];
+const AR_COUNTRIES = [
+  "SA", "AE", "QA", "KW", "BH", "OM", "YE", "IQ", "JO", "LB", "SY", "PS",
+  "EG", "LY", "TN", "DZ", "MA", "MR", "SD", "SO", "DJ", "KM",
+];
+
 async function detectLocale(): Promise<Locale> {
   // 1. Cookie (en yaygın yol — giriş ve dil değişiminde zaten yazılıyor,
   // her sayfa geçişinde Supabase'e gitmeden anında karar verilir).
@@ -23,14 +35,33 @@ async function detectLocale(): Promise<Locale> {
     // Supabase erişilemezse (ör. build zamanı) sessizce devam et
   }
 
-  // 3. Accept-Language header
+  // 3. IP ülkesine göre varsayılan dil: TR -> tr, Rusça/Arapça konuşulan
+  // ülkeler -> ru/ar, kalan her yer -> en.
   const headerStore = await headers();
-  const acceptLang = headerStore.get("accept-language") ?? "";
-  for (const lang of LOCALES) {
-    if (acceptLang.toLowerCase().startsWith(lang)) return lang;
+  const countryCode =
+    headerStore.get("cf-ipcountry") ??
+    headerStore.get("x-vercel-ip-country") ??
+    headerStore.get("x-country-code") ??
+    headerStore.get("x-country") ??
+    "";
+
+  if (countryCode) {
+    const normalized = countryCode.toUpperCase();
+    if (normalized === "TR") return "tr";
+    if (RU_COUNTRIES.includes(normalized)) return "ru";
+    if (AR_COUNTRIES.includes(normalized)) return "ar";
+    return "en";
   }
 
-  return "tr";
+  // 4. Ülke bilgisi yoksa (yerel geliştirme, geo header'ı olmayan ortam)
+  // tarayıcı diline bakılır; desteklemediğimiz bir dilse İngilizce.
+  const acceptLang = headerStore.get("accept-language") ?? "";
+  const primaryLang = acceptLang.split(",")[0].split(";")[0].trim().toLowerCase();
+  for (const lang of LOCALES) {
+    if (primaryLang.startsWith(lang)) return lang;
+  }
+
+  return "en";
 }
 
 export default getRequestConfig(async () => {
