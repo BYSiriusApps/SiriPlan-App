@@ -134,16 +134,27 @@ export default async function AbonelikPage() {
         </CardContent>
       </Card>
 
-      {/* Actions — mobil uygulamada mağaza kurallarına uymak için fiyat/ödeme
-          linki gösterilmez, yalnızca destek iletişimi sunulur. */}
+      {/* Actions — native uygulamada (App Store/Play Store) fiyat, plan
+          karşılaştırma ve ödeme bağlantısı gösterilmez. Destek bağlantısı da
+          kasıtlı olarak "plan değişikliği/yükseltme" ifadesi taşımaz: App
+          Store İnceleme Kılavuzu 3.1.1 uygulama içi satın alma dışındaki bir
+          satın alma yoluna YÖNLENDİREN her çağrıyı (buton, link, metin)
+          kapsar; "plan değiştirmek için bize yazın" da böyle bir çağrıdır.
+          Burada yalnızca sayfanın üstündeki mevcut plan bilgisi ve genel
+          müşteri desteği kalır. */}
       {mobileApp ? (
-        <a
-          href={`mailto:${SUPPORT_EMAIL}`}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-border font-medium hover:bg-accent transition-colors"
-        >
-          <Mail className="h-4 w-4" />
-          Plan değişikliği için destek ile iletişime geçin
-        </a>
+        <div className="space-y-2">
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-border font-medium hover:bg-accent transition-colors"
+          >
+            <Mail className="h-4 w-4" />
+            Destek ile iletişime geçin
+          </a>
+          <p className="text-xs text-center text-muted-foreground">
+            Hesabınızın planı ve kullanım limitleri yukarıda görünür.
+          </p>
+        </div>
       ) : (
         <div className="space-y-3">
           {org.plan === "trial" || org.plan === "starter" ? (

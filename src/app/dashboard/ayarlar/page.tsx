@@ -394,7 +394,10 @@ export default function AyarlarPage() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-sm">Abonelik &amp; Fatura</p>
-          <p className="text-xs text-muted-foreground">Plan, kullanım limitleri ve ödeme yönetimi</p>
+          {/* Native uygulamada "ödeme" kelimesi bile bir yönlendirme sinyalidir. */}
+          <p className="text-xs text-muted-foreground">
+            {mobileApp ? "Plan ve kullanım limitleri" : "Plan, kullanım limitleri ve ödeme yönetimi"}
+          </p>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
       </Link>

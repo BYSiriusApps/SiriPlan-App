@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { isMobileApp } from "@/lib/mobile-app";
 import { Geist, Geist_Mono, Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -128,6 +129,11 @@ export default async function RootLayout({
   // yollarda (pazarlama, /r/[slug]) başlık boştur ve öznitelik hiç basılmaz —
   // o sayfalarda politika zaten 'unsafe-inline' ile çalışıyor.
   const nonce = (await headers()).get(CSP_NONCE_HEADER) ?? undefined;
+  // JSON-LD'deki fiyat teklifi (SoftwareApplication.offers) arama motorları
+  // içindir; native uygulamada sayfa kaynağında bile fiyat taşımamak için
+  // düşürülür (App Store 3.1.1 "metadata" ifadesini geniş yorumlar). Arama
+  // motoru tarayıcıları bu işaretçileri hiç göndermediği için SEO etkilenmez.
+  const mobileApp = await isMobileApp();
   return (
     <html
       lang={locale}
@@ -170,12 +176,16 @@ export default async function RootLayout({
                   name: "Siriplan",
                   applicationCategory: "BusinessApplication",
                   operatingSystem: "Web, iOS, Android",
-                  offers: {
-                    "@type": "Offer",
-                    price: "36",
-                    priceCurrency: "USD",
-                    description: "Starter plan — 7 days free trial",
-                  },
+                  ...(mobileApp
+                    ? {}
+                    : {
+                        offers: {
+                          "@type": "Offer",
+                          price: "1752",
+                          priceCurrency: "TRY",
+                          description: "Starter plan — 14 days free trial",
+                        },
+                      }),
                   description: "AI destekli randevu ve işletme yönetim platformu",
                   url: "https://siriplan.com",
                 },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { limitByIp } from "@/lib/rate-limit";
+import { isMobileApp } from "@/lib/mobile-app";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -13,7 +14,14 @@ const CONTACT_LINE = "📧 info@bysirius.com veya 💬 WhatsApp: +90 535 503 26 
  * ilk eşleşen kural kazanır (bkz. örn. "izin günü" girdisi "personel" girdisinden önce
  * durmalı, yoksa bare "personel" alt-string eşleşmesi onu ele geçirir).
  */
-const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
+/**
+ * `nativeAnswer`: native mobil uygulama (App Store / Play Store) içinden
+ * sorulduğunda `answer` yerine dönen metin. App Store İnceleme Kılavuzu
+ * 3.1.1 uygulama içinde fiyat listesi ve uygulama dışı ödeme yönlendirmesi
+ * yasaklar — yardım asistanı panelin her sayfasında açık olduğu için
+ * inceleme sırasında ulaşılabilecek en kolay fiyat/ödeme metnidir.
+ */
+const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: string }[] = [
   {
     keywords: ["bekliyor", "onaylandı", "onayla", "tamamlandı", "gelmedi", "no-show", "noshow", "randevu durum", "durum ne"],
     answer:
@@ -149,6 +157,9 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
   },
   {
     keywords: ["ödeme yap", "abonelik", "plan seç", "starter", "pro plan", "business plan", "plan fiyat", "kredi kartı", "deneme süresi", "stripe"],
+    nativeAnswer:
+      "Hesabınızın planını ve kullanım limitlerini Ayarlar → Abonelik sayfasından görebilirsiniz. " +
+      "Hesabınızla ilgili sorularınız için " + CONTACT_LINE,
     answer:
       "14 gün ücretsiz deneme ile başlarsınız, kredi kartı gerekmez. Planlar:\n" +
       "• Starter — 1 şube/8 personel, 500 randevu/ay, online randevu sayfası, WhatsApp hatırlatma, sadakat kartı, temel ciro raporu, CSV export.\n" +
@@ -218,12 +229,12 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string }[] = [
   },
 ];
 
-function getStaticResponse(message: string): string {
+function getStaticResponse(message: string, mobileApp: boolean): string {
   const msg = message.toLowerCase();
 
   for (const entry of KNOWLEDGE_BASE) {
     if (entry.keywords.some((k) => msg.includes(k))) {
-      return entry.answer;
+      return mobileApp && entry.nativeAnswer ? entry.nativeAnswer : entry.answer;
     }
   }
 
@@ -255,7 +266,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Mesaj çok uzun." }, { status: 400 });
     }
 
-    return NextResponse.json({ response: getStaticResponse(message) });
+    return NextResponse.json({ response: getStaticResponse(message, await isMobileApp()) });
   } catch {
     return NextResponse.json({
       response: `Şu an yanıt veremiyorum. Lütfen ${CONTACT_LINE}`,

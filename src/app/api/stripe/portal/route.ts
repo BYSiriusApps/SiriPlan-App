@@ -2,10 +2,22 @@ import { NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getStripe } from "@/lib/stripe/config";
 import { createClient } from "@/lib/supabase/server";
+import { isMobileApp } from "@/lib/mobile-app";
 
 export const dynamic = "force-dynamic";
 
 export async function POST() {
+  // Mağaza kurallarına uyum (bkz. api/stripe/checkout): Stripe müşteri
+  // portalı da bir ödeme yüzeyidir — plan değiştirme, kart güncelleme ve
+  // iptal oradan yapılır. Native uygulamadan hiç açılmamalı; şu an bu ucu
+  // çağıran bir buton yok ama ileride eklenirse sunucu tarafı zaten kapalı.
+  if (await isMobileApp()) {
+    return NextResponse.json(
+      { error: "Bu işlem mobil uygulama içinden yapılamaz. Lütfen destek ile iletişime geçin." },
+      { status: 403 }
+    );
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isMobileApp } from "@/lib/mobile-app";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { isSupportedLanguage } from "@/lib/languages";
@@ -61,7 +62,13 @@ export async function POST(req: NextRequest) {
 
     if (count !== null && count >= (org.max_staff ?? 3)) {
       return NextResponse.json(
-        { error: `Plan limitine ulaşıldı (maks. ${org.max_staff ?? 3} personel). Planı yükseltin.` },
+        {
+          // Native uygulamada (App Store/Play Store) plan yükseltme çağrısı
+          // gösterilmez — hata metni de bir yönlendirme yüzeyidir.
+          error: (await isMobileApp())
+            ? `Plan limitine ulaşıldı (maks. ${org.max_staff ?? 3} personel).`
+            : `Plan limitine ulaşıldı (maks. ${org.max_staff ?? 3} personel). Planı yükseltin.`,
+        },
         { status: 403 }
       );
     }

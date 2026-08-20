@@ -9,11 +9,19 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Mail, Lock, Eye, EyeOff, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobileApp } from "@/lib/use-mobile-app";
 
 // Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (handleDemoLogin) korunuyor.
 const DEMO_ENABLED = false;
 
 export default function GirisPage() {
+  // Native uygulamada (App Store/Play Store) kayıt akışı yoktur: /auth/kayit
+  // proxy.ts'teki route kilidiyle engelli olduğu için buradaki bağlantı
+  // kullanıcıyı /dashboard → /auth/giris döngüsüne sokuyordu. Ölü bağlantı
+  // App Store 2.1 (bozuk işlevsellik) kapsamına girer; ayrıca kayıt akışının
+  // sonu plan seçimidir. Uygulamada hesap açma yok — salon sahibi hesabını
+  // web'de açar, uygulamayı mevcut hesabıyla kullanır.
+  const isMobileApp = useIsMobileApp();
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -162,12 +170,14 @@ export default function GirisPage() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Hesabınız yok mu?{" "}
-          <Link href="/auth/kayit" className="text-primary font-medium hover:underline">
-            Ücretsiz deneyin
-          </Link>
-        </p>
+        {!isMobileApp && (
+          <p className="text-center text-sm text-muted-foreground">
+            Hesabınız yok mu?{" "}
+            <Link href="/auth/kayit" className="text-primary font-medium hover:underline">
+              Ücretsiz deneyin
+            </Link>
+          </p>
+        )}
       </CardContent>
     </Card>
   );

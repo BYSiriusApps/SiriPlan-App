@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "./lib/supabase/middleware";
 import { getSubscriptionLock } from "./lib/subscription-lock";
-import { MOBILE_APP_COOKIE, isMobileAppUserAgent, isMobileAppCookieValue } from "./lib/mobile-app-shared";
+import { MOBILE_APP_COOKIE, MOBILE_APP_PARAM, isMobileAppUserAgent, isMobileAppCookieValue } from "./lib/mobile-app-shared";
 import { CSP_NONCE_HEADER, buildCsp, buildCandidateCsp, generateNonce, isNonceEnabled, isReportOnlyEnabled, pathNeedsNonce } from "./lib/csp";
 
 // Routes that require at minimum "manager" role
@@ -49,6 +49,13 @@ const PUBLIC_API_WRITE_PREFIXES = [
   // Kötüye kullanım koruması ucun kendi içinde: IP başına saatte 20 istek +
   // 1000 karakter sınırı (route.ts).
   "/api/chat",
+  // Pazarlama sitesindeki iletişim formu (bkz. api/contact). Ziyaretçilerin
+  // oturumu yoktur; bu istisna olmadan gönderilen HER mesaj daha route'a
+  // ulaşmadan 401'e düşer — ki bu ucun var oluş sebebi tam olarak "sessizce
+  // kaybolan destek talebi"ni ortadan kaldırmaktı. Kötüye kullanım koruması
+  // ucun kendi içinde: IP + e-posta hız sınırı, honeypot/zamanlama, Turnstile
+  // ve Tor çıkış düğümü kontrolü.
+  "/api/contact",
   // Tarayıcının CSP ihlal raporu. Oturumsuz sayfalardan da (pazarlama,
   // /r/[slug]) gelir; buradaki genel "yazma için oturum şart" kuralına
   // takılırsa tam da en çok ihtiyaç duyduğumuz raporlar 401 ile kaybolur.
@@ -116,8 +123,18 @@ function isCrossSiteWrite(request: NextRequest): boolean {
 }
 
 function isMobileAppRequest(request: NextRequest): boolean {
+  // UA işaretçisi (iOS sarmalayıcısı) en güçlü sinyal: uygulamanın içinden
+  // kaldırılamaz, bu yüzden her şeyden önce ve sorgu parametresiyle iptal
+  // edilemeyecek şekilde değerlendirilir.
+  if (isMobileAppUserAgent(request.headers.get("user-agent"))) return true;
+
+  const param = request.nextUrl.searchParams.get(MOBILE_APP_PARAM);
+  if (param === "1") return true;
+  // Kaçış kapısı: sp_app çerezi normal mobil Chrome'a bulaştığında kullanıcıyı
+  // tek linkle kurtarır (bkz. mobile-app-shared.ts).
+  if (param === "0") return false;
+
   return (
-    isMobileAppUserAgent(request.headers.get("user-agent")) ||
     isMobileAppCookieValue(request.cookies.get(MOBILE_APP_COOKIE)?.value) ||
     isAndroidTwaReferer(request)
   );
@@ -176,14 +193,43 @@ function shouldIssueNonce(request: NextRequest): boolean {
 // by next-intl's getRequestConfig (src/i18n/request.ts).
 // This keeps dashboard URLs clean: /dashboard not /tr/dashboard.
 export async function proxy(request: NextRequest) {
+  // `?sp_app=1` ile gelen ilk isteği, parametresiz aynı adrese YÖNLENDİRİRİZ
+  // ve çerezi o yanıtta set ederiz. Yönlendirme şart: sunucu bileşenleri
+  // (lib/mobile-app.ts) yalnızca header ve çerez okur, sorgu parametresini
+  // göremez — parametreyi burada tüketmezsek native uygulamanın AÇILIŞ
+  // ekranında bir kez plan/ödeme çağrıları render edilirdi ki mağaza
+  // incelemesinin gördüğü tam olarak o ilk ekrandır. İkinci istek çerezi
+  // taşıdığı için tüm ağaç doğru kararı verir. Yalnızca GET/HEAD: yazma
+  // isteğini yönlendirmek gövdeyi düşürürdü.
+  const entryParam = request.nextUrl.searchParams.get(MOBILE_APP_PARAM);
+  if ((entryParam === "1" || entryParam === "0") && (request.method === "GET" || request.method === "HEAD")) {
+    const url = request.nextUrl.clone();
+    url.searchParams.delete(MOBILE_APP_PARAM);
+    const entryResponse = NextResponse.redirect(url);
+    if (entryParam === "1") {
+      entryResponse.cookies.set(MOBILE_APP_COOKIE, "1", {
+        maxAge: 60 * 60 * 24 * 365,
+        path: "/",
+        sameSite: "lax",
+      });
+    } else {
+      entryResponse.cookies.delete(MOBILE_APP_COOKIE);
+    }
+    entryResponse.headers.set("Content-Security-Policy", buildCsp(null));
+    return entryResponse;
+  }
+
   const nonce = shouldIssueNonce(request) ? generateNonce() : null;
   const response = await proxyInner(request, nonce);
-  if (response && isAndroidTwaReferer(request)) {
+  const appParam = request.nextUrl.searchParams.get(MOBILE_APP_PARAM);
+  if (response && (isAndroidTwaReferer(request) || appParam === "1")) {
     response.cookies.set(MOBILE_APP_COOKIE, "1", {
       maxAge: 60 * 60 * 24 * 365,
       path: "/",
       sameSite: "lax",
     });
+  } else if (response && appParam === "0") {
+    response.cookies.delete(MOBILE_APP_COOKIE);
   }
   // CSP'nin TEK çıkış noktası (bkz. lib/csp.ts). next.config.ts artık bu
   // başlığı basmıyor — iki yerden basılsaydı tarayıcıya iki politika gider,

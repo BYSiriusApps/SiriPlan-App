@@ -10,6 +10,7 @@ import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send
 import { normalizePhone } from "@/lib/phone";
 import { isTrialActive } from "@/lib/entitlements";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
+import { isMobileApp } from "@/lib/mobile-app";
 import { limitByIp, hit, clientIp, tooManyRequests } from "@/lib/rate-limit";
 import { detectBot, BOT_REJECTION_MESSAGE } from "@/lib/bot-guard";
 import { translateStoredName } from "@/lib/services/catalog-i18n";
@@ -259,7 +260,11 @@ async function handleCreateAppointment(req: NextRequest) {
     org.plan === "pro" || org.plan === "business" || isTrialActive(org);
   if (isExternalSource && org.has_auto_booking && !planAllowsAutoBooking) {
     return NextResponse.json(
-      { error: "Otomatik randevu özelliği Pro veya Business planı gerektirir." },
+      // Native uygulamada plan adı geçen bir yönlendirme metni gösterilmez
+      // (App Store 3.1.1) — kullanıcıya yalnızca özelliğin kapalı olduğu söylenir.
+      { error: (await isMobileApp())
+          ? "Otomatik randevu özelliği mevcut planınıza dahil değil."
+          : "Otomatik randevu özelliği Pro veya Business planı gerektirir." },
       { status: 403 }
     );
   }
@@ -326,7 +331,9 @@ async function handleCreateAppointment(req: NextRequest) {
 
     if (count !== null && count >= org.max_appointments_monthly) {
       return NextResponse.json(
-        { error: `Bu ay için randevu limitine ulaşıldı (${org.max_appointments_monthly}). Sonraki ay veya plan yükseltme ile devam edilebilir.` },
+        { error: (await isMobileApp())
+            ? `Bu ay için randevu limitine ulaşıldı (${org.max_appointments_monthly}).`
+            : `Bu ay için randevu limitine ulaşıldı (${org.max_appointments_monthly}). Sonraki ay veya plan yükseltme ile devam edilebilir.` },
         { status: 429 }
       );
     }
