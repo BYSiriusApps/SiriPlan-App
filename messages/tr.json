@@ -684,6 +684,42 @@
     "trialNote": "14 gün ücretsiz, kredi kartı gerekmez"
   },
   "dashboard": {
+    "incomePage": {
+      "eyebrow": "Finans",
+      "subtitle": "Finansal kayıtlarınızı takip edin"
+    },
+    "dataMigrationPage": {
+      "eyebrow": "Veri Yönetimi",
+      "subtitle": "Verilerinizi aktarın veya güvenle indirin"
+    },
+    "subscriptionPage": {
+      "eyebrow": "Plan & Fatura",
+      "subtitle": "Plan ve fatura yönetimi"
+    },
+    "reportsPage": {
+      "eyebrow": "Performans",
+      "subtitle": "Son 6 aylık performans analizi"
+    },
+    "websiteSettingsPage": {
+      "eyebrow": "Pro Özellik"
+    },
+    "campaignsPage": {
+      "eyebrow": "Pazarlama",
+      "subtitle": "Müşterilerinize otomatik mesajlar gönderin"
+    },
+    "staffPage": {
+      "eyebrow": "Ekip"
+    },
+    "customersPage": {
+      "eyebrow": "CRM"
+    },
+    "pendingRequestsPage": {
+      "subtitle": "WhatsApp veya Instagram üzerinden gelen ve manuel onayınızı bekleyen randevu talepleri."
+    },
+    "waitlistPage": {
+      "eyebrow": "Randevu",
+      "subtitle": "Dolu saatler için müşterileri bekleme listesine ekleyin"
+    },
     "overview": "Genel Bakış",
     "calendar": "Takvim",
     "appointments": "Randevular",

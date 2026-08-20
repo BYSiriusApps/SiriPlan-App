@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ const EMPTY_FORM = {
 };
 
 export default function BeklemeListesiPage() {
+  const t = useTranslations("dashboard");
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -153,12 +155,12 @@ export default function BeklemeListesiPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Randevu</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("waitlistPage.eyebrow")}</span>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Bekleme Listesi</h1>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("waitlist")}</h1>
             <HomeButton />
           </div>
-          <p className="text-muted-foreground text-sm">Dolu saatler için müşterileri bekleme listesine ekleyin</p>
+          <p className="text-muted-foreground text-sm">{t("waitlistPage.subtitle")}</p>
         </div>
         <Button onClick={() => setShowForm(true)} className="gap-2 shrink-0">
           <Plus className="h-4 w-4" />

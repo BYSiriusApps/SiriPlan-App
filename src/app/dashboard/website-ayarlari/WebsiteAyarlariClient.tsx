@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -62,6 +63,7 @@ interface Props {
 }
 
 export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, initialServices }: Props) {
+  const t = useTranslations("dashboard");
   const [org, setOrg] = useState<Organization>(initialOrg);
   const [categories, setCategories] = useState<ServiceCategory[]>(initialCategories);
   const [services, setServices] = useState<Service[]>(initialServices);
@@ -452,8 +454,8 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
             <Globe className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Pro Özellik</span>
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Website Ayarları</h1>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("websiteSettingsPage.eyebrow")}</span>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("websiteSettings")}</h1>
           </div>
           <HomeButton />
         </div>

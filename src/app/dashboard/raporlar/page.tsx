@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { startOfMonth, endOfMonth, format, subMonths, startOfDay, endOfDay, addDays } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -15,6 +16,7 @@ export default async function RaporlarPage({
 }: {
   searchParams: Promise<{ gun?: string }>;
 }) {
+  const t = await getTranslations("dashboard");
   const sp = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -145,9 +147,9 @@ export default async function RaporlarPage({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Performans</span>
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Raporlar</h1>
-            <p className="text-muted-foreground text-sm">Son 6 aylık performans analizi</p>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("reportsPage.eyebrow")}</span>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("reports")}</h1>
+            <p className="text-muted-foreground text-sm">{t("reportsPage.subtitle")}</p>
           </div>
           <HomeButton />
         </div>

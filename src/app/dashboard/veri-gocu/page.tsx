@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ const IMPORT_SOURCES = [
 ];
 
 export default function VeriGocuPage() {
+  const t = useTranslations("dashboard");
   const [importing, setImporting] = useState(false);
   const [exporting, setExporting] = useState<"json" | "csv" | "excel" | "pdf" | null>(null);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
@@ -94,12 +96,12 @@ export default function VeriGocuPage() {
             <Upload className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Veri Yönetimi</span>
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Veri Göçü</h1>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("dataMigrationPage.eyebrow")}</span>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("dataMigration")}</h1>
           </div>
           <HomeButton />
         </div>
-        <p className="text-muted-foreground text-sm mt-1">Verilerinizi aktarın veya güvenle indirin</p>
+        <p className="text-muted-foreground text-sm mt-1">{t("dataMigrationPage.subtitle")}</p>
       </div>
 
       {/* Export section */}

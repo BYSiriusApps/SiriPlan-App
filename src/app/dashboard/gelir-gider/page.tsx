@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +85,7 @@ const EMPTY_RECURRING = {
 };
 
 export default function GelirGiderPage() {
+  const t = useTranslations("dashboard");
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -311,9 +313,9 @@ export default function GelirGiderPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Finans</span>
-          <div className="flex items-center gap-3"><h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Gelir & Gider</h1><HomeButton /></div>
-          <p className="text-muted-foreground text-sm">Finansal kayıtlarınızı takip edin</p>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("incomePage.eyebrow")}</span>
+          <div className="flex items-center gap-3"><h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("income")}</h1><HomeButton /></div>
+          <p className="text-muted-foreground text-sm">{t("incomePage.subtitle")}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button
@@ -661,17 +663,17 @@ export default function GelirGiderPage() {
               {MONTHS[month - 1]} {year} — Kayıtlar
             </CardTitle>
             <div className="flex gap-1">
-              {(["all", "gelir", "gider"] as const).map((t) => (
+              {(["all", "gelir", "gider"] as const).map((kind) => (
                 <button
-                  key={t}
-                  onClick={() => setFilterType(t)}
+                  key={kind}
+                  onClick={() => setFilterType(kind)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    filterType === t
+                    filterType === kind
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
-                  {t === "all" ? "Tümü" : t === "gelir" ? "Gelir" : "Gider"}
+                  {kind === "all" ? "Tümü" : kind === "gelir" ? "Gelir" : "Gider"}
                 </button>
               ))}
             </div>
@@ -819,19 +821,19 @@ export default function GelirGiderPage() {
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-2">
-              {(["gelir", "gider"] as const).map((t) => (
+              {(["gelir", "gider"] as const).map((kind) => (
                 <button
-                  key={t}
-                  onClick={() => setForm((f) => ({ ...f, type: t, category: "diger" }))}
+                  key={kind}
+                  onClick={() => setForm((f) => ({ ...f, type: kind, category: "diger" }))}
                   className={`py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${
-                    form.type === t
-                      ? t === "gelir"
+                    form.type === kind
+                      ? kind === "gelir"
                         ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
                         : "border-red-500 bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400"
                       : "border-border text-muted-foreground"
                   }`}
                 >
-                  {t === "gelir" ? "💰 Gelir" : "💸 Gider"}
+                  {kind === "gelir" ? "💰 Gelir" : "💸 Gider"}
                 </button>
               ))}
             </div>
@@ -943,19 +945,19 @@ export default function GelirGiderPage() {
             </p>
 
             <div className="grid grid-cols-2 gap-2">
-              {(["gelir", "gider"] as const).map((t) => (
+              {(["gelir", "gider"] as const).map((kind) => (
                 <button
-                  key={t}
-                  onClick={() => setRecurringForm((f) => ({ ...f, type: t, category: "diger" }))}
+                  key={kind}
+                  onClick={() => setRecurringForm((f) => ({ ...f, type: kind, category: "diger" }))}
                   className={`py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${
-                    recurringForm.type === t
-                      ? t === "gelir"
+                    recurringForm.type === kind
+                      ? kind === "gelir"
                         ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
                         : "border-red-500 bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400"
                       : "border-border text-muted-foreground"
                   }`}
                 >
-                  {t === "gelir" ? "💰 Gelir" : "💸 Gider"}
+                  {kind === "gelir" ? "💰 Gelir" : "💸 Gider"}
                 </button>
               ))}
             </div>

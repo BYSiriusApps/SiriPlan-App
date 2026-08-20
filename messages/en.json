@@ -684,6 +684,42 @@
     "trialNote": "14 days free, no credit card required"
   },
   "dashboard": {
+    "incomePage": {
+      "eyebrow": "Finance",
+      "subtitle": "Track your financial records"
+    },
+    "dataMigrationPage": {
+      "eyebrow": "Data Management",
+      "subtitle": "Import your data or download it securely"
+    },
+    "subscriptionPage": {
+      "eyebrow": "Plan & Billing",
+      "subtitle": "Plan and billing management"
+    },
+    "reportsPage": {
+      "eyebrow": "Performance",
+      "subtitle": "Performance analysis for the last 6 months"
+    },
+    "websiteSettingsPage": {
+      "eyebrow": "Pro Feature"
+    },
+    "campaignsPage": {
+      "eyebrow": "Marketing",
+      "subtitle": "Send automatic messages to your customers"
+    },
+    "staffPage": {
+      "eyebrow": "Team"
+    },
+    "customersPage": {
+      "eyebrow": "CRM"
+    },
+    "pendingRequestsPage": {
+      "subtitle": "Appointment requests received via WhatsApp or Instagram that are awaiting your manual approval."
+    },
+    "waitlistPage": {
+      "eyebrow": "Appointment",
+      "subtitle": "Add customers to the waitlist for fully booked hours"
+    },
     "overview": "Overview",
     "calendar": "Calendar",
     "appointments": "Appointments",

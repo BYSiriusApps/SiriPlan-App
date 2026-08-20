@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +31,7 @@ const SOURCE_META: Record<string, { label: string; icon: typeof MessageCircle; c
 };
 
 export function BekleyenIsteklerClient({ initialRequests }: { initialRequests: AppointmentRequest[] }) {
+  const t = useTranslations("dashboard");
   const [requests, setRequests] = useState(initialRequests);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -58,12 +60,12 @@ export function BekleyenIsteklerClient({ initialRequests }: { initialRequests: A
         </div>
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">WhatsApp / Instagram</span>
-          <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Bekleyen İstekler</h1>
+          <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("pendingRequests")}</h1>
         </div>
         <HomeButton />
       </div>
       <p className="text-muted-foreground text-sm -mt-3">
-        WhatsApp veya Instagram üzerinden gelen ve manuel onayınızı bekleyen randevu talepleri.
+        {t("pendingRequestsPage.subtitle")}
       </p>
 
       {requests.length === 0 ? (

@@ -684,6 +684,42 @@
     "trialNote": "14 дней бесплатно, карта не нужна"
   },
   "dashboard": {
+    "incomePage": {
+      "eyebrow": "Финансы",
+      "subtitle": "Отслеживайте свои финансовые записи"
+    },
+    "dataMigrationPage": {
+      "eyebrow": "Управление данными",
+      "subtitle": "Импортируйте данные или безопасно скачайте их"
+    },
+    "subscriptionPage": {
+      "eyebrow": "Тариф и оплата",
+      "subtitle": "Управление тарифом и счетами"
+    },
+    "reportsPage": {
+      "eyebrow": "Эффективность",
+      "subtitle": "Анализ эффективности за последние 6 месяцев"
+    },
+    "websiteSettingsPage": {
+      "eyebrow": "Pro-функция"
+    },
+    "campaignsPage": {
+      "eyebrow": "Маркетинг",
+      "subtitle": "Отправляйте клиентам автоматические сообщения"
+    },
+    "staffPage": {
+      "eyebrow": "Команда"
+    },
+    "customersPage": {
+      "eyebrow": "CRM"
+    },
+    "pendingRequestsPage": {
+      "subtitle": "Заявки на запись, полученные через WhatsApp или Instagram и ожидающие вашего ручного подтверждения."
+    },
+    "waitlistPage": {
+      "eyebrow": "Запись",
+      "subtitle": "Добавляйте клиентов в лист ожидания на занятые часы"
+    },
     "overview": "Обзор",
     "calendar": "Календарь",
     "appointments": "Записи",

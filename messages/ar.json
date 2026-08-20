@@ -684,6 +684,42 @@
     "trialNote": "14 يومًا مجاناً، لا تحتاج بطاقة ائتمان"
   },
   "dashboard": {
+    "incomePage": {
+      "eyebrow": "المالية",
+      "subtitle": "تابع سجلاتك المالية"
+    },
+    "dataMigrationPage": {
+      "eyebrow": "إدارة البيانات",
+      "subtitle": "استورد بياناتك أو نزّلها بأمان"
+    },
+    "subscriptionPage": {
+      "eyebrow": "الخطة والفوترة",
+      "subtitle": "إدارة الخطة والفواتير"
+    },
+    "reportsPage": {
+      "eyebrow": "الأداء",
+      "subtitle": "تحليل الأداء لآخر 6 أشهر"
+    },
+    "websiteSettingsPage": {
+      "eyebrow": "ميزة Pro"
+    },
+    "campaignsPage": {
+      "eyebrow": "التسويق",
+      "subtitle": "أرسل رسائل تلقائية إلى عملائك"
+    },
+    "staffPage": {
+      "eyebrow": "الفريق"
+    },
+    "customersPage": {
+      "eyebrow": "إدارة العملاء"
+    },
+    "pendingRequestsPage": {
+      "subtitle": "طلبات المواعيد الواردة عبر واتساب أو إنستغرام والتي تنتظر موافقتك اليدوية."
+    },
+    "waitlistPage": {
+      "eyebrow": "الموعد",
+      "subtitle": "أضف العملاء إلى قائمة الانتظار للأوقات المحجوزة"
+    },
     "overview": "نظرة عامة",
     "calendar": "التقويم",
     "appointments": "المواعيد",

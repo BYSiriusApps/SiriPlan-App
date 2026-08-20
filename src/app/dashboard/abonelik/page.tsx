@@ -3,6 +3,7 @@ import { getActiveMember } from "@/lib/active-org";
 import { getEntitlements, isTrialActive } from "@/lib/entitlements";
 import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail } from "lucide-react";
@@ -21,6 +22,7 @@ const PLAN_DETAILS = {
 };
 
 export default async function AbonelikPage() {
+  const t = await getTranslations("dashboard");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/giris");
@@ -55,12 +57,12 @@ export default async function AbonelikPage() {
             <CreditCard className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Plan &amp; Fatura</span>
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Abonelik</h1>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("subscriptionPage.eyebrow")}</span>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("subscription")}</h1>
           </div>
           <HomeButton />
         </div>
-        <p className="text-muted-foreground text-sm mt-1">Plan ve fatura yönetimi</p>
+        <p className="text-muted-foreground text-sm mt-1">{t("subscriptionPage.subtitle")}</p>
       </div>
 
       {/* Current plan */}
