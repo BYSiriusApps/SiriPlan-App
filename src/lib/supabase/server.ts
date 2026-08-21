@@ -1,4 +1,5 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createClient as createSupabaseJsClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
@@ -55,22 +56,27 @@ export const getSessionUser = cache(async () => {
   return user;
 });
 
+/**
+ * Servis rolü istemcisi — HİÇBİR ZAMAN çerezlere bağlanmaz.
+ *
+ * NEDEN: `@supabase/ssr`'ın `createServerClient`'ı oturum bilinçlidir — çerezde
+ * geçerli bir oturum varsa, PostgREST isteklerinin Authorization başlığında
+ * verilen `supabaseKey` (service role) yerine O OTURUMUN access_token'ını
+ * kullanır (auth-js önceliği böyledir). Panelde oturum açmış biri, service
+ * role ile RLS'i bypass etmesi gereken bir uca (ör. /api/consent/send-link,
+ * ya da kendi tarayıcısında herkese açık /r/[slug] linkini test ederken)
+ * istek attığında, "admin" istemci sessizce kendi `authenticated` rolüne
+ * düşüyordu — service_role için REVOKE edilmeyen ama anon/authenticated'dan
+ * REVOKE edilmiş tablolarda (ör. consent_requests) "permission denied" ile
+ * patlıyordu, sessizce RLS'e tabi tablolarda ise yetkisiz/eksik veri
+ * dönebiliyordu. `@supabase/supabase-js`'in çıplak `createClient`'ı hiçbir
+ * çerez/oturum deposuna bağlı değildir — Authorization her zaman verilen
+ * service role anahtarıdır.
+ */
 export async function createAdminClient() {
-  const cookieStore = await cookies();
-  return createServerClient(
+  return createSupabaseJsClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll(); },
-        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {}
-        },
-      },
-    }
+    { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
   );
 }

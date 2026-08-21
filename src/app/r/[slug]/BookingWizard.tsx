@@ -254,8 +254,8 @@ export function BookingWizard({
     lastToken.current = -1;
   }
 
-  // Önümüzdeki 14 gün
-  const dateOptions = Array.from({ length: 14 }, (_, i) => {
+  // Önümüzdeki 30 gün (~1 ay) — bkz. appointments/route.ts ONE_YEAR_MS üst sınırı
+  const dateOptions = Array.from({ length: 30 }, (_, i) => {
     const d = addDays(new Date(), i);
     return { value: format(d, "yyyy-MM-dd"), label: format(d, "d MMM, EEE", { locale: dateLocale }) };
   });

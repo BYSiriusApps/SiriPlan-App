@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Locale as DateFnsLocale } from "date-fns";
 import { useTranslations } from "next-intl";
 import { Clock, MapPin, ChevronRight, CalendarCheck } from "lucide-react";
@@ -40,11 +40,26 @@ export function ShowcaseLayout({
   const [lightbox, setLightbox] = useState<{ photos: { id: string; url: string }[]; index: number } | null>(null);
   const [picked, setPicked] = useState<{ service: Service; token: number } | null>(null);
   const [bookingDone, setBookingDone] = useState(false);
+  // Randevu bölümü ekranda görünür olunca sabit "Randevu Al" CTA'sı gizlenir —
+  // aksi halde ziyaretçi sihirbazın içindeyken (ör. "Devam Et"/"Randevuyu Onayla"
+  // ile aynı anda) altta işlevsiz, kafa karıştırıcı ikinci bir buton görüyordu.
+  const [bookingInView, setBookingInView] = useState(false);
   const tokenRef = useRef(0);
   const bookingRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBooking = useCallback(() => {
     bookingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  useEffect(() => {
+    const el = bookingRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setBookingInView(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   function pickService(service: Service) {
@@ -291,8 +306,10 @@ export function ShowcaseLayout({
         </section>
       </main>
 
-      {/* Mobilde sabit CTA — randevu tamamlandıysa gizlenir */}
-      {!bookingDone && (
+      {/* Mobilde sabit CTA — randevu tamamlandıysa veya randevu bölümü zaten
+          ekrandaysa (sihirbazın kendi "Devam Et"/"Randevuyu Onayla" butonuyla
+          çakışmaması için) gizlenir */}
+      {!bookingDone && !bookingInView && (
         <div className="sm:hidden sticky bottom-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3 bg-gradient-to-t from-background via-background/95 to-transparent">
           <button
             type="button"
