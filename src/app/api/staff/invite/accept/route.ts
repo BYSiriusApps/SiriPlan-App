@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
 
   const { data: invite, error } = await admin
     .from("staff_invitations")
-    .select("role, expires_at, organizations(name), staff(full_name)")
+    .select("role, expires_at, email, organizations(name), staff(full_name)")
     .eq("token", token)
     .eq("status", "pending")
     .single();
@@ -110,6 +110,10 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     role: invite.role,
     expires_at: invite.expires_at,
+    // Token'ın kendisi zaten tek yetki kanıtı — davet edilen e-postayı sahibine
+    // geri göstermek (kayıt formunda salt-okunur alan olarak) ek bir risk
+    // oluşturmaz, aksine "bu benim davetim mi" doğrulamasını kolaylaştırır.
+    email: invite.email,
     org_name: (invite.organizations as unknown as { name: string } | null)?.name,
     staff_name: (invite.staff as unknown as { full_name: string } | null)?.full_name,
   });

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import {
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
 
   const member = await getActiveMember(supabase);
@@ -80,12 +80,10 @@ export default async function DashboardPage() {
   const orgId = member.org_id;
   const orgName = (member as { org_id: string; organizations?: { name?: string } }).organizations?.name ?? t("homePage.yourBusiness");
 
-  const { data: orgTzRow } = await supabase
-    .from("organizations")
-    .select("timezone")
-    .eq("id", orgId)
-    .single();
-  const orgTimeZone = orgTzRow?.timezone || DEFAULT_ORG_TIMEZONE;
+  // Saat dilimi üyelik sorgusuyla birlikte geliyor (bkz. active-org.ts
+  // MEMBER_SELECT) — ayrı sorgu, ana sayfanın 16 paralel sorgusu başlamadan
+  // önce beklenen fazladan bir seri gidiş-dönüştü.
+  const orgTimeZone = member.organizations?.timezone || DEFAULT_ORG_TIMEZONE;
 
   const now = new Date();
   const todayStart = startOfDay(now).toISOString();

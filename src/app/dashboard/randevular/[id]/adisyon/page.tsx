@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect, notFound } from "next/navigation";
 import { format } from "date-fns";
@@ -20,7 +20,7 @@ export default async function AdisyonPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
 
   const member = await getActiveMember(supabase);

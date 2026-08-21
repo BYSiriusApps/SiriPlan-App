@@ -33,7 +33,8 @@ export function ClassicLayout({
 
   const showBanner =
     websiteMode &&
-    (org.cover_url || org.website_tagline || org.location_url || org.google_review_url || org.instagram_handle || org.tiktok_handle);
+    (org.cover_url || org.website_tagline || org.location_url || org.google_review_url ||
+      org.instagram_handle || org.tiktok_handle || org.facebook_handle || org.linkedin_handle);
 
   return (
     <>

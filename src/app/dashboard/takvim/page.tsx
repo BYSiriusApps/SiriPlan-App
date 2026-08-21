@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,18 +26,16 @@ export default async function TakvimPage({
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
 
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  const { data: orgTzRow } = await supabase
-    .from("organizations")
-    .select("timezone")
-    .eq("id", member.org_id)
-    .single();
-  const orgTimeZone = orgTzRow?.timezone || "Europe/Istanbul";
+  // Saat dilimi üyelik sorgusuyla birlikte geliyor (bkz. active-org.ts
+  // MEMBER_SELECT); ayrı bir organizations sorgusu, takvim verisi gelmeden
+  // önce zincire fazladan bir seri gidiş-dönüş ekliyordu.
+  const orgTimeZone = member.organizations?.timezone || "Europe/Istanbul";
 
   const view: CalendarView = ["day", "week", "month"].includes(params.view ?? "")
     ? (params.view as CalendarView)

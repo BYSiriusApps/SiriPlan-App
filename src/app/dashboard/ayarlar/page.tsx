@@ -36,6 +36,12 @@ import { DEFAULT_KVKK_NOTICE_TEMPLATE, renderKvkkNotice } from "@/lib/kvkk";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
 import QRCode from "qrcode";
 
+// Website modu örneği için sabit bir demo organizasyona bağlanır. Tek bir
+// spesifik satıra (slug) doğrudan gömmek yerine ortam değişkeninden okunur:
+// o demo org silinir/yeniden adlandırılırsa kod değişikliği gerekmeden tek
+// yerden (Vercel env) güncellenebilir. (bkz. 404 tekrarını önleme notu)
+const DEMO_SALON_SLUG = process.env.NEXT_PUBLIC_DEMO_SALON_SLUG || "sirius-demo-salon";
+
 const APPOINTMENT_TEMPLATE_PRESETS: { key: string; label: string; text: string }[] = [
   {
     key: "sicak",
@@ -235,6 +241,8 @@ export default function AyarlarPage() {
         logo_url: org.logo_url,
         instagram_handle: org.instagram_handle,
         tiktok_handle: org.tiktok_handle,
+        facebook_handle: org.facebook_handle,
+        linkedin_handle: org.linkedin_handle,
         whatsapp_number: org.whatsapp_number,
         telegram_chat_id: org.telegram_chat_id,
         locale: org.locale,
@@ -261,11 +269,20 @@ export default function AyarlarPage() {
 
     let { error } = await supabase.from("organizations").update(payload).eq("id", org.id!);
 
-    // tax_number kolonu henüz uygulanmamışsa (migration sırası) yalnızca bu alan
-    // düşürülüp aynı payload tekrar denenir — tüm ayarlar sayfası tek bir yeni
-    // alan yüzünden kaydedilemez hâle gelmemeli.
+    // tax_number / facebook_handle / linkedin_handle kolonları henüz
+    // uygulanmamışsa (migration sırası) yalnızca o alan düşürülüp aynı payload
+    // tekrar denenir — tüm ayarlar sayfası tek bir yeni alan yüzünden
+    // kaydedilemez hâle gelmemeli.
     if (error && /tax_number/.test(error.message)) {
       delete payload.tax_number;
+      ({ error } = await supabase.from("organizations").update(payload).eq("id", org.id!));
+    }
+    if (error && /facebook_handle/.test(error.message)) {
+      delete payload.facebook_handle;
+      ({ error } = await supabase.from("organizations").update(payload).eq("id", org.id!));
+    }
+    if (error && /linkedin_handle/.test(error.message)) {
+      delete payload.linkedin_handle;
       ({ error } = await supabase.from("organizations").update(payload).eq("id", org.id!));
     }
 
@@ -611,7 +628,7 @@ export default function AyarlarPage() {
                       Pro Plana Geç
                     </Link>
                     <a
-                      href="/r/sirius-demo-salon"
+                      href={`/r/${DEMO_SALON_SLUG}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-border hover:bg-muted transition-colors"
@@ -643,6 +660,22 @@ export default function AyarlarPage() {
           <div className="flex mt-1">
             <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-muted text-muted-foreground text-sm">@</span>
             <Input className="rounded-l-none" value={org.tiktok_handle || ""} onChange={(e) => setField("tiktok_handle", e.target.value)} placeholder="salonadınız" />
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">Website modu açıksa randevu sayfanızda ikon olarak gösterilir.</p>
+        </div>
+        <div>
+          <Label>Facebook Sayfa Adı</Label>
+          <div className="flex mt-1">
+            <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-muted text-muted-foreground text-sm">@</span>
+            <Input className="rounded-l-none" value={org.facebook_handle || ""} onChange={(e) => setField("facebook_handle", e.target.value)} placeholder="salonadınız" />
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">Website modu açıksa randevu sayfanızda ikon olarak gösterilir.</p>
+        </div>
+        <div>
+          <Label>LinkedIn Sayfa Adı</Label>
+          <div className="flex mt-1">
+            <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-muted text-muted-foreground text-sm">@</span>
+            <Input className="rounded-l-none" value={org.linkedin_handle || ""} onChange={(e) => setField("linkedin_handle", e.target.value)} placeholder="salonadınız" />
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">Website modu açıksa randevu sayfanızda ikon olarak gösterilir.</p>
         </div>

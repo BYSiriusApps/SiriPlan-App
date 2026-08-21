@@ -59,7 +59,7 @@ export function BekleyenIsteklerClient({ initialRequests }: { initialRequests: A
           <Inbox className="h-5 w-5" />
         </div>
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">WhatsApp / Instagram</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("pendingRequestsPage.sourceLabel")}</span>
           <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("pendingRequests")}</h1>
         </div>
         <HomeButton />

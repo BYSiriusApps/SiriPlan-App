@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -56,13 +56,13 @@ export default async function RandevularPage({
   const params = await searchParams;
   const t = await getTranslations("dashboard");
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
 
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  const [{ data: staff }, { data: services }, { data: orgTzRow }] = await Promise.all([
+  const [{ data: staff }, { data: services }] = await Promise.all([
     supabase
       .from("staff")
       .select("id, full_name, avatar_url, role")
@@ -75,13 +75,13 @@ export default async function RandevularPage({
       .eq("org_id", member.org_id)
       .eq("is_active", true)
       .order("display_order"),
-    supabase.from("organizations").select("timezone").eq("id", member.org_id).single(),
   ]);
 
   // Tarih filtreleri işletmenin saat diliminde yorumlanır. Sunucu UTC'de
   // çalıştığı için `new Date("2026-08-19T00:00:00")` İstanbul'da günün ilk üç
   // saatini (00:00–03:00) aralığın dışında bırakıyordu.
-  const orgTimezone = (orgTzRow as { timezone?: string } | null)?.timezone || DEFAULT_ORG_TIMEZONE;
+  // Saat dilimi üyelik sorgusundan geliyor (bkz. active-org.ts MEMBER_SELECT).
+  const orgTimezone = member.organizations?.timezone || DEFAULT_ORG_TIMEZONE;
 
   const searchTerm = params.q?.trim();
   const todayOnly = params.bugun === "1";

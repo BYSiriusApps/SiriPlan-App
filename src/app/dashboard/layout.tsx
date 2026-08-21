@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember, getMemberships, isPlatformAdmin } from "@/lib/active-org";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
 import { isMobileApp } from "@/lib/mobile-app";
@@ -15,12 +15,11 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user) redirect("/auth/giris");
 
-  const member = await getActiveMember(supabase);
+  const member = await getActiveMember();
   const org = member?.organizations;
   const role = member?.role ?? "staff";
 
@@ -32,8 +31,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const subscriptionLock = getSubscriptionLock(org);
 
   const [memberships, isAdmin, messages, mobileApp] = await Promise.all([
-    getMemberships(supabase),
-    isPlatformAdmin(supabase),
+    getMemberships(),
+    isPlatformAdmin(),
     getMessages(),
     isMobileApp(),
   ]);

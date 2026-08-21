@@ -940,6 +940,7 @@
     },
     "staffPage": {
       "eyebrow": "Ekip",
+      "subtitle": "Personelin kullanabildiği hizmetler, müsaitlikleri ve maaş bilgilerini yönetin",
       "limitReached": "Personel limitinize ulaştınız.",
       "upgradePrompt": "Personel limitinize ulaştınız. Daha fazla eklemek için <link>planınızı yükseltin</link>.",
       "emptyState": "Henüz personel eklenmemiş",
@@ -993,11 +994,77 @@
       "delete": "Sil"
     },
     "pendingRequestsPage": {
+      "sourceLabel": "WhatsApp / Instagram",
       "subtitle": "WhatsApp veya Instagram üzerinden gelen ve manuel onayınızı bekleyen randevu talepleri."
     },
     "waitlistPage": {
       "eyebrow": "Randevu",
-      "subtitle": "Dolu saatler için müşterileri bekleme listesine ekleyin"
+      "subtitle": "Dolu saatler için müşterileri bekleme listesine ekleyin",
+      "addButton": "Listeye Ekle",
+      "filterActive": "Aktif (Bekleyen)",
+      "filterAll": "Tümü",
+      "emptyState": "Bekleme listesi boş",
+      "addFirstEntry": "İlk Kaydı Ekle"
+    },
+    "reportsPage": {
+      "eyebrow": "Analizler",
+      "subtitle": "Günlük, aylık ve yıllık ciro, performans ve no-show raporu",
+      "daySummary": "Gün Sonu Özeti",
+      "daySummaryPdf": "Gün Sonu Özeti (PDF)",
+      "serviceStaff": "Hizmet · Personel",
+      "dayRevenue": "Gün Cirosu",
+      "dayExpense": "Gün Gideri",
+      "newCustomers": "Yeni Müşteri",
+      "noAppointments": "Bu günde randevu kaydı yok",
+      "today": "bugün",
+      "appointmentStatus": {
+        "approved": "Onaylı",
+        "completed": "Tamamlandı",
+        "cancelled": "İptal",
+        "noShow": "Gelmedi"
+      },
+      "monthlySummary": "Aylık Ciro",
+      "topServices": "Bu Ay En Çok Satılan Hizmetler",
+      "topStaff": "Bu Ay En Yüksek Ciro (Personel)",
+      "monthlyRevenue": "Bu Ay Ciro",
+      "noShowRate": "No-Show Oranı",
+      "totalTransactions": "Toplam İşlem"
+    },
+    "expensesPage": {
+      "eyebrow": "Mali İşler",
+      "subtitle": "Gelir, gider, sabit giderler ve aylık/yıllık mali özet",
+      "monthlyView": "Aylık",
+      "yearlyView": "Yıllık (Kümülatif)",
+      "incomeDistribution": "Gelir Dağılımı",
+      "expenseDistribution": "Gider Dağılımı",
+      "applyToMonth": "Uygula",
+      "applyActiveRecurring": "({count}) uygula"
+    },
+    "months": ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"],
+    "incomeCategories": [
+      { "value": "randevu", "label": "Randevu Geliri" },
+      { "value": "urun", "label": "Ürün Satışı" },
+      { "value": "komisyon", "label": "Komisyon" },
+      { "value": "diger", "label": "Diğer Gelir" }
+    ],
+    "expenseCategories": [
+      { "value": "kira", "label": "Kira" },
+      { "value": "personel", "label": "Personel Maaşı" },
+      { "value": "malzeme", "label": "Malzeme / Stok" },
+      { "value": "fatura", "label": "Fatura (Su/Elektrik/İnternet)" },
+      { "value": "pazarlama", "label": "Pazarlama & Reklam" },
+      { "value": "bakim", "label": "Bakım & Tamir" },
+      { "value": "vergi", "label": "Vergi & Muhasebe" },
+      { "value": "diger", "label": "Diğer Gider" }
+    ],
+    "websiteSettingsPage": {
+      "eyebrow": "Website",
+      "subtitle": "İşletme sayfası rengini, kapak fotoğrafını ve açıklamasını ayarlayın",
+      "title": "Website Ayarları",
+      "upgradeTitle": "Randevu Linkinizi Web Sitesine Dönüştürün",
+      "upgradeDesc": "Renk paleti, kapak fotoğrafı, hizmet kategorileri ve fotoğraflarla donatılmış, satış artırıcı bir işletme sayfası — mevcut randevu linkinizde, ek bir adres olmadan.",
+      "upgradeButton": "Pro Plana Geç →",
+      "notIncluded": "Bu modül mevcut planınıza dahil değil."
     },
     "overview": "Genel Bakış",
     "calendar": "Takvim",
@@ -1044,6 +1111,7 @@
     "week": "Hafta",
     "month": "Ay",
     "all": "Tümü",
+    "weekDays": ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"],
     "inProgress": "devam ediyor",
     "awaiting": "onay bekliyor",
     "approved": "onaylı",
@@ -1290,6 +1358,11 @@
       "footer": "Panel Yardım Asistanı"
     },
     "randevularPage": {
+      "sortDefault": "Sıralama: Varsayılan",
+      "sortNewest": "Sıralama: En yeni",
+      "sortOldest": "Sıralama: En eski",
+      "today": "Bugün",
+      "staffAll": "Tüm personel",
       "empty": "Randevu bulunamadı",
       "searchPlaceholder": "Müşteri adı veya telefon ara...",
       "dateFrom": "Başlangıç tarihi",

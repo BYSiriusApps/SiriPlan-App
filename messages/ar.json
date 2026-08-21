@@ -945,7 +945,8 @@
       "salaryCalc": "حساب الراتب",
       "addStaff": "+ إضافة موظف",
       "limitNative": "لقد وصلت إلى حد الموظفين.",
-      "eyebrow": "الفريق"
+      "eyebrow": "الفريق",
+      "subtitle": "إدارة الخدمات المتاحة لكل موظف وجدول عملهم والمعلومات المتعلقة برواتبهم"
     },
     "customersPage": {
       "eyebrow": "إدارة العملاء"
@@ -993,11 +994,77 @@
       "delete": "حذف"
     },
     "pendingRequestsPage": {
+      "sourceLabel": "WhatsApp / Instagram",
       "subtitle": "طلبات المواعيد الواردة عبر واتساب أو إنستغرام والتي تنتظر موافقتك اليدوية."
     },
     "waitlistPage": {
       "eyebrow": "الموعد",
-      "subtitle": "أضف العملاء إلى قائمة الانتظار للأوقات المحجوزة"
+      "subtitle": "أضف العملاء إلى قائمة الانتظار للأوقات المحجوزة",
+      "addButton": "أضف إلى القائمة",
+      "filterActive": "نشط (في الانتظار)",
+      "filterAll": "الكل",
+      "emptyState": "قائمة الانتظار فارغة",
+      "addFirstEntry": "أضف الإدخال الأول"
+    },
+    "reportsPage": {
+      "eyebrow": "التحليلات",
+      "subtitle": "تقارير يومية وشهرية وسنوية للإيرادات والأداء والغياب",
+      "daySummary": "ملخص اليوم",
+      "daySummaryPdf": "ملخص اليوم (PDF)",
+      "serviceStaff": "الخدمة · الموظف",
+      "dayRevenue": "إيرادات اليوم",
+      "dayExpense": "مصروفات اليوم",
+      "newCustomers": "عملاء جدد",
+      "noAppointments": "لا توجد مواعيد مسجلة في هذا اليوم",
+      "today": "اليوم",
+      "appointmentStatus": {
+        "approved": "موافق عليه",
+        "completed": "مكتمل",
+        "cancelled": "ملغى",
+        "noShow": "لم يحضر"
+      },
+      "monthlySummary": "الإيرادات الشهرية",
+      "topServices": "أفضل الخدمات هذا الشهر",
+      "topStaff": "أفضل الموظفين هذا الشهر (الإيرادات)",
+      "monthlyRevenue": "إيرادات هذا الشهر",
+      "noShowRate": "معدل الغياب",
+      "totalTransactions": "إجمالي المعاملات"
+    },
+    "expensesPage": {
+      "eyebrow": "المالية",
+      "subtitle": "الإيرادات والمصروفات والفواتير المتكررة وملخص مالي شهري/سنوي",
+      "monthlyView": "شهري",
+      "yearlyView": "سنوي (تراكمي)",
+      "incomeDistribution": "توزيع الإيرادات",
+      "expenseDistribution": "توزيع المصروفات",
+      "applyToMonth": "تطبيق",
+      "applyActiveRecurring": "تطبيق ({count})"
+    },
+    "months": ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+    "incomeCategories": [
+      { "value": "randevu", "label": "دخل المواعيد" },
+      { "value": "urun", "label": "مبيعات المنتجات" },
+      { "value": "komisyon", "label": "عمولة" },
+      { "value": "diger", "label": "دخل آخر" }
+    ],
+    "expenseCategories": [
+      { "value": "kira", "label": "إيجار" },
+      { "value": "personel", "label": "راتب الموظفين" },
+      { "value": "malzeme", "label": "المواد / المخزون" },
+      { "value": "fatura", "label": "الفواتير (الماء/الكهرباء/الإنترنت)" },
+      { "value": "pazarlama", "label": "التسويق والإعلان" },
+      { "value": "bakim", "label": "الصيانة والإصلاح" },
+      { "value": "vergi", "label": "الضرائب والمحاسبة" },
+      { "value": "diger", "label": "مصروفات أخرى" }
+    ],
+    "websiteSettingsPage": {
+      "eyebrow": "الموقع",
+      "subtitle": "خصص لون صفحتك وصورة الغلاف والوصف",
+      "title": "إعدادات الموقع",
+      "upgradeTitle": "حول رابط الحجز الخاص بك إلى موقع ويب",
+      "upgradeDesc": "صفحة أعمال جذابة مع لوحة ألوان وصورة غلاف وفئات وصور الخدمات - على رابطك الحالي بدون نطاق إضافي.",
+      "upgradeButton": "الترقية إلى Pro →",
+      "notIncluded": "هذه الميزة غير مدرجة في خطتك الحالية."
     },
     "overview": "نظرة عامة",
     "calendar": "التقويم",
@@ -1044,6 +1111,7 @@
     "week": "أسبوع",
     "month": "شهر",
     "all": "الكل",
+    "weekDays": ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],
     "inProgress": "جارٍ الآن",
     "awaiting": "بانتظار الموافقة",
     "approved": "مؤكد",
@@ -1290,6 +1358,11 @@
       "footer": "مساعد اللوحة"
     },
     "randevularPage": {
+      "sortDefault": "الترتيب: افتراضي",
+      "sortNewest": "الترتيب: الأحدث",
+      "sortOldest": "الترتيب: الأقدم",
+      "today": "اليوم",
+      "staffAll": "كل الموظفين",
       "empty": "لم يتم العثور على مواعيد",
       "searchPlaceholder": "ابحث باسم العميل أو رقم الهاتف...",
       "dateFrom": "تاريخ البدء",

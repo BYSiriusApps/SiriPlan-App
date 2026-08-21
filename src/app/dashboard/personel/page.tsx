@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
@@ -14,8 +14,6 @@ import { OrgClosedDaysCard } from "@/components/dashboard/OrgClosedDaysCard";
 import type { Staff } from "@/types/database";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 
-const DAYS = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
-
 const LANG_FLAGS: Record<string, { flag: string; name: string }> = Object.fromEntries(
   SUPPORTED_LANGUAGES.map((l) => [l.code, { flag: l.flag, name: l.name }])
 );
@@ -23,7 +21,7 @@ const LANG_FLAGS: Record<string, { flag: string; name: string }> = Object.fromEn
 export default async function PersonelPage() {
   const t = await getTranslations("dashboard");
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
 
   const member = await getActiveMember(supabase);
@@ -192,7 +190,7 @@ export default async function PersonelPage() {
                   <div className="flex gap-1 flex-wrap">
                     {(s.working_days as number[])?.map((d) => (
                       <span key={d} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                        {DAYS[d]}
+                        {(t.raw("weekDays") as string[])[d]}
                       </span>
                     ))}
                   </div>

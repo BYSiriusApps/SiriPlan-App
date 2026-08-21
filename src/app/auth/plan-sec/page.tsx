@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle, Mail, Phone, ArrowLeft } from "lucide-react";
+import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle, Mail, Phone, ArrowLeft, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
 import { formatPrice, type PricingCurrency } from "@/lib/pricing";
@@ -230,7 +230,7 @@ export default function PlanSecPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <a
           href="/dashboard"
           className="inline-flex items-center gap-1.5 mb-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -248,11 +248,11 @@ export default function PlanSecPage() {
               </p>
             </div>
           )}
-          <h1 className="text-3xl font-bold mb-2">Planınızı Seçin</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2 brand-gradient-text">Planınızı Seçin</h1>
           <p className="text-muted-foreground">
             {expired || trialActive === false
               ? "İstediğiniz zaman iptal"
-              : "14 gün ücretsiz deneme • İstediğiniz zaman iptal"}
+              : "14 gün ücretsiz deneme • Kredi kartı gerekmez • İstediğiniz zaman iptal"}
           </p>
           {trialActive === true && !expired && (
             <p className="mt-3 max-w-xl mx-auto text-sm text-muted-foreground">
@@ -261,52 +261,61 @@ export default function PlanSecPage() {
             </p>
           )}
 
-          <div className="flex items-center justify-center gap-3 mt-6">
-            <span className={annual ? "text-muted-foreground" : "font-semibold"}>Aylık</span>
+          <div className="inline-flex items-center gap-1 mt-7 p-1 rounded-full border border-border bg-card/80 shadow-sm">
             <button
-              onClick={() => setAnnual(!annual)}
-              className={`relative w-14 h-7 rounded-full transition-colors ${annual ? "bg-primary" : "bg-muted"}`}
+              onClick={() => setAnnual(false)}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${!annual ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
             >
-              <span className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white shadow transition-transform ${annual ? "translate-x-7" : ""}`} />
+              Aylık
             </button>
-            <span className={annual ? "font-semibold" : "text-muted-foreground"}>
-              Yıllık <Badge variant="secondary" className="ml-1 text-xs">%18 tasarruf</Badge>
-            </span>
+            <button
+              onClick={() => setAnnual(true)}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${annual ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Yıllık
+              <Badge variant="secondary" className={`text-[10px] ${annual ? "bg-white/20 text-primary-foreground" : ""}`}>%18 tasarruf</Badge>
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-7 mb-10 items-stretch">
           {PLANS.map((plan) => {
             const Icon = plan.icon;
             const planPricing = pricing.plans[plan.key];
             const price = annual ? formatPrice(Math.round(planPricing.annual / 12), currency) : formatPrice(planPricing.monthly, currency);
-            const annualTotal = formatPrice(planPricing.annual, currency);
             const savings = formatPrice(Math.max(0, planPricing.monthly * 12 - planPricing.annual), currency);
             return (
-              <Card key={plan.key} className={`relative ${plan.color} transition-all hover:shadow-xl`}>
+              <Card
+                key={plan.key}
+                className={`relative flex flex-col overflow-visible ${plan.color} transition-all hover:shadow-xl ${plan.highlight ? "md:scale-[1.04] shadow-lg" : ""}`}
+              >
                 {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-3 shadow">{plan.highlight}</Badge>
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+                    <Badge className="bg-primary text-primary-foreground px-3 py-1 shadow-md whitespace-nowrap">
+                      ⭐ {plan.highlight}
+                    </Badge>
                   </div>
                 )}
-                <CardHeader className="pb-3">
+                <CardHeader className="pb-4 pt-6">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon className="h-5 w-5 text-primary" />
-                    <CardTitle>{plan.name}</CardTitle>
+                    <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 text-primary shrink-0">
+                      <Icon className="h-4.5 w-4.5" />
+                    </div>
+                    <CardTitle className="text-lg">{plan.name}</CardTitle>
                   </div>
-                  <CardDescription className="text-xs">{plan.description}</CardDescription>
-                  <div className="mt-3">
-                    <span className="text-4xl font-bold">{price}</span>
+                  <CardDescription className="text-xs leading-relaxed">{plan.description}</CardDescription>
+                  <div className="mt-4 flex items-baseline gap-1 whitespace-nowrap">
+                    <span className="text-4xl sm:text-5xl font-bold tabular-nums tracking-tight">{price}</span>
                     <span className="text-muted-foreground text-sm">/ay</span>
-                    {annual && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {savings} yıllık tasarruf
-                      </p>
-                    )}
                   </div>
+                  <p className="text-[11px] text-muted-foreground mt-1 h-4">
+                    {annual
+                      ? `${savings} yıllık tasarruf · peşin faturalanır`
+                      : "aylık faturalanır"}
+                  </p>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <ul className="space-y-2">
+                <CardContent className="flex flex-col flex-1 space-y-4">
+                  <ul className="space-y-2 flex-1">
                     {plan.features.map((f, i) => {
                       const deltaFrom = (plan as { proDeltaFrom?: number }).proDeltaFrom;
                       const isDelta = deltaFrom !== undefined && i >= deltaFrom;
@@ -331,6 +340,7 @@ export default function PlanSecPage() {
                   </ul>
                   <Button
                     className="w-full"
+                    size="lg"
                     variant={plan.highlight ? "default" : "outline"}
                     onClick={() => handleSelect(plan.key)}
                     disabled={loading === plan.key}
@@ -342,6 +352,12 @@ export default function PlanSecPage() {
               </Card>
             );
           })}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground mb-8">
+          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Güvenli ödeme (Stripe)</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Anında etkinleşir</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> İstediğiniz zaman iptal</span>
         </div>
 
         {trialActive !== false && (

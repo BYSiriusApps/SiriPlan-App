@@ -40,29 +40,6 @@ type RecurringExpense = {
   is_active: boolean;
 };
 
-const CATEGORIES_GELIR = [
-  { value: "randevu", label: "Randevu Geliri" },
-  { value: "urun", label: "Ürün Satışı" },
-  { value: "komisyon", label: "Komisyon" },
-  { value: "diger", label: "Diğer Gelir" },
-];
-
-const CATEGORIES_GIDER = [
-  { value: "kira", label: "Kira" },
-  { value: "personel", label: "Personel Maaşı" },
-  { value: "malzeme", label: "Malzeme / Stok" },
-  { value: "fatura", label: "Fatura (Su/Elektrik/İnternet)" },
-  { value: "pazarlama", label: "Pazarlama & Reklam" },
-  { value: "bakim", label: "Bakım & Tamir" },
-  { value: "vergi", label: "Vergi & Muhasebe" },
-  { value: "diger", label: "Diğer Gider" },
-];
-
-const MONTHS = [
-  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
-];
-
 const fmt = (n: number) => `₺${n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const EMPTY_FORM = {
@@ -111,6 +88,11 @@ export default function GelirGiderPage() {
 
   const [kdvEnabled, setKdvEnabled] = useState(false);
   const [kdvRate, setKdvRate] = useState(20);
+
+  // Get categories and months from translations
+  const categoriesGelir = useMemo(() => t.raw("incomeCategories") as Array<{ value: string; label: string }>, [t]);
+  const categoriesGider = useMemo(() => t.raw("expenseCategories") as Array<{ value: string; label: string }>, [t]);
+  const months = useMemo(() => t.raw("months") as string[], [t]);
 
   useEffect(() => {
     fetch("/api/org")
@@ -225,7 +207,7 @@ export default function GelirGiderPage() {
     });
     const data = await res.json();
     if (res.ok) {
-      toast.success(`${data.inserted} sabit gider ${MONTHS[month - 1]} ${year}'e eklendi`);
+      toast.success(`${data.inserted} sabit gider ${months[month - 1]} ${year}'e eklendi`);
       fetchData();
     } else {
       toast.error(data.error ?? "Uygulama başarısız");
@@ -302,7 +284,7 @@ export default function GelirGiderPage() {
   }
 
   const categoryLabel = (type: string, cat: string) => {
-    const list = type === "gelir" ? CATEGORIES_GELIR : CATEGORIES_GIDER;
+    const list = type === "gelir" ? categoriesGelir : categoriesGider;
     return list.find((c) => c.value === cat)?.label ?? cat;
   };
 
@@ -378,7 +360,7 @@ export default function GelirGiderPage() {
                       ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       : <RefreshCw className="h-3.5 w-3.5" />
                     }
-                    {MONTHS[month - 1]}&apos;e Uygula ({activeTemplates.length})
+                    {months[month - 1]}&apos;e Uygula ({activeTemplates.length})
                   </Button>
                 )}
               </div>
@@ -496,7 +478,7 @@ export default function GelirGiderPage() {
                         ? <Loader2 className="h-3 w-3 animate-spin" />
                         : <RefreshCw className="h-3 w-3" />
                       }
-                      {MONTHS[month - 1]}&apos;e Uygula
+                      {months[month - 1]}&apos;e Uygula
                     </Button>
                   </div>
                 )}
@@ -515,7 +497,7 @@ export default function GelirGiderPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {MONTHS.map((m, i) => (
+                {months.map((m, i) => (
                   <SelectItem key={i} value={String(i + 1)}>{m}</SelectItem>
                 ))}
               </SelectContent>
@@ -630,7 +612,7 @@ export default function GelirGiderPage() {
                     key={m.month}
                     className="data-row grid grid-cols-[1fr_auto] md:grid-cols-[90px_110px_110px_110px_130px_130px_130px] items-center gap-3 px-3 py-2.5 rounded-lg transition-colors"
                   >
-                    <span className="text-sm font-medium">{MONTHS[m.month - 1]}</span>
+                    <span className="text-sm font-medium">{months[m.month - 1]}</span>
                     <span className="hidden md:block text-xs text-right text-emerald-600">{fmt(m.gelir)}</span>
                     <span className="hidden md:block text-xs text-right text-red-600">{fmt(m.gider)}</span>
                     <span className={`hidden md:block text-xs text-right font-medium ${m.net >= 0 ? "text-blue-600" : "text-orange-600"}`}>
@@ -660,7 +642,7 @@ export default function GelirGiderPage() {
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <CardTitle className="text-base flex items-center gap-2">
               <Wallet className="h-4 w-4 text-primary" />
-              {MONTHS[month - 1]} {year} — Kayıtlar
+              {months[month - 1]} {year} — Kayıtlar
             </CardTitle>
             <div className="flex gap-1">
               {(["all", "gelir", "gider"] as const).map((kind) => (
@@ -772,8 +754,8 @@ export default function GelirGiderPage() {
       {entries.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { label: "Gelir Dağılımı", type: "gelir", cats: CATEGORIES_GELIR, color: "bg-emerald-500" },
-            { label: "Gider Dağılımı", type: "gider", cats: CATEGORIES_GIDER, color: "bg-red-500" },
+            { label: "Gelir Dağılımı", type: "gelir", cats: categoriesGelir, color: "bg-emerald-500" },
+            { label: "Gider Dağılımı", type: "gider", cats: categoriesGider, color: "bg-red-500" },
           ].map(({ label, type, cats, color }) => {
             const typeEntries = entries.filter((e) => e.type === type);
             const total = typeEntries.reduce((s, e) => s + Number(e.amount), 0);
@@ -848,7 +830,7 @@ export default function GelirGiderPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(form.type === "gelir" ? CATEGORIES_GELIR : CATEGORIES_GIDER).map((c) => (
+                  {(form.type === "gelir" ? categoriesGelir : categoriesGider).map((c) => (
                     <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                   ))}
                 </SelectContent>
@@ -972,7 +954,7 @@ export default function GelirGiderPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(recurringForm.type === "gelir" ? CATEGORIES_GELIR : CATEGORIES_GIDER).map((c) => (
+                  {(recurringForm.type === "gelir" ? categoriesGelir : categoriesGider).map((c) => (
                     <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                   ))}
                 </SelectContent>

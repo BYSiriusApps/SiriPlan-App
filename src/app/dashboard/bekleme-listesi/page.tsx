@@ -164,7 +164,7 @@ export default function BeklemeListesiPage() {
         </div>
         <Button onClick={() => setShowForm(true)} className="gap-2 shrink-0">
           <Plus className="h-4 w-4" />
-          Listeye Ekle
+          {t("waitlistPage.addButton")}
         </Button>
       </div>
 
@@ -178,7 +178,7 @@ export default function BeklemeListesiPage() {
               filterStatus === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-background/60"
             }`}
           >
-            {v === "active" ? "Aktif (Bekleyen)" : "Tümü"}
+            {v === "active" ? t("waitlistPage.filterActive") : t("waitlistPage.filterAll")}
           </button>
         ))}
       </div>
@@ -192,9 +192,9 @@ export default function BeklemeListesiPage() {
           ) : visible.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
               <ListPlus className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">Bekleme listesi boş</p>
+              <p className="text-sm">{t("waitlistPage.emptyState")}</p>
               <Button variant="outline" size="sm" className="mt-3" onClick={() => setShowForm(true)}>
-                İlk Kaydı Ekle
+                {t("waitlistPage.addFirstEntry")}
               </Button>
             </div>
           ) : (

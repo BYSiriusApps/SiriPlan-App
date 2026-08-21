@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect, notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -31,7 +31,7 @@ export default async function MusteriDetailPage({
   const { id } = await params;
   const t = await getTranslations("dashboard");
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
 
   const member = await getActiveMember(supabase);

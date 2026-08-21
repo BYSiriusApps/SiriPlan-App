@@ -38,7 +38,7 @@ const ORG_PUBLIC_COLUMNS = [
 // 42703 ile düşürür ve herkese açık randevu sayfası "Salon bulunamadı"ya
 // dönerdi. Bu yüzden yeni kolonlar ayrı okunur: yoksa sessizce yok sayılır,
 // istemci varsayılana düşer (bkz. resolveWebsiteLayout).
-const ORG_OPTIONAL_COLUMNS = ["website_layout"].join(", ");
+const ORG_OPTIONAL_COLUMNS = ["website_layout", "facebook_handle", "linkedin_handle"].join(", ");
 
 const SERVICE_PUBLIC_COLUMNS = [
   "id", "org_id", "name", "description", "duration_minutes", "price", "currency",

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getEntitlements, isTrialActive } from "@/lib/entitlements";
 import { isMobileApp } from "@/lib/mobile-app";
@@ -6,8 +6,9 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail } from "lucide-react";
+import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, CalendarDays, type LucideIcon } from "lucide-react";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { ManageBillingButton } from "@/components/dashboard/ManageBillingButton";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import Link from "next/link";
@@ -24,7 +25,7 @@ const PLAN_DETAILS = {
 export default async function AbonelikPage() {
   const t = await getTranslations("dashboard");
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
 
   const member = await getActiveMember(supabase);
@@ -37,6 +38,7 @@ export default async function AbonelikPage() {
     max_staff: number; max_appointments_monthly: number;
     feature_ai: boolean; feature_campaigns: boolean; feature_gamification: boolean;
     feature_api: boolean; feature_whitelabel: boolean;
+    stripe_customer_id?: string | null;
   };
 
   const planDetail = PLAN_DETAILS[org.plan as keyof typeof PLAN_DETAILS] || PLAN_DETAILS.trial;
@@ -48,6 +50,18 @@ export default async function AbonelikPage() {
   const trialActive = isTrialActive(org);
   const maxStaff = trialActive ? 999 : org.max_staff;
   const maxAppointments = trialActive ? 999999 : org.max_appointments_monthly;
+
+  // Gerçek kullanım — sayfa "boş" görünmesin diye uydurma sayı değil,
+  // aynı sorgu (bkz. api/appointments/route.ts satır ~320-330) tekrar edilir.
+  const admin = await createAdminClient();
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+  const [{ count: staffCount }, { count: appointmentCount }] = await Promise.all([
+    admin.from("staff").select("id", { count: "exact", head: true }).eq("org_id", member.org_id).eq("is_active", true),
+    admin.from("appointments").select("id", { count: "exact", head: true }).eq("org_id", member.org_id)
+      .gte("created_at", monthStart).lt("created_at", monthEnd),
+  ]);
 
   return (
     <div className="p-6 max-w-2xl space-y-6">
@@ -105,15 +119,19 @@ export default async function AbonelikPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="kpi-tile p-3 text-center">
-              <p className="text-xs text-muted-foreground">Max Personel</p>
-              <p className="font-bold text-lg tabular-nums mt-0.5">{maxStaff === 999 ? "Sınırsız" : maxStaff}</p>
-            </div>
-            <div className="kpi-tile p-3 text-center">
-              <p className="text-xs text-muted-foreground">Max Randevu/Ay</p>
-              <p className="font-bold text-lg tabular-nums mt-0.5">{maxAppointments === 999999 ? "Sınırsız" : maxAppointments}</p>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <UsageMeter
+              icon={Users}
+              label="Personel"
+              used={staffCount ?? 0}
+              max={maxStaff}
+            />
+            <UsageMeter
+              icon={CalendarDays}
+              label="Randevu (bu ay)"
+              used={appointmentCount ?? 0}
+              max={maxAppointments}
+            />
           </div>
 
           <div className="space-y-2">
@@ -166,6 +184,9 @@ export default async function AbonelikPage() {
               {org.plan === "trial" ? "Planları Karşılaştır & Aboneliği Başlat" : "Pro'ya Yükselt"}
             </Link>
           ) : null}
+          {org.stripe_customer_id && (org.plan === "pro" || org.plan === "business") && (
+            <ManageBillingButton label="Fatura & Ödeme Yöntemini Yönet" />
+          )}
         </div>
       )}
 
@@ -174,6 +195,42 @@ export default async function AbonelikPage() {
           Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez.
           Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz.
         </p>
+      )}
+    </div>
+  );
+}
+
+/** Kullanım göstergesi — "Max Personel: 8" gibi tek başına anlamsız bir üst
+ * sınır yerine gerçek kullanımı ("3 / 8") bir ilerleme çubuğuyla gösterir. */
+function UsageMeter({
+  icon: Icon, label, used, max,
+}: {
+  icon: LucideIcon;
+  label: string;
+  used: number;
+  max: number;
+}) {
+  const unlimited = max >= 999;
+  const pct = unlimited ? 0 : Math.min(100, max > 0 ? Math.round((used / max) * 100) : 0);
+  const nearLimit = !unlimited && pct >= 90;
+  return (
+    <div className="kpi-tile p-3.5">
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Icon className="h-3.5 w-3.5" /> {label}
+        </span>
+        <span className="text-sm font-bold tabular-nums">
+          {used}{unlimited ? "" : ` / ${max}`}
+          {unlimited && <span className="text-xs font-medium text-muted-foreground ml-1">Sınırsız</span>}
+        </span>
+      </div>
+      {!unlimited && (
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${nearLimit ? "bg-amber-500" : "bg-primary"}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
       )}
     </div>
   );

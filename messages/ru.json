@@ -945,7 +945,8 @@
       "salaryCalc": "Рассчитать зарплату",
       "addStaff": "+ Добавить сотрудника",
       "limitNative": "Вы достигли лимита сотрудников.",
-      "eyebrow": "Команда"
+      "eyebrow": "Команда",
+      "subtitle": "Управляйте доступными услугами для каждого сотрудника, их графиком и зарплатой"
     },
     "customersPage": {
       "eyebrow": "CRM"
@@ -993,11 +994,77 @@
       "delete": "Удалить"
     },
     "pendingRequestsPage": {
+      "sourceLabel": "WhatsApp / Instagram",
       "subtitle": "Заявки на запись, полученные через WhatsApp или Instagram и ожидающие вашего ручного подтверждения."
     },
     "waitlistPage": {
       "eyebrow": "Запись",
-      "subtitle": "Добавляйте клиентов в лист ожидания на занятые часы"
+      "subtitle": "Добавляйте клиентов в лист ожидания на занятые часы",
+      "addButton": "Добавить в лист",
+      "filterActive": "Активные (Ожидающие)",
+      "filterAll": "Все",
+      "emptyState": "Лист ожидания пуст",
+      "addFirstEntry": "Добавить первую запись"
+    },
+    "reportsPage": {
+      "eyebrow": "Аналитика",
+      "subtitle": "Ежедневные, ежемесячные и годовые отчёты о выручке, производительности и no-show",
+      "daySummary": "Итоги дня",
+      "daySummaryPdf": "Итоги дня (PDF)",
+      "serviceStaff": "Услуга · Персонал",
+      "dayRevenue": "Выручка дня",
+      "dayExpense": "Расходы дня",
+      "newCustomers": "Новые клиенты",
+      "noAppointments": "В этот день записей нет",
+      "today": "сегодня",
+      "appointmentStatus": {
+        "approved": "Подтверждено",
+        "completed": "Завершено",
+        "cancelled": "Отменено",
+        "noShow": "Не пришли"
+      },
+      "monthlySummary": "Ежемесячная выручка",
+      "topServices": "Топ услуги этого месяца",
+      "topStaff": "Топ персонал этого месяца (выручка)",
+      "monthlyRevenue": "Выручка этого месяца",
+      "noShowRate": "Процент no-show",
+      "totalTransactions": "Всего операций"
+    },
+    "expensesPage": {
+      "eyebrow": "Финансы",
+      "subtitle": "Доходы, расходы, постоянные платежи и ежемесячная/годовая финансовая сводка",
+      "monthlyView": "Ежемесячно",
+      "yearlyView": "Годовой (Кумулятивно)",
+      "incomeDistribution": "Распределение доходов",
+      "expenseDistribution": "Распределение расходов",
+      "applyToMonth": "Применить",
+      "applyActiveRecurring": "Применить ({count})"
+    },
+    "months": ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+    "incomeCategories": [
+      { "value": "randevu", "label": "Доход от записей" },
+      { "value": "urun", "label": "Продажа товаров" },
+      { "value": "komisyon", "label": "Комиссия" },
+      { "value": "diger", "label": "Прочие доходы" }
+    ],
+    "expenseCategories": [
+      { "value": "kira", "label": "Аренда" },
+      { "value": "personel", "label": "Зарплата персонала" },
+      { "value": "malzeme", "label": "Материалы / Запасы" },
+      { "value": "fatura", "label": "Коммунальные услуги" },
+      { "value": "pazarlama", "label": "Маркетинг & Реклама" },
+      { "value": "bakim", "label": "Обслуживание & Ремонт" },
+      { "value": "vergi", "label": "Налоги & Бухгалтерия" },
+      { "value": "diger", "label": "Прочие расходы" }
+    ],
+    "websiteSettingsPage": {
+      "eyebrow": "Сайт",
+      "subtitle": "Настройте цвет, фото обложку и описание вашей страницы",
+      "title": "Настройки сайта",
+      "upgradeTitle": "Превратите вашу ссылку на запись в сайт",
+      "upgradeDesc": "Привлекательная страница бизнеса с палитрой цветов, фото обложкой, категориями и фотографиями услуг — на вашей существующей ссылке, без дополнительного домена.",
+      "upgradeButton": "Обновить на Pro →",
+      "notIncluded": "Эта функция не входит в ваш текущий тариф."
     },
     "overview": "Обзор",
     "calendar": "Календарь",
@@ -1044,6 +1111,7 @@
     "week": "Неделя",
     "month": "Месяц",
     "all": "Все",
+    "weekDays": ["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"],
     "inProgress": "в процессе",
     "awaiting": "ждут подтверждения",
     "approved": "подтверждено",
@@ -1290,6 +1358,11 @@
       "footer": "Помощник панели"
     },
     "randevularPage": {
+      "sortDefault": "Сортировка: по умолчанию",
+      "sortNewest": "Сортировка: сначала новые",
+      "sortOldest": "Сортировка: сначала старые",
+      "today": "Сегодня",
+      "staffAll": "Весь персонал",
       "empty": "Записи не найдены",
       "searchPlaceholder": "Поиск по имени клиента или телефону...",
       "dateFrom": "Начальная дата",

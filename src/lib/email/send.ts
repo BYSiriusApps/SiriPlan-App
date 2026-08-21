@@ -201,6 +201,44 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
   });
 }
 
+export async function sendStaffInviteEmail(data: {
+  to: string;
+  orgName: string;
+  inviteUrl: string;
+  role: "staff" | "manager";
+}) {
+  if (!emailEnabled()) return;
+
+  const roleLabel = data.role === "manager" ? "Yönetici" : "Personel";
+
+  const content = `
+    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">🎉 İşletmeye Davet Edildiniz</h2>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
+      <strong>${esc(data.orgName)}</strong> sizi Siriplan üzerinde <strong>${roleLabel.toLowerCase()}</strong> olarak davet etti.
+    </p>
+
+    <p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">
+      Katılmak için aşağıdaki bağlantıya tıklayın — hesabınız yoksa orada birkaç adımda oluşturabilirsiniz.
+    </p>
+
+    <a href="${data.inviteUrl}"
+       style="display:inline-block;padding:12px 28px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+      Daveti Görüntüle →
+    </a>
+
+    <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
+      Bu davet bağlantısı 7 gün geçerlidir. Sorularınız için <a href="mailto:info@bysirius.com" style="color:#e11d48;text-decoration:none;">info@bysirius.com</a> adresinden ulaşabilirsiniz.
+    </p>
+  `;
+
+  await getResend().emails.send({
+    from: `${fromName(data.orgName)} <${FROM}>`,
+    to: data.to,
+    subject: `${data.orgName} sizi Siriplan'a davet etti`,
+    html: baseLayout(content, data.orgName),
+  });
+}
+
 export async function sendBirthdayEmail(data: {
   to: string;
   customerName: string;

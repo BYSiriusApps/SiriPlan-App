@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
+import { sendStaffInviteEmail } from "@/lib/email/send";
 import { DEFAULT_PERMS, OWNER_ONLY_PERMS, sanitizePermissions } from "@/lib/permissions";
 
 const InviteSchema = z.object({
@@ -131,6 +132,12 @@ export async function POST(req: NextRequest) {
 
   if (data.phone && (data.notify_via === "whatsapp" || data.notify_via === "all")) {
     tasks.push(sendWhatsAppMessage(data.phone, message).catch(() => {}));
+  }
+
+  if (data.email && (data.notify_via === "email" || data.notify_via === "all")) {
+    tasks.push(
+      sendStaffInviteEmail({ to: data.email, orgName, inviteUrl, role: data.role }).catch(() => {})
+    );
   }
 
   // Telegram: if staff record has chat_id

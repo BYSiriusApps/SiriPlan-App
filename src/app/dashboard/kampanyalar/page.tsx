@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getEntitlements } from "@/lib/entitlements";
 import { isMobileApp } from "@/lib/mobile-app";
@@ -31,7 +31,7 @@ const TYPE_LABELS: Record<string, string> = {
 export default async function KampanyalarPage() {
   const t = await getTranslations("dashboard");
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
 
   const member = await getActiveMember(supabase);

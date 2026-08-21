@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -19,7 +19,7 @@ export default async function RaporlarPage({
   const t = await getTranslations("dashboard");
   const sp = await searchParams;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
 
   const member = await getActiveMember(supabase);
@@ -160,7 +160,7 @@ export default async function RaporlarPage({
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-accent transition-colors"
         >
           <Download className="h-4 w-4" />
-          Gün Sonu Özeti (PDF)
+          {t("reportsPage.daySummaryPdf")}
         </a>
       </div>
 
@@ -170,7 +170,7 @@ export default async function RaporlarPage({
           <div className="flex items-center justify-between flex-wrap gap-3">
             <CardTitle className="text-base flex items-center gap-2">
               <CalendarCheck className="h-4 w-4 text-primary" />
-              Gün Sonu Özeti
+              {t("reportsPage.daySummary")}
               <span className="text-sm font-normal text-muted-foreground capitalize">
                 — {format(reportDay, "d MMMM yyyy, EEEE", { locale: tr })}{isToday ? " (bugün)" : ""}
               </span>
@@ -213,7 +213,7 @@ export default async function RaporlarPage({
             {[
               { label: "Randevu", value: String(dAppts.length) },
               { label: "Tamamlanan", value: String(dDone.length) },
-              { label: "Gün Cirosu", value: `₺${(dayRevenue + dayManuelGelir).toLocaleString("tr-TR")}` },
+              { label: t("reportsPage.dayRevenue"), value: `₺${(dayRevenue + dayManuelGelir).toLocaleString("tr-TR")}` },
               { label: "Gün Gideri", value: `₺${dayGider.toLocaleString("tr-TR")}` },
               { label: "Yeni Müşteri", value: String(dayNewCust ?? 0) },
             ].map((kpi) => (
@@ -232,7 +232,7 @@ export default async function RaporlarPage({
               <div className="hidden md:grid grid-cols-[64px_1fr_1fr_120px_90px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
                 <span>Saat</span>
                 <span>Müşteri</span>
-                <span>Hizmet · Personel</span>
+                <span>{t("reportsPage.serviceStaff")}</span>
                 <span>Durum</span>
                 <span className="text-right">Tutar</span>
               </div>
@@ -326,7 +326,7 @@ export default async function RaporlarPage({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Star className="h-4 w-4 text-amber-500" />
-              Bu Ay En Çok Satılan Hizmetler
+              {t("reportsPage.topServices")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -362,7 +362,7 @@ export default async function RaporlarPage({
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />
-              Bu Ay En Yüksek Ciro (Personel)
+              {t("reportsPage.topStaff")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -392,7 +392,7 @@ export default async function RaporlarPage({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Bu Ay Ciro", value: `₺${currentMonthRevenue.toLocaleString("tr-TR")}` },
-          { label: "No-Show Oranı", value: `%${noShowRate}` },
+          { label: t("reportsPage.noShowRate"), value: `%${noShowRate}` },
           { label: "Tamamlanma Oranı", value: total > 0 ? `%${((monthlyStats[0].completed / total) * 100).toFixed(0)}` : "-" },
           { label: "Toplam İşlem", value: String(total) },
         ].map((kpi) => (

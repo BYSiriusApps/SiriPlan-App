@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Star as StarIcon, Instagram, Phone, Clock } from "lucide-react";
+import { MapPin, Star as StarIcon, Instagram, Facebook, Linkedin, Phone, Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Organization } from "@/types/database";
 import { SUPPORTED_LANGUAGES, type LanguageCode } from "@/lib/languages";
@@ -57,7 +57,9 @@ export function QuickLinks({
   className?: string;
 }) {
   const t = useTranslations("booking.public");
-  const has = org.location_url || org.google_review_url || org.instagram_handle || org.tiktok_handle || org.phone;
+  const has =
+    org.location_url || org.google_review_url || org.instagram_handle || org.tiktok_handle ||
+    org.facebook_handle || org.linkedin_handle || org.phone;
   if (!has) return null;
 
   const chip =
@@ -115,6 +117,28 @@ export function QuickLinks({
           className={`inline-flex items-center justify-center w-9 h-9 rounded-full transition-colors shrink-0 ${chip}`}
         >
           <TikTokIcon className="h-4 w-4" />
+        </a>
+      )}
+      {org.facebook_handle && (
+        <a
+          href={`https://facebook.com/${org.facebook_handle.replace(/^@/, "")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook"
+          className={`inline-flex items-center justify-center w-9 h-9 rounded-full transition-colors shrink-0 ${chip}`}
+        >
+          <Facebook className="h-4 w-4" />
+        </a>
+      )}
+      {org.linkedin_handle && (
+        <a
+          href={`https://www.linkedin.com/company/${org.linkedin_handle.replace(/^@/, "")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LinkedIn"
+          className={`inline-flex items-center justify-center w-9 h-9 rounded-full transition-colors shrink-0 ${chip}`}
+        >
+          <Linkedin className="h-4 w-4" />
         </a>
       )}
     </div>

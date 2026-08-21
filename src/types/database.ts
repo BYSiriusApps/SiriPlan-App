@@ -22,6 +22,9 @@ export interface Organization {
   cover_url: string | null;
   instagram_handle: string | null;
   tiktok_handle: string | null;
+  /** Migration gecikirse alan hiç gelmeyebilir (bkz. tiktok_handle ile aynı desen). */
+  facebook_handle?: string | null;
+  linkedin_handle?: string | null;
   whatsapp_number: string | null;
   telegram_chat_id: string | null;
   working_hours_json: Record<string, { open: string; close: string } | null>;

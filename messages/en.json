@@ -940,6 +940,7 @@
     },
     "staffPage": {
       "eyebrow": "Team",
+      "subtitle": "Manage the services available to each staff member, their availability, and salary information",
       "limitReached": "You have reached your staff limit.",
       "upgradePrompt": "You have reached your staff limit. To add more, <link>upgrade your plan</link>.",
       "emptyState": "No staff added yet",
@@ -993,11 +994,77 @@
       "delete": "Delete"
     },
     "pendingRequestsPage": {
+      "sourceLabel": "WhatsApp / Instagram",
       "subtitle": "Appointment requests received via WhatsApp or Instagram that are awaiting your manual approval."
     },
     "waitlistPage": {
       "eyebrow": "Appointment",
-      "subtitle": "Add customers to the waitlist for fully booked hours"
+      "subtitle": "Add customers to the waitlist for fully booked hours",
+      "addButton": "Add to Waitlist",
+      "filterActive": "Active (Waiting)",
+      "filterAll": "All",
+      "emptyState": "Waitlist is empty",
+      "addFirstEntry": "Add first entry"
+    },
+    "reportsPage": {
+      "eyebrow": "Analytics",
+      "subtitle": "Daily, monthly, and yearly revenue, performance, and no-show reports",
+      "daySummary": "Day Summary",
+      "daySummaryPdf": "Day Summary (PDF)",
+      "serviceStaff": "Service · Staff",
+      "dayRevenue": "Day Revenue",
+      "dayExpense": "Day Expense",
+      "newCustomers": "New Customers",
+      "noAppointments": "No appointments recorded for this day",
+      "today": "today",
+      "appointmentStatus": {
+        "approved": "Approved",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "noShow": "No Show"
+      },
+      "monthlySummary": "Monthly Revenue",
+      "topServices": "Top Services This Month",
+      "topStaff": "Top Revenue (Staff) This Month",
+      "monthlyRevenue": "This Month Revenue",
+      "noShowRate": "No-Show Rate",
+      "totalTransactions": "Total Transactions"
+    },
+    "expensesPage": {
+      "eyebrow": "Finance",
+      "subtitle": "Income, expenses, recurring bills, and monthly/yearly financial summary",
+      "monthlyView": "Monthly",
+      "yearlyView": "Yearly (Cumulative)",
+      "incomeDistribution": "Income Distribution",
+      "expenseDistribution": "Expense Distribution",
+      "applyToMonth": "Apply",
+      "applyActiveRecurring": "Apply ({count})"
+    },
+    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "incomeCategories": [
+      { "value": "randevu", "label": "Appointment Income" },
+      { "value": "urun", "label": "Product Sales" },
+      { "value": "komisyon", "label": "Commission" },
+      { "value": "diger", "label": "Other Income" }
+    ],
+    "expenseCategories": [
+      { "value": "kira", "label": "Rent" },
+      { "value": "personel", "label": "Staff Salary" },
+      { "value": "malzeme", "label": "Materials / Stock" },
+      { "value": "fatura", "label": "Utilities (Water/Electric/Internet)" },
+      { "value": "pazarlama", "label": "Marketing & Advertising" },
+      { "value": "bakim", "label": "Maintenance & Repairs" },
+      { "value": "vergi", "label": "Taxes & Accounting" },
+      { "value": "diger", "label": "Other Expenses" }
+    ],
+    "websiteSettingsPage": {
+      "eyebrow": "Website",
+      "subtitle": "Customize your business page color, cover photo, and description",
+      "title": "Website Settings",
+      "upgradeTitle": "Transform Your Booking Link into a Website",
+      "upgradeDesc": "A sales-boosting business page with color palette, cover photo, service categories and photos — on your existing booking link, no extra domain needed.",
+      "upgradeButton": "Upgrade to Pro →",
+      "notIncluded": "This feature is not included in your current plan."
     },
     "overview": "Overview",
     "calendar": "Calendar",
@@ -1044,6 +1111,7 @@
     "week": "Week",
     "month": "Month",
     "all": "All",
+    "weekDays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
     "inProgress": "in progress",
     "awaiting": "awaiting approval",
     "approved": "approved",
@@ -1290,6 +1358,11 @@
       "footer": "Panel Help Assistant"
     },
     "randevularPage": {
+      "sortDefault": "Sort: Default",
+      "sortNewest": "Sort: Newest",
+      "sortOldest": "Sort: Oldest",
+      "today": "Today",
+      "staffAll": "All staff",
       "empty": "No appointments found",
       "searchPlaceholder": "Search customer name or phone...",
       "dateFrom": "Start date",
