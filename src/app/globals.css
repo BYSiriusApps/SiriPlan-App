@@ -604,6 +604,16 @@
   animation: route-fade 220ms ease-out backwards;
 }
 
+/* Panel içi geçişlerde ekranın tepesinde akan ince çizgi — tam ekran açılış
+   görselinin yerini alır (bkz. components/dashboard/ColdStartSplash.tsx) */
+@keyframes route-progress {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.animate-route-progress {
+  animation: route-progress 1.1s ease-in-out infinite;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;

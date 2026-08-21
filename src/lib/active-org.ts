@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
+import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 
 export const ACTIVE_ORG_COOKIE = "active_org";
 
@@ -18,6 +20,7 @@ export interface ActiveOrgInfo {
   feature_api?: boolean | null;
   feature_whitelabel?: boolean | null;
   feature_website?: boolean | null;
+  timezone?: string | null;
 }
 
 export interface ActiveMember {
@@ -35,7 +38,35 @@ export interface Membership {
 }
 
 const MEMBER_SELECT =
-  "org_id, role, staff_id, permissions_json, organizations(id, name, slug, plan, subscription_status, trial_ends_at, max_staff, max_appointments_monthly, feature_ai, feature_campaigns, feature_gamification, feature_api, feature_whitelabel, feature_website)";
+  // `timezone` burada seçiliyor ki takvim/randevular/ana sayfa aynı bilgi için
+  // ayrıca `organizations.select("timezone")` sorgusu atmasın — o sorgu, veriye
+  // ihtiyaç duyan her sayfada zincire fazladan bir seri gidiş-dönüş ekliyordu.
+  "org_id, role, staff_id, permissions_json, organizations(id, name, slug, plan, subscription_status, trial_ends_at, max_staff, max_appointments_monthly, feature_ai, feature_campaigns, feature_gamification, feature_api, feature_whitelabel, feature_website, timezone)";
+
+/**
+ * Kullanıcının org_members satırları — İSTEK BAŞINA TEK SORGU.
+ *
+ * NEDEN: Bu satırlar tek bir sayfa geçişinde en az üç kez isteniyordu
+ * (dashboard/layout.tsx'in getActiveMember'ı, aynı layout'un getMemberships'i
+ * ve sayfanın kendi getActiveMember'ı). Üçü de aynı kullanıcı için aynı sonucu
+ * döndürüyordu. `cache()` anahtarı `userId` olduğu için sonuç asla başka bir
+ * kullanıcıya gitmez ve React önbelleği zaten tek istek/render ile sınırlıdır.
+ *
+ * İstemci parametre olarak alınmaz: `cache()` argüman kimliğine göre anahtarlar
+ * ve her çağıran kendi `createClient()` örneğini geçtiği için önbellek hiç
+ * tutmazdı. Burada üretilen istemci de aynı istek çerezlerine bağlıdır, yani
+ * RLS bağlamı çağıranınkiyle birebir aynıdır. `_supabase` parametresi yalnızca
+ * ~60 çağrı yerini değiştirmemek için duruyor; kasıtlı olarak kullanılmıyor.
+ */
+const loadMembershipRows = cache(async (userId: string): Promise<ActiveMember[]> => {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("org_members")
+    .select(MEMBER_SELECT)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+  return (data ?? []) as unknown as ActiveMember[];
+});
 
 /**
  * Kullanıcının aktif işletme üyeliğini döndürür.
@@ -49,20 +80,12 @@ const MEMBER_SELECT =
  * (veri kaybı gibi görünüyordu). Bu yardımcı o sınıf hatayı bitirir.
  */
 export async function getActiveMember(
-  supabase: SupabaseClient
+  _supabase?: SupabaseClient
 ): Promise<ActiveMember | null> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) return null;
 
-  const { data: rows } = await supabase
-    .from("org_members")
-    .select(MEMBER_SELECT)
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
-
-  const memberships = (rows ?? []) as unknown as ActiveMember[];
+  const memberships = await loadMembershipRows(user.id);
   if (memberships.length === 0) return null;
 
   let activeOrgId: string | undefined;
@@ -78,34 +101,43 @@ export async function getActiveMember(
   );
 }
 
-/** Kullanıcının tüm işletme üyelikleri (işletme değiştirici için). */
+/**
+ * Kullanıcının tüm işletme üyelikleri (işletme değiştirici için).
+ *
+ * Ayrı bir sorgu atmaz: `loadMembershipRows` zaten aynı satırları (isim dahil)
+ * getirdiği için sonuç ondan türetilir — dashboard/layout.tsx'te bu, tek başına
+ * bir auth çağrısı + bir org_members sorgusu tasarrufu demek.
+ */
 export async function getMemberships(
-  supabase: SupabaseClient
+  _supabase?: SupabaseClient
 ): Promise<Membership[]> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) return [];
 
-  const { data: rows } = await supabase
-    .from("org_members")
-    .select("org_id, role, organizations(name)")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
-
-  return (rows ?? []).map((r) => {
-    const org = r.organizations as unknown as { name: string } | null;
-    return { org_id: r.org_id, role: r.role, org_name: org?.name ?? "İşletme" };
-  });
+  const rows = await loadMembershipRows(user.id);
+  return rows.map((r) => ({
+    org_id: r.org_id,
+    role: r.role,
+    org_name: r.organizations?.name ?? "İşletme",
+  }));
 }
+
+/** platform_admins satırı — istek başına tek sorgu (bkz. loadMembershipRows). */
+const loadPlatformAdmin = cache(async (userId: string): Promise<boolean> => {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("platform_admins")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return !!data;
+});
 
 /** Kullanıcı platform (süper) admin mi? */
 export async function isPlatformAdmin(
-  supabase: SupabaseClient
+  _supabase?: SupabaseClient
 ): Promise<boolean> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) return false;
 
   // Env üzerinden acil erişim (DB satırı henüz yoksa)
@@ -115,10 +147,5 @@ export async function isPlatformAdmin(
     .filter(Boolean);
   if (user.email && envAdmins.includes(user.email.toLowerCase())) return true;
 
-  const { data } = await supabase
-    .from("platform_admins")
-    .select("user_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-  return !!data;
+  return loadPlatformAdmin(user.id);
 }

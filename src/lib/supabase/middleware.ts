@@ -53,15 +53,19 @@ export async function updateSession(
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/auth/giris";
-      return NextResponse.redirect(url);
+      return { response: NextResponse.redirect(url), user: null };
     }
   }
 
   if (user && (pathname.includes("/auth/giris") || pathname.includes("/auth/kayit"))) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    return { response: NextResponse.redirect(url), user };
   }
 
-  return supabaseResponse;
+  // Kullanıcı da döndürülür: proxy.ts eskiden ikinci bir Supabase istemcisi
+  // kurup `auth.getUser()`'ı BİR KEZ DAHA çağırıyordu. Bu, tam olarak aynı
+  // token'ı aynı istek içinde ikinci kez ağ üzerinden doğrulamak demekti —
+  // her sayfa geçişine ve her API çağrısına bedavadan bir gidiş-dönüş ekliyordu.
+  return { response: supabaseResponse, user };
 }

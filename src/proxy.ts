@@ -33,6 +33,7 @@ const WRITE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const PUBLIC_API_WRITE_PREFIXES = [
   "/api/auth",
   "/api/staff/invite/accept",
+  "/api/staff/invite/register",
   "/api/appointments",
   "/api/public",
   "/api/webhooks",
@@ -281,7 +282,7 @@ async function proxyInner(request: NextRequest, nonce: string | null) {
   // Nonce, İSTEK başlığı olarak iletilir: Next.js hem kendi inline
   // script'lerini imzalamak için hem de sunucu bileşenlerinin headers()
   // ile okuyabilmesi için (bkz. app/layout.tsx) buradan alır.
-  const sessionResponse = await updateSession(
+  const { response: sessionResponse, user } = await updateSession(
     request,
     nonce ? { [CSP_NONCE_HEADER]: nonce } : undefined
   );
@@ -296,6 +297,10 @@ async function proxyInner(request: NextRequest, nonce: string | null) {
   const isPublicApiWrite = isApiWrite && PUBLIC_API_WRITE_PREFIXES.some((p) => pathname.startsWith(p));
   if (!isDashboardOrAdmin && !isApiWrite) return sessionResponse;
 
+  // Oturum sahibi `updateSession` içinde zaten sunucu tarafında doğrulandı;
+  // burada yalnızca üyelik/rol sorguları için bir istemciye ihtiyaç var.
+  // `request.cookies` updateSession tarafından yerinde tazelendiği için bu
+  // istemci yenilenmiş oturumu görür.
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -307,7 +312,6 @@ async function proxyInner(request: NextRequest, nonce: string | null) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     if (isPublicApiWrite) return sessionResponse;
     if (isApiWrite) {
