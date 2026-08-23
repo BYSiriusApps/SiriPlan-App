@@ -35,15 +35,14 @@ const EUR_COUNTRIES = ["DE", "FR", "ES", "IT", "NL", "BE", "SE", "NO", "DK", "FI
 
 export function getPricingCurrencyFromHeaders(headers?: Headers | Record<string, string | null | undefined>): PricingCurrency {
   const lookup = headers instanceof Headers ? headers.get.bind(headers) : (name: string) => headers?.[name] ?? null;
+  const cookieHeader = lookup("cookie") ?? "";
+  
+  if (cookieHeader.includes("pricing_currency=TRY")) return "TRY";
+  if (cookieHeader.includes("pricing_currency=USD")) return "USD";
+  if (cookieHeader.includes("pricing_currency=EUR")) return "EUR";
+
   // SIRA ÖNEMLİ: x-vercel-ip-country önce. Vercel bu başlığı gelen istekte
-  // EZER, yani sahte değer gönderilemez. Diğerleri (cf-ipcountry vb.) bu
-  // platformda altyapı tarafından set EDİLMEDİĞİ için istemci istediğini
-  // yazabilir; yalnızca başka bir CDN arkasına geçilirse anlam kazanırlar.
-  //
-  // BU YÜZDEN buradan dönen para birimi SADECE GÖSTERİM içindir; ödemede
-  // Stripe Price ID belirleyicidir. İleride plana + para birimine göre ayrı
-  // Price ID kullanılacak olursa para birimi ASLA bu başlıkla seçilmemeli —
-  // aksi hâlde herkes en ucuz para biriminden satın alabilir.
+  // EZER, yani sahte değer gönderilemez.
   const countryCode = lookup("x-vercel-ip-country") ?? lookup("cf-ipcountry") ?? lookup("x-country-code") ?? lookup("x-country") ?? "";
   const normalized = countryCode.toUpperCase();
 

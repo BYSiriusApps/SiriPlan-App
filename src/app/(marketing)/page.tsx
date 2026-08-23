@@ -262,7 +262,7 @@ export default async function HomePage() {
                         className={`w-full mb-6 ${plan.highlight ? "bg-primary hover:bg-primary/90" : ""}`}
                         variant={plan.highlight ? "default" : "outline"}
                       >
-                        {plan.key === "business" ? t("pricing.contactUs") : t("pricing.startTrial")}
+                        {t("pricing.startTrial")}
                       </Button>
                     </Link>
                     <ul className="space-y-2.5">

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTranslations } from "next-intl/server";
 import { formatPrice, getAnnualMonthlyEquivalent, getAnnualSavings, getVisitorPricing } from "@/lib/pricing";
+import { CurrencyToggle } from "@/components/marketing/CurrencyToggle";
 
 // Fiyatlar ziyaretçinin ülkesine göre değiştiği için (bkz. lib/pricing.ts)
 // sayfa istek başına render edilmeli; statik üretilirse tüm ziyaretçiler
@@ -72,6 +73,7 @@ export default async function FiyatlarPage() {
       {/* Pricing cards */}
       <section className="py-16">
         <div className="container mx-auto px-4 max-w-5xl">
+          <CurrencyToggle currentCurrency={pricing.currency} />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {planMeta.map((plan) => {
               const features = t.raw(`pricing.${plan.key}.features`) as string[];

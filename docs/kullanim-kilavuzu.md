@@ -10,17 +10,18 @@
 4. [Takvim ve Randevu Yönetimi (Tıklayarak Oluşturma & Görünüm Özelleştirme)](#4-takvim-ve-randevu-yönetimi)
 5. [Adisyon Oluşturma & Fiş Dökümü](#5-adisyon-oluşturma--fiş-dökümü)
 6. [İşletme Web Sitesi & Vitrin Görünümü (/r/[slug])](#6-işletme-web-sitesi--vitrin-görünümü-rslug)
-7. [Müşteri Yönetimi](#7-müşteri-yönetimi)
-8. [Hizmet Yönetimi](#8-hizmet-yönetimi)
-9. [Personel Yönetimi](#9-personel-yönetimi)
-10. [Kampanyalar](#10-kampanyalar)
-11. [Raporlar](#11-raporlar)
-12. [Gelir-Gider & Maaş Hesaplama](#12-gelir-gider--maaş-hesaplama)
-13. [Ayarlar](#13-ayarlar)
-14. [Veri Göçü (İçe/Dışa Aktarma)](#14-veri-göçü-içedışa-aktarma)
-15. [Abonelik ve Ödeme Yapısı (Web vs. Mobil Uygulama)](#15-abonelik-ve-ödeme-yapısı)
-16. [Sık Sorulan Sorular](#16-sık-sorulan-sorular)
-17. [Panel İçi Yardım Asistanı](#17-panel-içi-yardım-asistanı)
+7. [Telegram Bildirim Botu (@siriplan_bot)](#7-telegram-bildirim-botu-siriplan_bot)
+8. [Müşteri Yönetimi](#8-müşteri-yönetimi)
+9. [Hizmet Yönetimi](#9-hizmet-yönetimi)
+10. [Personel Yönetimi](#10-personel-yönetimi)
+11. [Kampanyalar](#11-kampanyalar)
+12. [Raporlar](#12-raporlar)
+13. [Gelir-Gider & Maaş Hesaplama](#13-gelir-gider--maaş-hesaplama)
+14. [Ayarlar](#14-ayarlar)
+15. [Veri Göçü (İçe/Dışa Aktarma)](#15-veri-göçü-içedışa-aktarma)
+16. [Abonelik ve Ödeme Yapısı (Web vs. Mobil & Business Planı)](#16-abonelik-ve-ödeme-yapısı)
+17. [Sık Sorulan Sorular](#17-sık-sorulan-sorular)
+18. [Panel İçi Yardım Asistanı](#18-panel-içi-yardım-asistanı)
 
 ---
 
@@ -30,7 +31,7 @@ SiriPlan; kuaför, berber, güzellik merkezi, spa, nail salon, estetik klinik, m
 
 ## 2. Kayıt, Giriş ve Deneme Süresi
 
-- **İşletme Kaydı**: Yeni işletmeler `/auth/kayit` üzerinden kayıt olur. Kayıt olan her işletme **14 günlük ücretsiz deneme** ile başlar; bu süre boyunca tüm Pro özellikler açıktır.
+- **İşletme Kaydı**: Yeni işletmeler `/auth/kayit` üzerinden kayıt olur. Kayıt olan her işletme **14 günlük ücretsiz deneme** ile başlar; bu süre boyunca tüm Pro/Business özellikler açıktır.
 - **Giriş Yöntemleri**:
   - **Yönetici/Sahip Girişi**: `/auth/giris` sayfasından e-posta veya telefon + şifre ile girer.
   - **Personel Girişi**: İşletme altında tanımlanan personeller, e-posta veya telefon numaraları ile giriş yaparlar veya kendilerine iletilen davet bağlantısını (`/auth/davet?token=...`) kullanarak işletme hesabına katılırlar. Personeller sisteme girdiğinde otomatik olarak bağlı bulundukları işletme adının altına yönlendirilir.
@@ -40,7 +41,7 @@ SiriPlan; kuaför, berber, güzellik merkezi, spa, nail salon, estetik klinik, m
 Panele giriş yapan her kullanıcı, işletmenin günlük özetini gösteren bir gösterge paneli (dashboard) ile karşılaşır:
 
 - **Kişiselleştir Butonu**: Ekranın sağ üstündeki **Kişiselleştir** butonu ile widget kartları sürükle-bırak yöntemiyle yeniden sıralanabilir, istenmeyen widget'lar göz ikonu ile gizlenebilir.
-- **Kullanıcıya Özel Hafıza**: Tercihler kullanıcı bazında saklanır (bir personelin gizlediği widget işletme sahibini etkilemez).
+- **Kullanıcıya Özel Hafıza**: Tercihler kullanıcı bazında saklanır.
 
 Standart widget'lar: Active Appointments, Daily Calendar, WhatsApp Assistant, Campaigns Star, New Customers, Reports Summary, Income-Expense, Quick Actions, Revenue Summary, Staff Today, Services Summary.
 
@@ -67,51 +68,59 @@ Müşterilerin online randevu alabileceği ve salon vitrinini inceleyebileceği 
 - **Ayarlar → Genel** sekmesinden işletme **logosu**, **kapak görseli (banner)** ve **salon/hizmet fotoğrafları** yüklenebilir. Müşteriler fotoğrafları ışık kutusunda (lightbox) inceleyebilir.
 - Müşteriler *Hizmet → Personel → Tarih/Saat* adımlarıyla 7/24 randevu oluşturabilir.
 
-## 7. Müşteri Yönetimi
+## 7. Telegram Bildirim Botu (`@siriplan_bot`)
+
+Randevu bildirimlerini anında Telegram'dan almak için:
+1. Telegram'da **`@siriplan_bot`** botu aratılıp `/start` butonuna basılır.
+2. Botun ürettiği özel **Chat ID** numarası kopyalanır.
+3. SiriPlan panelinde **Ayarlar → Bildirimler / Entegrasyonlar → Telegram Bildirimleri (Chat ID)** alanına yapıştırıp kaydedilir. (Personeller de kendi Chat ID'lerini Personel detayından ekleyebilir).
+
+## 8. Müşteri Yönetimi
 
 Müşteri kayıtları, geçmiş randevular, özel notlar ve sadakat puanı takibi yapılır.
 
-## 8. Hizmet Yönetimi
+## 9. Hizmet Yönetimi
 
 Hizmet adı, kategori, süre (dakika) ve fiyat tanımlanır.
 
-## 9. Personel Yönetimi
+## 10. Personel Yönetimi
 
 Personeller, çalışma günleri, renk kodları, roller ve özel yetkileri tanımlanır.
 
-## 10. Kampanyalar
+## 11. Kampanyalar
 
 Müşteri listesine toplu WhatsApp mesajı gönderimi sağlanır.
 
-## 11. Raporlar
+## 12. Raporlar
 
 Günlük/dönemsel ciro, gider, randevu sayısı ve personel/hizmet bazlı performans analizleri sunulur.
 
-## 12. Gelir-Gider & Maaş Hesaplama
+## 13. Gelir-Gider & Maaş Hesaplama
 
 - Manuel gelir ve gider kayıtları tutulur.
 - **Maaş Hesapla**: Taban Maaş + (Ciro × Komisyon %) + Bahşiş formülü ile tek tıkla gider olarak kaydedilir.
 
-## 13. Ayarlar
+## 14. Ayarlar
 
 Genel bilgiler, logo/banner yükleme, WhatsApp/SMS/Telegram bildirim şablonları, yetkilendirme ve abonelik yönetimi.
 
-## 14. Veri Göçü (İçe/Dışa Aktarma)
+## 15. Veri Göçü (İçe/Dışa Aktarma)
 
 Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olarak indirilmesi.
 
-## 15. Abonelik ve Ödeme Yapısı
+## 16. Abonelik ve Ödeme Yapısı
 
+- 💳 **Sabit Fiyatlı Planlar**: Starter, Pro ve Business planları sabit fiyatlıdır. "Teklif Al" bekleme adımı bulunmaz, tüm planlar anında satın alınabilir veya 14 gün ücretsiz denenebilir.
 - 💻 **Web (Tarayıcı)**: Ayarlar → Abonelik veya `/auth/plan-sec` üzerinden kredi kartı ile ödeme yapılır.
 - 📱 **Mobil Uygulama (App Store & Google Play)**: Mağaza politikaları (%0 mağaza komisyonu) uyarınca mobil uygulamada fiyat veya satın alma butonları bulunmaz. Deneme süresi dolduğunda web adresi ve destek hattı bilgileri verilir.
 
-## 16. Sık Sorulan Sorular
+## 17. Sık Sorulan Sorular
 
-- Randevu saatinde hatırlatma mesajı gidiyor mu? (Evet, 2 saat / 1 gün önce).
+- Telegram randevu bildirimleri nasıl açılır? (Telegram'da `@siriplan_bot` botuna `/start` yazıp alınan Chat ID paneldeki alana kaydedilir).
+- Business planı için teklif almak gerekir mi? (Hayır, Business dahil tüm planlar şeffaf fiyatlıdır ve anında satın alınabilir).
 - Mobil uygulamadan ödeme yapılıyor mu? (Ödeme işlemleri web sitemiz üzerinden yürütülür).
 - Personeller kendi telefonlarıyla girebilir mi? (Evet, personel hesabı yetkisine göre sadece kendi alanını görür).
-- Adisyon yazdırılabilir mi? (Evet, randevu detayından adisyon oluşturulup yazdırılabilir).
 
-## 17. Panel İçi Yardım Asistanı
+## 18. Panel İçi Yardım Asistanı
 
 Paneldeki sağ alt yardım balonu kullanıcı sorularına anında yanıt verir.
