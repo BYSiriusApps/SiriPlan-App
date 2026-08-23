@@ -110,12 +110,12 @@ export default async function FiyatlarPage() {
                       </p>
                     </div>
 
-                    <Link href={plan.href} className="block mb-6">
+                    <Link href={plan.key === "business" ? "/auth/kayit?plan=business" : plan.href} className="block mb-6">
                       <Button
-                        className={`w-full ${plan.highlight ? "bg-primary hover:bg-primary/90" : ""}`}
-                        variant={plan.highlight ? "default" : "outline"}
+                        className={`w-full ${plan.highlight || plan.key === "business" ? "bg-primary hover:bg-primary/90 text-primary-foreground" : ""}`}
+                        variant={plan.highlight || plan.key === "business" ? "default" : "outline"}
                       >
-                        {t("pricing.startTrial")}
+                        {plan.key === "business" ? t("pricing.buyNow") : t("pricing.startTrial")}
                         <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                       </Button>
                     </Link>

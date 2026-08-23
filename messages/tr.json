@@ -76,10 +76,11 @@
     "perYear": "/yıl",
     "mostPopular": "En Çok Tercih Edilen",
     "startTrial": "Ücretsiz Dene",
+    "buyNow": "Hemen Satın Al",
     "contactUs": "Teklif Al / İletişime Geç",
     "contactForPrice": "Özel Teklif Alın",
     "contactUsSub": "İşletmenize özel paket ve fiyatlandırma",
-    "bottomNote": "14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
+    "bottomNote": "Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
     "annualLabel": "veya {annual}/ay · {total}/yıl ({save})",
     "starter": {
       "name": "Starter",

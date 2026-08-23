@@ -76,10 +76,11 @@
     "perYear": "/yr",
     "mostPopular": "Most Popular",
     "startTrial": "Start Free Trial",
+    "buyNow": "Buy Now",
     "contactUs": "Get Quote / Contact Us",
     "contactForPrice": "Custom Quote",
     "contactUsSub": "Tailored packages and pricing for your business",
-    "bottomNote": "14-day free trial · No credit card required · Cancel anytime",
+    "bottomNote": "14-day free trial for Starter & Pro · No credit card required · Cancel anytime",
     "annualLabel": "or {annual}/mo · {total}/yr ({save})",
     "starter": {
       "name": "Starter",

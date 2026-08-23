@@ -341,12 +341,12 @@ export default function PlanSecPage() {
                   <Button
                     className="w-full"
                     size="lg"
-                    variant={plan.highlight ? "default" : "outline"}
+                    variant={plan.key === "business" || plan.highlight ? "default" : "outline"}
                     onClick={() => handleSelect(plan.key)}
                     disabled={loading === plan.key}
                   >
                     {loading === plan.key ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                    {plan.highlight ? "Hemen Başla" : "Seç"}
+                    {plan.key === "business" ? "Hemen Satın Al" : plan.highlight ? "Hemen Başla" : "Seç"}
                   </Button>
                 </CardContent>
               </Card>

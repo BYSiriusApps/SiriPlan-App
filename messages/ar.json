@@ -76,10 +76,11 @@
     "perYear": "/سنة",
     "mostPopular": "الأكثر شعبية",
     "startTrial": "ابدأ التجربة المجانية",
+    "buyNow": "اشترِ الآن",
     "contactUs": "طلب عرض سعر / تواصل معنا",
     "contactForPrice": "عرض سعر مخصص",
     "contactUsSub": "باقة وأسعار مخصصة لتلبية احتياجات عملك",
-    "bottomNote": "تجربة مجانية 14 يومًا · لا تحتاج بطاقة ائتمان · إلغاء في أي وقت",
+    "bottomNote": "تجربة مجانية 14 يومًا لـ Starter و Pro · لا تحتاج بطاقة ائتمان · إلغاء في أي وقت",
     "annualLabel": "أو {annual}/شهر · {total}/سنة ({save})",
     "starter": {
       "name": "Starter",

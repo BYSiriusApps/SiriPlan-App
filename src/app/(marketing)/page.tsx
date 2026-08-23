@@ -257,12 +257,12 @@ export default async function HomePage() {
                         save: plan.save,
                       })}
                     </p>
-                    <Link href="/auth/kayit">
+                    <Link href={plan.key === "business" ? "/auth/kayit?plan=business" : "/auth/kayit"}>
                       <Button
-                        className={`w-full mb-6 ${plan.highlight ? "bg-primary hover:bg-primary/90" : ""}`}
-                        variant={plan.highlight ? "default" : "outline"}
+                        className={`w-full mb-6 ${plan.highlight || plan.key === "business" ? "bg-primary hover:bg-primary/90 text-primary-foreground" : ""}`}
+                        variant={plan.highlight || plan.key === "business" ? "default" : "outline"}
                       >
-                        {t("pricing.startTrial")}
+                        {plan.key === "business" ? t("pricing.buyNow") : t("pricing.startTrial")}
                       </Button>
                     </Link>
                     <ul className="space-y-2.5">
