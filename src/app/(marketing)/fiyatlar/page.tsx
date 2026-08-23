@@ -18,7 +18,6 @@ const ADDON_META = [
   { key: "sms", icon: MessageSquare },
   { key: "multiBranch", icon: Zap },
   { key: "premiumAnalytics", icon: BarChart3 },
-  { key: "googleReview", icon: Star },
   { key: "dataMigration", icon: Gift },
 ] as const;
 

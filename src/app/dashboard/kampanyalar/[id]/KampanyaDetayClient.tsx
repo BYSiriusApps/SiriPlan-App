@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+import { maskPhone } from "@/lib/phone";
 import type { Campaign } from "@/types/database";
 import {
   ArrowLeft,
@@ -52,11 +53,13 @@ export default function KampanyaDetayClient({
   logs,
   previewCount,
   canSend,
+  showPhone = true,
 }: {
   campaign: Campaign;
   logs: CampaignLogRow[];
   previewCount: number | null;
   canSend: boolean;
+  showPhone?: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -213,7 +216,7 @@ export default function KampanyaDetayClient({
                 <div key={l.id} className="flex items-center gap-3 p-2 rounded-lg border text-sm">
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{l.customers?.full_name ?? "—"}</p>
-                    <p className="text-xs text-muted-foreground">{l.phone}</p>
+                    <p className="text-xs text-muted-foreground">{showPhone ? l.phone : maskPhone(l.phone)}</p>
                     {l.error_msg && <p className="text-xs text-red-600 dark:text-red-400 truncate">{l.error_msg}</p>}
                   </div>
                   <Badge

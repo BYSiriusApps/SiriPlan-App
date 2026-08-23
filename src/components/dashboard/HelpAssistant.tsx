@@ -2,7 +2,10 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { X, Send, Bot, Minimize2, LifeBuoy } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { X, Send, Bot, Minimize2, LifeBuoy, Mic } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { useAiAssistant } from "./AiAssistantContext";
 
 interface Message {
@@ -11,14 +14,71 @@ interface Message {
 }
 
 export function HelpAssistant() {
+  const router = useRouter();
   const t = useTranslations("dashboard.aiAssistant");
   const { open, setOpen } = useAiAssistant();
   const [minimized, setMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([{ role: "assistant", text: t("greeting") }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const startVoiceInput = useCallback(() => {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Tarayıcınız sesli komut özelliğini desteklemiyor.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "tr-TR";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => {
+      setIsListening(false);
+      toast.error("Ses alınamadı. Mikrofon iznini kontrol edin.");
+    };
+
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    recognition.onresult = async (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      if (!transcript) return;
+
+      setMessages((prev) => [...prev, { role: "user", text: `🎙️ ${transcript}` }]);
+      setLoading(true);
+
+      try {
+        const res = await fetch("/api/ai/voice-booking", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transcript }),
+        });
+        const data = await res.json();
+        setMessages((prev) => [...prev, { role: "assistant", text: data.response || "Komut işlendi." }]);
+
+        if (data.actionTaken === "appointment_created") {
+          toast.success("Randevu oluşturuldu!");
+          router.refresh();
+        } else if (data.actionTaken === "navigate_quickbook") {
+          router.push("/dashboard/randevular/yeni");
+        } else if (data.actionTaken === "navigate_stok") {
+          router.push("/dashboard/stok");
+        }
+      } catch {
+        setMessages((prev) => [...prev, { role: "assistant", text: "Sesli işlem başarısız oldu." }]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    recognition.start();
+  }, [router]);
 
   const quickQuestions = [t("quickQ1"), t("quickQ2"), t("quickQ3"), t("quickQ4")];
 
@@ -184,6 +244,19 @@ export function HelpAssistant() {
                     disabled={loading}
                     className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60 min-w-0"
                   />
+                  <button
+                    onClick={startVoiceInput}
+                    type="button"
+                    title={isListening ? "Dinleniyor..." : "Sesli Komut Ver (Gemini AI)"}
+                    className={cn(
+                      "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                      isListening
+                        ? "bg-red-500 text-white animate-pulse"
+                        : "bg-muted-foreground/10 hover:bg-muted-foreground/20 text-muted-foreground"
+                    )}
+                  >
+                    <Mic className="w-3.5 h-3.5" />
+                  </button>
                   <button
                     onClick={() => send(input)}
                     disabled={loading || !input.trim()}

@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations, useLocale } from "next-intl";
 
-export type CalendarView = "day" | "week" | "month";
+export type CalendarView = "day" | "staff" | "week" | "month";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 // Sabit referans hafta (Pzt→Paz) — ay görünümü başlığındaki gün kısaltmalarını
@@ -178,6 +178,29 @@ export function UnifiedCalendar({
     const map = new Map(staff.map((s) => [s.id, s.full_name]));
     return (id: string) => map.get(id) ?? "";
   }, [staff]);
+
+  function handleGridClick(e: React.MouseEvent<HTMLDivElement>, dayStr: string, staffIdOverride?: string) {
+    if (justDraggedRef.current) {
+      justDraggedRef.current = false;
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+    const minutesFromStart = Math.floor((clickY / HOUR_PX) * 60);
+    const roundedMinutes = Math.floor(minutesFromStart / 15) * 15;
+    const targetHour = hours[0] + Math.floor(roundedMinutes / 60);
+    const targetMinute = roundedMinutes % 60;
+    const formattedTime = `${String(targetHour).padStart(2, "0")}:${String(targetMinute).padStart(2, "0")}`;
+
+    const params = new URLSearchParams({
+      date: dayStr,
+      time: formattedTime,
+    });
+    if (staffIdOverride) params.set("staff_id", staffIdOverride);
+    else if (selectedStaff !== "all") params.set("staff_id", selectedStaff);
+
+    router.push(`/dashboard/randevular/yeni?${params.toString()}`);
+  }
 
   // Bir günde işletme geneli kapalı mı, hangi personel izinli?
   const orgClosedOn = useMemo(
@@ -540,7 +563,7 @@ export function UnifiedCalendar({
       {/* Kontrol çubuğu: görünüm + gezinme + personel filtresi */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-1 rounded-lg border p-0.5 bg-card">
-          {([["day", t("day")], ["week", t("week")], ["month", t("month")]] as const).map(([v, l]) => (
+          {([["day", t("day")], ["staff", "👥 Personel"], ["week", t("week")], ["month", t("month")]] as const).map(([v, l]) => (
             <Link
               key={v}
               href={`/dashboard/takvim?view=${v}&date=${viewDate}`}
@@ -676,12 +699,12 @@ export function UnifiedCalendar({
                       href={`/dashboard/takvim?view=day&date=${dayStr}`}
                       className={cn(
                         "h-10 border-b flex flex-col items-center justify-center text-xs font-medium hover:bg-accent transition-colors",
-                        isToday && "bg-primary/10 text-primary",
+                        isToday && "bg-primary/20 text-primary font-bold border-b-2 border-primary shadow-sm",
                         closed && "bg-red-50 dark:bg-red-950/20"
                       )}
                     >
                       <span className="capitalize">{format(new Date(dayStr + "T12:00:00"), "EEE", { locale: dateFnsLocale })}</span>
-                      <span className={cn("text-[10px]", isToday ? "font-bold" : "text-muted-foreground")}>
+                      <span className={cn("text-[10px]", isToday ? "font-bold text-primary" : "text-muted-foreground")}>
                         {format(new Date(dayStr + "T12:00:00"), "d MMM", { locale: dateFnsLocale })}
                       </span>
                     </Link>
@@ -690,7 +713,11 @@ export function UnifiedCalendar({
                         {closed ? "Kapalı" : `İzinli: ${offNames.join(", ")}`}
                       </div>
                     )}
-                    <div className="relative" style={{ height: gridHeight }}>
+                    <div
+                      className="relative cursor-pointer"
+                      style={{ height: gridHeight }}
+                      onClick={(e) => handleGridClick(e, dayStr)}
+                    >
                       {slotLines}
                       {isToday && nowLine}
                       <div className="absolute inset-0">
@@ -703,6 +730,56 @@ export function UnifiedCalendar({
                             <span className="text-[10px] font-semibold text-primary bg-card/80 px-1 rounded">{dragPreview.label}</span>
                           </div>
                         )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── PERSONEL SÜTUN GÖRÜNÜMÜ (SWIMLANE) ─────────────────── */}
+      {view === "staff" && (
+        <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+          <div className="overflow-x-auto">
+            <div className="grid min-w-[760px]" style={{ gridTemplateColumns: `48px repeat(${staff.length || 1}, 1fr)` }}>
+              {hourRail}
+              {staff.map((s) => {
+                const c = colorOf(s.id);
+                const dayStr = gridDays[0] || today;
+                const staffAppts = (byDay[dayStr] || []).filter((a) => a.staff_id === s.id);
+                const positioned = layoutDay(staffAppts);
+                const isToday = dayStr === today;
+                const offNames = offStaffNamesOn(dayStr);
+                const isOff = offNames.includes(s.full_name);
+
+                return (
+                  <div key={s.id} className="border-r last:border-r-0 min-w-0 relative">
+                    <div
+                      className="h-10 border-b flex flex-col items-center justify-center text-xs font-semibold px-2 text-center"
+                      style={{ background: c.soft, borderBottomColor: c.border }}
+                    >
+                      <span className="truncate" style={{ color: c.solid }}>{s.full_name}</span>
+                      <span className="text-[10px] font-normal text-muted-foreground">
+                        {t("apptCountLabel", { count: staffAppts.length })}
+                      </span>
+                    </div>
+                    {isOff && (
+                      <div className="px-1 py-0.5 text-[9px] leading-tight text-center bg-red-50 dark:bg-red-950/20 text-red-600 border-b">
+                        İzinli
+                      </div>
+                    )}
+                    <div
+                      className="relative cursor-pointer"
+                      style={{ height: gridHeight }}
+                      onClick={(e) => handleGridClick(e, dayStr, s.id)}
+                    >
+                      {slotLines}
+                      {isToday && nowLine}
+                      <div className="absolute inset-0">
+                        {positioned.map((p) => renderApptBlock(p, { showStaff: false }))}
                       </div>
                     </div>
                   </div>
@@ -751,7 +828,11 @@ export function UnifiedCalendar({
                         {closed ? "İşletme bugün kapalı" : `İzinli: ${offNames.join(", ")}`}
                       </div>
                     )}
-                    <div className="relative" style={{ height: gridHeight }}>
+                    <div
+                      className="relative cursor-pointer"
+                      style={{ height: gridHeight }}
+                      onClick={(e) => handleGridClick(e, dayStr)}
+                    >
                       {slotLines}
                       {isToday && nowLine}
                       <div className="absolute inset-0">

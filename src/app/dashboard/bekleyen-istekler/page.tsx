@@ -18,5 +18,11 @@ export default async function BekleyenIsteklerPage() {
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 
-  return <BekleyenIsteklerClient initialRequests={requests || []} />;
+  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null } | null };
+  const m = member as unknown as MemberWithOrg;
+  const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
+  const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
+  const showPhone = m.role !== "staff" || staffPhoneAccess;
+
+  return <BekleyenIsteklerClient initialRequests={requests || []} showPhone={showPhone} />;
 }

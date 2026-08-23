@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Calendar, BookOpen, Users, UserCog,
   Scissors, Megaphone, BarChart3, Import, Settings,
-  CreditCard, Wallet, ChevronRight, ShieldCheck, ListPlus, Globe, Inbox,
+  CreditCard, Wallet, ChevronRight, ShieldCheck, ListPlus, Globe, Inbox, Package,
 } from "lucide-react";
 import { OrgSwitcher } from "@/components/dashboard/OrgSwitcher";
 import { Badge } from "@/components/ui/badge";
@@ -25,12 +25,13 @@ const NAV_ITEMS = [
   { href: "/dashboard/bekleme-listesi", icon: ListPlus,      tKey: "waitlist",       minRole: "staff"   },
   { href: "/dashboard/bekleyen-istekler", icon: Inbox,       tKey: "pendingRequests", minRole: "staff"  },
   { href: "/dashboard/musteriler",    icon: Users,           tKey: "customers",      minRole: "staff"   },
+  { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "manager" },
   { href: "/dashboard/personel",      icon: UserCog,         tKey: "staff",          minRole: "manager" },
-  { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "staff"   },
   { href: "/dashboard/kampanyalar",   icon: Megaphone,       tKey: "campaigns",      badge: "Pro", minRole: "manager" },
   { href: "/dashboard/website-ayarlari", icon: Globe,        tKey: "websiteSettings", badge: "Pro", minRole: "manager" },
   { href: "/dashboard/raporlar",      icon: BarChart3,       tKey: "reports",        minRole: "manager" },
   { href: "/dashboard/gelir-gider",   icon: Wallet,          tKey: "income",         minRole: "manager" },
+  { href: "/dashboard/stok",          icon: Package,         label: "Stok Yönetimi", minRole: "manager" },
   { href: "/dashboard/veri-gocu",     icon: Import,          tKey: "dataMigration",  minRole: "manager" },
   { href: "/dashboard/ayarlar",       icon: Settings,        tKey: "settings",       minRole: "owner"   },
   { href: "/dashboard/abonelik",      icon: CreditCard,      tKey: "subscription",   minRole: "owner"   },
@@ -164,7 +165,7 @@ export function Sidebar({
                 className="h-4 w-4 shrink-0"
                 style={{ color: isActive ? "var(--sidebar-primary)" : "inherit" }}
               />
-              <span className="flex-1 truncate">{t(item.tKey)}</span>
+              <span className="flex-1 truncate">{item.label ?? t(item.tKey)}</span>
               {item.badge && (
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold"

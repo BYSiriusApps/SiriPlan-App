@@ -47,12 +47,19 @@ export default async function KampanyaDetayPage({
     previewCount = recipients.length;
   }
 
+  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null } | null };
+  const m = member as unknown as MemberWithOrg;
+  const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
+  const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
+  const showPhone = m.role !== "staff" || staffPhoneAccess;
+
   return (
     <KampanyaDetayClient
       campaign={campaign as Campaign}
       logs={(logs ?? []) as unknown as CampaignLogRow[]}
       previewCount={previewCount}
       canSend={member.role !== "staff"}
+      showPhone={showPhone}
     />
   );
 }

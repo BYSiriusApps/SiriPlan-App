@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { formatServicePrice } from "@/lib/currency";
+import { maskPhone } from "@/lib/phone";
 import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,7 +31,7 @@ const SOURCE_META: Record<string, { label: string; icon: typeof MessageCircle; c
   instagram: { label: "Instagram", icon: Instagram, className: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400" },
 };
 
-export function BekleyenIsteklerClient({ initialRequests }: { initialRequests: AppointmentRequest[] }) {
+export function BekleyenIsteklerClient({ initialRequests, showPhone = true }: { initialRequests: AppointmentRequest[]; showPhone?: boolean }) {
   const t = useTranslations("dashboard");
   const [requests, setRequests] = useState(initialRequests);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -90,7 +91,7 @@ export function BekleyenIsteklerClient({ initialRequests }: { initialRequests: A
                           <SourceIcon className="h-3 w-3" /> {source.label}
                         </Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">{r.customer_phone}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{showPhone ? r.customer_phone : maskPhone(r.customer_phone)}</p>
                       <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />

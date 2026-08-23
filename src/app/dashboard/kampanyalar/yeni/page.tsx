@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Megaphone, Users, Search, X, Check, AlertCircle } from "lucide-react";
 
+import { maskPhone } from "@/lib/phone";
+
 interface PickerCustomer {
   id: string;
   full_name: string;
@@ -57,6 +59,9 @@ export default function YeniKampanyaPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [targetMode, setTargetMode] = useState<"all" | "selected">("all");
 
+  const [role, setRole] = useState<string | null>(null);
+  const [settings, setSettings] = useState<Record<string, any>>({});
+
   useEffect(() => {
     fetch("/api/customers?limit=500")
       .then((r) => r.json())
@@ -64,7 +69,18 @@ export default function YeniKampanyaPage() {
         ((d.customers ?? []) as PickerCustomer[]).filter((c) => c.marketing_consent)
       ))
       .catch(() => {});
+
+    fetch("/api/org")
+      .then((r) => r.json())
+      .then((d) => {
+        setRole(d.role || null);
+        setSettings(d.org?.settings_json || {});
+      })
+      .catch(() => {});
   }, []);
+
+  const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
+  const showPhone = role !== "staff" || staffPhoneAccess;
 
   const filteredCustomers = useMemo(() => {
     const q = custSearch.trim().toLocaleLowerCase("tr");
@@ -371,7 +387,7 @@ export default function YeniKampanyaPage() {
                           </span>
                           <span className="flex-1 min-w-0">
                             <span className="block text-sm font-medium truncate">{c.full_name}</span>
-                            <span className="block text-xs text-muted-foreground">{c.phone}</span>
+                            <span className="block text-xs text-muted-foreground">{showPhone ? c.phone : maskPhone(c.phone)}</span>
                           </span>
                         </button>
                       );

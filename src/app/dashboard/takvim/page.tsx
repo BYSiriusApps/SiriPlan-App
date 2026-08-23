@@ -37,7 +37,7 @@ export default async function TakvimPage({
   // önce zincire fazladan bir seri gidiş-dönüş ekliyordu.
   const orgTimeZone = member.organizations?.timezone || "Europe/Istanbul";
 
-  const view: CalendarView = ["day", "week", "month"].includes(params.view ?? "")
+  const view: CalendarView = ["day", "week", "month", "staff"].includes(params.view ?? "")
     ? (params.view as CalendarView)
     : "week";
   // Bozuk ?date= değeri Invalid Date → format() çöker; sıkı doğrula.
@@ -57,7 +57,7 @@ export default async function TakvimPage({
   let prevDate: Date;
   let nextDate: Date;
 
-  if (view === "day") {
+  if (view === "day" || view === "staff") {
     gridStart = baseDate;
     gridEnd = baseDate;
     label = format(baseDate, "d MMMM yyyy, EEEE", { locale: dateFnsLocale });

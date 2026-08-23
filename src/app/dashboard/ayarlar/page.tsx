@@ -824,9 +824,31 @@ export default function AyarlarPage() {
         ) : (
           <div className="p-3 rounded-lg bg-muted/50 border border-border text-xs text-muted-foreground">
             Online randevularınız otomatik onaylanıp takvime düşer. Randevuları onaylamadan önce
-            gözden geçirmek isterseniz, bu manuel onay kuyruğu Pro veya Business planında kullanılabilir.
           </div>
         )}
+        {/* Randevu Dilimi */}
+        <div className="pt-3 border-t border-border mt-3">
+          <Label className="text-sm font-medium mb-1 block">Randevu Dilimi Aralığı</Label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Ziyaretçilerin randevu seçerken göreceği saat aralıkları (15 dakika, 30 dakika veya saat başı).
+          </p>
+          <Select
+            value={String(((org.settings_json as Record<string, unknown> | null)?.booking_slot_minutes) || 15)}
+            onValueChange={(val) => {
+              const nextSettings = { ...((org.settings_json as Record<string, unknown> | null) || {}), booking_slot_minutes: Number(val) };
+              setField("settings_json", nextSettings);
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-64">
+              <SelectValue placeholder="Dilim seçin" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="15">15 dakika (Varsayılan)</SelectItem>
+              <SelectItem value="30">30 dakika</SelectItem>
+              <SelectItem value="60">60 dakika (Saat başı)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </SectionCard>
 
       {/* WhatsApp Bildirim Ayarları (hatırlatma / iptal) */}
@@ -927,6 +949,92 @@ export default function AyarlarPage() {
               onChange={(e) => setField("custom_cancellation_message", e.target.value)}
               placeholder="Randevunuz iptal edilmiştir. Yeniden randevu almak için bizi arayabilirsiniz."
             />
+          </div>
+
+          {/* Meta WhatsApp Şablon Seçimi */}
+          <div className="pt-3 border-t border-border space-y-3">
+            <Label className="text-sm font-medium">Meta WhatsApp Mesaj Şablonları</Label>
+            <p className="text-xs text-muted-foreground">
+              Meta WhatsApp Business panelinizde kayıtlı onaylı şablon varyantlarından her durum için geçerli olanı seçin.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Randevu Onay Şablonu</Label>
+                <Select
+                  value={(org.wa_template_styles as Record<string, string> | null)?.onay || "sicak"}
+                  onValueChange={(val) => {
+                    const nextStyles = { ...((org.wa_template_styles as Record<string, string> | null) || {}), onay: val };
+                    setField("wa_template_styles", nextStyles);
+                  }}
+                >
+                  <SelectTrigger className="mt-1 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sicak">randevu_onayi_1 (Standart)</SelectItem>
+                    <SelectItem value="v2">randevu_onayi_2 (Varyant 2)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-xs text-muted-foreground">Randevu İptal Şablonu</Label>
+                <Select
+                  value={(org.wa_template_styles as Record<string, string> | null)?.iptal || "sicak"}
+                  onValueChange={(val) => {
+                    const nextStyles = { ...((org.wa_template_styles as Record<string, string> | null) || {}), iptal: val };
+                    setField("wa_template_styles", nextStyles);
+                  }}
+                >
+                  <SelectTrigger className="mt-1 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sicak">randevu_iptali (Standart)</SelectItem>
+                    <SelectItem value="v1">randevu_iptali_1 (Varyant 1)</SelectItem>
+                    <SelectItem value="v2">randevu_iptali_2 (Varyant 2)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-xs text-muted-foreground">Randevu Hatırlatma Şablonu</Label>
+                <Select
+                  value={(org.wa_template_styles as Record<string, string> | null)?.hatirlatma || "sicak"}
+                  onValueChange={(val) => {
+                    const nextStyles = { ...((org.wa_template_styles as Record<string, string> | null) || {}), hatirlatma: val };
+                    setField("wa_template_styles", nextStyles);
+                  }}
+                >
+                  <SelectTrigger className="mt-1 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sicak">randevu_hatirlatma_1 (Standart)</SelectItem>
+                    <SelectItem value="v1">randevu_hatirlatma_1 (Varyant 1)</SelectItem>
+                    <SelectItem value="v2">randevu_hatirlatma_2 (Varyant 2)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-xs text-muted-foreground">Randevu Revize Şablonu</Label>
+                <Select
+                  value={(org.wa_template_styles as Record<string, string> | null)?.revize || "sicak"}
+                  onValueChange={(val) => {
+                    const nextStyles = { ...((org.wa_template_styles as Record<string, string> | null) || {}), revize: val };
+                    setField("wa_template_styles", nextStyles);
+                  }}
+                >
+                  <SelectTrigger className="mt-1 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sicak">randevu_revize (Standart)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
 
           <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50">

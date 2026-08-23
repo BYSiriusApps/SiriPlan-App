@@ -60,12 +60,13 @@ export async function GET(req: NextRequest) {
   // sorgulanabiliyordu. Artık personel/hizmetin bu org'a ait olması şart.
   const { data: orgRow } = await supabase
     .from("organizations")
-    .select("id, timezone")
+    .select("id, timezone, settings_json")
     .eq("slug", orgSlug)
     .maybeSingle();
 
   if (!orgRow) return NextResponse.json({ error: "Salon bulunamadı" }, { status: 404 });
   const timeZone = orgRow.timezone || "Europe/Istanbul";
+  const stepMins = Number((orgRow.settings_json as Record<string, unknown> | null)?.booking_slot_minutes) || 15;
 
   // Get service duration
   const { data: service } = await supabase
@@ -107,7 +108,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Generate all theoretical slots
-  const allSlots = generateSlots(staff.start_time, staff.end_time, service.duration_minutes);
+  const allSlots = generateSlots(staff.start_time, staff.end_time, service.duration_minutes, stepMins);
 
   // Get existing appointments for that day and staff.
   // Sınırlar işletmenin saat dilimine göre MUTLAK ana çevrilir: ham

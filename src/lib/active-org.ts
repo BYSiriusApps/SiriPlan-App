@@ -21,6 +21,7 @@ export interface ActiveOrgInfo {
   feature_whitelabel?: boolean | null;
   feature_website?: boolean | null;
   timezone?: string | null;
+  settings_json?: Record<string, unknown> | null;
 }
 
 export interface ActiveMember {
@@ -38,10 +39,10 @@ export interface Membership {
 }
 
 const MEMBER_SELECT =
-  // `timezone` burada seçiliyor ki takvim/randevular/ana sayfa aynı bilgi için
-  // ayrıca `organizations.select("timezone")` sorgusu atmasın — o sorgu, veriye
+  // `timezone` ve `settings_json` burada seçiliyor ki takvim/randevular/ana sayfa aynı bilgi için
+  // ayrıca `organizations.select("timezone, settings_json")` sorgusu atmasın — o sorgu, veriye
   // ihtiyaç duyan her sayfada zincire fazladan bir seri gidiş-dönüş ekliyordu.
-  "org_id, role, staff_id, permissions_json, organizations(id, name, slug, plan, subscription_status, trial_ends_at, max_staff, max_appointments_monthly, feature_ai, feature_campaigns, feature_gamification, feature_api, feature_whitelabel, feature_website, timezone)";
+  "org_id, role, staff_id, permissions_json, organizations(id, name, slug, plan, subscription_status, trial_ends_at, max_staff, max_appointments_monthly, feature_ai, feature_campaigns, feature_gamification, feature_api, feature_whitelabel, feature_website, timezone, settings_json)";
 
 /**
  * Kullanıcının org_members satırları — İSTEK BAŞINA TEK SORGU.

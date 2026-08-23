@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle, Ban, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { maskPhone } from "@/lib/phone";
 import type { Customer, Appointment } from "@/types/database";
 import SendKvkkLinkButton from "./SendKvkkLinkButton";
 import BlockOnlineBookingToggle from "./BlockOnlineBookingToggle";
@@ -56,6 +57,12 @@ export default async function MusteriDetailPage({
   if (!customer) notFound();
   const c = customer as Customer;
 
+  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null } | null };
+  const m = member as unknown as MemberWithOrg;
+  const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
+  const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
+  const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
+
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
@@ -78,17 +85,23 @@ export default async function MusteriDetailPage({
           <CardContent className="space-y-2 text-sm">
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-muted-foreground" />
-              <a href={`tel:${c.phone}`} className="text-primary hover:underline">{c.phone}</a>
-              <a
-                href={`https://wa.me/${c.phone.replace(/\D/g, "").replace(/^0/, "90")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="WhatsApp ile mesaj gönder"
-                className="ml-auto inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
-              >
-                <MessageCircle className="h-3.5 w-3.5" />
-                WhatsApp
-              </a>
+              {showPhoneButtons ? (
+                <>
+                  <a href={`tel:${c.phone}`} className="text-primary hover:underline">{c.phone}</a>
+                  <a
+                    href={`https://wa.me/${c.phone.replace(/\D/g, "").replace(/^0/, "90")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="WhatsApp ile mesaj gönder"
+                    className="ml-auto inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    WhatsApp
+                  </a>
+                </>
+              ) : (
+                <span>{maskPhone(c.phone)}</span>
+              )}
             </div>
             {c.email && (
               <div className="flex items-center gap-2">
@@ -155,7 +168,7 @@ export default async function MusteriDetailPage({
                   oysa /onay/[token] sayfası ikisini birden topluyor ve
                   kampanya izni olmayan müşteriye kampanya gönderilemiyor
                   (bkz. lib/campaign-segment.ts marketing_consent filtresi). */}
-              {(!c.kvkk_consent || !c.marketing_consent) && (
+              {(!c.kvkk_consent || !c.marketing_consent) && showPhoneButtons && (
                 <SendKvkkLinkButton
                   customerId={c.id}
                   phone={c.phone}

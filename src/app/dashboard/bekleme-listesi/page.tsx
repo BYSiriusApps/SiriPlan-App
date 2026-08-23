@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { toast } from "sonner";
 import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users } from "lucide-react";
+import { maskPhone } from "@/lib/phone";
 import type { Staff, Service } from "@/types/database";
 
 type WaitlistEntry = {
@@ -60,6 +61,8 @@ export default function BeklemeListesiPage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [filterStatus, setFilterStatus] = useState<"active" | "all">("active");
+  const [role, setRole] = useState<string | null>(null);
+  const [settings, setSettings] = useState<Record<string, any>>({});
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -76,11 +79,19 @@ export default function BeklemeListesiPage() {
     Promise.all([
       fetch("/api/staff").then((r) => r.json()),
       fetch("/api/services").then((r) => r.json()),
-    ]).then(([staffData, servicesData]) => {
+      fetch("/api/org").then((r) => r.json()).catch(() => ({})),
+    ]).then(([staffData, servicesData, orgData]) => {
       setStaff(staffData.staff || []);
       setServices(servicesData.services || []);
+      if (orgData) {
+        setRole(orgData.role || null);
+        setSettings(orgData.org?.settings_json || {});
+      }
     });
   }, [fetchData]);
+
+  const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
+  const showPhone = role !== "staff" || staffPhoneAccess;
 
   const visible = entries.filter((e) => filterStatus === "all" || (e.status === "waiting" || e.status === "notified"));
 
@@ -142,7 +153,7 @@ export default function BeklemeListesiPage() {
   function bookingHref(e: WaitlistEntry) {
     const params = new URLSearchParams({
       customer_name: e.customer_name,
-      customer_phone: e.customer_phone,
+      customer_phone: showPhone ? e.customer_phone : maskPhone(e.customer_phone),
       from_waitlist: e.id,
     });
     if (e.staff_id) params.set("staff_id", e.staff_id);
@@ -209,7 +220,7 @@ export default function BeklemeListesiPage() {
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {e.customer_phone}
+                      {showPhone ? e.customer_phone : maskPhone(e.customer_phone)}
                       {e.service?.name && ` · ${e.service.name}`}
                       {e.staff?.full_name && ` · ${e.staff.full_name}`}
                     </p>
