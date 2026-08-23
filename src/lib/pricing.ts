@@ -9,19 +9,19 @@ export type PlanPricing = {
 
 export const PRICING_BY_CURRENCY: Record<PricingCurrency, Record<PlanKey, PlanPricing>> = {
   TRY: {
-    starter: { monthly: 1752, annual: 17240 },
-    pro: { monthly: 3024, annual: 29756 },
-    business: { monthly: 5424, annual: 53372 },
+    starter: { monthly: 1314, annual: 12930 },
+    pro: { monthly: 1963, annual: 19316 },
+    business: { monthly: 4752, annual: 46760 },
   },
   USD: {
-    starter: { monthly: 36, annual: 354 },
-    pro: { monthly: 63, annual: 620 },
-    business: { monthly: 113, annual: 1113 },
+    starter: { monthly: 29, annual: 285 },
+    pro: { monthly: 39, annual: 384 },
+    business: { monthly: 99, annual: 974 },
   },
   EUR: {
-    starter: { monthly: 30, annual: 303 },
-    pro: { monthly: 54, annual: 528 },
-    business: { monthly: 96, annual: 951 },
+    starter: { monthly: 26, annual: 256 },
+    pro: { monthly: 33, annual: 325 },
+    business: { monthly: 84, annual: 827 },
   },
 } as const;
 

@@ -81,11 +81,14 @@ export default async function PersonelPage() {
             </div>
             <div>
               <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("staffPage.eyebrow")}</span>
-              <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("staff")}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("staffPage.title")}</h1>
             </div>
             <HomeButton />
           </div>
           <p className="text-muted-foreground text-sm mt-1">
+            {t("staffPage.subtitle")}
+          </p>
+          <p className="text-muted-foreground text-xs mt-0.5">
             {t("staffCountLabel", { used: staff?.length || 0, max: maxStaff })}
           </p>
         </div>

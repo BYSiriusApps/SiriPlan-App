@@ -17,8 +17,6 @@ const ADDON_META = [
   { key: "whatsappAI", icon: Bot },
   { key: "sms", icon: MessageSquare },
   { key: "multiBranch", icon: Zap },
-  { key: "premiumAnalytics", icon: BarChart3 },
-  { key: "dataMigration", icon: Gift },
 ] as const;
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -78,6 +76,7 @@ export default async function FiyatlarPage() {
             {planMeta.map((plan) => {
               const features = t.raw(`pricing.${plan.key}.features`) as string[];
               const notIncluded = (t.raw(`pricing.${plan.key}.notIncluded`) as string[] | undefined) ?? [];
+              const isBusiness = plan.key === "business";
               return (
                 <Card
                   key={plan.key}
@@ -97,17 +96,26 @@ export default async function FiyatlarPage() {
                     <div className="mb-6">
                       <h3 className="font-bold text-xl mb-1">{t(`pricing.${plan.key}.name`)}</h3>
                       <p className="text-xs text-muted-foreground mb-4">{t(`pricing.${plan.key}.desc`)}</p>
-                      <div className="mb-1">
-                        <span className="text-4xl font-bold">{plan.monthly}</span>
-                        <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {t("pricing.annualLabel", {
-                          annual: plan.annual,
-                          total: plan.annualTotal,
-                          save: plan.save,
-                        })}
-                      </p>
+                      {isBusiness ? (
+                        <div className="mb-1 py-1">
+                          <span className="text-2xl font-bold text-primary">{t("pricing.contactForPrice")}</span>
+                          <p className="text-xs text-muted-foreground mt-1">{t("pricing.contactUsSub")}</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="mb-1">
+                            <span className="text-4xl font-bold">{plan.monthly}</span>
+                            <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {t("pricing.annualLabel", {
+                              annual: plan.annual,
+                              total: plan.annualTotal,
+                              save: plan.save,
+                            })}
+                          </p>
+                        </>
+                      )}
                     </div>
 
                     <Link href={plan.href} className="block mb-6">

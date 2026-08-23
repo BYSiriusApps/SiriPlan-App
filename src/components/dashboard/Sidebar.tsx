@@ -31,7 +31,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/website-ayarlari", icon: Globe,        tKey: "websiteSettings", badge: "Pro", minRole: "manager" },
   { href: "/dashboard/raporlar",      icon: BarChart3,       tKey: "reports",        minRole: "manager" },
   { href: "/dashboard/gelir-gider",   icon: Wallet,          tKey: "income",         minRole: "manager" },
-  { href: "/dashboard/stok",          icon: Package,         label: "Stok Yönetimi", minRole: "manager" },
+  { href: "/dashboard/stok",          icon: Package,         tKey: "stock",         minRole: "manager" },
   { href: "/dashboard/veri-gocu",     icon: Import,          tKey: "dataMigration",  minRole: "manager" },
   { href: "/dashboard/ayarlar",       icon: Settings,        tKey: "settings",       minRole: "owner"   },
   { href: "/dashboard/abonelik",      icon: CreditCard,      tKey: "subscription",   minRole: "owner"   },
@@ -165,7 +165,7 @@ export function Sidebar({
                 className="h-4 w-4 shrink-0"
                 style={{ color: isActive ? "var(--sidebar-primary)" : "inherit" }}
               />
-              <span className="flex-1 truncate">{item.label ?? t(item.tKey)}</span>
+              <span className="flex-1 truncate">{("label" in item && typeof item.label === "string" ? item.label : t(item.tKey))}</span>
               {item.badge && (
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold"

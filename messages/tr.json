@@ -76,7 +76,9 @@
     "perYear": "/yıl",
     "mostPopular": "En Çok Tercih Edilen",
     "startTrial": "Ücretsiz Dene",
-    "contactUs": "Bize Ulaşın",
+    "contactUs": "Teklif Al / İletişime Geç",
+    "contactForPrice": "Özel Teklif Alın",
+    "contactUsSub": "İşletmenize özel paket ve fiyatlandırma",
     "bottomNote": "14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
     "annualLabel": "veya {annual}/ay · {total}/yıl ({save})",
     "starter": {
@@ -84,7 +86,7 @@
       "desc": "Küçük salonlar için mükemmel başlangıç",
       "features": [
         "1 şube, 8 personel",
-        "500 randevu/ay",
+        "Sınırsız randevu",
         "Online randevu sayfası",
         "WhatsApp hatırlatma",
         "Sadakat kartı sistemi",
@@ -93,10 +95,10 @@
         "E-posta desteği"
       ],
       "notIncluded": [
-        "AI WhatsApp asistanı",
-        "Kampanya modülü",
-        "Müşteri skoru sistemi",
-        "Website modu"
+        "Website modu",
+        "Sesli asistan ile randevu & stok",
+        "Bekleme listesi",
+        "Stok yönetimi & PDF raporu"
       ]
     },
     "pro": {
@@ -105,18 +107,20 @@
       "features": [
         "1 şube, sınırsız personel",
         "Sınırsız randevu",
-        "Kampanya modülü",
-        "Müşteri skoru sistemi",
-        "Haftanın Elemanı gamification",
+        "Stok yönetimi",
+        "Sesli asistan ile randevu ve stok komutları",
+        "Website modu — renk paleti ve kategori fotoğraflarıyla özelleştirilmiş randevu sayfası",
+        "Kişisel randevu linki (siriplan.com/r/salon-adin)",
         "Bekleme listesi",
         "PDF rapor export",
         "KDV hesaplama",
-        "Kişisel randevu linki (siriplan.com/salon-adin)",
-        "Website modu — renk paleti ve kategori fotoğraflarıyla özelleştirilmiş randevu sayfası"
+        "Kampanya modülü",
+        "Müşteri skoru sistemi",
+        "Haftanın Elemanı gamification"
       ],
       "notIncluded": [
-        "AI WhatsApp/IG asistanı",
-        "Özel alan adı (custom domain)"
+        "Müşteri sesli randevu hizmeti",
+        "AI WhatsApp/IG asistanı"
       ]
     },
     "business": {
@@ -126,12 +130,9 @@
         "Sınırsız şube",
         "Sınırsız personel",
         "Tüm Pro özellikleri",
+        "Müşteri sesli randevu hizmeti",
         "AI WhatsApp/IG asistanı",
-        "Özel alan adı (custom domain)",
-        "Öncelikli destek",
-        "Özel entegrasyonlar",
-        "Dedicated account manager",
-        "SLA garantisi"
+        "Özel entegrasyonlar"
       ],
       "notIncluded": []
     }
@@ -153,20 +154,10 @@
       "name": "Ek Şube Paketi",
       "desc": "Starter/Pro'ya ek şube ekleyin",
       "price": "$29/şube/ay"
-    },
-    "premiumAnalytics": {
-      "name": "Premium Analitik",
-      "desc": "Personel bordrosu, KPI izleme, özelleştirilebilir raporlar",
-      "price": "$25/ay"
-    },
-    "dataMigration": {
-      "name": "Profesyonel Veri Göçü",
-      "desc": "Ekibimiz verilerinizi garanti ile aktarır",
-      "price": "$99 tek seferlik"
     }
   },
   "pricingPage": {
-    "metaDescription": "Siriplan fiyatlandırma — Starter $36/ay, Pro $63/ay, Business $113/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
+    "metaDescription": "Siriplan fiyatlandırma — Starter ₺1.314/ay, Pro ₺1.963/ay, Business Özel Teklif. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
     "heroBadge": "14 Gün Ücretsiz — Kredi Kartı Gerekmez",
     "heroTitle": "Şeffaf Fiyatlandırma,",
     "heroTitleHighlight": "Sürpriz Yok",
@@ -885,14 +876,17 @@
   "dashboard": {
     "incomePage": {
       "eyebrow": "Finans",
+      "title": "Gelir & Gider",
       "subtitle": "Finansal kayıtlarınızı takip edin"
     },
     "dataMigrationPage": {
       "eyebrow": "Veri Yönetimi",
+      "title": "Veri Göçü",
       "subtitle": "Verilerinizi aktarın veya güvenle indirin"
     },
     "subscriptionPage": {
       "eyebrow": "Plan & Fatura",
+      "title": "Abonelik",
       "subtitle": "Plan ve fatura yönetimi"
     },
     "reportsPage": {
@@ -935,6 +929,7 @@
     },
     "staffPage": {
       "eyebrow": "Ekip",
+      "title": "Personel",
       "subtitle": "Personelin kullanabildiği hizmetler, müsaitlikleri ve maaş bilgilerini yönetin",
       "limitReached": "Personel limitinize ulaştınız.",
       "upgradePrompt": "Personel limitinize ulaştınız. Daha fazla eklemek için <link>planınızı yükseltin</link>.",
@@ -1034,6 +1029,11 @@
       "expenseDistribution": "Gider Dağılımı",
       "applyToMonth": "Uygula",
       "applyActiveRecurring": "({count}) uygula"
+    },
+    "stockPage": {
+      "eyebrow": "Ön Muhasebe & Stok",
+      "title": "Stok Yönetimi",
+      "subtitle": "Ürün stoğu, kritik stok uyarıları ve mal giriş/çıkış takibi"
     },
     "months": ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"],
     "incomeCategories": [
@@ -1487,6 +1487,8 @@
     "statusGelmedi": "Gelmedi",
     "settingsPage": {
       "eyebrow": "Yapılandırma",
+      "title": "Ayarlar",
+      "subtitle": "Salon profilinizi ve uygulama tercihlerinizi yönetin.",
       "basicInfoTitle": "Salon Bilgileri",
       "bookingLinkTitle": "Online Randevu Linkim",
       "integrationsTitle": "Sosyal Medya & Entegrasyonlar",

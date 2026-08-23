@@ -72,7 +72,7 @@ export default async function AbonelikPage() {
           </div>
           <div>
             <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("subscriptionPage.eyebrow")}</span>
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("subscription")}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("subscriptionPage.title")}</h1>
           </div>
           <HomeButton />
         </div>

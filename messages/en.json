@@ -76,7 +76,9 @@
     "perYear": "/yr",
     "mostPopular": "Most Popular",
     "startTrial": "Start Free Trial",
-    "contactUs": "Contact Us",
+    "contactUs": "Get Quote / Contact Us",
+    "contactForPrice": "Custom Quote",
+    "contactUsSub": "Tailored packages and pricing for your business",
     "bottomNote": "14-day free trial · No credit card required · Cancel anytime",
     "annualLabel": "or {annual}/mo · {total}/yr ({save})",
     "starter": {
@@ -84,7 +86,7 @@
       "desc": "Perfect starting point for small salons",
       "features": [
         "1 location, 8 staff",
-        "500 appointments/month",
+        "Unlimited appointments",
         "Online booking page",
         "WhatsApp reminders",
         "Loyalty card system",
@@ -93,10 +95,10 @@
         "Email support"
       ],
       "notIncluded": [
-        "AI WhatsApp assistant",
-        "Campaign module",
-        "Customer score system",
-        "Website mode"
+        "Website mode",
+        "Voice assistant for booking & stock",
+        "Waiting list",
+        "Stock management & PDF report"
       ]
     },
     "pro": {
@@ -105,18 +107,20 @@
       "features": [
         "1 location, unlimited staff",
         "Unlimited appointments",
-        "Campaign module",
-        "Customer score system",
-        "Staff of the Week gamification",
+        "Stock management",
+        "Voice assistant for booking and inventory",
+        "Website mode — customizable booking page with color palette and category photos",
+        "Personal booking link (siriplan.com/r/your-salon)",
         "Waiting list",
         "PDF report export",
         "VAT calculation",
-        "Personal booking link (siriplan.com/your-salon)",
-        "Website mode — customizable booking page with color palette and category photos"
+        "Campaign module",
+        "Customer score system",
+        "Staff of the Week gamification"
       ],
       "notIncluded": [
-        "AI WhatsApp/IG assistant",
-        "Custom domain"
+        "Customer voice booking service",
+        "AI WhatsApp/IG assistant"
       ]
     },
     "business": {
@@ -126,12 +130,9 @@
         "Unlimited locations",
         "Unlimited staff",
         "All Pro features",
+        "Customer voice booking service",
         "AI WhatsApp/IG assistant",
-        "Custom domain",
-        "Priority support",
-        "Custom integrations",
-        "Dedicated account manager",
-        "SLA guarantee"
+        "Custom integrations"
       ],
       "notIncluded": []
     }
@@ -153,20 +154,10 @@
       "name": "Additional Branch Package",
       "desc": "Add extra branches to Starter/Pro",
       "price": "$29/branch/mo"
-    },
-    "premiumAnalytics": {
-      "name": "Premium Analytics",
-      "desc": "Staff payroll, KPI tracking, customizable reports",
-      "price": "$25/mo"
-    },
-    "dataMigration": {
-      "name": "Professional Data Migration",
-      "desc": "Our team migrates your data with a guarantee",
-      "price": "$99 one-time"
     }
   },
   "pricingPage": {
-    "metaDescription": "Siriplan pricing — Starter $36/mo, Pro $63/mo, Business $113/mo. 14-day free trial, no credit card required.",
+    "metaDescription": "Siriplan pricing — Starter $29/mo, Pro $39/mo, Business Custom Quote. 14-day free trial, no credit card required.",
     "heroBadge": "14-Day Free Trial — No Credit Card Required",
     "heroTitle": "Transparent Pricing,",
     "heroTitleHighlight": "No Surprises",
@@ -885,14 +876,17 @@
   "dashboard": {
     "incomePage": {
       "eyebrow": "Finance",
+      "title": "Income & Expenses",
       "subtitle": "Track your financial records"
     },
     "dataMigrationPage": {
       "eyebrow": "Data Management",
+      "title": "Data Migration",
       "subtitle": "Import your data or download it securely"
     },
     "subscriptionPage": {
       "eyebrow": "Plan & Billing",
+      "title": "Subscription",
       "subtitle": "Plan and billing management"
     },
     "reportsPage": {
@@ -935,6 +929,7 @@
     },
     "staffPage": {
       "eyebrow": "Team",
+      "title": "Staff",
       "subtitle": "Manage the services available to each staff member, their availability, and salary information",
       "limitReached": "You have reached your staff limit.",
       "upgradePrompt": "You have reached your staff limit. To add more, <link>upgrade your plan</link>.",
@@ -1034,6 +1029,11 @@
       "expenseDistribution": "Expense Distribution",
       "applyToMonth": "Apply",
       "applyActiveRecurring": "Apply ({count})"
+    },
+    "stockPage": {
+      "eyebrow": "Accounting & Stock",
+      "title": "Stock Management",
+      "subtitle": "Track product stock, critical stock alerts, and incoming/outgoing goods"
     },
     "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     "incomeCategories": [
@@ -1487,6 +1487,8 @@
     "statusGelmedi": "No-show",
     "settingsPage": {
       "eyebrow": "Configuration",
+      "title": "Settings",
+      "subtitle": "Manage your salon profile and app preferences.",
       "basicInfoTitle": "Salon Information",
       "bookingLinkTitle": "My Online Booking Link",
       "integrationsTitle": "Social Media & Integrations",

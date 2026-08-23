@@ -296,7 +296,7 @@ export default function GelirGiderPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("incomePage.eyebrow")}</span>
-          <div className="flex items-center gap-3"><h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("income")}</h1><HomeButton /></div>
+          <div className="flex items-center gap-3"><h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("incomePage.title")}</h1><HomeButton /></div>
           <p className="text-muted-foreground text-sm">{t("incomePage.subtitle")}</p>
         </div>
         <div className="flex gap-2 flex-wrap">

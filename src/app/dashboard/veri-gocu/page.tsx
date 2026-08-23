@@ -97,7 +97,7 @@ export default function VeriGocuPage() {
           </div>
           <div>
             <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("dataMigrationPage.eyebrow")}</span>
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("dataMigration")}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("dataMigrationPage.title")}</h1>
           </div>
           <HomeButton />
         </div>

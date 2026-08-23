@@ -455,7 +455,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
           </div>
           <div>
             <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("websiteSettingsPage.eyebrow")}</span>
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("websiteSettings")}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("websiteSettingsPage.title")}</h1>
           </div>
           <HomeButton />
         </div>

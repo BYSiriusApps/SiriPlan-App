@@ -263,14 +263,14 @@ export default function StokPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-primary/70">ÖN MUHASEBE & STOK</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-primary/70">{t("stockPage.eyebrow")}</span>
             <HomeButton />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight flex items-center gap-2">
             <Package className="h-7 w-7 text-primary" />
-            Stok Yönetimi
+            {t("stockPage.title")}
           </h1>
-          <p className="text-sm text-muted-foreground">Ürün stoğu, kritik stok uyarıları ve mal giriş/çıkış takibi</p>
+          <p className="text-sm text-muted-foreground">{t("stockPage.subtitle")}</p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
@@ -501,7 +501,7 @@ export default function StokPage() {
               </div>
               <div>
                 <Label>Ölçü Birimi</Label>
-                <Select value={itemForm.unit} onValueChange={(v) => setItemForm((f) => ({ ...f, unit: v }))}>
+                <Select value={itemForm.unit} onValueChange={(v) => setItemForm((f) => ({ ...f, unit: v || "adet" }))}>
                   <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
