@@ -5,20 +5,22 @@
 ## İçindekiler
 
 1. [SiriPlan Nedir](#1-siriplan-nedir)
-2. [Kayıt, Giriş ve Deneme Süresi](#2-kayıt-giriş-ve-deneme-süresi)
-3. [Ana Sayfa (Panel Özeti)](#3-ana-sayfa-panel-özeti)
-4. [Takvim ve Randevu Yönetimi](#4-takvim-ve-randevu-yönetimi)
-5. [Müşteri Yönetimi](#5-müşteri-yönetimi)
-6. [Hizmet Yönetimi](#6-hizmet-yönetimi)
-7. [Personel Yönetimi](#7-personel-yönetimi)
-8. [Kampanyalar](#8-kampanyalar)
-9. [Raporlar](#9-raporlar)
-10. [Gelir-Gider](#10-gelir-gider)
-11. [Ayarlar](#11-ayarlar)
-12. [Veri Göçü (İçe/Dışa Aktarma)](#12-veri-göçü-içedışa-aktarma)
-13. [Abonelik](#13-abonelik)
-14. [Sık Sorulan Sorular](#14-sık-sorulan-sorular)
-15. [Gelecek Adım: Panel İçi AI Asistan](#15-gelecek-adım-panel-içi-ai-asistan)
+2. [Kayıt, Giriş ve Deneme Süresi (Yönetici & Personel Girişi)](#2-kayıt-giriş-ve-deneme-süresi)
+3. [Ana Sayfa (Panel Özeti ve Kişiselleştirme)](#3-ana-sayfa-panel-özeti-ve-kişiselleştirme)
+4. [Takvim ve Randevu Yönetimi (Tıklayarak Oluşturma & Görünüm Özelleştirme)](#4-takvim-ve-randevu-yönetimi)
+5. [Adisyon Oluşturma & Fiş Dökümü](#5-adisyon-oluşturma--fiş-dökümü)
+6. [İşletme Web Sitesi & Vitrin Görünümü (/r/[slug])](#6-işletme-web-sitesi--vitrin-görünümü-rslug)
+7. [Müşteri Yönetimi](#7-müşteri-yönetimi)
+8. [Hizmet Yönetimi](#8-hizmet-yönetimi)
+9. [Personel Yönetimi](#9-personel-yönetimi)
+10. [Kampanyalar](#10-kampanyalar)
+11. [Raporlar](#11-raporlar)
+12. [Gelir-Gider & Maaş Hesaplama](#12-gelir-gider--maaş-hesaplama)
+13. [Ayarlar](#13-ayarlar)
+14. [Veri Göçü (İçe/Dışa Aktarma)](#14-veri-göçü-içedışa-aktarma)
+15. [Abonelik ve Ödeme Yapısı (Web vs. Mobil Uygulama)](#15-abonelik-ve-ödeme-yapısı)
+16. [Sık Sorulan Sorular](#16-sık-sorulan-sorular)
+17. [Panel İçi Yardım Asistanı](#17-panel-içi-yardım-asistanı)
 
 ---
 
@@ -28,129 +30,88 @@ SiriPlan; kuaför, berber, güzellik merkezi, spa, nail salon, estetik klinik, m
 
 ## 2. Kayıt, Giriş ve Deneme Süresi
 
-- Yeni işletmeler `/auth/kayit` üzerinden kayıt olur, mevcut kullanıcılar `/auth/giris` ile panele erişir.
-- Yeni kayıt olan her işletme **14 günlük ücretsiz deneme** ile başlar; bu süre boyunca tüm özellikler açıktır.
-- Deneme süresi dolmadan önce Ayarlar → Abonelik bölümünden plan seçilerek ödemeye geçilir.
+- **İşletme Kaydı**: Yeni işletmeler `/auth/kayit` üzerinden kayıt olur. Kayıt olan her işletme **14 günlük ücretsiz deneme** ile başlar; bu süre boyunca tüm Pro özellikler açıktır.
+- **Giriş Yöntemleri**:
+  - **Yönetici/Sahip Girişi**: `/auth/giris` sayfasından e-posta veya telefon + şifre ile girer.
+  - **Personel Girişi**: İşletme altında tanımlanan personeller, e-posta veya telefon numaraları ile giriş yaparlar veya kendilerine iletilen davet bağlantısını (`/auth/davet?token=...`) kullanarak işletme hesabına katılırlar. Personeller sisteme girdiğinde otomatik olarak bağlı bulundukları işletme adının altına yönlendirilir.
 
-## 3. Ana Sayfa (Panel Özeti)
+## 3. Ana Sayfa (Panel Özeti ve Kişiselleştirme)
 
-Panele giriş yapan her kullanıcı, işletmenin günlük özetini gösteren bir gösterge paneli (dashboard) ile karşılaşır. Bu ekran **kart tabanlı widget'lardan** oluşur ve her kullanıcı kendi görünümünü kişiselleştirebilir:
+Panele giriş yapan her kullanıcı, işletmenin günlük özetini gösteren bir gösterge paneli (dashboard) ile karşılaşır:
 
-- **Kişiselleştir** butonu ile widget'lar sürükle-bırak yöntemiyle yeniden sıralanabilir, istenmeyen widget'lar gizlenebilir.
-- Tercihler kullanıcıya özel kaydedilir (bir personelin gizlediği widget diğer kullanıcıyı etkilemez).
+- **Kişiselleştir Butonu**: Ekranın sağ üstündeki **Kişiselleştir** butonu ile widget kartları sürükle-bırak yöntemiyle yeniden sıralanabilir, istenmeyen widget'lar göz ikonu ile gizlenebilir.
+- **Kullanıcıya Özel Hafıza**: Tercihler kullanıcı bazında saklanır (bir personelin gizlediği widget işletme sahibini etkilemez).
 
-Standart widget'lar:
-
-| Widget | İçerik |
-|---|---|
-| Aktif Randevular | Bugünün randevu sayısı ve yaklaşan randevuların canlı listesi |
-| Günlük Takvim | Seçili günün saat bazlı randevu görünümü |
-| WhatsApp Asistanı | WhatsApp bağlantı/bildirim durumu özeti |
-| Kampanya Yıldızı | En son gönderilen kampanyanın durumu ve gönderim sayısı |
-| Yeni Müşteri | Son eklenen müşteriler |
-| Rapor Özeti | Günlük randevu/ciro/gider mini özeti |
-| Gelir-Gider | Güncel kasa durumu |
-| Hızlı İşlemler | Yeni randevu, yeni müşteri gibi kısayollar |
-| Ciro Özeti | Dönemsel ciro göstergesi |
-| Bugünkü Personel | Bugün çalışan personel listesi |
-| Hizmet Özeti | En çok tercih edilen hizmetler |
+Standart widget'lar: Active Appointments, Daily Calendar, WhatsApp Assistant, Campaigns Star, New Customers, Reports Summary, Income-Expense, Quick Actions, Revenue Summary, Staff Today, Services Summary.
 
 ## 4. Takvim ve Randevu Yönetimi
 
-- **Takvim** sekmesi, tüm randevuları gün/hafta bazlı, personel renklerine göre kodlanmış bir takvim görünümünde sunar. Randevu süreleri **15 dakikalık dilimler** halinde planlanır.
-- **Randevular** listesinde tüm randevular tablo halinde görüntülenir, filtrelenir ve arama yapılabilir.
-- **Yeni Randevu** ekranından müşteri, hizmet, personel, tarih/saat seçilerek randevu oluşturulur; oluşturma anında müşteriye otomatik bildirim (WhatsApp/E-posta/Telegram, işletme ayarına göre) gönderilir.
-- Her randevunun 5 durumu vardır:
+- **Tıklayarak Randevu Oluşturma**: Takvim gridindeki boş bir saat dilimine veya personel sütununa tıklandığında, seçilen tarih, saat ve personel bilgisi otomatik doldurulmuş olarak **Yeni Randevu** modalı açılır.
+- **Görünüm ve Filtreleme Özelleştirme**:
+  - **Tarih Bazında**: Günü (`day`), Haftayı (`week`), Ayı (`month`) seçerek görünüm ayarlanabilir.
+  - **Personel Bazında**: Personel filtresi veya "Personel Görünümü" (`staff`) ile uzmanlar yan yana sütunlar halinde kıyaslanabilir. Personel rolündeki kullanıcılar yalnızca kendi takvimini görebilir.
+- **Randevu Durumları**: Bekliyor, Onaylandı, Tamamlandı, İptal, Gelmedi (No-Show).
 
-  | Durum | Anlamı |
-  |---|---|
-  | Bekliyor | Müşteri/kanal üzerinden talep edildi, henüz onaylanmadı |
-  | Onaylandı | İşletme tarafından onaylandı |
-  | Tamamlandı | Hizmet verildi |
-  | İptal | Randevu iptal edildi |
-  | Gelmedi | Müşteri randevuya gelmedi (no-show) |
+## 5. Adisyon Oluşturma & Fiş Dökümü
 
-- Randevu detay sayfasından durum güncellenebilir, düzenlenebilir; düzenleme/iptal işlemlerinde de otomatik bildirim tetiklenir.
-- **Adisyon**: Randevu detayındaki "Adisyon" butonu, hizmet/fiyat/bahşiş/toplam ve ödeme yöntemini gösteren yazdırılabilir bir fiş açar (yazıcıya gönderme veya PDF olarak kaydetme).
+Randevu detay sayfasındaki (`/dashboard/randevular/[id]`) **"Adisyon"** butonuna basıldığında:
+- İşletme logosu, adı, adresi, telefonu,
+- Randevu tarihi, müşteri ve personel bilgileri,
+- Hizmet(ler), hizmet fiyatı, bahşiş tutarı, toplam ücret ve ödeme yöntemi (*Nakit, Kredi/Banka Kartı, Havale/EFT, Diğer*) görüntülenir.
+- **Yazdır / PDF**: Tek tıkla yazıcıya gönderilebilir veya PDF olarak indirilebilir.
 
-## 5. Müşteri Yönetimi
+## 6. İşletme Web Sitesi & Vitrin Görünümü (`/r/[slug]`)
 
-- **Müşteriler** listesinde tüm müşteri kayıtları, iletişim bilgileri ve geçmiş randevu sayısı görüntülenir.
-- Müşteri detay sayfasında geçmiş randevular, notlar ve (etkinse) sadakat puanı bilgisi yer alır.
-- **Yeni Müşteri** ekranından manuel kayıt eklenebilir; randevu oluştururken de otomatik olarak yeni müşteri kaydı açılır.
+Müşterilerin online randevu alabileceği ve salon vitrinini inceleyebileceği özel web sayfasıdır:
+- Her işletmeye özel `siriplan.com/r/[slug]` adresi tanımlanır.
+- **Ayarlar → Genel** sekmesinden işletme **logosu**, **kapak görseli (banner)** ve **salon/hizmet fotoğrafları** yüklenebilir. Müşteriler fotoğrafları ışık kutusunda (lightbox) inceleyebilir.
+- Müşteriler *Hizmet → Personel → Tarih/Saat* adımlarıyla 7/24 randevu oluşturabilir.
 
-## 6. Hizmet Yönetimi
+## 7. Müşteri Yönetimi
 
-- **Hizmetler** sayfasında sunulan tüm hizmetler; kategori, süre, fiyat ve (etkinse) puan bilgisiyle listelenir.
-- **Yeni Hizmet** ekranından hizmet adı, kategori, süre ve fiyat tanımlanır. Hizmet listesi randevu oluşturma ekranında ve raporlarda kullanılır.
+Müşteri kayıtları, geçmiş randevular, özel notlar ve sadakat puanı takibi yapılır.
 
-## 7. Personel Yönetimi
+## 8. Hizmet Yönetimi
 
-- **Personel** sayfasında işletmedeki tüm personel, çalışma günleri ve takvimde kullanılan renk koduyla listelenir.
-- **Personel Davet Et** akışıyla yeni personel e-posta/telefon ile panele davet edilir.
-- Her personelin **rolü** (örn. sahip, yönetici, personel) ve buna bağlı **varsayılan yetkileri** vardır; gerekirse kişi bazında özel yetki override'ı tanımlanabilir (iki katmanlı yetki sistemi: rol bazlı varsayılan + kişiye özel istisna).
-- Personel detay sayfasında çalışma saatleri, izinler ve panel dili tercihi (bildirimlerin hangi dilde gideceği) ayarlanır.
-- **Maaş Hesaplama**: Personel → "Maaş Hesapla" sayfasından, her personel için seçilen ay bazında sabit taban maaş + (tamamlanan randevu cirosu × komisyon oranı) + bahşişler toplanarak ödenecek tutar hesaplanır; "Gider Olarak Kaydet" ile tek tıkla Gelir-Gider'e işlenir. Taban maaş ve komisyon oranı personelin detay sayfasından tanımlanır.
+Hizmet adı, kategori, süre (dakika) ve fiyat tanımlanır.
 
-## 8. Kampanyalar
+## 9. Personel Yönetimi
 
-- **Kampanyalar** modülü, müşteri listesine toplu WhatsApp mesajı göndermeyi sağlar (doğum günü kutlaması, promosyon, hatırlatma vb.).
-- Kampanya mesajlarında `{{musteri_adi}}`, `{{salon_adi}}` gibi şablon değişkenleri kullanılır.
-- Her kampanyanın 5 durumu vardır: **Taslak → Planlandı → Gönderiliyor → Gönderildi**, hata durumunda **Başarısız**.
+Personeller, çalışma günleri, renk kodları, roller ve özel yetkileri tanımlanır.
 
-## 9. Raporlar
+## 10. Kampanyalar
 
-- **Raporlar** sayfası seçilen gün/dönem için: randevu sayısı, tamamlanan randevu sayısı, günlük ciro, günlük gider ve yeni müşteri sayısını özetler.
-- Ayrıca **personel bazlı** ve **hizmet bazlı** performans kırılımları sunar (kim ne kadar ciro yaptı, hangi hizmet ne kadar satıldı).
+Müşteri listesine toplu WhatsApp mesajı gönderimi sağlanır.
 
-## 10. Gelir-Gider
+## 11. Raporlar
 
-- **Gelir-Gider** sayfası randevu gelirlerinin yanı sıra manuel girilen gelir ve gider kalemlerini (kira, malzeme, fatura vb.) takip eder; kasa durumunu gösterir.
+Günlük/dönemsel ciro, gider, randevu sayısı ve personel/hizmet bazlı performans analizleri sunulur.
 
-## 11. Ayarlar
+## 12. Gelir-Gider & Maaş Hesaplama
 
-Ayarlar sayfası birkaç alt bölümden oluşur:
+- Manuel gelir ve gider kayıtları tutulur.
+- **Maaş Hesapla**: Taban Maaş + (Ciro × Komisyon %) + Bahşiş formülü ile tek tıkla gider olarak kaydedilir.
 
-- **Genel**: İşletme adı, sektör (kuaför, berber, spa, nail salon, estetik klinik vb.), çalışma günleri (Pazartesi–Pazar), logo/QR kod.
-- **Bildirimler**:
-  - **WhatsApp**: Randevu oluşturulunca / revize edilince / iptal edilince otomatik bildirim gönderimi ayrı ayrı açılıp kapatılabilir. Mesaj tonu **Sıcak, Kısa, Resmi, Hizmet Detaylı** seçeneklerinden seçilir. Otomatik hatırlatma zamanlaması (randevudan kaç saat/gün önce) tanımlanır.
-  - **SMS**: Netgsm, VatanSMS veya İletimerkezi sağlayıcılarından biri entegre edilerek özel hatırlatma/iptal mesajları gönderilebilir.
-  - **E-posta ve Telegram**: Randevu bildirimleri için ek kanal olarak kullanılabilir.
-- **Yetkilendirme**: Rol bazlı ve personel bazlı yetki/izin yönetimi.
-- **Abonelik**: Plan ve ödeme bilgileri (bkz. bölüm 13).
+## 13. Ayarlar
 
-## 12. Veri Göçü (İçe/Dışa Aktarma)
+Genel bilgiler, logo/banner yükleme, WhatsApp/SMS/Telegram bildirim şablonları, yetkilendirme ve abonelik yönetimi.
 
-- **Veri Göçü** sayfasından mevcut müşteri/randevu verileri **Excel/CSV** formatında panele aktarılabilir.
-- Aynı sayfadan mevcut veriler **JSON, CSV, Excel veya PDF** olarak dışa aktarılabilir (yedekleme, muhasebe, başka bir sisteme geçiş vb. amaçlarla).
+## 14. Veri Göçü (İçe/Dışa Aktarma)
 
-## 13. Abonelik
+Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olarak indirilmesi.
 
-- Kayıt sonrası 14 günlük ücretsiz deneme başlar.
-- Deneme süresi dolmadan Ayarlar → Abonelik üzerinden plan seçilip ödeme yapılarak kesintisiz kullanım sağlanır.
+## 15. Abonelik ve Ödeme Yapısı
 
-## 14. Sık Sorulan Sorular
+- 💻 **Web (Tarayıcı)**: Ayarlar → Abonelik veya `/auth/plan-sec` üzerinden kredi kartı ile ödeme yapılır.
+- 📱 **Mobil Uygulama (App Store & Google Play)**: Mağaza politikaları (%0 mağaza komisyonu) uyarınca mobil uygulamada fiyat veya satın alma butonları bulunmaz. Deneme süresi dolduğunda web adresi ve destek hattı bilgileri verilir.
 
-**Randevu oluşturunca müşteriye otomatik mesaj gidiyor mu?**
-Evet — Ayarlar → Bildirimler'de açık olan kanallara (WhatsApp/E-posta/Telegram) göre otomatik mesaj gönderilir.
+## 16. Sık Sorulan Sorular
 
-**Panel dilini nasıl değiştiririm?**
-Panel dört dili destekler (TR/EN/RU/AR); dil seçimi hesap/tarayıcı diline göre otomatik belirlenir, personel bazında bildirim dili ayrıca Personel sayfasından ayarlanabilir.
+- Randevu saatinde hatırlatma mesajı gidiyor mu? (Evet, 2 saat / 1 gün önce).
+- Mobil uygulamadan ödeme yapılıyor mu? (Ödeme işlemleri web sitemiz üzerinden yürütülür).
+- Personeller kendi telefonlarıyla girebilir mi? (Evet, personel hesabı yetkisine göre sadece kendi alanını görür).
+- Adisyon yazdırılabilir mi? (Evet, randevu detayından adisyon oluşturulup yazdırılabilir).
 
-**Birden fazla şubem/personelim var, aynı panelden yönetebilir miyim?**
-Evet, panel çoklu personel ve rol bazlı yetkilendirmeyi destekler; her personelin görebileceği/işlem yapabileceği alanlar Ayarlar → Yetkilendirme'den sınırlandırılabilir.
+## 17. Panel İçi Yardım Asistanı
 
-**Eski verilerimi (Excel) panele nasıl aktarırım?**
-Veri Göçü sayfasından Excel/CSV dosyanızı yükleyerek mevcut müşteri kayıtlarınızı içe aktarabilirsiniz.
-
-**Randevu durumları neyi ifade ediyor?**
-Bekliyor (henüz onaylanmadı), Onaylandı, Tamamlandı, İptal, Gelmedi (müşteri gelmedi). Bkz. bölüm 4.
-
-## 15. Panel İçi Yardım Asistanı
-
-Panelde sağ altta sabit bir "Yardım" balonu bulunur (`HelpAssistant` bileşeni). Dış bir AI servisine/API anahtarına ihtiyaç duymaz — `src/app/api/dashboard-chat/route.ts` içindeki statik, anahtar kelime eşleştirmeli bir bilgi tabanından anında yanıt verir.
-
-1. **İçerik kaynağı**: Bilgi tabanı bu kılavuzla senkron tutulmalıdır — panelde yeni bir özellik/sayfa eklendiğinde önce bu dosya, ardından `KNOWLEDGE_BASE` dizisindeki ilgili girdi güncellenir.
-2. **Kapsam**: Randevu durumları, aktif/pasif personel-hizmet, widget kişiselleştirme, konum ekleme, Telegram Chat ID, online randevu linki/QR kodu, otomatik onay, müşteri dil tercihi, sadakat/puan sistemi, müşteriyi online randevudan engelleme, personel izin günleri, çalışma saatleri, KVKK metni, tema, çoklu işletme geçişi, hızlı randevu, yetki/rol ayarları, mesaj şablonları, bildirim kanalları, ödeme yöntemi/bahşiş girme, plan/ödeme özellikleri, kayıt/giriş, PWA kurulumu gibi panel genelindeki tüm pratik kullanım soruları — yalnızca yukarıdakiler değil, panelin her bölümü kapsam dahilindedir.
-3. **Eşleşmeyen sorular**: Bilgi tabanında karşılığı olmayan (hesaba özel veya çok spesifik) sorularda kullanıcı doğrudan info@bysirius.com ve WhatsApp destek hattına (+90 535 503 26 34) yönlendirilir — asistan tahmini/yanlış bilgi üretmez.
-4. **Ölçüm**: Cevapsız kalan (fallback'e düşen) soru kalıpları zamanla `KNOWLEDGE_BASE`'e yeni madde olarak eklenerek kapsam genişletilebilir.
+Paneldeki sağ alt yardım balonu kullanıcı sorularına anında yanıt verir.

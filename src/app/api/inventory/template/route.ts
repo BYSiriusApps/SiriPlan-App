@@ -28,6 +28,7 @@ const DEFAULT_TEMPLATES: Record<string, Array<{ name: string; category: string; 
     { name: "Kollajen Yüz Maskesi (10lu Kutu)", category: "Maske & Peeling", unit: "kutu", current_stock: 4, min_stock_alert: 1, cost_price: 280, sale_price: 600 },
     { name: "Ağda Kartuşu (Konserve 800g)", category: "Epilasyon & Ağda", unit: "kutu", current_stock: 12, min_stock_alert: 3, cost_price: 150, sale_price: 300 },
     { name: "Kalıcı Oje (Kırmızı No:12)", category: "Nail & Tırnak", unit: "şişe", current_stock: 15, min_stock_alert: 4, cost_price: 95, sale_price: 190 },
+  ],
   dis_klinigi: [
     { name: "Kompozit Dolgu Malzemesi (A2)", category: "Dolgu & Tedavi", unit: "tüp", current_stock: 15, min_stock_alert: 3, cost_price: 350, sale_price: 700 },
     { name: "Lokal Anestezi Ampulü (100lü Kutu)", category: "Anestezi & İlaç", unit: "kutu", current_stock: 4, min_stock_alert: 1, cost_price: 450, sale_price: 900 },

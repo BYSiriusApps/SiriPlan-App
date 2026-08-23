@@ -33,7 +33,7 @@ export default async function FiyatlarPage() {
   const planMeta = ([
     { key: "starter", href: "/auth/kayit", highlight: false },
     { key: "pro", href: "/auth/kayit", highlight: true },
-    { key: "business", href: "/iletisim", highlight: false },
+    { key: "business", href: "/auth/kayit", highlight: false },
   ] as const).map((plan) => {
     const details = pricing.plans[plan.key];
     return {
@@ -76,7 +76,6 @@ export default async function FiyatlarPage() {
             {planMeta.map((plan) => {
               const features = t.raw(`pricing.${plan.key}.features`) as string[];
               const notIncluded = (t.raw(`pricing.${plan.key}.notIncluded`) as string[] | undefined) ?? [];
-              const isBusiness = plan.key === "business";
               return (
                 <Card
                   key={plan.key}
@@ -96,26 +95,17 @@ export default async function FiyatlarPage() {
                     <div className="mb-6">
                       <h3 className="font-bold text-xl mb-1">{t(`pricing.${plan.key}.name`)}</h3>
                       <p className="text-xs text-muted-foreground mb-4">{t(`pricing.${plan.key}.desc`)}</p>
-                      {isBusiness ? (
-                        <div className="mb-1 py-1">
-                          <span className="text-2xl font-bold text-primary">{t("pricing.contactForPrice")}</span>
-                          <p className="text-xs text-muted-foreground mt-1">{t("pricing.contactUsSub")}</p>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="mb-1">
-                            <span className="text-4xl font-bold">{plan.monthly}</span>
-                            <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {t("pricing.annualLabel", {
-                              annual: plan.annual,
-                              total: plan.annualTotal,
-                              save: plan.save,
-                            })}
-                          </p>
-                        </>
-                      )}
+                      <div className="mb-1">
+                        <span className="text-4xl font-bold">{plan.monthly}</span>
+                        <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {t("pricing.annualLabel", {
+                          annual: plan.annual,
+                          total: plan.annualTotal,
+                          save: plan.save,
+                        })}
+                      </p>
                     </div>
 
                     <Link href={plan.href} className="block mb-6">
@@ -123,7 +113,7 @@ export default async function FiyatlarPage() {
                         className={`w-full ${plan.highlight ? "bg-primary hover:bg-primary/90" : ""}`}
                         variant={plan.highlight ? "default" : "outline"}
                       >
-                        {plan.key === "business" ? t("pricing.contactUs") : t("pricing.startTrial")}
+                        {t("pricing.startTrial")}
                         <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                       </Button>
                     </Link>
