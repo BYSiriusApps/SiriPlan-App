@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, Wallet, Loader2, CheckCircle2, Info } from "lucide-react";
 
 type PayrollRow = {
@@ -28,6 +29,7 @@ const MONTHS = [
 const fmt = (n: number) => `₺${n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function MaasHesaplamaPage() {
+  const t = useTranslations("dashboard");
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -91,15 +93,15 @@ export default function MaasHesaplamaPage() {
           <Wallet className="h-5 w-5" />
         </div>
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Ekip</span>
-          <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Personel Maaş Hesaplama</h1>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("staffPage.salaryEyebrow")}</span>
+          <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("staffPage.salaryTitle")}</h1>
         </div>
         <HomeButton />
       </div>
 
       <p className="text-sm text-muted-foreground flex items-start gap-2">
         <Info className="h-4 w-4 mt-0.5 shrink-0" />
-        Toplam ödeme = sabit taban maaş + (tamamlanan randevu cirosu × komisyon oranı) + bahşişler. Taban maaş ve komisyon oranı Personel detay sayfasından düzenlenir.
+        {t("staffPage.salarySubtitle")}
       </p>
 
       <div className="flex items-center gap-3">

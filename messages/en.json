@@ -205,6 +205,10 @@
             "title": "Waiting List",
             "desc": "Add customers to the waiting list when slots are full, notify them with one click, and convert them to appointments."
           },
+          "inventory": {
+            "title": "Inventory Management",
+            "desc": "Track product stock, low-stock alerts, and transactions. Ready-made templates for hair, barber, beauty, and dental clinics."
+          },
           "qr": {
             "title": "QR Code Booking",
             "desc": "Stick it on your salon door or print it on business cards. Customers scan and their appointment is ready."
@@ -218,6 +222,10 @@
       "ai": {
         "category": "AI & Automation",
         "items": {
+          "voiceAI": {
+            "title": "Voice Assistant (Booking & Stock)",
+            "desc": "Create appointments or update stock levels simply by speaking in your dashboard powered by Gemini AI."
+          },
           "whatsappAI": {
             "title": "WhatsApp AI Assistant",
             "desc": "Answers customer questions 24/7, books appointments, collects deposits. Doesn't wake you up, runs your business."
@@ -782,10 +790,11 @@
   },
   "categories": {
     "title": "What's Your Business?",
-    "subtitle": "Customized solution for all beauty and personal care businesses",
+    "subtitle": "Customized solution for all appointment-based businesses from hair salons to dental clinics",
     "hairdresser": "Hair Salon",
     "barber": "Barber Shop",
     "beauty": "Beauty Salon",
+    "dental": "Dental Clinic",
     "spa": "SPA & Massage",
     "nail": "Nail Salon",
     "aesthetic": "Aesthetic Clinic",

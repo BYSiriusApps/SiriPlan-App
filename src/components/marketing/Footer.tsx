@@ -23,6 +23,7 @@ export async function Footer() {
     { key: "hairdresser", href: "/kategori/kuafor"     },
     { key: "barber",      href: "/kategori/berber"     },
     { key: "beauty",      href: "/kategori/guzellik"   },
+    { key: "dental",      href: "/kategori/dis-klinigi"},
     { key: "spa",         href: "/kategori/spa"        },
     { key: "nail",        href: "/kategori/nail"       },
     { key: "aesthetic",   href: "/kategori/estetik"    },

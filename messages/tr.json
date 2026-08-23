@@ -205,6 +205,10 @@
             "title": "Bekleme Listesi",
             "desc": "Dolu saatlerde müşterileri bekleme listesine ekleyin, tek tıkla bilgilendirin ve randevuya çevirin."
           },
+          "inventory": {
+            "title": "Stok Yönetimi",
+            "desc": "Mal/ürün stoğunuzu, kritik stok uyarılarını ve stok hareketlerini takip edin. Kuaför, berber, güzellik ve diş klinikleri için hazır şablonlar."
+          },
           "qr": {
             "title": "QR Kod Randevu",
             "desc": "Salonunuzun kapısına yapıştırın, kartvizite basın. Müşteri kamerası açsın, randevusu hazır olsun."
@@ -218,6 +222,10 @@
       "ai": {
         "category": "AI & Otomasyon",
         "items": {
+          "voiceAI": {
+            "title": "Sesli Asistan (Randevu & Stok)",
+            "desc": "Panelde konuşarak randevu oluşturun veya stok miktarını güncelleyin. Gemini AI destekli sesli komut altyapısı."
+          },
           "whatsappAI": {
             "title": "WhatsApp AI Asistanı",
             "desc": "7/24 müşteri sorularını yanıtlar, randevu alır, ön ödeme toplar. Sizi uyandırmaz, işinizi yürütür."
@@ -479,7 +487,7 @@
           },
           "q2": {
             "q": "Hangi sektörlere hitap ediyor?",
-            "a": "Kuaför, berber, güzellik salonu, SPA & masaj, nail salon, estetik klinik, makyaj stüdyosu, tattoo studio, diyetisyen, kaş & kirpik gibi 10'dan fazla sektöre özel çözüm sunuyoruz."
+            "a": "Kuaför, berber, güzellik salonu, diş klinikleri, SPA & masaj, nail salon, estetik klinik, makyaj stüdyosu, tattoo studio, diyetisyen, kaş & kirpik gibi 10'dan fazla sektöre özel çözüm sunuyoruz."
           },
           "q3": {
             "q": "Uygulamayı İngilizce kullanabilir miyim?",
@@ -499,8 +507,8 @@
             "a": "Evet, herhangi bir kredi kartı bilgisi gerekmez. 14 gün boyunca Pro planın tüm özelliklerini ücretsiz kullanabilirsiniz."
           },
           "q2": {
-            "q": "Fiyatlar dolara mı?",
-            "a": "Fiyatlar USD cinsindendir. Stripe ile güvenli ödeme yapılır. Türk lirası ile ödeme için lütfen iletişime geçin."
+            "q": "Ödeme hangi para biriminde yapılıyor?",
+            "a": "Türkiye'de ₺ (TRY), globalde $ (USD) veya € (EUR) birimleriyle Stripe altyapısı üzerinden güvenle ödeme yapabilirsiniz."
           },
           "q3": {
             "q": "İstediğim zaman iptal edebilir miyim?",
@@ -508,7 +516,7 @@
           },
           "q4": {
             "q": "Yıllık planla ne kadar tasarruf ediyorum?",
-            "a": "Yıllık ödeme tercihinde %18 indirim uygulanır. Örneğin Pro plan aylık $63 yerine $52/ay'dan (yıllık $620) kullanılabilir."
+            "a": "Yıllık ödeme tercihinde %18 indirim uygulanır. Örn. Starter plan ₺1.314/ay yerine yıllık ödemede ₺12.930/yıl (~₺1.078/ay) dengindedir."
           }
         }
       },
@@ -537,8 +545,8 @@
         "title": "AI & Otomasyon",
         "items": {
           "q1": {
-            "q": "AI asistanı ne yapıyor?",
-            "a": "7/24 WhatsApp ve Instagram DM'lerini okur, fiyat ve randevu sorularını yanıtlar, müşteri adına randevu oluşturur. Siz uyurken işiniz yürür."
+            "q": "AI ve Sesli Asistan ne yapıyor?",
+            "a": "Panoda Türkçe konuşarak saniyeler içinde randevu oluşturma ve stok güncelleme yapabilir. Ayrıca WhatsApp ve Instagram DM mesajlarına 7/24 otomatik yanıt verir."
           },
           "q2": {
             "q": "AI asistanı yanlış bilgi verebilir mi?",
@@ -559,7 +567,8 @@
           },
           "q2": {
             "q": "Mevcut sistemdeki verileri aktarabilir miyim?",
-            "a": "Evet. Kullandığınız randevu yazılımından veya Excel'den tek tıkla veri aktarımı desteklenmektedir. Profesyonel Veri Göçü hizmetimizle ekibimiz bunu sizin için yapabilir."
+            "a": "Evet. Kullandığınız randevu yazılımından veya Excel'den tek tıkla müşteri ve stok verilerinizi sisteme aktarabilirsiniz."
+          }
           },
           "q3": {
             "q": "KVKK uyumlu mu?",
@@ -782,10 +791,11 @@
   },
   "categories": {
     "title": "Hangi Sektördesiniz?",
-    "subtitle": "Tüm güzellik ve kişisel bakım işletmeleri için özelleştirilmiş çözüm",
+    "subtitle": "Kuaförlerden diş kliniklerine kadar tüm randevulu işletmeler için özelleştirilmiş çözüm",
     "hairdresser": "Kuaför",
     "barber": "Berber",
     "beauty": "Güzellik Salonu",
+    "dental": "Diş Kliniği",
     "spa": "SPA & Masaj",
     "nail": "Nail Salon",
     "aesthetic": "Estetik Klinik",

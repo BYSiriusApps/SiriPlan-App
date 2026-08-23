@@ -15,6 +15,7 @@ const GROUP_META = [
       { key: "multiChannel", icon: Calendar, badge: "all" },
       { key: "website", icon: Globe, badge: "pro" },
       { key: "waitlist", icon: Smartphone, badge: "pro" },
+      { key: "inventory", icon: Upload, badge: "all" },
       { key: "qr", icon: QrCode, badge: "all" },
       { key: "reminders", icon: Bell, badge: "all" },
     ],
@@ -25,6 +26,7 @@ const GROUP_META = [
     color: "text-violet-500",
     bg: "bg-violet-50 dark:bg-violet-950/30",
     items: [
+      { key: "voiceAI", icon: Bot, badge: "pro" },
       { key: "whatsappAI", icon: Bot, badge: "business" },
       { key: "instagramDm", icon: MessageSquare, badge: "business" },
       { key: "birthday", icon: Bell, badge: "pro" },
