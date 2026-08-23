@@ -87,18 +87,19 @@
       "features": [
         "1 location, 8 staff",
         "Unlimited appointments",
-        "Online booking page",
+        "Personal booking link (siriplan.com/r/your-salon)",
+        "Stock & inventory management",
+        "Income & expense reports & VAT calculation",
         "WhatsApp reminders",
         "Loyalty card system",
-        "Basic revenue report",
         "Data export (CSV)",
         "Email support"
       ],
       "notIncluded": [
         "Website mode",
-        "Voice assistant for booking & stock",
-        "Waiting list",
-        "Stock management & PDF report"
+        "Voice assistant for booking & stock commands",
+        "Waiting list & PDF export",
+        "Campaigns & Customer score"
       ]
     },
     "pro": {
@@ -107,13 +108,10 @@
       "features": [
         "1 location, unlimited staff",
         "Unlimited appointments",
-        "Stock management",
-        "Voice assistant for booking and inventory",
+        "Voice assistant for booking and inventory commands",
         "Website mode — customizable booking page with color palette and category photos",
-        "Personal booking link (siriplan.com/r/your-salon)",
         "Waiting list",
         "PDF report export",
-        "VAT calculation",
         "Campaign module",
         "Customer score system",
         "Staff of the Week gamification"

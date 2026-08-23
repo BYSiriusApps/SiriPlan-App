@@ -87,18 +87,19 @@
       "features": [
         "1 şube, 8 personel",
         "Sınırsız randevu",
-        "Online randevu sayfası",
-        "WhatsApp hatırlatma",
+        "Kişisel randevu linki (siriplan.com/r/salon-adin)",
+        "Stok yönetimi (mal/ürün takibi)",
+        "Gelir - gider raporları & KDV hesaplama",
+        "WhatsApp hatırlatmaları",
         "Sadakat kartı sistemi",
-        "Temel ciro raporu",
         "Veri export (CSV)",
         "E-posta desteği"
       ],
       "notIncluded": [
         "Website modu",
-        "Sesli asistan ile randevu & stok",
-        "Bekleme listesi",
-        "Stok yönetimi & PDF raporu"
+        "Sesli asistan ile randevu & stok komutları",
+        "Bekleme listesi & PDF export",
+        "Kampanya & Müşteri skoru"
       ]
     },
     "pro": {
@@ -107,13 +108,10 @@
       "features": [
         "1 şube, sınırsız personel",
         "Sınırsız randevu",
-        "Stok yönetimi",
         "Sesli asistan ile randevu ve stok komutları",
         "Website modu — renk paleti ve kategori fotoğraflarıyla özelleştirilmiş randevu sayfası",
-        "Kişisel randevu linki (siriplan.com/r/salon-adin)",
         "Bekleme listesi",
         "PDF rapor export",
-        "KDV hesaplama",
         "Kampanya modülü",
         "Müşteri skoru sistemi",
         "Haftanın Elemanı gamification"
