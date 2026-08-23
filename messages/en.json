@@ -685,7 +685,7 @@
     ],
     "s6Contact": "For your requests: <strong>privacy@bysirius.com</strong>",
     "s8Title": "8. Account Deletion and Data Retention",
-    "s8P1": "As a business owner, you can request to delete your account directly from within the app via Settings > Delete My Account. Once processed, your login credentials are permanently removed, all staff access to your business is revoked, and your subscription is cancelled.",
+    "s8P1": "As a business owner and individual user, you can request to delete your account and all associated data directly from within the app/web panel via Settings > Delete My Account or by sending a request to privacy@bysirius.com. Your request will be fulfilled promptly in accordance with store policies and data privacy standards.",
     "s8P2": "Your business's contact details and the personal identifiers in your customer records (name, phone, email) are anonymized. Financial records such as appointment and revenue history may be retained in anonymized, aggregate form for the legally required retention period under Turkish Commercial Code.",
     "s9Title": "9. Policy Changes",
     "s9P": "Changes to this policy will be announced through the platform. Continuing to use the platform after changes take effect means you accept the updated policy."
@@ -712,7 +712,7 @@
     "s5Title": "5. Service Interruptions and Limitation of Liability",
     "s5P": "The platform operates with a 99.9% uptime target; however, brief interruptions may occur due to maintenance or technical reasons. BY Sirius Group Ai & Technology Co Ltd. shall not be liable for indirect, incidental, or consequential damages. Our liability is limited to the subscription fee you paid in the relevant month.",
     "s6Title": "6. Intellectual Property",
-    "s6P": "All intellectual property rights to the platform, its design, and software belong to BY Sirius Group Ai & Technology Co Ltd. Users retain the rights to the content and data they upload to the platform.",
+    "s6P": "All intellectual property rights to the platform, its source code, database structures, designs, and workflows belong to BY Sirius Group Ai & Technology Co Ltd. The platform was developed utilizing artificial intelligence (AI) model assistants; all resulting codebases, configurations, and creative structures are protected under Turkish Intellectual Property Law (FSEK) and the Berne Convention. Any unauthorized copying, decompiling, reverse engineering, cloning, or mimicking of the codebase or UI is strictly prohibited and subject to legal prosecution. Users retain the rights to the content and data they upload to the platform.",
     "s7Title": "7. Termination",
     "s7P": "Your account may be suspended or terminated without prior notice in the event of a violation of these terms of use. You have the right to export your data before account closure.",
     "s8Title": "8. Governing Law",
@@ -1512,7 +1512,19 @@
       "useMyLocationButton": "Use My Location",
       "copyLinkButton": "Copy Link",
       "linkCopiedButton": "Copied",
-      "shareWhatsAppButton": "Share on WhatsApp"
+      "shareWhatsAppButton": "Share on WhatsApp",
+      "legalSectionTitle": "Intellectual Property & Legal Guarantee",
+      "legalSectionDesc": "All copyright and intellectual property rights to this software are registered by BY Sirius Group Ai & Technology Co Ltd. and protected under the Berne Convention and FSEK provisions.",
+      "legalNoticeButton": "View Legal Rights & Copyright Declaration",
+      "accountDeletionButton": "Delete My Account & All Data",
+      "accountDeletionDesc": "In compliance with mobile application store policies (App Store & Play Store) and data privacy regulations, you can permanently delete your account and all associated data. This action cannot be undone."
+    },
+    "legalModal": {
+      "title": "Legal Rights & Copyright Notice",
+      "copyright": "Copyright © 2026 BY Sirius Group Ai & Technology Co Ltd. All rights reserved.",
+      "aiNotice": "This platform was built utilizing Google Antigravity and Claude AI technologies; all source codes, architectures, and UI designs are fully protected under registration. Any unauthorized copying, decompiling, reverse engineering, cloning, or mimicking is strictly prohibited and subject to legal prosecution.",
+      "storeNotice": "App Store Compliance: This platform is 100% compliant with Apple App Store and Google Play Store privacy and data retention (account deletion) policies. Your data is encrypted and protected under GDPR/KVKK and Stripe billing compliance standards.",
+      "close": "Close"
     }
   },
   "booking": {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -15,6 +16,7 @@ import { ThemePicker } from "@/components/layout/ThemePicker";
 import { LanguagePicker } from "@/components/layout/LanguagePicker";
 import { LogoutButton } from "@/components/dashboard/LogoutButton";
 import { GlobalSearch } from "@/components/dashboard/GlobalSearch";
+import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
 
 // roles: "owner" | "manager" | "staff"
 // minRole: who can see this item (owner > manager > staff)
@@ -76,6 +78,7 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("dashboard");
+  const [isLegalOpen, setIsLegalOpen] = useState(false);
 
   const daysLeft = trialDaysLeft(trialEndsAt);
   const planLabel =
@@ -189,9 +192,13 @@ export function Sidebar({
       {/* Bottom — theme picker */}
       <div className="px-4 py-4 space-y-3 border-t border-sidebar-border">
         <div className="flex items-center justify-between px-1">
-          <span className="text-[10px] text-sidebar-foreground/40 font-medium tracking-wide">
-            by <span className="text-sidebar-foreground/70">BySirius</span>
-          </span>
+          <button
+            onClick={() => setIsLegalOpen(true)}
+            className="text-[10px] text-sidebar-foreground/40 hover:text-primary font-medium tracking-wide flex items-center gap-1 transition-colors cursor-pointer"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+            <span>Yasal & Telif</span>
+          </button>
           <div className="flex items-center gap-1">
             <LanguagePicker />
             <ThemePicker />
@@ -200,6 +207,7 @@ export function Sidebar({
 
         <LogoutButton />
       </div>
+      <LegalNoticeModal isOpen={isLegalOpen} onOpenChange={setIsLegalOpen} />
     </aside>
   );
 }

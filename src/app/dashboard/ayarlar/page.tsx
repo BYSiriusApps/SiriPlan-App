@@ -26,6 +26,7 @@ import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { useIsMobileApp } from "@/lib/use-mobile-app";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
 import { TIMEZONE_OPTIONS } from "@/lib/timezones";
 import { DEFAULT_WA_TEMPLATE, WA_TEMPLATE_VARS, renderWaTemplate } from "@/lib/wa-template";
 import {
@@ -147,6 +148,7 @@ export default function AyarlarPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [legalNoticeModalOpen, setLegalNoticeModalOpen] = useState(false);
   // Native uygulamada mağaza kuralları gereği plan yükseltme çağrısı gösterilmez.
   const mobileApp = useIsMobileApp();
 
@@ -1345,6 +1347,24 @@ export default function AyarlarPage() {
         </div>
       </SectionCard>
 
+      <SectionCard icon={ShieldCheck} title={t("settingsPage.legalSectionTitle")} description={t("settingsPage.legalSectionDesc")}>
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Siriplan platformunun tüm kaynak kodları, tasarımları ve akışları FSEK ve Bern Sözleşmesi kapsamında koruma altındadır. 
+            Mağaza (App Store / Play Store) politikaları ve KVKK/GDPR veri gizliliği ile tam uyumlu altyapı sunulmaktadır.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full gap-2 rounded-full text-xs"
+            onClick={() => setLegalNoticeModalOpen(true)}
+          >
+            <ShieldCheck className="h-4 w-4" />
+            {t("settingsPage.legalNoticeButton")}
+          </Button>
+        </div>
+      </SectionCard>
+
       <SectionCard icon={AlertTriangle} iconClassName="text-destructive" title="Tehlikeli Bölge">
         <p className="text-sm text-muted-foreground">
           Hesabınızı sildiğinizde giriş bilgileriniz ve işletmenizin tüm personel erişimleri kalıcı olarak
@@ -1403,6 +1423,8 @@ export default function AyarlarPage() {
         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
         {t("settingsPage.saveButton")}
       </Button>
+
+      <LegalNoticeModal isOpen={legalNoticeModalOpen} onOpenChange={setLegalNoticeModalOpen} />
     </div>
   );
 }

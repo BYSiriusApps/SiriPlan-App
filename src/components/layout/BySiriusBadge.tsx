@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface BySiriusBadgeProps {
   variant?: "footer" | "sidebar" | "watermark";
 }
 
 export function BySiriusBadge({ variant = "footer" }: BySiriusBadgeProps) {
+  const t = useTranslations("footer");
+
   if (variant === "sidebar") {
     return (
       <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary/5 border border-primary/10">
@@ -29,7 +32,7 @@ export function BySiriusBadge({ variant = "footer" }: BySiriusBadgeProps) {
 
   return (
     <div className="flex items-center gap-1.5">
-      <span className="text-xs text-muted-foreground">Powered by</span>
+      <span className="text-xs text-muted-foreground">{t("powered")}</span>
       <Link
         href="https://bysirius.com"
         target="_blank"

@@ -144,11 +144,15 @@ export async function Footer() {
               href="https://bysirius.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-foreground transition-colors"
+              className="hover:text-foreground transition-colors font-medium"
             >
               BY Sirius Group Ai & Technology Co Ltd.
             </a>{" "}
-            {t("rights")}
+            {t("rights")}{" "}
+            <span className="text-muted-foreground/30">|</span>{" "}
+            <Link href="/kosullar" className="hover:text-foreground transition-colors underline underline-offset-2">
+              Fikri Mülkiyet & AI Telif Hakları
+            </Link>
           </p>
           <div className="flex items-center gap-5">
             {/* Social links */}

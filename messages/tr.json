@@ -568,7 +568,6 @@
           "q2": {
             "q": "Mevcut sistemdeki verileri aktarabilir miyim?",
             "a": "Evet. Kullandığınız randevu yazılımından veya Excel'den tek tıkla müşteri ve stok verilerinizi sisteme aktarabilirsiniz."
-          }
           },
           "q3": {
             "q": "KVKK uyumlu mu?",
@@ -686,7 +685,7 @@
     ],
     "s6Contact": "Talepleriniz için: <strong>privacy@bysirius.com</strong>",
     "s8Title": "8. Hesap Silme ve Veri Saklama",
-    "s8P1": "İşletme sahibi olarak Ayarlar > Hesabımı Sil bölümünden hesabınızı doğrudan uygulama içinden silme talebinde bulunabilirsiniz. Talebiniz işlendiğinde giriş bilgileriniz kalıcı olarak silinir, işletmenize ait tüm personel erişimleri kapatılır ve aboneliğiniz iptal edilir.",
+    "s8P1": "İşletme sahibi ve bireysel kullanıcılar olarak, hem web paneli hem de mobil uygulamalar (iOS & Android) üzerinden doğrudan Ayarlar > Hesabımı Sil bölümünden veya privacy@bysirius.com adresine talep göndererek hesabınızı ve ilişkili tüm verilerinizi kalıcı olarak sildirebilirsiniz. Talebiniz mağaza politikalarına ve KVKK standartlarına uygun olarak en kısa sürede yerine getirilecektir.",
     "s8P2": "İşletmenize ait iletişim bilgileri ile müşteri kayıtlarınızdaki kişisel tanımlayıcı bilgiler (isim, telefon, e-posta) anonimleştirilir. Randevu ve ciro geçmişi gibi mali nitelikli kayıtlar, Türk Ticaret Kanunu uyarınca öngörülen yasal saklama süresi boyunca kimliği doğrudan tespit edilemeyecek şekilde istatistiksel olarak saklanabilir.",
     "s9Title": "9. Politika Değişiklikleri",
     "s9P": "Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir."
@@ -713,7 +712,7 @@
     "s5Title": "5. Hizmet Kesintileri ve Sorumluluk Sınırları",
     "s5P": "Platform %99,9 uptime hedefiyle çalışır; ancak bakım veya teknik nedenlerle kısa süreli kesintiler yaşanabilir. BY Sirius Group Ai & Technology Co Ltd., dolaylı, arızi veya sonuçta ortaya çıkan zararlardan sorumlu tutulamaz. Sorumluluğumuz, ilgili ay içinde ödediğiniz abonelik ücretiyle sınırlıdır.",
     "s6Title": "6. Fikri Mülkiyet",
-    "s6P": "Platform, tasarım ve yazılımının tüm fikri mülkiyet hakları BY Sirius Group Ai & Technology Co Ltd.'e aittir. Kullanıcılar platforma yükledikleri içerik ve verilerin haklarını saklı tutar.",
+    "s6P": "Platformun, tüm kaynak kodunun, veritabanı şemalarının, tasarımlarının ve iş akışlarının fikri mülkiyet hakları BY Sirius Group Ai & Technology Co Ltd.'e aittir. Geliştirme aşamasında yapay zeka (AI) model asistanlarından faydalanılmış olup, ortaya çıkan tüm çıktılar, kod mimarisi ve özgün kurgu FSEK ve Bern Sözleşmesi uyarınca koruma altındadır. Kodların kopyalanması, tersine mühendislikle deşifre edilmesi, klonlanması, taklit edilmesi veya decompile edilmesi kesinlikle yasaktır ve yasal takibat sebebidir. Kullanıcılar sisteme kendi yükledikleri içeriklerin (müşteri verileri, randevular) haklarını saklı tutar.",
     "s7Title": "7. Sözleşmenin Feshi",
     "s7P": "Kullanım koşullarının ihlali durumunda hesabınız önceden bildirmeksizin askıya alınabilir veya kapatılabilir. Hesap kapatma öncesinde verilerinizi dışa aktarma hakkına sahipsiniz.",
     "s8Title": "8. Uygulanacak Hukuk",
@@ -1513,7 +1512,19 @@
       "useMyLocationButton": "Konumumu Kullan",
       "copyLinkButton": "Linki Kopyala",
       "linkCopiedButton": "Kopyalandı",
-      "shareWhatsAppButton": "WhatsApp'ta Paylaş"
+      "shareWhatsAppButton": "WhatsApp'ta Paylaş",
+      "legalSectionTitle": "Fikri Mülkiyet & Yasal Garanti",
+      "legalSectionDesc": "Bu yazılımın tüm telif ve fikri mülkiyet hakları BY Sirius Group Ai & Technology Co Ltd. tarafından tescilli olup, Bern Sözleşmesi ve FSEK hükümleri uyarınca korunmaktadır.",
+      "legalNoticeButton": "Yasal Hakları & Telif Beyanını Görüntüle",
+      "accountDeletionButton": "Hesabımı ve Tüm Verilerimi Sil",
+      "accountDeletionDesc": "Mobil uygulama mağazaları (App Store & Play Store) ve KVKK kuralları gereği, hesabınızı ve ilişkili tüm verilerinizi kalıcı olarak silebilirsiniz. Bu işlem geri alınamaz."
+    },
+    "legalModal": {
+      "title": "Yasal Haklar ve Telif Bildirimi",
+      "copyright": "Copyright © 2026 BY Sirius Group Ai & Technology Co Ltd. Tüm hakları saklıdır.",
+      "aiNotice": "Bu platform Google Antigravity ve Claude yapay zeka teknolojileri ile geliştirilmiş olup, tüm tasarım ve kaynak kodlarının mülkiyeti tescil altındadır. Kaynak kodların veya tasarımın kopyalanması, tersine mühendislikle deşifre edilmesi, klonlanması veya taklit edilmesi kesinlikle yasaktır ve yasal takibat sebebidir.",
+      "storeNotice": "Mobil Uygulama Uyumluluğu: Bu platform Apple App Store ve Google Play Store gizlilik ve veri saklama (hesap silme) politikalarıyla %100 uyumludur. Verileriniz KVKK kapsamında korunmakta ve Stripe altyapısıyla şifrelenmektedir.",
+      "close": "Kapat"
     }
   },
   "booking": {
