@@ -20,7 +20,7 @@ import {
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
 
 const SECONDARY_NAV = [
-  { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff" },
+  { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff", planRequired: "business" },
   { href: "/dashboard/personel", icon: UserCog, tKey: "staff", minRole: "manager" },
   { href: "/dashboard/hizmetler", icon: Scissors, tKey: "services", minRole: "staff" },
   { href: "/dashboard/bekleme-listesi", icon: ListPlus, tKey: "waitlist", minRole: "staff" },
@@ -36,9 +36,10 @@ const SECONDARY_NAV = [
 interface Props {
   role: string;
   orgSlug?: string;
+  plan?: string;
 }
 
-export function MobileSideMenu({ role, orgSlug }: Props) {
+export function MobileSideMenu({ role, orgSlug, plan }: Props) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
   const { setOpen: setAssistantOpen } = useAiAssistant();
@@ -46,7 +47,9 @@ export function MobileSideMenu({ role, orgSlug }: Props) {
   const [copied, setCopied] = useState(false);
 
   const userRank = ROLE_RANK[role] ?? 0;
-  const visibleItems = SECONDARY_NAV.filter((item) => userRank >= (ROLE_RANK[item.minRole] ?? 0));
+  const visibleItems = SECONDARY_NAV.filter((item) =>
+    userRank >= (ROLE_RANK[item.minRole] ?? 0) && (!("planRequired" in item) || item.planRequired === plan)
+  );
 
   const bookingLink = orgSlug
     ? `${process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com"}/r/${orgSlug}`

@@ -77,7 +77,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
           {/* Mobile bottom navigation */}
           <div className="print:hidden">
-            <MobileNav role={role} orgSlug={org.slug} />
+            <MobileNav role={role} orgSlug={org.slug} plan={org.plan} />
           </div>
 
           <div className="print:hidden">

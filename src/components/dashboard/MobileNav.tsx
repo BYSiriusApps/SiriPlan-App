@@ -17,7 +17,7 @@ const MOBILE_NAV = [
   { href: "/dashboard/ayarlar",    icon: Settings,        tKey: "settings",      minRole: "owner" },
 ];
 
-export function MobileNav({ role = "staff", orgSlug }: { role?: string; orgSlug?: string }) {
+export function MobileNav({ role = "staff", orgSlug, plan }: { role?: string; orgSlug?: string; plan?: string }) {
   const pathname = usePathname();
   const t = useTranslations("dashboard");
   const userRank = ROLE_RANK[role] ?? 0;
@@ -48,7 +48,7 @@ export function MobileNav({ role = "staff", orgSlug }: { role?: string; orgSlug?
         );
       })}
 
-      <MobileSideMenu role={role} orgSlug={orgSlug} />
+      <MobileSideMenu role={role} orgSlug={orgSlug} plan={plan} />
     </nav>
   );
 }

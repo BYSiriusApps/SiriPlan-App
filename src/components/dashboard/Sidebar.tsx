@@ -25,7 +25,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/takvim",        icon: Calendar,        tKey: "calendar",       minRole: "staff"   },
   { href: "/dashboard/randevular",    icon: BookOpen,        tKey: "appointments",   minRole: "staff"   },
   { href: "/dashboard/bekleme-listesi", icon: ListPlus,      tKey: "waitlist",       minRole: "staff"   },
-  { href: "/dashboard/bekleyen-istekler", icon: Inbox,       tKey: "pendingRequests", minRole: "staff"  },
+  { href: "/dashboard/bekleyen-istekler", icon: Inbox,       tKey: "pendingRequests", minRole: "staff", planRequired: "business" },
   { href: "/dashboard/musteriler",    icon: Users,           tKey: "customers",      minRole: "staff"   },
   { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "manager" },
   { href: "/dashboard/personel",      icon: UserCog,         tKey: "staff",          minRole: "manager" },
@@ -90,7 +90,9 @@ export function Sidebar({
       : t("trial");
   const planColor = PLAN_COLORS[plan] ?? PLAN_COLORS.trial;
 
-  const visibleItems = NAV_ITEMS.filter(item => canSee(role, item.minRole));
+  const visibleItems = NAV_ITEMS.filter(item =>
+    canSee(role, item.minRole) && (!("planRequired" in item) || item.planRequired === plan)
+  );
 
   return (
     <aside className="w-64 min-h-screen flex flex-col bg-sidebar border-r border-sidebar-border">
