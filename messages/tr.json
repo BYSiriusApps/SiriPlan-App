@@ -936,6 +936,9 @@
       "draftLabel": "Taslak"
     },
     "staffPage": {
+      "salaryEyebrow": "Ekip",
+      "salaryTitle": "Personel Maaş Hesaplama",
+      "salarySubtitle": "Toplam ödeme = sabit taban maaş + (tamamlanan randevu cirosu × komisyon oranı) + bahşişler. Taban maaş ve komisyon oranı Personel detay sayfasından düzenlenir.",
       "eyebrow": "Ekip",
       "title": "Personel",
       "subtitle": "Personelin kullanabildiği hizmetler, müsaitlikleri ve maaş bilgilerini yönetin",
@@ -1099,6 +1102,7 @@
     "weeklyChampion": "Haftanın Elemanı",
     "topStaff": "En İyi Performans",
     "income": "Gelir & Gider",
+    "stock": "Stok Yönetimi",
     "staffView": "👤 Personel Görünümü",
     "preferredLanguage": "Tercih Edilen Dil",
     "noLanguage": "Belirtilmedi",

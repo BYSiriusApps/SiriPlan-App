@@ -81,7 +81,7 @@ function normalizeDate(raw: string): string | null {
 
   const dmy = /^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/.exec(value);
   if (dmy) {
-    let [, a, b, year] = dmy;
+    const [, a, b, year] = dmy;
     // Türkiye'de gg.aa.yyyy standart; ABD biçimli aa/gg/yyyy dosyalar için
     // ilk parça 12'den büyükse gün, ikinci parça 12'den büyükse ay kabul edilir.
     let day = +a, month = +b;

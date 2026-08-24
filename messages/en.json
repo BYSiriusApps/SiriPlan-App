@@ -936,6 +936,9 @@
       "draftLabel": "Draft"
     },
     "staffPage": {
+      "salaryEyebrow": "Team",
+      "salaryTitle": "Staff Salary Calculation",
+      "salarySubtitle": "Total payment = fixed base salary + (completed appointment revenue × commission rate) + tips. Base salary and commission rate are edited on the staff detail page.",
       "eyebrow": "Team",
       "title": "Staff",
       "subtitle": "Manage the services available to each staff member, their availability, and salary information",
@@ -1099,6 +1102,7 @@
     "weeklyChampion": "Staff of the Week",
     "topStaff": "Top Performance",
     "income": "Income & Expenses",
+    "stock": "Inventory",
     "staffView": "👤 Staff View",
     "preferredLanguage": "Preferred Language",
     "noLanguage": "Not Set",

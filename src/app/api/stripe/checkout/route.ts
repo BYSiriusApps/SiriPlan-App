@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import type Stripe from "stripe";
 import { getActiveMember } from "@/lib/active-org";
 import { getStripe, PLANS, type PlanKey } from "@/lib/stripe/config";
 import { createClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
+import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +58,12 @@ export async function POST(req: NextRequest) {
   const priceId = annual ? planConfig.annual : planConfig.monthly;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-  const session = await stripe.checkout.sessions.create({
+  // Ziyaretçinin fiyat sayfasında GÖRDÜĞÜ para birimi (pricing_currency
+  // çerezi → IP ülkesi; bkz. lib/pricing.ts). Ödeme ekranında başka bir para
+  // birimiyle karşılaşmaması için aynı kaynaktan okunuyor.
+  const visitorCurrency = getPricingCurrencyFromHeaders(req.headers).toLowerCase();
+
+  const params: Stripe.Checkout.SessionCreateParams = {
     customer: customerId,
     payment_method_types: ["card"],
     mode: "subscription",
@@ -68,7 +75,34 @@ export async function POST(req: NextRequest) {
       metadata: { org_id: member.org_id, plan },
     },
     allow_promotion_codes: true,
-  });
+  };
+
+  // Stripe, çok para birimli fiyatlarda `currency` GEÇİLMEDİKÇE Price'ın
+  // varsayılan para birimiyle tahsil eder — Stripe panelinde currency_options
+  // tanımlamak tek başına yetmez, istekte de belirtilmesi gerekir.
+  //
+  // Ancak ilgili Price'ta o para birimi tanımlı değilse Stripe isteği
+  // reddeder. Bu yüzden önce para birimiyle denenir, reddedilirse parametresiz
+  // tekrar denenir: currency_options henüz kurulmamışken ödeme akışının
+  // TAMAMEN kırılması, para birimi uyuşmazlığından çok daha kötü olurdu.
+  // currency_options kurulduğu anda ilk deneme tutmaya başlar, kod
+  // değişikliği gerekmez.
+  let session;
+  try {
+    session = await stripe.checkout.sessions.create({ ...params, currency: visitorCurrency });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    // Yalnızca para biriminden KAYNAKLANAN hatada parametresiz tekrar dene.
+    // Geniş bir catch, geçersiz müşteri/fiyat gibi alakasız hataları da
+    // yutup Stripe'a boşuna ikinci bir istek atardı ve asıl hatayı gizlerdi.
+    if (!/currency/i.test(message)) throw err;
+    console.error(
+      `[stripe] ${visitorCurrency.toUpperCase()} ile oturum açılamadı, Price'ın varsayılan para birimine düşülüyor. ` +
+        `Ziyaretçi ${visitorCurrency.toUpperCase()} fiyat gördü ama başka bir para birimiyle ücretlendirilecek — ` +
+        `Stripe'ta ${priceId} fiyatına currency_options ekleyin. Hata: ${message}`
+    );
+    session = await stripe.checkout.sessions.create(params);
+  }
 
   return NextResponse.json({ url: session.url });
 }
