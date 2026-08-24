@@ -14,12 +14,13 @@ import { useAiAssistant } from "@/components/dashboard/AiAssistantContext";
 import { cn } from "@/lib/utils";
 import {
   Menu, Bot, Link2, Copy, Check, MessageCircle,
-  UserCog, Scissors, ListPlus, Megaphone, Globe, BarChart3, Wallet, Import, CreditCard,
+  UserCog, Scissors, ListPlus, Megaphone, Globe, BarChart3, Wallet, Import, CreditCard, Inbox, Package,
 } from "lucide-react";
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
 
 const SECONDARY_NAV = [
+  { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff" },
   { href: "/dashboard/personel", icon: UserCog, tKey: "staff", minRole: "manager" },
   { href: "/dashboard/hizmetler", icon: Scissors, tKey: "services", minRole: "staff" },
   { href: "/dashboard/bekleme-listesi", icon: ListPlus, tKey: "waitlist", minRole: "staff" },
@@ -27,6 +28,7 @@ const SECONDARY_NAV = [
   { href: "/dashboard/website-ayarlari", icon: Globe, tKey: "websiteSettings", minRole: "manager" },
   { href: "/dashboard/raporlar", icon: BarChart3, tKey: "reports", minRole: "manager" },
   { href: "/dashboard/gelir-gider", icon: Wallet, tKey: "income", minRole: "manager" },
+  { href: "/dashboard/stok", icon: Package, tKey: "stock", minRole: "manager" },
   { href: "/dashboard/veri-gocu", icon: Import, tKey: "dataMigration", minRole: "manager" },
   { href: "/dashboard/abonelik", icon: CreditCard, tKey: "subscription", minRole: "owner" },
 ];
