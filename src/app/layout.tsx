@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { isMobileApp } from "@/lib/mobile-app";
-import { Geist, Geist_Mono, Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist, Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
@@ -10,25 +10,33 @@ import { getLocale } from "next-intl/server";
 import { headers } from "next/headers";
 import { CookieConsent } from "@/components/analytics/CookieConsent";
 import { CSP_NONCE_HEADER } from "@/lib/csp";
+import { MobileAppCookieHealer } from "@/components/layout/MobileAppCookieHealer";
 
+// Sayfa gövdesinde fiilen çizilen TEK aile Jakarta'dır (--font-sans zincirinin
+// başı). Geist yalnızca Jakarta'da bulunmayan glif için yedek, Playfair ise
+// sadece panel ve /r/[slug] başlıklarında (.font-heading) kullanılıyor.
+// next/font ikisini de varsayılan olarak <link rel="preload"> ile indirtiyordu:
+// pazarlama sayfaları mobilde hiç çizmeyecekleri iki font dosyasını kritik
+// yolda bekliyordu. preload'ı kapatmak fontu silmez — yalnızca "gerçekten
+// gerekince indir"e çevirir.
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin", "latin-ext"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
+  preload: false,
 });
 
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin", "latin-ext"],
+  display: "swap",
+  preload: false,
 });
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin", "latin-ext"],
+  display: "swap",
 });
 
 export const viewport: Viewport = {
@@ -139,7 +147,7 @@ export default async function RootLayout({
       lang={locale}
       dir="ltr"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${plusJakartaSans.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${playfairDisplay.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
       <head>
         {/* PWA + Mobile */}
@@ -208,6 +216,9 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider nonce={nonce}>{children}</ThemeProvider>
+        {/* TWA'dan normal Chrome'a sızan sp_app çerezini temizler — bu çerez
+            yüzünden telefondan siriplan.com hiç açılmıyordu. */}
+        <MobileAppCookieHealer />
         {/* PWA kurulabilirlik: fetch handler'lı service worker kaydı (Chrome/Android
             "Ana ekrana ekle" istemi bunu şart koşuyor — yoksa istem hiç tetiklenmiyor) */}
         <Script id="sw-register" strategy="afterInteractive" nonce={nonce}>

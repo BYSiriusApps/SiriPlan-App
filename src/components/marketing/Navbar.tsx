@@ -48,8 +48,15 @@ export function Navbar() {
     });
   }
 
+  // backdrop-blur MOBİLDE KASITLI OLARAK KAPALI. Sticky bir başlıkta blur,
+  // sayfa her kaydırıldığında arkasındaki alanın yeniden bulanıklaştırılmasını
+  // (her karede GPU işi) gerektiriyor; orta seviye Android telefonlarda
+  // kaydırma gözle görülür şekilde takılıyordu. Mobilde bunun yerine neredeyse
+  // opak bir zemin kullanıyoruz — görsel olarak fark edilmiyor ama kaydırma
+  // boyunca hiç blur hesaplanmıyor. md ve üzerinde (masaüstü, yeterli GPU)
+  // cam görünüm aynen korunuyor.
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 md:bg-background/80 md:backdrop-blur-xl md:supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
@@ -67,11 +74,19 @@ export function Navbar() {
         </Link>
 
         {/* Desktop nav */}
+        {/* prefetch: TÜM pazarlama sayfaları dinamik render ediliyor (dil çerezden
+            okunuyor, bkz. i18n/request.ts). Next.js dinamik rotaları VARSAYILAN
+            OLARAK hiç prefetch etmez — loading.js yoksa tıklamada tam sunucu
+            gidiş-dönüşü olur (next/dist/docs/.../link.md). Sekmeler arası geçişin
+            yavaş hissettirmesinin sebebi buydu. Bu liste mobilde `hidden`
+            olduğu için görünürlük tabanlı prefetch telefonda tetiklenmez;
+            telefonda veri harcanmaz. */}
         <nav className="hidden md:flex items-center gap-6">
           {NAV_HREFS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
+              prefetch
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               {t(l.key)}
@@ -127,10 +142,15 @@ export function Navbar() {
       {/* Mobile menu */}
       {open && (
         <div className="md:hidden border-t border-border bg-background px-4 py-4 space-y-3">
+          {/* Bu bağlantılar yalnızca menü AÇIKKEN DOM'a giriyor; prefetch de
+              ancak o an başlıyor. Yani telefonda veri, kullanıcı gezinme niyetini
+              belli ettikten sonra harcanıyor — menüyü açıp bir sekmeye dokunan
+              kullanıcı için sayfa çoğunlukla hazır oluyor. */}
           {NAV_HREFS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
+              prefetch
               className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
               onClick={() => setOpen(false)}
             >

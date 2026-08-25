@@ -744,7 +744,10 @@ export function UnifiedCalendar({
       {view === "staff" && (
         <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
           <div className="overflow-x-auto">
-            <div className="grid min-w-[760px]" style={{ gridTemplateColumns: `48px repeat(${staff.length || 1}, 1fr)` }}>
+            {/* minmax tabanlı, sabit min-w YOK: mobilde en az 3 personel sütunu
+                kaydırmadan sığar, sütun sayısı azsa 1fr kalan alanı doldurur;
+                4+ personelde taşan kısım için yatay kaydırma devreye girer. */}
+            <div className="grid" style={{ gridTemplateColumns: `40px repeat(${staff.length || 1}, minmax(76px, 1fr))` }}>
               {hourRail}
               {staff.map((s) => {
                 const c = colorOf(s.id);

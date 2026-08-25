@@ -83,13 +83,17 @@ export default function YeniRandevuPage() {
     const prefillPhone = qs.get("customer_phone") || "";
     const prefillStaffId = qs.get("staff_id") || "";
     const prefillServiceId = qs.get("service_id") || "";
+    const prefillDate = qs.get("date") || "";
+    const prefillTime = qs.get("time") || "";
     setFromWaitlistId(qs.get("from_waitlist"));
-    if (prefillName || prefillPhone || prefillStaffId) {
+    if (prefillName || prefillPhone || prefillStaffId || prefillDate) {
       setForm((f) => ({
         ...f,
         customer_name: prefillName || f.customer_name,
         customer_phone: prefillPhone || f.customer_phone,
         staff_id: prefillStaffId || f.staff_id,
+        // Takvimde saat dilimine tıklandığında gelir — kullanıcı saati tekrar seçmesin.
+        appointment_at: prefillDate ? `${prefillDate}T${prefillTime || "09:00"}` : f.appointment_at,
       }));
     }
 
