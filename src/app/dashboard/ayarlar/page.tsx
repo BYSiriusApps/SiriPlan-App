@@ -28,7 +28,14 @@ import { useIsMobileApp } from "@/lib/use-mobile-app";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
 import { TIMEZONE_OPTIONS } from "@/lib/timezones";
-import { DEFAULT_WA_TEMPLATE, WA_TEMPLATE_VARS, renderWaTemplate } from "@/lib/wa-template";
+import {
+  DEFAULT_WA_TEMPLATE,
+  DEFAULT_WA_CANCEL_TEMPLATE,
+  DEFAULT_WA_REVIZE_TEMPLATE,
+  DEFAULT_WA_REMINDER_TEMPLATE,
+  WA_TEMPLATE_VARS,
+  renderWaTemplate,
+} from "@/lib/wa-template";
 import {
   DEFAULT_WA_TEMPLATE_STYLES,
   WA_REMINDER_OFFSET_PRESETS,
@@ -46,16 +53,48 @@ const DEMO_SALON_SLUG = process.env.NEXT_PUBLIC_DEMO_SALON_SLUG || "sirius-demo-
 // Meta'da kayıtlı gerçek şablon metni bu kod tabanında tutulmaz (onay süreci
 // Meta WhatsApp Business panelinde yürür) — burada gösterilen yalnızca hangi
 // parametrelerin hangi sırayla gönderileceğini örnekleyen yaklaşık bir önizlemedir.
-const META_PREVIEW_SAMPLE: Record<string, (p: { customerName: string; orgName: string; businessPhone: string; note?: string }) => string> = {
-  onay: (p) =>
-    `Sayın ${p.customerName}, ${p.orgName} işletmesinde 20.07.2026 tarihinde saat 15:00 için randevunuz onaylandı. Sorularınız için: ${p.businessPhone || "işletme telefonu"}.`,
-  iptal: (p) =>
-    `Sayın ${p.customerName}, ${p.orgName} işletmesindeki 20.07.2026 saat 15:00 randevunuz iptal edilmiştir.`,
-  hatirlatma: (p) =>
-    `Sayın ${p.customerName}, ${p.orgName} salonundaki 28.07.2026 14:30 tarihli randevunuz Hatırlatma. Detay: ${p.note || "Lütfen randevunuza saatinde gelmeye özen gösteriniz."}`,
-  revize: (p) =>
-    `Sayın ${p.customerName}, ${p.orgName} işletmesindeki randevunuzun saati 20.07.2026 18:00 olarak güncellenmiştir.`,
+const META_PREVIEW_SAMPLE: Record<
+  string,
+  Record<string, (p: { customerName: string; orgName: string; businessPhone: string; note?: string }) => string>
+> = {
+  onay: {
+    sicak: (p) =>
+      `Sayın ${p.customerName}, ${p.orgName} işletmesinde 20.07.2026 tarihinde saat 15:00 için randevunuz onaylandı. Sorularınız için: ${p.businessPhone || "işletme telefonu"}.`,
+    v2: (p) =>
+      `Merhaba ${p.customerName}, ${p.orgName} işletmesinde 20.07.2026 tarihinde saat 15:00 randevunuz onaylandı. İletişim: ${p.businessPhone || "işletme telefonu"}.`,
+  },
+  iptal: {
+    sicak: (p) =>
+      `Sayın ${p.customerName}, ${p.orgName} işletmesindeki 20.07.2026 saat 15:00 randevunuz iptal edilmiştir.`,
+    v1: (p) =>
+      `Merhaba ${p.customerName}, ${p.orgName} işletmesindeki 20.07.2026 saat 15:00 randevunuz iptal edildi. Yeniden randevu için iletişime geçebilirsiniz.`,
+    v2: (p) =>
+      `Sayın ${p.customerName}, ${p.orgName} salonundaki 20.07.2026 15:00 tarihli randevunuz iptal edilmiştir.`,
+  },
+  hatirlatma: {
+    sicak: (p) =>
+      `Sayın ${p.customerName}, ${p.orgName} salonundaki 28.07.2026 14:30 tarihli randevunuz Hatırlatma.`,
+    v1: (p) =>
+      `Sayın ${p.customerName}, ${p.orgName} salonundaki 28.07.2026 14:30 tarihli randevunuz Hatırlatma. (V1)`,
+    v2: (p) =>
+      `Merhaba ${p.customerName}, ${p.orgName} bünyesinde 28.07.2026 saat 14:30 için olan randevunuzu hatırlatırız.`,
+  },
+  revize: {
+    sicak: (p) =>
+      `Sayın ${p.customerName}, ${p.orgName} işletmesindeki randevunuzun saati 20.07.2026 18:00 olarak güncellenmiştir.`,
+  },
 };
+
+function getMetaPreview(
+  purpose: string,
+  style: string,
+  params: { customerName: string; orgName: string; businessPhone: string; note?: string }
+): string {
+  const purposeObj = META_PREVIEW_SAMPLE[purpose];
+  if (!purposeObj) return "";
+  const renderFn = purposeObj[style] || purposeObj["sicak"] || Object.values(purposeObj)[0];
+  return renderFn(params);
+}
 
 const APPOINTMENT_TEMPLATE_PRESETS: { key: string; label: string; text: string }[] = [
   {
@@ -165,6 +204,7 @@ export default function AyarlarPage() {
   const [legalNoticeModalOpen, setLegalNoticeModalOpen] = useState(false);
   // Native uygulamada mağaza kuralları gereği plan yükseltme çağrısı gösterilmez.
   const mobileApp = useIsMobileApp();
+  const [manualTab, setManualTab] = useState<"onay" | "iptal" | "revize" | "hatirlatma">("onay");
 
   async function handleDeleteAccount() {
     if (deleteConfirmText !== DELETE_CONFIRM_PHRASE) return;
@@ -742,7 +782,7 @@ export default function AyarlarPage() {
         icon={MessageCircle}
         iconClassName="text-green-600"
         title={t("settingsPage.autoMessageTitle")}
-        description="Randevu ekranlarındaki (Yeni Randevu / Hızlı Randevu) 'Müşteriye WhatsApp mesajı gönder' kutusu işaretlendiğinde ve randevu detayındaki 'Manuel Mesaj Gönder' butonunda kendi WhatsApp'ınızdan elle gönderdiğiniz metin budur. Tarih ve saat her randevuda otomatik doldurulur."
+        description="Randevu ekranlarındaki (Yeni Randevu / Hızlı Randevu) 'Müşteriye WhatsApp mesajı gönder' kutusu işaretlendiğinde ve randevu detayındaki 'Manuel Mesaj Gönder' butonunda kendi WhatsApp'ınızdan elle gönderdiğiniz metinler bunlardır. Tarih ve saat her randevuda otomatik doldurulur."
       >
         <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
           <p className="text-xs text-amber-700 dark:text-amber-400">
@@ -754,34 +794,115 @@ export default function AyarlarPage() {
             devreye alacağınız tek bildirim yolu olur.
           </p>
         </div>
-        <div className="flex gap-1.5 flex-wrap items-center">
-          <span className="text-xs text-muted-foreground">Şablon seç:</span>
-          {APPOINTMENT_TEMPLATE_PRESETS.map((preset) => (
+
+        <div className="flex border-b border-border mb-3 overflow-x-auto whitespace-nowrap">
+          {(
+            [
+              { key: "onay", label: "Randevu Onay" },
+              { key: "iptal", label: "Randevu İptal" },
+              { key: "revize", label: "Randevu Güncelleme" },
+              { key: "hatirlatma", label: "Randevu Hatırlatma" },
+            ] as const
+          ).map((tab) => (
             <button
-              key={preset.key}
+              key={tab.key}
               type="button"
-              onClick={() => {
-                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
-                setField("settings_json", { ...cur, wa_appointment_template: preset.text });
-              }}
-              className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+              onClick={() => setManualTab(tab.key)}
+              className={`px-3 py-2 text-xs font-semibold border-b-2 transition-colors ${
+                manualTab === tab.key
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
             >
-              {preset.label}
+              {tab.label}
             </button>
           ))}
         </div>
-        <textarea
-          className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
-          value={
-            ((org.settings_json as Record<string, unknown> | null)?.wa_appointment_template as string | undefined) ??
-            DEFAULT_WA_TEMPLATE
-          }
-          onChange={(e) => {
-            const cur = (org.settings_json ?? {}) as Record<string, unknown>;
-            setField("settings_json", { ...cur, wa_appointment_template: e.target.value });
-          }}
-          placeholder={DEFAULT_WA_TEMPLATE}
-        />
+
+        {manualTab === "onay" && (
+          <div className="space-y-3">
+            <div className="flex gap-1.5 flex-wrap items-center">
+              <span className="text-xs text-muted-foreground">Şablon seç:</span>
+              {APPOINTMENT_TEMPLATE_PRESETS.map((preset) => (
+                <button
+                  key={preset.key}
+                  type="button"
+                  onClick={() => {
+                    const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                    setField("settings_json", { ...cur, wa_appointment_template: preset.text });
+                  }}
+                  className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+            <textarea
+              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
+              value={
+                ((org.settings_json as Record<string, unknown> | null)?.wa_appointment_template as string | undefined) ??
+                DEFAULT_WA_TEMPLATE
+              }
+              onChange={(e) => {
+                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                setField("settings_json", { ...cur, wa_appointment_template: e.target.value });
+              }}
+              placeholder={DEFAULT_WA_TEMPLATE}
+            />
+          </div>
+        )}
+
+        {manualTab === "iptal" && (
+          <div className="space-y-3">
+            <textarea
+              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
+              value={
+                ((org.settings_json as Record<string, unknown> | null)?.wa_cancellation_template as string | undefined) ??
+                DEFAULT_WA_CANCEL_TEMPLATE
+              }
+              onChange={(e) => {
+                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                setField("settings_json", { ...cur, wa_cancellation_template: e.target.value });
+              }}
+              placeholder={DEFAULT_WA_CANCEL_TEMPLATE}
+            />
+          </div>
+        )}
+
+        {manualTab === "revize" && (
+          <div className="space-y-3">
+            <textarea
+              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
+              value={
+                ((org.settings_json as Record<string, unknown> | null)?.wa_revize_template as string | undefined) ??
+                DEFAULT_WA_REVIZE_TEMPLATE
+              }
+              onChange={(e) => {
+                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                setField("settings_json", { ...cur, wa_revize_template: e.target.value });
+              }}
+              placeholder={DEFAULT_WA_REVIZE_TEMPLATE}
+            />
+          </div>
+        )}
+
+        {manualTab === "hatirlatma" && (
+          <div className="space-y-3">
+            <textarea
+              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
+              value={
+                ((org.settings_json as Record<string, unknown> | null)?.wa_reminder_template as string | undefined) ??
+                DEFAULT_WA_REMINDER_TEMPLATE
+              }
+              onChange={(e) => {
+                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                setField("settings_json", { ...cur, wa_reminder_template: e.target.value });
+              }}
+              placeholder={DEFAULT_WA_REMINDER_TEMPLATE}
+            />
+          </div>
+        )}
+
         <div className="flex gap-1.5 flex-wrap items-center">
           <span className="text-xs text-muted-foreground">Değişkenler:</span>
           {WA_TEMPLATE_VARS.map((v) => (
@@ -791,8 +912,25 @@ export default function AyarlarPage() {
               title={v.desc}
               onClick={() => {
                 const cur = (org.settings_json ?? {}) as Record<string, unknown>;
-                const existing = (cur.wa_appointment_template as string | undefined) ?? DEFAULT_WA_TEMPLATE;
-                setField("settings_json", { ...cur, wa_appointment_template: existing + " " + v.key });
+                let currentVal = "";
+                let targetKey = "";
+                let defaultVal = "";
+
+                if (manualTab === "onay") {
+                  currentVal = (cur.wa_appointment_template as string | undefined) ?? DEFAULT_WA_TEMPLATE;
+                  targetKey = "wa_appointment_template";
+                } else if (manualTab === "iptal") {
+                  currentVal = (cur.wa_cancellation_template as string | undefined) ?? DEFAULT_WA_CANCEL_TEMPLATE;
+                  targetKey = "wa_cancellation_template";
+                } else if (manualTab === "revize") {
+                  currentVal = (cur.wa_revize_template as string | undefined) ?? DEFAULT_WA_REVIZE_TEMPLATE;
+                  targetKey = "wa_revize_template";
+                } else if (manualTab === "hatirlatma") {
+                  currentVal = (cur.wa_reminder_template as string | undefined) ?? DEFAULT_WA_REMINDER_TEMPLATE;
+                  targetKey = "wa_reminder_template";
+                }
+
+                setField("settings_json", { ...cur, [targetKey]: currentVal + " " + v.key });
               }}
               className="text-xs px-2 py-1 rounded bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
             >
@@ -800,18 +938,32 @@ export default function AyarlarPage() {
             </button>
           ))}
         </div>
+
         <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50">
           <p className="text-[11px] font-medium text-green-700 dark:text-green-400 mb-1">Örnek önizleme:</p>
           <p className="text-xs text-muted-foreground italic">
             {renderWaTemplate(
-              ((org.settings_json as Record<string, unknown> | null)?.wa_appointment_template as string | undefined) ?? null,
+              manualTab === "onay"
+                ? ((org.settings_json as Record<string, unknown> | null)?.wa_appointment_template as string | undefined)
+                : manualTab === "iptal"
+                ? ((org.settings_json as Record<string, unknown> | null)?.wa_cancellation_template as string | undefined)
+                : manualTab === "revize"
+                ? ((org.settings_json as Record<string, unknown> | null)?.wa_revize_template as string | undefined)
+                : ((org.settings_json as Record<string, unknown> | null)?.wa_reminder_template as string | undefined),
               {
                 musteri: "Ayşe Yıldız",
                 salon: org.name || "Salonunuz",
-                appointmentAt: "2026-07-20T15:00",
+                appointmentAt: manualTab === "revize" ? "2026-07-20T18:00" : "2026-07-20T15:00",
                 hizmet: "Saç Kesimi",
                 personel: "Elif",
-              }
+              },
+              manualTab === "onay"
+                ? DEFAULT_WA_TEMPLATE
+                : manualTab === "iptal"
+                ? DEFAULT_WA_CANCEL_TEMPLATE
+                : manualTab === "revize"
+                ? DEFAULT_WA_REVIZE_TEMPLATE
+                : DEFAULT_WA_REMINDER_TEMPLATE
             )}
           </p>
         </div>
@@ -950,26 +1102,6 @@ export default function AyarlarPage() {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Hatırlatma mesajı özel notu</Label>
-            <textarea
-              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[70px] bg-background"
-              value={org.custom_reminder_message ?? ""}
-              onChange={(e) => setField("custom_reminder_message", e.target.value)}
-              placeholder="Lütfen randevunuza saatinde gelmeye özen gösteriniz."
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>İptal mesajı özel notu (opsiyonel)</Label>
-            <textarea
-              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[70px] bg-background"
-              value={org.custom_cancellation_message ?? ""}
-              onChange={(e) => setField("custom_cancellation_message", e.target.value)}
-              placeholder="Randevunuz iptal edilmiştir. Yeniden randevu almak için bizi arayabilirsiniz."
-            />
-          </div>
-
           {/* Meta WhatsApp Şablon Seçimi */}
           <div className="pt-3 border-t border-border space-y-3">
             <Label className="text-sm font-medium">Meta WhatsApp Mesaj Şablonları</Label>
@@ -995,7 +1127,11 @@ export default function AyarlarPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
-                  {META_PREVIEW_SAMPLE.onay({ customerName: "Ayşe Yıldız", orgName: org.name || "Salonunuz", businessPhone: org.phone || org.whatsapp_number || "" })}
+                  {getMetaPreview("onay", (org.wa_template_styles as Record<string, string> | null)?.onay || "sicak", {
+                    customerName: "Ayşe Yıldız",
+                    orgName: org.name || "Salonunuz",
+                    businessPhone: org.phone || org.whatsapp_number || "",
+                  })}
                 </p>
               </div>
 
@@ -1018,7 +1154,11 @@ export default function AyarlarPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
-                  {META_PREVIEW_SAMPLE.iptal({ customerName: "Ayşe Yıldız", orgName: org.name || "Salonunuz", businessPhone: "" })}
+                  {getMetaPreview("iptal", (org.wa_template_styles as Record<string, string> | null)?.iptal || "sicak", {
+                    customerName: "Ayşe Yıldız",
+                    orgName: org.name || "Salonunuz",
+                    businessPhone: "",
+                  })}
                 </p>
               </div>
 
@@ -1041,7 +1181,11 @@ export default function AyarlarPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
-                  {META_PREVIEW_SAMPLE.hatirlatma({ customerName: "Ayşe Yıldız", orgName: org.name || "Salonunuz", businessPhone: "", note: org.custom_reminder_message || undefined })}
+                  {getMetaPreview("hatirlatma", (org.wa_template_styles as Record<string, string> | null)?.hatirlatma || "sicak", {
+                    customerName: "Ayşe Yıldız",
+                    orgName: org.name || "Salonunuz",
+                    businessPhone: "",
+                  })}
                 </p>
               </div>
 
@@ -1062,7 +1206,11 @@ export default function AyarlarPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
-                  {META_PREVIEW_SAMPLE.revize({ customerName: "Ayşe Yıldız", orgName: org.name || "Salonunuz", businessPhone: "" })}
+                  {getMetaPreview("revize", (org.wa_template_styles as Record<string, string> | null)?.revize || "sicak", {
+                    customerName: "Ayşe Yıldız",
+                    orgName: org.name || "Salonunuz",
+                    businessPhone: "",
+                  })}
                 </p>
               </div>
             </div>

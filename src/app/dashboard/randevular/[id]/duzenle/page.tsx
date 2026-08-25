@@ -146,7 +146,9 @@ export default function RandevuDuzenlePage() {
                   <Label>Personel *</Label>
                   <Select value={form.staff_id} onValueChange={(v) => v && setForm((f) => ({ ...f, staff_id: v }))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Personel seçin" />
+                      <SelectValue placeholder="Personel seçin">
+                        {(value: string) => staff.find((s) => s.id === value)?.full_name || "Personel seçin"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {staff.map((s) => (

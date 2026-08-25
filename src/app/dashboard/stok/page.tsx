@@ -69,7 +69,7 @@ export default function StokPage() {
 
   const [showTxModal, setShowTxModal] = useState(false);
   const [txTargetItem, setTxTargetItem] = useState<InventoryItem | null>(null);
-  const [txForm, setTxForm] = useState({ type: "in" as "in" | "out" | "adjust", quantity: "1", note: "" });
+  const [txForm, setTxForm] = useState({ type: "in" as "in" | "out" | "adjust", quantity: "1", unit_price: "", note: "" });
   const [savingTx, setSavingTx] = useState(false);
 
   const [loadingTemplate, setLoadingTemplate] = useState(false);
@@ -219,7 +219,12 @@ export default function StokPage() {
   // Open transaction modal
   function openTxModal(item: InventoryItem, type: "in" | "out" | "adjust" = "in") {
     setTxTargetItem(item);
-    setTxForm({ type, quantity: "1", note: "" });
+    setTxForm({
+      type,
+      quantity: "1",
+      unit_price: type === "in" ? String(item.cost_price || "") : type === "out" ? String(item.sale_price || "") : "",
+      note: "",
+    });
     setShowTxModal(true);
   }
 
@@ -239,6 +244,7 @@ export default function StokPage() {
           item_id: txTargetItem.id,
           type: txForm.type,
           quantity: qty,
+          unit_price: txForm.unit_price ? Number(txForm.unit_price) : null,
           note: txForm.note,
         }),
       });
@@ -583,7 +589,22 @@ export default function StokPage() {
           <div className="space-y-4 pt-2">
             <div>
               <Label>İşlem Türü</Label>
-              <Select value={txForm.type} onValueChange={(v) => setTxForm((f) => ({ ...f, type: v as "in" | "out" | "adjust" }))}>
+              <Select
+                value={txForm.type}
+                onValueChange={(v) => {
+                  const newType = v as "in" | "out" | "adjust";
+                  setTxForm((f) => ({
+                    ...f,
+                    type: newType,
+                    unit_price:
+                      newType === "in"
+                        ? String(txTargetItem?.cost_price || "")
+                        : newType === "out"
+                        ? String(txTargetItem?.sale_price || "")
+                        : "",
+                  }));
+                }}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -606,6 +627,22 @@ export default function StokPage() {
                 onChange={(e) => setTxForm((f) => ({ ...f, quantity: e.target.value }))}
               />
             </div>
+
+            {txForm.type !== "adjust" && (
+              <div>
+                <Label>Birim Fiyat (₺)</Label>
+                <Input
+                  className="mt-1"
+                  type="number"
+                  step="0.5"
+                  value={txForm.unit_price}
+                  onChange={(e) => setTxForm((f) => ({ ...f, unit_price: e.target.value }))}
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Boş bırakılırsa ürünün varsayılan {txForm.type === "in" ? "maliyet" : "satış"} fiyatı ({txForm.type === "in" ? txTargetItem?.cost_price : txTargetItem?.sale_price} ₺) kullanılır.
+                </p>
+              </div>
+            )}
 
             <div>
               <Label>Açıklama / Not (opsiyonel)</Label>

@@ -11,6 +11,15 @@
 export const DEFAULT_WA_TEMPLATE =
   "Sayın {musteri}, {salon} işletmesinde {tarih} tarihi ve {saat} saati için randevunuz oluşturulmuştur. Sorunuz olursa bu numaradan bize ulaşabilirsiniz. Görüşmek üzere! 💫";
 
+export const DEFAULT_WA_CANCEL_TEMPLATE =
+  "Sayın {musteri}, {salon} işletmesindeki {tarih} tarihli ve {saat} saatli randevunuz iptal edilmiştir.";
+
+export const DEFAULT_WA_REVIZE_TEMPLATE =
+  "Sayın {musteri}, {salon} işletmesindeki randevunuz {tarih} tarihi ve {saat} saati olarak güncellenmiştir.";
+
+export const DEFAULT_WA_REMINDER_TEMPLATE =
+  "Sayın {musteri}, {salon} işletmesindeki {tarih} günü saat {saat} randevunuzu hatırlatmak isteriz. Görüşmek üzere!";
+
 export const WA_TEMPLATE_VARS = [
   { key: "{musteri}", desc: "Müşteri adı" },
   { key: "{salon}", desc: "Salon adı" },
@@ -48,7 +57,11 @@ export function toWaPhone(phone: string): string {
   return digits;
 }
 
-export function renderWaTemplate(template: string | null | undefined, vars: WaTemplateVars): string {
+export function renderWaTemplate(
+  template: string | null | undefined,
+  vars: WaTemplateVars,
+  defaultTemplate: string = DEFAULT_WA_TEMPLATE
+): string {
   const d = new Date(vars.appointmentAt);
   const pad = (n: number) => String(n).padStart(2, "0");
   const tarih = isNaN(d.getTime())
@@ -59,7 +72,7 @@ export function renderWaTemplate(template: string | null | undefined, vars: WaTe
   const address = vars.address?.trim();
   const locationLink = vars.locationUrl?.trim() || (address ? googleMapsLink(address) : "");
 
-  const raw = template?.trim() || DEFAULT_WA_TEMPLATE;
+  const raw = template?.trim() || defaultTemplate;
   const hasLocationVar = raw.includes("{konum}");
 
   const rendered = raw

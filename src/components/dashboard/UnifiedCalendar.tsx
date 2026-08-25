@@ -13,6 +13,15 @@ import {
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations, useLocale } from "next-intl";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export type CalendarView = "day" | "staff" | "week" | "month";
 
@@ -329,6 +338,18 @@ export function UnifiedCalendar({
     pendingDayIndex: number;
   } | null>(null);
   const [dragPreview, setDragPreview] = useState<{ apptId: string; dayIndex: number; top: number; height: number; label: string } | null>(null);
+  // Sürükleme bitince direkt kaydetmek yerine onay ekranı gösterilir —
+  // yanlışlıkla kaydırma ya da hızlı hareket, saat/gün elle düzeltilebilsin
+  // diye burada yakalanır; API'ye ancak kullanıcı onaylayınca istek gider
+  // (aksi halde her yanlış sürüklemede WhatsApp mesajı da gidiyordu).
+  const [rescheduleConfirm, setRescheduleConfirm] = useState<{ appt: Appointment; origAt: string; newDate: Date } | null>(null);
+  const rescheduleDisplayRef = useRef<{ appt: Appointment; origAt: string; newDate: Date } | null>(null);
+  if (rescheduleConfirm) rescheduleDisplayRef.current = rescheduleConfirm;
+  const rescheduleDisplay = rescheduleConfirm ?? rescheduleDisplayRef.current;
+  // Pointer move her piksel hareketinde tetiklenir; setState'i rAF'a
+  // sıkıştırmadan tüm takvim ağacı saniyede onlarca kez yeniden render
+  // edilip donma hissi yaratıyordu.
+  const moveRafRef = useRef<number | null>(null);
 
   function onApptPointerDown(e: React.PointerEvent, appt: Appointment, dayIndex: number) {
     if (view === "month") return;
@@ -354,43 +375,55 @@ export function UnifiedCalendar({
     if (!d.dragging && Math.hypot(dx, dy) < 6) return;
     d.dragging = true;
 
-    const rawMinDelta = (dy / HOUR_PX) * 60;
-    const snappedMinDelta = Math.round(rawMinDelta / 15) * 15;
+    const clientX = e.clientX;
+    if (moveRafRef.current != null) return;
+    moveRafRef.current = requestAnimationFrame(() => {
+      moveRafRef.current = null;
+      const cur = dragRef.current;
+      if (!cur || cur.apptId !== appt.id) return;
 
-    let newDayIndex = d.dayIndex;
-    if (view === "week") {
-      const idx = columnRefs.current.findIndex((el) => {
-        if (!el) return false;
-        const r = el.getBoundingClientRect();
-        return e.clientX >= r.left && e.clientX < r.right;
+      const rawMinDelta = (dy / HOUR_PX) * 60;
+      const snappedMinDelta = Math.round(rawMinDelta / 15) * 15;
+
+      let newDayIndex = cur.dayIndex;
+      if (view === "week") {
+        const idx = columnRefs.current.findIndex((el) => {
+          if (!el) return false;
+          const r = el.getBoundingClientRect();
+          return clientX >= r.left && clientX < r.right;
+        });
+        if (idx !== -1) newDayIndex = idx;
+      }
+
+      const origStart = new Date(cur.origAt);
+      const totalMinAtDay = origStart.getHours() * 60 + origStart.getMinutes() + snappedMinDelta;
+      const baseDayStr = view === "week" ? gridDays[newDayIndex] : format(origStart, "yyyy-MM-dd");
+      const newDate = new Date(baseDayStr + "T00:00:00");
+      newDate.setMinutes(totalMinAtDay);
+
+      cur.pendingDate = newDate;
+      cur.pendingDayIndex = newDayIndex;
+
+      const previewMin = newDate.getHours() * 60 + newDate.getMinutes();
+      const rawTop = ((previewMin - hours[0] * 60) / 60) * HOUR_PX;
+      const top = Math.min(Math.max(rawTop, 0), gridHeight - 24);
+      setDragPreview({
+        apptId: appt.id,
+        dayIndex: newDayIndex,
+        top,
+        height: Math.min(height, gridHeight - top),
+        label: format(newDate, "HH:mm"),
       });
-      if (idx !== -1) newDayIndex = idx;
-    }
-
-    const origStart = new Date(d.origAt);
-    const totalMinAtDay = origStart.getHours() * 60 + origStart.getMinutes() + snappedMinDelta;
-    const baseDayStr = view === "week" ? gridDays[newDayIndex] : format(origStart, "yyyy-MM-dd");
-    const newDate = new Date(baseDayStr + "T00:00:00");
-    newDate.setMinutes(totalMinAtDay);
-
-    d.pendingDate = newDate;
-    d.pendingDayIndex = newDayIndex;
-
-    const previewMin = newDate.getHours() * 60 + newDate.getMinutes();
-    const rawTop = ((previewMin - hours[0] * 60) / 60) * HOUR_PX;
-    const top = Math.min(Math.max(rawTop, 0), gridHeight - 24);
-    setDragPreview({
-      apptId: appt.id,
-      dayIndex: newDayIndex,
-      top,
-      height: Math.min(height, gridHeight - top),
-      label: format(newDate, "HH:mm"),
     });
   }
 
-  async function onApptPointerUp(e: React.PointerEvent, appt: Appointment) {
+  function onApptPointerUp(e: React.PointerEvent, appt: Appointment) {
     const d = dragRef.current;
     if (!d || d.pointerId !== e.pointerId || d.apptId !== appt.id) return;
+    if (moveRafRef.current != null) {
+      cancelAnimationFrame(moveRafRef.current);
+      moveRafRef.current = null;
+    }
     dragRef.current = null;
     setDragPreview(null);
     if (!d.dragging || !d.pendingDate) return;
@@ -398,15 +431,24 @@ export function UnifiedCalendar({
 
     if (d.pendingDate.getTime() === new Date(d.origAt).getTime()) return;
 
+    // Direkt kaydetme yok — kullanıcı onay ekranında saati/günü teyit
+    // (ya da düzeltip onaylar) etmeden hiçbir API isteği gitmez.
+    setRescheduleConfirm({ appt, origAt: d.origAt, newDate: d.pendingDate });
+  }
+
+  async function confirmReschedule() {
+    if (!rescheduleConfirm) return;
+    const { appt, newDate } = rescheduleConfirm;
     setUpdatingId(appt.id);
     try {
       const res = await fetch(`/api/appointments/${appt.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ appointment_at: d.pendingDate.toISOString() }),
+        body: JSON.stringify({ appointment_at: newDate.toISOString() }),
       });
       if (res.ok) {
-        toast.success("Randevu saati güncellendi");
+        toast.success(t("rescheduleUpdatedToast"));
+        setRescheduleConfirm(null);
         startTransition(() => router.refresh());
       } else {
         const err = await res.json();
@@ -422,6 +464,12 @@ export function UnifiedCalendar({
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (moveRafRef.current != null) cancelAnimationFrame(moveRafRef.current);
+    };
   }, []);
 
   // Randevu şu an devam ediyor mu? (onaylı + saat aralığının içindeyiz)
@@ -1050,6 +1098,87 @@ export function UnifiedCalendar({
           </div>
         </>
       )}
+
+      {/* ─── Sürükle-bırak onay ekranı ─────────────────────── */}
+      {/* rescheduleDisplay, dialog kapanırken (rescheduleConfirm null olunca)
+          son değeri saklar — böylece kapanış animasyonu içerik aniden
+          kaybolmadan oynar. */}
+      <Dialog
+        open={!!rescheduleConfirm}
+        onOpenChange={(open) => { if (!open) setRescheduleConfirm(null); }}
+      >
+        {rescheduleDisplay && (
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t("rescheduleConfirmTitle")}</DialogTitle>
+              <DialogDescription>
+                {t("rescheduleConfirmDesc", {
+                  customer: rescheduleDisplay.appt.customer_name,
+                  date: format(rescheduleDisplay.newDate, "d MMMM yyyy", { locale: dateFnsLocale }),
+                  time: format(rescheduleDisplay.newDate, "HH:mm"),
+                })}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">{t("rescheduleDateLabel")}</label>
+                <input
+                  type="date"
+                  value={format(rescheduleDisplay.newDate, "yyyy-MM-dd")}
+                  onChange={(e) => {
+                    if (!e.target.value) return;
+                    const [y, m, dd] = e.target.value.split("-").map(Number);
+                    setRescheduleConfirm((prev) => {
+                      if (!prev) return prev;
+                      const nd = new Date(prev.newDate);
+                      nd.setFullYear(y, m - 1, dd);
+                      return { ...prev, newDate: nd };
+                    });
+                  }}
+                  className="mt-1 w-full rounded-lg border bg-background px-2.5 py-1.5 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">{t("rescheduleTimeLabel")}</label>
+                <input
+                  type="time"
+                  value={format(rescheduleDisplay.newDate, "HH:mm")}
+                  onChange={(e) => {
+                    if (!e.target.value) return;
+                    const [hh, mm] = e.target.value.split(":").map(Number);
+                    setRescheduleConfirm((prev) => {
+                      if (!prev) return prev;
+                      const nd = new Date(prev.newDate);
+                      nd.setHours(hh, mm, 0, 0);
+                      return { ...prev, newDate: nd };
+                    });
+                  }}
+                  className="mt-1 w-full rounded-lg border bg-background px-2.5 py-1.5 text-sm"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                disabled={updatingId === rescheduleDisplay.appt.id}
+                onClick={() => setRescheduleConfirm(null)}
+              >
+                {t("rescheduleCancelButton")}
+              </Button>
+              <Button
+                disabled={updatingId === rescheduleDisplay.appt.id}
+                onClick={confirmReschedule}
+              >
+                {updatingId === rescheduleDisplay.appt.id
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : t("rescheduleConfirmButton")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        )}
+      </Dialog>
     </div>
   );
 }

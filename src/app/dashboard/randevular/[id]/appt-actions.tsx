@@ -11,7 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock, Send, MessageSquareText, MessageCircle } from "lucide-react";
 import type { Appointment } from "@/types/database";
-import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
+import {
+  renderWaTemplate,
+  waMessageLink,
+  DEFAULT_WA_TEMPLATE,
+  DEFAULT_WA_CANCEL_TEMPLATE,
+  DEFAULT_WA_REVIZE_TEMPLATE,
+  DEFAULT_WA_REMINDER_TEMPLATE,
+} from "@/lib/wa-template";
 
 interface ApptActionsProps {
   appt: Appointment;
@@ -32,6 +39,9 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
   const [orgAddress, setOrgAddress] = useState("");
   const [orgLocationUrl, setOrgLocationUrl] = useState("");
   const [waTemplate, setWaTemplate] = useState<string | null>(null);
+  const [waCancellationTemplate, setWaCancellationTemplate] = useState<string | null>(null);
+  const [waRevizeTemplate, setWaRevizeTemplate] = useState<string | null>(null);
+  const [waReminderTemplate, setWaReminderTemplate] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/org")
@@ -42,6 +52,9 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
         setOrgLocationUrl(d.org?.location_url ?? "");
         const s = (d.org?.settings_json ?? {}) as Record<string, unknown>;
         setWaTemplate(typeof s.wa_appointment_template === "string" ? s.wa_appointment_template : null);
+        setWaCancellationTemplate(typeof s.wa_cancellation_template === "string" ? s.wa_cancellation_template : null);
+        setWaRevizeTemplate(typeof s.wa_revize_template === "string" ? s.wa_revize_template : null);
+        setWaReminderTemplate(typeof s.wa_reminder_template === "string" ? s.wa_reminder_template : null);
       })
       .catch(() => {});
   }, []);
@@ -49,16 +62,34 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
   const isDone = appt.status === "tamamlandi" || appt.status === "iptal" || appt.status === "gelmedi";
   const canAct = viewerRole !== "staff" || appt.staff_id === viewerStaffId;
 
-  function openManualWaMessage() {
-    const text = renderWaTemplate(waTemplate, {
-      musteri: appt.customer_name,
-      salon: orgName || "Salonumuz",
-      appointmentAt: appt.appointment_at,
-      hizmet: appt.service?.name,
-      personel: appt.staff?.full_name,
-      address: orgAddress,
-      locationUrl: orgLocationUrl,
-    });
+  function openManualWaMessage(purpose: "onay" | "iptal" | "revize" | "hatirlatma" = "onay") {
+    let template = waTemplate;
+    let defaultTemplate = DEFAULT_WA_TEMPLATE;
+
+    if (purpose === "iptal") {
+      template = waCancellationTemplate;
+      defaultTemplate = DEFAULT_WA_CANCEL_TEMPLATE;
+    } else if (purpose === "revize") {
+      template = waRevizeTemplate;
+      defaultTemplate = DEFAULT_WA_REVIZE_TEMPLATE;
+    } else if (purpose === "hatirlatma") {
+      template = waReminderTemplate;
+      defaultTemplate = DEFAULT_WA_REMINDER_TEMPLATE;
+    }
+
+    const text = renderWaTemplate(
+      template,
+      {
+        musteri: appt.customer_name,
+        salon: orgName || "Salonunuz",
+        appointmentAt: appt.appointment_at,
+        hizmet: appt.service?.name,
+        personel: appt.staff?.full_name,
+        address: orgAddress,
+        locationUrl: orgLocationUrl,
+      },
+      defaultTemplate
+    );
     window.open(waMessageLink(appt.customer_phone, text), "_blank", "noopener,noreferrer");
   }
 
@@ -264,20 +295,44 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
               </Button>
             </div>
 
-            {/* Manuel WhatsApp mesajı — Meta'ya bağlı değil, kendi WhatsApp'ınızdan gönderilir */}
+            {/* Manuel WhatsApp mesajları — Meta'ya bağlı değil, kendi WhatsApp'ınızdan gönderilir */}
             {appt.customer_phone && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={openManualWaMessage}
-              >
-                <MessageCircle className="h-3.5 w-3.5 mr-1" />
-                {ta("sendManualWaMessage")}
-              </Button>
+              <div className="space-y-1.5 pt-2 border-t">
+                <p className="text-xs font-semibold text-muted-foreground">Manuel WhatsApp Gönder (Kendi Cihazınızdan):</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => openManualWaMessage("onay")}
+                  >
+                    <MessageCircle className="h-3.5 w-3.5 mr-1" />
+                    Onay Mesajı
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => openManualWaMessage("hatirlatma")}
+                  >
+                    <MessageCircle className="h-3.5 w-3.5 mr-1" />
+                    Hatırlatma
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full col-span-2"
+                    onClick={() => openManualWaMessage("revize")}
+                  >
+                    <MessageCircle className="h-3.5 w-3.5 mr-1" />
+                    Değişiklik (Güncelleme)
+                  </Button>
+                </div>
+              </div>
             )}
-
             {/* Manuel WhatsApp bildirimleri */}
             {appt.status === "onaylandi" && (
               <div className="grid grid-cols-2 gap-2">
@@ -356,6 +411,17 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
               {loading === "sms-cancel" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <MessageSquareText className="h-3.5 w-3.5 mr-1" />}
               {ta("sendCancelSms")}
             </Button>
+            {appt.customer_phone && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full col-span-2 mt-2"
+                onClick={() => openManualWaMessage("iptal")}
+              >
+                <MessageCircle className="h-3.5 w-3.5 mr-1" />
+                Manuel WhatsApp İptal Mesajı Gönder
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}
