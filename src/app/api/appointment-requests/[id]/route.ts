@@ -3,6 +3,7 @@ import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAppointment } from "@/lib/notify";
 import { normalizePhone } from "@/lib/phone";
+import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -127,7 +128,20 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     price: finalPrice,
     note: reqRow.note,
     source: reqRow.source,
-  }).catch(() => {});
+  }).catch((err) => console.error("[appointment-requests] notifyAppointment hata:", err));
+
+  // Müşteriye Meta onaylı WhatsApp onay şablonu — panelden manuel onaylanan
+  // taleplerde de otomatik onaylananlarla aynı şekilde müşteri haberdar edilmeli.
+  if (reqRow.customer_phone) {
+    const { date, time } = formatApptDateTime(reqRow.appointment_at);
+    sendPurposeTemplate({
+      toPhone: reqRow.customer_phone,
+      orgId: member.org_id,
+      purpose: "onay",
+      vars: { customer_name: reqRow.customer_name, date, time },
+      appointmentAt: reqRow.appointment_at,
+    }).catch((err) => console.error("[appointment-requests] sendPurposeTemplate(onay) hata:", err));
+  }
 
   return NextResponse.json({ status: "approved", appointment: appt }, { status: 201 });
 }

@@ -48,6 +48,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     orgId: appt.org_id,
     purpose,
     vars,
+    appointmentAt: appt.appointment_at,
   });
 
   if ("error" in result) {

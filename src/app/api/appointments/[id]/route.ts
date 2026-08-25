@@ -169,7 +169,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         orgId: apptData.org_id,
         purpose: "revize",
         vars: { customer_name: apptData.customer_name, new_date: date, new_time: time },
-      }).catch(() => {});
+        appointmentAt: apptData.appointment_at,
+      }).catch((err) => console.error("[appointments/[id]] sendPurposeTemplate(revize) hata:", err));
     }
   }
 
@@ -184,7 +185,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         orgId: apptData.org_id,
         purpose: "iptal",
         vars: { customer_name: apptData.customer_name, date, time },
-      }).catch(() => {});
+        appointmentAt: apptData.appointment_at,
+      }).catch((err) => console.error("[appointments/[id]] sendPurposeTemplate(iptal) hata:", err));
     }
   }
 
@@ -202,7 +204,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         orgId: apptData.org_id,
         purpose: "onay",
         vars: { customer_name: apptData.customer_name, date, time },
-      }).catch(() => {});
+        appointmentAt: apptData.appointment_at,
+      }).catch((err) => console.error("[appointments/[id]] sendPurposeTemplate(onay) hata:", err));
     }
   }
 
@@ -255,7 +258,8 @@ export async function DELETE(req: NextRequest, { params }: Params) {
         orgId: member.org_id,
         purpose: "iptal",
         vars: { customer_name: current.customer_name, date, time },
-      }).catch(() => {});
+        appointmentAt: current.appointment_at,
+      }).catch((err) => console.error("[appointments/[id]] sendPurposeTemplate(iptal/DELETE) hata:", err));
     }
   }
 

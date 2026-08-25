@@ -588,7 +588,8 @@ async function handleCreateAppointment(req: NextRequest) {
       orgId: data.org_id,
       purpose: "onay",
       vars: { customer_name: data.customer_name, date, time },
-    }).catch(() => {});
+      appointmentAt: data.appointment_at,
+    }).catch((err) => console.error("[appointments] sendPurposeTemplate(onay) hata:", err));
   }
 
   // Send confirmation email

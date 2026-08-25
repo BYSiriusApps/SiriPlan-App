@@ -107,6 +107,7 @@ export async function POST(req: NextRequest) {
       orgId: appt.org_id,
       purpose: "iptal",
       vars: { customer_name: appt.customer_name, date, time },
+      appointmentAt: appt.appointment_at,
     }).catch(() => {});
   }
 

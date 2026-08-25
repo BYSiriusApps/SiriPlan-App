@@ -20,7 +20,15 @@ export interface SendPurposeTemplateParams {
   orgId: string;
   purpose: WaPurpose;
   vars: Partial<Record<WaParamSource, string>>;
+  /** Randevunun ISO zaman damgası — "onay"/"hatirlatma" için geçmiş kontrolüne kullanılır. */
+  appointmentAt?: string;
 }
+
+// Saati geçmiş randevu için "onaylandı" ya da "yaklaşıyor" mesajı göndermek
+// kafa karıştırıcı (müşteri saati geçmiş bir randevu için bildirim alır).
+// Az miktarda tolerans, tam o an oluşturulan yüz yüze randevularda saniyelik
+// gecikme yüzünden mesajın yanlışlıkla atlanmasını önler.
+const PAST_APPOINTMENT_GRACE_MS = 5 * 60 * 1000;
 
 export type SendPurposeTemplateResult =
   | { sent: true; template: string }
@@ -40,10 +48,20 @@ export async function sendPurposeTemplate({
   orgId,
   purpose,
   vars,
+  appointmentAt,
 }: SendPurposeTemplateParams): Promise<SendPurposeTemplateResult> {
+  if (
+    (purpose === "onay" || purpose === "hatirlatma") &&
+    appointmentAt &&
+    new Date(appointmentAt).getTime() < Date.now() - PAST_APPOINTMENT_GRACE_MS
+  ) {
+    return { skipped: true, reason: "appointment_in_past" };
+  }
+
   const token = process.env.WHATSAPP_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_ID;
   if (!token || !phoneId) {
+    console.error(`[wa-templates] whatsapp_not_configured — purpose=${purpose} orgId=${orgId}`);
     return { skipped: true, reason: "whatsapp_not_configured" };
   }
 
@@ -55,6 +73,7 @@ export async function sendPurposeTemplate({
     .single();
 
   if (!org) {
+    console.error(`[wa-templates] org_not_found — purpose=${purpose} orgId=${orgId}`);
     return { skipped: true, reason: "org_not_found" };
   }
 
@@ -74,6 +93,7 @@ export async function sendPurposeTemplate({
   const style = (styles[purpose] ?? "sicak") as WaStyle;
   const def = resolveTemplate(purpose, style);
   if (!def) {
+    console.error(`[wa-templates] template_not_found — purpose=${purpose} style=${style} orgId=${orgId}`);
     return { skipped: true, reason: "template_not_found" };
   }
 
@@ -127,6 +147,9 @@ export async function sendPurposeTemplate({
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
+    console.error(
+      `[wa-templates] Meta API hatası — purpose=${purpose} template=${templateName} orgId=${orgId} status=${res.status} detail=${errText}`
+    );
     return { error: "Meta API hatası", detail: errText };
   }
 
