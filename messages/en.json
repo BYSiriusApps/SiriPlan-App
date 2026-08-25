@@ -1259,6 +1259,7 @@
       "extraIncomeLabel": "Extra Income (₺) — optional",
       "extraIncomeHint": "Enter if extra payment was taken beyond the service price — automatically recorded in Income & Expenses.",
       "markCompletedBtn": "Mark as Completed",
+      "sendManualWaMessage": "Send Manual Message",
       "resendConfirm": "Resend Confirmation",
       "sendReminderNow": "Send Reminder Now",
       "resendCancelNotice": "Resend Cancellation Notice",
@@ -1504,7 +1505,7 @@
       "basicInfoTitle": "Salon Information",
       "bookingLinkTitle": "My Online Booking Link",
       "integrationsTitle": "Social Media & Integrations",
-      "autoMessageTitle": "Automatic Appointment Message",
+      "autoMessageTitle": "Manual WhatsApp Message Text",
       "onlineBookingSettingsTitle": "Online Booking Settings",
       "whatsappNotifTitle": "WhatsApp Notification Settings",
       "smsNotifTitle": "SMS Notifications",
@@ -1527,7 +1528,7 @@
     "legalModal": {
       "title": "Legal Rights & Copyright Notice",
       "copyright": "Copyright © 2026 BY Sirius Group Ai & Technology Co Ltd. All rights reserved.",
-      "aiNotice": "This platform was built utilizing Google Antigravity and Claude AI technologies; all source codes, architectures, and UI designs are fully protected under registration. Any unauthorized copying, decompiling, reverse engineering, cloning, or mimicking is strictly prohibited and subject to legal prosecution.",
+      "aiNotice": "All source code, architecture, and UI designs of this platform are the property of BY Sirius Group and are protected under copyright and intellectual property law. Any unauthorized copying, decompiling, reverse engineering, cloning, or mimicking is strictly prohibited and subject to legal prosecution.",
       "storeNotice": "App Store Compliance: This platform is 100% compliant with Apple App Store and Google Play Store privacy and data retention (account deletion) policies. Your data is encrypted and protected under GDPR/KVKK and Stripe billing compliance standards.",
       "close": "Close"
     }

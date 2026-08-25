@@ -43,6 +43,20 @@ import QRCode from "qrcode";
 // yerden (Vercel env) güncellenebilir. (bkz. 404 tekrarını önleme notu)
 const DEMO_SALON_SLUG = process.env.NEXT_PUBLIC_DEMO_SALON_SLUG || "sirius-demo-salon";
 
+// Meta'da kayıtlı gerçek şablon metni bu kod tabanında tutulmaz (onay süreci
+// Meta WhatsApp Business panelinde yürür) — burada gösterilen yalnızca hangi
+// parametrelerin hangi sırayla gönderileceğini örnekleyen yaklaşık bir önizlemedir.
+const META_PREVIEW_SAMPLE: Record<string, (p: { customerName: string; orgName: string; businessPhone: string; note?: string }) => string> = {
+  onay: (p) =>
+    `Sayın ${p.customerName}, ${p.orgName} işletmesinde 20.07.2026 tarihinde saat 15:00 için randevunuz onaylandı. Sorularınız için: ${p.businessPhone || "işletme telefonu"}.`,
+  iptal: (p) =>
+    `Sayın ${p.customerName}, ${p.orgName} işletmesindeki 20.07.2026 saat 15:00 randevunuz iptal edilmiştir.`,
+  hatirlatma: (p) =>
+    `Sayın ${p.customerName}, ${p.orgName} salonundaki 28.07.2026 14:30 tarihli randevunuz Hatırlatma. Detay: ${p.note || "Lütfen randevunuza saatinde gelmeye özen gösteriniz."}`,
+  revize: (p) =>
+    `Sayın ${p.customerName}, ${p.orgName} işletmesindeki randevunuzun saati 20.07.2026 18:00 olarak güncellenmiştir.`,
+};
+
 const APPOINTMENT_TEMPLATE_PRESETS: { key: string; label: string; text: string }[] = [
   {
     key: "sicak",
@@ -728,13 +742,16 @@ export default function AyarlarPage() {
         icon={MessageCircle}
         iconClassName="text-green-600"
         title={t("settingsPage.autoMessageTitle")}
-        description="Randevu ekranlarındaki (Yeni Randevu / Hızlı Randevu) 'Müşteriye WhatsApp mesajı gönder' kutusu işaretlendiğinde kendi WhatsApp'ınızdan elle gönderdiğiniz metin budur. Tarih ve saat her randevuda otomatik doldurulur."
+        description="Randevu ekranlarındaki (Yeni Randevu / Hızlı Randevu) 'Müşteriye WhatsApp mesajı gönder' kutusu işaretlendiğinde ve randevu detayındaki 'Manuel Mesaj Gönder' butonunda kendi WhatsApp'ınızdan elle gönderdiğiniz metin budur. Tarih ve saat her randevuda otomatik doldurulur."
       >
         <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
           <p className="text-xs text-amber-700 dark:text-amber-400">
-            Bu, aşağıdaki <strong>&quot;WhatsApp Bildirim Ayarları&quot;</strong> bölümündeki Meta otomatik
-            onay mesajından farklı bir kanaldır. İkisi birlikte açıksa müşteri aynı bilgiyi iki kez
-            alabilir — birini kapalı tutmanız önerilir.
+            Bu kanal Meta&apos;ya bağlı DEĞİLDİR — mesaj kendi telefonunuzdaki WhatsApp&apos;tan açılır, siz
+            gönderirsiniz; bu yüzden metni dilediğiniz gibi düzenleyebilirsiniz. Aşağıdaki{" "}
+            <strong>&quot;WhatsApp Bildirim Ayarları&quot;</strong> bölümündeki Meta otomatik mesajlardan
+            farklı bir kanaldır — ikisi birlikte açıksa müşteri aynı bilgiyi iki kez alabilir, birini
+            kapalı tutmanız önerilir. Meta otomatik mesajlarını tamamen kapatırsanız, bu manuel kanal
+            devreye alacağınız tek bildirim yolu olur.
           </p>
         </div>
         <div className="flex gap-1.5 flex-wrap items-center">
@@ -977,6 +994,9 @@ export default function AyarlarPage() {
                     <SelectItem value="v2">randevu_onayi_2 (Varyant 2)</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-[11px] text-muted-foreground italic mt-1.5">
+                  {META_PREVIEW_SAMPLE.onay({ customerName: "Ayşe Yıldız", orgName: org.name || "Salonunuz", businessPhone: org.phone || org.whatsapp_number || "" })}
+                </p>
               </div>
 
               <div>
@@ -997,6 +1017,9 @@ export default function AyarlarPage() {
                     <SelectItem value="v2">randevu_iptali_2 (Varyant 2)</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-[11px] text-muted-foreground italic mt-1.5">
+                  {META_PREVIEW_SAMPLE.iptal({ customerName: "Ayşe Yıldız", orgName: org.name || "Salonunuz", businessPhone: "" })}
+                </p>
               </div>
 
               <div>
@@ -1017,6 +1040,9 @@ export default function AyarlarPage() {
                     <SelectItem value="v2">randevu_hatirlatma_2 (Varyant 2)</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-[11px] text-muted-foreground italic mt-1.5">
+                  {META_PREVIEW_SAMPLE.hatirlatma({ customerName: "Ayşe Yıldız", orgName: org.name || "Salonunuz", businessPhone: "", note: org.custom_reminder_message || undefined })}
+                </p>
               </div>
 
               <div>
@@ -1035,21 +1061,18 @@ export default function AyarlarPage() {
                     <SelectItem value="sicak">randevu_revize (Standart)</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-[11px] text-muted-foreground italic mt-1.5">
+                  {META_PREVIEW_SAMPLE.revize({ customerName: "Ayşe Yıldız", orgName: org.name || "Salonunuz", businessPhone: "" })}
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50">
-            <p className="text-[11px] font-medium text-green-700 dark:text-green-400 mb-1">WhatsApp önizleme:</p>
-            <p className="text-xs text-muted-foreground italic">
-              Sayın Ayşe Yıldız, {org.name || "Salonunuz"} salonundaki 28.07.2026 14:30 tarihli randevunuz
-              Hatırlatma. Detay: {org.custom_reminder_message?.trim() || "Lütfen randevunuza saatinde gelmeye özen gösteriniz."}
-            </p>
-          </div>
-
           <p className="text-[11px] text-muted-foreground">
-            Meta WhatsApp kuralları gereği bu mesajlar önceden onaylı şablon üzerinden gider —
-            yukarıdaki not şablonun son değişkenine ({"{{5}}"}) dinamik olarak eklenir.
+            Bu şablonların metni Meta WhatsApp Business panelinizde önceden onaylı olduğu için burada
+            düzenlenemez — yalnızca hangi varyantın kullanılacağını seçebilirsiniz. Yukarıdaki önizlemeler
+            gönderilecek parametrelerin (isim, tarih, saat vb.) yaklaşık bir örneğidir; birebir metin
+            Meta panelinizdeki onaylı şablona göre değişebilir.
           </p>
         </div>
       </SectionCard>

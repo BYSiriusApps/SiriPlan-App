@@ -1259,6 +1259,7 @@
       "extraIncomeLabel": "Ekstra Gelir (₺) — opsiyonel",
       "extraIncomeHint": "Hizmet fiyatı dışında ek ücret alındıysa girin — Gelir & Gider tablosuna otomatik işlenir.",
       "markCompletedBtn": "Tamamlandı Olarak İşaretle",
+      "sendManualWaMessage": "Manuel Mesaj Gönder",
       "resendConfirm": "Onayı Yeniden Gönder",
       "sendReminderNow": "Hatırlatmayı Şimdi Gönder",
       "resendCancelNotice": "İptal Bildirimini Yeniden Gönder",
@@ -1504,7 +1505,7 @@
       "basicInfoTitle": "Salon Bilgileri",
       "bookingLinkTitle": "Online Randevu Linkim",
       "integrationsTitle": "Sosyal Medya & Entegrasyonlar",
-      "autoMessageTitle": "Otomatik Randevu Mesajı",
+      "autoMessageTitle": "Manuel WhatsApp Mesaj Metni",
       "onlineBookingSettingsTitle": "Online Randevu Ayarları",
       "whatsappNotifTitle": "WhatsApp Bildirim Ayarları",
       "smsNotifTitle": "SMS Bildirimleri",
@@ -1527,7 +1528,7 @@
     "legalModal": {
       "title": "Yasal Haklar ve Telif Bildirimi",
       "copyright": "Copyright © 2026 BY Sirius Group Ai & Technology Co Ltd. Tüm hakları saklıdır.",
-      "aiNotice": "Bu platform Google Antigravity ve Claude yapay zeka teknolojileri ile geliştirilmiş olup, tüm tasarım ve kaynak kodlarının mülkiyeti tescil altındadır. Kaynak kodların veya tasarımın kopyalanması, tersine mühendislikle deşifre edilmesi, klonlanması veya taklit edilmesi kesinlikle yasaktır ve yasal takibat sebebidir.",
+      "aiNotice": "Bu platformun tüm kaynak kodları, mimarisi ve arayüz tasarımları BY Sirius Group'a aittir ve telif hakkı ile fikri mülkiyet mevzuatı kapsamında korunmaktadır. İzinsiz kopyalama, tersine mühendislik, klonlama veya taklit kesinlikle yasaktır ve yasal takibat sebebidir.",
       "storeNotice": "Mobil Uygulama Uyumluluğu: Bu platform Apple App Store ve Google Play Store gizlilik ve veri saklama (hesap silme) politikalarıyla %100 uyumludur. Verileriniz KVKK kapsamında korunmakta ve Stripe altyapısıyla şifrelenmektedir.",
       "close": "Kapat"
     }

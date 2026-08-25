@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import {
   ArrowRight, Star, Zap, Users, TrendingUp, Shield, Sparkles,
   Check, Bot, Calendar, MessageSquare, BarChart3, FileDown,
-  Upload, Bell, Trophy, Gift, HelpCircle,
+  Upload, Bell, Trophy, HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -45,9 +45,6 @@ const ADDON_META = [
   { key: "whatsappAI",      icon: Bot            },
   { key: "sms",             icon: MessageSquare  },
   { key: "multiBranch",     icon: Zap            },
-  { key: "premiumAnalytics",icon: BarChart3      },
-  { key: "googleReview",    icon: Star           },
-  { key: "dataMigration",   icon: Gift           },
 ] as const;
 
 const testimonials = [

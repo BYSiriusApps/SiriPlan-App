@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock, Send, MessageSquareText } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock, Send, MessageSquareText, MessageCircle } from "lucide-react";
 import type { Appointment } from "@/types/database";
+import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
 
 interface ApptActionsProps {
   appt: Appointment;
@@ -27,9 +28,39 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
   const [extraIncome, setExtraIncome] = useState("");
   const [payMethod, setPayMethod] = useState("nakit");
   const [internalNote, setInternalNote] = useState(appt.internal_note || "");
+  const [orgName, setOrgName] = useState("");
+  const [orgAddress, setOrgAddress] = useState("");
+  const [orgLocationUrl, setOrgLocationUrl] = useState("");
+  const [waTemplate, setWaTemplate] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/org")
+      .then((r) => r.json())
+      .then((d) => {
+        setOrgName(d.org?.name ?? "");
+        setOrgAddress(d.org?.address ?? "");
+        setOrgLocationUrl(d.org?.location_url ?? "");
+        const s = (d.org?.settings_json ?? {}) as Record<string, unknown>;
+        setWaTemplate(typeof s.wa_appointment_template === "string" ? s.wa_appointment_template : null);
+      })
+      .catch(() => {});
+  }, []);
 
   const isDone = appt.status === "tamamlandi" || appt.status === "iptal" || appt.status === "gelmedi";
   const canAct = viewerRole !== "staff" || appt.staff_id === viewerStaffId;
+
+  function openManualWaMessage() {
+    const text = renderWaTemplate(waTemplate, {
+      musteri: appt.customer_name,
+      salon: orgName || "Salonumuz",
+      appointmentAt: appt.appointment_at,
+      hizmet: appt.service?.name,
+      personel: appt.staff?.full_name,
+      address: orgAddress,
+      locationUrl: orgLocationUrl,
+    });
+    window.open(waMessageLink(appt.customer_phone, text), "_blank", "noopener,noreferrer");
+  }
 
   async function patch(updates: Record<string, unknown>, actionKey: string, successMsg: string) {
     setLoading(actionKey);
@@ -232,6 +263,20 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
                 {t("cancelAction")}
               </Button>
             </div>
+
+            {/* Manuel WhatsApp mesajı — Meta'ya bağlı değil, kendi WhatsApp'ınızdan gönderilir */}
+            {appt.customer_phone && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={openManualWaMessage}
+              >
+                <MessageCircle className="h-3.5 w-3.5 mr-1" />
+                {ta("sendManualWaMessage")}
+              </Button>
+            )}
 
             {/* Manuel WhatsApp bildirimleri */}
             {appt.status === "onaylandi" && (

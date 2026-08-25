@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Copyright, Cpu, Smartphone, FileText, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Cpu, Smartphone, CheckCircle2 } from "lucide-react";
 
 interface LegalNoticeModalProps {
   isOpen: boolean;
@@ -72,32 +72,6 @@ export function LegalNoticeModal({ isOpen, onOpenChange }: LegalNoticeModalProps
                     <CheckCircle2 className="w-3 h-3" /> GDPR / KVKK Uyumlu
                   </span>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Official Certificates Guide */}
-          <div className="p-3.5 rounded-xl border border-border bg-muted/20">
-            <div className="flex gap-2.5 items-start">
-              <FileText className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <div className="w-full">
-                <h4 className="font-semibold text-foreground text-sm">
-                  Yasal Hak Sahipliği Yol Haritası (Alabileceğiniz Belgeler)
-                </h4>
-                <p className="text-xs mt-1">
-                  Yazılımınızın resmi yasal güvencesini pekiştirmek için aşağıdaki adımları atmanız önerilir:
-                </p>
-                <ul className="mt-2 space-y-1.5 text-xs list-disc pl-4">
-                  <li>
-                    <strong className="text-foreground">TÜRKPATENT Marka Tescili:</strong> Uygulama adı "Siriplan" ve logosu için tescil başvurusu yapın. (Kritik)
-                  </li>
-                  <li>
-                    <strong className="text-foreground">Kültür Bakanlığı Kayıt-Tescil:</strong> Yazılımınızın kaynak kodlarını e-Devlet Telif Ofisi üzerinden adınıza tescil ettirin.
-                  </li>
-                  <li>
-                    <strong className="text-foreground">Zaman Damgalı Kaynak Kod Kanıtı:</strong> E-İmza sağlayıcıları aracılığıyla kaynak kod hash damgası alarak tescil tarihini sabitleyin.
-                  </li>
-                </ul>
               </div>
             </div>
           </div>
