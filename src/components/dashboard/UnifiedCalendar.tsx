@@ -92,6 +92,8 @@ interface Props {
   lockedStaffId: string | null; // staff rolü: sadece kendi randevuları
   /** Randevu dilimi (dk) — Ayarlar > Randevu Dilimi Aralığı'ndan gelir. Varsayılan 15. */
   slotMinutes: number;
+  userRole?: string;
+  currentStaffId?: string | null;
 }
 
 interface Popover {
@@ -138,6 +140,7 @@ function layoutDay(appts: Appointment[]): Positioned[] {
 export function UnifiedCalendar({
   view, label, viewDate, prevDate, nextDate, gridDays, today,
   hours, orgId, staff, appointments, timeOff, lockedStaffId, slotMinutes,
+  userRole, currentStaffId,
 }: Props) {
   const router = useRouter();
   const t = useTranslations("dashboard");
@@ -1032,7 +1035,8 @@ export function UnifiedCalendar({
             <div className="p-2 space-y-1">
               <p className="text-[10px] text-muted-foreground px-1 pb-0.5">{t("quickUpdate")}</p>
               {(() => {
-                const canQuickAct = !lockedStaffId || popover.appt.staff_id === lockedStaffId;
+                const isStaffUser = userRole === "staff";
+                const canQuickAct = !isStaffUser || popover.appt.staff_id === currentStaffId;
                 const disabled = !!updatingId || !canQuickAct;
                 return (
                   <>

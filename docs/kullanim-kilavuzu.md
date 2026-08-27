@@ -19,7 +19,7 @@
 13. [Gelir-Gider & Maaş Hesaplama](#13-gelir-gider--maaş-hesaplama)
 14. [Ayarlar](#14-ayarlar)
 15. [Veri Göçü (İçe/Dışa Aktarma)](#15-veri-göçü-içedışa-aktarma)
-16. [Abonelik ve Ödeme Yapısı (Web vs. Mobil & Business Planı)](#16-abonelik-ve-ödeme-yapısı)
+16. [Abonelik ve Plan Yönetimi](#16-abonelik-ve-plan-yönetimi)
 17. [Sık Sorulan Sorular](#17-sık-sorulan-sorular)
 18. [Panel İçi Yardım Asistanı](#18-panel-içi-yardım-asistanı)
 
@@ -108,17 +108,17 @@ Genel bilgiler, logo/banner yükleme, WhatsApp/SMS/Telegram bildirim şablonlar�
 
 Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olarak indirilmesi.
 
-## 16. Abonelik ve Ödeme Yapısı
+## 16. Abonelik ve Plan Yönetimi
 
-- 💳 **Sabit Fiyatlı Planlar**: Starter, Pro ve Business planları sabit fiyatlıdır. "Teklif Al" bekleme adımı bulunmaz, tüm planlar anında satın alınabilir veya 14 gün ücretsiz denenebilir.
-- 💻 **Web (Tarayıcı)**: Ayarlar → Abonelik veya `/auth/plan-sec` üzerinden kredi kartı ile ödeme yapılır.
-- 📱 **Mobil Uygulama (App Store & Google Play)**: Mağaza politikaları (%0 mağaza komisyonu) uyarınca mobil uygulamada fiyat veya satın alma butonları bulunmaz. Deneme süresi dolduğunda web adresi ve destek hattı bilgileri verilir.
+- 🧾 **Şeffaf Planlar**: Starter, Pro ve Business planları sabit ve şeffaf yapıdadır. "Teklif Al" bekleme adımı bulunmaz; her yeni hesap 14 gün ücretsiz deneme ile başlar.
+- ⚙️ **Plan Bilgileriniz**: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.
+- ✉️ **Destek**: Abonelik SiriPlan hesabınıza bağlıdır. Plan yükseltme, yenileme veya faturalandırma sorularınız için info@bysirius.com (WhatsApp +90 535 503 26 34).
 
 ## 17. Sık Sorulan Sorular
 
 - Telegram randevu bildirimleri nasıl açılır? (Telegram'da `@siriplan_bot` botuna `/start` yazıp alınan Chat ID paneldeki alana kaydedilir).
-- Business planı için teklif almak gerekir mi? (Hayır, Business dahil tüm planlar şeffaf fiyatlıdır ve anında satın alınabilir).
-- Mobil uygulamadan ödeme yapılıyor mu? (Ödeme işlemleri web sitemiz üzerinden yürütülür).
+- Business planı için teklif almak gerekir mi? (Hayır, Business dahil tüm planlar şeffaf yapıdadır; teklif alma adımı yoktur).
+- Planımı ve fatura geçmişimi nereden görürüm? (Ayarlar → Abonelik sayfasından; plan sorularınız için info@bysirius.com).
 - Personeller kendi telefonlarıyla girebilir mi? (Evet, personel hesabı yetkisine göre sadece kendi alanını görür).
 
 ## 18. Panel İçi Yardım Asistanı

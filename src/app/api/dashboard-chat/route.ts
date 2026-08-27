@@ -166,8 +166,9 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Hesabınızın planını ve kullanım limitlerini Ayarlar → Abonelik sayfasından görebilirsiniz. Mobil mağaza politikaları nedeniyle iOS/Android uygulamaları içinden doğrudan ödeme yapılamamaktadır; ödemelerinizi web tarayıcınızdan yapabilirsiniz. " +
       "Destek için: " + CONTACT_LINE,
     answer:
-      "Planlarımız Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar (kredi kartı gerekmez). " +
-      "Ödemenizi Ayarlar → Abonelik sayfasından kredi kartınızla yapabilirsiniz. Google Play ve App Store politikaları uyarınca, mobil uygulamalar içerisinden ödeme alınmamaktadır; ödemeler web sitemiz (siriplan.com) üzerinden yapıldıktan sonra mobil uygulama kullanımı kesintisiz devam eder.",
+      "Planlarımız Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar. " +
+      "Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görebilirsiniz. " +
+      "Aboneliğiniz SiriPlan hesabınıza bağlıdır; plan yükseltme, yenileme veya faturalandırma sorularınız için: " + CONTACT_LINE,
   },
   {
     keywords: ["randevu"],

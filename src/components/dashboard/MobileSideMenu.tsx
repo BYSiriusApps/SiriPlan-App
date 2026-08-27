@@ -27,7 +27,7 @@ const SECONDARY_NAV = [
   { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff", planRequired: "business" },
   { href: "/dashboard/personel", icon: UserCog, tKey: "staff", minRole: "manager" },
   { href: "/dashboard/hizmetler", icon: Scissors, tKey: "services", minRole: "staff" },
-  { href: "/dashboard/bekleme-listesi", icon: ListPlus, tKey: "waitlist", minRole: "staff" },
+  { href: "/dashboard/bekleme-listesi", icon: ListPlus, tKey: "waitlistAndApprovals", minRole: "staff" },
   { href: "/dashboard/kampanyalar", icon: Megaphone, tKey: "campaigns", minRole: "manager" },
   { href: "/dashboard/website-ayarlari", icon: Globe, tKey: "websiteSettings", minRole: "manager" },
   { href: "/dashboard/raporlar", icon: BarChart3, tKey: "reports", minRole: "manager" },

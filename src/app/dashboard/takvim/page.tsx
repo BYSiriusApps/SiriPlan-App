@@ -173,6 +173,8 @@ export default async function TakvimPage({
           hours={HOURS}
           orgId={member.org_id}
           lockedStaffId={lockedStaffId}
+          userRole={member.role}
+          currentStaffId={member.staff_id}
           staff={staff.map((s) => ({
             id: s.id,
             full_name: s.full_name,

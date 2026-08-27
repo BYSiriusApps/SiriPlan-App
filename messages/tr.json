@@ -685,10 +685,10 @@
       "Veri işlemeye itiraz etme"
     ],
     "s6Contact": "Talepleriniz için: <strong>privacy@bysirius.com</strong>",
-    "s8Title": "8. Hesap Silme ve Veri Saklama",
+    "s8Title": "7. Hesap Silme ve Veri Saklama",
     "s8P1": "İşletme sahibi ve bireysel kullanıcılar olarak, hem web paneli hem de mobil uygulamalar (iOS & Android) üzerinden doğrudan Ayarlar > Hesabımı Sil bölümünden veya privacy@bysirius.com adresine talep göndererek hesabınızı ve ilişkili tüm verilerinizi kalıcı olarak sildirebilirsiniz. Talebiniz mağaza politikalarına ve KVKK standartlarına uygun olarak en kısa sürede yerine getirilecektir.",
     "s8P2": "İşletmenize ait iletişim bilgileri ile müşteri kayıtlarınızdaki kişisel tanımlayıcı bilgiler (isim, telefon, e-posta) anonimleştirilir. Randevu ve ciro geçmişi gibi mali nitelikli kayıtlar, Türk Ticaret Kanunu uyarınca öngörülen yasal saklama süresi boyunca kimliği doğrudan tespit edilemeyecek şekilde istatistiksel olarak saklanabilir.",
-    "s9Title": "9. Politika Değişiklikleri",
+    "s9Title": "8. Politika Değişiklikleri",
     "s9P": "Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir."
   },
   "termsPage": {
@@ -898,11 +898,37 @@
       "subtitle": "Plan ve fatura yönetimi"
     },
     "reportsPage": {
-      "eyebrow": "Performans",
-      "subtitle": "Son 6 aylık performans analizi"
+      "eyebrow": "Analizler",
+      "subtitle": "Günlük, aylık ve yıllık ciro, performans ve no-show raporu",
+      "daySummary": "Gün Sonu Özeti",
+      "daySummaryPdf": "Gün Sonu Özeti (PDF)",
+      "serviceStaff": "Hizmet · Personel",
+      "dayRevenue": "Gün Cirosu",
+      "dayExpense": "Gün Gideri",
+      "newCustomers": "Yeni Müşteri",
+      "noAppointments": "Bu günde randevu kaydı yok",
+      "today": "bugün",
+      "appointmentStatus": {
+        "approved": "Onaylı",
+        "completed": "Tamamlandı",
+        "cancelled": "İptal",
+        "noShow": "Gelmedi"
+      },
+      "monthlySummary": "Aylık Ciro",
+      "topServices": "Bu Ay En Çok Satılan Hizmetler",
+      "topStaff": "Bu Ay En Yüksek Ciro (Personel)",
+      "monthlyRevenue": "Bu Ay Ciro",
+      "noShowRate": "No-Show Oranı",
+      "totalTransactions": "Toplam İşlem"
     },
     "websiteSettingsPage": {
-      "eyebrow": "Pro Özellik"
+      "eyebrow": "Website",
+      "subtitle": "İşletme sayfası rengini, kapak fotoğrafını ve açıklamasını ayarlayın",
+      "title": "Website Ayarları",
+      "upgradeTitle": "Randevu Linkinizi Web Sitesine Dönüştürün",
+      "upgradeDesc": "Renk paleti, kapak fotoğrafı, hizmet kategorileri ve fotoğraflarla donatılmış, satış artırıcı bir işletme sayfası — mevcut randevu linkinizde, ek bir adres olmadan.",
+      "upgradeButton": "Pro Plana Geç →",
+      "notIncluded": "Bu modül mevcut planınıza dahil değil."
     },
     "campaignsPage": {
       "eyebrow": "Pazarlama",
@@ -1005,31 +1031,8 @@
       "filterActive": "Aktif (Bekleyen)",
       "filterAll": "Tümü",
       "emptyState": "Bekleme listesi boş",
-      "addFirstEntry": "İlk Kaydı Ekle"
-    },
-    "reportsPage": {
-      "eyebrow": "Analizler",
-      "subtitle": "Günlük, aylık ve yıllık ciro, performans ve no-show raporu",
-      "daySummary": "Gün Sonu Özeti",
-      "daySummaryPdf": "Gün Sonu Özeti (PDF)",
-      "serviceStaff": "Hizmet · Personel",
-      "dayRevenue": "Gün Cirosu",
-      "dayExpense": "Gün Gideri",
-      "newCustomers": "Yeni Müşteri",
-      "noAppointments": "Bu günde randevu kaydı yok",
-      "today": "bugün",
-      "appointmentStatus": {
-        "approved": "Onaylı",
-        "completed": "Tamamlandı",
-        "cancelled": "İptal",
-        "noShow": "Gelmedi"
-      },
-      "monthlySummary": "Aylık Ciro",
-      "topServices": "Bu Ay En Çok Satılan Hizmetler",
-      "topStaff": "Bu Ay En Yüksek Ciro (Personel)",
-      "monthlyRevenue": "Bu Ay Ciro",
-      "noShowRate": "No-Show Oranı",
-      "totalTransactions": "Toplam İşlem"
+      "addFirstEntry": "İlk Kaydı Ekle",
+      "pendingApprovalsTitle": "Onay Bekleyen Randevular"
     },
     "expensesPage": {
       "eyebrow": "Mali İşler",
@@ -1046,36 +1049,77 @@
       "title": "Stok Yönetimi",
       "subtitle": "Ürün stoğu, kritik stok uyarıları ve mal giriş/çıkış takibi"
     },
-    "months": ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"],
+    "months": [
+      "Ocak",
+      "Şubat",
+      "Mart",
+      "Nisan",
+      "Mayıs",
+      "Haziran",
+      "Temmuz",
+      "Ağustos",
+      "Eylül",
+      "Ekim",
+      "Kasım",
+      "Aralık"
+    ],
     "incomeCategories": [
-      { "value": "randevu", "label": "Randevu Geliri" },
-      { "value": "urun", "label": "Ürün Satışı" },
-      { "value": "komisyon", "label": "Komisyon" },
-      { "value": "diger", "label": "Diğer Gelir" }
+      {
+        "value": "randevu",
+        "label": "Randevu Geliri"
+      },
+      {
+        "value": "urun",
+        "label": "Ürün Satışı"
+      },
+      {
+        "value": "komisyon",
+        "label": "Komisyon"
+      },
+      {
+        "value": "diger",
+        "label": "Diğer Gelir"
+      }
     ],
     "expenseCategories": [
-      { "value": "kira", "label": "Kira" },
-      { "value": "personel", "label": "Personel Maaşı" },
-      { "value": "malzeme", "label": "Malzeme / Stok" },
-      { "value": "fatura", "label": "Fatura (Su/Elektrik/İnternet)" },
-      { "value": "pazarlama", "label": "Pazarlama & Reklam" },
-      { "value": "bakim", "label": "Bakım & Tamir" },
-      { "value": "vergi", "label": "Vergi & Muhasebe" },
-      { "value": "diger", "label": "Diğer Gider" }
+      {
+        "value": "kira",
+        "label": "Kira"
+      },
+      {
+        "value": "personel",
+        "label": "Personel Maaşı"
+      },
+      {
+        "value": "malzeme",
+        "label": "Malzeme / Stok"
+      },
+      {
+        "value": "fatura",
+        "label": "Fatura (Su/Elektrik/İnternet)"
+      },
+      {
+        "value": "pazarlama",
+        "label": "Pazarlama & Reklam"
+      },
+      {
+        "value": "bakim",
+        "label": "Bakım & Tamir"
+      },
+      {
+        "value": "vergi",
+        "label": "Vergi & Muhasebe"
+      },
+      {
+        "value": "diger",
+        "label": "Diğer Gider"
+      }
     ],
-    "websiteSettingsPage": {
-      "eyebrow": "Website",
-      "subtitle": "İşletme sayfası rengini, kapak fotoğrafını ve açıklamasını ayarlayın",
-      "title": "Website Ayarları",
-      "upgradeTitle": "Randevu Linkinizi Web Sitesine Dönüştürün",
-      "upgradeDesc": "Renk paleti, kapak fotoğrafı, hizmet kategorileri ve fotoğraflarla donatılmış, satış artırıcı bir işletme sayfası — mevcut randevu linkinizde, ek bir adres olmadan.",
-      "upgradeButton": "Pro Plana Geç →",
-      "notIncluded": "Bu modül mevcut planınıza dahil değil."
-    },
     "overview": "Genel Bakış",
     "calendar": "Takvim",
     "appointments": "Randevular",
     "waitlist": "Bekleme Listesi",
+    "waitlistAndApprovals": "Bekleme Listesi / Onay Bekleyenler",
     "pendingRequests": "Bekleyen İstekler",
     "customers": "Müşteriler",
     "staff": "Personel",
@@ -1119,7 +1163,15 @@
     "week": "Hafta",
     "month": "Ay",
     "all": "Tümü",
-    "weekDays": ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"],
+    "weekDays": [
+      "Pazar",
+      "Pazartesi",
+      "Salı",
+      "Çarşamba",
+      "Perşembe",
+      "Cuma",
+      "Cumartesi"
+    ],
     "inProgress": "devam ediyor",
     "awaiting": "onay bekliyor",
     "approved": "onaylı",
@@ -1289,7 +1341,9 @@
       "toastCancelNoticeResent": "İptal bildirimi yeniden gönderildi",
       "toastCancelSmsSent": "İptal SMS'i gönderildi",
       "sendFailed": "Gönderilemedi",
-      "smsSendFailed": "SMS gönderilemedi"
+      "smsSendFailed": "SMS gönderilemedi",
+      "approveFailed": "Randevu onaylanamadı",
+      "toastApprovedNotifying": "Randevu onaylandı, müşteriye bilgi mesajı gönderiliyor"
     },
     "widgetGrid": {
       "customize": "Kişiselleştir",
@@ -1622,7 +1676,7 @@
       "workingHoursTitle": "Çalışma Saatleri",
       "closedLabel": "Kapalı",
       "locationTitle": "Adres & Konum",
-      "bookingSectionEyebrow": "Randevu",
+      "bookingSectionEyebrow": "SiriPlan",
       "bookingSectionTitle": "Randevunuzu Oluşturun",
       "bookingSectionSubtitle": "Personel ve saati seçin, bilgilerinizi bırakın — anında onaylanır.",
       "weekdays": {

@@ -85,7 +85,7 @@ export default function RehberPage() {
     { id: "whatsapp", label: "9. Bildirim Ayarları", icon: MessageSquare },
     { id: "telegram", label: "10. Telegram Botu", icon: Send },
     { id: "kampanya", label: "11. Toplu Kampanyalar", icon: Megaphone },
-    { id: "abonelik", label: "12. Ödeme & Abonelik", icon: CreditCard },
+    { id: "abonelik", label: "12. Abonelik & Plan", icon: CreditCard },
     { id: "sadakat", label: "13. Sadakat Puanları", icon: Heart },
     { id: "maas", label: "14. Gelir-Gider & Maaş", icon: Wallet },
     { id: "raporlar", label: "15. Raporlar & Veri Göçü", icon: BarChart3 },
@@ -311,11 +311,11 @@ export default function RehberPage() {
               {/* 12. ÖDEME & ABONELİK */}
               {activeTab === "abonelik" && (
                 <div className="space-y-4">
-                  <h2 className="text-xl font-bold text-foreground">12. Abonelik & Ödeme Yapısı (Web vs. Mobil Farkı)</h2>
+                  <h2 className="text-xl font-bold text-foreground">12. Abonelik & Plan Yönetimi</h2>
                   <div className="space-y-3 text-sm text-muted-foreground">
-                    <p><b>Sabit Fiyatlı Planlar:</b> Starter, Pro ve Business planlarının tamamı sabit, şeffaf fiyatlara sahiptir. Temsilci beklemeden doğrudan anında satın alabilirsiniz.</p>
-                    <p><b>Web Üzerinden Ödeme:</b> 14 günlük deneme süresi bitiminde veya öncesinde <b>Ayarlar → Abonelik</b> sayfasından kredi kartınızla ödeme yapabilirsiniz.</p>
-                    <p><b>Mobil Uygulama Uyarısı:</b> Uygulama mağazası politikaları gereğince, iOS ve Android mobil uygulamaları içerisinde doğrudan ödeme veya satın alma ekranları bulunmaz. Ödemenizi web sitemiz üzerinden tamamladıktan sonra mobil uygulamayı kesintisiz kullanabilirsiniz.</p>
+                    <p><b>Planlar:</b> Starter, Pro ve Business planlarının tamamı sabit ve şeffaf yapıdadır; teklif alma / temsilci bekleme adımı yoktur. Her yeni hesap 14 gün ücretsiz deneme ile başlar.</p>
+                    <p><b>Plan bilgileriniz:</b> Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi <b>Ayarlar → Abonelik</b> sayfasından görüntüleyebilirsiniz.</p>
+                    <p><b>Aboneliğiniz</b> SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir. Plan yükseltme, yenileme veya faturalandırmayla ilgili sorularınız için destek ekibimizle iletişime geçin: <b>info@bysirius.com</b> · WhatsApp <b>+90 535 503 26 34</b>.</p>
                   </div>
                 </div>
               )}
@@ -364,12 +364,12 @@ export default function RehberPage() {
                       <p className="text-muted-foreground mt-1">Telegram'da @siriplan_bot botuna mesaj atıp /start butonuna basın. Size verilen Chat ID numarasını Ayarlar sekmesindeki Telegram alanına yapıştırın.</p>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground">Business planını satın almak için teklif mi istemeliyim?</h4>
-                      <p className="text-muted-foreground mt-1">Hayır, Business dahil tüm planlarımız sabit fiyatlıdır. Web sitemizden doğrudan başlatabilirsiniz.</p>
+                      <h4 className="font-semibold text-foreground">Business planı için teklif mi istemeliyim?</h4>
+                      <p className="text-muted-foreground mt-1">Hayır, Business dahil tüm planlar sabit ve şeffaf yapıdadır; teklif alma adımı yoktur.</p>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground">Mobil uygulamadan ödeme yapabilir miyim?</h4>
-                      <p className="text-muted-foreground mt-1">Hayır, mobil mağaza politikaları uyarınca ödeme ekranları yalnızca web sürümünde mevcuttur. Ödemenizi web sitesinden yapabilirsiniz.</p>
+                      <h4 className="font-semibold text-foreground">Planımı nereden görebilirim?</h4>
+                      <p className="text-muted-foreground mt-1">Ayarlar → Abonelik sayfasından mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi görüntüleyebilirsiniz. Plan ve faturalandırma sorularınız için: info@bysirius.com</p>
                     </div>
                   </div>
                 </div>

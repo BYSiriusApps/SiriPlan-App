@@ -1031,7 +1031,8 @@
       "filterActive": "Активные (Ожидающие)",
       "filterAll": "Все",
       "emptyState": "Лист ожидания пуст",
-      "addFirstEntry": "Добавить первую запись"
+      "addFirstEntry": "Добавить первую запись",
+      "pendingApprovalsTitle": "Записи, ожидающие подтверждения"
     },
     "expensesPage": {
       "eyebrow": "Финансы",
@@ -1118,6 +1119,7 @@
     "calendar": "Календарь",
     "appointments": "Записи",
     "waitlist": "Лист ожидания",
+    "waitlistAndApprovals": "Лист ожидания / Ожидающие подтверждения",
     "pendingRequests": "Ожидающие заявки",
     "customers": "Клиенты",
     "staff": "Персонал",
@@ -1339,7 +1341,9 @@
       "toastCancelNoticeResent": "Уведомление об отмене отправлено повторно",
       "toastCancelSmsSent": "SMS об отмене отправлено",
       "sendFailed": "Не удалось отправить",
-      "smsSendFailed": "Не удалось отправить SMS"
+      "smsSendFailed": "Не удалось отправить SMS",
+      "approveFailed": "Не удалось подтвердить запись",
+      "toastApprovedNotifying": "Запись подтверждена, клиенту отправляется уведомление"
     },
     "widgetGrid": {
       "customize": "Настроить",
@@ -1672,7 +1676,7 @@
       "workingHoursTitle": "Часы работы",
       "closedLabel": "Закрыто",
       "locationTitle": "Адрес и расположение",
-      "bookingSectionEyebrow": "Запись",
+      "bookingSectionEyebrow": "SiriPlan",
       "bookingSectionTitle": "Запишитесь на приём",
       "bookingSectionSubtitle": "Выберите мастера и время, оставьте контакты — подтверждение мгновенное.",
       "weekdays": {

@@ -42,7 +42,10 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "sicak",
     metaName: "randevu_onayi_1",
     bodyParamOrder: ["customer_name", "business_name", "date", "time", "business_phone", "location_link"],
-    hasUrlButton: true,
+    // Meta'da onaylı "randevu_onayi_1" şablonunun BUTON bileşeni YOK. Buraya
+    // dinamik URL butonu parametresi eklemek Meta'yı (#132018) hatasıyla
+    // reddettiriyordu → panelden onaylanan her randevuda müşteriye onay mesajı
+    // hiç gitmiyordu. Şablon buton kazanırsa tekrar açılabilir.
   },
   onay_v2: {
     key: "onay_v2",
@@ -50,7 +53,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "v2",
     metaName: "randevu_onayi_2",
     bodyParamOrder: ["customer_name", "business_name", "date", "time", "business_phone", "location_link"],
-    hasUrlButton: true,
+    // "randevu_onayi_2" şablonunun da butonu yok — bkz. onay_sicak notu.
   },
   iptal_sicak: {
     key: "iptal_sicak",
@@ -79,7 +82,9 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "sicak",
     metaName: "randevu_revize",
     bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
-    hasUrlButton: true,
+    // "randevu_revize" şablonunda statik URL butonu var ama parametre KABUL
+    // ETMİYOR ("does not require parameters"). Buton parametresi göndermek
+    // Meta'yı (#132018) ile reddettiriyordu → revize mesajları hiç gitmiyordu.
   },
   hatirlatma_sicak: {
     key: "hatirlatma_sicak",

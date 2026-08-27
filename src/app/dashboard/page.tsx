@@ -23,6 +23,7 @@ import { getUserShortcuts } from "@/app/actions/shortcuts";
 import { getDashboardWidgetPrefs } from "@/app/actions/dashboard-widgets";
 import { DashboardWidgetGrid, type DashboardWidget } from "@/components/dashboard/DashboardWidgetGrid";
 import { getTranslations, getLocale } from "next-intl/server";
+import { ApproveButton } from "@/components/dashboard/ApproveButton";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
@@ -504,26 +505,28 @@ export default async function DashboardPage() {
                 {appts.filter((a) => a.status === "talep").slice(0, 2).map((a) => (
                   <div
                     key={a.id}
-                    className="flex items-center gap-3 rounded-xl px-3 py-2.5"
+                    className="relative flex items-center gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-opacity"
                     style={{ background: "color-mix(in oklch, var(--accent) 30%, transparent)", border: "1px solid color-mix(in oklch, var(--accent) 60%, transparent)" }}
                   >
                     <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "color-mix(in oklch, var(--accent) 60%, transparent)" }}>
                       <Calendar className="h-4 w-4 text-accent-foreground" />
                     </span>
-                    <div className="min-w-0 flex-1">
+                    {/* Kayda tıklayınca detay sayfası açılır — Link kartın tamamını
+                        kaplar (::before), "Onayla" düğmesi üstte kalır (relative z-10). */}
+                    <Link
+                      href={`/dashboard/randevular/${a.id}`}
+                      className="min-w-0 flex-1 before:absolute before:inset-0 before:content-['']"
+                    >
                       <p className="text-[13px] font-medium text-foreground truncate">
                         {t("homePage.awaitingApprovalLabel", { name: a.customer_name })}
                       </p>
                       <p className="text-[11px] text-muted-foreground">
                         {t("today")} {istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)} · {a.service?.name}
                       </p>
-                    </div>
-                    <Link
-                      href={`/dashboard/randevular/${a.id}`}
-                      className="text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0 bg-primary text-primary-foreground"
-                    >
-                      {t("approve")}
                     </Link>
+                    <div className="relative z-10 shrink-0">
+                      <ApproveButton appointmentId={a.id} label={t("approve")} />
+                    </div>
                   </div>
                 ))}
               </>

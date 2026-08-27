@@ -25,7 +25,7 @@ const NAV_ITEMS = [
   { href: "/dashboard",               icon: LayoutDashboard, tKey: "overview",       minRole: "staff"   },
   { href: "/dashboard/takvim",        icon: Calendar,        tKey: "calendar",       minRole: "staff"   },
   { href: "/dashboard/randevular",    icon: BookOpen,        tKey: "appointments",   minRole: "staff"   },
-  { href: "/dashboard/bekleme-listesi", icon: ListPlus,      tKey: "waitlist",       minRole: "staff"   },
+  { href: "/dashboard/bekleme-listesi", icon: ListPlus,      tKey: "waitlistAndApprovals", minRole: "staff"   },
   { href: "/dashboard/bekleyen-istekler", icon: Inbox,       tKey: "pendingRequests", minRole: "staff", planRequired: "business" },
   { href: "/dashboard/musteriler",    icon: Users,           tKey: "customers",      minRole: "staff"   },
   { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "manager" },
@@ -36,8 +36,8 @@ const NAV_ITEMS = [
   { href: "/dashboard/gelir-gider",   icon: Wallet,          tKey: "income",         minRole: "manager" },
   { href: "/dashboard/stok",          icon: Package,         tKey: "stock",         minRole: "staff"   },
   { href: "/dashboard/veri-gocu",     icon: Import,          tKey: "dataMigration",  minRole: "manager" },
+  { href: "/dashboard/ayarlar",       icon: Settings,        tKey: "settings",       minRole: "manager" },
   { href: "/dashboard/rehber",        icon: HelpCircle,      tKey: "guide",          minRole: "staff"   },
-  { href: "/dashboard/ayarlar",       icon: Settings,        tKey: "settings",       minRole: "owner"   },
   { href: "/dashboard/abonelik",      icon: CreditCard,      tKey: "subscription",   minRole: "owner"   },
 ];
 

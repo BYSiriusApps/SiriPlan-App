@@ -50,8 +50,12 @@ export function ColdStartSplash() {
       className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 overflow-hidden"
       style={{ background: "radial-gradient(circle at 50% 35%, #0c2f74 0%, #022058 55%, #010f36 100%)" }}
     >
-      <div className="absolute -top-24 -left-16 w-72 h-72 rounded-full bg-primary/20 blur-3xl animate-soft-float" />
-      <div className="absolute -bottom-24 -right-16 w-72 h-72 rounded-full bg-amber-400/10 blur-3xl animate-soft-float" style={{ animationDelay: "-4s" }} />
+      {/* Dekoratif bulanık katmanlar — SADECE geniş ekranda. blur-3xl (64px)
+          288px-lik iki katmanda mobil GPU-da pahalıdır ve tam da uygulamanın
+          en yavaş anında, soğuk başlangıçta çalışır. Telefonda logo zaten
+          ekranı doldurduğu için görsel kayıp ihmal edilebilir. */}
+      <div className="absolute -top-24 -left-16 w-72 h-72 rounded-full bg-primary/20 blur-3xl animate-soft-float hidden sm:block" />
+      <div className="absolute -bottom-24 -right-16 w-72 h-72 rounded-full bg-amber-400/10 blur-3xl animate-soft-float hidden sm:block" style={{ animationDelay: "-4s" }} />
 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

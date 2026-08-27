@@ -216,7 +216,7 @@ function PublicBookingPage({
       {/* Powered by */}
       <div className="relative text-center py-6">
         <a href="https://bysirius.com" className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
-          ✨ Siriplan ile güçlendirilmiştir · BY Sirius Group
+          ✨ SiriPlan powered BY Sirius Group
         </a>
       </div>
     </div>

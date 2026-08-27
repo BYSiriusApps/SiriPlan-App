@@ -14,7 +14,7 @@ const MOBILE_NAV = [
   { href: "/dashboard/takvim",     icon: Calendar,        tKey: "calendar",      minRole: "staff" },
   { href: "/dashboard/randevular", icon: BookOpen,        tKey: "appointments",  minRole: "staff" },
   { href: "/dashboard/musteriler", icon: Users,           tKey: "customers",     minRole: "staff" },
-  { href: "/dashboard/ayarlar",    icon: Settings,        tKey: "settings",      minRole: "owner" },
+  { href: "/dashboard/ayarlar",    icon: Settings,        tKey: "settings",      minRole: "manager" },
 ];
 
 export function MobileNav({ role = "staff", orgSlug, plan }: { role?: string; orgSlug?: string; plan?: string }) {

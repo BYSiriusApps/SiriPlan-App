@@ -213,8 +213,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
           <CardContent className="space-y-4">
             {appt.status === "talep" && (
               <Button
-                className="w-full"
-                variant="outline"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border-none cursor-pointer"
                 onClick={() => patch({ status: "onaylandi" }, "approve", ta("toastApproved"))}
                 disabled={!!loading}
               >

@@ -12,9 +12,18 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { toast } from "sonner";
-import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users } from "lucide-react";
+import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock } from "lucide-react";
 import { maskPhone } from "@/lib/phone";
 import type { Staff, Service } from "@/types/database";
+
+type PendingAppt = {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  appointment_at: string;
+  staff: { full_name: string } | null;
+  service: { name: string } | null;
+};
 
 type WaitlistEntry = {
   id: string;
@@ -54,6 +63,8 @@ const EMPTY_FORM = {
 export default function BeklemeListesiPage() {
   const t = useTranslations("dashboard");
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
+  const [pendingAppts, setPendingAppts] = useState<PendingAppt[]>([]);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,13 +77,40 @@ export default function BeklemeListesiPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/waitlist");
+    const [res, apptRes] = await Promise.all([
+      fetch("/api/waitlist"),
+      fetch("/api/appointments?status=talep").catch(() => null),
+    ]);
     if (res.ok) {
       const d = await res.json();
       setEntries(d.waitlist || []);
     }
+    if (apptRes && apptRes.ok) {
+      const d = await apptRes.json();
+      const list = ((d.appointments || []) as PendingAppt[]).sort(
+        (a, b) => new Date(a.appointment_at).getTime() - new Date(b.appointment_at).getTime()
+      );
+      setPendingAppts(list);
+    }
     setLoading(false);
   }, []);
+
+  async function approveAppt(id: string) {
+    setApprovingId(id);
+    const res = await fetch(`/api/appointments/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "onaylandi" }),
+    });
+    setApprovingId(null);
+    if (res.ok) {
+      setPendingAppts((prev) => prev.filter((a) => a.id !== id));
+      toast.success(t("apptActions.toastApprovedNotifying"));
+    } else {
+      const e = await res.json().catch(() => ({}));
+      toast.error(e.error || t("apptActions.approveFailed"));
+    }
+  }
 
   useEffect(() => {
     fetchData();
@@ -168,7 +206,7 @@ export default function BeklemeListesiPage() {
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("waitlistPage.eyebrow")}</span>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("waitlist")}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("waitlistAndApprovals")}</h1>
             <HomeButton />
           </div>
           <p className="text-muted-foreground text-sm">{t("waitlistPage.subtitle")}</p>
@@ -178,6 +216,50 @@ export default function BeklemeListesiPage() {
           {t("waitlistPage.addButton")}
         </Button>
       </div>
+
+      {/* Onay bekleyen randevular — panelden onay bekleyen (talep) randevular.
+          Kayda tıklayınca detay açılır; "Onayla" doğrudan onaylar. */}
+      {pendingAppts.length > 0 && (
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <CalendarClock className="h-4 w-4 text-primary" />
+              <p className="text-sm font-semibold">{t("waitlistPage.pendingApprovalsTitle")}</p>
+              <Badge variant="outline" className="text-[10px] font-normal">{pendingAppts.length}</Badge>
+            </div>
+            <div className="space-y-1">
+              {pendingAppts.map((a) => (
+                <div
+                  key={a.id}
+                  className="relative flex items-center justify-between gap-3 px-3 py-3 rounded-lg data-row transition-colors"
+                >
+                  <Link
+                    href={`/dashboard/randevular/${a.id}`}
+                    className="min-w-0 flex-1 before:absolute before:inset-0 before:content-['']"
+                  >
+                    <p className="text-sm font-medium leading-tight truncate">{a.customer_name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
+                      <Clock className="h-3 w-3 shrink-0" />
+                      {new Date(a.appointment_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      {a.service?.name && ` · ${a.service.name}`}
+                      {a.staff?.full_name && ` · ${a.staff.full_name}`}
+                    </p>
+                  </Link>
+                  <Button
+                    size="sm"
+                    className="relative z-10 gap-1.5 text-xs h-8 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    disabled={approvingId === a.id}
+                    onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); approveAppt(a.id); }}
+                  >
+                    {approvingId === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                    {t("approve")}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filter */}
       <div className="flex gap-1 p-1 rounded-full bg-muted w-fit">

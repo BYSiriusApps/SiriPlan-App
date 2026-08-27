@@ -1031,7 +1031,8 @@
       "filterActive": "نشط (في الانتظار)",
       "filterAll": "الكل",
       "emptyState": "قائمة الانتظار فارغة",
-      "addFirstEntry": "أضف الإدخال الأول"
+      "addFirstEntry": "أضف الإدخال الأول",
+      "pendingApprovalsTitle": "مواعيد بانتظار الموافقة"
     },
     "expensesPage": {
       "eyebrow": "المالية",
@@ -1118,6 +1119,7 @@
     "calendar": "التقويم",
     "appointments": "المواعيد",
     "waitlist": "قائمة الانتظار",
+    "waitlistAndApprovals": "قائمة الانتظار / بانتظار الموافقة",
     "pendingRequests": "الطلبات المعلقة",
     "customers": "العملاء",
     "staff": "الموظفون",
@@ -1339,7 +1341,9 @@
       "toastCancelNoticeResent": "تمت إعادة إرسال إشعار الإلغاء",
       "toastCancelSmsSent": "تم إرسال رسالة الإلغاء النصية",
       "sendFailed": "تعذر الإرسال",
-      "smsSendFailed": "تعذر إرسال الرسالة النصية"
+      "smsSendFailed": "تعذر إرسال الرسالة النصية",
+      "approveFailed": "تعذّر تأكيد الموعد",
+      "toastApprovedNotifying": "تم تأكيد الموعد، ويجري إرسال إشعار إلى العميل"
     },
     "widgetGrid": {
       "customize": "تخصيص",
@@ -1672,7 +1676,7 @@
       "workingHoursTitle": "ساعات العمل",
       "closedLabel": "مغلق",
       "locationTitle": "العنوان والموقع",
-      "bookingSectionEyebrow": "الحجز",
+      "bookingSectionEyebrow": "SiriPlan",
       "bookingSectionTitle": "احجز موعدك",
       "bookingSectionSubtitle": "اختر الموظف والوقت واترك بياناتك — التأكيد فوري.",
       "weekdays": {

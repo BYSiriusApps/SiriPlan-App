@@ -132,6 +132,15 @@ export function BookingWizard({
 
   useEffect(() => { onDone?.(done); }, [done, onDone]);
 
+  // Randevu onaylandığında tarayıcı sekmesi/pencere başlığı salon adı yerine
+  // "SiriPlan" gösterir; sihirbaz sıfırlanınca (Yeni Randevu) eski başlık geri gelir.
+  useEffect(() => {
+    if (!done || typeof document === "undefined") return;
+    const previous = document.title;
+    document.title = "SiriPlan";
+    return () => { document.title = previous; };
+  }, [done]);
+
   // Dönen müşteri tespiti: telefon numarası yeterince uzunsa (10+ hane),
   // müşterinin daha önce kaydettiği dil tercihi varsa sayfa o dile geçer.
   useEffect(() => {

@@ -16,7 +16,7 @@
 9. [Otomatik WhatsApp / SMS Bildirimleri](#9-otomatik-whatsapp--sms-bildirimleri)
 10. [Telegram Bildirim Botu (@siriplan_bot Kurulumu)](#10-telegram-bildirim-botu-siriplan_bot-kurulumu)
 11. [Toplu WhatsApp Kampanyaları](#11-toplu-whatsapp-kampanyaları)
-12. [Abonelik & Ödeme Yapısı (Web vs. Mobil Farkı & Business Planı)](#12-abonelik--ödeme-yapısı-web-vs-mobil-farkı--business-planı)
+12. [Abonelik & Plan Yönetimi](#12-abonelik--plan-yönetimi)
 13. [Müşteri Yönetimi & Sadakat Puanları](#13-müşteri-yönetimi--sadakat-puanları)
 14. [Gelir-Gider Takibi & Personel Maaş Hesaplama](#14-gelir-gider-takibi--personel-maaş-hesaplama)
 15. [Raporlar ve Veri Göçü (Excel)](#15-raporlar-ve-veri-göçü-excel)
@@ -168,19 +168,17 @@ Salondaki boş günleri doldurmak veya özel günleri kutlamak için müşterile
 
 ---
 
-## 12. Abonelik & Ödeme Yapısı (Web vs. Mobil Farkı & Business Planı)
+## 12. Abonelik & Plan Yönetimi
 
-SiriPlan platformunun ödeme ve abonelik yönetimi:
+SiriPlan aboneliği ve faturalandırması SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir.
 
-- **Sabit Fiyatlı Planlar & Anında Satın Alma**:
-  - **Starter**, **Pro** ve **Business** planlarının tamamı sabit, şeffaf fiyatlara sahiptir.
-  - **"Teklif Al" bekleme dönemi yoktur!** İşletmeler diledikleri paketi doğrudan web üzerinden anında seçip satın alabilir veya 14 gün ücretsiz deneme başlatabilirler.
-- **Web Üzerinden Ödeme (Bilgisayar & Mobil Tarayıcı)**:
-  - 14 günlük ücretsiz deneme süreniz boyunca tüm özellikler açıktır.
-  - Deneme süresi bitiminde veya öncesinde **Ayarlar → Abonelik** veya `siriplan.com/auth/plan-sec` sayfasından aylık/yıllık planınızı seçip kredi kartınızla güvenle ödeme yapabilirsiniz.
-- **Mobil Uygulama (iOS App Store & Google Play Store)**:
-  - App Store ve Google Play politika gereksinimleri doğrultusunda (%0 mağaza komisyonu uyumluluğu), mobil uygulama içerisinde **satın alma butonları veya doğrudan ödeme alma alanları yer almaz**.
-  - Mobil uygulamada deneme süresi dolduğunda web adresi ve destek iletişim bilgileri gösterilir. Ödeme web üzerinden tamamlandıktan sonra mobil uygulama kullanımı kesintisiz devam eder.
+- **Şeffaf Planlar**:
+  - **Starter**, **Pro** ve **Business** planlarının tamamı sabit ve şeffaf yapıdadır.
+  - **"Teklif Al" bekleme dönemi yoktur.** Her yeni hesap tüm özelliklerle **14 gün ücretsiz deneme** ile başlar.
+- **Plan Bilgileriniz**:
+  - Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi **Ayarlar → Abonelik** sayfasından görüntüleyebilirsiniz.
+- **Destek**:
+  - Plan yükseltme, yenileme veya faturalandırmayla ilgili sorularınız için destek ekibimizle iletişime geçin: **info@bysirius.com** · WhatsApp **+90 535 503 26 34**.
 
 ---
 
@@ -213,11 +211,11 @@ SiriPlan platformunun ödeme ve abonelik yönetimi:
 **Telegram randevu bildirimlerini nasıl açabilirim?**
 Telegram'da `@siriplan_bot` hesabına mesaj atıp `/start` basın. Size verilen Chat ID numarasını Ayarlar sekmesindeki Telegram alanına yapıştırın.
 
-**Business planını satın almak için teklif mi istemeliyim?**
-Hayır! Business dahil tüm planlarımız sabit fiyatlıdır. Herhangi bir temsilci beklemeden web sitemizden anında 14 gün ücretsiz başlatabilir veya satın alabilirsiniz.
+**Business planı için teklif mi istemeliyim?**
+Hayır! Business dahil tüm planlar sabit ve şeffaf yapıdadır; teklif alma adımı yoktur. Her hesap 14 gün ücretsiz deneme ile başlar.
 
-**Mobil uygulamadan ödeme yapabilir miyim?**
-Hayır. Mobil mağaza politikaları uyarınca mobil uygulama içerisinde ödeme ekranı bulunmaz. Ödemenizi web sitemiz (`siriplan.com/auth/plan-sec`) üzerinden yapabilirsiniz.
+**Planımı ve fatura geçmişimi nereden görebilirim?**
+**Ayarlar → Abonelik** sayfasından mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi görüntüleyebilirsiniz. Plan ve faturalandırmayla ilgili sorularınız için: info@bysirius.com
 
 **Personelim sisteme kendi telefonuyla girebilir mi?**
 Evet! Personeliniz kendi telefon numarası veya e-postasıyla sisteme giriş yaparak işletmeniz altında kendi randevu takvimini yönetebilir.

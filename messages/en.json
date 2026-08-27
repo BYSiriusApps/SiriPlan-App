@@ -685,10 +685,10 @@
       "Object to the processing of your data"
     ],
     "s6Contact": "For your requests: <strong>privacy@bysirius.com</strong>",
-    "s8Title": "8. Account Deletion and Data Retention",
+    "s8Title": "7. Account Deletion and Data Retention",
     "s8P1": "As a business owner and individual user, you can request to delete your account and all associated data directly from within the app/web panel via Settings > Delete My Account or by sending a request to privacy@bysirius.com. Your request will be fulfilled promptly in accordance with store policies and data privacy standards.",
     "s8P2": "Your business's contact details and the personal identifiers in your customer records (name, phone, email) are anonymized. Financial records such as appointment and revenue history may be retained in anonymized, aggregate form for the legally required retention period under Turkish Commercial Code.",
-    "s9Title": "9. Policy Changes",
+    "s9Title": "8. Policy Changes",
     "s9P": "Changes to this policy will be announced through the platform. Continuing to use the platform after changes take effect means you accept the updated policy."
   },
   "termsPage": {
@@ -898,11 +898,37 @@
       "subtitle": "Plan and billing management"
     },
     "reportsPage": {
-      "eyebrow": "Performance",
-      "subtitle": "Performance analysis for the last 6 months"
+      "eyebrow": "Analytics",
+      "subtitle": "Daily, monthly, and yearly revenue, performance, and no-show reports",
+      "daySummary": "Day Summary",
+      "daySummaryPdf": "Day Summary (PDF)",
+      "serviceStaff": "Service · Staff",
+      "dayRevenue": "Day Revenue",
+      "dayExpense": "Day Expense",
+      "newCustomers": "New Customers",
+      "noAppointments": "No appointments recorded for this day",
+      "today": "today",
+      "appointmentStatus": {
+        "approved": "Approved",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "noShow": "No Show"
+      },
+      "monthlySummary": "Monthly Revenue",
+      "topServices": "Top Services This Month",
+      "topStaff": "Top Revenue (Staff) This Month",
+      "monthlyRevenue": "This Month Revenue",
+      "noShowRate": "No-Show Rate",
+      "totalTransactions": "Total Transactions"
     },
     "websiteSettingsPage": {
-      "eyebrow": "Pro Feature"
+      "eyebrow": "Website",
+      "subtitle": "Customize your business page color, cover photo, and description",
+      "title": "Website Settings",
+      "upgradeTitle": "Transform Your Booking Link into a Website",
+      "upgradeDesc": "A sales-boosting business page with color palette, cover photo, service categories and photos — on your existing booking link, no extra domain needed.",
+      "upgradeButton": "Upgrade to Pro →",
+      "notIncluded": "This feature is not included in your current plan."
     },
     "campaignsPage": {
       "eyebrow": "Marketing",
@@ -1005,31 +1031,8 @@
       "filterActive": "Active (Waiting)",
       "filterAll": "All",
       "emptyState": "Waitlist is empty",
-      "addFirstEntry": "Add first entry"
-    },
-    "reportsPage": {
-      "eyebrow": "Analytics",
-      "subtitle": "Daily, monthly, and yearly revenue, performance, and no-show reports",
-      "daySummary": "Day Summary",
-      "daySummaryPdf": "Day Summary (PDF)",
-      "serviceStaff": "Service · Staff",
-      "dayRevenue": "Day Revenue",
-      "dayExpense": "Day Expense",
-      "newCustomers": "New Customers",
-      "noAppointments": "No appointments recorded for this day",
-      "today": "today",
-      "appointmentStatus": {
-        "approved": "Approved",
-        "completed": "Completed",
-        "cancelled": "Cancelled",
-        "noShow": "No Show"
-      },
-      "monthlySummary": "Monthly Revenue",
-      "topServices": "Top Services This Month",
-      "topStaff": "Top Revenue (Staff) This Month",
-      "monthlyRevenue": "This Month Revenue",
-      "noShowRate": "No-Show Rate",
-      "totalTransactions": "Total Transactions"
+      "addFirstEntry": "Add first entry",
+      "pendingApprovalsTitle": "Appointments Awaiting Approval"
     },
     "expensesPage": {
       "eyebrow": "Finance",
@@ -1046,36 +1049,77 @@
       "title": "Stock Management",
       "subtitle": "Track product stock, critical stock alerts, and incoming/outgoing goods"
     },
-    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
     "incomeCategories": [
-      { "value": "randevu", "label": "Appointment Income" },
-      { "value": "urun", "label": "Product Sales" },
-      { "value": "komisyon", "label": "Commission" },
-      { "value": "diger", "label": "Other Income" }
+      {
+        "value": "randevu",
+        "label": "Appointment Income"
+      },
+      {
+        "value": "urun",
+        "label": "Product Sales"
+      },
+      {
+        "value": "komisyon",
+        "label": "Commission"
+      },
+      {
+        "value": "diger",
+        "label": "Other Income"
+      }
     ],
     "expenseCategories": [
-      { "value": "kira", "label": "Rent" },
-      { "value": "personel", "label": "Staff Salary" },
-      { "value": "malzeme", "label": "Materials / Stock" },
-      { "value": "fatura", "label": "Utilities (Water/Electric/Internet)" },
-      { "value": "pazarlama", "label": "Marketing & Advertising" },
-      { "value": "bakim", "label": "Maintenance & Repairs" },
-      { "value": "vergi", "label": "Taxes & Accounting" },
-      { "value": "diger", "label": "Other Expenses" }
+      {
+        "value": "kira",
+        "label": "Rent"
+      },
+      {
+        "value": "personel",
+        "label": "Staff Salary"
+      },
+      {
+        "value": "malzeme",
+        "label": "Materials / Stock"
+      },
+      {
+        "value": "fatura",
+        "label": "Utilities (Water/Electric/Internet)"
+      },
+      {
+        "value": "pazarlama",
+        "label": "Marketing & Advertising"
+      },
+      {
+        "value": "bakim",
+        "label": "Maintenance & Repairs"
+      },
+      {
+        "value": "vergi",
+        "label": "Taxes & Accounting"
+      },
+      {
+        "value": "diger",
+        "label": "Other Expenses"
+      }
     ],
-    "websiteSettingsPage": {
-      "eyebrow": "Website",
-      "subtitle": "Customize your business page color, cover photo, and description",
-      "title": "Website Settings",
-      "upgradeTitle": "Transform Your Booking Link into a Website",
-      "upgradeDesc": "A sales-boosting business page with color palette, cover photo, service categories and photos — on your existing booking link, no extra domain needed.",
-      "upgradeButton": "Upgrade to Pro →",
-      "notIncluded": "This feature is not included in your current plan."
-    },
     "overview": "Overview",
     "calendar": "Calendar",
     "appointments": "Appointments",
     "waitlist": "Waitlist",
+    "waitlistAndApprovals": "Waitlist / Pending Approvals",
     "pendingRequests": "Pending Requests",
     "customers": "Customers",
     "staff": "Staff",
@@ -1119,7 +1163,15 @@
     "week": "Week",
     "month": "Month",
     "all": "All",
-    "weekDays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "weekDays": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
     "inProgress": "in progress",
     "awaiting": "awaiting approval",
     "approved": "approved",
@@ -1289,7 +1341,9 @@
       "toastCancelNoticeResent": "Cancellation notice resent",
       "toastCancelSmsSent": "Cancellation SMS sent",
       "sendFailed": "Couldn't send",
-      "smsSendFailed": "SMS couldn't be sent"
+      "smsSendFailed": "SMS couldn't be sent",
+      "approveFailed": "Appointment could not be approved",
+      "toastApprovedNotifying": "Appointment approved, notification is being sent to the customer"
     },
     "widgetGrid": {
       "customize": "Customize",
@@ -1622,7 +1676,7 @@
       "workingHoursTitle": "Opening Hours",
       "closedLabel": "Closed",
       "locationTitle": "Address & Location",
-      "bookingSectionEyebrow": "Booking",
+      "bookingSectionEyebrow": "SiriPlan",
       "bookingSectionTitle": "Book Your Appointment",
       "bookingSectionSubtitle": "Pick your stylist and time, leave your details — confirmed instantly.",
       "weekdays": {
