@@ -48,6 +48,13 @@ const nextConfig: NextConfig = {
       { hostname: "lh3.googleusercontent.com" },
     ],
   },
+  // /api/docs/presentation çalışma zamanında docs/ altındaki HTML dosyasını
+  // fs ile okuyor. NFT tracer process.cwd() ile kurulan yolu göremediği için
+  // dosya Vercel serverless paketine girmez ve uçta 404'e düşerdi — açıkça
+  // pakete dahil ediyoruz.
+  outputFileTracingIncludes: {
+    "/api/docs/presentation": ["./docs/kullanim-kilavuzu-sunum.html"],
+  },
   async headers() {
     return [
       {

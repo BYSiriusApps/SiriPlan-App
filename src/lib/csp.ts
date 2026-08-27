@@ -101,7 +101,11 @@ export function buildCandidateCsp(nonce?: string | null): string {
     "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com https://www.google-analytics.com",
     "font-src 'self'",
     `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://graph.facebook.com https://www.google-analytics.com https://www.googletagmanager.com ${TURNSTILE_ORIGIN}`,
-    `frame-src https://js.stripe.com https://hooks.stripe.com ${TURNSTILE_ORIGIN}`,
+    // 'self': /dashboard/rehber sayfası kullanım kılavuzu sunumunu kendi
+    // origin'imizdeki /api/docs/presentation ucundan iframe içinde gömüyor.
+    // frame-src açıkça tanımlandığı için default-src 'self' devreye girmez —
+    // 'self' burada olmazsa tarayıcı iframe'i tamamen engeller.
+    `frame-src 'self' https://js.stripe.com https://hooks.stripe.com ${TURNSTILE_ORIGIN}`,
     "worker-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -137,7 +141,11 @@ export function buildCsp(nonce?: string | null): string {
     "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com https://www.google-analytics.com",
     "font-src 'self'",
     `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://graph.facebook.com https://www.google-analytics.com https://www.googletagmanager.com ${TURNSTILE_ORIGIN}`,
-    `frame-src https://js.stripe.com https://hooks.stripe.com ${TURNSTILE_ORIGIN}`,
+    // 'self': /dashboard/rehber sayfası kullanım kılavuzu sunumunu kendi
+    // origin'imizdeki /api/docs/presentation ucundan iframe içinde gömüyor.
+    // frame-src açıkça tanımlandığı için default-src 'self' devreye girmez —
+    // 'self' burada olmazsa tarayıcı iframe'i tamamen engeller.
+    `frame-src 'self' https://js.stripe.com https://hooks.stripe.com ${TURNSTILE_ORIGIN}`,
     // PWA service worker (kurulabilirlik + "ana ekrana ekle") aynı origin'den
     // kayıt oluyor — 'none' bunu tamamen engelliyordu.
     "worker-src 'self'",
