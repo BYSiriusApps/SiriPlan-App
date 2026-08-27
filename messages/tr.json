@@ -1429,6 +1429,38 @@
       "errorFallback": "Bağlantı hatası. Lütfen tekrar deneyin veya info@bysirius.com adresinden ulaşın.",
       "footer": "Panel Yardım Asistanı"
     },
+    "mic": {
+      "introTitle": "Mikrofon izni gerekiyor",
+      "introBody": "Konuşarak randevu oluşturabilmek için tarayıcınızın mikrofona erişmesi gerekiyor. Ses kaydı yalnızca siz konuştuğunuz sırada alınır ve saklanmaz.",
+      "introHint": "\"Devam Et\"e bastığınızda tarayıcınız izin isteyecek — açılan pencerede \"İzin Ver\" seçeneğini seçin.",
+      "continue": "Devam Et",
+      "cancel": "Vazgeç",
+      "blockedTitle": "Mikrofon erişimi kapalı",
+      "blockedBody": "Tarayıcınız bu site için mikrofonu engelliyor. Aşağıdaki adımlarla açıp tekrar deneyebilirsiniz.",
+      "steps": {
+        "desktop": [
+          "Adres çubuğunun solundaki kilit veya ayar simgesine tıklayın.",
+          "\"Mikrofon\" iznini \"İzin Ver\" olarak değiştirin.",
+          "Sayfayı yenileyip \"Tekrar Dene\"ye basın."
+        ],
+        "android": [
+          "Adres çubuğundaki kilit simgesine dokunun → \"İzinler\" → \"Mikrofon\" → İzin Ver.",
+          "Çalışmazsa: Telefon Ayarları → Uygulamalar → tarayıcınız → İzinler → Mikrofon → İzin Ver.",
+          "Bu sayfaya dönüp \"Tekrar Dene\"ye dokunun."
+        ],
+        "ios": [
+          "iPhone Ayarları'nı açın → aşağı kaydırıp tarayıcınızı seçin (Safari veya Chrome).",
+          "\"Mikrofon\" iznini açık konuma getirin.",
+          "Bu sayfaya dönüp \"Tekrar Dene\"ye dokunun."
+        ]
+      },
+      "desktopSettingsHint": "İzni değiştirdiğiniz anda bu pencere kendiliğinden devam eder.",
+      "retry": "Tekrar Dene",
+      "close": "Kapat",
+      "unsupported": "Tarayıcınız sesli komut özelliğini desteklemiyor. Chrome veya Safari'nin güncel sürümünü deneyin.",
+      "permissionRequired": "Sesli randevu için mikrofon izni gerekiyor.",
+      "captureFailed": "Ses alınamadı. Mikrofon izninizi kontrol edip tekrar deneyin."
+    },
     "randevularPage": {
       "sortDefault": "Sıralama: Varsayılan",
       "sortNewest": "Sıralama: En yeni",

@@ -74,11 +74,11 @@ const META_PREVIEW_SAMPLE: Record<
   },
   hatirlatma: {
     sicak: (p) =>
-      `Sayın ${p.customerName}, ${p.orgName} salonundaki 28.07.2026 14:30 tarihli randevunuz Hatırlatma.`,
+      `Sayın ${p.customerName}, ${p.orgName} işletmesindeki randevunuza 2 saat kaldı. Tarih: 28.07.2026 Saat: 14:30. Sorunuz olursa ${p.businessPhone || "işletme telefonu"} numarasından bize ulaşabilirsiniz. Konum bilgisine harita bağlantısından ulaşabilirsiniz.`,
     v1: (p) =>
-      `Sayın ${p.customerName}, ${p.orgName} salonundaki 28.07.2026 14:30 tarihli randevunuz Hatırlatma. (V1)`,
+      `Sayın ${p.customerName}, ${p.orgName} işletmesindeki randevunuza 2 saat kaldı. Tarih: 28.07.2026 Saat: 14:30. Sorunuz olursa ${p.businessPhone || "işletme telefonu"} numarasından bize ulaşabilirsiniz. Konum bilgisine harita bağlantısından ulaşabilirsiniz.`,
     v2: (p) =>
-      `Merhaba ${p.customerName}, ${p.orgName} bünyesinde 28.07.2026 saat 14:30 için olan randevunuzu hatırlatırız.`,
+      `Sayın ${p.customerName}, ${p.orgName} işletmesindeki randevunuza 1 saat kaldı! ⏰ Tarih: 28.07.2026 Saat: 14:30. Sizi ağırlamak için sabırsızlanıyoruz. Sorunuz olursa ${p.businessPhone || "işletme telefonu"} numarasından bize ulaşabilirsiniz. Konum: harita bağlantısı.`,
   },
   revize: {
     sicak: (p) =>
@@ -1212,7 +1212,7 @@ export default function AyarlarPage() {
                   {getMetaPreview("hatirlatma", (org.wa_template_styles as Record<string, string> | null)?.hatirlatma || "sicak", {
                     customerName: "Ayşe Yıldız",
                     orgName: org.name || "Salonunuz",
-                    businessPhone: "",
+                    businessPhone: org.phone || org.whatsapp_number || "",
                   })}
                 </p>
               </div>
@@ -1555,8 +1555,13 @@ export default function AyarlarPage() {
       <SectionCard icon={ShieldCheck} title={t("settingsPage.legalSectionTitle")} description={t("settingsPage.legalSectionDesc")}>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Siriplan platformunun tüm kaynak kodları, tasarımları ve akışları FSEK ve Bern Sözleşmesi kapsamında koruma altındadır. 
-            Mağaza (App Store / Play Store) politikaları ve KVKK/GDPR veri gizliliği ile tam uyumlu altyapı sunulmaktadır.
+            {t("settingsPage.legalSectionTitle").includes("Fikri") ? 
+             "Siriplan platformunun tüm kaynak kodları, tasarımları ve akışları FSEK ve Bern Sözleşmesi kapsamında koruma altındadır. Mağaza (App Store / Play Store) politikaları ve KVKK/GDPR veri gizliliği ile tam uyumlu altyapı sunulmaktadır." :
+             t("settingsPage.legalSectionTitle").includes("Intellectual") ?
+             "All source code, designs, and flows of the Siriplan platform are protected under FSEK and the Berne Convention. A fully compliant infrastructure with Store (App Store / Play Store) policies and GDPR/KVKK data privacy is provided." :
+             t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ?
+             "Все исходные коды, дизайн и процессы платформы Siriplan защищены в соответствии с FSEK и Бернской конвенцией. Предоставляется инфраструктура, полностью совместимая с политиками магазинов приложений (App Store / Play Store) и конфиденциальностью данных GDPR/KVKK." :
+             "جميع الأكواد البرمجية والتصاميم والتدفقات الخاصة بمنصة Siriplan محمية بموجب FSEK واتفاقية برن. نوفر بنية تحتية متوافقة تمامًا مع سياسات المتاجر (App Store / Play Store) وخصوصية البيانات GDPR/KVKK."}
           </p>
           <Button
             type="button"
@@ -1570,12 +1575,15 @@ export default function AyarlarPage() {
         </div>
       </SectionCard>
 
-      <SectionCard icon={AlertTriangle} iconClassName="text-destructive" title="Tehlikeli Bölge">
+      <SectionCard icon={AlertTriangle} iconClassName="text-destructive" title={t("settingsPage.legalSectionTitle").includes("Fikri") ? "Tehlikeli Bölge" : t("settingsPage.legalSectionTitle").includes("Intellectual") ? "Danger Zone" : t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ? "Опасная зона" : "منطقة الخطر"}>
         <p className="text-sm text-muted-foreground">
-          Hesabınızı sildiğinizde giriş bilgileriniz ve işletmenizin tüm personel erişimleri kalıcı olarak
-          kapatılır, aboneliğiniz iptal edilir. Müşteri kayıtlarınız silinmez, kişisel tanımlayıcı bilgileri
-          (isim, telefon, e-posta) anonimleştirilir; randevu/ciro geçmişi yasal muhasebe saklama süresi
-          boyunca istatistiksel olarak tutulmaya devam eder. Bu işlem geri alınamaz.
+          {t("settingsPage.legalSectionTitle").includes("Fikri") ? 
+           "Hesabınızı sildiğinizde giriş bilgileriniz ve işletmenizin tüm personel erişimleri kalıcı olarak kapatılır, aboneliğiniz iptal edilir. Müşteri kayıtlarınız silinmez, kişisel tanımlayıcı bilgileri (isim, telefon, e-posta) anonimleştirilir; randevu/ciro geçmişi yasal muhasebe saklama süresi boyunca istatistiksel olarak tutulmaya devam eder. Bu işlem geri alınamaz." :
+           t("settingsPage.legalSectionTitle").includes("Intellectual") ?
+           "When you delete your account, your login credentials and all staff access of your business will be permanently closed, and your subscription will be cancelled. Your customer records will not be deleted, but personal identifying details (name, phone, email) will be anonymized; appointment and revenue history will continue to be kept statistically for the legal accounting retention period. This action cannot be undone." :
+           t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ?
+           "При удалении аккаунта ваши учетные данные и доступ всего персонала вашей компании будут окончательно закрыты, а подписка аннулирована. Записи о ваших клиентах не будут удалены, но личные идентифицирующие данные (имя, телефон, эл. почта) будут анонимизированы; история встреч и выручки продолжит храниться в статистических целях в течение установленного законом срока хранения бухгалтерских документов. Это действие необратимо." :
+           "عند حذف حسابك، سيتم إغلاق بيانات اعتماد تسجيل الدخول الخاصة بك وجميع صلاحيات وصول الموظفين في منشأتك نهائيًا، وسيتم إلغاء اشتراكك. لن يتم حذف سجلات عملائك، ولكن سيتم إخفاء هوية تفاصيل التعريف الشخصية (الاسم، الهاتف، البريد الإلكتروني)؛ سيستمر الاحتفاظ بسجل المواعيد والإيرادات إحصائيًا لفترة الاحتفاظ بالمحاسبة القانونية. لا يمكن التراجع عن هذا الإجراء."}
         </p>
         <Button
           variant="destructive"
@@ -1583,7 +1591,7 @@ export default function AyarlarPage() {
           onClick={() => setDeleteDialogOpen(true)}
         >
           <Trash2 className="h-4 w-4" />
-          Hesabımı Sil
+          {t("settingsPage.legalSectionTitle").includes("Fikri") ? "Hesabımı Sil" : t("settingsPage.legalSectionTitle").includes("Intellectual") ? "Delete My Account" : t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ? "Удалить мой аккаунт" : "حذف حسابي"}
         </Button>
       </SectionCard>
 
@@ -1596,9 +1604,17 @@ export default function AyarlarPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Hesabını silmek üzeresin</DialogTitle>
+            <DialogTitle>
+              {t("settingsPage.legalSectionTitle").includes("Fikri") ? "Hesabını silmek üzeresin" : t("settingsPage.legalSectionTitle").includes("Intellectual") ? "You are about to delete your account" : t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ? "Вы собираетесь удалить свой аккаунт" : "أنت على وشك حذف حسابك"}
+            </DialogTitle>
             <DialogDescription>
-              Bu işlem geri alınamaz. Onaylamak için aşağıya <strong>{DELETE_CONFIRM_PHRASE}</strong> yazın.
+              {t("settingsPage.legalSectionTitle").includes("Fikri") ? 
+               `Bu işlem geri alınamaz. Onaylamak için aşağıya <strong>{DELETE_CONFIRM_PHRASE}</strong> yazın.` :
+               t("settingsPage.legalSectionTitle").includes("Intellectual") ?
+               `This action cannot be undone. Type <strong>{DELETE_CONFIRM_PHRASE}</strong> below to confirm.` :
+               t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ?
+               `Это действие не может быть отменено. Введите <strong>{DELETE_CONFIRM_PHRASE}</strong> ниже для подтверждения.` :
+               `لا يمكن التراجع عن هذا الإجراء. اكتب <strong>{DELETE_CONFIRM_PHRASE}</strong> أدناه للتأكيد.`}
             </DialogDescription>
           </DialogHeader>
           <Input
@@ -1609,7 +1625,7 @@ export default function AyarlarPage() {
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              Vazgeç
+              {t("settingsPage.legalSectionTitle").includes("Fikri") ? "Vazgeç" : t("settingsPage.legalSectionTitle").includes("Intellectual") ? "Cancel" : t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ? "Отмена" : "إلغاء"}
             </Button>
             <Button
               variant="destructive"
@@ -1618,7 +1634,7 @@ export default function AyarlarPage() {
               className="gap-2"
             >
               {deletingAccount ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-              Kalıcı Olarak Sil
+              {t("settingsPage.legalSectionTitle").includes("Fikri") ? "Kalıcı Olarak Sil" : t("settingsPage.legalSectionTitle").includes("Intellectual") ? "Delete Permanently" : t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ? "Удалить навсегда" : "حذف نهائي"}
             </Button>
           </DialogFooter>
         </DialogContent>

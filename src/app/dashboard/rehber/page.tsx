@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { useTranslations } from "next-intl";
 import {
   HelpCircle,
   PlayCircle,
@@ -30,6 +31,7 @@ import {
 } from "lucide-react";
 
 export default function RehberPage() {
+  const t = useTranslations("dashboard");
   const [activeTab, setActiveTab] = useState<string>("baslangic");
   const [isFullscreenSunum, setIsFullscreenSunum] = useState<boolean>(false);
 
@@ -73,25 +75,50 @@ export default function RehberPage() {
     };
   }, []);
 
+  const isTr = t("guide").includes("Kılavuzu");
+  const isEn = t("guide").includes("User Guide");
+  const isRu = t("guide").includes("Руководство");
+
+  const getMenuLabel = (id: string, def: string) => {
+    if (id === "baslangic") return isTr ? "1. Hızlı Başlangıç" : isEn ? "1. Quick Start" : isRu ? "1. Быстрый старт" : "1. البدء السريع";
+    if (id === "giris") return isTr ? "2. Giriş Akışı & Rolleri" : isEn ? "2. Login Flow & Roles" : isRu ? "2. Процесс входа и роли" : "2. تدفق الدخول والأدوار";
+    if (id === "panel") return isTr ? "3. Panel Kişiselleştirme" : isEn ? "3. Dashboard Personalization" : isRu ? "3. Персонализация панели" : "3. تخصيص اللوحة";
+    if (id === "hizmetler") return isTr ? "4. Hizmet Tanımlama" : isEn ? "4. Service Catalog Setup" : isRu ? "4. Настройка каталога услуг" : "4. تحديد الخدمات";
+    if (id === "personel") return isTr ? "5. Personel & Yetkiler" : isEn ? "5. Staff & Permissions" : isRu ? "5. Персонал и права" : "5. الموظفون والصلاحيات";
+    if (id === "takvim") return isTr ? "6. Takvim & Randevu" : isEn ? "6. Calendar & Appointment" : isRu ? "6. Календарь и записи" : "6. التقويم والمواعيد";
+    if (id === "adisyon") return isTr ? "7. Adisyon & Fiş Yazma" : isEn ? "7. Adisyon & Receipt Print" : isRu ? "7. Чеки и печать" : "7. الفواتير وطباعة الإيصال";
+    if (id === "vitrin") return isTr ? "8. Web Vitrini (/r/[slug])" : isEn ? "8. Web Showcase (/r/[slug])" : isRu ? "8. Веб-витрина (/r/[slug])" : "8. واجهة الويب (/r/[slug])";
+    if (id === "whatsapp") return isTr ? "9. Bildirim Ayarları" : isEn ? "9. Notification Settings" : isRu ? "9. Настройки уведомлений" : "9. إعدادات الإشعارات";
+    if (id === "telegram") return isTr ? "10. Telegram Botu" : isEn ? "10. Telegram Bot" : isRu ? "10. Telegram-бот" : "10. بوت تليجرام";
+    if (id === "kampanya") return isTr ? "11. Toplu Kampanyalar" : isEn ? "11. Bulk Campaigns" : isRu ? "11. Массовые рассылки" : "11. الحملات الجماعية";
+    if (id === "abonelik") return isTr ? "12. Abonelik & Plan" : isEn ? "12. Subscription & Plan" : isRu ? "12. Подписка и тариф" : "12. الاشتراك والخطة";
+    if (id === "sadakat") return isTr ? "13. Sadakat Puanları" : isEn ? "13. Loyalty Points" : isRu ? "13. Баллы лояльности" : "13. نقاط الولاء";
+    if (id === "maas") return isTr ? "14. Gelir-Gider & Maaş" : isEn ? "14. Income-Expense & Salary" : isRu ? "14. Расходы и зарплата" : "14. المصروفات والرواتب";
+    if (id === "raporlar") return isTr ? "15. Raporlar & Veri Göçü" : isEn ? "15. Reports & Data Migration" : isRu ? "15. Отчеты и импорт" : "15. التقارير ونقل البيانات";
+    if (id === "sss") return isTr ? "16. Sık Sorulan Sorular" : isEn ? "16. Frequently Asked Questions" : isRu ? "16. Вопросы и ответы (FAQ)" : "16. الأسئلة الشائعة";
+    if (id === "sunum") return isTr ? "🎬 İnteraktif Sunum (19 Slayt)" : isEn ? "🎬 Interactive Presentation (19 Slides)" : isRu ? "🎬 Презентация (19 слайдов)" : "🎬 عرض تقديمي تفاعلي (19 شريحة)";
+    return def;
+  };
+
   const menuItems = [
-    { id: "baslangic", label: "1. Hızlı Başlangıç", icon: PlayCircle },
-    { id: "giris", label: "2. Giriş Akışı & Rolleri", icon: User },
-    { id: "panel", label: "3. Panel Kişiselleştirme", icon: Settings },
-    { id: "hizmetler", label: "4. Hizmet Tanımlama", icon: Scissors },
-    { id: "personel", label: "5. Personel & Yetkiler", icon: Users },
-    { id: "takvim", label: "6. Takvim & Randevu", icon: Calendar },
-    { id: "adisyon", label: "7. Adisyon & Fiş Yazma", icon: Wallet },
-    { id: "vitrin", label: "8. Web Vitrini (/r/[slug])", icon: Globe },
-    { id: "whatsapp", label: "9. Bildirim Ayarları", icon: MessageSquare },
-    { id: "telegram", label: "10. Telegram Botu", icon: Send },
-    { id: "kampanya", label: "11. Toplu Kampanyalar", icon: Megaphone },
-    { id: "abonelik", label: "12. Abonelik & Plan", icon: CreditCard },
-    { id: "sadakat", label: "13. Sadakat Puanları", icon: Heart },
-    { id: "maas", label: "14. Gelir-Gider & Maaş", icon: Wallet },
-    { id: "raporlar", label: "15. Raporlar & Veri Göçü", icon: BarChart3 },
-    { id: "sss", label: "16. Sık Sorulan Sorular", icon: HelpCircle },
-    { id: "sunum", label: "🎬 İnteraktif Sunum (19 Slayt)", icon: BookOpen, highlight: true }
-  ];
+    { id: "baslangic", icon: PlayCircle },
+    { id: "giris", icon: User },
+    { id: "panel", icon: Settings },
+    { id: "hizmetler", icon: Scissors },
+    { id: "personel", icon: Users },
+    { id: "takvim", icon: Calendar },
+    { id: "adisyon", icon: Wallet },
+    { id: "vitrin", icon: Globe },
+    { id: "whatsapp", icon: MessageSquare },
+    { id: "telegram", icon: Send },
+    { id: "kampanya", icon: Megaphone },
+    { id: "abonelik", icon: CreditCard },
+    { id: "sadakat", icon: Heart },
+    { id: "maas", icon: Wallet },
+    { id: "raporlar", icon: BarChart3 },
+    { id: "sss", icon: HelpCircle },
+    { id: "sunum", icon: BookOpen, highlight: true }
+  ].map(item => ({ ...item, label: getMenuLabel(item.id, "") }));
 
   return (
     <div className="p-6 space-y-6 select-none">
@@ -102,13 +129,16 @@ export default function RehberPage() {
             <BookOpen className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">DESTEK & EĞİTİM</span>
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">SiriPlan Kullanım Kılavuzu</h1>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">
+              {isTr ? "DESTEK & EĞİTİM" : isEn ? "SUPPORT & EDUCATION" : isRu ? "ПОДДЕРЖКА И ОБУЧЕНИЕ" : "الدعم والتعليم"}
+            </span>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("guide")}</h1>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 px-3 py-1 flex items-center gap-1.5">
-            <Lock className="w-3.5 h-3.5" /> Kopyalamaya Karşı Korumalı
+            <Lock className="w-3.5 h-3.5" />
+            {isTr ? "Kopyalamaya Karşı Korumalı" : isEn ? "Copy Protected" : isRu ? "Защищено от копирования" : "محمي ضد النسخ"}
           </Badge>
           <HomeButton />
         </div>

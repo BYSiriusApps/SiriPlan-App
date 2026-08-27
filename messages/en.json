@@ -1429,6 +1429,38 @@
       "errorFallback": "Connection error. Please try again or reach us at info@bysirius.com.",
       "footer": "Panel Help Assistant"
     },
+    "mic": {
+      "introTitle": "Microphone access needed",
+      "introBody": "To book appointments by voice, your browser needs access to the microphone. Audio is captured only while you speak and is never stored.",
+      "introHint": "When you tap \"Continue\", your browser will ask for permission — choose \"Allow\" in that prompt.",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "blockedTitle": "Microphone access is blocked",
+      "blockedBody": "Your browser is blocking the microphone for this site. Follow the steps below and try again.",
+      "steps": {
+        "desktop": [
+          "Click the lock or settings icon on the left of the address bar.",
+          "Set the \"Microphone\" permission to \"Allow\".",
+          "Reload the page and press \"Try again\"."
+        ],
+        "android": [
+          "Tap the lock icon in the address bar → \"Permissions\" → \"Microphone\" → Allow.",
+          "If that doesn't work: Phone Settings → Apps → your browser → Permissions → Microphone → Allow.",
+          "Return to this page and tap \"Try again\"."
+        ],
+        "ios": [
+          "Open iPhone Settings → scroll down and pick your browser (Safari or Chrome).",
+          "Turn the \"Microphone\" permission on.",
+          "Return to this page and tap \"Try again\"."
+        ]
+      },
+      "desktopSettingsHint": "As soon as you change the permission, this window continues on its own.",
+      "retry": "Try again",
+      "close": "Close",
+      "unsupported": "Your browser doesn't support voice commands. Try a recent version of Chrome or Safari.",
+      "permissionRequired": "Voice booking needs microphone permission.",
+      "captureFailed": "Couldn't capture audio. Check your microphone permission and try again."
+    },
     "randevularPage": {
       "sortDefault": "Sort: Default",
       "sortNewest": "Sort: Newest",

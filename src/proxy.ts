@@ -7,6 +7,7 @@ import { CSP_NONCE_HEADER, buildCsp, buildCandidateCsp, generateNonce, isNonceEn
 
 // Routes that require at minimum "manager" role
 const MANAGER_ROUTES = [
+  "/dashboard/ayarlar",
   "/dashboard/kampanyalar",
   "/dashboard/raporlar",
   "/dashboard/gelir-gider",
@@ -17,7 +18,6 @@ const MANAGER_ROUTES = [
 
 // Routes that require "owner" role
 const OWNER_ROUTES = [
-  "/dashboard/ayarlar",
   "/dashboard/abonelik",
 ];
 

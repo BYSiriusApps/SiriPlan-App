@@ -140,7 +140,9 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       vars: { customer_name: reqRow.customer_name, date, time },
       appointmentAt: reqRow.appointment_at,
       cancelToken: (appt as { cancel_token?: string }).cancel_token,
-    }).catch((err) => console.error("[appointment-requests] sendPurposeTemplate(onay) hata:", err));
+    })
+      .then((r) => console.log(`[appointment-requests] onay WA sonucu — id=${id}`, JSON.stringify(r)))
+      .catch((err) => console.error("[appointment-requests] sendPurposeTemplate(onay) hata:", err));
   }
 
   return NextResponse.json({ status: "approved", appointment: appt }, { status: 201 });

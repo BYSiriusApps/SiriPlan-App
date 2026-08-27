@@ -70,7 +70,7 @@ export async function sendPurposeTemplate({
   const supabase = await createAdminClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("name, wa_template_styles, phone, whatsapp_number, address, location_url, settings_json")
+    .select("name, slug, wa_template_styles, phone, whatsapp_number, address, location_url, settings_json")
     .eq("id", orgId)
     .single();
 
@@ -101,29 +101,55 @@ export async function sendPurposeTemplate({
 
   const templateName = def.metaName;
 
+  // Salonun kendi randevu vitrini — konum/telefon boşsa bile daima geçerli bir
+  // bağlantı. Meta, gövde parametrelerinden herhangi biri BOŞ olursa şablon
+  // mesajını (#131009) ile reddediyor → o param'ı olan tüm şablonlar (onay 6,
+  // hatirlatma 7) hiç gitmiyordu. Buradaki fallback'ler param'ların asla boş
+  // kalmamasını garanti eder.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
+  const bookingUrl = org.slug ? `${appUrl}/r/${org.slug}` : appUrl;
+
   const businessPhone =
     vars.business_phone?.trim() ||
     org.phone?.trim() ||
     org.whatsapp_number?.trim() ||
     process.env.PLATFORM_SUPPORT_PHONE ||
-    "";
+    bookingUrl;
 
   const locationLink =
     vars.location_link?.trim() ||
     org.location_url?.trim() ||
-    (org.address?.trim() ? googleMapsLink(org.address.trim()) : "");
+    (org.address?.trim() ? googleMapsLink(org.address.trim()) : "") ||
+    bookingUrl;
+
+  // "randevu_hatirlatma_*" şablonu {{3}} = randevuya kalan süre bekliyor.
+  // Çağıran (cron / manuel gönder) vermezse randevu saatinden hesapla.
+  const remainingTime =
+    vars.remaining_time?.trim() ||
+    (appointmentAt ? remainingTimeLabelFromDate(appointmentAt) : "");
 
   const paramValues: Record<WaParamSource, string> = {
     ...vars,
     business_name: org.name,
     business_phone: businessPhone,
     location_link: locationLink,
+    remaining_time: remainingTime,
   } as Record<WaParamSource, string>;
 
-  const bodyParameters = def.bodyParamOrder.map((source) => ({
-    type: "text",
-    text: paramValues[source] ?? "",
-  }));
+  // Meta gövde parametresi kuralları: boş olamaz, satır sonu / sekme / 4+ ardışık
+  // boşluk içeremez (aksi halde (#131009) / (#132000)). Değerleri tek satıra
+  // indir, boş kalanı "-" ile doldur ve hangi param'ın boş geldiğini logla.
+  const emptyParams: WaParamSource[] = [];
+  const bodyParameters = def.bodyParamOrder.map((source) => {
+    const cleaned = (paramValues[source] ?? "").replace(/\s+/g, " ").trim();
+    if (!cleaned) emptyParams.push(source);
+    return { type: "text", text: cleaned || "-" };
+  });
+  if (emptyParams.length) {
+    console.error(
+      `[wa-templates] boş parametre "-" ile dolduruldu — purpose=${purpose} template=${templateName} orgId=${orgId} params=${emptyParams.join(",")}`
+    );
+  }
 
   let finalCancelToken = cancelToken;
   if (!finalCancelToken && def.hasUrlButton) {
@@ -220,4 +246,13 @@ export function remainingTimeLabel(hoursBefore: number): string {
     return `${days} gün`;
   }
   return `${hoursBefore} saat`;
+}
+
+/** Randevu zaman damgasından "2 saat" / "1 gün" gibi kalan-süre etiketi üretir.
+ * Cron zaten offset_hours'tan hesaplayıp `remaining_time` geçiyor; bu yol
+ * manuel "hatırlatmayı şimdi gönder" ve offset gelmeyen durumlar için. */
+export function remainingTimeLabelFromDate(appointmentAt: string, now: Date = new Date()): string {
+  const diffMs = new Date(appointmentAt).getTime() - now.getTime();
+  const hours = Math.max(1, Math.round(diffMs / (60 * 60 * 1000)));
+  return remainingTimeLabel(hours);
 }

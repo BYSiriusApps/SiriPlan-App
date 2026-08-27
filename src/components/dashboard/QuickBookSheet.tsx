@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { DateTimeSlotPicker, nextSlot } from "@/components/dashboard/DateTimeSlotPicker";
 import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
+import { useMicAccess } from "@/components/dashboard/useMicAccess";
 
 interface StaffCard {
   id: string;
@@ -53,6 +54,8 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   const router = useRouter();
   const t = useTranslations("dashboard.quickBook");
   const td = useTranslations("dashboard");
+  const tm = useTranslations("dashboard.mic");
+  const { requestMic, micDialog, speechLang } = useMicAccess();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -175,17 +178,6 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     }
   }, [open]);
 
-  async function requestMicrophonePermission(): Promise<boolean> {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
-      return true;
-    } catch (err) {
-      console.error("Microphone permission denied:", err);
-      return false;
-    }
-  }
-
   const startVoiceConfirmation = useCallback(() => {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -193,7 +185,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
-    recognition.lang = "tr-TR";
+    recognition.lang = speechLang;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
@@ -217,25 +209,22 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     };
 
     recognition.start();
-  }, [customerName, customerPhone, selectedStaffId, selectedServiceId, appointmentAt, note]);
+  }, [customerName, customerPhone, selectedStaffId, selectedServiceId, appointmentAt, note, speechLang]);
 
   const startVoiceBooking = useCallback(async () => {
-    const hasPermission = await requestMicrophonePermission();
-    if (!hasPermission) {
-      toast.error("Sesli komut için mikrofon izni gerekiyor. Lütfen cihaz ayarlarından izin verin.");
-      return;
-    }
-
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error("Tarayıcınız sesli komut özelliğini desteklemiyor.");
+      toast.error(tm("unsupported"));
       return;
     }
 
+    const hasPermission = await requestMic();
+    if (!hasPermission) return;
+
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
-    recognition.lang = "tr-TR";
+    recognition.lang = speechLang;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
@@ -248,7 +237,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     recognition.onerror = (e: any) => {
       setIsListening(false);
       if (e.error !== "no-speech") {
-        toast.error("Ses alınamadı. Mikrofon iznini kontrol edin.");
+        toast.error(tm("captureFailed"));
       }
     };
 
@@ -299,7 +288,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     };
 
     recognition.start();
-  }, [slotMinutes, staff, services, startVoiceConfirmation]);
+  }, [slotMinutes, staff, services, startVoiceConfirmation, requestMic, speechLang, tm]);
 
   async function saveAppointment() {
     if (!selectedStaffId) { toast.error(t("errorStaffRequired")); return false; }
@@ -722,6 +711,8 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
       >
         <Mic className="h-4 w-4" />
       </Button>
+
+      {micDialog}
     </div>
   );
 }

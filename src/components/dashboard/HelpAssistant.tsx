@@ -7,6 +7,7 @@ import { X, Send, Bot, Minimize2, LifeBuoy, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAiAssistant } from "./AiAssistantContext";
+import { useMicAccess } from "./useMicAccess";
 
 interface Message {
   role: "user" | "assistant";
@@ -16,6 +17,8 @@ interface Message {
 export function HelpAssistant() {
   const router = useRouter();
   const t = useTranslations("dashboard.aiAssistant");
+  const tm = useTranslations("dashboard.mic");
+  const { requestMic, micDialog, speechLang } = useMicAccess();
   const { open, setOpen } = useAiAssistant();
   const [minimized, setMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([{ role: "assistant", text: t("greeting") }]);
@@ -25,16 +28,19 @@ export function HelpAssistant() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const startVoiceInput = useCallback(() => {
+  const startVoiceInput = useCallback(async () => {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error("Tarayıcınız sesli komut özelliğini desteklemiyor.");
+      toast.error(tm("unsupported"));
       return;
     }
 
+    const hasPermission = await requestMic();
+    if (!hasPermission) return;
+
     const recognition = new SpeechRecognition();
-    recognition.lang = "tr-TR";
+    recognition.lang = speechLang;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
@@ -42,7 +48,7 @@ export function HelpAssistant() {
     recognition.onend = () => setIsListening(false);
     recognition.onerror = () => {
       setIsListening(false);
-      toast.error("Ses alınamadı. Mikrofon iznini kontrol edin.");
+      toast.error(tm("captureFailed"));
     };
 
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -78,7 +84,7 @@ export function HelpAssistant() {
     };
 
     recognition.start();
-  }, [router]);
+  }, [router, requestMic, speechLang, tm]);
 
   const quickQuestions = [t("quickQ1"), t("quickQ2"), t("quickQ3"), t("quickQ4")];
 
@@ -126,6 +132,7 @@ export function HelpAssistant() {
 
   return (
     <>
+      {micDialog}
       {/* Mobilde sabit yuvarlak buton kaldırıldı — "+ Randevu" düğmesiyle çakışıyordu.
           Mobilde asistana soldan açılan menüden erişilir; masaüstünde sol alt köşede kalır
           (sağ alt köşe ana sayfadaki sabit "+ Randevu" düğmesine ayrılmış, bkz. dashboard/page.tsx). */}

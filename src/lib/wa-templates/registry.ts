@@ -20,6 +20,7 @@ export type WaParamSource =
   | "time"
   | "new_date"
   | "new_time"
+  | "remaining_time"
   | "business_phone"
   | "location_link";
 
@@ -86,29 +87,34 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     // ETMİYOR ("does not require parameters"). Buton parametresi göndermek
     // Meta'yı (#132018) ile reddettiriyordu → revize mesajları hiç gitmiyordu.
   },
+  // Meta'daki "randevu_hatirlatma_1" ve "randevu_hatirlatma_2" şablonlarının
+  // gövdesi 7 parametre bekliyor (WhatsApp Yöneticisi'nden doğrulandı, 27 Ağu):
+  //   Sayın {{1}}, {{2}} işletmesindeki randevunuza {{3}} kaldı.
+  //   Tarih: {{4}} / Saat: {{5}}
+  //   Sorunuz olursa {{6}} numarasından bize ulaşabilirsiniz.
+  //   Konum bilgisine {{7}} bağlantısından ulaşabilirsiniz.
+  // Şablonlarda BUTON YOK → hasUrlButton kaldırıldı (buton bileşeni eklemek
+  // (#132018), 4 parametre göndermek (#132000) veriyordu → hatırlatma hiç gitmiyordu).
   hatirlatma_sicak: {
     key: "hatirlatma_sicak",
     purpose: "hatirlatma",
     style: "sicak",
     metaName: "randevu_hatirlatma_1",
-    bodyParamOrder: ["customer_name", "business_name", "date", "time"],
-    hasUrlButton: true,
+    bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
   hatirlatma_v1: {
     key: "hatirlatma_v1",
     purpose: "hatirlatma",
     style: "v1",
     metaName: "randevu_hatirlatma_1",
-    bodyParamOrder: ["customer_name", "business_name", "date", "time"],
-    hasUrlButton: true,
+    bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
   hatirlatma_v2: {
     key: "hatirlatma_v2",
     purpose: "hatirlatma",
     style: "v2",
     metaName: "randevu_hatirlatma_2",
-    bodyParamOrder: ["customer_name", "business_name", "date", "time"],
-    hasUrlButton: true,
+    bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
 };
 

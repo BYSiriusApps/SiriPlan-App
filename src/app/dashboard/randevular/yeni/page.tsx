@@ -17,6 +17,7 @@ import type { Staff, Service } from "@/types/database";
 import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { CustomerSearchField } from "@/components/dashboard/CustomerSearchField";
 import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
+import { useMicAccess } from "@/components/dashboard/useMicAccess";
 
 const FAVORITES_KEY = "siriplan_fav_services";
 
@@ -44,6 +45,8 @@ function isBookable(s: Service): s is BookableService {
 
 export default function YeniRandevuPage() {
   const t = useTranslations("dashboard");
+  const tm = useTranslations("dashboard.mic");
+  const { requestMic, micDialog, speechLang } = useMicAccess();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
@@ -186,17 +189,6 @@ export default function YeniRandevuPage() {
     setSelectedServices((prev) => prev.filter((s) => s.id !== id));
   }
 
-  async function requestMicrophonePermission(): Promise<boolean> {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
-      return true;
-    } catch (err) {
-      console.error("Microphone permission denied:", err);
-      return false;
-    }
-  }
-
   const startVoiceConfirmation = useCallback(() => {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -204,7 +196,7 @@ export default function YeniRandevuPage() {
 
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
-    recognition.lang = "tr-TR";
+    recognition.lang = speechLang;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
@@ -228,25 +220,22 @@ export default function YeniRandevuPage() {
     };
 
     recognition.start();
-  }, [form, selectedServices, orgId, orgName, sendWaMessage, waTemplate, staff, orgAddress, orgLocationUrl, totalPrice, totalDuration, kvkkAttested, fromWaitlistId]);
+  }, [form, selectedServices, orgId, orgName, sendWaMessage, waTemplate, staff, orgAddress, orgLocationUrl, totalPrice, totalDuration, kvkkAttested, fromWaitlistId, speechLang]);
 
   const startVoiceBooking = useCallback(async () => {
-    const hasPermission = await requestMicrophonePermission();
-    if (!hasPermission) {
-      toast.error("Sesli komut için mikrofon izni gerekiyor. Lütfen cihaz ayarlarından izin verin.");
-      return;
-    }
-
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error("Tarayıcınız sesli komut özelliğini desteklemiyor.");
+      toast.error(tm("unsupported"));
       return;
     }
 
+    const hasPermission = await requestMic();
+    if (!hasPermission) return;
+
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
-    recognition.lang = "tr-TR";
+    recognition.lang = speechLang;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
@@ -259,7 +248,7 @@ export default function YeniRandevuPage() {
     recognition.onerror = (e: any) => {
       setIsListening(false);
       if (e.error !== "no-speech") {
-        toast.error("Ses alınamadı. Mikrofon iznini kontrol edin.");
+        toast.error(tm("captureFailed"));
       }
     };
 
@@ -328,7 +317,7 @@ export default function YeniRandevuPage() {
     };
 
     recognition.start();
-  }, [slotMinutes, staff, services, startVoiceConfirmation]);
+  }, [slotMinutes, staff, services, startVoiceConfirmation, requestMic, speechLang, tm]);
 
   // Auto-start voice booking if requested via URL params
   useEffect(() => {
@@ -437,6 +426,7 @@ export default function YeniRandevuPage() {
 
   return (
     <div className="p-6 max-w-xl mx-auto">
+      {micDialog}
       <div className="flex items-center gap-3 mb-6">
         <Link href="/dashboard/randevular" className="text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-5 w-5" />
