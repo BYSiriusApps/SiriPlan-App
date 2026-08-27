@@ -1497,6 +1497,12 @@ export default function AyarlarPage() {
             desc: tsp("phoneAccessDesc"),
             default: true,
           },
+          {
+            key: "staff_all_appointments",
+            label: tsp("appointmentsAccessLabel"),
+            desc: tsp("appointmentsAccessDesc"),
+            default: true,
+          },
         ].map((perm) => {
           const settings = (org.settings_json ?? {}) as Record<string, unknown>;
           const value = perm.key in settings ? !!settings[perm.key] : perm.default;

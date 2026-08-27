@@ -1320,6 +1320,8 @@
       "cardDesc": "Set the access level for employees with the staff role",
       "phoneAccessLabel": "Can see customer phone numbers",
       "phoneAccessDesc": "Staff can use the 📞 Call and 💬 WA buttons in the customer list",
+      "appointmentsAccessLabel": "Can see all appointments",
+      "appointmentsAccessDesc": "Staff can see appointments of other staff members in calendar and dashboard (business-wide visibility)",
       "individualTitle": "Individual staff permissions (role, access)",
       "noStaff": "No staff added yet.",
       "editLink": "Edit Permissions",

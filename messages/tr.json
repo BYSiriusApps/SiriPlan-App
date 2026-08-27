@@ -1320,6 +1320,8 @@
       "cardDesc": "Personel rolündeki çalışanların erişimini ayarlayın",
       "phoneAccessLabel": "Müşteri telefon numaralarını görsün",
       "phoneAccessDesc": "Personel, müşteri listesinde 📞 Ara ve 💬 WA butonlarını kullanabilsin",
+      "appointmentsAccessLabel": "Tüm randevuları görsün",
+      "appointmentsAccessDesc": "Personel, diğer çalışanların da randevularını takvim ve ana sayfada görebilsin (işletme geneli görünürlük)",
       "individualTitle": "Bireysel personel yetkileri (rol, izinler)",
       "noStaff": "Henüz personel eklenmemiş.",
       "editLink": "Yetkileri Düzenle",

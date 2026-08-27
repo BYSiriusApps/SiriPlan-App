@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -24,7 +23,6 @@ import {
   CreditCard,
   Heart,
   BarChart3,
-  Import,
   AlertTriangle,
   Lock,
   ChevronRight,
@@ -32,7 +30,6 @@ import {
 } from "lucide-react";
 
 export default function RehberPage() {
-  const t = useTranslations("dashboard");
   const [activeTab, setActiveTab] = useState<string>("baslangic");
   const [isFullscreenSunum, setIsFullscreenSunum] = useState<boolean>(false);
 

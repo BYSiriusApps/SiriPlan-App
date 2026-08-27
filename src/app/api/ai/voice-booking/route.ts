@@ -111,6 +111,24 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
             const staffId = args.staff_id || staffList?.[0]?.id;
             const serviceId = args.service_id || servicesList?.[0]?.id;
             const service = servicesList?.find((s) => s.id === serviceId);
+            if (body.parseOnly) {
+              return NextResponse.json({
+                actionTaken: "confirm_appointment",
+                parsed: {
+                  customer_name: args.customer_name || "",
+                  customer_phone: args.customer_phone || "",
+                  staff_id: staffId || "",
+                  staff_name: staffList?.find((s) => s.id === staffId)?.full_name || "",
+                  service_id: serviceId || "",
+                  service_name: service?.name || "",
+                  appointment_at: args.appointment_at || "",
+                  price: service?.price || 0,
+                  duration_minutes: service?.duration_minutes || 30,
+                  note: args.note || "",
+                },
+                response: `Randevu özet bilgileri alındı.`
+              });
+            }
 
             const { data: newAppt, error: apptErr } = await adminSupabase
               .from("appointments")

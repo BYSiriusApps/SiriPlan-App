@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -11,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Search, X, Star, Clock, TrendingUp, Plus, MessageCircle } from "lucide-react";
+import { ArrowLeft, Loader2, Search, X, Star, Clock, TrendingUp, Plus, MessageCircle, Mic, Check } from "lucide-react";
 import type { Staff, Service } from "@/types/database";
 import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { CustomerSearchField } from "@/components/dashboard/CustomerSearchField";
@@ -76,6 +77,13 @@ export default function YeniRandevuPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
   const [fromWaitlistId, setFromWaitlistId] = useState<string | null>(null);
+
+  // Voice states
+  const [isListening, setIsListening] = useState(false);
+  const [voiceSummary, setVoiceSummary] = useState<any | null>(null);
+  const [isConfirmingVoice, setIsConfirmingVoice] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const voiceTriggeredRef = useRef(false);
 
   useEffect(() => {
     setFavorites(getFavorites());
@@ -178,73 +186,250 @@ export default function YeniRandevuPage() {
     setSelectedServices((prev) => prev.filter((s) => s.id !== id));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function requestMicrophonePermission(): Promise<boolean> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop());
+      return true;
+    } catch (err) {
+      console.error("Microphone permission denied:", err);
+      return false;
+    }
+  }
+
+  const startVoiceConfirmation = useCallback(() => {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    recognition.lang = "tr-TR";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    recognition.onresult = async (event: any) => {
+      const transcript = event.results[0][0].transcript?.toLowerCase() || "";
+      if (transcript.includes("onay") || transcript.includes("evet") || transcript.includes("kaydet") || transcript.includes("tamam")) {
+        toast.success("Sesli onay alındı, kaydediliyor...");
+        await saveAppointment();
+      } else if (transcript.includes("iptal") || transcript.includes("vazgeç") || transcript.includes("hayır")) {
+        toast.info("İptal edildi.");
+        setIsConfirmingVoice(false);
+        setVoiceSummary(null);
+      } else {
+        toast.info(`Anlaşılmadı: "${transcript}". 'Onaylıyorum' veya 'İptal' diyebilirsiniz.`);
+      }
+    };
+
+    recognition.start();
+  }, [form, selectedServices, orgId, orgName, sendWaMessage, waTemplate, staff, orgAddress, orgLocationUrl, totalPrice, totalDuration, kvkkAttested, fromWaitlistId]);
+
+  const startVoiceBooking = useCallback(async () => {
+    const hasPermission = await requestMicrophonePermission();
+    if (!hasPermission) {
+      toast.error("Sesli komut için mikrofon izni gerekiyor. Lütfen cihaz ayarlarından izin verin.");
+      return;
+    }
+
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Tarayıcınız sesli komut özelliğini desteklemiyor.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    recognition.lang = "tr-TR";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceSummary(null);
+      setIsConfirmingVoice(false);
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = (e: any) => {
+      setIsListening(false);
+      if (e.error !== "no-speech") {
+        toast.error("Ses alınamadı. Mikrofon iznini kontrol edin.");
+      }
+    };
+
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    recognition.onresult = async (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      if (!transcript) return;
+
+      toast.loading("Sesiniz çözümleniyor...", { id: "voice-parsing" });
+      try {
+        const res = await fetch("/api/ai/voice-booking", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transcript, parseOnly: true }),
+        });
+        const data = await res.json();
+        toast.dismiss("voice-parsing");
+
+        if (data.actionTaken === "confirm_appointment" && data.parsed) {
+          const parsed = data.parsed;
+          setForm((f) => ({
+            ...f,
+            customer_name: parsed.customer_name || f.customer_name,
+            customer_phone: parsed.customer_phone || f.customer_phone,
+            staff_id: parsed.staff_id || f.staff_id,
+            note: parsed.note || f.note,
+          }));
+
+          if (parsed.service_id) {
+            const svc = services.find((s) => s.id === parsed.service_id);
+            if (svc) {
+              setSelectedServices([{
+                id: svc.id,
+                name: svc.name,
+                price: Number(svc.price),
+                duration_minutes: svc.duration_minutes
+              }]);
+            }
+          }
+
+          if (parsed.appointment_at) {
+            const dt = new Date(parsed.appointment_at);
+            if (!isNaN(dt.getTime())) {
+              const offset = dt.getTimezoneOffset();
+              const localDt = new Date(dt.getTime() - offset * 60 * 1000);
+              setForm((f) => ({
+                ...f,
+                appointment_at: localDt.toISOString().slice(0, 16),
+              }));
+            }
+          }
+
+          setVoiceSummary(parsed);
+          setIsConfirmingVoice(true);
+
+          setTimeout(() => {
+            startVoiceConfirmation();
+          }, 1000);
+        } else {
+          toast.error(data.response || "Bilgiler anlaşılamadı. Lütfen tekrar deneyin.");
+        }
+      } catch {
+        toast.dismiss("voice-parsing");
+        toast.error("Sesli analiz başarısız oldu.");
+      }
+    };
+
+    recognition.start();
+  }, [slotMinutes, staff, services, startVoiceConfirmation]);
+
+  // Auto-start voice booking if requested via URL params
+  useEffect(() => {
+    if (!dataLoading && !voiceTriggeredRef.current && typeof window !== "undefined") {
+      const qs = new URLSearchParams(window.location.search);
+      if (qs.get("voice") === "true") {
+        voiceTriggeredRef.current = true;
+        setTimeout(() => {
+          startVoiceBooking();
+        }, 500);
+      }
+    }
+  }, [dataLoading, startVoiceBooking]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch {}
+      }
+    };
+  }, []);
+
+  async function saveAppointment() {
     if (!form.staff_id || selectedServices.length === 0 || !form.appointment_at) {
-      return toast.error("Personel, en az bir hizmet ve tarih/saat zorunlu");
+      toast.error("Personel, en az bir hizmet ve tarih/saat zorunlu");
+      return false;
     }
 
     const [primaryService, ...extraServices] = selectedServices;
 
     setLoading(true);
-    const res = await fetch("/api/appointments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        customer_email: form.customer_email || undefined,
-        note: form.note || undefined,
-        org_id: orgId,
-        service_id: primaryService.id,
-        extra_services_json: extraServices,
-        total_price_override: totalPrice,
-        total_duration_override: totalDuration,
-        // Yerel saati ISO'ya çevir — raw "yyyy-MM-ddTHH:mm" gönderilirse
-        // Postgres UTC sanıp +3 saat kaydırıyordu (takvimde kayıp/yanlış saat).
-        appointment_at: new Date(form.appointment_at).toISOString(),
-        ...(kvkkAttested
-          ? {
-              kvkk_consent: true,
-              kvkk_notice_snapshot: "Müşteri sözlü/yazılı olarak personel huzurunda KVKK onayı verdi.",
-              kvkk_captured_via: "staff_attested",
-            }
-          : {}),
-      }),
-    });
-    setLoading(false);
+    try {
+      const res = await fetch("/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          customer_email: form.customer_email || undefined,
+          note: form.note || undefined,
+          org_id: orgId,
+          service_id: primaryService.id,
+          extra_services_json: extraServices,
+          total_price_override: totalPrice,
+          total_duration_override: totalDuration,
+          appointment_at: new Date(form.appointment_at).toISOString(),
+          ...(kvkkAttested
+            ? {
+                kvkk_consent: true,
+                kvkk_notice_snapshot: "Müşteri sözlü/yazılı olarak personel huzurunda KVKK onayı verdi.",
+                kvkk_captured_via: "staff_attested",
+              }
+            : {}),
+        }),
+      });
+      setLoading(false);
 
-    if (res.ok) {
-      toast.success("Randevu oluşturuldu");
+      if (res.ok) {
+        toast.success("Randevu oluşturuldu");
 
-      if (fromWaitlistId) {
-        fetch(`/api/waitlist/${fromWaitlistId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "booked" }),
-        }).catch(() => {});
+        if (fromWaitlistId) {
+          fetch(`/api/waitlist/${fromWaitlistId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "booked" }),
+          }).catch(() => {});
+        }
+
+        if (sendWaMessage && form.customer_phone) {
+          const text = renderWaTemplate(waTemplate, {
+            musteri: form.customer_name,
+            salon: orgName || "Salonumuz",
+            appointmentAt: form.appointment_at,
+            hizmet: selectedServices.map((s) => s.name).join(", "),
+            personel: staff.find((s) => s.id === form.staff_id)?.full_name,
+            address: orgAddress,
+            locationUrl: orgLocationUrl,
+          });
+          window.open(waMessageLink(form.customer_phone, text), "_blank", "noopener");
+        }
+
+        const apptDate = form.appointment_at.slice(0, 10);
+        router.push(`/dashboard/takvim?date=${apptDate}`);
+        return true;
+      } else {
+        const err = await res.json();
+        toast.error(typeof err.error === "string" ? err.error : "Randevu oluşturulamadı");
+        return false;
       }
-
-      // Otomatik WhatsApp mesajı: hazır metinle müşterinin sohbetini aç
-      if (sendWaMessage && form.customer_phone) {
-        const text = renderWaTemplate(waTemplate, {
-          musteri: form.customer_name,
-          salon: orgName || "Salonumuz",
-          appointmentAt: form.appointment_at,
-          hizmet: selectedServices.map((s) => s.name).join(", "),
-          personel: staff.find((s) => s.id === form.staff_id)?.full_name,
-          address: orgAddress,
-          locationUrl: orgLocationUrl,
-        });
-        window.open(waMessageLink(form.customer_phone, text), "_blank", "noopener");
-      }
-
-      // Takvime yönlendir ve haftayı randevu tarihine göre aç
-      const apptDate = form.appointment_at.slice(0, 10);
-      router.push(`/dashboard/takvim?date=${apptDate}`);
-    } else {
-      const err = await res.json();
-      toast.error(typeof err.error === "string" ? err.error : "Randevu oluşturulamadı");
+    } catch {
+      toast.error("Randevu oluşturulamadı");
+      setLoading(false);
+      return false;
     }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await saveAppointment();
   }
 
   const now = new Date();
@@ -263,8 +448,21 @@ export default function YeniRandevuPage() {
       </div>
 
       <Card className="kpi-tile border-0 shadow-none">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("apptNew.cardTitle")}</CardTitle>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={startVoiceBooking}
+            className={cn(
+              "gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5 shrink-0",
+              isListening ? "border-red-500 text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20" : ""
+            )}
+          >
+            <Mic className="h-3.5 w-3.5" />
+            Konuşarak Doldur
+          </Button>
         </CardHeader>
         <CardContent>
           {dataLoading ? (
@@ -273,6 +471,78 @@ export default function YeniRandevuPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              
+              {/* Voice Listening Alert */}
+              {isListening && !isConfirmingVoice && (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl p-3.5 flex items-center justify-between animate-pulse">
+                  <span className="text-xs font-semibold flex items-center gap-2">
+                    <Mic className="h-4 w-4 text-red-500 animate-bounce" />
+                    Dinleniyor... (Ör: "Ahmet Yılmaz yarın 15:30 Saç Kesimi")
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    onClick={() => {
+                      if (recognitionRef.current) recognitionRef.current.abort();
+                      setIsListening(false);
+                    }}
+                    className="h-7 px-2 text-xs hover:bg-red-500/20 text-red-600"
+                  >
+                    İptal
+                  </Button>
+                </div>
+              )}
+
+              {/* Voice Confirmation Box */}
+              {isConfirmingVoice && voiceSummary && (
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-3">
+                  <h3 className="text-sm font-semibold flex items-center gap-2 text-primary">
+                    <Check className="h-4 w-4" />
+                    Randevu Bilgilerini Onaylayın
+                  </h3>
+                  <div className="text-xs space-y-1.5 text-muted-foreground">
+                    <p><strong className="text-foreground">Müşteri:</strong> {voiceSummary.customer_name || "Belirtilmedi"}</p>
+                    {voiceSummary.customer_phone && <p><strong className="text-foreground">Telefon:</strong> {voiceSummary.customer_phone}</p>}
+                    <p><strong className="text-foreground">Personel:</strong> {voiceSummary.staff_name || "Belirtilmedi"}</p>
+                    <p><strong className="text-foreground">Hizmet:</strong> {voiceSummary.service_name || "Belirtilmedi"}</p>
+                    <p><strong className="text-foreground">Tarih/Saat:</strong> {voiceSummary.appointment_at ? new Date(voiceSummary.appointment_at).toLocaleString("tr-TR") : "Belirtilmedi"}</p>
+                    {voiceSummary.note && <p><strong className="text-foreground">Not:</strong> {voiceSummary.note}</p>}
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      size="sm"
+                      type="button"
+                      onClick={() => {
+                        setIsConfirmingVoice(false);
+                        setVoiceSummary(null);
+                        saveAppointment();
+                      }}
+                      className="flex-1"
+                    >
+                      Onayla ve Kaydet
+                    </Button>
+                    <Button
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setIsConfirmingVoice(false);
+                        setVoiceSummary(null);
+                      }}
+                      className="flex-1"
+                    >
+                      Düzenle / İptal
+                    </Button>
+                  </div>
+                  {isListening && (
+                    <p className="text-[10px] text-center text-red-500 animate-pulse font-medium">
+                      🎙️ 'Onaylıyorum' veya 'İptal' diyerek sesle kontrol edebilirsiniz.
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* Customer */}
               <div className="space-y-3 pb-3 border-b">
                 <p className="text-sm font-medium text-muted-foreground">Müşteri Bilgileri</p>

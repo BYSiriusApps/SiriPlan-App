@@ -127,10 +127,12 @@ export default async function TakvimPage({
 
   const today = todayInIstanbul;
 
-  // Personel rolündeki kullanıcı yalnızca kendi randevularını görür/filtreler
-  const lockedStaffId = member.role === "staff" ? member.staff_id : null;
-
   const settingsJson = (member.organizations?.settings_json ?? {}) as Record<string, unknown>;
+  const staffAllAppointments = settingsJson.staff_all_appointments !== false;
+
+  // Personel rolündeki kullanıcı yalnızca kendi randevularını görür/filtreler (yetki kapalıysa)
+  const lockedStaffId = member.role === "staff" && !staffAllAppointments ? member.staff_id : null;
+
   const slotMinutes = Number(settingsJson.booking_slot_minutes) || 15;
 
   return (

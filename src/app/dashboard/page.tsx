@@ -11,7 +11,7 @@ import {
 import { tr, enUS, ru, ar } from "date-fns/locale";
 import {
   Calendar, MessageCircle, Megaphone, Star, ChevronRight, Plus,
-  Clock, BarChart3, Wallet, Users, Scissors,
+  Clock, BarChart3, Wallet, Users, Scissors, Mic,
 } from "lucide-react";
 import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
 import { istanbulTimeStr, istanbulDateStr, DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
@@ -98,6 +98,8 @@ export default async function DashboardPage() {
 
   const isStaff = member.role === "staff";
   const staffId = member.staff_id;
+  const settingsJson = (member.organizations?.settings_json ?? {}) as Record<string, unknown>;
+  const staffAllAppointments = settingsJson.staff_all_appointments !== false;
 
   let todayQuery = supabase
     .from("appointments")
@@ -141,7 +143,7 @@ export default async function DashboardPage() {
     .lte("appointment_at", monthEnd)
     .eq("status", "tamamlandi");
 
-  if (isStaff && staffId) {
+  if (isStaff && staffId && !staffAllAppointments) {
     todayQuery = todayQuery.eq("staff_id", staffId);
     nextQuery = nextQuery.eq("staff_id", staffId);
     weekQuery = weekQuery.eq("staff_id", staffId);
@@ -891,13 +893,22 @@ export default async function DashboardPage() {
         <DashboardWidgetGrid orgId={orgId} widgets={displayWidgets} initialPrefs={dashboardWidgetPrefs} />
       </div>
 
-      {/* ── Sabit "+ Randevu" düğmesi (mobil kullanım için) ── */}
-      <Link
-        href="/dashboard/randevular/yeni"
-        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-1.5 px-4 py-3 rounded-full font-bold text-sm shadow-2xl hover:scale-105 transition-transform bg-primary text-primary-foreground neon-primary"
-      >
-        <Plus className="h-4 w-4" /> {t("homePage.newApptButton")}
-      </Link>
+      {/* ── Sabit "+ Randevu" ve Sesli Arama düğmesi (mobil kullanım için) ── */}
+      <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-2">
+        <Link
+          href="/dashboard/randevular/yeni?voice=true"
+          className="flex items-center justify-center w-12 h-12 rounded-full font-bold shadow-2xl hover:scale-105 transition-transform bg-red-600 text-white border border-red-500 animate-pulse"
+          title="Sesle Randevu Oluştur"
+        >
+          <Mic className="h-5 w-5 animate-bounce" />
+        </Link>
+        <Link
+          href="/dashboard/randevular/yeni"
+          className="flex items-center gap-1.5 px-4 py-3 rounded-full font-bold text-sm shadow-2xl hover:scale-105 transition-transform bg-primary text-primary-foreground neon-primary"
+        >
+          <Plus className="h-4 w-4" /> {t("homePage.newApptButton")}
+        </Link>
+      </div>
     </div>
   );
 }

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Search, User, Scissors, Clock, Phone, Star, Loader2, X, Check, MessageCircle, Shuffle } from "lucide-react";
+import { Plus, Search, User, Scissors, Clock, Phone, Star, Loader2, X, Check, MessageCircle, Shuffle, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { DateTimeSlotPicker, nextSlot } from "@/components/dashboard/DateTimeSlotPicker";
@@ -55,6 +55,12 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   const td = useTranslations("dashboard");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Voice states
+  const [isListening, setIsListening] = useState(false);
+  const [voiceSummary, setVoiceSummary] = useState<any | null>(null);
+  const [isConfirmingVoice, setIsConfirmingVoice] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
   // Form state
   const [selectedStaffId, setSelectedStaffId] = useState(preselectedStaffId ?? "");
@@ -155,13 +161,152 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
   const selectedService = services.find((s) => s.id === selectedServiceId);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!selectedStaffId) { toast.error(t("errorStaffRequired")); return; }
-    if (!selectedServiceId) { toast.error(t("errorServiceRequired")); return; }
-    if (!customerName.trim()) { toast.error(t("errorNameRequired")); return; }
-    if (!customerPhone.trim()) { toast.error(t("errorPhoneRequired")); return; }
-    if (!appointmentAt) { toast.error(t("errorDateRequired")); return; }
+  // Clean up voice on close
+  useEffect(() => {
+    if (!open) {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch {}
+      }
+      setIsListening(false);
+      setIsConfirmingVoice(false);
+      setVoiceSummary(null);
+    }
+  }, [open]);
+
+  async function requestMicrophonePermission(): Promise<boolean> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop());
+      return true;
+    } catch (err) {
+      console.error("Microphone permission denied:", err);
+      return false;
+    }
+  }
+
+  const startVoiceConfirmation = useCallback(() => {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    recognition.lang = "tr-TR";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    recognition.onresult = async (event: any) => {
+      const transcript = event.results[0][0].transcript?.toLowerCase() || "";
+      if (transcript.includes("onay") || transcript.includes("evet") || transcript.includes("kaydet") || transcript.includes("tamam")) {
+        toast.success("Sesli onay alındı, kaydediliyor...");
+        await saveAppointment();
+      } else if (transcript.includes("iptal") || transcript.includes("vazgeç") || transcript.includes("hayır")) {
+        toast.info("İptal edildi.");
+        setIsConfirmingVoice(false);
+        setVoiceSummary(null);
+      } else {
+        toast.info(`Anlaşılmadı: "${transcript}". 'Onaylıyorum' veya 'İptal' diyebilirsiniz.`);
+      }
+    };
+
+    recognition.start();
+  }, [customerName, customerPhone, selectedStaffId, selectedServiceId, appointmentAt, note]);
+
+  const startVoiceBooking = useCallback(async () => {
+    const hasPermission = await requestMicrophonePermission();
+    if (!hasPermission) {
+      toast.error("Sesli komut için mikrofon izni gerekiyor. Lütfen cihaz ayarlarından izin verin.");
+      return;
+    }
+
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Tarayıcınız sesli komut özelliğini desteklemiyor.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    recognition.lang = "tr-TR";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceSummary(null);
+      setIsConfirmingVoice(false);
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = (e: any) => {
+      setIsListening(false);
+      if (e.error !== "no-speech") {
+        toast.error("Ses alınamadı. Mikrofon iznini kontrol edin.");
+      }
+    };
+
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    recognition.onresult = async (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      if (!transcript) return;
+
+      toast.loading("Sesiniz çözümleniyor...", { id: "voice-parsing" });
+      try {
+        const res = await fetch("/api/ai/voice-booking", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transcript, parseOnly: true }),
+        });
+        const data = await res.json();
+        toast.dismiss("voice-parsing");
+
+        if (data.actionTaken === "confirm_appointment" && data.parsed) {
+          const parsed = data.parsed;
+          if (parsed.customer_name) setCustomerName(parsed.customer_name);
+          if (parsed.customer_phone) setCustomerPhone(parsed.customer_phone);
+          if (parsed.staff_id) setSelectedStaffId(parsed.staff_id);
+          if (parsed.service_id) setSelectedServiceId(parsed.service_id);
+          if (parsed.appointment_at) {
+            const dt = new Date(parsed.appointment_at);
+            if (!isNaN(dt.getTime())) {
+              const offset = dt.getTimezoneOffset();
+              const localDt = new Date(dt.getTime() - offset * 60 * 1000);
+              setAppointmentAt(localDt.toISOString().slice(0, 16));
+            }
+          }
+          if (parsed.note) setNote(parsed.note);
+
+          setVoiceSummary(parsed);
+          setIsConfirmingVoice(true);
+
+          setTimeout(() => {
+            startVoiceConfirmation();
+          }, 1000);
+        } else {
+          toast.error(data.response || "Bilgiler anlaşılamadı. Lütfen tekrar deneyin.");
+        }
+      } catch {
+        toast.dismiss("voice-parsing");
+        toast.error("Sesli analiz başarısız oldu.");
+      }
+    };
+
+    recognition.start();
+  }, [slotMinutes, staff, services, startVoiceConfirmation]);
+
+  async function saveAppointment() {
+    if (!selectedStaffId) { toast.error(t("errorStaffRequired")); return false; }
+    if (!selectedServiceId) { toast.error(t("errorServiceRequired")); return false; }
+    if (!customerName.trim()) { toast.error(t("errorNameRequired")); return false; }
+    if (!customerPhone.trim()) { toast.error(t("errorPhoneRequired")); return false; }
+    if (!appointmentAt) { toast.error(t("errorDateRequired")); return false; }
 
     const isAutoAssign = selectedStaffId === ANY_STAFF;
 
@@ -186,10 +331,9 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
       const json = await res.json();
       if (!res.ok) {
         toast.error(json.error ?? t("errorCreateFailed"));
-        return;
+        return false;
       }
 
-      // "Farketmez" seçildiyse backend'in gerçekte atadığı personeli response'tan al.
       const resolvedStaffId = (json.appointment?.staff_id as string | undefined) ?? selectedStaffId;
       const resolvedStaffName = staff.find((s) => s.id === resolvedStaffId)?.full_name;
 
@@ -199,7 +343,6 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           : t("successCreated")
       );
 
-      // Hazır mesajla müşterinin WhatsApp sohbetini aç (tek dokunuşla gönderilir)
       if (sendWaMessage && customerPhone.trim()) {
         const text = renderWaTemplate(waTemplate, {
           musteri: customerName.trim(),
@@ -215,29 +358,110 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
       setOpen(false);
       router.refresh();
+      return true;
+    } catch {
+      toast.error(t("errorCreateFailed"));
+      return false;
     } finally {
       setLoading(false);
     }
   }
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await saveAppointment();
+  }
+
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger render={
-        <Button size="sm" className="gap-1.5" />
-      }>
-        <Plus className="h-4 w-4" />
-        {t("addButton")}
-      </SheetTrigger>
+    <div className="flex items-center gap-1.5">
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger render={
+          <Button size="sm" className="gap-1.5" />
+        }>
+          <Plus className="h-4 w-4" />
+          {t("addButton")}
+        </SheetTrigger>
 
-      <SheetContent side="right" className="overflow-y-auto p-0">
-        <SheetHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10">
-          <SheetTitle className="flex items-center gap-2">
-            <Plus className="h-4 w-4 text-primary" />
-            {t("sheetTitle")}
-          </SheetTitle>
-        </SheetHeader>
+        <SheetContent side="right" className="overflow-y-auto p-0">
+          <SheetHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10">
+            <SheetTitle className="flex items-center gap-2">
+              <Plus className="h-4 w-4 text-primary" />
+              {t("sheetTitle")}
+            </SheetTitle>
+          </SheetHeader>
 
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-6">
+          <form onSubmit={handleSubmit} className="px-6 py-5 space-y-6">
+
+            {/* Voice Listening Alert */}
+            {isListening && !isConfirmingVoice && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl p-3.5 flex items-center justify-between animate-pulse">
+                <span className="text-xs font-semibold flex items-center gap-2">
+                  <Mic className="h-4 w-4 text-red-500 animate-bounce" />
+                  Dinleniyor... (Ör: "Ahmet Yılmaz yarın 15:30 Saç Kesimi")
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  onClick={() => {
+                    if (recognitionRef.current) recognitionRef.current.abort();
+                    setIsListening(false);
+                  }}
+                  className="h-7 px-2 text-xs hover:bg-red-500/20 text-red-600"
+                >
+                  İptal
+                </Button>
+              </div>
+            )}
+
+            {/* Voice Confirmation Box */}
+            {isConfirmingVoice && voiceSummary && (
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-3">
+                <h3 className="text-sm font-semibold flex items-center gap-2 text-primary">
+                  <Check className="h-4 w-4" />
+                  Randevu Bilgilerini Onaylayın
+                </h3>
+                <div className="text-xs space-y-1.5 text-muted-foreground">
+                  <p><strong className="text-foreground">Müşteri:</strong> {voiceSummary.customer_name || "Belirtilmedi"}</p>
+                  {voiceSummary.customer_phone && <p><strong className="text-foreground">Telefon:</strong> {voiceSummary.customer_phone}</p>}
+                  <p><strong className="text-foreground">Personel:</strong> {voiceSummary.staff_name || "Belirtilmedi"}</p>
+                  <p><strong className="text-foreground">Hizmet:</strong> {voiceSummary.service_name || "Belirtilmedi"}</p>
+                  <p><strong className="text-foreground">Tarih/Saat:</strong> {voiceSummary.appointment_at ? new Date(voiceSummary.appointment_at).toLocaleString("tr-TR") : "Belirtilmedi"}</p>
+                  {voiceSummary.note && <p><strong className="text-foreground">Not:</strong> {voiceSummary.note}</p>}
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button
+                    size="sm"
+                    type="button"
+                    onClick={() => {
+                      setIsConfirmingVoice(false);
+                      setVoiceSummary(null);
+                      saveAppointment();
+                    }}
+                    className="flex-1"
+                  >
+                    Onayla ve Kaydet
+                  </Button>
+                  <Button
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsConfirmingVoice(false);
+                      setVoiceSummary(null);
+                    }}
+                    className="flex-1"
+                  >
+                    Düzenle / İptal
+                  </Button>
+                </div>
+                {isListening && (
+                  <p className="text-[10px] text-center text-red-500 animate-pulse font-medium">
+                    🎙️ 'Onaylıyorum' veya 'İptal' diyerek sesle kontrol edebilirsiniz.
+                  </p>
+                )}
+              </div>
+            )}
 
           {/* ── Staff picker ── */}
           <div className="space-y-2">
@@ -476,7 +700,28 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
             </Button>
           </div>
         </form>
-      </SheetContent>
-    </Sheet>
+        </SheetContent>
+      </Sheet>
+
+      {/* Voice Booking Mic Button next to the trigger */}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => {
+          setOpen(true);
+          setTimeout(() => {
+            startVoiceBooking();
+          }, 200);
+        }}
+        className={cn(
+          "h-9 w-9 p-0 shrink-0 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary transition-all",
+          isListening ? "border-red-500 text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20" : ""
+        )}
+        title="Sesle Randevu Oluştur"
+      >
+        <Mic className="h-4 w-4" />
+      </Button>
+    </div>
   );
 }
