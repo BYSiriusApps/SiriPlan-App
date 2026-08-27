@@ -51,25 +51,44 @@ export function OrgClosedDaysCard() {
     else toast.error("Silinemedi");
   }
 
+  const isTr = typeof window !== "undefined" && !window.location.pathname.startsWith("/en") && !window.location.pathname.startsWith("/ru") && !window.location.pathname.startsWith("/ar"); // Fallback check or active settings
+  // Simple path parser for locale in client components
+  const path = typeof window !== "undefined" ? window.location.pathname : "";
+  const isEn = path.startsWith("/en");
+  const isRu = path.startsWith("/ru");
+  const isAr = path.startsWith("/ar");
+  const isTrLocale = !isEn && !isRu && !isAr;
+
+  const tStr = (key: string) => {
+    if (key === "title") return isTrLocale ? "İşletme Geneli Kapalı Günler" : isEn ? "Business-Wide Closed Days" : isRu ? "Выходные дни предприятия" : "الأيام المغلقة على مستوى العمل";
+    if (key === "desc") return isTrLocale ? "Resmi tatil gibi tüm personeli etkileyen kapalı günler. Bu tarihlerde hiçbir personel için online randevu alınamaz." : isEn ? "Closed days affecting all staff, such as official holidays. No online appointments can be booked on these dates." : isRu ? "Выходные дни, затрагивающие весь персонал, например официальные праздники. Онлайн-запись на эти даты невозможна." : "أيام مغلقة تؤثر على جميع الموظفين، مثل العطلات الرسمية. لا يمكن حجز مواعيد عبر الإنترنت في هذه التواريخ.";
+    if (key === "starts") return isTrLocale ? "Başlangıç" : isEn ? "Start Date" : isRu ? "Начало" : "البداية";
+    if (key === "ends") return isTrLocale ? "Bitiş" : isEn ? "End Date" : isRu ? "Окончание" : "النهاية";
+    if (key === "note") return isTrLocale ? "Not (opsiyonel)" : isEn ? "Note (optional)" : isRu ? "Примечание (опционально)" : "ملاحظة (اختياري)";
+    if (key === "placeholder") return isTrLocale ? "Resmi tatil..." : isEn ? "Official holiday..." : isRu ? "Официальный праздник..." : "عطلة رسمية...";
+    if (key === "addBtn") return isTrLocale ? "Kapalı Gün Ekle" : isEn ? "Add Closed Day" : isRu ? "Добавить выходной" : "إضافة يوم مغلق";
+    return "";
+  };
+
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <CalendarX className="h-4 w-4 text-primary" />
-          İşletme Geneli Kapalı Günler
+          {tStr("title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-xs text-muted-foreground -mt-1">
-          Resmi tatil gibi tüm personeli etkileyen kapalı günler. Bu tarihlerde hiçbir personel için online randevu alınamaz.
+          {tStr("desc")}
         </p>
 
         {days.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {days.map((d) => (
               <span key={d.id} className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-muted">
-                {format(new Date(d.starts_on + "T12:00:00"), "d MMM", { locale: tr })}
-                {d.ends_on !== d.starts_on && ` – ${format(new Date(d.ends_on + "T12:00:00"), "d MMM", { locale: tr })}`}
+                {format(new Date(d.starts_on + "T12:00:00"), "d MMM", { locale: isTrLocale ? tr : undefined })}
+                {d.ends_on !== d.starts_on && ` – ${format(new Date(d.ends_on + "T12:00:00"), "d MMM", { locale: isTrLocale ? tr : undefined })}`}
                 {d.reason ? ` · ${d.reason}` : ""}
                 <button type="button" onClick={() => handleDelete(d.id)} className="text-muted-foreground hover:text-red-600">
                   <Trash2 className="h-3 w-3" />
@@ -81,20 +100,20 @@ export function OrgClosedDaysCard() {
 
         <form onSubmit={handleAdd} className="grid grid-cols-2 gap-2 pt-1">
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Başlangıç</Label>
+            <Label className="text-xs text-muted-foreground">{tStr("starts")}</Label>
             <Input type="date" value={form.starts_on} onChange={(e) => setForm((f) => ({ ...f, starts_on: e.target.value }))} />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Bitiş</Label>
+            <Label className="text-xs text-muted-foreground">{tStr("ends")}</Label>
             <Input type="date" value={form.ends_on} onChange={(e) => setForm((f) => ({ ...f, ends_on: e.target.value }))} />
           </div>
           <div className="col-span-2 space-y-1">
-            <Label className="text-xs text-muted-foreground">Not (opsiyonel)</Label>
-            <Input value={form.reason} onChange={(e) => setForm((f) => ({ ...f, reason: e.target.value }))} placeholder="Resmi tatil..." />
+            <Label className="text-xs text-muted-foreground">{tStr("note")}</Label>
+            <Input value={form.reason} onChange={(e) => setForm((f) => ({ ...f, reason: e.target.value }))} placeholder={tStr("placeholder")} />
           </div>
           <Button type="submit" size="sm" variant="outline" className="col-span-2" disabled={adding}>
             {adding ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
-            Kapalı Gün Ekle
+            {tStr("addBtn")}
           </Button>
         </form>
       </CardContent>

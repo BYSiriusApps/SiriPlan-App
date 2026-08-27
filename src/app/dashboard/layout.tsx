@@ -78,6 +78,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               orgName={org.name}
               plan={org.plan}
               role={role}
+              permissionsJson={member?.permissions_json}
               trialEndsAt={org.trial_ends_at ?? undefined}
               activeOrgId={org.id}
               memberships={memberships}
@@ -109,7 +110,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
           {/* Mobile bottom navigation */}
           <div className="print:hidden">
-            <MobileNav role={role} orgSlug={org.slug} plan={org.plan} />
+            <MobileNav role={role} permissionsJson={member?.permissions_json} orgSlug={org.slug} plan={org.plan} />
           </div>
 
           <div className="print:hidden">

@@ -1367,7 +1367,8 @@
       "manage_campaigns": "يمكنه إدارة الحملات",
       "create_appointments": "يمكنه إنشاء المواعيد",
       "edit_appointments": "يمكنه تعديل المواعيد",
-      "cancel_appointments": "يمكنه إلغاء المواعيد"
+      "cancel_appointments": "يمكنه إلغاء المواعيد",
+      "manage_settings": "يمكنه إدارة الإعدادات"
     },
     "staffPermissions": {
       "cardTitle": "صلاحيات الموظفين",

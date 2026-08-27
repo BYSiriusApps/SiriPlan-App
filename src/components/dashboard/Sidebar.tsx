@@ -18,6 +18,7 @@ import { LanguagePicker } from "@/components/layout/LanguagePicker";
 import { LogoutButton } from "@/components/dashboard/LogoutButton";
 import { GlobalSearch } from "@/components/dashboard/GlobalSearch";
 import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
+import { hasPermission } from "@/lib/permissions";
 
 // roles: "owner" | "manager" | "staff"
 // minRole: who can see this item (owner > manager > staff)
@@ -38,7 +39,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/veri-gocu",     icon: Import,          tKey: "dataMigration",  minRole: "manager" },
   { href: "/dashboard/ayarlar",       icon: Settings,        tKey: "settings",       minRole: "manager" },
   { href: "/dashboard/rehber",        icon: HelpCircle,      tKey: "guide",          minRole: "staff"   },
-  { href: "/dashboard/abonelik",      icon: CreditCard,      tKey: "subscription",   minRole: "owner"   },
+  { href: "/dashboard/abonelik",      icon: CreditCard,      tKey: "subscription",   minRole: "manager" },
 ];
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
@@ -63,6 +64,7 @@ interface SidebarProps {
   orgName?: string;
   plan?: string;
   role?: string;
+  permissionsJson?: Record<string, boolean> | null;
   trialEndsAt?: string;
   activeOrgId?: string;
   memberships?: { org_id: string; role: string; org_name: string }[];
@@ -73,6 +75,7 @@ export function Sidebar({
   orgName = "Salonunuz",
   plan = "trial",
   role = "staff",
+  permissionsJson = null,
   trialEndsAt,
   activeOrgId,
   memberships = [],
@@ -92,9 +95,12 @@ export function Sidebar({
       : t("trial");
   const planColor = PLAN_COLORS[plan] ?? PLAN_COLORS.trial;
 
-  const visibleItems = NAV_ITEMS.filter(item =>
-    canSee(role, item.minRole) && (!("planRequired" in item) || item.planRequired === plan)
-  );
+  const visibleItems = NAV_ITEMS.filter(item => {
+    if (item.href === "/dashboard/ayarlar") {
+      return hasPermission({ role, permissions_json: permissionsJson }, "manage_settings");
+    }
+    return canSee(role, item.minRole) && (!("planRequired" in item) || item.planRequired === plan);
+  });
 
   return (
     <aside className="w-64 min-h-screen flex flex-col bg-sidebar border-r border-sidebar-border">
@@ -201,7 +207,10 @@ export function Sidebar({
             className="text-[10px] text-sidebar-foreground/40 hover:text-primary font-medium tracking-wide flex items-center gap-1 transition-colors cursor-pointer"
           >
             <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-            <span>Yasal & Telif</span>
+            <span>{t("legalModal.title").includes("Notice") ? "Legal & Copyright" : 
+                    t("legalModal.title").includes("Bildirimi") ? "Yasal & Telif" :
+                    t("legalModal.title").includes("Права") ? "Законы и Права" :
+                    "قانوني وحقوق النشر"}</span>
           </button>
           <div className="flex items-center gap-1">
             <LanguagePicker />

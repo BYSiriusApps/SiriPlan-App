@@ -1367,7 +1367,8 @@
       "manage_campaigns": "Kampanyaları yönetebilsin",
       "create_appointments": "Randevu oluşturabilsin",
       "edit_appointments": "Randevu düzenleyebilsin",
-      "cancel_appointments": "Randevu iptal edebilsin"
+      "cancel_appointments": "Randevu iptal edebilsin",
+      "manage_settings": "Ayarları yönetebilsin"
     },
     "staffPermissions": {
       "cardTitle": "Personel Yetkileri",

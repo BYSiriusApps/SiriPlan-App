@@ -2,12 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "./lib/supabase/middleware";
 import { getSubscriptionLock } from "./lib/subscription-lock";
+import { hasPermission } from "./lib/permissions";
 import { MOBILE_APP_COOKIE, MOBILE_APP_PARAM, isMobileAppUserAgent, isMobileAppCookieValue } from "./lib/mobile-app-shared";
 import { CSP_NONCE_HEADER, buildCsp, buildCandidateCsp, generateNonce, isNonceEnabled, isReportOnlyEnabled, pathNeedsNonce } from "./lib/csp";
 
 // Routes that require at minimum "manager" role
 const MANAGER_ROUTES = [
   "/dashboard/ayarlar",
+  "/dashboard/abonelik",
   "/dashboard/kampanyalar",
   "/dashboard/raporlar",
   "/dashboard/gelir-gider",
@@ -18,7 +20,6 @@ const MANAGER_ROUTES = [
 
 // Routes that require "owner" role
 const OWNER_ROUTES = [
-  "/dashboard/abonelik",
 ];
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
@@ -373,18 +374,25 @@ async function proxyInner(request: NextRequest, nonce: string | null) {
 
   if (!isDashboardOrAdmin) return sessionResponse;
 
-  // Role-based access control for dashboard routes
-  const requiredRank = OWNER_ROUTES.some((r) => pathname.startsWith(r))
-    ? 2
-    : MANAGER_ROUTES.some((r) => pathname.startsWith(r))
-    ? 1
-    : 0;
-
-  if (requiredRank > 0) {
-    const member = await resolveMembership("role, org_id");
-    const userRank = ROLE_RANK[(member?.role as string) ?? "staff"] ?? 0;
-    if (userRank < requiredRank) {
+  if (pathname.startsWith("/dashboard/ayarlar")) {
+    const member = await resolveMembership("role, org_id, permissions_json");
+    if (!member || !hasPermission(member as any, "manage_settings")) {
       return NextResponse.redirect(new URL("/dashboard?forbidden=1", request.url));
+    }
+  } else {
+    // Role-based access control for dashboard routes
+    const requiredRank = OWNER_ROUTES.some((r) => pathname.startsWith(r))
+      ? 2
+      : MANAGER_ROUTES.some((r) => pathname.startsWith(r))
+      ? 1
+      : 0;
+
+    if (requiredRank > 0) {
+      const member = await resolveMembership("role, org_id");
+      const userRank = ROLE_RANK[(member?.role as string) ?? "staff"] ?? 0;
+      if (userRank < requiredRank) {
+        return NextResponse.redirect(new URL("/dashboard?forbidden=1", request.url));
+      }
     }
   }
 

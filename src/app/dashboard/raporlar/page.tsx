@@ -72,12 +72,30 @@ export default async function RaporlarPage({
   const nextDay = format(addDays(reportDay, 1), "yyyy-MM-dd");
   const isToday = dayParam === format(now, "yyyy-MM-dd");
 
+  const isTr = t("guide").includes("Kılavuzu");
+  const isEn = t("guide").includes("User Guide");
+  const isRu = t("guide").includes("Руководство");
+
+  const getRepText = (key: string) => {
+    if (key === "submit") return isTr ? "Getir" : isEn ? "Fetch" : isRu ? "Получить" : "عرض";
+    if (key === "todayBadge") return isTr ? " (bugün)" : isEn ? " (today)" : isRu ? " (сегодня)" : " (اليوم)";
+    if (key === "emptyDay") return isTr ? "Bu günde randevu kaydı yok" : isEn ? "No appointment records for this day" : isRu ? "Нет записей о приемах на этот день" : "لا توجد سجلات مواعيد لهذا اليوم";
+    return "";
+  };
+
+  const getFormattedDate = (date: Date) => {
+    const localeStr = isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG";
+    return date.toLocaleDateString(localeStr, { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+  };
+
   // Last 6 months stats
   const monthlyStats = await Promise.all(
     Array.from({ length: 6 }, (_, i) => {
       const d = subMonths(now, i);
       const start = startOfMonth(d).toISOString();
       const end = endOfMonth(d).toISOString();
+      const localeStr = isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG";
+      const monthLabel = d.toLocaleDateString(localeStr, { month: "short", year: "numeric" });
       return supabase
         .from("appointments")
         .select("price, tip, status")
@@ -86,7 +104,7 @@ export default async function RaporlarPage({
         .lte("appointment_at", end)
         .neq("status", "iptal")
         .then(({ data }) => ({
-          month: format(d, "MMM yyyy", { locale: tr }),
+          month: monthLabel,
           revenue: (data || []).filter((a) => a.status === "tamamlandi").reduce((s, a) => s + Number(a.price) + Number(a.tip || 0), 0),
           total: (data || []).length,
           completed: (data || []).filter((a) => a.status === "tamamlandi").length,
@@ -175,7 +193,7 @@ export default async function RaporlarPage({
               <CalendarCheck className="h-4 w-4 text-primary" />
               {t("reportsPage.daySummary")}
               <span className="text-sm font-normal text-muted-foreground capitalize">
-                — {format(reportDay, "d MMMM yyyy, EEEE", { locale: tr })}{isToday ? " (bugün)" : ""}
+                — {getFormattedDate(reportDay)}{isToday ? getRepText("todayBadge") : ""}
               </span>
             </CardTitle>
             <div className="flex items-center gap-1.5">

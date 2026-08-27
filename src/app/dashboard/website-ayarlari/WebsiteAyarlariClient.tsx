@@ -100,6 +100,10 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     setOrg((prev) => ({ ...prev, [field]: value }));
   }
 
+  const isTr = t("guide").includes("Kılavuzu");
+  const isEn = t("guide").includes("User Guide");
+  const isRu = t("guide").includes("Руководство");
+
   async function handleSave() {
     setSaving(true);
     const supabase = createClient();
@@ -114,28 +118,33 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
 
     let { error } = await supabase
       .from("organizations")
+      .select("website_layout")
+      .eq("id", org.id); // Check column beforehand silently or proceed with layout fallback
+    
+    let dbError;
+    const { error: primaryErr } = await supabase
+      .from("organizations")
       .update({ ...base, website_layout: layout })
       .eq("id", org.id);
+    dbError = primaryErr;
 
-    // website_layout migration'ı henüz uygulanmadıysa TÜM kayıt düşerdi
-    // (renk, adres, tanıtım yazısı dahil). Şablon dışındaki ayarlar kaydedilsin,
-    // eksik olan tek şey açıkça söylensin.
     const layoutColumnMissing =
-      !!error && (error.code === "42703" || error.code === "PGRST204" || /website_layout/.test(error.message));
+      !!dbError && (dbError.code === "42703" || dbError.code === "PGRST204" || /website_layout/.test(dbError.message));
     if (layoutColumnMissing) {
-      ({ error } = await supabase.from("organizations").update(base).eq("id", org.id));
-      if (!error) {
+      const { error: fallbackErr } = await supabase.from("organizations").update(base).eq("id", org.id);
+      dbError = fallbackErr;
+      if (!dbError) {
         setSaving(false);
-        toast.warning("Ayarlar kaydedildi, ancak şablon seçimi kaydedilemedi — website_layout migration'ı henüz uygulanmamış.");
+        toast.warning(isTr ? "Ayarlar kaydedildi, ancak şablon seçimi kaydedilemedi — website_layout migration'ı henüz uygulanmamış." : isEn ? "Settings saved, but layout selection could not be saved — website_layout migration has not been applied yet." : isRu ? "Настройки сохранены, но шаблон не сохранен — миграция website_layout еще не применена." : "تم حفظ الإعدادات، ولكن تعذر حفظ اختيار القالب — لم يتم تطبيق ترحيل website_layout بعد.");
         return;
       }
     }
 
     setSaving(false);
-    if (error) {
-      toast.error("Kayıt başarısız: " + error.message);
+    if (dbError) {
+      toast.error((isTr ? "Kayıt başarısız: " : isEn ? "Save failed: " : isRu ? "Ошибка сохранения: " : "فشل الحفظ: ") + dbError.message);
     } else {
-      toast.success("Website ayarları kaydedildi!");
+      toast.success(isTr ? "Website ayarları kaydedildi!" : isEn ? "Website settings saved successfully!" : isRu ? "Настройки сайта успешно сохранены!" : "تم حفظ إعدادات الموقع بنجاح!");
     }
   }
 
@@ -626,7 +635,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
           />
         </div>
         <div>
-          <Label>Google Maps Yol Tarifi Linki</Label>
+          <Label>{isTr ? "Google Maps Yol Tarifi Linki" : isEn ? "Google Maps Directions Link" : isRu ? "Ссылка на Google Maps" : "رابط اتجاهات خرائط جوجل"}</Label>
           <div className="flex gap-2 mt-1">
             <Input
               value={org.location_url ?? ""}
@@ -635,12 +644,12 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
             />
             <Button type="button" variant="outline" onClick={useMyLocation} disabled={locating} className="shrink-0 gap-1.5">
               {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
-              Konumumu Kullan
+              {isTr ? "Konumumu Kullan" : isEn ? "Use My Location" : isRu ? "Использовать геопозицию" : "استخدام موقعي"}
             </Button>
           </div>
         </div>
         <div>
-          <Label>Google Yorumları Linki</Label>
+          <Label>{isTr ? "Google Yorumları Linki" : isEn ? "Google Reviews Link" : isRu ? "Ссылка на отзывы Google" : "رابط تقييمات جوجل"}</Label>
           <Input
             className="mt-1"
             value={org.google_review_url ?? ""}
@@ -653,19 +662,25 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       {/* Categories */}
       <SectionCard
         icon={Star}
-        title="Hizmet Kategorileri"
-        description="Website sayfanızda hizmetleriniz bu kategoriler altında gruplanır. Hizmeti kategoriye atamak için Hizmetler sayfasından hizmeti açın."
+        title={isTr ? "Hizmet Kategorileri" : isEn ? "Service Categories" : isRu ? "Категории услуг" : "فئات الخدمات"}
+        description={isTr 
+          ? "Website sayfanızda hizmetleriniz bu kategoriler altında gruplanır. Hizmeti kategoriye atamak için Hizmetler sayfasından hizmeti açın."
+          : isEn 
+          ? "Your services are grouped under these categories on your website page. To assign a service to a category, open the service from the Services page."
+          : isRu 
+          ? "Ваши услуги группируются по этим категориям на вашем веб-сайте. Чтобы назначить услугу категории, откройте услугу на странице Услуги."
+          : "يتم تجميع خدماتك تحت هذه الفئات على صفحة موقعك الإلكتروني. لتعيين خدمة لفئة معينة، افتح الخدمة من صفحة الخدمات."}
       >
         <div className="flex gap-2">
           <Input
-            placeholder="Yeni kategori adı (örn. Saç Bakımı)"
+            placeholder={isTr ? "Yeni kategori adı (örn. Saç Bakımı)" : isEn ? "New category name (e.g. Hair Care)" : isRu ? "Название новой категории..." : "اسم الفئة الجديدة..."}
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
           />
           <Button onClick={handleAddCategory} disabled={addingCategory || !newCategoryName.trim()} className="shrink-0 gap-1.5">
             {addingCategory ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            Ekle
+            {isTr ? "Ekle" : isEn ? "Add" : isRu ? "Добавить" : "إضافة"}
           </Button>
         </div>
 
@@ -778,55 +793,61 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
           </div>
         )}
         <Link href="/dashboard/hizmetler" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
-          Hizmetler sayfasında toplu düzenle <ExternalLink className="h-3 w-3" />
+          {isTr ? "Hizmetler sayfasında toplu düzenle" : isEn ? "Batch edit on Services page" : isRu ? "Пакетное редактирование на странице услуг" : "تعديل جماعي في صفحة الخدمات"} <ExternalLink className="h-3 w-3" />
         </Link>
       </SectionCard>
 
       {/* Services */}
       <SectionCard
         icon={Scissors}
-        title="Hizmetler"
-        description="Website sayfanızda görünecek hizmetleri buradan ekleyip çıkarabilir, fotoğraf yükleyip kategoriye atayabilirsiniz. Fiyat ve süreyi boş bırakırsanız hizmet sadece vitrin amaçlı gösterilir, online randevu alınamaz."
+        title={isTr ? "Hizmetler" : isEn ? "Services" : isRu ? "Услуги" : "الخدمات"}
+        description={isTr 
+          ? "Website sayfanızda görünecek hizmetleri buradan ekleyip çıkarabilir, fotoğraf yükleyip kategoriye atayabilirsiniz. Fiyat ve süreyi boş bırakırsanız hizmet sadece vitrin amaçlı gösterilir, online randevu alınamaz."
+          : isEn 
+          ? "Here you can add or remove services shown on your website, upload photos, and assign them to categories. If price and duration are blank, the service is showcase only and booking is disabled."
+          : isRu 
+          ? "Здесь вы можете добавлять/удалять услуги на сайте, загружать фото и назначать категории. Если цена и длительность не указаны, услуга отображается только как витрина."
+          : "هنا يمكنك إضافة أو إزالة الخدمات المعروضة على موقعك، وتحميل الصور وتصنيفها. إذا ترك السعر والمدة فارغين، فستعرض الخدمة كمعرض فقط دون إمكانية الحجز."}
       >
         <div className="space-y-2 p-3 rounded-lg border border-dashed border-border">
           <Input
-            placeholder="Yeni hizmet adı (örn. Fön Çekimi)"
+            placeholder={isTr ? "Yeni hizmet adı (örn. Fön Çekimi)" : isEn ? "New service name (e.g. Blow Dry)" : isRu ? "Название новой услуги..." : "اسم الخدمة الجديدة..."}
             value={newServiceName}
             onChange={(e) => setNewServiceName(e.target.value)}
           />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <Select value={newServiceCategoryId} onValueChange={(v) => v && setNewServiceCategoryId(v)}>
               <SelectTrigger>
-                <SelectValue placeholder="Kategori">
-                  {() => (newServiceCategoryId === NO_CATEGORY ? "Kategorisiz" : sortedCategories.find((c) => c.id === newServiceCategoryId)?.name ?? "Kategori")}
+                <SelectValue placeholder={isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"}>
+                  {() => (newServiceCategoryId === NO_CATEGORY ? (isTr ? "Kategorisiz" : isEn ? "Uncategorized" : isRu ? "Без категории" : "غير مصنف") : sortedCategories.find((c) => c.id === newServiceCategoryId)?.name ?? (isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"))}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NO_CATEGORY}>Kategorisiz</SelectItem>
+                <SelectItem value={NO_CATEGORY}>{isTr ? "Kategorisiz" : isEn ? "Uncategorized" : isRu ? "Без категории" : "غير مصنف"}</SelectItem>
                 {sortedCategories.map((c) => (
                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Input
-              type="number" min="0" step="0.01" placeholder="Fiyat (opsiyonel)"
+              type="number" min="0" step="0.01" placeholder={isTr ? "Fiyat (opsiyonel)" : isEn ? "Price (optional)" : isRu ? "Цена (опционально)" : "السعر (اختياري)"}
               value={newServicePrice}
               onChange={(e) => setNewServicePrice(e.target.value)}
             />
             <Input
-              type="number" min="5" step="5" placeholder="Süre dk (opsiyonel)"
+              type="number" min="5" step="5" placeholder={isTr ? "Süre dk (opsiyonel)" : isEn ? "Duration min (optional)" : isRu ? "Длительность мин" : "المدة بالدقائق"}
               value={newServiceDuration}
               onChange={(e) => setNewServiceDuration(e.target.value)}
             />
           </div>
           <Button onClick={handleAddService} disabled={addingService || !newServiceName.trim()} className="w-full gap-1.5">
             {addingService ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            Hizmet Ekle
+            {isTr ? "Hizmet Ekle" : isEn ? "Add Service" : isRu ? "Добавить услугу" : "إضافة خدمة"}
           </Button>
         </div>
 
         {services.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">Henüz hizmet eklenmedi.</p>
+          <p className="text-sm text-muted-foreground text-center py-4">{isTr ? "Henüz hizmet eklenmedi." : isEn ? "No services added yet." : isRu ? "Услуги пока не добавлены." : "لم يتم إضافة خدمات بعد."}</p>
         ) : (
           <div className="space-y-2">
             {services.map((svc) => {
@@ -849,8 +870,8 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{svc.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {svc.price !== null ? formatServicePrice(svc.price, svc.currency) : "Fiyat belirtilmemiş"}
-                      {svc.duration_minutes !== null ? ` • ${svc.duration_minutes} dk` : ""}
+                      {svc.price !== null ? formatServicePrice(svc.price, svc.currency) : (isTr ? "Fiyat belirtilmemiş" : isEn ? "Price not specified" : isRu ? "Цена не указана" : "السعر غير محدد")}
+                      {svc.duration_minutes !== null ? ` • ${svc.duration_minutes} ${isTr ? "dk" : isEn ? "min" : isRu ? "мин" : "دقيقة"}` : ""}
                     </p>
                   </div>
                   <Select
@@ -859,11 +880,11 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
                   >
                     <SelectTrigger className="w-[140px] h-8 shrink-0 text-xs">
                       <SelectValue>
-                        {svc.category_id ? sortedCategories.find((c) => c.id === svc.category_id)?.name ?? "Kategorisiz" : "Kategorisiz"}
+                        {svc.category_id ? sortedCategories.find((c) => c.id === svc.category_id)?.name ?? (isTr ? "Kategorisiz" : isEn ? "Uncategorized" : isRu ? "Без категории" : "غير مصنف") : (isTr ? "Kategorisiz" : isEn ? "Uncategorized" : isRu ? "Без категории" : "غير مصنف")}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NO_CATEGORY}>Kategorisiz</SelectItem>
+                      <SelectItem value={NO_CATEGORY}>{isTr ? "Kategorisiz" : isEn ? "Uncategorized" : isRu ? "Без категории" : "غير مصنف"}</SelectItem>
                       {sortedCategories.map((c) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}

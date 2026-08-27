@@ -1367,7 +1367,8 @@
       "manage_campaigns": "Can manage campaigns",
       "create_appointments": "Can create appointments",
       "edit_appointments": "Can edit appointments",
-      "cancel_appointments": "Can cancel appointments"
+      "cancel_appointments": "Can cancel appointments",
+      "manage_settings": "Can manage settings"
     },
     "staffPermissions": {
       "cardTitle": "Staff Permissions",

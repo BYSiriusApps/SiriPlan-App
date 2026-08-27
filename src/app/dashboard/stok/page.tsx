@@ -274,6 +274,19 @@ export default function StokPage() {
     }
   }
 
+  const isTr = t("guide").includes("Kılavuzu");
+  const isEn = t("guide").includes("User Guide");
+  const isRu = t("guide").includes("Руководство");
+
+  const getStokText = (key: string) => {
+    if (key === "loadTemplate") return isTr ? "Örnek Katalog Yükle" : isEn ? "Load Sample Catalog" : isRu ? "Загрузить пример каталога" : "تحميل كتالوج عينة";
+    if (key === "newProduct") return isTr ? "Yeni Ürün Ekle" : isEn ? "Add New Product" : isRu ? "Добавить новый товар" : "إضافة منتج جديد";
+    if (key === "totalProducts") return isTr ? "Toplam Ürün Çeşidi" : isEn ? "Total Product Types" : isRu ? "Всего видов продукции" : "إجمالي أنواع المنتجات";
+    if (key === "criticalStock") return isTr ? "Kritik Stok Uyarısı" : isEn ? "Critical Stock Alert" : isRu ? "Критический запас" : "تحذير المخزون الحرج";
+    if (key === "totalStockValue") return isTr ? "Toplam Stok Değeri (Maliyet)" : isEn ? "Total Stock Value (Cost)" : isRu ? "Общая стоимость запасов (себестоимость)" : "إجمالي قيمة المخزون (التكلفة)";
+    return "";
+  };
+
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -299,12 +312,12 @@ export default function StokPage() {
               className="gap-2"
             >
               {loadingTemplate ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-amber-500" />}
-              Örnek Katalog Yükle
+              {getStokText("loadTemplate")}
             </Button>
           )}
           <Button onClick={() => openItemForm()} className="gap-2">
             <Plus className="h-4 w-4" />
-            Yeni Ürün Ekle
+            {getStokText("newProduct")}
           </Button>
         </div>
       </div>
@@ -314,7 +327,7 @@ export default function StokPage() {
         <Card className="kpi-tile border-0 shadow-sm">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground font-medium">Toplam Ürün Çeşidi</p>
+              <p className="text-xs text-muted-foreground font-medium">{getStokText("totalProducts")}</p>
               <p className="text-2xl font-bold tabular-nums mt-1">{totalProducts}</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -326,7 +339,7 @@ export default function StokPage() {
         <Card className="kpi-tile border-0 shadow-sm">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground font-medium">Kritik Stok Uyarısı</p>
+              <p className="text-xs text-muted-foreground font-medium">{getStokText("criticalStock")}</p>
               <p className={`text-2xl font-bold tabular-nums mt-1 ${criticalStockCount > 0 ? "text-amber-600 dark:text-amber-400" : ""}`}>
                 {criticalStockCount}
               </p>
@@ -340,7 +353,7 @@ export default function StokPage() {
         <Card className="kpi-tile border-0 shadow-sm">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground font-medium">Toplam Stok Değeri (Maliyet)</p>
+              <p className="text-xs text-muted-foreground font-medium">{getStokText("totalStockValue")}</p>
               <p className="text-2xl font-bold tabular-nums mt-1 text-emerald-600 dark:text-emerald-400">{fmt(totalStockValue)}</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 flex items-center justify-center">
@@ -355,7 +368,7 @@ export default function StokPage() {
         <div className="relative w-full sm:w-72">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Ürün adı ara..."
+            placeholder={isTr ? "Ürün adı ara..." : isEn ? "Search product name..." : isRu ? "Искать название товара..." : "البحث عن اسم المنتج..."}
             className="pl-9 h-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -369,7 +382,7 @@ export default function StokPage() {
               selectedCategory === "all" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"
             }`}
           >
-            Tüm Kategoriler ({items.length})
+            {isTr ? "Tüm Kategoriler" : isEn ? "All Categories" : isRu ? "Все категории" : "جميع الفئات"} ({items.length})
           </button>
           {categories.map((cat) => {
             const count = items.filter((i) => i.category === cat).length;
@@ -398,9 +411,9 @@ export default function StokPage() {
           ) : filteredItems.length === 0 ? (
             <div className="text-center py-16 space-y-3">
               <Package className="h-10 w-10 text-muted-foreground/30 mx-auto" />
-              <p className="text-sm text-muted-foreground">Henüz stok ürünü bulunmuyor</p>
+              <p className="text-sm text-muted-foreground">{isTr ? "Henüz stok ürünü bulunmuyor" : isEn ? "No stock products found yet" : isRu ? "Товаров на складе пока нет" : "لا توجد منتجات مخزون بعد"}</p>
               <Button size="sm" onClick={() => openItemForm()} className="gap-2">
-                <Plus className="h-4 w-4" /> Ürün Ekle
+                <Plus className="h-4 w-4" /> {isTr ? "Ürün Ekle" : isEn ? "Add Product" : isRu ? "Добавить товар" : "إضافة منتج"}
               </Button>
             </div>
           ) : (
@@ -408,12 +421,12 @@ export default function StokPage() {
               <table className="w-full text-sm text-left">
                 <thead className="bg-muted/50 text-xs font-semibold uppercase text-muted-foreground border-b">
                   <tr>
-                    <th className="p-3 pl-4">Ürün Adı</th>
-                    <th className="p-3">Kategori</th>
-                    <th className="p-3 text-center">Stok Durumu</th>
-                    <th className="p-3 text-right">Maliyet Fiyatı</th>
-                    <th className="p-3 text-right">Satış Fiyatı</th>
-                    <th className="p-3 text-right pr-4">İşlemler</th>
+                    <th className="p-3 pl-4">{isTr ? "Ürün Adı" : isEn ? "Product Name" : isRu ? "Название товара" : "اسم المنتج"}</th>
+                    <th className="p-3">{isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"}</th>
+                    <th className="p-3 text-center">{isTr ? "Stok Durumu" : isEn ? "Stock Status" : isRu ? "Статус запасов" : "حالة المخزون"}</th>
+                    <th className="p-3 text-right">{isTr ? "Maliyet Fiyatı" : isEn ? "Cost Price" : isRu ? "Себестоимость" : "سعر التكلفة"}</th>
+                    <th className="p-3 text-right">{isTr ? "Satış Fiyatı" : isEn ? "Sale Price" : isRu ? "Цена продажи" : "سعر البيع"}</th>
+                    <th className="p-3 text-right pr-4">{isTr ? "İşlemler" : isEn ? "Actions" : isRu ? "Действия" : "العمليات"}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -423,11 +436,11 @@ export default function StokPage() {
                       <tr key={item.id} className="hover:bg-muted/30 transition-colors group">
                         <td className="p-3 pl-4 font-medium">
                           <p className="leading-snug">{item.name}</p>
-                          <p className="text-[11px] text-muted-foreground">Birim: {item.unit}</p>
+                          <p className="text-[11px] text-muted-foreground">{isTr ? "Birim" : isEn ? "Unit" : isRu ? "Единица" : "الوحدة"}: {item.unit}</p>
                         </td>
                         <td className="p-3">
                           <Badge variant="outline" className="text-[11px] font-normal">
-                            {item.category || "Genel"}
+                            {item.category || (isTr ? "Genel" : isEn ? "General" : isRu ? "Общее" : "عام")}
                           </Badge>
                         </td>
                         <td className="p-3 text-center">
@@ -437,7 +450,7 @@ export default function StokPage() {
                             </span>
                             {isCritical && (
                               <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                                <AlertTriangle className="h-3 w-3" /> Kritik Sınır ({item.min_stock_alert})
+                                <AlertTriangle className="h-3 w-3" /> {isTr ? "Kritik Sınır" : isEn ? "Critical Limit" : isRu ? "Критический лимит" : "الحد الحرج"} ({item.min_stock_alert})
                               </span>
                             )}
                           </div>
@@ -450,17 +463,17 @@ export default function StokPage() {
                               size="sm"
                               variant="outline"
                               className="h-7 px-2 text-xs gap-1 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
-                              title="Stok Giriş/Çıkış"
+                              title={isTr ? "Stok Giriş/Çıkış" : isEn ? "Stock In/Out" : isRu ? "Поступление/Списание" : "حركة المخزون"}
                               onClick={() => openTxModal(item, "in")}
                             >
                               <ArrowUpRight className="h-3.5 w-3.5" />
-                              Giriş/Çıkış
+                              {isTr ? "Giriş/Çıkış" : isEn ? "In/Out" : isRu ? "Приход/Расход" : "إدخال/إخراج"}
                             </Button>
                             <Button
                               size="sm"
                               variant="ghost"
                               className="h-7 w-7 p-0"
-                              title="Düzenle"
+                              title={isTr ? "Düzenle" : isEn ? "Edit" : isRu ? "Редактировать" : "تعديل"}
                               onClick={() => openItemForm(item)}
                             >
                               <Pencil className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
@@ -492,15 +505,17 @@ export default function StokPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Package className="h-5 w-5 text-primary" />
-              {editingItem ? "Ürün Düzenle" : "Yeni Ürün Ekle"}
+              {editingItem 
+                ? (isTr ? "Ürün Düzenle" : isEn ? "Edit Product" : isRu ? "Редактировать товар" : "تعديل المنتج")
+                : (isTr ? "Yeni Ürün Ekle" : isEn ? "Add New Product" : isRu ? "Добавить новый товар" : "إضافة منتج جديد")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div>
-              <Label>Ürün Adı *</Label>
+              <Label>{isTr ? "Ürün Adı" : isEn ? "Product Name" : isRu ? "Название товара" : "اسم المنتج"} *</Label>
               <Input
                 className="mt-1"
-                placeholder="Örn: Şampuan 1000ml"
+                placeholder={isTr ? "Örn: Şampuan 1000ml" : isEn ? "E.g. Shampoo 1000ml" : isRu ? "Например: Шампунь 1000мл" : "مثال: شامبو 1000 مل"}
                 value={itemForm.name}
                 onChange={(e) => setItemForm((f) => ({ ...f, name: e.target.value }))}
               />
@@ -508,27 +523,27 @@ export default function StokPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Kategori</Label>
+                <Label>{isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"}</Label>
                 <Input
                   className="mt-1"
-                  placeholder="Örn: Saç Bakımı"
+                  placeholder={isTr ? "Örn: Saç Bakımı" : isEn ? "E.g. Hair Care" : isRu ? "Например: Уход за волосами" : "مثال: العناية بالشعر"}
                   value={itemForm.category}
                   onChange={(e) => setItemForm((f) => ({ ...f, category: e.target.value }))}
                 />
               </div>
               <div>
-                <Label>Ölçü Birimi</Label>
+                <Label>{isTr ? "Ölçü Birimi" : isEn ? "Unit of Measure" : isRu ? "Единица измерения" : "وحدة القياس"}</Label>
                 <Select value={itemForm.unit} onValueChange={(v) => setItemForm((f) => ({ ...f, unit: v || "adet" }))}>
                   <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="adet">adet</SelectItem>
-                    <SelectItem value="şişe">şişe</SelectItem>
-                    <SelectItem value="kutu">kutu</SelectItem>
-                    <SelectItem value="tüp">tüp</SelectItem>
+                    <SelectItem value="adet">{isTr ? "adet" : isEn ? "pcs" : isRu ? "шт" : "قطعة"}</SelectItem>
+                    <SelectItem value="şişe">{isTr ? "şişe" : isEn ? "bottle" : isRu ? "бутылка" : "زجاجة"}</SelectItem>
+                    <SelectItem value="kutu">{isTr ? "kutu" : isEn ? "box" : isRu ? "коробка" : "علبة"}</SelectItem>
+                    <SelectItem value="tüp">{isTr ? "tüp" : isEn ? "tube" : isRu ? "тюбик" : "أنبوب"}</SelectItem>
                     <SelectItem value="ml">ml</SelectItem>
-                    <SelectItem value="gram">gram</SelectItem>
+                    <SelectItem value="gram">{isTr ? "gram" : isEn ? "gram" : isRu ? "грамм" : "جرام"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -536,7 +551,7 @@ export default function StokPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Mevcut Stok</Label>
+                <Label>{isTr ? "Mevcut Stok" : isEn ? "Current Stock" : isRu ? "Текущий запас" : "المخزون الحالي"}</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -545,7 +560,7 @@ export default function StokPage() {
                 />
               </div>
               <div>
-                <Label>Kritik Stok Uyarısı</Label>
+                <Label>{isTr ? "Kritik Stok Uyarısı" : isEn ? "Critical Stock Alert" : isRu ? "Критический запас" : "تنبيه المخزون الحرج"}</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -557,7 +572,7 @@ export default function StokPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Maliyet Fiyatı ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
+                <Label>{isTr ? "Maliyet Fiyatı" : isEn ? "Cost Price" : isRu ? "Себестоимость" : "سعر التكلفة"} ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -567,7 +582,7 @@ export default function StokPage() {
                 />
               </div>
               <div>
-                <Label>Satış Fiyatı ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
+                <Label>{isTr ? "Satış Fiyatı" : isEn ? "Sale Price" : isRu ? "Цена продажи" : "سعر البيع"} ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -579,10 +594,14 @@ export default function StokPage() {
             </div>
           </div>
           <DialogFooter className="gap-2 pt-2">
-            <Button variant="outline" onClick={() => setShowItemModal(false)}>İptal</Button>
+            <Button variant="outline" onClick={() => setShowItemModal(false)}>
+              {isTr ? "İptal" : isEn ? "Cancel" : isRu ? "Отмена" : "إلغاء"}
+            </Button>
             <Button onClick={handleSaveItem} disabled={savingItem}>
               {savingItem && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
-              {editingItem ? "Güncelle" : "Kaydet"}
+              {editingItem 
+                ? (isTr ? "Güncelle" : isEn ? "Update" : isRu ? "Обновить" : "تحديث") 
+                : (isTr ? "Kaydet" : isEn ? "Save" : isRu ? "حفظ" : "حفظ")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -594,12 +613,12 @@ export default function StokPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <RefreshCw className="h-5 w-5 text-primary" />
-              Stok Hareketi: {txTargetItem?.name}
+              {isTr ? "Stok Hareketi" : isEn ? "Stock Transaction" : isRu ? "Движение запасов" : "حركة المخزون"}: {txTargetItem?.name}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div>
-              <Label>İşlem Türü</Label>
+              <Label>{isTr ? "İşlem Türü" : isEn ? "Transaction Type" : isRu ? "Тип операции" : "نوع العملية"}</Label>
               <Select
                 value={txForm.type}
                 onValueChange={(v) => {
@@ -620,15 +639,15 @@ export default function StokPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="in">➕ Stok Girişi (Mal Alımı)</SelectItem>
-                  <SelectItem value="out">➖ Stok Çıkışı (Kullanım / Satış)</SelectItem>
-                  <SelectItem value="adjust">✏️ Stok Düzeltme (Sayım)</SelectItem>
+                  <SelectItem value="in">➕ {isTr ? "Stok Girişi (Mal Alımı)" : isEn ? "Stock In (Purchase)" : isRu ? "Поступление товара" : "إدخال مخزون (شراء)"}</SelectItem>
+                  <SelectItem value="out">➖ {isTr ? "Stok Çıkışı (Kullanım / Satış)" : isEn ? "Stock Out (Usage / Sale)" : isRu ? "Расход товара" : "إخراج مخزون (استخدام/بيع)"}</SelectItem>
+                  <SelectItem value="adjust">✏️ {isTr ? "Stok Düzeltme (Sayım)" : isEn ? "Stock Adjustment (Count)" : isRu ? "Корректировка запасов" : "تعديل مخزون (جرد)"}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label>{txForm.type === "adjust" ? "Yeni Stok Miktarı" : "Miktar"}</Label>
+              <Label>{txForm.type === "adjust" ? (isTr ? "Yeni Stok Miktarı" : isEn ? "New Stock Level" : isRu ? "Новое количество" : "كمية المخزون الجديدة") : (isTr ? "Miktar" : isEn ? "Quantity" : isRu ? "Количество" : "الكمية")}</Label>
               <Input
                 className="mt-1"
                 type="number"
@@ -641,7 +660,7 @@ export default function StokPage() {
 
             {txForm.type !== "adjust" && (
               <div>
-                <Label>Birim Fiyat ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
+                <Label>{isTr ? "Birim Fiyat" : isEn ? "Unit Price" : isRu ? "Цена за единицу" : "سعر الوحدة"} ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -650,26 +669,34 @@ export default function StokPage() {
                   onChange={(e) => setTxForm((f) => ({ ...f, unit_price: e.target.value }))}
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  Boş bırakılırsa ürünün varsayılan {txForm.type === "in" ? "maliyet" : "satış"} fiyatı ({fmt(Number(txForm.type === "in" ? txTargetItem?.cost_price : txTargetItem?.sale_price) || 0)}) kullanılır.
+                  {isTr 
+                    ? `Boş bırakılırsa ürünün varsayılan ${txForm.type === "in" ? "maliyet" : "satış"} fiyatı (${fmt(Number(txForm.type === "in" ? txTargetItem?.cost_price : txTargetItem?.sale_price) || 0)}) kullanılır.` 
+                    : isEn 
+                    ? `If left blank, the default ${txForm.type === "in" ? "cost" : "sale"} price (${fmt(Number(txForm.type === "in" ? txTargetItem?.cost_price : txTargetItem?.sale_price) || 0)}) will be used.` 
+                    : isRu 
+                    ? `Если оставить пустым, будет использована цена по умолчанию (${fmt(Number(txForm.type === "in" ? txTargetItem?.cost_price : txTargetItem?.sale_price) || 0)}).` 
+                    : `إذا ترك فارغًا، فسيتم استخدام سعر ${txForm.type === "in" ? "التكلفة" : "البيع"} الافتراضي (${fmt(Number(txForm.type === "in" ? txTargetItem?.cost_price : txTargetItem?.sale_price) || 0)}).`}
                 </p>
               </div>
             )}
 
             <div>
-              <Label>Açıklama / Not (opsiyonel)</Label>
+              <Label>{isTr ? "Açıklama / Not (opsiyonel)" : isEn ? "Description / Note (optional)" : isRu ? "Описание / Примечание (опционально)" : "الوصف / ملاحظة (اختياري)"}</Label>
               <Input
                 className="mt-1"
-                placeholder="Örn: Fatura No, Kullanılan Hizmet vb."
+                placeholder={isTr ? "Örn: Fatura No, Kullanılan Hizmet vb." : isEn ? "E.g. Invoice No, Used Service etc." : isRu ? "Например: Номер счета и т.д." : "مثال: رقم الفاتورة، الخدمة المستخدمة وما إلى ذلك."}
                 value={txForm.note}
                 onChange={(e) => setTxForm((f) => ({ ...f, note: e.target.value }))}
               />
             </div>
           </div>
           <DialogFooter className="gap-2 pt-2">
-            <Button variant="outline" onClick={() => setShowTxModal(false)}>İptal</Button>
+            <Button variant="outline" onClick={() => setShowTxModal(false)}>
+              {isTr ? "İptal" : isEn ? "Cancel" : isRu ? "Отмена" : "إلغاء"}
+            </Button>
             <Button onClick={handleSaveTx} disabled={savingTx}>
               {savingTx && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
-              İşlemi Kaydet
+              {isTr ? "İşlemi Kaydet" : isEn ? "Save Transaction" : isRu ? "Сохранить операцию" : "حفظ العملية"}
             </Button>
           </DialogFooter>
         </DialogContent>

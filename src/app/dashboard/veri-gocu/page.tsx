@@ -88,6 +88,31 @@ export default function VeriGocuPage() {
     setImporting(false);
   }
 
+  const isTr = t("guide").includes("Kılavuzu");
+  const isEn = t("guide").includes("User Guide");
+  const isRu = t("guide").includes("Руководство");
+
+  const getMigrateText = (key: string) => {
+    if (key === "downloadTitle") return isTr ? "Verilerimi İndir" : isEn ? "Download My Data" : isRu ? "Скачать мои данные" : "تحميل بياناتي";
+    if (key === "downloadDesc") return isTr ? "Tüm verileriniz size aittir. İstediğiniz zaman indirin." : isEn ? "All your data belongs to you. Download it anytime." : isRu ? "Все ваши данные принадлежат вам. Скачивайте в любое время." : "جميع بياناتك ملك لك. قم بتحميلها في أي وقت.";
+    if (key === "excelInfo") return isTr ? "Excel: müşteriler, hizmetler, personel ve randevuları ayrı sayfalarda içerir. PDF: tarayıcı yazdırma ile kaydedin." : isEn ? "Excel: includes customers, services, staff and appointments on separate sheets. PDF: save via browser printing." : isRu ? "Excel: включает клиентов, услуги, персонал и записи на отдельных листах. PDF: сохраните через печать браузера." : "Excel: يتضمن العملاء والخدمات والموظفين والمواعيد في أوراق منفصلة. PDF: حفظ عبر طباعة المتصفح.";
+    if (key === "importTitle") return isTr ? "Veri Aktar" : isEn ? "Import Data" : isRu ? "Импорт данных" : "استيراد البيانات";
+    if (key === "importDesc") return isTr ? "Başka bir uygulamadan müşteri ve randevu verilerinizi aktarın" : isEn ? "Transfer your customer and appointment data from another application" : isRu ? "Перенесите данные клиентов и записей из другого приложения" : "انقل بيانات العملاء والمواعيد الخاصة بك من تطبيق آخر";
+    if (key === "selectSource") return isTr ? "Kaynak seçin:" : isEn ? "Select source:" : isRu ? "Выберите источник:" : "اختر المصدر:";
+    if (key === "dragDrop") return isTr ? "CSV, Excel veya JSON dosyası seçin" : isEn ? "Select CSV, Excel or JSON file" : isRu ? "Выберите файл CSV, Excel или JSON" : "حدد ملف CSV أو Excel أو JSON";
+    if (key === "dragDropSub") return isTr ? "veya sürükle-bırak" : isEn ? "or drag and drop" : isRu ? "или перетащите сюда" : "أو قم بالسحب والإفلات";
+    if (key === "importing") return isTr ? "İçe aktarılıyor..." : isEn ? "Importing..." : isRu ? "Импортирование..." : "جاري الاستيراد...";
+    if (key === "migrateTitle") return isTr ? "Rakip uygulamadan geçiş yapmak mı istiyorsunuz?" : isEn ? "Do you want to switch from a competitor app?" : isRu ? "Хотите перейти из другого приложения?" : "هل تريد الانتقال من تطبيق منافس؟";
+    return "";
+  };
+
+  const steps = [
+    isTr ? "Yukarıdan kaynak seçin" : isEn ? "Select source above" : isRu ? "Выберите источник выше" : "اختر المصدر أعلاه",
+    isTr ? "CSV, Excel veya JSON dosyanızı yükleyin" : isEn ? "Upload your CSV, Excel or JSON file" : isRu ? "Загрузите файл CSV, Excel или JSON" : "قم بتحميل ملف CSV أو Excel أو JSON",
+    isTr ? "Verileriniz otomatik aktarılır" : isEn ? "Your data is imported automatically" : isRu ? "Данные импортируются автоматически" : "يتم استيراد بياناتك تلقائياً",
+    isTr ? "Ziyaret ve harcama geçmişi korunur" : isEn ? "Visit and spending history is preserved" : isRu ? "История визитов и расходов сохраняется" : "يتم الحفاظ على تاريخ الزيارات والإنفاق",
+  ];
+
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <div>
@@ -104,14 +129,13 @@ export default function VeriGocuPage() {
         <p className="text-muted-foreground text-sm mt-1">{t("dataMigrationPage.subtitle")}</p>
       </div>
 
-      {/* Export section */}
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Download className="h-4 w-4 text-primary" />
-            Verilerimi İndir
+            {getMigrateText("downloadTitle")}
           </CardTitle>
-          <CardDescription>Tüm verileriniz size aittir. İstediğiniz zaman indirin.</CardDescription>
+          <CardDescription>{getMigrateText("downloadDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
@@ -122,7 +146,7 @@ export default function VeriGocuPage() {
               disabled={!!exporting}
             >
               {exporting === "json" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-              JSON (Tam Veri)
+              JSON ({isTr ? "Tam Veri" : isEn ? "Full Data" : isRu ? "Полные данные" : "بيانات كاملة"})
             </Button>
             <Button
               variant="outline"
@@ -131,7 +155,7 @@ export default function VeriGocuPage() {
               disabled={!!exporting}
             >
               {exporting === "csv" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              CSV (Müşteriler)
+              CSV ({isTr ? "Müşteriler" : isEn ? "Customers" : isRu ? "Клиенты" : "العملاء"})
             </Button>
             <Button
               variant="outline"
@@ -149,26 +173,25 @@ export default function VeriGocuPage() {
               disabled={!!exporting}
             >
               {exporting === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4 text-red-500" />}
-              PDF (Yazdır)
+              PDF ({isTr ? "Yazdır" : isEn ? "Print" : isRu ? "Печать" : "طباعة"})
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Excel: müşteriler, hizmetler, personel ve randevuları ayrı sayfalarda içerir. PDF: tarayıcı yazdırma ile kaydedin.
+            {getMigrateText("excelInfo")}
           </p>
         </CardContent>
       </Card>
 
-      {/* Import section */}
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Upload className="h-4 w-4 text-primary" />
-            Veri Aktar
+            {getMigrateText("importTitle")}
           </CardTitle>
-          <CardDescription>Başka bir uygulamadan müşteri ve randevu verilerinizi aktarın</CardDescription>
+          <CardDescription>{getMigrateText("importDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm font-medium">Kaynak seçin:</p>
+          <p className="text-sm font-medium">{getMigrateText("selectSource")}</p>
           <div className="grid grid-cols-3 gap-3">
             {IMPORT_SOURCES.map((src) => (
               <button
@@ -181,7 +204,9 @@ export default function VeriGocuPage() {
                 }`}
               >
                 <div className="text-2xl mb-1">{src.icon}</div>
-                <p className="text-sm font-medium">{src.name}</p>
+                <p className="text-sm font-medium">
+                  {src.id === "salonappy" ? (isTr ? "Randevu Programı" : isEn ? "Booking App" : isRu ? "Программа записей" : "برنامج المواعيد") : src.id === "arvengo" ? (isTr ? "Diğer Yazılım" : isEn ? "Other Software" : isRu ? "Другое ПО" : "برنامج آخر") : "Excel / CSV"}
+                </p>
                 {selectedSource === src.id && (
                   <CheckCircle2 className="h-4 w-4 text-primary mx-auto mt-1" />
                 )}
@@ -193,10 +218,10 @@ export default function VeriGocuPage() {
             <div className="space-y-3">
               <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
                 <p className="text-xs text-amber-800 dark:text-amber-300">
-                  <strong>Not:</strong>{" "}
-                  {selectedSource === "salonappy" && "Randevu programınızdan CSV olarak veri dışa aktarın: Ayarlar → Veri Dışa Aktar"}
-                  {selectedSource === "arvengo" && "Mevcut yazılımınızdan dışa aktarın: Panel → Raporlar → Excel veya CSV İndir"}
-                  {selectedSource === "excel" && "Sütun başlıkları: Ad Soyad, Telefon (zorunlu) · E-posta, Doğum Tarihi, Notlar, Toplam Ziyaret, Toplam Harcama, Son Ziyaret (opsiyonel). CSV, Excel ve JSON desteklenir."}
+                  <strong>{isTr ? "Not" : isEn ? "Note" : isRu ? "Примечание" : "ملاحظة"}:</strong>{" "}
+                  {selectedSource === "salonappy" && (isTr ? "Randevu programınızdan CSV olarak veri dışa aktarın: Ayarlar → Veri Dışa Aktar" : isEn ? "Export data as CSV from your booking program: Settings → Export Data" : isRu ? "Экспортируйте данные в формате CSV: Настройки → Экспорт данных" : "قم بتصدير البيانات بتنسيق CSV من برنامج المواعيد: الإعدادات ← تصدير البيانات")}
+                  {selectedSource === "arvengo" && (isTr ? "Mevcut yazılımınızdan dışa aktarın: Panel → Raporlar → Excel veya CSV İndir" : isEn ? "Export from your current software: Panel → Reports → Download Excel or CSV" : isRu ? "Экспортируйте из текущего ПО: Панель → Отчеты → Скачать Excel или CSV" : "قم بالتصدير من برنامجك الحالي: لوحة التحكم ← التقارير ← تنزيل Excel أو CSV")}
+                  {selectedSource === "excel" && (isTr ? "Sütun başlıkları: Ad Soyad, Telefon (zorunlu) · E-posta, Doğum Tarihi, Notlar, Toplam Ziyaret, Toplam Harcama, Son Ziyaret (opsiyonel). CSV, Excel ve JSON desteklenir." : isEn ? "Column headers: Full Name, Phone (required) · Email, Birth Date, Notes, Total Visits, Total Spend, Last Visit (optional). CSV, Excel, and JSON are supported." : isRu ? "Заголовки столбцов: ФИО, Телефон (обязательно) · Email, Дата рождения, Примечания, Всего визитов, Всего расходов, Последний визит (опционально). Поддерживаются CSV, Excel и JSON." : "عناوين الأعمدة: الاسم الكامل، الهاتف (مطلوب) · البريد الإلكتروني، تاريخ الميلاد، ملاحظات، إجمالي الزيارات، إجمالي الإنفاق، آخر زيارة (اختياري). يتم دعم ملفات CSV و Excel و JSON.")}
                 </p>
               </div>
 
@@ -207,13 +232,13 @@ export default function VeriGocuPage() {
                   {importing ? (
                     <div className="flex items-center justify-center gap-2">
                       <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                      <span className="text-sm">İçe aktarılıyor...</span>
+                      <span className="text-sm">{getMigrateText("importing")}</span>
                     </div>
                   ) : (
                     <>
                       <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm font-medium">CSV, Excel veya JSON dosyası seçin</p>
-                      <p className="text-xs text-muted-foreground mt-1">veya sürükle-bırak</p>
+                      <p className="text-sm font-medium">{getMigrateText("dragDrop")}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{getMigrateText("dragDropSub")}</p>
                     </>
                   )}
                   <input
@@ -233,20 +258,11 @@ export default function VeriGocuPage() {
         </CardContent>
       </Card>
 
-      {/* Steps */}
-      {/* Zemin sabit rose/fuchsia yerine tema renginden türetiliyor: koyu
-          temalarda (Gece Modu, Gece Yarısı Mor) açık pembe zemin üzerine açık
-          renkli yazı düşüyor ve metin okunmuyordu. */}
       <Card className="border border-primary/15 shadow-sm bg-gradient-to-br from-primary/10 to-primary/5 text-card-foreground">
         <CardContent className="p-5">
-          <p className="text-sm font-semibold mb-3 text-foreground">Rakip uygulamadan geçiş yapmak mı istiyorsunuz?</p>
+          <p className="text-sm font-semibold mb-3 text-foreground">{getMigrateText("migrateTitle")}</p>
           <div className="space-y-2">
-            {[
-              "Yukarıdan kaynak seçin",
-              "CSV, Excel veya JSON dosyanızı yükleyin",
-              "Verileriniz otomatik aktarılır",
-              "Ziyaret ve harcama geçmişi korunur",
-            ].map((step, i) => (
+            {steps.map((step, i) => (
               <div key={step} className="flex items-center gap-2 text-sm">
                 <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0">
                   {i + 1}

@@ -232,30 +232,75 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   },
 ];
 
-function getStaticResponse(message: string, mobileApp: boolean): string {
+const CONTACT_LINE_TR = "📧 info@bysirius.com veya 💬 WhatsApp: +90 535 503 26 34 üzerinden bize ulaşabilirsiniz.";
+const CONTACT_LINE_EN = "📧 info@bysirius.com or 💬 WhatsApp: +90 535 503 26 34 to reach us.";
+const CONTACT_LINE_RU = "📧 info@bysirius.com или 💬 WhatsApp: +90 535 503 26 34 для связи с нами.";
+const CONTACT_LINE_AR = "📧 info@bysirius.com أو 💬 واتساب: +90 535 503 26 34 للتواصل معنا.";
+
+const TRANSLATIONS: Record<string, Record<string, string>> = {
+  tr: {
+    tooMany: "Çok fazla istek gönderildi. Lütfen biraz bekleyin.",
+    required: "Mesaj gerekli",
+    tooLong: "Mesaj çok uzun.",
+    noInfo: "Bu konuda elimde hazır bir bilgi yok. Daha detaylı yardım için ",
+    fallback: "Şu an yanıt veremiyorum. Lütfen "
+  },
+  en: {
+    tooMany: "Too many requests. Please wait a moment.",
+    required: "Message is required",
+    tooLong: "Message is too long.",
+    noInfo: "I don't have information on this topic. For detailed help: ",
+    fallback: "I cannot answer right now. Please "
+  },
+  ru: {
+    tooMany: "Слишком много запросов. Пожалуйста, подождите.",
+    required: "Сообщение обязательно",
+    tooLong: "Сообщение слишком длинное.",
+    noInfo: "У меня нет информации по этой теме. Для помощи: ",
+    fallback: "Сейчас я не могу ответить. Пожалуйста, "
+  },
+  ar: {
+    tooMany: "لقد تم إرسال الكثير من الطلبات. يرجى الانتظار قليلاً.",
+    required: "الرسالة مطلوبة",
+    tooLong: "الرسالة طويلة جداً.",
+    noInfo: "ليس لدي معلومات جاهزة حول هذا الموضوع. لمزيد من المساعدة: ",
+    fallback: "لا يمكنني الرد الآن. يرجى "
+  }
+};
+
+function getStaticResponse(message: string, mobileApp: boolean, lang: string): string {
   const msg = message.toLowerCase();
+  const contact = lang === "ar" ? CONTACT_LINE_AR : lang === "ru" ? CONTACT_LINE_RU : lang === "en" ? CONTACT_LINE_EN : CONTACT_LINE_TR;
+  const trans = TRANSLATIONS[lang] || TRANSLATIONS.tr;
 
   for (const entry of KNOWLEDGE_BASE) {
     if (entry.keywords.some((k) => msg.includes(k))) {
-      return mobileApp && entry.nativeAnswer ? entry.nativeAnswer : entry.answer;
+      const mainAns = entry.answer;
+      const nativeAns = entry.nativeAnswer;
+      // If language is not turkish, we provide an automatic english translation note or format, but we'll return the response as is
+      return mobileApp && nativeAns ? nativeAns : mainAns;
     }
   }
 
-  // Bilgi tabanında karşılığı olmayan (çok özel/hesaba özel) sorular için:
-  // panel kullanımı hakkında genel bilgi veremediğimiz için destek ekibine yönlendir.
-  return `Bu konuda elimde hazır bir bilgi yok. Daha detaylı yardım için ${CONTACT_LINE}`;
+  return `${trans.noInfo}${contact}`;
 }
 
 export async function POST(req: NextRequest) {
+  // Detect language from referer, path or headers
+  const referer = req.headers.get("referer") || "";
+  let lang = "tr";
+  if (referer.includes("/en/")) lang = "en";
+  else if (referer.includes("/ru/")) lang = "ru";
+  else if (referer.includes("/ar/")) lang = "ar";
+
+  const contact = lang === "ar" ? CONTACT_LINE_AR : lang === "ru" ? CONTACT_LINE_RU : lang === "en" ? CONTACT_LINE_EN : CONTACT_LINE_TR;
+  const trans = TRANSLATIONS[lang] || TRANSLATIONS.tr;
+
   try {
-    // Bu uç LLM çağırmaz (yanıtlar statik), dolayısıyla maliyet riski yok; yine
-    // de kimlik doğrulaması istemeyen bir POST ucu olduğu için kaba kuvvetle
-    // sunucu kaynağı tüketilmesine karşı üst sınır konuyor. Gerçek kullanımda
-    // bir personel dakikada birkaç soru sorar; 60/dk fazlasıyla geniş.
     const limit = limitByIp(req, "dashboard-chat", 60, 60 * 1000);
     if (!limit.ok) {
       return NextResponse.json(
-        { response: `Çok fazla istek gönderildi. Lütfen biraz bekleyin. ${CONTACT_LINE}` },
+        { response: `${trans.tooMany} ${contact}` },
         { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
       );
     }
@@ -263,16 +308,16 @@ export async function POST(req: NextRequest) {
     const { message } = await req.json();
 
     if (!message || typeof message !== "string") {
-      return NextResponse.json({ error: "Mesaj gerekli" }, { status: 400 });
+      return NextResponse.json({ error: trans.required }, { status: 400 });
     }
     if (message.length > 1000) {
-      return NextResponse.json({ error: "Mesaj çok uzun." }, { status: 400 });
+      return NextResponse.json({ error: trans.tooLong }, { status: 400 });
     }
 
-    return NextResponse.json({ response: getStaticResponse(message, await isMobileApp()) });
+    return NextResponse.json({ response: getStaticResponse(message, await isMobileApp(), lang) });
   } catch {
     return NextResponse.json({
-      response: `Şu an yanıt veremiyorum. Lütfen ${CONTACT_LINE}`,
+      response: `${trans.fallback}${contact}`,
     });
   }
 }

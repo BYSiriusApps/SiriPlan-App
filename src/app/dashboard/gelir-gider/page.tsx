@@ -303,14 +303,28 @@ export default function GelirGiderPage() {
 
   const activeTemplates = recurring.filter((r) => r.is_active);
 
+  const isTr = t("guide").includes("Kılavuzu");
+  const isEn = t("guide").includes("User Guide");
+  const isRu = t("guide").includes("Руководство");
+
+  const getIncomeText = (key: string) => {
+    if (key === "recurringBills") return isTr ? "Sabit Giderler" : isEn ? "Recurring Bills" : isRu ? "Постоянные расходы" : "المصاريف الثابتة";
+    if (key === "addRecord") return isTr ? "Kayıt Ekle" : isEn ? "Add Record" : isRu ? "Добавить запись" : "إضافة سجل";
+    if (key === "recurringTemplates") return isTr ? "Sabit Gider Şablonları" : isEn ? "Recurring Expense Templates" : isRu ? "Шаблоны постоянных расходов" : "قوالب المصاريف الثابتة";
+    if (key === "recurringDesc") return isTr ? "Her ay tekrarlayan kira, maaş, fatura gibi giderleri tanımlayın. Tek tıkla seçili aya uygulayın." : isEn ? "Define monthly recurring expenses like rent, salary, bills. Apply to selected month with one click." : isRu ? "Определите ежемесячные постоянные расходы, такие как аренда, зарплата, счета. Примените к выбранному месяцу в один клик." : "حدد النفقات المتكررة الشهرية مثل الإيجار والرواتب والفواتير. قم بتطبقها على الشهر المحدد بنقرة واحدة.";
+    if (key === "addTemplate") return isTr ? "Şablon Ekle" : isEn ? "Add Template" : isRu ? "Добавить шаблон" : "إضافة قالب";
+    if (key === "applyToMonth") return isTr ? "Uygula" : isEn ? "Apply" : isRu ? "Применить" : "تطبيق";
+    return "";
+  };
+
   return (
     <div className="p-4 md:p-6 space-y-5 max-w-5xl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("incomePage.eyebrow")}</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("expensesPage.eyebrow")}</span>
           <div className="flex items-center gap-3"><h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("incomePage.title")}</h1><HomeButton /></div>
-          <p className="text-muted-foreground text-sm">{t("incomePage.subtitle")}</p>
+          <p className="text-muted-foreground text-sm">{t("expensesPage.subtitle")}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button
@@ -319,7 +333,7 @@ export default function GelirGiderPage() {
             className="gap-2 shrink-0"
           >
             <RepeatIcon className="h-4 w-4" />
-            Sabit Giderler
+            {getIncomeText("recurringBills")}
             {activeTemplates.length > 0 && (
               <Badge variant="secondary" className="ml-1 h-5 text-[10px]">
                 {activeTemplates.length}
@@ -329,7 +343,7 @@ export default function GelirGiderPage() {
           </Button>
           <Button onClick={() => setShowForm(true)} className="gap-2 shrink-0">
             <Plus className="h-4 w-4" />
-            Kayıt Ekle
+            {getIncomeText("addRecord")}
           </Button>
         </div>
       </div>
@@ -342,10 +356,10 @@ export default function GelirGiderPage() {
               <div>
                 <CardTitle className="text-base flex items-center gap-2">
                   <RepeatIcon className="h-4 w-4 text-primary" />
-                  Sabit Gider Şablonları
+                  {getIncomeText("recurringTemplates")}
                 </CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Her ay tekrarlayan kira, maaş, fatura gibi giderleri tanımlayın. Tek tıkla seçili aya uygulayın.
+                  {getIncomeText("recurringDesc")}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -360,7 +374,7 @@ export default function GelirGiderPage() {
                   }}
                 >
                   <Plus className="h-3.5 w-3.5" />
-                  Şablon Ekle
+                  {getIncomeText("addTemplate")}
                 </Button>
                 {activeTemplates.length > 0 && (
                   <Button
@@ -373,7 +387,7 @@ export default function GelirGiderPage() {
                       ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       : <RefreshCw className="h-3.5 w-3.5" />
                     }
-                    {months[month - 1]}&apos;e Uygula ({activeTemplates.length})
+                    {isTr ? `${months[month - 1]}'e Uygula` : isEn ? `Apply to ${months[month - 1]}` : isRu ? `Применить к ${months[month - 1]}` : `تطبيق على ${months[month - 1]}`} ({activeTemplates.length})
                   </Button>
                 )}
               </div>
@@ -387,8 +401,8 @@ export default function GelirGiderPage() {
             ) : recurring.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <RepeatIcon className="h-7 w-7 mx-auto mb-2 opacity-30" />
-                <p className="text-sm">Henüz sabit gider şablonu yok</p>
-                <p className="text-xs mt-1">Kira, maaş, fatura gibi aylık tekrarlayan giderleri ekleyin</p>
+                <p className="text-sm">{isTr ? "Henüz sabit gider şablonu yok" : isEn ? "No recurring expense templates yet" : isRu ? "Шаблонов постоянных расходов пока нет" : "لا توجد قوالب للمصاريف الثابتة بعد"}</p>
+                <p className="text-xs mt-1">{isTr ? "Kira, maaş, fatura gibi aylık tekrarlayan giderleri ekleyin" : isEn ? "Add monthly recurring expenses like rent, salary, bills" : isRu ? "Добавьте ежемесячные постоянные расходы, такие как аренда, зарплата, счета" : "أضف المصاريف الشهرية المتكررة مثل الإيجار، الرواتب، الفواتير"}</p>
                 <Button
                   variant="outline"
                   size="sm"
@@ -399,16 +413,16 @@ export default function GelirGiderPage() {
                     setShowRecurringForm(true);
                   }}
                 >
-                  İlk Şablonu Ekle
+                  {isTr ? "İlk Şablonu Ekle" : isEn ? "Add First Template" : isRu ? "Добавить первый шаблон" : "إضافة القالب الأول"}
                 </Button>
               </div>
             ) : (
               <div className="space-y-1">
                 <div className="hidden md:grid grid-cols-[1fr_140px_120px_80px_80px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
-                  <span>Açıklama</span>
-                  <span>Kategori</span>
-                  <span>Ödeme</span>
-                  <span className="text-right">Tutar</span>
+                  <span>{isTr ? "Açıklama" : isEn ? "Description" : isRu ? "Описание" : "الوصف"}</span>
+                  <span>{isTr ? "Kategori" : isEn ? "Category" : isRu ? "Category" : "الفئة"}</span>
+                  <span>{isTr ? "Ödeme" : isEn ? "Payment" : isRu ? "Оплата" : "الدفع"}</span>
+                  <span className="text-right">{isTr ? "Tutar" : isEn ? "Amount" : isRu ? "Сумма" : "المبلغ"}</span>
                   <span />
                 </div>
                 {recurring.map((r) => (
@@ -475,11 +489,11 @@ export default function GelirGiderPage() {
                 {activeTemplates.length > 0 && (
                   <div className="pt-3 border-t mt-2 flex items-center justify-between text-xs text-muted-foreground">
                     <span>
-                      {activeTemplates.length} aktif şablon · toplam{" "}
+                      {activeTemplates.length} {isTr ? "aktif şablon · toplam" : isEn ? "active templates · total" : isRu ? "активных шаблонов · всего" : "القوالب النشطة · إجمالي"}{" "}
                       <span className="font-semibold text-foreground">
                         {fmt(activeTemplates.filter(r => r.type === "gider").reduce((s, r) => s + Number(r.amount), 0))}
                       </span>{" "}
-                      aylık sabit gider
+                      {isTr ? "aylık sabit gider" : isEn ? "monthly fixed expense" : isRu ? "ежемесячный постоянный расход" : "المصروفات الثابتة الشهرية"}
                     </span>
                     <Button
                       size="sm"
@@ -491,7 +505,7 @@ export default function GelirGiderPage() {
                         ? <Loader2 className="h-3 w-3 animate-spin" />
                         : <RefreshCw className="h-3 w-3" />
                       }
-                      {months[month - 1]}&apos;e Uygula
+                      {isTr ? `${months[month - 1]}'e Uygula` : isEn ? `Apply to ${months[month - 1]}` : isRu ? `Применить к ${months[month - 1]}` : `تطبيق على ${months[month - 1]}`}
                     </Button>
                   </div>
                 )}
@@ -538,7 +552,7 @@ export default function GelirGiderPage() {
                   : "text-muted-foreground hover:bg-background/60"
               }`}
             >
-              {v === "aylik" ? "Aylık" : "Yıllık (Kümülatif)"}
+              {v === "aylik" ? (isTr ? "Aylık" : isEn ? "Monthly" : isRu ? "Ежемесячно" : "شهري") : (isTr ? "Yıllık (Kümülatif)" : isEn ? "Yearly (Cumulative)" : isRu ? "Ежегодно (кумулятивно)" : "سنوي (تراكمي)")}
             </button>
           ))}
         </div>
@@ -551,7 +565,7 @@ export default function GelirGiderPage() {
             <ArrowUpCircle className="h-5 w-5 text-emerald-600" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">Toplam Gelir</p>
+            <p className="text-xs text-muted-foreground">{isTr ? "Toplam Gelir" : isEn ? "Total Income" : isRu ? "Общий доход" : "إجمالي الإيرادات"}</p>
             <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 tabular-nums tracking-tight">{fmt(totalGelir)}</p>
           </div>
         </div>
@@ -561,7 +575,7 @@ export default function GelirGiderPage() {
             <ArrowDownCircle className="h-5 w-5 text-red-600" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">Toplam Gider</p>
+            <p className="text-xs text-muted-foreground">{isTr ? "Toplam Gider" : isEn ? "Total Expense" : isRu ? "Общий расход" : "إجمالي المصروفات"}</p>
             <p className="text-2xl font-bold text-red-700 dark:text-red-400 tabular-nums tracking-tight">{fmt(totalGider)}</p>
           </div>
         </div>
@@ -574,7 +588,7 @@ export default function GelirGiderPage() {
             }
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">Net Kâr / Zarar</p>
+            <p className="text-xs text-muted-foreground">{isTr ? "Net Kâr / Zarar" : isEn ? "Net Profit / Loss" : isRu ? "Чистая прибыль / убыток" : "صافي الربح / الخسارة"}</p>
             <p className={`text-2xl font-bold tabular-nums tracking-tight ${netKar >= 0 ? "text-blue-700 dark:text-blue-400" : "text-orange-700 dark:text-orange-400"}`}>
               {netKar >= 0 ? "+" : ""}{fmt(netKar)}
             </p>
@@ -587,9 +601,9 @@ export default function GelirGiderPage() {
               <Percent className="h-5 w-5 text-amber-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">Tahmini KDV (%{kdvRate})</p>
+              <p className="text-xs text-muted-foreground">{isTr ? "Tahmini KDV" : isEn ? "Estimated VAT" : isRu ? "Оценочный НДС" : "ضريبة القيمة المضافة"} (%{kdvRate})</p>
               <p className="text-2xl font-bold text-amber-700 dark:text-amber-400 tabular-nums tracking-tight">{fmt(kdvTutari)}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">Gelir tutarının KDV dahil olduğu varsayılır</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{isTr ? "Gelir tutarının KDV dahil olduğu varsayılır" : isEn ? "Income amount is assumed to include VAT" : isRu ? "Предполагается, что сумма дохода включает НДС" : "يفترض أن قيمة الدخل تشمل الضريبة"}</p>
             </div>
           </div>
         )}
@@ -655,7 +669,7 @@ export default function GelirGiderPage() {
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <CardTitle className="text-base flex items-center gap-2">
               <Wallet className="h-4 w-4 text-primary" />
-              {months[month - 1]} {year} — Kayıtlar
+              {months[month - 1]} {year} — {isTr ? "Kayıtlar" : isEn ? "Records" : isRu ? "Записи" : "السجلات"}
             </CardTitle>
             <div className="flex gap-1">
               {(["all", "gelir", "gider"] as const).map((kind) => (
@@ -668,7 +682,7 @@ export default function GelirGiderPage() {
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
-                  {kind === "all" ? "Tümü" : kind === "gelir" ? "Gelir" : "Gider"}
+                  {kind === "all" ? (isTr ? "Tümü" : isEn ? "All" : isRu ? "Все" : "الكل") : kind === "gelir" ? (isTr ? "Gelir" : isEn ? "Income" : isRu ? "Доход" : "الإيرادات") : (isTr ? "Gider" : isEn ? "Expense" : isRu ? "Расход" : "المصروفات")}
                 </button>
               ))}
             </div>
@@ -682,15 +696,15 @@ export default function GelirGiderPage() {
           ) : visible.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
               <DollarSign className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">Bu dönem için kayıt yok</p>
+              <p className="text-sm">{isTr ? "Bu dönem için kayıt yok" : isEn ? "No records for this period" : isRu ? "Нет записей за этот период" : "لا توجد سجلات لهذه الفترة"}</p>
               <div className="flex gap-2 justify-center mt-3 flex-wrap">
                 <Button variant="outline" size="sm" onClick={() => setShowForm(true)}>
-                  Manuel Ekle
+                  {isTr ? "Manuel Ekle" : isEn ? "Add Manually" : isRu ? "Добавить вручную" : "إضافة يدوياً"}
                 </Button>
                 {activeTemplates.length > 0 && (
                   <Button size="sm" className="gap-1.5" onClick={handleApplyTemplates} disabled={applyingTemplates}>
                     {applyingTemplates ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
-                    Sabit Giderleri Uygula
+                    {isTr ? "Sabit Giderleri Uygula" : isEn ? "Apply Recurring Expenses" : isRu ? "Применить постоянные расходы" : "تطبيق المصاريف الثابتة"}
                   </Button>
                 )}
               </div>
@@ -698,11 +712,11 @@ export default function GelirGiderPage() {
           ) : (
             <div className="space-y-1">
               <div className="hidden md:grid grid-cols-[100px_1fr_140px_120px_100px_40px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
-                <span>Tarih</span>
-                <span>Açıklama</span>
-                <span>Kategori</span>
-                <span>Ödeme</span>
-                <span className="text-right">Tutar</span>
+                <span>{isTr ? "Tarih" : isEn ? "Date" : isRu ? "Дата" : "التاريخ"}</span>
+                <span>{isTr ? "Açıklama" : isEn ? "Description" : isRu ? "Описание" : "الوصف"}</span>
+                <span>{isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"}</span>
+                <span>{isTr ? "Ödeme" : isEn ? "Payment" : isRu ? "Оплата" : "الدفع"}</span>
+                <span className="text-right">{isTr ? "Tutar" : isEn ? "Amount" : isRu ? "Сумма" : "المبلغ"}</span>
                 <span />
               </div>
 
@@ -781,7 +795,7 @@ export default function GelirGiderPage() {
             return (
               <Card key={type} className="border-0 shadow-sm">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">{label}</CardTitle>
+                  <CardTitle className="text-sm">{isTr ? (type === "gelir" ? "Gelir Dağılımı" : "Gider Dağılımı") : isEn ? (type === "gelir" ? "Income Distribution" : "Expense Distribution") : isRu ? (type === "gelir" ? "Распределение доходов" : "Распределение расходов") : (type === "gelir" ? "توزيع الإيرادات" : "توزيع المصروفات")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {byCategory.map((c) => (
@@ -812,7 +826,11 @@ export default function GelirGiderPage() {
       }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingEntry ? "Kaydı Düzenle" : "Yeni Kayıt"}</DialogTitle>
+            <DialogTitle>
+              {editingEntry 
+                ? (isTr ? "Kaydı Düzenle" : isEn ? "Edit Record" : isRu ? "Редактировать запись" : "تعديل السجل")
+                : (isTr ? "Yeni Kayıt" : isEn ? "New Record" : isRu ? "Новая запись" : "سجل جديد")}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-2">
@@ -828,13 +846,15 @@ export default function GelirGiderPage() {
                       : "border-border text-muted-foreground"
                   }`}
                 >
-                  {kind === "gelir" ? "💰 Gelir" : "💸 Gider"}
+                  {kind === "gelir" 
+                    ? (isTr ? "💰 Gelir" : isEn ? "💰 Income" : isRu ? "💰 Доход" : "💰 إيراد") 
+                    : (isTr ? "💸 Gider" : isEn ? "💸 Expense" : isRu ? "💸 Расход" : "💸 مصروف")}
                 </button>
               ))}
             </div>
 
             <div>
-              <Label>Kategori</Label>
+              <Label>{isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"}</Label>
               <Select
                 value={form.category}
                 onValueChange={(v) => setForm((f) => ({ ...f, category: v ?? f.category }))}
@@ -852,7 +872,7 @@ export default function GelirGiderPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Tutar ({CURRENCY_SYMBOL[currency] ?? "₺"}) *</Label>
+                <Label>{isTr ? "Tutar" : isEn ? "Amount" : isRu ? "Сумма" : "المبلغ"} ({CURRENCY_SYMBOL[currency] ?? "₺"}) *</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -864,7 +884,7 @@ export default function GelirGiderPage() {
                 />
               </div>
               <div>
-                <Label>Tarih *</Label>
+                <Label>{isTr ? "Tarih" : isEn ? "Date" : isRu ? "Дата" : "التاريخ"} *</Label>
                 <Input
                   className="mt-1"
                   type="date"
@@ -875,17 +895,17 @@ export default function GelirGiderPage() {
             </div>
 
             <div>
-              <Label>Açıklama *</Label>
+              <Label>{isTr ? "Açıklama" : isEn ? "Description" : isRu ? "Описание" : "الوصف"} *</Label>
               <Input
                 className="mt-1"
-                placeholder="Kira Ödemesi, Malzeme Alımı..."
+                placeholder={isTr ? "Açıklama yazın..." : isEn ? "Write description..." : isRu ? "Введите описание..." : "اكتب الوصف..."}
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               />
             </div>
 
             <div>
-              <Label>Ödeme Yöntemi</Label>
+              <Label>{isTr ? "Ödeme Yöntemi" : isEn ? "Payment Method" : isRu ? "Способ оплаты" : "طريقة الدفع"}</Label>
               <Select
                 value={form.payment_method}
                 onValueChange={(v) => setForm((f) => ({ ...f, payment_method: v ?? f.payment_method }))}
@@ -894,19 +914,19 @@ export default function GelirGiderPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="nakit">Nakit</SelectItem>
-                  <SelectItem value="kart">Kart</SelectItem>
-                  <SelectItem value="havale">Havale / EFT</SelectItem>
-                  <SelectItem value="çek">Çek</SelectItem>
+                  <SelectItem value="nakit">{isTr ? "Nakit" : isEn ? "Cash" : isRu ? "Наличные" : "نقداً"}</SelectItem>
+                  <SelectItem value="kart">{isTr ? "Kart" : isEn ? "Card" : isRu ? "Карта" : "بطاقة"}</SelectItem>
+                  <SelectItem value="havale">{isTr ? "Havale / EFT" : isEn ? "Bank Transfer" : isRu ? "Перевод" : "تحويل بنكي"}</SelectItem>
+                  <SelectItem value="çek">{isTr ? "Çek" : isEn ? "Cheque" : isRu ? "Чек" : "شيك"}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label>Not (isteğe bağlı)</Label>
+              <Label>{isTr ? "Not (isteğe bağlı)" : isEn ? "Note (optional)" : isRu ? "Примечание (опционально)" : "ملاحظة (اختياري)"}</Label>
               <Input
                 className="mt-1"
-                placeholder="Ek bilgi..."
+                placeholder="..."
                 value={form.note}
                 onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
               />
@@ -914,11 +934,13 @@ export default function GelirGiderPage() {
 
             <div className="flex gap-2 pt-2">
               <Button variant="outline" className="flex-1" onClick={() => setShowForm(false)}>
-                İptal
+                {isTr ? "İptal" : isEn ? "Cancel" : isRu ? "Отмена" : "إلغاء"}
               </Button>
               <Button className="flex-1 gap-2" onClick={handleSave} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {editingEntry ? "Güncelle" : "Kaydet"}
+                {editingEntry 
+                  ? (isTr ? "Güncelle" : isEn ? "Update" : isRu ? "Обновить" : "تحديث") 
+                  : (isTr ? "Kaydet" : isEn ? "Save" : isRu ? "Сохранить" : "حفظ")}
               </Button>
             </div>
           </div>
@@ -932,11 +954,15 @@ export default function GelirGiderPage() {
       }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingRecurring ? "Şablonu Düzenle" : "Yeni Sabit Gider Şablonu"}</DialogTitle>
+            <DialogTitle>
+              {editingRecurring 
+                ? (isTr ? "Şablonu Düzenle" : isEn ? "Edit Template" : isRu ? "Редактировать шаблон" : "تعديل القالب")
+                : (isTr ? "Yeni Sabit Gider Şablonu" : isEn ? "New Recurring Expense Template" : isRu ? "Новый шаблон постоянного расхода" : "قالب جديد للمصروفات الثابتة")}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <p className="text-xs text-muted-foreground -mt-1">
-              Bu şablon her ay tek tıkla seçili döneme uygulanabilir.
+              {isTr ? "Bu şablon her ay tek tıkla seçili döneme uygulanabilir." : isEn ? "This template can be applied to the selected period with a single click every month." : isRu ? "Этот шаблон можно применить к выбранному периоду в один клик каждый месяц." : "يمكن تطبيق هذا القالب على الفترة المحددة بنقرة واحدة كل شهر."}
             </p>
 
             <div className="grid grid-cols-2 gap-2">
@@ -952,13 +978,15 @@ export default function GelirGiderPage() {
                       : "border-border text-muted-foreground"
                   }`}
                 >
-                  {kind === "gelir" ? "💰 Gelir" : "💸 Gider"}
+                  {kind === "gelir" 
+                    ? (isTr ? "💰 Gelir" : isEn ? "💰 Income" : isRu ? "💰 Доход" : "💰 إيراد") 
+                    : (isTr ? "💸 Gider" : isEn ? "💸 Expense" : isRu ? "💸 Расход" : "💸 مصروف")}
                 </button>
               ))}
             </div>
 
             <div>
-              <Label>Kategori</Label>
+              <Label>{isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"}</Label>
               <Select
                 value={recurringForm.category}
                 onValueChange={(v) => setRecurringForm((f) => ({ ...f, category: v ?? f.category }))}
@@ -976,7 +1004,7 @@ export default function GelirGiderPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Tutar ({CURRENCY_SYMBOL[currency] ?? "₺"}) *</Label>
+                <Label>{isTr ? "Tutar" : isEn ? "Amount" : isRu ? "Сумма" : "المبلغ"} ({CURRENCY_SYMBOL[currency] ?? "₺"}) *</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -988,7 +1016,7 @@ export default function GelirGiderPage() {
                 />
               </div>
               <div>
-                <Label>Ödeme Yöntemi</Label>
+                <Label>{isTr ? "Ödeme Yöntemi" : isEn ? "Payment Method" : isRu ? "Способ оплаты" : "طريقة الدفع"}</Label>
                 <Select
                   value={recurringForm.payment_method}
                   onValueChange={(v) => setRecurringForm((f) => ({ ...f, payment_method: v ?? f.payment_method }))}
@@ -997,30 +1025,30 @@ export default function GelirGiderPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="nakit">Nakit</SelectItem>
-                    <SelectItem value="kart">Kart</SelectItem>
-                    <SelectItem value="havale">Havale / EFT</SelectItem>
-                    <SelectItem value="çek">Çek</SelectItem>
+                    <SelectItem value="nakit">{isTr ? "Nakit" : isEn ? "Cash" : isRu ? "Наличные" : "نقداً"}</SelectItem>
+                    <SelectItem value="kart">{isTr ? "Kart" : isEn ? "Card" : isRu ? "Карта" : "بطاقة"}</SelectItem>
+                    <SelectItem value="havale">{isTr ? "Havale / EFT" : isEn ? "Bank Transfer" : isRu ? "Перевод" : "تحويل بنكي"}</SelectItem>
+                    <SelectItem value="çek">{isTr ? "Çek" : isEn ? "Cheque" : isRu ? "Чек" : "شيك"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div>
-              <Label>Açıklama *</Label>
+              <Label>{isTr ? "Açıklama" : isEn ? "Description" : isRu ? "Описание" : "الوصف"} *</Label>
               <Input
                 className="mt-1"
-                placeholder="Aylık Kira, Elektrik Faturası, SGK Primi..."
+                placeholder={isTr ? "Aylık Kira, Elektrik..." : isEn ? "Monthly Rent, Electricity..." : isRu ? "Аренда, электричество..." : "الإيجار الشهري، الكهرباء..."}
                 value={recurringForm.description}
                 onChange={(e) => setRecurringForm((f) => ({ ...f, description: e.target.value }))}
               />
             </div>
 
             <div>
-              <Label>Not (isteğe bağlı)</Label>
+              <Label>{isTr ? "Not (isteğe bağlı)" : isEn ? "Note (optional)" : isRu ? "Примечание (опционально)" : "ملاحظة (اختياري)"}</Label>
               <Input
                 className="mt-1"
-                placeholder="Ek bilgi..."
+                placeholder="..."
                 value={recurringForm.note}
                 onChange={(e) => setRecurringForm((f) => ({ ...f, note: e.target.value }))}
               />
@@ -1032,11 +1060,13 @@ export default function GelirGiderPage() {
                 className="flex-1"
                 onClick={() => { setShowRecurringForm(false); setEditingRecurring(null); setRecurringForm(EMPTY_RECURRING); }}
               >
-                İptal
+                {isTr ? "İptal" : isEn ? "Cancel" : isRu ? "Отмена" : "إلغاء"}
               </Button>
               <Button className="flex-1 gap-2" onClick={handleSaveRecurring} disabled={savingRecurring}>
                 {savingRecurring && <Loader2 className="h-4 w-4 animate-spin" />}
-                {editingRecurring ? "Güncelle" : "Şablon Kaydet"}
+                {editingRecurring 
+                  ? (isTr ? "Güncelle" : isEn ? "Update" : isRu ? "Обновить" : "تحديث") 
+                  : (isTr ? "Şablon Kaydet" : isEn ? "Save Template" : isRu ? "Сохранить шаблон" : "حفظ القالب")}
               </Button>
             </div>
           </div>

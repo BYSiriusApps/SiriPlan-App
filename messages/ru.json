@@ -1367,7 +1367,8 @@
       "manage_campaigns": "Может управлять кампаниями",
       "create_appointments": "Может создавать записи",
       "edit_appointments": "Может редактировать записи",
-      "cancel_appointments": "Может отменять записи"
+      "cancel_appointments": "Может отменять записи",
+      "manage_settings": "Может управлять настройками"
     },
     "staffPermissions": {
       "cardTitle": "Права персонала",
