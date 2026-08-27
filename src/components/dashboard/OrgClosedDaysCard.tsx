@@ -7,12 +7,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CalendarX, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale } from "next-intl";
 import { format } from "date-fns";
-import { tr } from "date-fns/locale";
+import { tr, enUS, ru, ar } from "date-fns/locale";
 import type { StaffTimeOff } from "@/types/database";
 
 /** İşletme geneli kapalı gün yönetimi (resmi tatil vb.) — staff_id NULL kayıtlar. */
 export function OrgClosedDaysCard() {
+  const locale = useLocale();
+  const isTrLocale = locale === "tr";
+  const isEn = locale === "en";
+  const isRu = locale === "ru";
+  const isAr = locale === "ar";
+
+  const dateFnsLocale = isTrLocale ? tr : isRu ? ru : isAr ? ar : enUS;
+
   const [days, setDays] = useState<StaffTimeOff[]>([]);
   const [form, setForm] = useState({ starts_on: "", ends_on: "", reason: "" });
   const [adding, setAdding] = useState(false);
@@ -51,14 +60,6 @@ export function OrgClosedDaysCard() {
     else toast.error("Silinemedi");
   }
 
-  const isTr = typeof window !== "undefined" && !window.location.pathname.startsWith("/en") && !window.location.pathname.startsWith("/ru") && !window.location.pathname.startsWith("/ar"); // Fallback check or active settings
-  // Simple path parser for locale in client components
-  const path = typeof window !== "undefined" ? window.location.pathname : "";
-  const isEn = path.startsWith("/en");
-  const isRu = path.startsWith("/ru");
-  const isAr = path.startsWith("/ar");
-  const isTrLocale = !isEn && !isRu && !isAr;
-
   const tStr = (key: string) => {
     if (key === "title") return isTrLocale ? "İşletme Geneli Kapalı Günler" : isEn ? "Business-Wide Closed Days" : isRu ? "Выходные дни предприятия" : "الأيام المغلقة على مستوى العمل";
     if (key === "desc") return isTrLocale ? "Resmi tatil gibi tüm personeli etkileyen kapalı günler. Bu tarihlerde hiçbir personel için online randevu alınamaz." : isEn ? "Closed days affecting all staff, such as official holidays. No online appointments can be booked on these dates." : isRu ? "Выходные дни, затрагивающие весь персонал, например официальные праздники. Онлайн-запись на эти даты невозможна." : "أيام مغلقة تؤثر على جميع الموظفين، مثل العطلات الرسمية. لا يمكن حجز مواعيد عبر الإنترنت في هذه التواريخ.";
@@ -87,8 +88,8 @@ export function OrgClosedDaysCard() {
           <div className="flex flex-wrap gap-2">
             {days.map((d) => (
               <span key={d.id} className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-muted">
-                {format(new Date(d.starts_on + "T12:00:00"), "d MMM", { locale: isTrLocale ? tr : undefined })}
-                {d.ends_on !== d.starts_on && ` – ${format(new Date(d.ends_on + "T12:00:00"), "d MMM", { locale: isTrLocale ? tr : undefined })}`}
+                {format(new Date(d.starts_on + "T12:00:00"), "d MMM", { locale: dateFnsLocale })}
+                {d.ends_on !== d.starts_on && ` – ${format(new Date(d.ends_on + "T12:00:00"), "d MMM", { locale: dateFnsLocale })}`}
                 {d.reason ? ` · ${d.reason}` : ""}
                 <button type="button" onClick={() => handleDelete(d.id)} className="text-muted-foreground hover:text-red-600">
                   <Trash2 className="h-3 w-3" />

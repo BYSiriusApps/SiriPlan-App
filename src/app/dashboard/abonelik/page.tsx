@@ -140,8 +140,6 @@ export default async function AbonelikPage() {
               { label: "Kampanya Modülü", enabled: ent.feature_campaigns },
               { label: "Gamification", enabled: ent.feature_gamification },
               { label: "AI Asistanı", enabled: ent.feature_ai },
-              { label: "API Erişimi", enabled: ent.feature_api },
-              { label: "White-Label", enabled: ent.feature_whitelabel },
             ].map((f) => (
               <div key={f.label} className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className={`h-4 w-4 ${f.enabled ? "text-green-600" : "text-muted-foreground/40"}`} />

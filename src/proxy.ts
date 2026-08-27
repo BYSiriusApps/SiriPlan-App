@@ -19,8 +19,7 @@ const MANAGER_ROUTES = [
 ];
 
 // Routes that require "owner" role
-const OWNER_ROUTES = [
-];
+const OWNER_ROUTES: string[] = [];
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
 const WRITE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
