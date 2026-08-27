@@ -136,10 +136,10 @@ export default async function AbonelikPage() {
 
           <div className="space-y-2">
             {[
-              { label: "Website Modu", enabled: ent.feature_website },
-              { label: "Kampanya Modülü", enabled: ent.feature_campaigns },
-              { label: "Gamification", enabled: ent.feature_gamification },
-              { label: "AI Asistanı", enabled: ent.feature_ai },
+              { label: t("subscriptionPage.websiteModu"), enabled: ent.feature_website },
+              { label: t("subscriptionPage.kampanyaModulu"), enabled: ent.feature_campaigns },
+              { label: t("subscriptionPage.gamification"), enabled: ent.feature_gamification },
+              { label: t("subscriptionPage.aiAsistani"), enabled: ent.feature_ai },
             ].map((f) => (
               <div key={f.label} className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className={`h-4 w-4 ${f.enabled ? "text-green-600" : "text-muted-foreground/40"}`} />
