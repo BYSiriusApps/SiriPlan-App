@@ -23,7 +23,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   // Fetch the pending request
   const { data: reqRow, error: fetchErr } = await supabase
@@ -140,6 +139,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       purpose: "onay",
       vars: { customer_name: reqRow.customer_name, date, time },
       appointmentAt: reqRow.appointment_at,
+      cancelToken: (appt as { cancel_token?: string }).cancel_token,
     }).catch((err) => console.error("[appointment-requests] sendPurposeTemplate(onay) hata:", err));
   }
 

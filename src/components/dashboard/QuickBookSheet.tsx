@@ -80,6 +80,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   const [orgAddress, setOrgAddress] = useState("");
   const [orgLocationUrl, setOrgLocationUrl] = useState("");
   const [waTemplate, setWaTemplate] = useState<string | null>(null);
+  const [slotMinutes, setSlotMinutes] = useState(15);
 
   useEffect(() => {
     fetch("/api/org")
@@ -90,6 +91,8 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
         setOrgLocationUrl(d.org?.location_url ?? "");
         const s = (d.org?.settings_json ?? {}) as Record<string, unknown>;
         setWaTemplate(typeof s.wa_appointment_template === "string" ? s.wa_appointment_template : null);
+        const bookingSlot = Number(s.booking_slot_minutes);
+        if ([15, 30, 60].includes(bookingSlot)) setSlotMinutes(bookingSlot);
         // Meta üzerinden otomatik onay mesajı varsayılan olarak açık (wa_notify_onay !== false).
         // Aktifse manuel gönderim mükerrerliği önlemek için bu kutuyu varsayılan kapalı başlat —
         // kullanıcı zaten elle değiştirdiyse (sendWaTouchedRef) dokunma.
@@ -105,7 +108,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     if (open) {
       setSelectedStaffId(preselectedStaffId ?? "");
       setSelectedServiceId("");
-      setAppointmentAt(nextSlot(preselectedDate));
+      setAppointmentAt(nextSlot(preselectedDate, slotMinutes));
       setCustomerName("");
       setCustomerPhone("");
       setCustomerEmail("");
@@ -417,13 +420,14 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
             )}
           </div>
 
-          {/* ── Date & time — 15 dakikalık slotlar ── */}
+          {/* ── Tarih & saat — Ayarlar'daki randevu dilimine göre ── */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">{t("dateTimeLabel")}</Label>
             <DateTimeSlotPicker
               value={appointmentAt}
               onChange={setAppointmentAt}
               minDate={new Date().toISOString().slice(0, 10)}
+              slotMinutes={slotMinutes}
             />
           </div>
 

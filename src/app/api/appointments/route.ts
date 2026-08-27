@@ -247,9 +247,9 @@ async function handleCreateAppointment(req: NextRequest) {
   }
 
   // ── Otomatik Randevu Akışı ────────────────────────────────────
-  // instagram/whatsapp kaynağından gelen istekler has_auto_booking flag'ine göre
+  // instagram/whatsapp/tiktok kaynağından gelen istekler has_auto_booking flag'ine göre
   // ya direkt appointments'a düşer ya da onay kuyruğuna gönderilir.
-  const isExternalSource = data.source === "instagram" || data.source === "whatsapp";
+  const isExternalSource = data.source === "instagram" || data.source === "whatsapp" || data.source === "tiktok";
   if (isExternalSource && !data.staff_id) {
     return NextResponse.json({ error: "Personel seçimi zorunlu" }, { status: 400 });
   }
@@ -589,6 +589,7 @@ async function handleCreateAppointment(req: NextRequest) {
       purpose: "onay",
       vars: { customer_name: data.customer_name, date, time },
       appointmentAt: data.appointment_at,
+      cancelToken: (appt as { cancel_token?: string }).cancel_token,
     }).catch((err) => console.error("[appointments] sendPurposeTemplate(onay) hata:", err));
   }
 

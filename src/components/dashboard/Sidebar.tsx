@@ -9,6 +9,7 @@ import {
   LayoutDashboard, Calendar, BookOpen, Users, UserCog,
   Scissors, Megaphone, BarChart3, Import, Settings,
   CreditCard, Wallet, ChevronRight, ShieldCheck, ListPlus, Globe, Inbox, Package,
+  HelpCircle,
 } from "lucide-react";
 import { OrgSwitcher } from "@/components/dashboard/OrgSwitcher";
 import { Badge } from "@/components/ui/badge";
@@ -33,8 +34,9 @@ const NAV_ITEMS = [
   { href: "/dashboard/website-ayarlari", icon: Globe,        tKey: "websiteSettings", badge: "Pro", minRole: "manager" },
   { href: "/dashboard/raporlar",      icon: BarChart3,       tKey: "reports",        minRole: "manager" },
   { href: "/dashboard/gelir-gider",   icon: Wallet,          tKey: "income",         minRole: "manager" },
-  { href: "/dashboard/stok",          icon: Package,         tKey: "stock",         minRole: "manager" },
+  { href: "/dashboard/stok",          icon: Package,         tKey: "stock",         minRole: "staff"   },
   { href: "/dashboard/veri-gocu",     icon: Import,          tKey: "dataMigration",  minRole: "manager" },
+  { href: "/dashboard/rehber",        icon: HelpCircle,      tKey: "guide",          minRole: "staff"   },
   { href: "/dashboard/ayarlar",       icon: Settings,        tKey: "settings",       minRole: "owner"   },
   { href: "/dashboard/abonelik",      icon: CreditCard,      tKey: "subscription",   minRole: "owner"   },
 ];

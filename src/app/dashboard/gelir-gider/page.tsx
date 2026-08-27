@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import {
   DollarSign, ArrowUpCircle, ArrowDownCircle, RefreshCw, Pencil,
   ToggleLeft, ToggleRight, RepeatIcon, ChevronDown, ChevronUp, Percent,
 } from "lucide-react";
+import { formatMoney, CURRENCY_SYMBOL } from "@/lib/currency";
 
 type Expense = {
   id: string;
@@ -40,8 +42,6 @@ type RecurringExpense = {
   is_active: boolean;
 };
 
-const fmt = (n: number) => `₺${n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
 const EMPTY_FORM = {
   type: "gider" as "gelir" | "gider",
   category: "diger",
@@ -63,6 +63,8 @@ const EMPTY_RECURRING = {
 
 export default function GelirGiderPage() {
   const t = useTranslations("dashboard");
+  const router = useRouter();
+  const [role, setRole] = useState<string | null>(null);
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -88,6 +90,8 @@ export default function GelirGiderPage() {
 
   const [kdvEnabled, setKdvEnabled] = useState(false);
   const [kdvRate, setKdvRate] = useState(20);
+  const [currency, setCurrency] = useState("TRY");
+  const fmt = useCallback((n: number) => formatMoney(n, currency), [currency]);
 
   // Get categories and months from translations
   const categoriesGelir = useMemo(() => t.raw("incomeCategories") as Array<{ value: string; label: string }>, [t]);
@@ -98,11 +102,20 @@ export default function GelirGiderPage() {
     fetch("/api/org")
       .then((r) => r.json())
       .then((d) => {
+        setRole(d.role ?? "staff");
         setKdvEnabled(!!d.org?.kdv_enabled);
         setKdvRate(Number(d.org?.kdv_rate ?? 20));
+        const settings = (d.org?.settings_json ?? {}) as Record<string, unknown>;
+        if (typeof settings.currency === "string") setCurrency(settings.currency);
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (role === "staff") {
+      router.push("/dashboard");
+    }
+  }, [role, router]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -839,7 +852,7 @@ export default function GelirGiderPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Tutar (₺) *</Label>
+                <Label>Tutar ({CURRENCY_SYMBOL[currency] ?? "₺"}) *</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -963,7 +976,7 @@ export default function GelirGiderPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Tutar (₺) *</Label>
+                <Label>Tutar ({CURRENCY_SYMBOL[currency] ?? "₺"}) *</Label>
                 <Input
                   className="mt-1"
                   type="number"

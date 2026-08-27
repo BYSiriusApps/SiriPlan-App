@@ -290,7 +290,14 @@ export default function YeniHizmetPage() {
                 <div className="space-y-1">
                   <Label>{t("serviceNew.websiteCategoryLabel")}</Label>
                   <Select value={form.category_id} onValueChange={(v) => v && setForm((f) => ({ ...f, category_id: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue>
+                        {form.category_id === NO_CATEGORY
+                          ? t("serviceNew.websiteCategoryNone")
+                          : categories.find((c) => c.id === form.category_id)?.name || t("serviceNew.websiteCategoryNone")
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={NO_CATEGORY}>{t("serviceNew.websiteCategoryNone")}</SelectItem>
                       {categories.map((c) => (

@@ -1,9 +1,11 @@
 import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect, notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { format } from "date-fns";
-import { tr } from "date-fns/locale";
+import { tr, enUS, ru, ar } from "date-fns/locale";
+
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -20,6 +22,8 @@ export default async function ApptDetailPage({
 }) {
   const { id } = await params;
   const t = await getTranslations("dashboard");
+  const locale = await getLocale();
+  const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
   const supabase = await createClient();
   const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
@@ -70,7 +74,7 @@ export default async function ApptDetailPage({
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">
-            {format(new Date(a.appointment_at), "d MMMM yyyy, EEEE — HH:mm", { locale: tr })}
+            {format(new Date(a.appointment_at), "d MMMM yyyy, EEEE — HH:mm", { locale: dateFnsLocale })}
           </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 text-sm">

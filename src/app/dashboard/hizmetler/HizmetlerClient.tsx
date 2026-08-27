@@ -586,7 +586,14 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
                           <div>
                             <Label>{t("servicesPage.categoryLabel")}</Label>
                             <Select value={editForm.category_id} onValueChange={(v) => v && setEditForm((f) => ({ ...f, category_id: v }))}>
-                              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                              <SelectTrigger className="mt-1">
+                                <SelectValue>
+                                  {editForm.category_id === NO_CATEGORY
+                                    ? t("servicesPage.noCategory")
+                                    : categorySorted.find((c) => c.id === editForm.category_id)?.name || t("servicesPage.noCategory")
+                                  }
+                                </SelectValue>
+                              </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value={NO_CATEGORY}>{t("servicesPage.noCategory")}</SelectItem>
                                 {categorySorted.map((c) => (

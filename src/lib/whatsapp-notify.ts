@@ -5,8 +5,8 @@
 const META_API = "https://graph.facebook.com/v19.0";
 
 export async function sendWhatsAppMessage(toNumber: string, text: string): Promise<void> {
-  const token = process.env.WHATSAPP_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_ID;
+  const token = process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_META_TOKEN;
+  const phoneId = process.env.WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID;
   if (!token || !phoneId || !toNumber) {
     console.error(`[whatsapp-notify] whatsapp_not_configured — to=${toNumber || "(boş)"}`);
     return;

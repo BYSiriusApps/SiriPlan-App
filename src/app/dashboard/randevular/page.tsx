@@ -6,6 +6,9 @@ import { cn, sanitizeFilterValue } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Calendar } from "lucide-react";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import type { Appointment } from "@/types/database";
 import { RandevularHeader } from "@/components/dashboard/RandevularHeader";
 import { RandevuCard } from "@/components/dashboard/RandevuCard";

@@ -19,6 +19,7 @@ interface SendTemplateBody {
   purpose: WaPurpose;
   vars: Partial<Record<WaParamSource, string>>;
   appointment_at?: string;
+  cancel_token?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -27,13 +28,20 @@ export async function POST(req: NextRequest) {
   }
 
   const body = (await req.json()) as Partial<SendTemplateBody>;
-  const { to_phone, org_id, purpose, vars, appointment_at } = body;
+  const { to_phone, org_id, purpose, vars, appointment_at, cancel_token } = body;
 
   if (!to_phone || !org_id || !purpose || !vars) {
     return NextResponse.json({ error: "Eksik parametre" }, { status: 400 });
   }
 
-  const result = await sendPurposeTemplate({ toPhone: to_phone, orgId: org_id, purpose, vars, appointmentAt: appointment_at });
+  const result = await sendPurposeTemplate({
+    toPhone: to_phone,
+    orgId: org_id,
+    purpose,
+    vars,
+    appointmentAt: appointment_at,
+    cancelToken: cancel_token,
+  });
 
   if ("error" in result) {
     return NextResponse.json(result, { status: 502 });

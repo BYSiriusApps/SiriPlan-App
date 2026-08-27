@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import type { Staff, Service } from "@/types/database";
 import { DateTimeSlotPicker, toLocalDateTimeValue } from "@/components/dashboard/DateTimeSlotPicker";
+import { CustomerSearchField } from "@/components/dashboard/CustomerSearchField";
 
 export default function RandevuDuzenlePage() {
   const t = useTranslations("dashboard");
@@ -22,6 +23,7 @@ export default function RandevuDuzenlePage() {
   const [dataLoading, setDataLoading] = useState(true);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [slotMinutes, setSlotMinutes] = useState(15);
 
   const [form, setForm] = useState({
     customer_name: "",
@@ -39,8 +41,9 @@ export default function RandevuDuzenlePage() {
       fetch(`/api/appointments/${id}`).then((r) => r.json()),
       fetch("/api/staff").then((r) => r.json()),
       fetch("/api/services").then((r) => r.json()),
+      fetch("/api/org").then((r) => r.json()),
     ])
-      .then(([apptData, staffData, servicesData]) => {
+      .then(([apptData, staffData, servicesData, orgData]) => {
         const a = apptData.appointment;
         if (!a) { toast.error("Randevu bulunamadı"); return; }
         setForm({
@@ -56,6 +59,9 @@ export default function RandevuDuzenlePage() {
         });
         setStaff(staffData.staff || []);
         setServices(servicesData.services || []);
+        const settings = (orgData.org?.settings_json ?? {}) as Record<string, unknown>;
+        const bookingSlot = Number(settings.booking_slot_minutes);
+        if ([15, 30, 60].includes(bookingSlot)) setSlotMinutes(bookingSlot);
       })
       .catch(() => toast.error("Veriler yüklenemedi"))
       .finally(() => setDataLoading(false));
@@ -107,36 +113,14 @@ export default function RandevuDuzenlePage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-3 pb-3 border-b">
                 <p className="text-sm font-medium text-muted-foreground">Müşteri Bilgileri</p>
-                <div className="space-y-1">
-                  <Label>Ad Soyad *</Label>
-                  <Input
-                    value={form.customer_name}
-                    onChange={(e) => setForm((f) => ({ ...f, customer_name: e.target.value }))}
-                    placeholder="Müşteri adı"
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label>Telefon *</Label>
-                    <Input
-                      type="tel"
-                      value={form.customer_phone}
-                      onChange={(e) => setForm((f) => ({ ...f, customer_phone: e.target.value }))}
-                      placeholder="5xx xxx xx xx"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>E-posta</Label>
-                    <Input
-                      type="email"
-                      value={form.customer_email}
-                      onChange={(e) => setForm((f) => ({ ...f, customer_email: e.target.value }))}
-                      placeholder="opsiyonel"
-                    />
-                  </div>
-                </div>
+                <CustomerSearchField
+                  name={form.customer_name}
+                  phone={form.customer_phone}
+                  email={form.customer_email}
+                  onNameChange={(v) => setForm((f) => ({ ...f, customer_name: v }))}
+                  onPhoneChange={(v) => setForm((f) => ({ ...f, customer_phone: v }))}
+                  onEmailChange={(v) => setForm((f) => ({ ...f, customer_email: v }))}
+                />
               </div>
 
               <div className="space-y-3">
@@ -175,10 +159,11 @@ export default function RandevuDuzenlePage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Tarih & Saat * <span className="text-[10px] text-muted-foreground">(15 dk aralıklarla)</span></Label>
+                  <Label>Tarih & Saat * <span className="text-[10px] text-muted-foreground">({slotMinutes} dk aralıklarla)</span></Label>
                   <DateTimeSlotPicker
                     value={form.appointment_at}
                     onChange={(v) => setForm((f) => ({ ...f, appointment_at: v }))}
+                    slotMinutes={slotMinutes}
                   />
                 </div>
 

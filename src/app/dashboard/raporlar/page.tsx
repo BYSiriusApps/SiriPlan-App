@@ -8,6 +8,7 @@ import { tr } from "date-fns/locale";
 import { TrendingUp, Users, Star, Download, CalendarCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { formatMoney } from "@/lib/currency";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +25,11 @@ export default async function RaporlarPage({
 
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
+  if (member.role === "staff") redirect("/dashboard");
 
   const orgId = member.org_id;
   const now = new Date();
+  const currency = ((member.organizations?.settings_json as Record<string, unknown> | null)?.currency as string) || "TRY";
 
   // ── Gün sonu özeti: geriye dönük tarih seçilebilir (?gun=yyyy-MM-dd) ──
   const dayParam = sp.gun && /^\d{4}-\d{2}-\d{2}$/.test(sp.gun) ? sp.gun : format(now, "yyyy-MM-dd");
@@ -213,8 +216,8 @@ export default async function RaporlarPage({
             {[
               { label: "Randevu", value: String(dAppts.length) },
               { label: "Tamamlanan", value: String(dDone.length) },
-              { label: t("reportsPage.dayRevenue"), value: `₺${(dayRevenue + dayManuelGelir).toLocaleString("tr-TR")}` },
-              { label: "Gün Gideri", value: `₺${dayGider.toLocaleString("tr-TR")}` },
+              { label: t("reportsPage.dayRevenue"), value: formatMoney(dayRevenue + dayManuelGelir, currency) },
+              { label: "Gün Gideri", value: formatMoney(dayGider, currency) },
               { label: "Yeni Müşteri", value: String(dayNewCust ?? 0) },
             ].map((kpi) => (
               <div key={kpi.label} className="kpi-tile p-3 text-center">
@@ -274,7 +277,7 @@ export default async function RaporlarPage({
                     <div className="flex items-center gap-2 justify-end">
                       <span className={`md:hidden px-2 py-0.5 rounded-full text-[10px] font-medium ${st.cls}`}>{st.label}</span>
                       <span className="text-sm font-semibold text-right tabular-nums">
-                        ₺{Number(a.price).toLocaleString("tr-TR")}
+                        {formatMoney(Number(a.price), currency)}
                       </span>
                     </div>
                   </Link>
@@ -311,7 +314,7 @@ export default async function RaporlarPage({
                       }}
                     />
                   </div>
-                  <span className="w-28 text-xs font-semibold text-right tabular-nums">₺{m.revenue.toLocaleString("tr-TR")}</span>
+                  <span className="w-28 text-xs font-semibold text-right tabular-nums">{formatMoney(m.revenue, currency)}</span>
                   <span className="w-16 text-xs text-muted-foreground text-right tabular-nums">{m.completed}/{m.total}</span>
                 </div>
               );
@@ -349,7 +352,7 @@ export default async function RaporlarPage({
                       <p className="text-sm font-medium truncate">{s.name}</p>
                       <p className="text-xs text-muted-foreground">{s.count} randevu</p>
                     </div>
-                    <p className="text-sm font-semibold tabular-nums">₺{s.revenue.toLocaleString("tr-TR")}</p>
+                    <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency)}</p>
                   </div>
                 ))}
               </div>
@@ -379,7 +382,7 @@ export default async function RaporlarPage({
                       <p className="text-sm font-medium truncate">{s.name}</p>
                       <p className="text-xs text-muted-foreground">{s.count} tamamlanan randevu</p>
                     </div>
-                    <p className="text-sm font-semibold tabular-nums">₺{s.revenue.toLocaleString("tr-TR")}</p>
+                    <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency)}</p>
                   </div>
                 ))}
               </div>
@@ -391,7 +394,7 @@ export default async function RaporlarPage({
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Bu Ay Ciro", value: `₺${currentMonthRevenue.toLocaleString("tr-TR")}` },
+          { label: "Bu Ay Ciro", value: formatMoney(currentMonthRevenue, currency) },
           { label: t("reportsPage.noShowRate"), value: `%${noShowRate}` },
           { label: "Tamamlanma Oranı", value: total > 0 ? `%${((monthlyStats[0].completed / total) * 100).toFixed(0)}` : "-" },
           { label: "Toplam İşlem", value: String(total) },

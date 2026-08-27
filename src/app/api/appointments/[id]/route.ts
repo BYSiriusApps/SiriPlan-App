@@ -68,7 +68,10 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     .single();
   if (!current) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
   if (member.role === "staff" && current.staff_id !== member.staff_id) {
-    return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
+    const isApproving = updates.status === "onaylandi" && current.status === "talep";
+    if (!isApproving) {
+      return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
+    }
   }
   const previous = current;
 
@@ -170,6 +173,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         purpose: "revize",
         vars: { customer_name: apptData.customer_name, new_date: date, new_time: time },
         appointmentAt: apptData.appointment_at,
+        cancelToken: apptData.cancel_token,
       }).catch((err) => console.error("[appointments/[id]] sendPurposeTemplate(revize) hata:", err));
     }
   }
@@ -186,6 +190,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         purpose: "iptal",
         vars: { customer_name: apptData.customer_name, date, time },
         appointmentAt: apptData.appointment_at,
+        cancelToken: apptData.cancel_token,
       }).catch((err) => console.error("[appointments/[id]] sendPurposeTemplate(iptal) hata:", err));
     }
   }
@@ -195,7 +200,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   // onaylanan randevularda gönderiliyordu, elle onayda müşteri hiç haber almıyordu.
   if (becameApproved && data) {
     const apptData = data as {
-      org_id: string; customer_name: string; customer_phone: string; appointment_at: string;
+      org_id: string; customer_name: string; customer_phone: string; appointment_at: string; cancel_token?: string;
     };
     if (apptData.customer_phone) {
       const { date, time } = formatApptDateTime(apptData.appointment_at);
@@ -205,6 +210,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         purpose: "onay",
         vars: { customer_name: apptData.customer_name, date, time },
         appointmentAt: apptData.appointment_at,
+        cancelToken: apptData.cancel_token,
       }).catch((err) => console.error("[appointments/[id]] sendPurposeTemplate(onay) hata:", err));
     }
   }
@@ -259,6 +265,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
         purpose: "iptal",
         vars: { customer_name: current.customer_name, date, time },
         appointmentAt: current.appointment_at,
+        cancelToken: current.cancel_token,
       }).catch((err) => console.error("[appointments/[id]] sendPurposeTemplate(iptal/DELETE) hata:", err));
     }
   }

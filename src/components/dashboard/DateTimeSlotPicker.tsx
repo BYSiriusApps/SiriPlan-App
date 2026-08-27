@@ -1,15 +1,20 @@
 "use client";
 
+import { useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Clock } from "lucide-react";
 
-// 15 dakikalık randevu slotları: 08:00, 08:15, ... 20:45
-export const TIME_SLOTS: string[] = [];
-for (let h = 8; h <= 20; h++) {
-  for (const m of [0, 15, 30, 45]) {
-    TIME_SLOTS.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+/** Verilen dakika aralığında (15/30/60) 08:00-20:45 arası randevu slotları üretir. */
+export function buildTimeSlots(stepMinutes: number): string[] {
+  const step = [15, 30, 60].includes(stepMinutes) ? stepMinutes : 15;
+  const slots: string[] = [];
+  for (let totalMin = 8 * 60; totalMin < 21 * 60; totalMin += step) {
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
   }
+  return slots;
 }
 
 /** Yerel saatle "yyyy-MM-ddTHH:mm" üretir (UTC kayması yapmaz). */
@@ -18,14 +23,14 @@ export function toLocalDateTimeValue(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-/** Şimdiki zamanı bir sonraki 15dk slotuna yuvarlar. */
-export function nextSlot(dateStr?: string): string {
+/** Şimdiki zamanı bir sonraki randevu slotuna (stepMinutes) yuvarlar. */
+export function nextSlot(dateStr?: string, stepMinutes = 15): string {
   const base = dateStr ? new Date(dateStr + "T00:00:00") : new Date();
   const now = new Date();
   // Bugünse şu andan sonraki slot; başka günse 09:00
   if (base.toDateString() === now.toDateString() || !dateStr) {
     const d = new Date(now);
-    d.setMinutes(Math.ceil((d.getMinutes() + 1) / 15) * 15, 0, 0);
+    d.setMinutes(Math.ceil((d.getMinutes() + 1) / stepMinutes) * stepMinutes, 0, 0);
     if (d.getHours() < 8) d.setHours(9, 0, 0, 0);
     if (d.getHours() > 20) {
       d.setDate(d.getDate() + 1);
@@ -42,14 +47,16 @@ interface Props {
   value: string;
   onChange: (value: string) => void;
   minDate?: string; // yyyy-MM-dd
+  /** Randevu dilimi (dk) — Ayarlar > Randevu Dilimi Aralığı'ndan gelir. Varsayılan 15. */
+  slotMinutes?: number;
 }
 
 /**
- * Tarih + 15 dakikalık saat slotu seçici.
- * datetime-local yerine kullanılır: dakika dakika uğraştırmaz,
- * 14:30 / 14:45 / 15:00 gibi net slotlar sunar.
+ * Tarih + saat slotu seçici (Ayarlar'daki randevu dilimine göre 15/30/60dk).
+ * datetime-local yerine kullanılır: dakika dakika uğraştırmaz, net slotlar sunar.
  */
-export function DateTimeSlotPicker({ value, onChange, minDate }: Props) {
+export function DateTimeSlotPicker({ value, onChange, minDate, slotMinutes = 15 }: Props) {
+  const timeSlots = useMemo(() => buildTimeSlots(slotMinutes), [slotMinutes]);
   const datePart = value ? value.slice(0, 10) : "";
   const timePart = value ? value.slice(11, 16) : "";
 
@@ -84,7 +91,7 @@ export function DateTimeSlotPicker({ value, onChange, minDate }: Props) {
           </span>
         </SelectTrigger>
         <SelectContent className="max-h-64">
-          {TIME_SLOTS.map((t) => (
+          {timeSlots.map((t) => (
             <SelectItem key={t} value={t}>
               {t}
             </SelectItem>

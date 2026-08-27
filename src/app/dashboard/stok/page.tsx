@@ -15,6 +15,7 @@ import {
   Package, Plus, Trash2, Pencil, AlertTriangle, ArrowUpRight, ArrowDownRight,
   RefreshCw, Search, Loader2, Sparkles, TrendingUp, DollarSign, Layers
 } from "lucide-react";
+import { formatMoney, CURRENCY_SYMBOL } from "@/lib/currency";
 
 export interface InventoryItem {
   id: string;
@@ -51,8 +52,6 @@ const EMPTY_ITEM = {
   sale_price: "0",
 };
 
-const fmt = (n: number) => `₺${n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
 export default function StokPage() {
   const t = useTranslations("dashboard");
   const [items, setItems] = useState<InventoryItem[]>([]);
@@ -73,6 +72,18 @@ export default function StokPage() {
   const [savingTx, setSavingTx] = useState(false);
 
   const [loadingTemplate, setLoadingTemplate] = useState(false);
+  const [currency, setCurrency] = useState("TRY");
+  const fmt = useCallback((n: number) => formatMoney(n, currency), [currency]);
+
+  useEffect(() => {
+    fetch("/api/org")
+      .then((r) => r.json())
+      .then((d) => {
+        const settings = (d.org?.settings_json ?? {}) as Record<string, unknown>;
+        if (typeof settings.currency === "string") setCurrency(settings.currency);
+      })
+      .catch(() => {});
+  }, []);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -546,7 +557,7 @@ export default function StokPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Maliyet Fiyatı (₺)</Label>
+                <Label>Maliyet Fiyatı ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -556,7 +567,7 @@ export default function StokPage() {
                 />
               </div>
               <div>
-                <Label>Satış Fiyatı (₺)</Label>
+                <Label>Satış Fiyatı ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -630,7 +641,7 @@ export default function StokPage() {
 
             {txForm.type !== "adjust" && (
               <div>
-                <Label>Birim Fiyat (₺)</Label>
+                <Label>Birim Fiyat ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -639,7 +650,7 @@ export default function StokPage() {
                   onChange={(e) => setTxForm((f) => ({ ...f, unit_price: e.target.value }))}
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  Boş bırakılırsa ürünün varsayılan {txForm.type === "in" ? "maliyet" : "satış"} fiyatı ({txForm.type === "in" ? txTargetItem?.cost_price : txTargetItem?.sale_price} ₺) kullanılır.
+                  Boş bırakılırsa ürünün varsayılan {txForm.type === "in" ? "maliyet" : "satış"} fiyatı ({fmt(Number(txForm.type === "in" ? txTargetItem?.cost_price : txTargetItem?.sale_price) || 0)}) kullanılır.
                 </p>
               </div>
             )}

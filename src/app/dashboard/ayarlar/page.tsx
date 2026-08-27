@@ -42,6 +42,7 @@ import {
 } from "@/lib/wa-templates/registry";
 import { DEFAULT_KVKK_NOTICE_TEMPLATE, renderKvkkNotice } from "@/lib/kvkk";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
+import { CURRENCIES } from "@/lib/currency";
 import QRCode from "qrcode";
 
 // Website modu örneği için sabit bir demo organizasyona bağlanır. Tek bir
@@ -1017,6 +1018,33 @@ export default function AyarlarPage() {
               <SelectItem value="15">15 dakika (Varsayılan)</SelectItem>
               <SelectItem value="30">30 dakika</SelectItem>
               <SelectItem value="60">60 dakika (Saat başı)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Para Birimi */}
+        <div className="pt-3 border-t border-border mt-3">
+          <Label className="text-sm font-medium mb-1 block">Para Birimi</Label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Stok, gelir-gider, maaş hesaplama ve komisyon ekranlarında kullanılacak para birimi
+            (yurt dışı veya döviz ödemesi yapan müşterileriniz varsa).
+          </p>
+          <Select
+            value={String((org.settings_json as Record<string, unknown> | null)?.currency || "TRY")}
+            onValueChange={(val) => {
+              const nextSettings = { ...((org.settings_json as Record<string, unknown> | null) || {}), currency: val };
+              setField("settings_json", nextSettings);
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-64">
+              <SelectValue placeholder="Para birimi seçin">
+                {(value: string) => CURRENCIES.find((c) => c.value === value)?.label || "Para birimi seçin"}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {CURRENCIES.map((c) => (
+                <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

@@ -49,6 +49,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     purpose,
     vars,
     appointmentAt: appt.appointment_at,
+    cancelToken: appt.cancel_token,
   });
 
   if ("error" in result) {

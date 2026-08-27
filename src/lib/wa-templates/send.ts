@@ -22,6 +22,7 @@ export interface SendPurposeTemplateParams {
   vars: Partial<Record<WaParamSource, string>>;
   /** Randevunun ISO zaman damgası — "onay"/"hatirlatma" için geçmiş kontrolüne kullanılır. */
   appointmentAt?: string;
+  cancelToken?: string;
 }
 
 // Saati geçmiş randevu için "onaylandı" ya da "yaklaşıyor" mesajı göndermek
@@ -49,6 +50,7 @@ export async function sendPurposeTemplate({
   purpose,
   vars,
   appointmentAt,
+  cancelToken,
 }: SendPurposeTemplateParams): Promise<SendPurposeTemplateResult> {
   if (
     (purpose === "onay" || purpose === "hatirlatma") &&
@@ -58,8 +60,8 @@ export async function sendPurposeTemplate({
     return { skipped: true, reason: "appointment_in_past" };
   }
 
-  const token = process.env.WHATSAPP_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_ID;
+  const token = process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_META_TOKEN;
+  const phoneId = process.env.WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID;
   if (!token || !phoneId) {
     console.error(`[wa-templates] whatsapp_not_configured — purpose=${purpose} orgId=${orgId}`);
     return { skipped: true, reason: "whatsapp_not_configured" };
@@ -123,7 +125,43 @@ export async function sendPurposeTemplate({
     text: paramValues[source] ?? "",
   }));
 
+  let finalCancelToken = cancelToken;
+  if (!finalCancelToken && def.hasUrlButton) {
+    const statusFilter = purpose === "iptal" ? "iptal" : "onaylandi";
+    let query = supabase
+      .from("appointments")
+      .select("cancel_token")
+      .eq("org_id", orgId)
+      .eq("customer_phone", normalizePhone(toPhone))
+      .eq("status", statusFilter);
+
+    if (appointmentAt) {
+      query = query.eq("appointment_at", appointmentAt);
+    } else {
+      query = query.gte("appointment_at", new Date().toISOString()).order("appointment_at", { ascending: true });
+    }
+
+    const { data: apptRow } = await query.limit(1).maybeSingle();
+    if (apptRow) {
+      finalCancelToken = apptRow.cancel_token;
+    }
+  }
+
   const components: Record<string, unknown>[] = [{ type: "body", parameters: bodyParameters }];
+
+  if (def.hasUrlButton && finalCancelToken) {
+    components.push({
+      type: "button",
+      sub_type: "url",
+      index: "0",
+      parameters: [
+        {
+          type: "text",
+          text: finalCancelToken,
+        },
+      ],
+    });
+  }
 
   const to = normalizePhone(toPhone);
 

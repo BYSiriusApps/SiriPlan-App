@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, XCircle, Calendar, Clock, User, Scissors, MapPin } from "lucide-react";
+import { Loader2, XCircle, Calendar, Clock, User, Scissors, MapPin, Banknote } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+import { formatServicePrice } from "@/lib/currency";
 
 type ApptInfo = {
   status: string;
@@ -18,6 +19,8 @@ type ApptInfo = {
   location_url: string;
   staff_name: string;
   service_name: string;
+  price?: number;
+  currency?: string;
   cancellable: boolean;
 };
 
@@ -89,6 +92,12 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ to
                   <div className="flex items-center gap-3">
                     <User className="h-4 w-4 text-rose-500 shrink-0" />
                     <span>{info.staff_name}</span>
+                  </div>
+                )}
+                {info.price !== undefined && info.price !== null && (
+                  <div className="flex items-center gap-3">
+                    <Banknote className="h-4 w-4 text-rose-500 shrink-0" />
+                    <span>{formatServicePrice(info.price, info.currency)}</span>
                   </div>
                 )}
                 {(info.location_url || info.org_address) && (

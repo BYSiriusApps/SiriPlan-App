@@ -150,7 +150,13 @@ export function StaffInviteDialog({ staffList, preselectedStaffId, viewerIsOwner
                   <Label className="text-xs">{t("linkExistingLabel")}</Label>
                   <Select value={form.staff_id} onValueChange={(v) => setForm((f) => ({ ...f, staff_id: (v ?? "") === "_none" ? "" : (v ?? "") }))}>
                     <SelectTrigger className="text-sm">
-                      <SelectValue placeholder={t("linkPlaceholder")} />
+                      <SelectValue placeholder={t("linkPlaceholder")}>
+                        {(value: string) =>
+                          !value || value === "_none"
+                            ? t("linkPlaceholder")
+                            : staffList.find((s) => s.id === value)?.full_name || t("linkPlaceholder")
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="_none">{t("linkNoneOption")}</SelectItem>

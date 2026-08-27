@@ -96,6 +96,59 @@ export default async function DashboardPage() {
   const monthEndDate = format(endOfMonth(now), "yyyy-MM-dd");
   const day7Start = startOfDay(subDays(now, 6)).toISOString();
 
+  const isStaff = member.role === "staff";
+  const staffId = member.staff_id;
+
+  let todayQuery = supabase
+    .from("appointments")
+    .select("*, staff:staff!appointments_staff_id_fkey(full_name), service:services(name, duration_minutes)")
+    .eq("org_id", orgId)
+    .gte("appointment_at", todayStart)
+    .lte("appointment_at", todayEnd)
+    .neq("status", "iptal")
+    .order("appointment_at");
+
+  let nextQuery = supabase
+    .from("appointments")
+    .select("id, customer_name, appointment_at, status, duration_minutes, service:services(name)")
+    .eq("org_id", orgId)
+    .gte("appointment_at", now.toISOString())
+    .in("status", ["talep", "onaylandi"])
+    .order("appointment_at", { ascending: true })
+    .limit(5);
+
+  let weekQuery = supabase
+    .from("appointments")
+    .select("price, tip, status")
+    .eq("org_id", orgId)
+    .gte("appointment_at", weekStart)
+    .lte("appointment_at", weekEnd)
+    .neq("status", "iptal");
+
+  let last7Query = supabase
+    .from("appointments")
+    .select("appointment_at, price")
+    .eq("org_id", orgId)
+    .gte("appointment_at", day7Start)
+    .lte("appointment_at", todayEnd)
+    .eq("status", "tamamlandi");
+
+  let monthApptsQuery = supabase
+    .from("appointments")
+    .select("price, tip, status")
+    .eq("org_id", orgId)
+    .gte("appointment_at", monthStart)
+    .lte("appointment_at", monthEnd)
+    .eq("status", "tamamlandi");
+
+  if (isStaff && staffId) {
+    todayQuery = todayQuery.eq("staff_id", staffId);
+    nextQuery = nextQuery.eq("staff_id", staffId);
+    weekQuery = weekQuery.eq("staff_id", staffId);
+    last7Query = last7Query.eq("staff_id", staffId);
+    monthApptsQuery = monthApptsQuery.eq("staff_id", staffId);
+  }
+
   const [
     { data: todayAppts },
     { data: nextAppts },
@@ -114,34 +167,9 @@ export default async function DashboardPage() {
     { data: monthExpenses },
     { data: recentCustomers },
   ] = await Promise.all([
-    supabase
-      .from("appointments")
-      .select("*, staff:staff!appointments_staff_id_fkey(full_name), service:services(name, duration_minutes)")
-      .eq("org_id", orgId)
-      .gte("appointment_at", todayStart)
-      .lte("appointment_at", todayEnd)
-      .neq("status", "iptal")
-      .order("appointment_at"),
-
-    // Yaklaşan randevular: bugünle sınırlı değil — şu andan itibaren
-    // en yakın tarih/saate göre sıralı ilk 5 (bekleyen + onaylı)
-    supabase
-      .from("appointments")
-      .select("id, customer_name, appointment_at, status, duration_minutes, service:services(name)")
-      .eq("org_id", orgId)
-      .gte("appointment_at", now.toISOString())
-      .in("status", ["talep", "onaylandi"])
-      .order("appointment_at", { ascending: true })
-      .limit(5),
-
-    supabase
-      .from("appointments")
-      .select("price, tip, status")
-      .eq("org_id", orgId)
-      .gte("appointment_at", weekStart)
-      .lte("appointment_at", weekEnd)
-      .neq("status", "iptal"),
-
+    todayQuery,
+    nextQuery,
+    weekQuery,
     supabase
       .from("customers")
       .select("id", { count: "exact", head: true })
@@ -157,13 +185,7 @@ export default async function DashboardPage() {
       .limit(1)
       .single(),
 
-    supabase
-      .from("appointments")
-      .select("appointment_at, price")
-      .eq("org_id", orgId)
-      .gte("appointment_at", day7Start)
-      .lte("appointment_at", todayEnd)
-      .eq("status", "tamamlandi"),
+    last7Query,
 
     supabase
       .from("appointment_requests")
@@ -204,13 +226,7 @@ export default async function DashboardPage() {
       .order("display_order")
       .limit(4),
 
-    supabase
-      .from("appointments")
-      .select("price, tip, status")
-      .eq("org_id", orgId)
-      .gte("appointment_at", monthStart)
-      .lte("appointment_at", monthEnd)
-      .eq("status", "tamamlandi"),
+    monthApptsQuery,
 
     supabase
       .from("expenses")
@@ -439,7 +455,7 @@ export default async function DashboardPage() {
     },
     {
       key: "whatsapp_assistant",
-      label: "WhatsApp Asistanı",
+      label: "Onay Bekleyenler",
       colSpanClass: "lg:col-span-5",
       node: (
         <GlassCard3D key="whatsapp_assistant" className="glass-card h-full" glow intensity={4}>
@@ -702,7 +718,7 @@ export default async function DashboardPage() {
       key: "quick_actions",
       label: "Hızlı İşlemler",
       colSpanClass: "lg:col-span-4",
-      node: <QuickActionsPanel key="quick_actions" initialShortcuts={userShortcuts} orgId={orgId} />,
+      node: <QuickActionsPanel key="quick_actions" initialShortcuts={userShortcuts} orgId={orgId} role={member.role} />,
     },
     {
       key: "revenue_summary",
@@ -813,6 +829,43 @@ export default async function DashboardPage() {
     },
   ];
 
+  let displayWidgets = widgets;
+  if (isStaff) {
+    displayWidgets = widgets.filter(
+      (w) => !["income_expense", "reports_summary", "revenue_summary", "staff_today", "campaigns_star", "services_summary"].includes(w.key)
+    );
+    const personalReportWidget = {
+      key: "staff_personal_report",
+      label: "Raporum",
+      colSpanClass: "lg:col-span-12",
+      node: (
+        <GlassCard3D key="staff_personal_report" className="glass-card" glow intensity={4}>
+          <CardTitle>
+            Performans Raporum
+          </CardTitle>
+          <div className="px-4 py-4 flex items-center gap-3">
+            <span
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: "color-mix(in oklch, var(--primary) 15%, transparent)" }}
+            >
+              <BarChart3 className="h-5 w-5 text-primary" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-lg font-bold text-foreground truncate">
+                ₺{monthRevenue.toLocaleString("tr-TR")}
+              </p>
+              <p className="text-[11px] text-muted-foreground">Bu Ay Kazandırdığım Toplam Tutar</p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-sm font-semibold text-foreground">{monthApptsCount} Tamamlanan Randevu</p>
+            </div>
+          </div>
+        </GlassCard3D>
+      )
+    };
+    displayWidgets = [personalReportWidget, ...displayWidgets];
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* ── Üst başlık: sıcak karşılama + canlı saat ── */}
@@ -832,10 +885,10 @@ export default async function DashboardPage() {
           </p>
         </div>
       </header>
-
+ 
       {/* ── Bento ızgara: mobil tek sütun, geniş ekran 12 sütun — kişiselleştirilebilir ── */}
       <div className="px-4 pb-24 max-w-6xl mx-auto">
-        <DashboardWidgetGrid orgId={orgId} widgets={widgets} initialPrefs={dashboardWidgetPrefs} />
+        <DashboardWidgetGrid orgId={orgId} widgets={displayWidgets} initialPrefs={dashboardWidgetPrefs} />
       </div>
 
       {/* ── Sabit "+ Randevu" düğmesi (mobil kullanım için) ── */}

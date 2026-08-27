@@ -3,14 +3,16 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, MessageCircle, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
-import { tr } from "date-fns/locale";
+import { tr, enUS, ru, ar } from "date-fns/locale";
+
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 import { toast } from "sonner";
 import {
   Dialog,
@@ -65,8 +67,10 @@ interface Props {
  * filtreler; sunucuya gitmez. Filtre temizleme (X) butonu vardır.
  */
 export function CustomerList({ customers, showPhoneButtons, initialKampanya = false, canDelete = false }: Props) {
-  const router = useRouter();
   const t = useTranslations("dashboard");
+  const activeLocale = useLocale();
+  const dateFnsLocale = DATE_FNS_LOCALES[activeLocale as keyof typeof DATE_FNS_LOCALES] ?? tr;
+  const router = useRouter();
   const [q, setQ] = useState("");
   const [sortBy, setSortBy] = useState<SortValue>("last_visit");
   // false = azalan (en yeni/en yüksek üstte) — listenin bugüne kadarki davranışı.
@@ -328,7 +332,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                   {cust.last_visit_at && (
                     <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {t("customerList.lastVisit", { date: format(new Date(cust.last_visit_at), "d MMM yyyy", { locale: tr }) })}
+                      {t("customerList.lastVisit", { date: format(new Date(cust.last_visit_at), "d MMM yyyy", { locale: dateFnsLocale }) })}
                     </p>
                   )}
                 </CardContent>

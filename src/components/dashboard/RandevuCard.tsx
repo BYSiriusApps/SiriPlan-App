@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { format } from "date-fns";
-import { tr } from "date-fns/locale";
+import { tr, enUS, ru, ar } from "date-fns/locale";
+
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +29,8 @@ const QUICK_ACTIONS: { key: AppointmentStatus; labelKey: string; icon: typeof Ch
 
 export function RandevuCard({ appt: initial, canQuickAct }: { appt: ApptWithRelations; canQuickAct: boolean }) {
   const t = useTranslations("dashboard");
+  const activeLocale = useLocale();
+  const dateFnsLocale = DATE_FNS_LOCALES[activeLocale as keyof typeof DATE_FNS_LOCALES] ?? tr;
   const [appt, setAppt] = useState(initial);
   const [updating, setUpdating] = useState(false);
 
@@ -57,7 +61,7 @@ export function RandevuCard({ appt: initial, canQuickAct }: { appt: ApptWithRela
           <div className="flex items-center gap-4 cursor-pointer">
             <div className="text-center w-16 shrink-0">
               <p className="text-xs text-muted-foreground">
-                {format(new Date(appt.appointment_at), "d MMM", { locale: tr })}
+                {format(new Date(appt.appointment_at), "d MMM", { locale: dateFnsLocale })}
               </p>
               <p className="text-base font-bold text-primary">
                 {format(new Date(appt.appointment_at), "HH:mm")}

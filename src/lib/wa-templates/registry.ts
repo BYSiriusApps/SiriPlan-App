@@ -31,6 +31,8 @@ export interface WaTemplateDef {
   metaName: string;
   /** {{1}}..{{n}} sırasıyla gövde parametrelerinin kaynağı. */
   bodyParamOrder: WaParamSource[];
+  /** Şablonun altında dinamik URL butonu var mı? */
+  hasUrlButton?: boolean;
 }
 
 export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
@@ -40,6 +42,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "sicak",
     metaName: "randevu_onayi_1",
     bodyParamOrder: ["customer_name", "business_name", "date", "time", "business_phone", "location_link"],
+    hasUrlButton: true,
   },
   onay_v2: {
     key: "onay_v2",
@@ -47,6 +50,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "v2",
     metaName: "randevu_onayi_2",
     bodyParamOrder: ["customer_name", "business_name", "date", "time", "business_phone", "location_link"],
+    hasUrlButton: true,
   },
   iptal_sicak: {
     key: "iptal_sicak",
@@ -75,6 +79,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "sicak",
     metaName: "randevu_revize",
     bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
+    hasUrlButton: true,
   },
   hatirlatma_sicak: {
     key: "hatirlatma_sicak",
@@ -82,6 +87,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "sicak",
     metaName: "randevu_hatirlatma_1",
     bodyParamOrder: ["customer_name", "business_name", "date", "time"],
+    hasUrlButton: true,
   },
   hatirlatma_v1: {
     key: "hatirlatma_v1",
@@ -89,6 +95,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "v1",
     metaName: "randevu_hatirlatma_1",
     bodyParamOrder: ["customer_name", "business_name", "date", "time"],
+    hasUrlButton: true,
   },
   hatirlatma_v2: {
     key: "hatirlatma_v2",
@@ -96,6 +103,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "v2",
     metaName: "randevu_hatirlatma_2",
     bodyParamOrder: ["customer_name", "business_name", "date", "time"],
+    hasUrlButton: true,
   },
 };
 

@@ -9,6 +9,7 @@ import { HomeButton } from "@/components/dashboard/HomeButton";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, Wallet, Loader2, CheckCircle2, Info } from "lucide-react";
+import { formatMoney } from "@/lib/currency";
 
 type PayrollRow = {
   staff_id: string;
@@ -26,8 +27,6 @@ const MONTHS = [
   "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
 ];
 
-const fmt = (n: number) => `₺${n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
 export default function MaasHesaplamaPage() {
   const t = useTranslations("dashboard");
   const now = new Date();
@@ -37,6 +36,18 @@ export default function MaasHesaplamaPage() {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [currency, setCurrency] = useState("TRY");
+  const fmt = useCallback((n: number) => formatMoney(n, currency), [currency]);
+
+  useEffect(() => {
+    fetch("/api/org")
+      .then((r) => r.json())
+      .then((d) => {
+        const settings = (d.org?.settings_json ?? {}) as Record<string, unknown>;
+        if (typeof settings.currency === "string") setCurrency(settings.currency);
+      })
+      .catch(() => {});
+  }, []);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -65,7 +76,7 @@ export default function MaasHesaplamaPage() {
         category: "personel",
         amount: row.total,
         description: `${MONTHS[month - 1]} ${year} maaşı — ${row.full_name}`,
-        note: `Taban ₺${row.base_salary.toLocaleString("tr-TR")} + Komisyon ₺${row.commission_amount.toLocaleString("tr-TR")} (%${Math.round(row.commission_rate * 100)}) + Bahşiş ₺${row.tip.toLocaleString("tr-TR")}`,
+        note: `Taban ${fmt(row.base_salary)} + Komisyon ${fmt(row.commission_amount)} (%${Math.round(row.commission_rate * 100)}) + Bahşiş ${fmt(row.tip)}`,
         date: `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`,
         payment_method: "havale",
       }),

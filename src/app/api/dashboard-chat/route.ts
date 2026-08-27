@@ -50,21 +50,22 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
     answer:
       "Ayarlar → Salon Bilgileri → \"Konum (Google Maps Linki)\" alanına ekleyebilirsiniz. İki yol var:\n" +
       "1. \"Konumumu Kullan\" butonuna basıp tarayıcı konum izni verin — link otomatik doldurulur.\n" +
-      "2. Google Maps'te işletmenizi bulup \"Paylaş\" ile linki kopyalayıp buraya yapıştırın.\n" +
-      "Bu link, otomatik WhatsApp bildirim mesajlarındaki {konum} değişkeninde kullanılır; boş bırakırsanız adresinizden otomatik bir harita linki üretilir.",
+      "2. Google Maps'te işletmenizi bulup \"Paylaş\" ile linki kopyalayıp buraya yapıştırın.",
   },
   {
-    keywords: ["telegram"],
+    keywords: ["telegram", "bot", "@siriplan_bot"],
     answer:
-      "Ayarlar → Sosyal Medya & Entegrasyonlar → \"Telegram Bildirimleri (Chat ID)\" alanına Chat ID'nizi girin. " +
-      "Chat ID'yi bulmak için: Telegram'da salonunuzun bildirim botunu bulup \"Başlat / Start\"a basın, bot size bir Chat ID numarası gönderecek. " +
-      "O numarayı Ayarlar'a yapıştırıp kaydedince, yeni bir randevu oluştuğunda (online veya elle) anında Telegram bildirimi alırsınız.",
+      "Telegram bildirimlerini aktif etmek için:\n" +
+      "1. Telegram uygulamasında arama kısmına @siriplan_bot yazarak botu bulun ve 'Başlat / Start' butonuna basın.\n" +
+      "2. Botun size özel olarak gönderdiği sayısal Chat ID numarasını kopyalayın.\n" +
+      "3. SiriPlan panelinde Ayarlar → Bildirimler alanındaki 'Telegram Chat ID' kutusuna yapıştırıp kaydedin.\n" +
+      "Personelleriniz de kendi Chat ID'lerini Personel → Detay sayfasından tanımlayarak kendilerine ait bildirimleri kendi Telegram hesaplarına alabilirler.",
   },
   {
-    keywords: ["online randevu linki", "randevu link", "qr kod", "linkimi paylaş", "müşteri link", "biyografiye ekle"],
+    keywords: ["online randevu linki", "randevu link", "qr kod", "linkimi paylaş", "müşteri link", "biyografiye ekle", "vitrin", "slug"],
     answer:
-      "Ayarlar → \"Online Randevu Linkim\" bölümünde size özel bir link (siriplan.com/r/...) bulunur. \"Linki Kopyala\" ile kopyalayıp Instagram biyografinize/WhatsApp'a ekleyebilir, \"WhatsApp'ta Paylaş\" ile doğrudan gönderebilir veya QR kodunu indirip salonunuza asabilirsiniz. " +
-      "Müşterileriniz bu linkten boş saatleri görüp kendileri randevu alır; onayladıkları KVKK metniyle birlikte otomatik olarak müşteri listenize eklenirler.",
+      "Ayarlar → 'Online Randevu Linkim' bölümünde size özel bir vitrin linki (siriplan.com/r/isletme-adiniz) bulunur. " +
+      "Ayarlar → Genel sayfasından salonunuzun Logosunu, Kapak Görselini (Banner) ve Salon Galeri Fotoğraflarını yükleyebilirsiniz. Müşterileriniz bu linkten 7/24 randevu oluşturabilir.",
   },
   {
     keywords: ["otomatik onay", "online randevu otomatik", "elle onay", "onay bekliyor online"],
@@ -78,10 +79,10 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Bir müşterinin dilini panelden elle ayarlamak isterseniz, Müşteriler → ilgili müşteri detayından \"Tercih Edilen Dil\" alanını düzenleyebilirsiniz.",
   },
   {
-    keywords: ["sadakat", "puan kazan", "loyalty", "müşteri skoru", "sadakat kartı"],
+    keywords: ["sadakat", "puan kazan", "loyalty", "müşteri skoru", "sadakat kartı", "puan"],
     answer:
-      "Her müşteri, hizmet aldıkça 0-100 arası bir sadakat/skor puanı biriktirir (randevuya gelmemek puanı düşürür). Ayrıca hangi hizmetlerin sadakat kartına puan/damga kazandıracağını Hizmetler → hizmet düzenle ekranından \"Sadakat puanı kazandırsın\" seçeneğiyle belirlersiniz. " +
-      "Müşteri detay sayfasında güncel puan ve sadakat kartı ilerlemesi görüntülenir.",
+      "Her müşteri, tamamlanan randevulardan 0-100 arası bir sadakat/skor puanı biriktirir (randevuya gelmemek puanı düşürür). " +
+      "Hizmetler → Hizmet Düzenle ekranından 'Sadakat puanı kazandırsın' seçeneğini işaretleyerek hangi işlemlerin puan kazandıracağını belirleyebilirsiniz. Puan durumu Müşteri detay sayfasında görünür.",
   },
   {
     keywords: ["online randevudan engelle", "müşteriyi engelle", "randevu alamasın", "engelli müşteri", "engelle"],
@@ -137,7 +138,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
     keywords: ["whatsapp", "bildirim", "sms", "e-posta bildirim", "mail bildirim"],
     answer:
       "Ayarlar → Bildirimler'den WhatsApp (randevu oluşturulunca/revize edilince/iptal edilince ayrı ayrı açılıp kapatılır), SMS (Netgsm/VatanSMS/İletimerkezi sağlayıcılarından biriyle), e-posta ve Telegram kanallarını yönetebilirsiniz. " +
-      "Hatırlatma mesajının randevudan kaç saat önce gideceğini de aynı sayfadan seçersiniz.",
+      "Hatırlatma mesajının randevudan kaç saat önce gideceğini भी aynı sayfadan seçersiniz.",
   },
   {
     keywords: ["bahşiş", "ödeme yöntemi", "nakit mi kart mı", "ekstra gelir"],
@@ -145,27 +146,28 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Randevuyu \"Tamamlandı\" olarak işaretlerken ödeme yöntemini (Nakit/Kart/Havale/Diğer), varsa bahşişi ve hizmet fiyatı dışında alınan ekstra ücreti girebilirsiniz — bunlar otomatik olarak Gelir-Gider tablosuna işlenir.",
   },
   {
-    keywords: ["adisyon", "hesap fişi", "fiş yazdır", "fiş bas"],
+    keywords: ["adisyon", "hesap fişi", "fiş yazdır", "fiş bas", "yazdır"],
     answer:
-      "Randevu detay sayfasındaki \"Adisyon\" butonuyla, o randevuya ait hizmet, fiyat, bahşiş, toplam tutar ve ödeme yöntemini gösteren yazdırılabilir bir fiş açılır. Sağ üstteki \"Yazdır\" butonuyla doğrudan yazıcıya gönderebilir veya PDF olarak kaydedebilirsiniz.",
+      "Randevu detay sayfasındaki 'Adisyon' butonuyla, randevuya ait detayları (hizmet, fiyat, bahşiş, toplam tutar ve ödeme yöntemi) gösteren yazdırılabilir fiş açılır. Sağ üstteki 'Yazdır' butonuyla doğrudan termal yazıcıya gönderebilir veya PDF kaydedebilirsiniz.",
   },
   {
-    keywords: ["maaş hesap", "maaş öde", "personel maaş", "komisyon hesap", "taban maaş", "prim hesap"],
+    keywords: ["maaş hesap", "maaş öde", "personel maaş", "komisyon hesap", "taban maaş", "prim hesap", "maaş"],
     answer:
-      "Personel → \"Maaş Hesapla\" sayfasında, seçtiğiniz ay için her personelin ödemesini görürsünüz: sabit taban maaş + (o ay tamamlanan randevu cirosu × komisyon oranı) + bahşişler = toplam. " +
-      "Taban maaş ve komisyon oranını personelin kendi detay sayfasından düzenlersiniz. Hesaplanan toplamı \"Gider Olarak Kaydet\" butonuyla tek tıkla Gelir-Gider tablosuna işleyebilirsiniz.",
+      "Personel → 'Maaş Hesapla' sayfasından seçtiğiniz ay için personelin toplam hak edişini (Taban Maaş + [Yapılan Ciro × Komisyon %] + Bahşişler) görebilirsiniz. 'Gider Olarak Kaydet' butonuyla tek tıkla Gelir-Gider kasasından düşürebilirsiniz.",
   },
   {
-    keywords: ["ödeme yap", "abonelik", "plan seç", "starter", "pro plan", "business plan", "plan fiyat", "kredi kartı", "deneme süresi", "stripe"],
+    keywords: ["kılavuz", "rehber", "kullanım kılavuzu", "nasıl kullanılır", "nasıl yapılır", "video", "sunum"],
+    answer:
+      "SiriPlan kullanım kılavuzuna, 19 slaytlık interaktif sunuma ve detaylı adım adım kurulum rehberlerine panelin sol menüsündeki 'Kullanım Kılavuzu' sayfasından (/dashboard/rehber) ulaşabilirsiniz. Bu sayfa içerikleri kopyalama korumalıdır.",
+  },
+  {
+    keywords: ["ödeme yap", "abonelik", "plan seç", "starter", "pro plan", "business plan", "plan fiyat", "kredi kartı", "deneme süresi", "stripe", "mobil ödeme", "ios ödeme", "android ödeme"],
     nativeAnswer:
-      "Hesabınızın planını ve kullanım limitlerini Ayarlar → Abonelik sayfasından görebilirsiniz. " +
-      "Hesabınızla ilgili sorularınız için " + CONTACT_LINE,
+      "Hesabınızın planını ve kullanım limitlerini Ayarlar → Abonelik sayfasından görebilirsiniz. Mobil mağaza politikaları nedeniyle iOS/Android uygulamaları içinden doğrudan ödeme yapılamamaktadır; ödemelerinizi web tarayıcınızdan yapabilirsiniz. " +
+      "Destek için: " + CONTACT_LINE,
     answer:
-      "14 gün ücretsiz deneme ile başlarsınız, kredi kartı gerekmez. Planlar:\n" +
-      "• Starter — 1 şube/8 personel, 500 randevu/ay, online randevu sayfası, WhatsApp hatırlatma, sadakat kartı, temel ciro raporu, CSV export.\n" +
-      "• Pro — sınırsız personel & randevu, kampanya modülü, müşteri skoru, Haftanın Elemanı, bekleme listesi, PDF export, KDV hesaplama.\n" +
-      "• Business — sınırsız şube & personel, tüm Pro özellikleri, AI WhatsApp/IG asistanı, öncelikli destek, özel entegrasyonlar, özel hesap yöneticisi.\n" +
-      "Deneme süresi dolmadan Ayarlar → Abonelik'ten plan seçip ödeme yapabilir, aktif abonelikte fatura/kart bilgilerinizi \"Stripe Müşteri Portalı\" butonundan yönetebilirsiniz.",
+      "Planlarımız Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar (kredi kartı gerekmez). " +
+      "Ödemenizi Ayarlar → Abonelik sayfasından kredi kartınızla yapabilirsiniz. Google Play ve App Store politikaları uyarınca, mobil uygulamalar içerisinden ödeme alınmamaktadır; ödemeler web sitemiz (siriplan.com) üzerinden yapıldıktan sonra mobil uygulama kullanımı kesintisiz devam eder.",
   },
   {
     keywords: ["randevu"],

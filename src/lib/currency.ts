@@ -13,3 +13,9 @@ export function formatServicePrice(price: number | null, currency?: string | nul
   const symbol = CURRENCY_SYMBOL[currency ?? "TRY"] ?? "₺";
   return `${symbol}${Number(price).toLocaleString("tr-TR")}`;
 }
+
+/** Stok/gelir-gider/maaş gibi finans ekranlarında işletmenin seçtiği para birimiyle (2 ondalık) tutar biçimlendirir. */
+export function formatMoney(amount: number, currencyCode?: string | null): string {
+  const symbol = CURRENCY_SYMBOL[currencyCode ?? "TRY"] ?? "₺";
+  return `${symbol}${Number(amount).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}

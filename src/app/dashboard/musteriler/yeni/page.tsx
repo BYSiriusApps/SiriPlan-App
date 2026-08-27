@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, AlertTriangle } from "lucide-react";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 
 export default function MusteriYeniPage() {
@@ -26,6 +26,28 @@ export default function MusteriYeniPage() {
     notes: "",
     preferred_language: "",
   });
+  const [dupMatch, setDupMatch] = useState<{ id: string; full_name: string } | null>(null);
+  const phoneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Aynı telefonla mükerrer müşteri kaydı açmayı önlemek için — yazarken var olan
+  // eşleşmeyi proaktif gösterir; kesin engel zaten POST /api/customers'ta (409).
+  function checkDuplicatePhone(phone: string) {
+    if (phoneTimerRef.current) clearTimeout(phoneTimerRef.current);
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 9) { setDupMatch(null); return; }
+    phoneTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/customers?q=${encodeURIComponent(phone)}&limit=5`);
+        const json = await res.json();
+        const hit = ((json.customers ?? []) as { id: string; full_name: string; phone: string }[]).find(
+          (c) => c.phone.replace(/\D/g, "").endsWith(digits.slice(-9))
+        );
+        setDupMatch(hit ? { id: hit.id, full_name: hit.full_name } : null);
+      } catch {
+        setDupMatch(null);
+      }
+    }, 350);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -88,10 +110,24 @@ export default function MusteriYeniPage() {
                 <Input
                   type="tel"
                   value={form.phone}
-                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, phone: e.target.value }));
+                    checkDuplicatePhone(e.target.value);
+                  }}
                   placeholder="5xx xxx xx xx"
                   required
                 />
+                {dupMatch && (
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-400">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    <span className="flex-1">
+                      Bu telefon <strong>{dupMatch.full_name}</strong> adına zaten kayıtlı.
+                    </span>
+                    <Link href={`/dashboard/musteriler/${dupMatch.id}`} className="underline shrink-0">
+                      Görüntüle →
+                    </Link>
+                  </div>
+                )}
               </div>
               <div className="col-span-2 space-y-1">
                 <Label>E-posta</Label>

@@ -15,11 +15,15 @@ import { cn } from "@/lib/utils";
 import {
   Menu, Bot, Link2, Copy, Check, MessageCircle,
   UserCog, Scissors, ListPlus, Megaphone, Globe, BarChart3, Wallet, Import, CreditCard, Inbox, Package,
+  Calendar, BookOpen, Users, HelpCircle,
 } from "lucide-react";
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
 
 const SECONDARY_NAV = [
+  { href: "/dashboard/takvim", icon: Calendar, tKey: "calendar", minRole: "staff" },
+  { href: "/dashboard/randevular", icon: BookOpen, tKey: "appointments", minRole: "staff" },
+  { href: "/dashboard/musteriler", icon: Users, tKey: "customers", minRole: "staff" },
   { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff", planRequired: "business" },
   { href: "/dashboard/personel", icon: UserCog, tKey: "staff", minRole: "manager" },
   { href: "/dashboard/hizmetler", icon: Scissors, tKey: "services", minRole: "staff" },
@@ -28,8 +32,9 @@ const SECONDARY_NAV = [
   { href: "/dashboard/website-ayarlari", icon: Globe, tKey: "websiteSettings", minRole: "manager" },
   { href: "/dashboard/raporlar", icon: BarChart3, tKey: "reports", minRole: "manager" },
   { href: "/dashboard/gelir-gider", icon: Wallet, tKey: "income", minRole: "manager" },
-  { href: "/dashboard/stok", icon: Package, tKey: "stock", minRole: "manager" },
+  { href: "/dashboard/stok", icon: Package, tKey: "stock", minRole: "staff" },
   { href: "/dashboard/veri-gocu", icon: Import, tKey: "dataMigration", minRole: "manager" },
+  { href: "/dashboard/rehber", icon: HelpCircle, tKey: "guide", minRole: "staff" },
   { href: "/dashboard/abonelik", icon: CreditCard, tKey: "subscription", minRole: "owner" },
 ];
 

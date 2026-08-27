@@ -90,6 +90,8 @@ interface Props {
   appointments: Appointment[];
   timeOff: TimeOff[];
   lockedStaffId: string | null; // staff rolü: sadece kendi randevuları
+  /** Randevu dilimi (dk) — Ayarlar > Randevu Dilimi Aralığı'ndan gelir. Varsayılan 15. */
+  slotMinutes: number;
 }
 
 interface Popover {
@@ -135,14 +137,14 @@ function layoutDay(appts: Appointment[]): Positioned[] {
 
 export function UnifiedCalendar({
   view, label, viewDate, prevDate, nextDate, gridDays, today,
-  hours, orgId, staff, appointments, timeOff, lockedStaffId,
+  hours, orgId, staff, appointments, timeOff, lockedStaffId, slotMinutes,
 }: Props) {
   const router = useRouter();
   const t = useTranslations("dashboard");
   const locale = useLocale();
   // Gün görünümü saat bazında çok daha büyük gösterilir (tek gün, tüm genişlik boş kalmasın);
   // hafta görünümü de öncekinden biraz büyütüldü.
-  const HOUR_PX = view === "day" ? 112 : 64;
+  const HOUR_PX = view === "day" || view === "staff" ? 112 : 64;
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
   const weekdayShort = useMemo(
     () => WEEKDAY_REF_DATES.map((d) => format(new Date(d + "T12:00:00"), "EEE", { locale: dateFnsLocale })),
@@ -196,7 +198,7 @@ export function UnifiedCalendar({
     const rect = e.currentTarget.getBoundingClientRect();
     const clickY = e.clientY - rect.top;
     const minutesFromStart = Math.floor((clickY / HOUR_PX) * 60);
-    const roundedMinutes = Math.floor(minutesFromStart / 15) * 15;
+    const roundedMinutes = Math.floor(minutesFromStart / slotMinutes) * slotMinutes;
     const targetHour = hours[0] + Math.floor(roundedMinutes / 60);
     const targetMinute = roundedMinutes % 60;
     const formattedTime = `${String(targetHour).padStart(2, "0")}:${String(targetMinute).padStart(2, "0")}`;
@@ -383,7 +385,7 @@ export function UnifiedCalendar({
       if (!cur || cur.apptId !== appt.id) return;
 
       const rawMinDelta = (dy / HOUR_PX) * 60;
-      const snappedMinDelta = Math.round(rawMinDelta / 15) * 15;
+      const snappedMinDelta = Math.round(rawMinDelta / slotMinutes) * slotMinutes;
 
       let newDayIndex = cur.dayIndex;
       if (view === "week") {
@@ -529,7 +531,7 @@ export function UnifiedCalendar({
     const beingDragged = dragPreview?.apptId === appt.id;
     // Kutu çok kısaysa (kısa süreli randevu) 2. satırı (hizmet) gizle —
     // saat + isim (başlık) her koşulda kesilmeden tam görünsün.
-    const canShowServiceLine = height >= (view === "day" ? 46 : 34);
+    const canShowServiceLine = height >= (view === "day" || view === "staff" ? 46 : 34);
 
     return (
       <button
@@ -554,7 +556,7 @@ export function UnifiedCalendar({
         }}
         className={cn(
           "absolute rounded-md overflow-hidden cursor-pointer hover:shadow-md transition-shadow text-left z-10 select-none",
-          view === "day" ? "px-2 py-1.5 text-[13px] leading-snug" : "px-1.5 py-1 text-[11px] leading-tight",
+          view === "day" || view === "staff" ? "px-2 py-1.5 text-[13px] leading-snug" : "px-1.5 py-1 text-[11px] leading-tight",
           pending && "border-dashed"
         )}
       >
@@ -583,7 +585,7 @@ export function UnifiedCalendar({
           key={h}
           className={cn(
             "border-b flex items-start justify-center pt-0.5 text-muted-foreground",
-            view === "day" ? "text-xs font-medium pt-1.5" : "text-[10px]"
+            view === "day" || view === "staff" ? "text-xs font-medium pt-1.5" : "text-[10px]"
           )}
           style={{ height: HOUR_PX }}
         >
@@ -593,14 +595,21 @@ export function UnifiedCalendar({
     </div>
   );
 
-  // 15 dakikalık kılavuz çizgileri (saat çizgisi koyu, çeyrekler açık)
+  // Randevu dilimi kılavuz çizgileri (saat çizgisi koyu, ara dilimler açık) —
+  // dilim sayısı Ayarlar'daki booking_slot_minutes'e göre değişir (15dk→4, 30dk→2, 60dk→1).
+  const divisionsPerHour = 60 / slotMinutes;
   const slotLines = (
     <>
       {hours.map((h) => (
         <div key={h} className="border-b border-border/60" style={{ height: HOUR_PX }}>
-          <div style={{ height: HOUR_PX / 4 }} className="border-b border-border/15" />
-          <div style={{ height: HOUR_PX / 4 }} className="border-b border-border/25" />
-          <div style={{ height: HOUR_PX / 4 }} className="border-b border-border/15" />
+          {Array.from({ length: divisionsPerHour - 1 }, (_, i) => (
+            <div
+              key={i}
+              style={{ height: HOUR_PX / divisionsPerHour }}
+              // Yarım saat çizgisi (i.e. saat başından 30dk sonrası) biraz daha belirgin
+              className={cn("border-b", (i + 1) * slotMinutes === 30 ? "border-border/25" : "border-border/15")}
+            />
+          ))}
         </div>
       ))}
     </>

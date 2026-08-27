@@ -8,6 +8,9 @@ import {
 } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
 import Link from "next/link";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { UnifiedCalendar, type CalendarView } from "@/components/dashboard/UnifiedCalendar";
 import { TakvimHeader } from "@/components/dashboard/TakvimHeader";
 import { getTranslations, getLocale } from "next-intl/server";
@@ -39,7 +42,7 @@ export default async function TakvimPage({
 
   const view: CalendarView = ["day", "week", "month", "staff"].includes(params.view ?? "")
     ? (params.view as CalendarView)
-    : "week";
+    : "staff";
   // Bozuk ?date= değeri Invalid Date → format() çöker; sıkı doğrula.
   // "Bugün" sunucunun (UTC) değil, Türkiye saatinin tarihine göre belirlenir —
   // aksi halde gece yarısından sonra TR'de "bugün" iken sunucuda hâlâ "dün"
@@ -127,6 +130,9 @@ export default async function TakvimPage({
   // Personel rolündeki kullanıcı yalnızca kendi randevularını görür/filtreler
   const lockedStaffId = member.role === "staff" ? member.staff_id : null;
 
+  const settingsJson = (member.organizations?.settings_json ?? {}) as Record<string, unknown>;
+  const slotMinutes = Number(settingsJson.booking_slot_minutes) || 15;
+
   return (
     <div className="p-6 space-y-4">
       <TakvimHeader
@@ -184,6 +190,7 @@ export default async function TakvimPage({
             starts_on: t.starts_on,
             ends_on: t.ends_on,
           }))}
+          slotMinutes={slotMinutes}
         />
       )}
     </div>

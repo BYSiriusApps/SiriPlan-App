@@ -859,7 +859,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
                   >
                     <SelectTrigger className="w-[140px] h-8 shrink-0 text-xs">
                       <SelectValue>
-                        {() => (svc.category_id ? sortedCategories.find((c) => c.id === svc.category_id)?.name ?? "Kategorisiz" : "Kategorisiz")}
+                        {svc.category_id ? sortedCategories.find((c) => c.id === svc.category_id)?.name ?? "Kategorisiz" : "Kategorisiz"}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>

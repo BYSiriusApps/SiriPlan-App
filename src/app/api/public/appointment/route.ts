@@ -26,17 +26,17 @@ export async function GET(req: NextRequest) {
   const supabase = await createAdminClient();
   const { data } = await supabase
     .from("appointments")
-    .select("status, appointment_at, customer_name, organizations(name, address, location_url), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+    .select("status, appointment_at, customer_name, price, organizations(name, address, location_url), staff:staff!appointments_staff_id_fkey(full_name), service:services(name, currency)")
     .eq("cancel_token", token)
     .single();
 
   if (!data) return NextResponse.json({ error: "Randevu bulunamadı." }, { status: 404 });
 
   const appt = data as unknown as {
-    status: string; appointment_at: string; customer_name: string;
+    status: string; appointment_at: string; customer_name: string; price: number;
     organizations?: { name: string; address?: string | null; location_url?: string | null } | null;
     staff?: { full_name: string } | null;
-    service?: { name: string } | null;
+    service?: { name: string; currency?: string | null } | null;
   };
 
   const org = appt.organizations;
@@ -53,6 +53,8 @@ export async function GET(req: NextRequest) {
       location_url: locationUrl,
       staff_name: appt.staff?.full_name ?? "",
       service_name: appt.service?.name ?? "",
+      price: appt.price,
+      currency: appt.service?.currency ?? "TRY",
       cancellable: ["talep", "onaylandi"].includes(appt.status) && new Date(appt.appointment_at) > new Date(),
     },
   });

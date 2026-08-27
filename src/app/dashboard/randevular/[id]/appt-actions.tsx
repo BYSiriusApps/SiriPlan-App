@@ -60,7 +60,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
   }, []);
 
   const isDone = appt.status === "tamamlandi" || appt.status === "iptal" || appt.status === "gelmedi";
-  const canAct = viewerRole !== "staff" || appt.staff_id === viewerStaffId;
+  const canAct = viewerRole !== "staff" || appt.staff_id === viewerStaffId || appt.status === "talep";
 
   function openManualWaMessage(purpose: "onay" | "iptal" | "revize" | "hatirlatma" = "onay") {
     let template = waTemplate;

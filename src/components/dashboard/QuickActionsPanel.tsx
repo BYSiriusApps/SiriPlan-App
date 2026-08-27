@@ -73,17 +73,37 @@ const DEFAULT_SHORTCUTS: ShortcutItem[] = [
 interface Props {
   initialShortcuts: ShortcutItem[];
   orgId: string;
+  role?: string;
+}
+
+const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
+function canAccess(href: string, role: string) {
+  let minRole = "staff";
+  if (href.startsWith("/dashboard/ayarlar") || href.startsWith("/dashboard/abonelik")) {
+    minRole = "owner";
+  } else if (
+    href.startsWith("/dashboard/personel") ||
+    href.startsWith("/dashboard/hizmetler") ||
+    href.startsWith("/dashboard/kampanyalar") ||
+    href.startsWith("/dashboard/raporlar") ||
+    href.startsWith("/dashboard/gelir-gider")
+  ) {
+    minRole = "manager";
+  }
+  return (ROLE_RANK[role] ?? 0) >= (ROLE_RANK[minRole] ?? 0);
 }
 
 /* ── Component ─────────────────────────────────────────────────────────── */
-export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
+export function QuickActionsPanel({ initialShortcuts, orgId, role = "staff" }: Props) {
   const t = useTranslations("dashboard");
   const labelFor = (item: { href: string; label: string }) => {
     const key = SHORTCUT_LABEL_KEYS[item.href];
     return key ? t(key) : item.label;
   };
 
-  const saved = initialShortcuts.length > 0 ? initialShortcuts : DEFAULT_SHORTCUTS;
+  const filteredInitial = initialShortcuts.filter((s) => canAccess(s.href, role));
+  const filteredDefault = DEFAULT_SHORTCUTS.filter((s) => canAccess(s.href, role));
+  const saved = filteredInitial.length > 0 ? filteredInitial : filteredDefault;
   const [shortcuts, setShortcuts] = useState<ShortcutItem[]>(saved);
   const [editMode, setEditMode] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
@@ -134,7 +154,7 @@ export function QuickActionsPanel({ initialShortcuts, orgId }: Props) {
     setEditMode(false);
   };
 
-  const available = ALL_SHORTCUTS.filter((a) => !shortcuts.some((s) => s.href === a.href));
+  const available = ALL_SHORTCUTS.filter((a) => canAccess(a.href, role) && !shortcuts.some((s) => s.href === a.href));
 
   return (
     <>

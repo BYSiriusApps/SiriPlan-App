@@ -108,6 +108,7 @@ export async function POST(req: NextRequest) {
       purpose: "iptal",
       vars: { customer_name: appt.customer_name, date, time },
       appointmentAt: appt.appointment_at,
+      cancelToken: appt.cancel_token,
     }).catch(() => {});
   }
 
