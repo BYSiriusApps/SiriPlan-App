@@ -14,6 +14,7 @@ import { getSubscriptionLock } from "@/lib/subscription-lock";
 import type { SalonData } from "./booking-shared";
 import { ClassicLayout } from "./ClassicLayout";
 import { ShowcaseLayout } from "./ShowcaseLayout";
+import { PoweredByBadge } from "@/components/public/PoweredByBadge";
 
 import trMessages from "../../../../messages/tr.json";
 import enMessages from "../../../../messages/en.json";
@@ -149,7 +150,7 @@ function PublicBookingPage({
   const subscriptionLock = getSubscriptionLock(org);
   if (subscriptionLock.locked) {
     return (
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-rose-50 via-background to-amber-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-rose-50 via-background to-amber-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 p-4">
         <Card className="relative max-w-md w-full text-center border-0 shadow-2xl shadow-primary/10 overflow-hidden">
           <div className="h-1.5 w-full bg-gradient-to-r from-primary via-accent to-primary" />
           <CardContent className="p-8">
@@ -170,6 +171,7 @@ function PublicBookingPage({
             ) : null}
           </CardContent>
         </Card>
+        <PoweredByBadge />
       </div>
     );
   }
@@ -213,12 +215,7 @@ function PublicBookingPage({
         />
       )}
 
-      {/* Powered by */}
-      <div className="relative text-center py-6">
-        <a href="https://bysirius.com" className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
-          ✨ SiriPlan powered BY Sirius Group
-        </a>
-      </div>
+      <PoweredByBadge />
     </div>
   );
 }

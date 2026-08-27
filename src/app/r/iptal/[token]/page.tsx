@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, CheckCircle2, XCircle, Calendar, Clock, User, Scissors } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+import { PoweredByBadge } from "@/components/public/PoweredByBadge";
 
 type CancelInfo = {
   status: string;
@@ -57,7 +58,7 @@ export default function CancelAppointmentPage({ params }: { params: Promise<{ to
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardContent className="pt-6 space-y-5">
           {loading ? (
@@ -132,6 +133,7 @@ export default function CancelAppointmentPage({ params }: { params: Promise<{ to
           ) : null}
         </CardContent>
       </Card>
+      <PoweredByBadge />
     </div>
   );
 }
