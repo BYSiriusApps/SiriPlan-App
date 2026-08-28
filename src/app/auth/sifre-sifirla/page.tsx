@@ -21,8 +21,11 @@ export default function SifreSifirlaPage() {
     setLoading(true);
 
     const supabase = createClient();
+    // Şifre sıfırlama linki doğrudan /auth/yeni-sifre'ye gitmeli — o sayfa
+    // token'ı (token_hash / code / hash) kendisi doğrulayıp oturumu kurar.
+    // /auth/callback org oluşturma akışıdır, recovery için gereksiz bir sekme.
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/auth/yeni-sifre`,
+      redirectTo: `${window.location.origin}/auth/yeni-sifre`,
     });
 
     setLoading(false);
