@@ -78,7 +78,7 @@ export default async function WebsiteAyarlariPage() {
 
   const [{ data: categories }, { data: services }] = await Promise.all([
     supabase.from("service_categories").select("*, service_category_photos(*)").eq("org_id", member.org_id).order("display_order"),
-    supabase.from("services").select("*").eq("org_id", member.org_id).order("display_order"),
+    supabase.from("services").select("*").eq("org_id", member.org_id).eq("is_active", true).order("display_order"),
   ]);
 
   return (

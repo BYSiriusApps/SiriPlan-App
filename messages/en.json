@@ -1431,6 +1431,10 @@
       "quickQ2": "How do I turn on WhatsApp notifications?",
       "quickQ3": "How do I invite staff?",
       "quickQ4": "How do I export my data?",
+      "quickQ5": "How can I update my profile?",
+      "quickQ6": "How can I book an appointment?",
+      "quickQ7": "How can I export my data?",
+      "quickQ8": "How do I enable notifications?"
       "errorFallback": "Connection error. Please try again or reach us at info@bysirius.com.",
       "footer": "Panel Help Assistant"
     },

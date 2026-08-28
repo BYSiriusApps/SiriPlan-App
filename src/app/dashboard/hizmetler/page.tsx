@@ -13,7 +13,7 @@ export default async function HizmetlerPage() {
   if (!member) redirect("/auth/kayit");
 
   const [{ data: services }, { data: categories }] = await Promise.all([
-    supabase.from("services").select("*").eq("org_id", member.org_id).order("display_order"),
+    supabase.from("services").select("*").eq("org_id", member.org_id).eq("is_active", true).order("display_order"),
     supabase.from("service_categories").select("*").eq("org_id", member.org_id).order("display_order"),
   ]);
 

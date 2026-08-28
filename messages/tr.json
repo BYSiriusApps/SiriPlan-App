@@ -1431,6 +1431,10 @@
       "quickQ2": "WhatsApp bildirimlerini nasıl açarım?",
       "quickQ3": "Personel nasıl davet ederim?",
       "quickQ4": "Verilerimi nasıl dışa aktarırım?",
+      "quickQ5": "Profilimi nasıl güncelleyebilirim?",
+      "quickQ6": "Randevu nasıl alırım?",
+      "quickQ7": "Verilerimi nasıl dışa aktarabilirim?",
+      "quickQ8": "Bildirimleri nasıl etkinleştiririm?",
       "errorFallback": "Bağlantı hatası. Lütfen tekrar deneyin veya info@bysirius.com adresinden ulaşın.",
       "footer": "Panel Yardım Asistanı"
     },

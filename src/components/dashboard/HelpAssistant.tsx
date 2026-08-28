@@ -87,7 +87,7 @@ export function HelpAssistant() {
     recognition.start();
   }, [router, requestMic, speechLang, tm]);
 
-  const quickQuestions = [t("quickQ1"), t("quickQ2"), t("quickQ3"), t("quickQ4")];
+  const quickQuestions = [t("quickQ1"), t("quickQ2"), t("quickQ3"), t("quickQ4"), t("quickQ5"), t("quickQ6"), t("quickQ7"), t("quickQ8")];
 
   useEffect(() => {
     if (open && !minimized) {
