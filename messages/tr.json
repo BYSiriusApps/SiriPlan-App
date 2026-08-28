@@ -899,7 +899,22 @@
       "websiteModu": "Website Modu",
       "kampanyaModulu": "Kampanya Modülü",
       "gamification": "Gamification",
-      "aiAsistani": "AI Asistanı"
+      "aiAsistani": "AI Asistanı",
+      "currentPlan": "Mevcut Plan",
+      "statusActive": "Aktif",
+      "statusPastDue": "Ödeme Bekliyor",
+      "statusCancelled": "İptal Edildi",
+      "planSuffix": "{planName} Planı",
+      "trialEnds": "Deneme {date} tarihinde bitiyor",
+      "staffLabel": "Personel",
+      "appointmentsLabel": "Randevu (bu ay)",
+      "unlimited": "Sınırsız",
+      "contactSupport": "Destek ile iletişime geçin",
+      "appStoreNote": "Hesabınızın planı ve kullanım limitleri yukarıda görünür.",
+      "compareAndStart": "Planları Karşılaştır & Aboneliği Başlat",
+      "upgradeToPro": "Pro'ya Yükselt",
+      "manageBilling": "Fatura & Ödeme Yöntemini Yönet",
+      "trialBottomNote": "Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez. Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz."
     },
     "reportsPage": {
       "eyebrow": "Analizler",

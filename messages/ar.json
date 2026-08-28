@@ -899,7 +899,22 @@
       "websiteModu": "وضع الموقع",
       "kampanyaModulu": "وحدة الحملات",
       "gamification": "التلعيب",
-      "aiAsistani": "مساعد الذكاء الاصطناعي"
+      "aiAsistani": "مساعد الذكاء الاصطناعي",
+      "currentPlan": "الخطة الحالية",
+      "statusActive": "نشط",
+      "statusPastDue": "بانتظار الدفع",
+      "statusCancelled": "ملغى",
+      "planSuffix": "خطة {planName}",
+      "trialEnds": "ينتهي العرض التجريبي في {date}",
+      "staffLabel": "الموظفون",
+      "appointmentsLabel": "المواعيد (هذا الشهر)",
+      "unlimited": "غير محدود",
+      "contactSupport": "التواصل مع الدعم",
+      "appStoreNote": "تظهر خطة حسابك وحدود الاستخدام أعلاه.",
+      "compareAndStart": "مقارنة الخطط وبدء الاشتراك",
+      "upgradeToPro": "ترقية إلى Pro",
+      "manageBilling": "إدارة الفواتير وطريقة الدفع",
+      "trialBottomNote": "جميع ميزات Pro مجانية خلال فترة التجربة - لا حاجة لبطاقة ائتمان. يمكنك مقارنة خطة Starter و Pro قبل انتهاء التجربة والاستمرار بالخطة التي تناسبك."
     },
     "reportsPage": {
       "eyebrow": "التحليلات",

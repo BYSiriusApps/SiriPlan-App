@@ -73,7 +73,7 @@ export default async function FiyatlarPage() {
       {/* Pricing cards */}
       <section className="py-16">
         <div className="container mx-auto px-4 max-w-5xl">
-          <CurrencyToggle currentCurrency={pricing.currency} />
+          {pricing.currency !== "TRY" && <CurrencyToggle currentCurrency={pricing.currency} />}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {planMeta.map((plan) => {
               const features = t.raw(`pricing.${plan.key}.features`) as string[];

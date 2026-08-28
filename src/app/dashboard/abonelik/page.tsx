@@ -3,27 +3,26 @@ import { getActiveMember } from "@/lib/active-org";
 import { getEntitlements, isTrialActive } from "@/lib/entitlements";
 import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, CalendarDays, type LucideIcon } from "lucide-react";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { ManageBillingButton } from "@/components/dashboard/ManageBillingButton";
-import { format } from "date-fns";
-import { tr } from "date-fns/locale";
 import Link from "next/link";
 
 const SUPPORT_EMAIL = "info@bysirius.com";
 
 const PLAN_DETAILS = {
-  trial: { name: "Deneme", icon: Zap, color: "text-gray-600" },
-  starter: { name: "Starter", icon: Zap, color: "text-blue-600" },
-  pro: { name: "Pro", icon: Sparkles, color: "text-primary" },
-  business: { name: "Business", icon: Building2, color: "text-purple-600" },
+  trial: { icon: Zap, color: "text-gray-600" },
+  starter: { icon: Zap, color: "text-blue-600" },
+  pro: { icon: Sparkles, color: "text-primary" },
+  business: { icon: Building2, color: "text-purple-600" },
 };
 
 export default async function AbonelikPage() {
-  const t = await getTranslations("dashboard");
+  const t = await getTranslations();
+  const locale = await getLocale();
   const supabase = await createClient();
   const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
@@ -44,15 +43,15 @@ export default async function AbonelikPage() {
   const planDetail = PLAN_DETAILS[org.plan as keyof typeof PLAN_DETAILS] || PLAN_DETAILS.trial;
   const Icon = planDetail.icon;
 
-  // Deneme süresi Pro'ya denk: özellik listesi ve limitler etkin yetkiden okunur,
-  // böylece kullanıcı deneme boyunca gerçekten neye erişebildiğini net görür.
+  const planDisplayName = org.plan === "trial"
+    ? (locale === "tr" ? "Deneme" : locale === "ru" ? "Пробный" : locale === "ar" ? "تجريبي" : "Trial")
+    : (org.plan === "starter" ? "Starter" : org.plan === "pro" ? "Pro" : "Business");
+
   const ent = getEntitlements(org);
   const trialActive = isTrialActive(org);
   const maxStaff = trialActive ? 999 : org.max_staff;
   const maxAppointments = trialActive ? 999999 : org.max_appointments_monthly;
 
-  // Gerçek kullanım — sayfa "boş" görünmesin diye uydurma sayı değil,
-  // aynı sorgu (bkz. api/appointments/route.ts satır ~320-330) tekrar edilir.
   const admin = await createAdminClient();
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -63,6 +62,10 @@ export default async function AbonelikPage() {
       .gte("created_at", monthStart).lt("created_at", monthEnd),
   ]);
 
+  const currentPlanKey = org.plan === "trial" ? "pro" : (org.plan as "starter" | "pro" | "business");
+  const planFeatures = t.raw(`pricing.${currentPlanKey}.features`) as string[];
+  const planNotIncluded = (t.raw(`pricing.${currentPlanKey}.notIncluded`) as string[] | undefined) ?? [];
+
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <div>
@@ -71,19 +74,19 @@ export default async function AbonelikPage() {
             <CreditCard className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("subscriptionPage.eyebrow")}</span>
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("subscriptionPage.title")}</h1>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("dashboard.subscriptionPage.eyebrow")}</span>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("dashboard.subscriptionPage.title")}</h1>
           </div>
           <HomeButton />
         </div>
-        <p className="text-muted-foreground text-sm mt-1">{t("subscriptionPage.subtitle")}</p>
+        <p className="text-muted-foreground text-sm mt-1">{t("dashboard.subscriptionPage.subtitle")}</p>
       </div>
 
       {/* Current plan */}
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Mevcut Plan</CardTitle>
+            <CardTitle className="text-base">{t("dashboard.subscriptionPage.currentPlan")}</CardTitle>
             <Badge
               variant="outline"
               className={
@@ -92,8 +95,8 @@ export default async function AbonelikPage() {
                 "bg-red-100 text-red-800 border-red-200"
               }
             >
-              {org.subscription_status === "active" ? "Aktif" :
-               org.subscription_status === "past_due" ? "Ödeme Bekliyor" : "İptal Edildi"}
+              {org.subscription_status === "active" ? t("dashboard.subscriptionPage.statusActive") :
+               org.subscription_status === "past_due" ? t("dashboard.subscriptionPage.statusPastDue") : t("dashboard.subscriptionPage.statusCancelled")}
             </Badge>
           </div>
         </CardHeader>
@@ -104,16 +107,16 @@ export default async function AbonelikPage() {
             </div>
             <div>
               <p className="text-xl font-bold">
-                {planDetail.name} Planı
+                {t("dashboard.subscriptionPage.planSuffix", { planName: planDisplayName })}
                 {trialActive && (
                   <span className="ml-2 align-middle text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                    Pro özellikleri açık
+                    {locale === "tr" ? "Pro özellikleri açık" : locale === "ru" ? "Возможности Pro активны" : locale === "ar" ? "ميزات Pro مفعلة" : "Pro features active"}
                   </span>
                 )}
               </p>
               {org.plan === "trial" && org.trial_ends_at && (
                 <p className="text-sm text-muted-foreground">
-                  Deneme {format(new Date(org.trial_ends_at), "d MMMM yyyy", { locale: tr })} tarihinde bitiyor
+                  {t("dashboard.subscriptionPage.trialEnds", { date: new Date(org.trial_ends_at).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) })}
                 </p>
               )}
             </div>
@@ -122,42 +125,37 @@ export default async function AbonelikPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <UsageMeter
               icon={Users}
-              label="Personel"
+              label={t("dashboard.subscriptionPage.staffLabel")}
               used={staffCount ?? 0}
               max={maxStaff}
+              unlimitedLabel={t("dashboard.subscriptionPage.unlimited")}
             />
             <UsageMeter
               icon={CalendarDays}
-              label="Randevu (bu ay)"
+              label={t("dashboard.subscriptionPage.appointmentsLabel")}
               used={appointmentCount ?? 0}
               max={maxAppointments}
+              unlimitedLabel={t("dashboard.subscriptionPage.unlimited")}
             />
           </div>
 
           <div className="space-y-2">
-            {[
-              { label: t("subscriptionPage.websiteModu"), enabled: ent.feature_website },
-              { label: t("subscriptionPage.kampanyaModulu"), enabled: ent.feature_campaigns },
-              { label: t("subscriptionPage.gamification"), enabled: ent.feature_gamification },
-              { label: t("subscriptionPage.aiAsistani"), enabled: ent.feature_ai },
-            ].map((f) => (
-              <div key={f.label} className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className={`h-4 w-4 ${f.enabled ? "text-green-600" : "text-muted-foreground/40"}`} />
-                <span className={f.enabled ? "" : "text-muted-foreground/60 line-through"}>{f.label}</span>
+            {planFeatures.map((f) => (
+              <div key={f} className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>{f}</span>
+              </div>
+            ))}
+            {planNotIncluded.map((f) => (
+              <div key={f} className="flex items-center gap-2 text-sm opacity-50">
+                <span className="w-4 h-4 shrink-0 text-center text-[10px] text-muted-foreground">✕</span>
+                <span className="text-muted-foreground line-through">{f}</span>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Actions — native uygulamada (App Store/Play Store) fiyat, plan
-          karşılaştırma ve ödeme bağlantısı gösterilmez. Destek bağlantısı da
-          kasıtlı olarak "plan değişikliği/yükseltme" ifadesi taşımaz: App
-          Store İnceleme Kılavuzu 3.1.1 uygulama içi satın alma dışındaki bir
-          satın alma yoluna YÖNLENDİREN her çağrıyı (buton, link, metin)
-          kapsar; "plan değiştirmek için bize yazın" da böyle bir çağrıdır.
-          Burada yalnızca sayfanın üstündeki mevcut plan bilgisi ve genel
-          müşteri desteği kalır. */}
       {mobileApp ? (
         <div className="space-y-2">
           <a
@@ -165,10 +163,10 @@ export default async function AbonelikPage() {
             className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-border font-medium hover:bg-accent transition-colors"
           >
             <Mail className="h-4 w-4" />
-            Destek ile iletişime geçin
+            {t("dashboard.subscriptionPage.contactSupport")}
           </a>
           <p className="text-xs text-center text-muted-foreground">
-            Hesabınızın planı ve kullanım limitleri yukarıda görünür.
+            {t("dashboard.subscriptionPage.appStoreNote")}
           </p>
         </div>
       ) : (
@@ -179,34 +177,32 @@ export default async function AbonelikPage() {
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
             >
               <Sparkles className="h-4 w-4" />
-              {org.plan === "trial" ? "Planları Karşılaştır & Aboneliği Başlat" : "Pro'ya Yükselt"}
+              {org.plan === "trial" ? t("dashboard.subscriptionPage.compareAndStart") : t("dashboard.subscriptionPage.upgradeToPro")}
             </Link>
           ) : null}
           {org.stripe_customer_id && (org.plan === "pro" || org.plan === "business") && (
-            <ManageBillingButton label="Fatura & Ödeme Yöntemini Yönet" />
+            <ManageBillingButton label={t("dashboard.subscriptionPage.manageBilling")} />
           )}
         </div>
       )}
 
       {org.plan === "trial" && !mobileApp && (
         <p className="text-xs text-center text-muted-foreground">
-          Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez.
-          Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz.
+          {t("dashboard.subscriptionPage.trialBottomNote")}
         </p>
       )}
     </div>
   );
 }
 
-/** Kullanım göstergesi — "Max Personel: 8" gibi tek başına anlamsız bir üst
- * sınır yerine gerçek kullanımı ("3 / 8") bir ilerleme çubuğuyla gösterir. */
 function UsageMeter({
-  icon: Icon, label, used, max,
+  icon: Icon, label, used, max, unlimitedLabel,
 }: {
   icon: LucideIcon;
   label: string;
   used: number;
   max: number;
+  unlimitedLabel: string;
 }) {
   const unlimited = max >= 999;
   const pct = unlimited ? 0 : Math.min(100, max > 0 ? Math.round((used / max) * 100) : 0);
@@ -219,7 +215,7 @@ function UsageMeter({
         </span>
         <span className="text-sm font-bold tabular-nums">
           {used}{unlimited ? "" : ` / ${max}`}
-          {unlimited && <span className="text-xs font-medium text-muted-foreground ml-1">Sınırsız</span>}
+          {unlimited && <span className="text-xs font-medium text-muted-foreground ml-1">{unlimitedLabel}</span>}
         </span>
       </div>
       {!unlimited && (

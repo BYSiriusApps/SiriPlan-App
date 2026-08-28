@@ -899,7 +899,22 @@
       "websiteModu": "Режим сайта",
       "kampanyaModulu": "Модуль кампаний",
       "gamification": "Геймификация",
-      "aiAsistani": "AI-ассистент"
+      "aiAsistani": "AI-ассистент",
+      "currentPlan": "Текущий тариф",
+      "statusActive": "Активен",
+      "statusPastDue": "Ожидается оплата",
+      "statusCancelled": "Отменен",
+      "planSuffix": "Тариф {planName}",
+      "trialEnds": "Пробный период заканчивается {date}",
+      "staffLabel": "Персонал",
+      "appointmentsLabel": "Записи (в этом месяце)",
+      "unlimited": "Безлимитно",
+      "contactSupport": "Связаться с поддержкой",
+      "appStoreNote": "Тариф вашего аккаунта и лимиты использования показаны выше.",
+      "compareAndStart": "Сравнить тарифы и начать подписку",
+      "upgradeToPro": "Обновить до Pro",
+      "manageBilling": "Управление счетами и методом оплаты",
+      "trialBottomNote": "Все функции тарифа Pro бесплатны в течение пробного периода — банковская карта не требуется. Вы можете сравнить тарифы Starter и Pro до окончания пробного периода и продолжить с подходящим тарифом."
     },
     "reportsPage": {
       "eyebrow": "Аналитика",

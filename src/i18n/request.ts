@@ -17,6 +17,8 @@ const AR_COUNTRIES = [
   "EG", "LY", "TN", "DZ", "MA", "MR", "SD", "SO", "DJ", "KM",
 ];
 
+const EUR_COUNTRIES = ["DE", "FR", "ES", "IT", "NL", "BE", "SE", "NO", "DK", "FI", "PL", "CZ", "PT", "IE", "AT", "CH", "LU", "GR", "RO", "HR", "SK", "HU", "SI", "EE", "LV", "LT", "IS", "AD", "MC", "SM", "VA"];
+
 async function detectLocale(): Promise<Locale> {
   // 1. Cookie (en yaygın yol — giriş ve dil değişiminde zaten yazılıyor,
   // her sayfa geçişinde Supabase'e gitmeden anında karar verilir).
@@ -35,7 +37,7 @@ async function detectLocale(): Promise<Locale> {
     // Supabase erişilemezse (ör. build zamanı) sessizce devam et
   }
 
-  // 3. IP ülkesine göre varsayılan dil: TR -> tr, Rusça/Arapça konuşulan
+  // 3. IP ülkesine göre varsayılan dil: TR -> tr, Avrupa -> en, Rusça/Arapça konuşulan
   // ülkeler -> ru/ar, kalan her yer -> en.
   const headerStore = await headers();
   // x-vercel-ip-country önce: Vercel bu başlığı gelen istekte ezdiği için
@@ -51,6 +53,7 @@ async function detectLocale(): Promise<Locale> {
   if (countryCode) {
     const normalized = countryCode.toUpperCase();
     if (normalized === "TR") return "tr";
+    if (EUR_COUNTRIES.includes(normalized)) return "en";
     if (RU_COUNTRIES.includes(normalized)) return "ru";
     if (AR_COUNTRIES.includes(normalized)) return "ar";
     return "en";

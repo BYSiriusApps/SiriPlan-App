@@ -899,7 +899,22 @@
       "websiteModu": "Website Mode",
       "kampanyaModulu": "Campaign Module",
       "gamification": "Gamification",
-      "aiAsistani": "AI Assistant"
+      "aiAsistani": "AI Assistant",
+      "currentPlan": "Current Plan",
+      "statusActive": "Active",
+      "statusPastDue": "Payment Pending",
+      "statusCancelled": "Cancelled",
+      "planSuffix": "{planName} Plan",
+      "trialEnds": "Trial ends on {date}",
+      "staffLabel": "Staff",
+      "appointmentsLabel": "Appointments (this month)",
+      "unlimited": "Unlimited",
+      "contactSupport": "Contact Support",
+      "appStoreNote": "Your account plan and usage limits are shown above.",
+      "compareAndStart": "Compare Plans & Start Subscription",
+      "upgradeToPro": "Upgrade to Pro",
+      "manageBilling": "Manage Billing & Payment Method",
+      "trialBottomNote": "All Pro features are free during the trial period — no credit card required. You can compare Starter and Pro before the trial ends and continue with the plan that suits you."
     },
     "reportsPage": {
       "eyebrow": "Analytics",
