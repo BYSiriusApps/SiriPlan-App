@@ -92,8 +92,13 @@ function PublicBookingPage({
         setCategories(
           [...((data.categories as ServiceCategory[]) || [])].sort((a, b) => a.display_order - b.display_order)
         );
-        if (!manualLangOverride.current && isSupportedLanguage(orgData.locale)) {
-          setLang(orgData.locale);
+        if (!manualLangOverride.current) {
+          const stored = typeof window !== "undefined" ? window.localStorage.getItem(`lang_${slug}`) : null;
+          if (stored && isSupportedLanguage(stored)) {
+            setLang(stored as LanguageCode);
+          } else if (isSupportedLanguage(orgData.locale)) {
+            setLang(orgData.locale);
+          }
         }
       })
       .catch(() => {});
@@ -118,17 +123,18 @@ function PublicBookingPage({
   const onLangChange = useCallback((l: LanguageCode) => {
     manualLangOverride.current = true;
     setLang(l);
-  }, [setLang]);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(`lang_${slug}`, l);
+    }
+  }, [setLang, slug]);
 
-  /**
-   * Dönen müşteri tespiti: sihirbazda telefon yazıldıkça sunucuya sorulur,
-   * müşterinin daha önce kaydettiği dil varsa sayfa o dile geçer. Ziyaretçi
-   * bayrağa elle bastıysa tercihi ezilmez.
-   */
   const onDetectedLanguage = useCallback((l: LanguageCode) => {
     if (manualLangOverride.current) return;
     setLang(l);
-  }, [setLang]);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(`lang_${slug}`, l);
+    }
+  }, [setLang, slug]);
 
   if (!org) {
     return (

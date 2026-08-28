@@ -166,9 +166,20 @@ export function UnifiedCalendar({
   const [isPending, startTransition] = useTransition();
   const [popover, setPopover] = useState<Popover | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [selectedStaff, setSelectedStaff] = useState<string | "all">(
-    lockedStaffId ?? "all"
+  // Çoklu personel seçimi. Boş küme = "tümü". Staff rolü kendine kilitli.
+  // Set yerine sıralı diziyle tutmak, useMemo bağımlılıklarında referans
+  // kıyası yapılabilsin diye string'e serilenebilir olmasını sağlar.
+  const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>(
+    lockedStaffId ? [lockedStaffId] : []
   );
+  const selectedStaffKey = selectedStaffIds.join(",");
+  const isAllStaff = selectedStaffIds.length === 0;
+
+  function toggleStaff(id: string) {
+    setSelectedStaffIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  }
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const colorOf = useMemo(() => {
@@ -211,7 +222,8 @@ export function UnifiedCalendar({
       time: formattedTime,
     });
     if (staffIdOverride) params.set("staff_id", staffIdOverride);
-    else if (selectedStaff !== "all") params.set("staff_id", selectedStaff);
+    else if (lockedStaffId) params.set("staff_id", lockedStaffId);
+    else if (selectedStaffIds.length === 1) params.set("staff_id", selectedStaffIds[0]);
 
     router.push(`/dashboard/randevular/yeni?${params.toString()}`);
   }
@@ -274,13 +286,24 @@ export function UnifiedCalendar({
     };
   }, [orgId, router]);
 
-  // Filtre: kilitli personel (staff rolü) veya seçilen personel
+  // Filtre: kilitli personel (staff rolü) veya seçilen personel kümesi.
+  // Boş küme (isAllStaff) → tüm personel gösterilir.
   const visibleAppointments = useMemo(() => {
-    const activeFilter = lockedStaffId ?? (selectedStaff === "all" ? null : selectedStaff);
-    return activeFilter
-      ? appointments.filter((a) => a.staff_id === activeFilter)
-      : appointments;
-  }, [appointments, selectedStaff, lockedStaffId]);
+    if (lockedStaffId) return appointments.filter((a) => a.staff_id === lockedStaffId);
+    if (selectedStaffIds.length === 0) return appointments;
+    const set = new Set(selectedStaffIds);
+    return appointments.filter((a) => set.has(a.staff_id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appointments, selectedStaffKey, lockedStaffId]);
+
+  // Personel sütun görünümünde gösterilecek personeller (çoklu seçim)
+  const staffColumns = useMemo(() => {
+    if (lockedStaffId) return staff.filter((s) => s.id === lockedStaffId);
+    if (selectedStaffIds.length === 0) return staff;
+    const set = new Set(selectedStaffIds);
+    return staff.filter((s) => set.has(s.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staff, selectedStaffKey, lockedStaffId]);
 
   // YEREL saate göre gün bazında grupla (UTC slice değil — tz kayması yapmaz)
   const byDay = useMemo(() => {
@@ -704,10 +727,10 @@ export function UnifiedCalendar({
         ) : (
           <>
             <button
-              onClick={() => setSelectedStaff("all")}
+              onClick={() => setSelectedStaffIds([])}
               className={cn(
                 "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
-                selectedStaff === "all"
+                isAllStaff
                   ? "bg-foreground text-background border-foreground"
                   : "hover:bg-accent text-muted-foreground"
               )}
@@ -716,11 +739,12 @@ export function UnifiedCalendar({
             </button>
             {staff.map((s) => {
               const c = colorOf(s.id);
-              const active = selectedStaff === s.id;
+              const active = selectedStaffIds.includes(s.id);
               return (
                 <button
                   key={s.id}
-                  onClick={() => setSelectedStaff(active ? "all" : s.id)}
+                  onClick={() => toggleStaff(s.id)}
+                  aria-pressed={active}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-all"
                   style={{
                     background: active ? c.soft : "transparent",
@@ -730,9 +754,15 @@ export function UnifiedCalendar({
                 >
                   <span className="w-2 h-2 rounded-full" style={{ background: c.solid }} />
                   {s.full_name}
+                  {active && <span className="ml-0.5 opacity-70">✓</span>}
                 </button>
               );
             })}
+            {!isAllStaff && (
+              <span className="text-[11px] text-muted-foreground">
+                {selectedStaffIds.length}/{staff.length}
+              </span>
+            )}
           </>
         )}
       </div>
@@ -781,7 +811,7 @@ export function UnifiedCalendar({
                       {slotLines}
                       {isToday && nowLine}
                       <div className="absolute inset-0">
-                        {positioned.map((p) => renderApptBlock(p, { showStaff: selectedStaff === "all", dayIndex }))}
+                        {positioned.map((p) => renderApptBlock(p, { showStaff: !lockedStaffId && selectedStaffIds.length !== 1, dayIndex }))}
                         {dragPreview && dragPreview.dayIndex === dayIndex && (
                           <div
                             className="absolute inset-x-1 rounded-md border-2 border-dashed border-primary bg-primary/10 pointer-events-none z-30 flex items-start justify-center"
@@ -807,9 +837,9 @@ export function UnifiedCalendar({
             {/* minmax tabanlı, sabit min-w YOK: mobilde en az 3 personel sütunu
                 kaydırmadan sığar, sütun sayısı azsa 1fr kalan alanı doldurur;
                 4+ personelde taşan kısım için yatay kaydırma devreye girer. */}
-            <div className="grid" style={{ gridTemplateColumns: `40px repeat(${staff.length || 1}, minmax(76px, 1fr))` }}>
+            <div className="grid" style={{ gridTemplateColumns: `40px repeat(${staffColumns.length || 1}, minmax(76px, 1fr))` }}>
               {hourRail}
-              {staff.map((s) => {
+              {staffColumns.map((s) => {
                 const c = colorOf(s.id);
                 const dayStr = gridDays[0] || today;
                 const staffAppts = (byDay[dayStr] || []).filter((a) => a.staff_id === s.id);

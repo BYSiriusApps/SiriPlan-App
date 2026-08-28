@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { X, Send, Bot, Minimize2, LifeBuoy, Mic } from "lucide-react";
+import { X, Send, Bot, Minimize2, LifeBuoy, Mic, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAiAssistant } from "./AiAssistantContext";
@@ -21,6 +21,7 @@ export function HelpAssistant() {
   const { requestMic, micDialog, speechLang } = useMicAccess();
   const { open, setOpen } = useAiAssistant();
   const [minimized, setMinimized] = useState(false);
+  const [showQuick, setShowQuick] = useState(true);
   const [messages, setMessages] = useState<Message[]>([{ role: "assistant", text: t("greeting") }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -168,20 +169,27 @@ export function HelpAssistant() {
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => setMinimized((m) => !m)}
-                className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
-                aria-label={t("minimizeLabel")}
-              >
-                <Minimize2 className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => setOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
-                aria-label={t("closeLabel")}
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
+                <button
+                  onClick={() => setMinimized((m) => !m)}
+                  className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
+                  aria-label={t("minimizeLabel")}
+                >
+                  <Minimize2 className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => setShowQuick((s) => !s)}
+                  className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
+                  aria-label={showQuick ? t("hideQuestionsLabel") : t("showQuestionsLabel")}
+                >
+                  {showQuick ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
+                  aria-label={t("closeLabel")}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
             </div>
           </div>
 
@@ -225,21 +233,21 @@ export function HelpAssistant() {
                 <div ref={bottomRef} />
               </div>
 
-              {messages.length === 1 && (
-                <div className="px-4 pb-2 flex flex-wrap gap-1.5 shrink-0">
-                  {quickQuestions.map((q) => (
-                    <button
-                      key={q}
-                      onClick={() => send(q)}
-                      className="text-[11px] px-2.5 py-1 rounded-full border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
-                    >
-                      {q}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              <div className="px-3 pb-3 pt-2 border-t border-border shrink-0">
+                {showQuick && (
+                  <>
+                    <div className="px-4 pb-2 flex flex-wrap gap-1.5 shrink-0">
+                      {quickQuestions.map((q) => (
+                        <button
+                          key={q}
+                          onClick={() => send(q)}
+                          className="text-[11px] px-2.5 py-1 rounded-full border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}<div className="px-3 pb-3 pt-2 border-t border-border shrink-0">
                 <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
                   <input
                     ref={inputRef}
