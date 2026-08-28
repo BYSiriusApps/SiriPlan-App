@@ -10,9 +10,12 @@ const env = Object.fromEntries(
 const sb = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 const ORG = "8e73d29c-e312-49d1-8259-2ce510028320";
 
-const TODAY = "2026-08-27";
-const PAST = ["2026-08-25", "2026-08-26"];
-const FUT = ["2026-08-28", "2026-08-29", "2026-08-30", "2026-08-31", "2026-09-01", "2026-09-02", "2026-09-03"];
+// Tarih penceresi çalıştırıldığı güne göre otomatik hesaplanır — sabit kod yok.
+const iso = (d) => d.toISOString().slice(0, 10);
+const addDays = (n) => { const d = new Date(); d.setUTCHours(12, 0, 0, 0); d.setUTCDate(d.getUTCDate() + n); return iso(d); };
+const TODAY = addDays(0);
+const PAST = [addDays(-2), addDays(-1)];
+const FUT = [addDays(1), addDays(2), addDays(3), addDays(4), addDays(5), addDays(6), addDays(7)];
 // UTC minutes-from-midnight; local = UTC+3
 const AMc = [300, 360, 420, 480, 540, 600];              // 08:00–13:00 local  (past / done)
 const PMc = [660, 720, 780, 840, 900];                    // 14:00–18:00 local  (upcoming today)
