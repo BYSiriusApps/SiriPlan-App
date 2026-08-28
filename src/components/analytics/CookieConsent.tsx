@@ -22,7 +22,7 @@ function readConsent(): Consent {
  * client-side çalışıyor). Reddedilirse hiçbir analytics script'i
  * enjekte edilmez.
  */
-export function CookieConsent({ nonce }: { nonce?: string }) {
+export function CookieConsent({ nonce, mobileApp = false }: { nonce?: string; mobileApp?: boolean }) {
   const [consent, setConsent] = useState<Consent>(null);
   const [hydrated, setHydrated] = useState(false);
 
@@ -38,7 +38,7 @@ export function CookieConsent({ nonce }: { nonce?: string }) {
 
   return (
     <>
-      {GA_ID && consent === "accepted" && (
+      {GA_ID && !mobileApp && consent === "accepted" && (
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
@@ -56,7 +56,7 @@ export function CookieConsent({ nonce }: { nonce?: string }) {
         </>
       )}
 
-      {hydrated && consent === null && (
+      {hydrated && !mobileApp && consent === null && (
         <div className="fixed inset-x-0 bottom-0 z-[60] p-3 sm:p-4">
           <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-popover/95 backdrop-blur-sm p-4 shadow-lg ring-1 ring-foreground/10 flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <p className="text-xs sm:text-sm text-muted-foreground flex-1">

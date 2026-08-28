@@ -34,6 +34,7 @@ export default function RehberPage() {
   const t = useTranslations("dashboard");
   const [activeTab, setActiveTab] = useState<string>("baslangic");
   const [isFullscreenSunum, setIsFullscreenSunum] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   // Kopyalama ve Sağ Tık Engelleme Koruması
   useEffect(() => {
@@ -73,6 +74,15 @@ export default function RehberPage() {
       document.removeEventListener("contextmenu", preventRightClick);
       document.removeEventListener("keydown", preventInspect);
     };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
   }, []);
 
   const isTr = t("guide").includes("Kılavuzu");
@@ -120,60 +130,8 @@ export default function RehberPage() {
     { id: "sunum", icon: BookOpen, highlight: true }
   ].map(item => ({ ...item, label: getMenuLabel(item.id, "") }));
 
-  return (
-    <div className="p-6 space-y-6 select-none">
-      {/* Üst Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-5">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0">
-            <BookOpen className="h-5 w-5" />
-          </div>
-          <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">
-              {isTr ? "DESTEK & EĞİTİM" : isEn ? "SUPPORT & EDUCATION" : isRu ? "ПОДДЕРЖКА И ОБУЧЕНИЕ" : "الدعم والتعليم"}
-            </span>
-            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("guide")}</h1>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 px-3 py-1 flex items-center gap-1.5">
-            <Lock className="w-3.5 h-3.5" />
-            {isTr ? "Kopyalamaya Karşı Korumalı" : isEn ? "Copy Protected" : isRu ? "Защищено от копирования" : "محمي ضد النسخ"}
-          </Badge>
-          <HomeButton />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Sol Menü */}
-        <div className="lg:col-span-4 xl:col-span-3 space-y-1">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left transition-all cursor-pointer ${
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : item.highlight
-                    ? "bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
-                    : "text-muted-foreground hover:bg-accent/40 hover:text-foreground"
-                }`}
-              >
-                <Icon className="w-4.5 h-4.5 shrink-0" />
-                <span className="flex-1 truncate">{item.label}</span>
-                <ChevronRight className={`w-3.5 h-3.5 shrink-0 transition-transform ${isActive ? "rotate-90" : ""}`} />
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Sağ İçerik Paneli */}
-        <div className="lg:col-span-8 xl:col-span-9">
-          <Card className="border-border shadow-md">
-            <CardContent className="pt-6 space-y-6">
+  const guideSections = (
+    <>
               {/* 1. HIZLI BAŞLANGIÇ */}
               {activeTab === "baslangic" && (
                 <div className="space-y-4">
@@ -649,7 +607,7 @@ export default function RehberPage() {
                       <iframe src="/api/docs/presentation" className="w-full flex-1 border-0" title="SiriPlan Sunum" />
                     </div>
                   ) : (
-                    <div className="w-full h-[65vh] border border-border rounded-xl overflow-hidden bg-black shadow-lg relative">
+                    <div className="w-full h-[70vh] min-h-[440px] border border-border rounded-xl overflow-hidden bg-black shadow-lg relative">
                       <iframe src="/api/docs/presentation" className="w-full h-full border-0" title="SiriPlan Sunum" />
                     </div>
                   )}
@@ -669,10 +627,94 @@ export default function RehberPage() {
                   </div>
                 </div>
               )}
-            </CardContent>
+    </>
+  );
+
+  return (
+    <div className="p-6 space-y-6 select-none">
+      {/* Üst Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-5">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0">
+            <BookOpen className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">
+              {isTr ? "DESTEK & EĞİTİM" : isEn ? "SUPPORT & EDUCATION" : isRu ? "ПОДДЕРЖКА И ОБУЧЕНИЕ" : "الدعم والتعليم"}
+            </span>
+            <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("guide")}</h1>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 px-3 py-1 flex items-center gap-1.5">
+            <Lock className="w-3.5 h-3.5" />
+            {isTr ? "Kopyalamaya Karşı Korumalı" : isEn ? "Copy Protected" : isRu ? "Защищено от копирования" : "محمي ضد النسخ"}
+          </Badge>
+          <HomeButton />
+        </div>
+      </div>
+
+      {isMobile ? (
+        <div className="space-y-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <div
+                key={item.id}
+                className={`rounded-xl border overflow-hidden ${isActive ? "border-primary/40" : "border-border"}`}
+              >
+                <button
+                  onClick={() => setActiveTab(isActive ? "" : item.id)}
+                  aria-expanded={isActive}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 text-sm font-medium text-left transition-colors cursor-pointer ${isActive ? "bg-primary/10 text-foreground" : item.highlight ? "bg-primary/5 text-primary" : "text-muted-foreground"}`}
+                >
+                  <Icon className="w-4.5 h-4.5 shrink-0" />
+                  <span className="flex-1">{item.label}</span>
+                  <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${isActive ? "rotate-90" : ""}`} />
+                </button>
+                {isActive && (
+                  <div className="px-4 pb-5 pt-2 border-t border-border">{guideSections}</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Sol Menü */}
+        <div className="lg:col-span-4 xl:col-span-3 space-y-1">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : item.highlight
+                    ? "bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
+                    : "text-muted-foreground hover:bg-accent/40 hover:text-foreground"
+                }`}
+              >
+                <Icon className="w-4.5 h-4.5 shrink-0" />
+                <span className="flex-1 truncate">{item.label}</span>
+                <ChevronRight className={`w-3.5 h-3.5 shrink-0 transition-transform ${isActive ? "rotate-90" : ""}`} />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Sağ İçerik Paneli */}
+        <div className="lg:col-span-8 xl:col-span-9">
+          <Card className="border-border shadow-md">
+            <CardContent className="pt-6 space-y-6">{guideSections}</CardContent>
           </Card>
         </div>
       </div>
+      )}
     </div>
   );
 }

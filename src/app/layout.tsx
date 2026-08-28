@@ -231,7 +231,7 @@ export default async function RootLayout({
           `}
         </Script>
         {/* Google Analytics 4 — yalnızca çerez onayından sonra yüklenir, bkz CookieConsent */}
-        <CookieConsent nonce={nonce} />
+        <CookieConsent nonce={nonce} mobileApp={mobileApp} />
         {/* Vercel Analytics & Speed Insights */}
         <Analytics />
         <SpeedInsights />

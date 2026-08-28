@@ -133,7 +133,9 @@
   .slide-counter{color:var(--c-muted);font-size:13px;font-variant-numeric:tabular-nums;}
 
   @media (max-width:768px){
-    .slide{padding:32px 24px;}
+    .slide-deck{height:100dvh;}
+    .slide{padding:28px 20px 92px;justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .slide-content{max-height:none;gap:16px;}
     .grid-2,.grid-3,.grid-4{grid-template-columns:1fr 1fr;}
     .split{grid-template-columns:1fr;gap:20px;}
     .title-xl{font-size:clamp(26px,7vw,40px);}
@@ -509,6 +511,7 @@
       current = n;
       document.querySelectorAll('.slide').forEach((s,i)=>{
         s.classList.toggle('active', i === n-1);
+        if(i === n-1) s.scrollTop = 0;
       });
       document.getElementById('current').textContent = n;
       document.getElementById('progressBar').style.width = (n/total*100) + '%';
