@@ -305,6 +305,24 @@ export default function YeniRandevuPage() {
     } else {
       toast.success(tm("filledComplete"));
     }
+
+    // İsim söylendi ama telefon yoksa: kayıtlı müşteriden numarayı otomatik getir.
+    if (mName && !mPhone) {
+      const key = mName.trim().toLocaleLowerCase("tr-TR");
+      fetch(`/api/customers?q=${encodeURIComponent(mName)}&limit=3`)
+        .then((r) => r.json())
+        .then((j) => {
+          const list: { full_name?: string; phone?: string; email?: string }[] = j.customers || [];
+          const exact = list.filter((c) => (c.full_name || "").trim().toLocaleLowerCase("tr-TR") === key);
+          const pick = exact.length === 1 ? exact[0] : list.length === 1 ? list[0] : null;
+          if (!pick?.phone) return;
+          setForm((f) => (f.customer_phone ? f : { ...f, customer_phone: pick.phone!, customer_email: f.customer_email || pick.email || "" }));
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          setVoiceSummary((s: any) => (s && !s.customer_phone ? { ...s, customer_phone: pick.phone } : s));
+          toast.success(tm("phoneAutofilled", { name: pick.full_name }));
+        })
+        .catch(() => {});
+    }
   }, [services, staff, tm, voiceLabelFor]);
 
   const startVoiceBooking = useCallback(async () => {
@@ -600,7 +618,7 @@ export default function YeniRandevuPage() {
                   </h3>
                   <div className="text-xs space-y-1.5 text-muted-foreground">
                     <VoiceRow label={tm("lblCustomer")} value={voiceSummary.customer_name} missing={voiceMissing.includes("customer_name")} emptyLabel={tm("notProvided")} />
-                    {voiceSummary.customer_phone && <p><strong className="text-foreground">{tm("lblPhone")}:</strong> {voiceSummary.customer_phone}</p>}
+                    <VoiceRow label={tm("lblPhone")} value={voiceSummary.customer_phone} emptyLabel={tm("phoneOptional")} />
                     <VoiceRow label={tm("lblStaff")} value={voiceSummary.staff_name} missing={voiceMissing.includes("staff")} emptyLabel={tm("notProvided")} />
                     <VoiceRow label={tm("lblService")} value={voiceSummary.service_name} missing={voiceMissing.includes("service")} emptyLabel={tm("notProvided")} />
                     <VoiceRow

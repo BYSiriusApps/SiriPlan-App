@@ -1592,7 +1592,9 @@
       "missingHint": "Sarı işaretli alanlar eksik — sesle ekleyebilir ya da formdan elle doldurabilirsiniz.",
       "completeByVoice": "Eksikleri sesle ekle",
       "confirmSave": "Onayla ve Kaydet",
-      "confirmEdit": "Düzenle / İptal"
+      "confirmEdit": "Düzenle / İptal",
+      "phoneOptional": "sonra eklenebilir",
+      "phoneAutofilled": "{name} kayıtlı — telefon numarası forma eklendi"
     },
     "randevularPage": {
       "sortDefault": "Sıralama: Varsayılan",

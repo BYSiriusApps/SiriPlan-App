@@ -1592,7 +1592,9 @@
       "missingHint": "الحقول المميّزة لا تزال ناقصة — أضِفها بالصوت أو املأها يدويًا.",
       "completeByVoice": "أضِف الناقص بالصوت",
       "confirmSave": "تأكيد وحفظ",
-      "confirmEdit": "تعديل / إلغاء"
+      "confirmEdit": "تعديل / إلغاء",
+      "phoneOptional": "يمكن إضافته لاحقًا",
+      "phoneAutofilled": "{name} مسجَّل — تمت إضافة رقم الهاتف إلى النموذج"
     },
     "randevularPage": {
       "sortDefault": "الترتيب: افتراضي",

@@ -90,6 +90,16 @@ Ekibinizdeki her uzman için ayrı takvim ve yetki tanımlayabilirsiniz:
 ### Tıklayarak Anında Randevu Oluşturma:
 - Takvim ekranında boş bir saat dilimine veya bir uzmanın sütununa tıkladığınızda, seçtiğiniz **Tarih, Saat ve Personel** otomatik doldurulmuş olarak **Yeni Randevu** modalı açılır. Müşteriyi seçip tek tıkla randevuyu kaydedebilirsiniz.
 
+### 🎤 Konuşarak Randevu Oluşturma:
+**Yeni Randevu** ekranındaki **"Konuşarak Doldur"** düğmesine (mikrofon simgesi) basıp randevu bilgilerini tek seferde söyleyin. Sistem 15 saniye dinler; müşteri, hizmet ve personeli arka arkaya söyleyebilirsiniz — telefonun ekranı değişmez, dinlerken duyduğu metni canlı gösterir.
+
+- **Örnek komut:** *"Ahmet Yılmaz, saç kesimi, Zeynep, yarın 15.30"*
+  → Müşteri **Ahmet Yılmaz**, hizmet **Saç Kesimi**, personel **Zeynep**, tarih **yarın 15:30** olarak forma yazılır ve üstte bir özet kutusu açılır.
+- **Örnek komut:** *"Selin Kaya, cuma öğlen fön"* → hizmet ve tarih dolar; eksik kalan alanlar **sarı** işaretlenir. **"Eksikleri sesle ekle"** ile tekrar konuşup tamamlayabilir ya da alanı elle doldurabilirsiniz — önceden dolan bilgiler **silinmez**.
+- **Telefon numarası:** Söylemeseniz de olur. Müşteri sisteminizde kayıtlıysa, adını söylediğinizde numarası **otomatik** forma gelir. Değilse randevuyu numarasız kaydedip sonra tamamlayabilirsiniz.
+- Aynı özellik takvim üstündeki **hızlı randevu** panelinde de (mikrofon düğmesi) çalışır.
+- İlk kullanımda tarayıcı mikrofon izni ister; **"İzin Ver"** deyin. İzin engelliyse ekrandaki adımlarla açabilirsiniz. *(Chrome / Safari güncel sürüm gerekir.)*
+
 ### Takvimi Özelleştirme ve Filtreleme:
 - **Tarih Bazında Görünüm**: Takviminizi **Gün**, **Hafta** veya **Ay** bazında görüntüleyebilirsiniz.
 - **Personel Bazında Görünüm**: Personel filtresini kullanarak tüm uzmanları yan yana sütunlar halinde kıyaslayabilir veya sadece seçtiğiniz tek bir personelin programına odaklanabilirsiniz.

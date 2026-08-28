@@ -1592,7 +1592,9 @@
       "missingHint": "The highlighted fields are still missing — add them by voice or fill them in manually.",
       "completeByVoice": "Add missing details by voice",
       "confirmSave": "Confirm & save",
-      "confirmEdit": "Edit / cancel"
+      "confirmEdit": "Edit / cancel",
+      "phoneOptional": "can be added later",
+      "phoneAutofilled": "{name} is on file — phone number added to the form"
     },
     "randevularPage": {
       "sortDefault": "Sort: Default",

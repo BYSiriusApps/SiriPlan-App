@@ -48,6 +48,11 @@ Standart widget'lar: Active Appointments, Daily Calendar, WhatsApp Assistant, Ca
 ## 4. Takvim ve Randevu Yönetimi
 
 - **Tıklayarak Randevu Oluşturma**: Takvim gridindeki boş bir saat dilimine veya personel sütununa tıklandığında, seçilen tarih, saat ve personel bilgisi otomatik doldurulmuş olarak **Yeni Randevu** modalı açılır.
+- **🎤 Konuşarak Randevu Oluşturma**: **Yeni Randevu** ekranındaki (ve takvim üstündeki hızlı randevu panelindeki) mikrofon düğmesiyle randevu bilgileri sesle girilir. Sistem **15 sn** dinler, duyduğu metni canlı gösterir, ekran değişmez.
+  - Örn. *"Ahmet Yılmaz, saç kesimi, Zeynep, yarın 15.30"* → müşteri + hizmet + personel + tarih forma yazılır, özet kutusu açılır.
+  - Yerel Türkçe ayrıştırıcı ([`src/lib/voice-parse.ts`](../src/lib/voice-parse.ts)) çalışır; `GEMINI_API_KEY` varsa Gemini de devreye girer, yoksa yerel ayrıştırıcı yeterlidir (`/api/ai/voice-booking`, `parseOnly` daima form doldurur, asla yönlendirmez).
+  - **Fill-if-empty**: önceden dolan alanlar korunur, eksikler sarı işaretlenir; "Eksikleri sesle ekle" ile tamamlanır.
+  - **Telefon opsiyonel**: söylenmezse ve müşteri kayıtlıysa addan otomatik çekilir; değilse randevu numarasız kaydedilip sonra tamamlanabilir.
 - **Görünüm ve Filtreleme Özelleştirme**:
   - **Tarih Bazında**: Günü (`day`), Haftayı (`week`), Ayı (`month`) seçerek görünüm ayarlanabilir.
   - **Personel Bazında**: Personel filtresi veya "Personel Görünümü" (`staff`) ile uzmanlar yan yana sütunlar halinde kıyaslanabilir. Personel rolündeki kullanıcılar yalnızca kendi takvimini görebilir.
