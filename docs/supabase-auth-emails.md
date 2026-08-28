@@ -39,6 +39,10 @@ biçiminde. `/auth/yeni-sifre` sayfası bu token'ı doğrulayıp oturumu kurar
 (kod tarafı: `src/app/auth/yeni-sifre/page.tsx`). `{{ .ConfirmationURL }}`
 KULLANMA — o, cihazlar arası çalışmayan PKCE `?code` akışına gider.
 
+Renk paleti logodan alınmıştır: **lacivert** (`#0c2050` / `#123a86`) + **altın**
+(`#d4a63c`). Logo görseli `https://siriplan.com/icons/icon-mark.png` (public
+klasöründen servis edilir, harici bağımlılık yok).
+
 ```html
 <!DOCTYPE html>
 <html lang="tr">
@@ -47,32 +51,34 @@ KULLANMA — o, cihazlar arası çalışmayan PKCE `?code` akışına gider.
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SiriPlan — Şifre sıfırlama</title>
 </head>
-<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f5;padding:32px 16px;">
+<body style="margin:0;padding:0;background:#eef1f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#eef1f6;padding:32px 16px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
+        <table role="presentation" width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(12,32,80,0.12);">
           <tr>
-            <td style="background:linear-gradient(135deg,#e11d48 0%,#a21caf 100%);padding:28px 32px;text-align:center;">
-              <span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">SiriPlan</span>
-              <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.8);">Salon &amp; randevu yönetimi</p>
+            <td style="background-color:#0c2050;background:linear-gradient(135deg,#123a86 0%,#0a1a40 100%);padding:28px 32px;text-align:center;border-bottom:4px solid #d4a63c;">
+              <img src="https://siriplan.com/icons/icon-mark.png" width="56" height="56" alt="SiriPlan"
+                   style="display:inline-block;border-radius:14px;vertical-align:middle;" />
+              <span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;vertical-align:middle;margin-left:12px;">SiriPlan</span>
+              <p style="margin:10px 0 0;font-size:12px;color:#e7c98a;">Salon &amp; randevu yönetimi</p>
             </td>
           </tr>
           <tr>
             <td style="padding:32px;">
-              <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Şifrenizi sıfırlayın</h2>
-              <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6;">
+              <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#0c2050;">Şifrenizi sıfırlayın</h2>
+              <p style="margin:0 0 24px;font-size:15px;color:#4b5563;line-height:1.6;">
                 SiriPlan hesabınız (<strong>{{ .Email }}</strong>) için bir şifre
                 sıfırlama talebi aldık. Yeni şifrenizi belirlemek için aşağıdaki
                 butona tıklayın.
               </p>
               <a href="{{ .SiteURL }}/auth/yeni-sifre?token_hash={{ .TokenHash }}&type=recovery"
-                 style="display:inline-block;padding:12px 28px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;">
+                 style="display:inline-block;padding:13px 30px;background:#d4a63c;color:#0c2050;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;">
                 Yeni şifre belirle →
               </a>
-              <p style="margin:24px 0 0;font-size:13px;color:#6b7280;line-height:1.6;">
+              <p style="margin:24px 0 0;font-size:13px;color:#4b5563;line-height:1.6;">
                 Buton çalışmıyorsa bu bağlantıyı tarayıcınıza yapıştırın:<br/>
-                <span style="color:#e11d48;word-break:break-all;">{{ .SiteURL }}/auth/yeni-sifre?token_hash={{ .TokenHash }}&type=recovery</span>
+                <span style="color:#1a3a7a;word-break:break-all;">{{ .SiteURL }}/auth/yeni-sifre?token_hash={{ .TokenHash }}&type=recovery</span>
               </p>
               <p style="margin:20px 0 0;font-size:13px;color:#9ca3af;line-height:1.6;">
                 Bu bağlantı 1 saat geçerlidir ve yalnızca bir kez kullanılabilir.
@@ -82,10 +88,10 @@ KULLANMA — o, cihazlar arası çalışmayan PKCE `?code` akışına gider.
             </td>
           </tr>
           <tr>
-            <td style="background:#f9fafb;padding:20px 32px;text-align:center;border-top:1px solid #e5e7eb;">
+            <td style="background:#f6f7fb;padding:20px 32px;text-align:center;border-top:1px solid #e3e7ef;">
               <p style="margin:0;font-size:11px;color:#9ca3af;">
                 Bu e-posta SiriPlan tarafından gönderildi.<br/>
-                <a href="https://siriplan.com" style="color:#e11d48;text-decoration:none;">siriplan.com</a>
+                <a href="https://siriplan.com" style="color:#b07d1f;text-decoration:none;">siriplan.com</a>
                 &nbsp;·&nbsp;
                 <a href="https://bysirius.com" style="color:#9ca3af;text-decoration:none;">BY Sirius Group Ai &amp; Technology Co Ltd.</a>
               </p>
