@@ -3,7 +3,8 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getStripe } from "@/lib/stripe/config";
 
-const CONFIRM_PHRASE = "HESABIMI SİL";
+// Onay metni kullanıcının panel diline göre değişebilir — dört dilin tümü kabul edilir.
+const CONFIRM_PHRASES = ["HESABIMI SİL", "DELETE MY ACCOUNT", "УДАЛИТЬ АККАУНТ", "حذف حسابي"];
 
 /**
  * Apple 5.1.1(v) / Google Play hesap silme zorunluluğu: yalnızca işletme
@@ -15,7 +16,7 @@ const CONFIRM_PHRASE = "HESABIMI SİL";
  */
 export async function POST(req: NextRequest) {
   const { confirm } = await req.json().catch(() => ({}));
-  if (confirm !== CONFIRM_PHRASE) {
+  if (typeof confirm !== "string" || !CONFIRM_PHRASES.includes(confirm.trim().toUpperCase())) {
     return NextResponse.json({ error: "Onay metni eşleşmiyor" }, { status: 400 });
   }
 

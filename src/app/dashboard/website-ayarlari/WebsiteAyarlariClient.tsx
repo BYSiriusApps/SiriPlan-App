@@ -100,9 +100,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     setOrg((prev) => ({ ...prev, [field]: value }));
   }
 
-  const isTr = t("guide").includes("Kılavuzu");
-  const isEn = t("guide").includes("User Guide");
-  const isRu = t("guide").includes("Руководство");
+  const w = (key: string, values?: Record<string, string | number>) => t(`websiteSettingsPage.${key}`, values);
 
   async function handleSave() {
     setSaving(true);
@@ -135,22 +133,22 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       dbError = fallbackErr;
       if (!dbError) {
         setSaving(false);
-        toast.warning(isTr ? "Ayarlar kaydedildi, ancak şablon seçimi kaydedilemedi — website_layout migration'ı henüz uygulanmamış." : isEn ? "Settings saved, but layout selection could not be saved — website_layout migration has not been applied yet." : isRu ? "Настройки сохранены, но шаблон не сохранен — миграция website_layout еще не применена." : "تم حفظ الإعدادات، ولكن تعذر حفظ اختيار القالب — لم يتم تطبيق ترحيل website_layout بعد.");
+        toast.warning(w("toastSavedWithoutLayout"));
         return;
       }
     }
 
     setSaving(false);
     if (dbError) {
-      toast.error((isTr ? "Kayıt başarısız: " : isEn ? "Save failed: " : isRu ? "Ошибка сохранения: " : "فشل الحفظ: ") + dbError.message);
+      toast.error(w("toastSaveFailed") + dbError.message);
     } else {
-      toast.success(isTr ? "Website ayarları kaydedildi!" : isEn ? "Website settings saved successfully!" : isRu ? "Настройки сайта успешно сохранены!" : "تم حفظ إعدادات الموقع بنجاح!");
+      toast.success(w("toastSaved"));
     }
   }
 
   function useMyLocation() {
     if (!navigator.geolocation) {
-      toast.error("Tarayıcınız konum özelliğini desteklemiyor");
+      toast.error(w("toastGeoUnsupported"));
       return;
     }
     setLocating(true);
@@ -159,11 +157,11 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
         const { latitude, longitude } = pos.coords;
         setField("location_url", `https://www.google.com/maps?q=${latitude},${longitude}`);
         setLocating(false);
-        toast.success("Konumunuz alındı");
+        toast.success(w("toastGeoOk"));
       },
       () => {
         setLocating(false);
-        toast.error("Konum alınamadı — tarayıcınızdan konum izni vermeniz gerekiyor");
+        toast.error(w("toastGeoFailed"));
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -180,7 +178,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     e.target.value = "";
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("Lütfen bir resim dosyası seçin");
+      toast.error(w("toastPickImage"));
       return;
     }
     setUploadingCover(true);
@@ -192,7 +190,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       .from("org-logos")
       .upload(path, resized, { upsert: true, cacheControl: "3600" });
     if (upErr) {
-      toast.error("Yükleme başarısız: " + upErr.message);
+      toast.error(w("toastUploadFailed") + upErr.message);
       setUploadingCover(false);
       return;
     }
@@ -201,10 +199,10 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     const { error: dbErr } = await supabase.from("organizations").update({ cover_url }).eq("id", org.id);
     setUploadingCover(false);
     if (dbErr) {
-      toast.error("Kaydedilemedi: " + dbErr.message);
+      toast.error(w("toastSaveFailedShort") + dbErr.message);
     } else {
       setField("cover_url", cover_url);
-      toast.success("Kapak fotoğrafı güncellendi!");
+      toast.success(w("toastCoverUpdated"));
     }
   }
 
@@ -228,7 +226,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       setCategories((prev) => [...prev, category]);
       setNewCategoryName("");
     } else {
-      toast.error("Kategori eklenemedi");
+      toast.error(w("toastCategoryAddFailed"));
     }
   }
 
@@ -246,7 +244,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       setCategories((prev) => prev.map((c) => (c.id === id ? category : c)));
       setEditingCategoryId(null);
     } else {
-      toast.error("Güncellenemedi");
+      toast.error(w("toastUpdateFailed"));
     }
   }
 
@@ -257,7 +255,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     if (res.ok) {
       setCategories((prev) => prev.filter((c) => c.id !== id));
     } else {
-      toast.error("Silinemedi");
+      toast.error(w("toastDeleteFailed"));
     }
   }
 
@@ -274,7 +272,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     });
     setCategoryBusyId(null);
     if (!res.ok) {
-      toast.error("Sıralama değiştirilemedi");
+      toast.error(w("toastReorderFailed"));
       return;
     }
     const target = sorted[targetIdx];
@@ -295,7 +293,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       .from("service-photos")
       .upload(path, resized, { upsert: true, cacheControl: "3600" });
     if (upErr) {
-      toast.error("Yükleme başarısız: " + upErr.message);
+      toast.error(w("toastUploadFailed") + upErr.message);
       setCategoryBusyId(null);
       return;
     }
@@ -316,7 +314,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
   async function handleCategoryGalleryUpload(catId: string, file: File) {
     const existing = categories.find((c) => c.id === catId)?.service_category_photos ?? [];
     if (existing.length >= MAX_CATEGORY_PHOTOS) {
-      toast.error(`Bir kategoriye en fazla ${MAX_CATEGORY_PHOTOS} fotoğraf eklenebilir`);
+      toast.error(w("toastPhotoLimit", { max: MAX_CATEGORY_PHOTOS }));
       return;
     }
     setGalleryUploadingId(catId);
@@ -329,7 +327,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       .from("service-photos")
       .upload(path, resized, { upsert: true, cacheControl: "3600" });
     if (upErr) {
-      toast.error("Yükleme başarısız: " + upErr.message);
+      toast.error(w("toastUploadFailed") + upErr.message);
       setGalleryUploadingId(null);
       return;
     }
@@ -348,7 +346,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       )));
     } else {
       const d = await res.json().catch(() => ({}));
-      toast.error(d.error || "Fotoğraf eklenemedi");
+      toast.error(d.error || w("toastPhotoAddFailed"));
     }
   }
 
@@ -361,7 +359,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
         c.id === catId ? { ...c, service_category_photos: (c.service_category_photos ?? []).filter((p) => p.id !== photoId) } : c
       )));
     } else {
-      toast.error("Fotoğraf silinemedi");
+      toast.error(w("toastPhotoDeleteFailed"));
     }
   }
 
@@ -389,10 +387,10 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       setNewServiceCategoryId(NO_CATEGORY);
       setNewServicePrice("");
       setNewServiceDuration("");
-      toast.success("Hizmet eklendi");
+      toast.success(w("toastServiceAdded"));
     } else {
       const d = await res.json().catch(() => ({}));
-      toast.error(d.error || "Hizmet eklenemedi");
+      toast.error(d.error || w("toastServiceAddFailed"));
     }
   }
 
@@ -402,9 +400,9 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     setServiceBusyId(null);
     if (res.ok) {
       setServices((prev) => prev.filter((s) => s.id !== id));
-      toast.success("Hizmet kaldırıldı");
+      toast.success(w("toastServiceRemoved"));
     } else {
-      toast.error("Hizmet kaldırılamadı");
+      toast.error(w("toastServiceRemoveFailed"));
     }
   }
 
@@ -420,7 +418,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       const { service } = await res.json();
       setServices((prev) => prev.map((s) => (s.id === id ? service : s)));
     } else {
-      toast.error("Kategori güncellenemedi");
+      toast.error(w("toastCategoryUpdateFailed"));
     }
   }
 
@@ -434,7 +432,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       .from("service-photos")
       .upload(path, resized, { upsert: true, cacheControl: "3600" });
     if (upErr) {
-      toast.error("Yükleme başarısız: " + upErr.message);
+      toast.error(w("toastUploadFailed") + upErr.message);
       setServiceBusyId(null);
       return;
     }
@@ -470,12 +468,12 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
         </div>
         <Button onClick={handleSave} disabled={saving} className="gap-2">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Kaydet
+          {w("saveButton")}
         </Button>
       </div>
 
       {/* Public link + on/off */}
-      <SectionCard icon={Globe} title="Randevu Sayfanız">
+      <SectionCard icon={Globe} title={w("bookingPageCardTitle")}>
         <div className="flex items-center gap-2 p-2.5 rounded-lg border border-border bg-muted/30">
           <Link href={relativeUrl} target="_blank" className="flex-1 text-sm font-medium text-primary truncate hover:underline flex items-center gap-1.5">
             <ExternalLink className="h-3.5 w-3.5 shrink-0" />
@@ -493,10 +491,9 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
             className="mt-0.5"
           />
           <label htmlFor="website_enabled" className="cursor-pointer flex-1">
-            <p className="text-sm font-medium">Website görünümünü aç</p>
+            <p className="text-sm font-medium">{w("enableWebsiteLabel")}</p>
             <p className="text-xs text-muted-foreground">
-              Açıksa randevu linkiniz; kapak fotoğrafı, hizmet kategorileri ve fiyatlarıyla birlikte tam bir
-              işletme sayfası olarak görüntülenir. Kapalıysa ziyaretçiler doğrudan sade randevu formunu görür.
+              {w("enableWebsiteDesc")}
             </p>
           </label>
         </div>
@@ -505,8 +502,8 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       {/* Sayfa şablonu */}
       <SectionCard
         icon={LayoutTemplate}
-        title="Sayfa Şablonu"
-        description="Randevu linkinizin yerleşimi. Renk paletinden bağımsızdır — istediğiniz şablonu istediğiniz renkle birleştirebilirsiniz."
+        title={w("layoutCardTitle")}
+        description={w("layoutCardDesc")}
       >
         <div className="grid gap-3 sm:grid-cols-2">
           {(Object.entries(WEBSITE_LAYOUTS) as [WebsiteLayoutKey, typeof WEBSITE_LAYOUTS[WebsiteLayoutKey]][]).map(
@@ -554,10 +551,10 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
                   </div>
                   <div className="p-3">
                     <p className="text-sm font-semibold flex items-center gap-1.5">
-                      {def.label}
+                      {w(`layout.${key}Label`)}
                       {active && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{def.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{w(`layout.${key}Desc`)}</p>
                   </div>
                 </button>
               );
@@ -565,12 +562,12 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Seçim <strong>Kaydet</strong> ile uygulanır. Sonucu görmek için yukarıdaki randevu linkinizi açın.
+          {w("layoutFootnote")}
         </p>
       </SectionCard>
 
       {/* Palette */}
-      <SectionCard icon={Star} title="Renk Paleti" description="Website sayfanızın renklerini seçin.">
+      <SectionCard icon={Star} title={w("paletteCardTitle")} description={w("paletteCardDesc")}>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
           {palettes.map(([key, p]) => (
             <button
@@ -582,7 +579,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
               }`}
             >
               <span className="w-6 h-6 rounded-full shrink-0 border border-border/60" style={{ backgroundColor: p.swatch }} />
-              <span className="text-xs font-medium flex-1">{p.label}</span>
+              <span className="text-xs font-medium flex-1">{w(`palette.${key}`)}</span>
               {org.website_palette === key && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
             </button>
           ))}
@@ -590,10 +587,10 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       </SectionCard>
 
       {/* Cover photo */}
-      <SectionCard icon={ImageUp} title="Kapak Fotoğrafı" description="Sayfanızın en üstünde geniş şekilde gösterilir.">
+      <SectionCard icon={ImageUp} title={w("coverCardTitle")} description={w("coverCardDesc")}>
         {org.cover_url ? (
           <div className="relative rounded-xl overflow-hidden h-40 w-full">
-            <Image src={org.cover_url} alt="Kapak" fill className="object-cover" />
+            <Image src={org.cover_url} alt={w("coverAlt")} fill className="object-cover" />
             <div className="absolute top-2 right-2 flex gap-1.5">
               <label className="inline-flex items-center justify-center h-7 w-7 rounded-md bg-background/90 cursor-pointer hover:bg-background">
                 {uploadingCover ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Pencil className="h-3.5 w-3.5" />}
@@ -607,26 +604,26 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
         ) : (
           <label className="flex items-center justify-center gap-2 h-24 rounded-xl border border-dashed cursor-pointer hover:bg-muted/40 text-sm text-muted-foreground">
             {uploadingCover ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
-            Kapak fotoğrafı ekle
+            {w("coverAddButton")}
             <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploadingCover} />
           </label>
         )}
       </SectionCard>
 
       {/* About / address / directions */}
-      <SectionCard icon={MapPin} title="Hakkında, Adres ve Yol Tarifi">
+      <SectionCard icon={MapPin} title={w("aboutCardTitle")}>
         <div>
-          <Label>Kısa Tanıtım Yazısı</Label>
+          <Label>{w("taglineLabel")}</Label>
           <Textarea
             className="mt-1"
             rows={2}
-            placeholder="Örn. 10 yıldır Kadıköy'de güzelliğinize hizmet veriyoruz."
+            placeholder={w("taglinePlaceholder")}
             value={org.website_tagline ?? ""}
             onChange={(e) => setField("website_tagline", e.target.value)}
           />
         </div>
         <div>
-          <Label>Adres</Label>
+          <Label>{w("addressLabel")}</Label>
           <Textarea
             className="mt-1"
             rows={2}
@@ -635,7 +632,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
           />
         </div>
         <div>
-          <Label>{isTr ? "Google Maps Yol Tarifi Linki" : isEn ? "Google Maps Directions Link" : isRu ? "Ссылка на Google Maps" : "رابط اتجاهات خرائط جوجل"}</Label>
+          <Label>{w("directionsLinkLabel")}</Label>
           <div className="flex gap-2 mt-1">
             <Input
               value={org.location_url ?? ""}
@@ -644,12 +641,12 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
             />
             <Button type="button" variant="outline" onClick={useMyLocation} disabled={locating} className="shrink-0 gap-1.5">
               {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
-              {isTr ? "Konumumu Kullan" : isEn ? "Use My Location" : isRu ? "Использовать геопозицию" : "استخدام موقعي"}
+              {w("useMyLocationButton")}
             </Button>
           </div>
         </div>
         <div>
-          <Label>{isTr ? "Google Yorumları Linki" : isEn ? "Google Reviews Link" : isRu ? "Ссылка на отзывы Google" : "رابط تقييمات جوجل"}</Label>
+          <Label>{w("googleReviewsLabel")}</Label>
           <Input
             className="mt-1"
             value={org.google_review_url ?? ""}
@@ -662,30 +659,24 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       {/* Categories */}
       <SectionCard
         icon={Star}
-        title={isTr ? "Hizmet Kategorileri" : isEn ? "Service Categories" : isRu ? "Категории услуг" : "فئات الخدمات"}
-        description={isTr 
-          ? "Website sayfanızda hizmetleriniz bu kategoriler altında gruplanır. Hizmeti kategoriye atamak için Hizmetler sayfasından hizmeti açın."
-          : isEn 
-          ? "Your services are grouped under these categories on your website page. To assign a service to a category, open the service from the Services page."
-          : isRu 
-          ? "Ваши услуги группируются по этим категориям на вашем веб-сайте. Чтобы назначить услугу категории, откройте услугу на странице Услуги."
-          : "يتم تجميع خدماتك تحت هذه الفئات على صفحة موقعك الإلكتروني. لتعيين خدمة لفئة معينة، افتح الخدمة من صفحة الخدمات."}
+        title={w("categoriesCardTitle")}
+        description={w("categoriesCardDesc")}
       >
         <div className="flex gap-2">
           <Input
-            placeholder={isTr ? "Yeni kategori adı (örn. Saç Bakımı)" : isEn ? "New category name (e.g. Hair Care)" : isRu ? "Название новой категории..." : "اسم الفئة الجديدة..."}
+            placeholder={w("newCategoryPlaceholder")}
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
           />
           <Button onClick={handleAddCategory} disabled={addingCategory || !newCategoryName.trim()} className="shrink-0 gap-1.5">
             {addingCategory ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            {isTr ? "Ekle" : isEn ? "Add" : isRu ? "Добавить" : "إضافة"}
+            {w("addButton")}
           </Button>
         </div>
 
         {sortedCategories.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">Henüz kategori eklenmedi.</p>
+          <p className="text-sm text-muted-foreground text-center py-4">{w("noCategoriesYet")}</p>
         ) : (
           <div className="space-y-2">
             {sortedCategories.map((cat, idx) => {
@@ -716,12 +707,12 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
                           onKeyDown={(e) => e.key === "Enter" && handleRenameCategory(cat.id)}
                           autoFocus
                         />
-                        <Button size="sm" className="h-8" onClick={() => handleRenameCategory(cat.id)} disabled={busy}>Kaydet</Button>
+                        <Button size="sm" className="h-8" onClick={() => handleRenameCategory(cat.id)} disabled={busy}>{w("saveShort")}</Button>
                       </div>
                     ) : (
                       <>
                         <p className="text-sm font-medium truncate">{cat.name}</p>
-                        <p className="text-xs text-muted-foreground">{count} hizmet</p>
+                        <p className="text-xs text-muted-foreground">{w("serviceCount", { count })}</p>
                       </>
                     )}
                   </div>
@@ -753,7 +744,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
               return (
                 <div key={`gallery-${cat.id}`} className="p-2.5 rounded-lg border border-dashed border-border">
                   <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
-                    <Images className="h-3.5 w-3.5" /> {cat.name} — Galeri ({photos.length}/{MAX_CATEGORY_PHOTOS})
+                    <Images className="h-3.5 w-3.5" /> {cat.name} — {w("galleryLabel")} ({photos.length}/{MAX_CATEGORY_PHOTOS})
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {photos.map((p) => (
@@ -793,61 +784,55 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
           </div>
         )}
         <Link href="/dashboard/hizmetler" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
-          {isTr ? "Hizmetler sayfasında toplu düzenle" : isEn ? "Batch edit on Services page" : isRu ? "Пакетное редактирование на странице услуг" : "تعديل جماعي في صفحة الخدمات"} <ExternalLink className="h-3 w-3" />
+          {w("batchEditLink")} <ExternalLink className="h-3 w-3" />
         </Link>
       </SectionCard>
 
       {/* Services */}
       <SectionCard
         icon={Scissors}
-        title={isTr ? "Hizmetler" : isEn ? "Services" : isRu ? "Услуги" : "الخدمات"}
-        description={isTr 
-          ? "Website sayfanızda görünecek hizmetleri buradan ekleyip çıkarabilir, fotoğraf yükleyip kategoriye atayabilirsiniz. Fiyat ve süreyi boş bırakırsanız hizmet sadece vitrin amaçlı gösterilir, online randevu alınamaz."
-          : isEn 
-          ? "Here you can add or remove services shown on your website, upload photos, and assign them to categories. If price and duration are blank, the service is showcase only and booking is disabled."
-          : isRu 
-          ? "Здесь вы можете добавлять/удалять услуги на сайте, загружать фото и назначать категории. Если цена и длительность не указаны, услуга отображается только как витрина."
-          : "هنا يمكنك إضافة أو إزالة الخدمات المعروضة على موقعك، وتحميل الصور وتصنيفها. إذا ترك السعر والمدة فارغين، فستعرض الخدمة كمعرض فقط دون إمكانية الحجز."}
+        title={w("servicesCardTitle")}
+        description={w("servicesCardDesc")}
       >
         <div className="space-y-2 p-3 rounded-lg border border-dashed border-border">
           <Input
-            placeholder={isTr ? "Yeni hizmet adı (örn. Fön Çekimi)" : isEn ? "New service name (e.g. Blow Dry)" : isRu ? "Название новой услуги..." : "اسم الخدمة الجديدة..."}
+            placeholder={w("newServicePlaceholder")}
             value={newServiceName}
             onChange={(e) => setNewServiceName(e.target.value)}
           />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <Select value={newServiceCategoryId} onValueChange={(v) => v && setNewServiceCategoryId(v)}>
               <SelectTrigger>
-                <SelectValue placeholder={isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"}>
-                  {() => (newServiceCategoryId === NO_CATEGORY ? (isTr ? "Kategorisiz" : isEn ? "Uncategorized" : isRu ? "Без категории" : "غير مصنف") : sortedCategories.find((c) => c.id === newServiceCategoryId)?.name ?? (isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"))}
+                <SelectValue placeholder={w("categoryLabel")}>
+                  {() => (newServiceCategoryId === NO_CATEGORY ? w("uncategorized") : sortedCategories.find((c) => c.id === newServiceCategoryId)?.name ?? w("categoryLabel"))}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NO_CATEGORY}>{isTr ? "Kategorisiz" : isEn ? "Uncategorized" : isRu ? "Без категории" : "غير مصنف"}</SelectItem>
+                <SelectItem value={NO_CATEGORY}>{w("uncategorized")}</SelectItem>
                 {sortedCategories.map((c) => (
                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Input
-              type="number" min="0" step="0.01" placeholder={isTr ? "Fiyat (opsiyonel)" : isEn ? "Price (optional)" : isRu ? "Цена (опционально)" : "السعر (اختياري)"}
+              type="number" min="0" step="0.01" placeholder={w("pricePlaceholder")}
               value={newServicePrice}
               onChange={(e) => setNewServicePrice(e.target.value)}
             />
             <Input
-              type="number" min="5" step="5" placeholder={isTr ? "Süre dk (opsiyonel)" : isEn ? "Duration min (optional)" : isRu ? "Длительность мин" : "المدة بالدقائق"}
+              type="number" min="5" step="5" placeholder={w("durationPlaceholder")}
               value={newServiceDuration}
               onChange={(e) => setNewServiceDuration(e.target.value)}
             />
           </div>
           <Button onClick={handleAddService} disabled={addingService || !newServiceName.trim()} className="w-full gap-1.5">
             {addingService ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            {isTr ? "Hizmet Ekle" : isEn ? "Add Service" : isRu ? "Добавить услугу" : "إضافة خدمة"}
+            {w("addServiceButton")}
           </Button>
         </div>
 
         {services.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">{isTr ? "Henüz hizmet eklenmedi." : isEn ? "No services added yet." : isRu ? "Услуги пока не добавлены." : "لم يتم إضافة خدمات بعد."}</p>
+          <p className="text-sm text-muted-foreground text-center py-4">{w("noServicesYet")}</p>
         ) : (
           <div className="space-y-2">
             {services.map((svc) => {
@@ -870,8 +855,8 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{svc.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {svc.price !== null ? formatServicePrice(svc.price, svc.currency) : (isTr ? "Fiyat belirtilmemiş" : isEn ? "Price not specified" : isRu ? "Цена не указана" : "السعر غير محدد")}
-                      {svc.duration_minutes !== null ? ` • ${svc.duration_minutes} ${isTr ? "dk" : isEn ? "min" : isRu ? "мин" : "دقيقة"}` : ""}
+                      {svc.price !== null ? formatServicePrice(svc.price, svc.currency) : w("priceNotSet")}
+                      {svc.duration_minutes !== null ? ` • ${svc.duration_minutes} ${w("minShort")}` : ""}
                     </p>
                   </div>
                   <Select
@@ -880,11 +865,11 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
                   >
                     <SelectTrigger className="w-[140px] h-8 shrink-0 text-xs">
                       <SelectValue>
-                        {svc.category_id ? sortedCategories.find((c) => c.id === svc.category_id)?.name ?? (isTr ? "Kategorisiz" : isEn ? "Uncategorized" : isRu ? "Без категории" : "غير مصنف") : (isTr ? "Kategorisiz" : isEn ? "Uncategorized" : isRu ? "Без категории" : "غير مصنف")}
+                        {(svc.category_id && sortedCategories.find((c) => c.id === svc.category_id)?.name) || w("uncategorized")}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NO_CATEGORY}>{isTr ? "Kategorisiz" : isEn ? "Uncategorized" : isRu ? "Без категории" : "غير مصنف"}</SelectItem>
+                      <SelectItem value={NO_CATEGORY}>{w("uncategorized")}</SelectItem>
                       {sortedCategories.map((c) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}

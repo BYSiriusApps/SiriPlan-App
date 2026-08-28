@@ -41,7 +41,7 @@ import {
   WA_REMINDER_OFFSET_PRESETS,
 } from "@/lib/wa-templates/registry";
 import { DEFAULT_KVKK_NOTICE_TEMPLATE, renderKvkkNotice } from "@/lib/kvkk";
-import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
+import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
 import { CURRENCIES } from "@/lib/currency";
 import QRCode from "qrcode";
 
@@ -54,100 +54,34 @@ const DEMO_SALON_SLUG = process.env.NEXT_PUBLIC_DEMO_SALON_SLUG || "sirius-demo-
 // Meta'da kayıtlı gerçek şablon metni bu kod tabanında tutulmaz (onay süreci
 // Meta WhatsApp Business panelinde yürür) — burada gösterilen yalnızca hangi
 // parametrelerin hangi sırayla gönderileceğini örnekleyen yaklaşık bir önizlemedir.
-const META_PREVIEW_SAMPLE: Record<
-  string,
-  Record<string, (p: { customerName: string; orgName: string; businessPhone: string; note?: string }) => string>
-> = {
-  onay: {
-    sicak: (p) =>
-      `Sayın ${p.customerName}, ${p.orgName} işletmesinde 20.07.2026 tarihinde saat 15:00 için randevunuz onaylandı. Sorularınız için: ${p.businessPhone || "işletme telefonu"}.`,
-    v2: (p) =>
-      `Merhaba ${p.customerName}, ${p.orgName} işletmesinde 20.07.2026 tarihinde saat 15:00 randevunuz onaylandı. İletişim: ${p.businessPhone || "işletme telefonu"}.`,
-  },
-  iptal: {
-    sicak: (p) =>
-      `Sayın ${p.customerName}, ${p.orgName} işletmesindeki 20.07.2026 saat 15:00 randevunuz iptal edilmiştir.`,
-    v1: (p) =>
-      `Merhaba ${p.customerName}, ${p.orgName} işletmesindeki 20.07.2026 saat 15:00 randevunuz iptal edildi. Yeniden randevu için iletişime geçebilirsiniz.`,
-    v2: (p) =>
-      `Sayın ${p.customerName}, ${p.orgName} salonundaki 20.07.2026 15:00 tarihli randevunuz iptal edilmiştir.`,
-  },
-  hatirlatma: {
-    sicak: (p) =>
-      `Sayın ${p.customerName}, ${p.orgName} işletmesindeki randevunuza 2 saat kaldı. Tarih: 28.07.2026 Saat: 14:30. Sorunuz olursa ${p.businessPhone || "işletme telefonu"} numarasından bize ulaşabilirsiniz. Konum bilgisine harita bağlantısından ulaşabilirsiniz.`,
-    v1: (p) =>
-      `Sayın ${p.customerName}, ${p.orgName} işletmesindeki randevunuza 2 saat kaldı. Tarih: 28.07.2026 Saat: 14:30. Sorunuz olursa ${p.businessPhone || "işletme telefonu"} numarasından bize ulaşabilirsiniz. Konum bilgisine harita bağlantısından ulaşabilirsiniz.`,
-    v2: (p) =>
-      `Sayın ${p.customerName}, ${p.orgName} işletmesindeki randevunuza 1 saat kaldı! ⏰ Tarih: 28.07.2026 Saat: 14:30. Sizi ağırlamak için sabırsızlanıyoruz. Sorunuz olursa ${p.businessPhone || "işletme telefonu"} numarasından bize ulaşabilirsiniz. Konum: harita bağlantısı.`,
-  },
-  revize: {
-    sicak: (p) =>
-      `Sayın ${p.customerName}, ${p.orgName} işletmesindeki randevunuzun saati 20.07.2026 18:00 olarak güncellenmiştir.`,
-  },
+// Dile göre örnek metin settingsPage.metaPreview altındaki anahtarlardan okunur.
+const META_PREVIEW_VARIANTS: Record<string, string[]> = {
+  onay: ["sicak", "v2"],
+  iptal: ["sicak", "v1", "v2"],
+  hatirlatma: ["sicak", "v1", "v2"],
+  revize: ["sicak"],
 };
 
-function getMetaPreview(
-  purpose: string,
-  style: string,
-  params: { customerName: string; orgName: string; businessPhone: string; note?: string }
-): string {
-  const purposeObj = META_PREVIEW_SAMPLE[purpose];
-  if (!purposeObj) return "";
-  const renderFn = purposeObj[style] || purposeObj["sicak"] || Object.values(purposeObj)[0];
-  return renderFn(params);
-}
+const SMS_PROVIDER_VALUES = ["netgsm", "vatansms", "iletimerkezi"] as const;
+type SmsProviderValue = (typeof SMS_PROVIDER_VALUES)[number];
+const SMS_PROVIDER_LABELS: Record<SmsProviderValue, string> = {
+  netgsm: "Netgsm",
+  vatansms: "VatanSMS",
+  iletimerkezi: "İletimerkezi",
+};
 
-const APPOINTMENT_TEMPLATE_PRESETS: { key: string; label: string; text: string }[] = [
-  {
-    key: "sicak",
-    label: "Sıcak",
-    text: "Sayın {musteri}, {salon} işletmesinde {tarih} tarihi ve {saat} saati için randevunuz oluşturulmuştur. Sorunuz olursa bu numaradan bize ulaşabilirsiniz. Görüşmek üzere! 💫",
-  },
-  {
-    key: "kisa",
-    label: "Kısa",
-    text: "{musteri}, {salon} - {tarih} {saat} randevunuz onaylandı.",
-  },
-  {
-    key: "resmi",
-    label: "Resmi",
-    text: "Sayın {musteri}, {salon} nezdinde {tarih} tarihinde saat {saat} için randevunuz kayıt altına alınmıştır. Bilginize sunarız.",
-  },
-  {
-    key: "hizmetli",
-    label: "Hizmet Detaylı",
-    text: "Merhaba {musteri}, {hizmet} hizmeti için {tarih} {saat} randevunuz {personel} ile {salon}'da oluşturuldu. Bekliyoruz!",
-  },
-];
+const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+const DAY_LABEL_KEYS: Record<(typeof DAY_KEYS)[number], string> = {
+  mon: "dayMon", tue: "dayTue", wed: "dayWed", thu: "dayThu", fri: "dayFri", sat: "daySat", sun: "daySun",
+};
 
-const SMS_PROVIDERS: { value: "netgsm" | "vatansms" | "iletimerkezi"; label: string; userLabel: string; passLabel: string }[] = [
-  { value: "netgsm", label: "Netgsm", userLabel: "Kullanıcı Kodu", passLabel: "Şifre / API Şifresi" },
-  { value: "vatansms", label: "VatanSMS", userLabel: "API ID", passLabel: "API Key" },
-  { value: "iletimerkezi", label: "İletimerkezi", userLabel: "Kullanıcı Adı", passLabel: "Şifre" },
-];
-
-const DAYS = [
-  { key: "mon", label: "Pazartesi" },
-  { key: "tue", label: "Salı" },
-  { key: "wed", label: "Çarşamba" },
-  { key: "thu", label: "Perşembe" },
-  { key: "fri", label: "Cuma" },
-  { key: "sat", label: "Cumartesi" },
-  { key: "sun", label: "Pazar" },
-];
-
-const BUSINESS_TYPES = [
-  { value: "kuafor", label: "Kuaför" },
-  { value: "berber", label: "Berber" },
-  { value: "guzellik", label: "Güzellik Merkezi" },
-  { value: "spa", label: "Spa" },
-  { value: "nail", label: "Nail Salon" },
-  { value: "estetik", label: "Estetik Klinik" },
-  { value: "makyaj", label: "Makyaj Stüdyosu" },
-  { value: "tattoo", label: "Tattoo Stüdyosu" },
-  { value: "diyetisyen", label: "Diyetisyen" },
-  { value: "kas_kirpik", label: "Kaş & Kirpik" },
-];
+const BUSINESS_TYPE_VALUES = [
+  "kuafor", "berber", "guzellik", "spa", "nail", "estetik", "makyaj", "tattoo", "diyetisyen", "kas_kirpik",
+] as const;
+const BUSINESS_TYPE_LABEL_KEYS: Record<(typeof BUSINESS_TYPE_VALUES)[number], string> = {
+  kuafor: "bizKuafor", berber: "bizBerber", guzellik: "bizGuzellik", spa: "bizSpa", nail: "bizNail",
+  estetik: "bizEstetik", makyaj: "bizMakyaj", tattoo: "bizTattoo", diyetisyen: "bizDiyetisyen", kas_kirpik: "bizKasKirpik",
+};
 
 interface StaffListItem {
   id: string;
@@ -185,11 +119,41 @@ function SectionCard({
   );
 }
 
-const DELETE_CONFIRM_PHRASE = "HESABIMI SİL";
-
 export default function AyarlarPage() {
   const t = useTranslations("dashboard");
-  const tsp = useTranslations("staffPermissions");
+  const tsp = useTranslations("dashboard.staffPermissions");
+  const DELETE_CONFIRM_PHRASE = t("settingsPage.deleteConfirmPhrase");
+  const orgNameFallback = t("settingsPage.orgNameFallback");
+
+  // preset metinleri {musteri}/{salon} gibi uygulama-içi değişkenler taşır;
+  // next-intl bunları ICU argümanı sanmasın diye t.raw ile alınır.
+  const APPOINTMENT_TEMPLATE_PRESETS = [
+    { key: "sicak", label: t("settingsPage.presetSicakLabel"), text: t.raw("settingsPage.presetSicakText") as string },
+    { key: "kisa", label: t("settingsPage.presetKisaLabel"), text: t.raw("settingsPage.presetKisaText") as string },
+    { key: "resmi", label: t("settingsPage.presetResmiLabel"), text: t.raw("settingsPage.presetResmiText") as string },
+    { key: "hizmetli", label: t("settingsPage.presetHizmetliLabel"), text: t.raw("settingsPage.presetHizmetliText") as string },
+  ];
+
+  const smsProviderFieldLabels: Record<SmsProviderValue, { user: string; pass: string }> = {
+    netgsm: { user: t("settingsPage.smsProviderUserCode"), pass: t("settingsPage.smsProviderPassword") },
+    vatansms: { user: t("settingsPage.smsProviderApiId"), pass: t("settingsPage.smsProviderApiKey") },
+    iletimerkezi: { user: t("settingsPage.smsProviderUsername"), pass: t("settingsPage.smsProviderPasswordSimple") },
+  };
+
+  function metaPreview(
+    purpose: string,
+    style: string,
+    params: { customerName: string; orgName: string; businessPhone: string }
+  ): string {
+    const list = META_PREVIEW_VARIANTS[purpose];
+    if (!list) return "";
+    const chosen = list.includes(style) ? style : list[0];
+    return t(`settingsPage.metaPreview.${purpose}_${chosen}`, {
+      customerName: params.customerName,
+      orgName: params.orgName,
+      businessPhone: params.businessPhone || t("settingsPage.metaPreview.businessPhoneFallback"),
+    });
+  }
   const router = useRouter();
   const [org, setOrg] = useState<Partial<Organization> | null>(null);
   const [staffList, setStaffList] = useState<StaffListItem[]>([]);
@@ -218,23 +182,23 @@ export default function AyarlarPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        toast.error(data.error || "Hesap silinemedi, lütfen destek ile iletişime geçin");
+        toast.error(data.error || t("settingsPage.toastAccountDeleteFailed"));
         setDeletingAccount(false);
         return;
       }
-      toast.success("Hesabınız silindi");
+      toast.success(t("settingsPage.toastAccountDeleted"));
       const supabase = createClient();
       await supabase.auth.signOut().catch(() => {});
       router.push("/auth/giris");
     } catch {
-      toast.error("Hesap silinemedi, lütfen destek ile iletişime geçin");
+      toast.error(t("settingsPage.toastAccountDeleteFailed"));
       setDeletingAccount(false);
     }
   }
 
   function useMyLocation() {
     if (!navigator.geolocation) {
-      toast.error("Tarayıcınız konum özelliğini desteklemiyor");
+      toast.error(t("settingsPage.toastGeoUnsupported"));
       return;
     }
     setLocating(true);
@@ -243,11 +207,11 @@ export default function AyarlarPage() {
         const { latitude, longitude } = pos.coords;
         setField("location_url", `https://www.google.com/maps?q=${latitude},${longitude}`);
         setLocating(false);
-        toast.success("Konumunuz alındı");
+        toast.success(t("settingsPage.toastGeoOk"));
       },
       () => {
         setLocating(false);
-        toast.error("Konum alınamadı — tarayıcınızdan konum izni vermeniz gerekiyor");
+        toast.error(t("settingsPage.toastGeoFailed"));
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -281,7 +245,7 @@ export default function AyarlarPage() {
   async function handleSave() {
     if (!org) return;
     if (org.tax_number && !isValidTaxNumber(org.tax_number)) {
-      toast.error(TAX_NUMBER_ERROR);
+      toast.error(t("settingsPage.taxNumberError"));
       return;
     }
     setSaving(true);
@@ -344,9 +308,9 @@ export default function AyarlarPage() {
     }
 
     if (error) {
-      toast.error("Kayıt başarısız: " + error.message);
+      toast.error(t("settingsPage.toastSaveFailed") + error.message);
     } else {
-      toast.success("Ayarlar kaydedildi!");
+      toast.success(t("settingsPage.toastSaved"));
     }
     setSaving(false);
   }
@@ -360,11 +324,11 @@ export default function AyarlarPage() {
     e.target.value = "";
     if (!file || !org?.id) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("Lütfen bir resim dosyası seçin");
+      toast.error(t("settingsPage.toastPickImage"));
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("Dosya boyutu 2MB'dan küçük olmalı");
+      toast.error(t("settingsPage.toastFileTooLarge"));
       return;
     }
     setUploadingLogo(true);
@@ -375,7 +339,7 @@ export default function AyarlarPage() {
       .from("org-logos")
       .upload(path, file, { upsert: true, cacheControl: "3600" });
     if (upErr) {
-      toast.error("Yükleme başarısız: " + upErr.message);
+      toast.error(t("settingsPage.toastUploadFailed") + upErr.message);
       setUploadingLogo(false);
       return;
     }
@@ -386,10 +350,10 @@ export default function AyarlarPage() {
       .update({ logo_url: publicUrl })
       .eq("id", org.id);
     if (dbErr) {
-      toast.error("Kaydedilemedi: " + dbErr.message);
+      toast.error(t("settingsPage.toastSaveFailedShort") + dbErr.message);
     } else {
       setField("logo_url", publicUrl);
-      toast.success("Logo güncellendi!");
+      toast.success(t("settingsPage.toastLogoUpdated"));
     }
     setUploadingLogo(false);
   }
@@ -399,10 +363,10 @@ export default function AyarlarPage() {
     const supabase = createClient();
     const { error } = await supabase.from("organizations").update({ logo_url: null }).eq("id", org.id);
     if (error) {
-      toast.error("Kaldırılamadı: " + error.message);
+      toast.error(t("settingsPage.toastRemoveFailed") + error.message);
     } else {
       setField("logo_url", null);
-      toast.success("Logo kaldırıldı");
+      toast.success(t("settingsPage.toastLogoRemoved"));
     }
   }
 
@@ -422,16 +386,19 @@ export default function AyarlarPage() {
     try {
       await navigator.clipboard.writeText(bookingLink);
       setLinkCopied(true);
-      toast.success("Link kopyalandı!");
+      toast.success(t("settingsPage.toastLinkCopied"));
       setTimeout(() => setLinkCopied(false), 2000);
     } catch {
-      toast.error("Link kopyalanamadı, elle seçip kopyalayın.");
+      toast.error(t("settingsPage.toastLinkCopyFailed"));
     }
   }
 
   function shareBookingLinkOnWhatsApp() {
     if (!bookingLink) return;
-    const text = `${org?.name || "Salonumuz"} için online randevu almak isterseniz: ${bookingLink}`;
+    const text = t("settingsPage.waShareText", {
+      salon: org?.name || t("settingsPage.waShareFallbackName"),
+      link: bookingLink,
+    });
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
   }
 
@@ -467,10 +434,10 @@ export default function AyarlarPage() {
           <CreditCard className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm">Abonelik &amp; Fatura</p>
+          <p className="font-semibold text-sm">{t("settingsPage.billingCardTitle")}</p>
           {/* Native uygulamada "ödeme" kelimesi bile bir yönlendirme sinyalidir. */}
           <p className="text-xs text-muted-foreground">
-            {mobileApp ? "Plan ve kullanım limitleri" : "Plan, kullanım limitleri ve ödeme yönetimi"}
+            {mobileApp ? t("settingsPage.billingCardDescMobile") : t("settingsPage.billingCardDesc")}
           </p>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -488,7 +455,7 @@ export default function AyarlarPage() {
             </div>
           )}
           <div className="space-y-1.5">
-            <Label>İşletme Logosu</Label>
+            <Label>{t("settingsPage.logoLabel")}</Label>
             <div className="flex items-center gap-2">
               <label className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-border cursor-pointer hover:bg-muted/50 transition-colors">
                 {uploadingLogo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageUp className="h-3.5 w-3.5" />}
@@ -505,21 +472,21 @@ export default function AyarlarPage() {
                 </button>
               )}
             </div>
-            <p className="text-[11px] text-muted-foreground">PNG, JPG veya WebP — en fazla 2MB. Randevu sayfanızda görünür.</p>
+            <p className="text-[11px] text-muted-foreground">{t("settingsPage.logoHint")}</p>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label>Salon Adı</Label>
+            <Label>{t("settingsPage.salonNameLabel")}</Label>
             <Input className="mt-1" value={org.name || ""} onChange={(e) => setField("name", e.target.value)} />
           </div>
           <div>
-            <Label>İşletme Türü</Label>
+            <Label>{t("settingsPage.businessTypeLabel")}</Label>
             <Select value={org.type || ""} onValueChange={(v) => setField("type", v)}>
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
-                {BUSINESS_TYPES.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                {BUSINESS_TYPE_VALUES.map((val) => (
+                  <SelectItem key={val} value={val}>{t(`settingsPage.${BUSINESS_TYPE_LABEL_KEYS[val]}`)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -527,18 +494,18 @@ export default function AyarlarPage() {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label>Telefon</Label>
+            <Label>{t("settingsPage.phoneLabel")}</Label>
             <Input className="mt-1" value={org.phone || ""} onChange={(e) => setField("phone", e.target.value)} placeholder="5xx xxx xx xx" />
           </div>
           <div>
-            <Label>E-posta</Label>
+            <Label>{t("settingsPage.emailLabel")}</Label>
             <Input className="mt-1" type="email" value={org.email || ""} onChange={(e) => setField("email", e.target.value)} />
           </div>
         </div>
         <div>
           <Label>
-            VKN / TC Kimlik No{" "}
-            <span className="text-xs font-normal text-muted-foreground">(isteğe bağlı)</span>
+            {t("settingsPage.taxNumberLabel")}{" "}
+            <span className="text-xs font-normal text-muted-foreground">{t("settingsPage.optionalTag")}</span>
           </Label>
           <Input
             className="mt-1"
@@ -546,23 +513,23 @@ export default function AyarlarPage() {
             maxLength={TAX_NUMBER_MAX_LENGTH}
             value={org.tax_number || ""}
             onChange={(e) => setField("tax_number", normalizeTaxNumber(e.target.value))}
-            placeholder="Vergi No (10 hane) veya TCKN (11 hane)"
+            placeholder={t("settingsPage.taxNumberPlaceholder")}
           />
           {org.tax_number && !isValidTaxNumber(org.tax_number) && (
-            <p className="text-xs text-red-500 mt-1">{TAX_NUMBER_ERROR}</p>
+            <p className="text-xs text-red-500 mt-1">{t("settingsPage.taxNumberError")}</p>
           )}
         </div>
         <div>
-          <Label>Adres</Label>
+          <Label>{t("settingsPage.addressLabel")}</Label>
           <Input className="mt-1" value={org.address || ""} onChange={(e) => setField("address", e.target.value)} />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label>Şehir</Label>
+            <Label>{t("settingsPage.cityLabel")}</Label>
             <Input className="mt-1" value={org.city || ""} onChange={(e) => setField("city", e.target.value)} />
           </div>
           <div>
-            <Label>Dil</Label>
+            <Label>{t("settingsPage.languageLabel")}</Label>
             <Select value={org.locale || "tr"} onValueChange={(v) => setField("locale", v)}>
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -575,7 +542,7 @@ export default function AyarlarPage() {
           </div>
         </div>
         <div>
-          <Label>Saat Dilimi</Label>
+          <Label>{t("settingsPage.timezoneLabel")}</Label>
           <Select value={org.timezone || "Europe/Istanbul"} onValueChange={(v) => setField("timezone", v ?? "Europe/Istanbul")}>
             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -584,10 +551,10 @@ export default function AyarlarPage() {
               ))}
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground mt-1">Çalışma saatleri, müsaitlik ve randevu bildirimleri bu saat dilimine göre hesaplanır.</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("settingsPage.timezoneHint")}</p>
         </div>
         <div className="space-y-1">
-          <Label>Konum (Google Maps Linki)</Label>
+          <Label>{t("settingsPage.locationLabel")}</Label>
           <div className="flex gap-2 mt-1">
             <Input
               className="flex-1"
@@ -606,11 +573,7 @@ export default function AyarlarPage() {
               {t("settingsPage.useMyLocationButton")}
             </Button>
           </div>
-          <p className="text-[11px] text-muted-foreground">
-            Google Maps&apos;te işletmenizi bulup <strong>Paylaş</strong> ile linki kopyalayıp buraya yapıştırın —
-            otomatik randevu onay mesajlarında müşteriye bu linke tıklayarak gelebileceği doğru konum gösterilir.
-            Boş bırakırsanız adresinizden otomatik bir harita linki üretilir.
-          </p>
+          <p className="text-[11px] text-muted-foreground">{t("settingsPage.locationHint")}</p>
         </div>
       </SectionCard>
 
@@ -619,7 +582,7 @@ export default function AyarlarPage() {
         icon={CalendarCheck}
         iconClassName="text-rose-600"
         title={t("settingsPage.bookingLinkTitle")}
-        description="Bu linki sosyal medya biyografinize veya WhatsApp'tan müşterilerinize paylaşın. Müşterileriniz boş saatleri görüp kendileri randevu alabilir; onayladıkları KVKK metniyle birlikte otomatik olarak müşteri listenize eklenirler."
+        description={t("settingsPage.bookingLinkDesc")}
       >
         {org.slug ? (
           <>
@@ -651,19 +614,19 @@ export default function AyarlarPage() {
             <details className="group">
               <summary className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none w-fit">
                 <QrCode className="h-3.5 w-3.5" />
-                QR kod ile paylaş
+                {t("settingsPage.qrShareSummary")}
               </summary>
               <div className="mt-2 flex items-center gap-3 p-3 rounded-lg border border-border bg-white w-fit">
                 {qrDataUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={qrDataUrl} alt="Randevu linki QR kodu" width={160} height={160} />
+                  <img src={qrDataUrl} alt={t("settingsPage.qrAlt")} width={160} height={160} />
                 ) : (
                   <div className="h-[160px] w-[160px] flex items-center justify-center">
                     <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground max-w-[140px]">
-                  Salonunuzda basılı olarak asabilir, müşterileriniz telefonla okutarak direkt randevu sayfanıza ulaşabilir.
+                  {t("settingsPage.qrShareHint")}
                 </p>
               </div>
             </details>
@@ -672,17 +635,16 @@ export default function AyarlarPage() {
               <div className="flex items-start gap-3 p-3.5 rounded-xl border border-primary/30 bg-primary/5">
                 <Globe className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-foreground">Randevu sayfanızı web sitesine dönüştürün →</p>
+                  <p className="text-sm font-semibold text-foreground">{t("settingsPage.websiteUpsellTitle")}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Renk paleti, kapak fotoğrafı, hizmet kategorileri ve fotoğraflarla donatılmış,
-                    satış artırıcı bir işletme sayfası — mevcut randevu linkinizde, ek bir adres olmadan.
+                    {t("settingsPage.websiteUpsellDesc")}
                   </p>
                   <div className="flex flex-wrap gap-2 mt-2.5">
                     <Link
                       href="/dashboard/abonelik"
                       className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                     >
-                      Pro Plana Geç
+                      {t("settingsPage.upgradeToProButton")}
                     </Link>
                     <a
                       href={`/r/${DEMO_SALON_SLUG}`}
@@ -690,7 +652,7 @@ export default function AyarlarPage() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-border hover:bg-muted transition-colors"
                     >
-                      Örnek Web Sitesini Görüntüle
+                      {t("settingsPage.viewSampleWebsiteButton")}
                     </a>
                   </div>
                 </div>
@@ -698,55 +660,55 @@ export default function AyarlarPage() {
             )}
           </>
         ) : (
-          <p className="text-sm text-muted-foreground">Randevu linkiniz oluşturulamadı, lütfen destek ekibiyle iletişime geçin.</p>
+          <p className="text-sm text-muted-foreground">{t("settingsPage.bookingLinkFailed")}</p>
         )}
       </SectionCard>
 
       {/* Integrations */}
       <SectionCard icon={Link2} title={t("settingsPage.integrationsTitle")}>
         <div>
-          <Label>Instagram Kullanıcı Adı</Label>
+          <Label>{t("settingsPage.instagramLabel")}</Label>
           <div className="flex mt-1">
             <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-muted text-muted-foreground text-sm">@</span>
-            <Input className="rounded-l-none" value={org.instagram_handle || ""} onChange={(e) => setField("instagram_handle", e.target.value)} placeholder="salonadınız" />
+            <Input className="rounded-l-none" value={org.instagram_handle || ""} onChange={(e) => setField("instagram_handle", e.target.value)} placeholder={t("settingsPage.socialHandlePlaceholder")} />
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">Website modu açıksa randevu sayfanızda ikon olarak gösterilir.</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{t("settingsPage.socialIconHint")}</p>
         </div>
         <div>
-          <Label>TikTok Kullanıcı Adı</Label>
+          <Label>{t("settingsPage.tiktokLabel")}</Label>
           <div className="flex mt-1">
             <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-muted text-muted-foreground text-sm">@</span>
-            <Input className="rounded-l-none" value={org.tiktok_handle || ""} onChange={(e) => setField("tiktok_handle", e.target.value)} placeholder="salonadınız" />
+            <Input className="rounded-l-none" value={org.tiktok_handle || ""} onChange={(e) => setField("tiktok_handle", e.target.value)} placeholder={t("settingsPage.socialHandlePlaceholder")} />
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">Website modu açıksa randevu sayfanızda ikon olarak gösterilir.</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{t("settingsPage.socialIconHint")}</p>
         </div>
         <div>
-          <Label>Facebook Sayfa Adı</Label>
+          <Label>{t("settingsPage.facebookLabel")}</Label>
           <div className="flex mt-1">
             <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-muted text-muted-foreground text-sm">@</span>
-            <Input className="rounded-l-none" value={org.facebook_handle || ""} onChange={(e) => setField("facebook_handle", e.target.value)} placeholder="salonadınız" />
+            <Input className="rounded-l-none" value={org.facebook_handle || ""} onChange={(e) => setField("facebook_handle", e.target.value)} placeholder={t("settingsPage.socialHandlePlaceholder")} />
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">Website modu açıksa randevu sayfanızda ikon olarak gösterilir.</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{t("settingsPage.socialIconHint")}</p>
         </div>
         <div>
-          <Label>LinkedIn Sayfa Adı</Label>
+          <Label>{t("settingsPage.linkedinLabel")}</Label>
           <div className="flex mt-1">
             <span className="px-3 py-2 border border-r-0 rounded-l-lg bg-muted text-muted-foreground text-sm">@</span>
-            <Input className="rounded-l-none" value={org.linkedin_handle || ""} onChange={(e) => setField("linkedin_handle", e.target.value)} placeholder="salonadınız" />
+            <Input className="rounded-l-none" value={org.linkedin_handle || ""} onChange={(e) => setField("linkedin_handle", e.target.value)} placeholder={t("settingsPage.socialHandlePlaceholder")} />
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">Website modu açıksa randevu sayfanızda ikon olarak gösterilir.</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{t("settingsPage.socialIconHint")}</p>
         </div>
         <div>
-          <Label>WhatsApp Numarası (Müşterilere gösterilecek)</Label>
+          <Label>{t("settingsPage.whatsappNumberLabel")}</Label>
           <Input className="mt-1" value={org.whatsapp_number || ""} onChange={(e) => setField("whatsapp_number", e.target.value)} placeholder="+90 5xx xxx xxxx" />
         </div>
         <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50 border border-border">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground">WhatsApp Business</p>
+            <p className="text-sm font-medium text-foreground">{t("settingsPage.whatsappBusinessLabel")}</p>
             <p className="text-xs text-muted-foreground">
-              Entegrasyon için{" "}
-              <a href="mailto:info@bysirius.com" className="text-primary hover:underline">destek ekibi</a>
-              {" "}ile iletişime geçin.
+              {t("settingsPage.whatsappBusinessHintPre")}{" "}
+              <a href="mailto:info@bysirius.com" className="text-primary hover:underline">{t("settingsPage.supportTeamLink")}</a>
+              {t("settingsPage.whatsappBusinessHintPost")}
             </p>
           </div>
         </div>
@@ -754,7 +716,7 @@ export default function AyarlarPage() {
         <div className="pt-1 space-y-2">
           <Label className="flex items-center gap-1.5">
             <Send className="h-3.5 w-3.5 text-primary" />
-            Telegram Bildirimleri (Chat ID)
+            {t("settingsPage.telegramLabel")}
           </Label>
           <Input
             className="mt-1"
@@ -763,16 +725,16 @@ export default function AyarlarPage() {
             placeholder="123456789"
           />
           <p className="text-xs text-muted-foreground">
-            Yeni bir randevu oluştuğunda (online veya elle) buraya anında Telegram bildirimi gönderilir.
+            {t("settingsPage.telegramHint")}
           </p>
           <details className="group">
             <summary className="text-xs text-primary cursor-pointer select-none w-fit hover:underline">
-              Chat ID&apos;mi nasıl bulurum?
+              {t("settingsPage.telegramHelpSummary")}
             </summary>
             <ol className="mt-2 text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-              <li>Telegram&apos;da salonumuzun bildirim botunu bulup <strong>Başlat / Start</strong>&apos;a basın.</li>
-              <li>Bot size bir Chat ID numarası gönderecek.</li>
-              <li>Bu numarayı yukarıya yapıştırıp kaydedin — artık her randevuda bildirim alırsınız.</li>
+              <li>{t("settingsPage.telegramStep1")}</li>
+              <li>{t("settingsPage.telegramStep2")}</li>
+              <li>{t("settingsPage.telegramStep3")}</li>
             </ol>
           </details>
         </div>
@@ -783,26 +745,21 @@ export default function AyarlarPage() {
         icon={MessageCircle}
         iconClassName="text-green-600"
         title={t("settingsPage.autoMessageTitle")}
-        description="Randevu ekranlarındaki (Yeni Randevu / Hızlı Randevu) 'Müşteriye WhatsApp mesajı gönder' kutusu işaretlendiğinde ve randevu detayındaki 'Manuel Mesaj Gönder' butonunda kendi WhatsApp'ınızdan elle gönderdiğiniz metinler bunlardır. Tarih ve saat her randevuda otomatik doldurulur."
+        description={t("settingsPage.autoMessageDesc")}
       >
         <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
           <p className="text-xs text-amber-700 dark:text-amber-400">
-            Bu kanal Meta&apos;ya bağlı DEĞİLDİR — mesaj kendi telefonunuzdaki WhatsApp&apos;tan açılır, siz
-            gönderirsiniz; bu yüzden metni dilediğiniz gibi düzenleyebilirsiniz. Aşağıdaki{" "}
-            <strong>&quot;WhatsApp Bildirim Ayarları&quot;</strong> bölümündeki Meta otomatik mesajlardan
-            farklı bir kanaldır — ikisi birlikte açıksa müşteri aynı bilgiyi iki kez alabilir, birini
-            kapalı tutmanız önerilir. Meta otomatik mesajlarını tamamen kapatırsanız, bu manuel kanal
-            devreye alacağınız tek bildirim yolu olur.
+            {t("settingsPage.autoMessageWarning")}
           </p>
         </div>
 
         <div className="flex border-b border-border mb-3 overflow-x-auto whitespace-nowrap">
           {(
             [
-              { key: "onay", label: "Randevu Onay" },
-              { key: "iptal", label: "Randevu İptal" },
-              { key: "revize", label: "Randevu Güncelleme" },
-              { key: "hatirlatma", label: "Randevu Hatırlatma" },
+              { key: "onay", label: t("settingsPage.tabOnay") },
+              { key: "iptal", label: t("settingsPage.tabIptal") },
+              { key: "revize", label: t("settingsPage.tabRevize") },
+              { key: "hatirlatma", label: t("settingsPage.tabHatirlatma") },
             ] as const
           ).map((tab) => (
             <button
@@ -823,7 +780,7 @@ export default function AyarlarPage() {
         {manualTab === "onay" && (
           <div className="space-y-3">
             <div className="flex gap-1.5 flex-wrap items-center">
-              <span className="text-xs text-muted-foreground">Şablon seç:</span>
+              <span className="text-xs text-muted-foreground">{t("settingsPage.templatePickLabel")}</span>
               {APPOINTMENT_TEMPLATE_PRESETS.map((preset) => (
                 <button
                   key={preset.key}
@@ -905,12 +862,12 @@ export default function AyarlarPage() {
         )}
 
         <div className="flex gap-1.5 flex-wrap items-center">
-          <span className="text-xs text-muted-foreground">Değişkenler:</span>
+          <span className="text-xs text-muted-foreground">{t("settingsPage.variablesLabel")}</span>
           {WA_TEMPLATE_VARS.map((v) => (
             <button
               key={v.key}
               type="button"
-              title={v.desc}
+              title={t(`settingsPage.waVar.${v.key.replace(/[{}]/g, "")}`)}
               onClick={() => {
                 const cur = (org.settings_json ?? {}) as Record<string, unknown>;
                 let currentVal = "";
@@ -941,7 +898,7 @@ export default function AyarlarPage() {
         </div>
 
         <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50">
-          <p className="text-[11px] font-medium text-green-700 dark:text-green-400 mb-1">Örnek önizleme:</p>
+          <p className="text-[11px] font-medium text-green-700 dark:text-green-400 mb-1">{t("settingsPage.previewLabel")}</p>
           <p className="text-xs text-muted-foreground italic">
             {renderWaTemplate(
               manualTab === "onay"
@@ -952,11 +909,11 @@ export default function AyarlarPage() {
                 ? ((org.settings_json as Record<string, unknown> | null)?.wa_revize_template as string | undefined)
                 : ((org.settings_json as Record<string, unknown> | null)?.wa_reminder_template as string | undefined),
               {
-                musteri: "Ayşe Yıldız",
-                salon: org.name || "Salonunuz",
+                musteri: t("settingsPage.sampleCustomerName"),
+                salon: org.name || orgNameFallback,
                 appointmentAt: manualTab === "revize" ? "2026-07-20T18:00" : "2026-07-20T15:00",
-                hizmet: "Saç Kesimi",
-                personel: "Elif",
+                hizmet: t("settingsPage.sampleServiceName"),
+                personel: t("settingsPage.sampleStaffName"),
               },
               manualTab === "onay"
                 ? DEFAULT_WA_TEMPLATE
@@ -974,7 +931,7 @@ export default function AyarlarPage() {
       <SectionCard
         icon={CalendarCheck}
         title={t("settingsPage.onlineBookingSettingsTitle")}
-        description="Online randevu sayfanızdan (/r/...) gelen randevular varsayılan olarak otomatik onaylanır ve takvime düşer."
+        description={t("settingsPage.onlineBookingDesc")}
       >
         {(org.plan === "pro" || org.plan === "business") ? (
           <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
@@ -985,24 +942,22 @@ export default function AyarlarPage() {
               className="mt-0.5"
             />
             <label htmlFor="has_auto_booking" className="cursor-pointer flex-1">
-              <p className="text-sm font-medium">Online randevuları otomatik onayla</p>
+              <p className="text-sm font-medium">{t("settingsPage.autoConfirmLabel")}</p>
               <p className="text-xs text-muted-foreground">
-                Açıksa online sayfadan gelen randevular beklemeden direkt onaylanır ve takvime düşer.
-                Kapatırsanız, randevular siz onaylayana kadar &quot;bekliyor&quot; kuyruğunda tutulur
-                (manuel onay kuyruğu Pro/Business planına özeldir).
+                {t("settingsPage.autoConfirmDesc")}
               </p>
             </label>
           </div>
         ) : (
           <div className="p-3 rounded-lg bg-muted/50 border border-border text-xs text-muted-foreground">
-            Online randevularınız otomatik onaylanıp takvime düşer. Randevuları onaylamadan önce
+            {t("settingsPage.autoConfirmFreeText")}
           </div>
         )}
         {/* Randevu Dilimi */}
         <div className="pt-3 border-t border-border mt-3">
-          <Label className="text-sm font-medium mb-1 block">Randevu Dilimi Aralığı</Label>
+          <Label className="text-sm font-medium mb-1 block">{t("settingsPage.slotIntervalLabel")}</Label>
           <p className="text-xs text-muted-foreground mb-2">
-            Ziyaretçilerin randevu seçerken göreceği saat aralıkları (15 dakika, 30 dakika veya saat başı).
+            {t("settingsPage.slotIntervalDesc")}
           </p>
           <Select
             value={String(((org.settings_json as Record<string, unknown> | null)?.booking_slot_minutes) || 15)}
@@ -1012,22 +967,21 @@ export default function AyarlarPage() {
             }}
           >
             <SelectTrigger className="w-full sm:w-64">
-              <SelectValue placeholder="Dilim seçin" />
+              <SelectValue placeholder={t("settingsPage.slotIntervalPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="15">15 dakika (Varsayılan)</SelectItem>
-              <SelectItem value="30">30 dakika</SelectItem>
-              <SelectItem value="60">60 dakika (Saat başı)</SelectItem>
+              <SelectItem value="15">{t("settingsPage.slot15")}</SelectItem>
+              <SelectItem value="30">{t("settingsPage.slot30")}</SelectItem>
+              <SelectItem value="60">{t("settingsPage.slot60")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {/* Para Birimi */}
         <div className="pt-3 border-t border-border mt-3">
-          <Label className="text-sm font-medium mb-1 block">Para Birimi</Label>
+          <Label className="text-sm font-medium mb-1 block">{t("settingsPage.currencyLabel")}</Label>
           <p className="text-xs text-muted-foreground mb-2">
-            Stok, gelir-gider, maaş hesaplama ve komisyon ekranlarında kullanılacak para birimi
-            (yurt dışı veya döviz ödemesi yapan müşterileriniz varsa).
+            {t("settingsPage.currencyDesc")}
           </p>
           <Select
             value={String((org.settings_json as Record<string, unknown> | null)?.currency || "TRY")}
@@ -1037,8 +991,8 @@ export default function AyarlarPage() {
             }}
           >
             <SelectTrigger className="w-full sm:w-64">
-              <SelectValue placeholder="Para birimi seçin">
-                {(value: string) => CURRENCIES.find((c) => c.value === value)?.label || "Para birimi seçin"}
+              <SelectValue placeholder={t("settingsPage.currencyPlaceholder")}>
+                {(value: string) => CURRENCIES.find((c) => c.value === value)?.label || t("settingsPage.currencyPlaceholder")}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -1055,7 +1009,7 @@ export default function AyarlarPage() {
         icon={MessageCircle}
         iconClassName="text-green-600"
         title={t("settingsPage.whatsappNotifTitle")}
-        description="Randevu saatine yaklaşırken otomatik gönderilen hatırlatma ve iptal mesajlarının altına eklenen özel not."
+        description={t("settingsPage.whatsappNotifDesc")}
       >
         <div className="space-y-4">
           <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
@@ -1066,27 +1020,24 @@ export default function AyarlarPage() {
               className="mt-0.5"
             />
             <label htmlFor="whatsapp_notifications_enabled" className="cursor-pointer flex-1">
-              <p className="text-sm font-medium">Otomatik WhatsApp hatırlatmaları açık</p>
+              <p className="text-sm font-medium">{t("settingsPage.autoWhatsappReminderLabel")}</p>
               <p className="text-xs text-muted-foreground">
-                Kapatırsanız aşağıda seçili süre için giden otomatik hatırlatma mesajları gönderilmez.
+                {t("settingsPage.autoWhatsappReminderDesc")}
               </p>
             </label>
           </div>
 
           <div className="space-y-1.5">
-            <Label>Meta üzerinden hangi işlemlerde otomatik WhatsApp mesajı gönderilsin?</Label>
+            <Label>{t("settingsPage.metaEventsLabel")}</Label>
             <p className="text-xs text-muted-foreground">
-              Bu mesajlar Sirius&apos;un ortak WhatsApp Business numarasından, Meta onaylı şablonla otomatik
-              gider. Bir olayı kapatırsanız o olay için otomatik mesaj gitmez — dilerseniz randevu
-              ekranındaki &quot;Müşteriye WhatsApp mesajı gönder&quot; kutusuyla kendi WhatsApp&apos;ınızdan
-              elle gönderebilirsiniz. İkisini birden açık tutmayın, aksi halde müşteri aynı bilgiyi iki kez alır.
+              {t("settingsPage.metaEventsDesc")}
             </p>
             <div className="grid gap-2 pt-1 sm:grid-cols-3">
               {(
                 [
-                  { key: "wa_notify_onay", label: "Randevu oluşturulunca" },
-                  { key: "wa_notify_revize", label: "Randevu revize edilince" },
-                  { key: "wa_notify_iptal", label: "Randevu iptal edilince" },
+                  { key: "wa_notify_onay", label: t("settingsPage.eventOnCreate") },
+                  { key: "wa_notify_revize", label: t("settingsPage.eventOnRevise") },
+                  { key: "wa_notify_iptal", label: t("settingsPage.eventOnCancel") },
                 ] as const
               ).map((ev) => {
                 const settings = (org.settings_json ?? {}) as Record<string, unknown>;
@@ -1108,8 +1059,8 @@ export default function AyarlarPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label>Hatırlatma randevudan kaç saat önce gönderilsin?</Label>
-            <p className="text-xs text-muted-foreground">Tek bir süre seçebilirsiniz — seçtiğinizde diğerleri pasif olur.</p>
+            <Label>{t("settingsPage.reminderOffsetLabel")}</Label>
+            <p className="text-xs text-muted-foreground">{t("settingsPage.reminderOffsetDesc")}</p>
             <div className="flex flex-wrap gap-3 pt-1">
               {WA_REMINDER_OFFSET_PRESETS.map((h) => {
                 const offsets = (org.wa_reminder_offsets_hours as number[] | undefined) ?? [2];
@@ -1123,7 +1074,7 @@ export default function AyarlarPage() {
                         setField("wa_reminder_offsets_hours", [h]);
                       }}
                     />
-                    {h < 24 ? `${h} saat önce` : `${h / 24} gün önce`}
+                    {h < 24 ? t("settingsPage.hoursBefore", { h: String(h) }) : t("settingsPage.daysBefore", { d: String(h / 24) })}
                   </label>
                 );
               })}
@@ -1132,13 +1083,13 @@ export default function AyarlarPage() {
 
           {/* Meta WhatsApp Şablon Seçimi */}
           <div className="pt-3 border-t border-border space-y-3">
-            <Label className="text-sm font-medium">Meta WhatsApp Mesaj Şablonları</Label>
+            <Label className="text-sm font-medium">{t("settingsPage.metaTemplatesLabel")}</Label>
             <p className="text-xs text-muted-foreground">
-              Meta WhatsApp Business panelinizde kayıtlı onaylı şablon varyantlarından her durum için geçerli olanı seçin.
+              {t("settingsPage.metaTemplatesDesc")}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-muted-foreground">Randevu Onay Şablonu</Label>
+                <Label className="text-xs text-muted-foreground">{t("settingsPage.metaTemplateOnayLabel")}</Label>
                 <Select
                   value={(org.wa_template_styles as Record<string, string> | null)?.onay || "sicak"}
                   onValueChange={(val) => {
@@ -1150,21 +1101,21 @@ export default function AyarlarPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sicak">randevu_onayi_1 (Standart)</SelectItem>
-                    <SelectItem value="v2">randevu_onayi_2 (Varyant 2)</SelectItem>
+                    <SelectItem value="sicak">randevu_onayi_1 ({t("settingsPage.templateStandard")})</SelectItem>
+                    <SelectItem value="v2">randevu_onayi_2 ({t("settingsPage.templateVariant", { n: "2" })})</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
-                  {getMetaPreview("onay", (org.wa_template_styles as Record<string, string> | null)?.onay || "sicak", {
-                    customerName: "Ayşe Yıldız",
-                    orgName: org.name || "Salonunuz",
+                  {metaPreview("onay", (org.wa_template_styles as Record<string, string> | null)?.onay || "sicak", {
+                    customerName: t("settingsPage.sampleCustomerName"),
+                    orgName: org.name || orgNameFallback,
                     businessPhone: org.phone || org.whatsapp_number || "",
                   })}
                 </p>
               </div>
 
               <div>
-                <Label className="text-xs text-muted-foreground">Randevu İptal Şablonu</Label>
+                <Label className="text-xs text-muted-foreground">{t("settingsPage.metaTemplateIptalLabel")}</Label>
                 <Select
                   value={(org.wa_template_styles as Record<string, string> | null)?.iptal || "sicak"}
                   onValueChange={(val) => {
@@ -1176,22 +1127,22 @@ export default function AyarlarPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sicak">randevu_iptali (Standart)</SelectItem>
-                    <SelectItem value="v1">randevu_iptali_1 (Varyant 1)</SelectItem>
-                    <SelectItem value="v2">randevu_iptali_2 (Varyant 2)</SelectItem>
+                    <SelectItem value="sicak">randevu_iptali ({t("settingsPage.templateStandard")})</SelectItem>
+                    <SelectItem value="v1">randevu_iptali_1 ({t("settingsPage.templateVariant", { n: "1" })})</SelectItem>
+                    <SelectItem value="v2">randevu_iptali_2 ({t("settingsPage.templateVariant", { n: "2" })})</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
-                  {getMetaPreview("iptal", (org.wa_template_styles as Record<string, string> | null)?.iptal || "sicak", {
-                    customerName: "Ayşe Yıldız",
-                    orgName: org.name || "Salonunuz",
+                  {metaPreview("iptal", (org.wa_template_styles as Record<string, string> | null)?.iptal || "sicak", {
+                    customerName: t("settingsPage.sampleCustomerName"),
+                    orgName: org.name || orgNameFallback,
                     businessPhone: "",
                   })}
                 </p>
               </div>
 
               <div>
-                <Label className="text-xs text-muted-foreground">Randevu Hatırlatma Şablonu</Label>
+                <Label className="text-xs text-muted-foreground">{t("settingsPage.metaTemplateHatirlatmaLabel")}</Label>
                 <Select
                   value={(org.wa_template_styles as Record<string, string> | null)?.hatirlatma || "sicak"}
                   onValueChange={(val) => {
@@ -1203,22 +1154,22 @@ export default function AyarlarPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sicak">randevu_hatirlatma_1 (Standart)</SelectItem>
-                    <SelectItem value="v1">randevu_hatirlatma_1 (Varyant 1)</SelectItem>
-                    <SelectItem value="v2">randevu_hatirlatma_2 (Varyant 2)</SelectItem>
+                    <SelectItem value="sicak">randevu_hatirlatma_1 ({t("settingsPage.templateStandard")})</SelectItem>
+                    <SelectItem value="v1">randevu_hatirlatma_1 ({t("settingsPage.templateVariant", { n: "1" })})</SelectItem>
+                    <SelectItem value="v2">randevu_hatirlatma_2 ({t("settingsPage.templateVariant", { n: "2" })})</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
-                  {getMetaPreview("hatirlatma", (org.wa_template_styles as Record<string, string> | null)?.hatirlatma || "sicak", {
-                    customerName: "Ayşe Yıldız",
-                    orgName: org.name || "Salonunuz",
+                  {metaPreview("hatirlatma", (org.wa_template_styles as Record<string, string> | null)?.hatirlatma || "sicak", {
+                    customerName: t("settingsPage.sampleCustomerName"),
+                    orgName: org.name || orgNameFallback,
                     businessPhone: org.phone || org.whatsapp_number || "",
                   })}
                 </p>
               </div>
 
               <div>
-                <Label className="text-xs text-muted-foreground">Randevu Revize Şablonu</Label>
+                <Label className="text-xs text-muted-foreground">{t("settingsPage.metaTemplateRevizeLabel")}</Label>
                 <Select
                   value={(org.wa_template_styles as Record<string, string> | null)?.revize || "sicak"}
                   onValueChange={(val) => {
@@ -1230,13 +1181,13 @@ export default function AyarlarPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sicak">randevu_revize (Standart)</SelectItem>
+                    <SelectItem value="sicak">randevu_revize ({t("settingsPage.templateStandard")})</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
-                  {getMetaPreview("revize", (org.wa_template_styles as Record<string, string> | null)?.revize || "sicak", {
-                    customerName: "Ayşe Yıldız",
-                    orgName: org.name || "Salonunuz",
+                  {metaPreview("revize", (org.wa_template_styles as Record<string, string> | null)?.revize || "sicak", {
+                    customerName: t("settingsPage.sampleCustomerName"),
+                    orgName: org.name || orgNameFallback,
                     businessPhone: "",
                   })}
                 </p>
@@ -1245,10 +1196,7 @@ export default function AyarlarPage() {
           </div>
 
           <p className="text-[11px] text-muted-foreground">
-            Bu şablonların metni Meta WhatsApp Business panelinizde önceden onaylı olduğu için burada
-            düzenlenemez — yalnızca hangi varyantın kullanılacağını seçebilirsiniz. Yukarıdaki önizlemeler
-            gönderilecek parametrelerin (isim, tarih, saat vb.) yaklaşık bir örneğidir; birebir metin
-            Meta panelinizdeki onaylı şablona göre değişebilir.
+            {t("settingsPage.metaTemplatesFootnote")}
           </p>
         </div>
       </SectionCard>
@@ -1258,7 +1206,7 @@ export default function AyarlarPage() {
         icon={MessageSquareText}
         iconClassName="text-blue-600"
         title={t("settingsPage.smsNotifTitle")}
-        description="Randevu onayı, hatırlatma ve iptal bildirimlerini SMS ile de gönderebilirsiniz. Bunun için bir SMS sağlayıcısında (Netgsm, VatanSMS veya İletimerkezi) hesap açıp API bilgilerinizi buraya girmeniz gerekir."
+        description={t("settingsPage.smsNotifDesc")}
       >
         <div className="space-y-4">
           <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
@@ -1269,23 +1217,23 @@ export default function AyarlarPage() {
               className="mt-0.5"
             />
             <label htmlFor="sms_notifications_enabled" className="cursor-pointer flex-1">
-              <p className="text-sm font-medium">SMS bildirimleri açık</p>
+              <p className="text-sm font-medium">{t("settingsPage.smsEnabledLabel")}</p>
               <p className="text-xs text-muted-foreground">
-                Kapalıyken randevu detayındaki &quot;SMS Gönder&quot; butonları çalışmaz.
+                {t("settingsPage.smsEnabledDesc")}
               </p>
             </label>
           </div>
 
           <div>
-            <Label>SMS Sağlayıcısı</Label>
+            <Label>{t("settingsPage.smsProviderLabel")}</Label>
             <Select
               value={org.sms_provider ?? ""}
               onValueChange={(v) => setField("sms_provider", v || null)}
             >
-              <SelectTrigger className="mt-1"><SelectValue placeholder="Sağlayıcı seçin" /></SelectTrigger>
+              <SelectTrigger className="mt-1"><SelectValue placeholder={t("settingsPage.smsProviderPlaceholder")} /></SelectTrigger>
               <SelectContent>
-                {SMS_PROVIDERS.map((p) => (
-                  <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                {SMS_PROVIDER_VALUES.map((v) => (
+                  <SelectItem key={v} value={v}>{SMS_PROVIDER_LABELS[v]}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -1294,7 +1242,7 @@ export default function AyarlarPage() {
           {org.sms_provider && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <Label>{SMS_PROVIDERS.find((p) => p.value === org.sms_provider)?.userLabel}</Label>
+                <Label>{smsProviderFieldLabels[org.sms_provider as SmsProviderValue]?.user}</Label>
                 <Input
                   className="mt-1"
                   value={org.sms_username || ""}
@@ -1302,7 +1250,7 @@ export default function AyarlarPage() {
                 />
               </div>
               <div>
-                <Label>{SMS_PROVIDERS.find((p) => p.value === org.sms_provider)?.passLabel}</Label>
+                <Label>{smsProviderFieldLabels[org.sms_provider as SmsProviderValue]?.pass}</Label>
                 <Input
                   type="password"
                   className="mt-1"
@@ -1311,23 +1259,23 @@ export default function AyarlarPage() {
                 />
               </div>
               <div className="sm:col-span-2">
-                <Label>Gönderici Başlığı (Sender ID)</Label>
+                <Label>{t("settingsPage.smsSenderLabel")}</Label>
                 <Input
                   className="mt-1"
                   value={org.sms_sender_id || ""}
                   onChange={(e) => setField("sms_sender_id", e.target.value)}
-                  placeholder="Operatörce onaylı marka başlığınız"
+                  placeholder={t("settingsPage.smsSenderPlaceholder")}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Sağlayıcı panelinizden operatöre onaylattığınız başlık — onaysız gönderimde SMS reddedilir.
+                  {t("settingsPage.smsSenderHint")}
                 </p>
               </div>
             </div>
           )}
 
           <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 text-xs text-muted-foreground space-y-1">
-            <p className="font-medium text-blue-700 dark:text-blue-400">Maliyet hakkında</p>
-            <p>SMS başına yaklaşık 0,08–0,20 TL arası (paket boyutuna göre) — sağlayıcı sitesinden kredi paketi satın almanız gerekir, aylık sabit ücret yoktur.</p>
+            <p className="font-medium text-blue-700 dark:text-blue-400">{t("settingsPage.smsCostTitle")}</p>
+            <p>{t("settingsPage.smsCostText")}</p>
           </div>
         </div>
       </SectionCard>
@@ -1336,12 +1284,12 @@ export default function AyarlarPage() {
       <SectionCard
         icon={KeyRound}
         iconClassName="text-green-600"
-        title="WhatsApp Business Bağlantısı"
-        description="Randevu onay/hatırlatma/iptal mesajları Siriplan'ın kendi WhatsApp hattından otomatik gider, bunun için bir şey yapmanıza gerek yok. Aşağıdaki bağlantı yalnızca Kampanyalar modülünden gönderdiğiniz pazarlama mesajlarının ve gelen mesajlara otomatik yanıtın kendi WhatsApp Business numaranızdan gitmesi içindir."
+        title={t("settingsPage.waBusinessConnTitle")}
+        description={t("settingsPage.waBusinessConnDesc")}
       >
         <div className="space-y-3">
           <div>
-            <Label>Kalıcı Erişim Belirteci (Access Token)</Label>
+            <Label>{t("settingsPage.waAccessTokenLabel")}</Label>
             <Input
               type="password"
               className="mt-1"
@@ -1351,27 +1299,17 @@ export default function AyarlarPage() {
             />
           </div>
           <div>
-            <Label>Telefon Numarası Kimliği (Phone Number ID)</Label>
+            <Label>{t("settingsPage.waPhoneNumberIdLabel")}</Label>
             <Input
               className="mt-1"
               value={org.wa_phone_number_id || ""}
               onChange={(e) => setField("wa_phone_number_id", e.target.value || null)}
-              placeholder="örn. 109876543210987"
+              placeholder={t("settingsPage.waPhoneNumberIdPlaceholder")}
             />
           </div>
           <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50 text-xs text-muted-foreground space-y-1">
-            <p className="font-medium text-green-700 dark:text-green-400">Nasıl alınır?</p>
-            <p>
-              <a href="https://business.facebook.com/wa/manage/home" target="_blank" rel="noopener noreferrer" className="underline">
-                Meta Business Suite
-              </a>{" "}
-              üzerinden bir WhatsApp Business hesabı bağlayıp{" "}
-              <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener noreferrer" className="underline">
-                Meta for Developers
-              </a>{" "}
-              &gt; uygulamanız &gt; WhatsApp &gt; API Setup sayfasından kalıcı erişim belirtecini ve telefon numarası kimliğini kopyalayın.
-              Bu alanlar boşken kampanyalarınız WhatsApp kanalında gönderilemez (SMS kanalını kullanabilirsiniz).
-            </p>
+            <p className="font-medium text-green-700 dark:text-green-400">{t("settingsPage.waHowToTitle")}</p>
+            <p>{t("settingsPage.waHowToText")}</p>
           </div>
         </div>
       </SectionCard>
@@ -1380,8 +1318,8 @@ export default function AyarlarPage() {
       <SectionCard
         icon={Percent}
         iconClassName="text-amber-600"
-        title="KDV Hesaplama"
-        description="Gelir & Gider raporlarında tahmini KDV tutarını görmek için oranınızı girin. Girdiğiniz gelir tutarlarının KDV dahil olduğu varsayılır."
+        title={t("settingsPage.kdvTitle")}
+        description={t("settingsPage.kdvDesc")}
       >
         <div className="space-y-4">
           <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
@@ -1392,15 +1330,15 @@ export default function AyarlarPage() {
               className="mt-0.5"
             />
             <label htmlFor="kdv_enabled" className="cursor-pointer flex-1">
-              <p className="text-sm font-medium">KDV hesaplaması açık</p>
+              <p className="text-sm font-medium">{t("settingsPage.kdvEnabledLabel")}</p>
               <p className="text-xs text-muted-foreground">
-                Açıkken Gelir & Gider sayfasında tahmini KDV tutarı gösterilir.
+                {t("settingsPage.kdvEnabledDesc")}
               </p>
             </label>
           </div>
 
           <div className="max-w-[160px]">
-            <Label>KDV Oranı (%)</Label>
+            <Label>{t("settingsPage.kdvRateLabel")}</Label>
             <Input
               className="mt-1"
               type="number"
@@ -1410,7 +1348,7 @@ export default function AyarlarPage() {
               value={org.kdv_rate ?? 20}
               onChange={(e) => setField("kdv_rate", Number(e.target.value))}
             />
-            <p className="text-xs text-muted-foreground mt-1">Türkiye&apos;de genel oran %20&apos;dir.</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("settingsPage.kdvRateHint")}</p>
           </div>
         </div>
       </SectionCard>
@@ -1419,18 +1357,18 @@ export default function AyarlarPage() {
       <SectionCard
         icon={ShieldCheck}
         title={t("settingsPage.kvkkTitle")}
-        description="Müşterilerinize randevu alırken gösterilecek KVKK aydınlatma metni. Boş bırakırsanız platform varsayılan metni kullanılır."
+        description={t("settingsPage.kvkkDesc")}
       >
         <textarea
           className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[110px] bg-background"
           value={org.kvkk_notice_text ?? ""}
           onChange={(e) => setField("kvkk_notice_text", e.target.value)}
-          placeholder={DEFAULT_KVKK_NOTICE_TEMPLATE.replaceAll("{salon}", org.name || "Salonunuz")}
+          placeholder={DEFAULT_KVKK_NOTICE_TEMPLATE.replaceAll("{salon}", org.name || orgNameFallback)}
         />
         <div className="p-3 rounded-lg bg-muted/50 border border-border">
-          <p className="text-[11px] font-medium text-muted-foreground mb-1">Müşteriye gösterilecek metin:</p>
+          <p className="text-[11px] font-medium text-muted-foreground mb-1">{t("settingsPage.kvkkPreviewLabel")}</p>
           <p className="text-xs text-muted-foreground italic">
-            {renderKvkkNotice(org.kvkk_notice_text, org.name || "Salonunuz")}
+            {renderKvkkNotice(org.kvkk_notice_text, org.name || orgNameFallback)}
           </p>
         </div>
       </SectionCard>
@@ -1439,22 +1377,22 @@ export default function AyarlarPage() {
       <InstallPwaCard />
 
       {/* Working hours */}
-      <SectionCard icon={Clock} title={t("settingsPage.workingHoursTitle")} description="Kapalı günler için açma/kapama saatlerini boş bırakın">
+      <SectionCard icon={Clock} title={t("settingsPage.workingHoursTitle")} description={t("settingsPage.workingHoursDesc")}>
         <div className="space-y-2">
-          {DAYS.map((day) => {
-            const hours = (org.working_hours_json as Record<string, { open: string; close: string } | null>)?.[day.key];
+          {DAY_KEYS.map((dayKey) => {
+            const hours = (org.working_hours_json as Record<string, { open: string; close: string } | null>)?.[dayKey];
             const isOpen = hours !== null && hours !== undefined;
             return (
-              <div key={day.key} className="flex items-center gap-3">
+              <div key={dayKey} className="flex items-center gap-3">
                 <button
                   onClick={() => {
                     const wh = { ...(org.working_hours_json as Record<string, unknown>) };
-                    wh[day.key] = isOpen ? null : { open: "09:00", close: "20:00" };
+                    wh[dayKey] = isOpen ? null : { open: "09:00", close: "20:00" };
                     setField("working_hours_json", wh);
                   }}
                   className={`w-4 h-4 rounded border-2 transition-colors ${isOpen ? "bg-primary border-primary" : "border-border"}`}
                 />
-                <span className="w-24 text-sm font-medium">{day.label}</span>
+                <span className="w-24 text-sm font-medium">{t(`settingsPage.${DAY_LABEL_KEYS[dayKey]}`)}</span>
                 {isOpen ? (
                   <>
                     <Input
@@ -1462,7 +1400,7 @@ export default function AyarlarPage() {
                       value={hours?.open || "09:00"}
                       onChange={(e) => {
                         const wh = { ...(org.working_hours_json as Record<string, unknown>) };
-                        wh[day.key] = { ...(hours || {}), open: e.target.value };
+                        wh[dayKey] = { ...(hours || {}), open: e.target.value };
                         setField("working_hours_json", wh);
                       }}
                       className="w-28 text-sm"
@@ -1473,14 +1411,14 @@ export default function AyarlarPage() {
                       value={hours?.close || "20:00"}
                       onChange={(e) => {
                         const wh = { ...(org.working_hours_json as Record<string, unknown>) };
-                        wh[day.key] = { ...(hours || {}), close: e.target.value };
+                        wh[dayKey] = { ...(hours || {}), close: e.target.value };
                         setField("working_hours_json", wh);
                       }}
                       className="w-28 text-sm"
                     />
                   </>
                 ) : (
-                  <span className="text-sm text-muted-foreground">Kapalı</span>
+                  <span className="text-sm text-muted-foreground">{t("settingsPage.closedLabel")}</span>
                 )}
               </div>
             );
@@ -1555,13 +1493,7 @@ export default function AyarlarPage() {
       <SectionCard icon={ShieldCheck} title={t("settingsPage.legalSectionTitle")} description={t("settingsPage.legalSectionDesc")}>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            {t("settingsPage.legalSectionTitle").includes("Fikri") ? 
-             "Siriplan platformunun tüm kaynak kodları, tasarımları ve akışları FSEK ve Bern Sözleşmesi kapsamında koruma altındadır. Mağaza (App Store / Play Store) politikaları ve KVKK/GDPR veri gizliliği ile tam uyumlu altyapı sunulmaktadır." :
-             t("settingsPage.legalSectionTitle").includes("Intellectual") ?
-             "All source code, designs, and flows of the Siriplan platform are protected under FSEK and the Berne Convention. A fully compliant infrastructure with Store (App Store / Play Store) policies and GDPR/KVKK data privacy is provided." :
-             t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ?
-             "Все исходные коды, дизайн и процессы платформы Siriplan защищены в соответствии с FSEK и Бернской конвенцией. Предоставляется инфраструктура, полностью совместимая с политиками магазинов приложений (App Store / Play Store) и конфиденциальностью данных GDPR/KVKK." :
-             "جميع الأكواد البرمجية والتصاميم والتدفقات الخاصة بمنصة Siriplan محمية بموجب FSEK واتفاقية برن. نوفر بنية تحتية متوافقة تمامًا مع سياسات المتاجر (App Store / Play Store) وخصوصية البيانات GDPR/KVKK."}
+            {t("settingsPage.legalBody")}
           </p>
           <Button
             type="button"
@@ -1575,15 +1507,9 @@ export default function AyarlarPage() {
         </div>
       </SectionCard>
 
-      <SectionCard icon={AlertTriangle} iconClassName="text-destructive" title={t("settingsPage.legalSectionTitle").includes("Fikri") ? "Tehlikeli Bölge" : t("settingsPage.legalSectionTitle").includes("Intellectual") ? "Danger Zone" : t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ? "Опасная зона" : "منطقة الخطر"}>
+      <SectionCard icon={AlertTriangle} iconClassName="text-destructive" title={t("settingsPage.dangerZoneTitle")}>
         <p className="text-sm text-muted-foreground">
-          {t("settingsPage.legalSectionTitle").includes("Fikri") ? 
-           "Hesabınızı sildiğinizde giriş bilgileriniz ve işletmenizin tüm personel erişimleri kalıcı olarak kapatılır, aboneliğiniz iptal edilir. Müşteri kayıtlarınız silinmez, kişisel tanımlayıcı bilgileri (isim, telefon, e-posta) anonimleştirilir; randevu/ciro geçmişi yasal muhasebe saklama süresi boyunca istatistiksel olarak tutulmaya devam eder. Bu işlem geri alınamaz." :
-           t("settingsPage.legalSectionTitle").includes("Intellectual") ?
-           "When you delete your account, your login credentials and all staff access of your business will be permanently closed, and your subscription will be cancelled. Your customer records will not be deleted, but personal identifying details (name, phone, email) will be anonymized; appointment and revenue history will continue to be kept statistically for the legal accounting retention period. This action cannot be undone." :
-           t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ?
-           "При удалении аккаунта ваши учетные данные и доступ всего персонала вашей компании будут окончательно закрыты, а подписка аннулирована. Записи о ваших клиентах не будут удалены, но личные идентифицирующие данные (имя, телефон, эл. почта) будут анонимизированы; история встреч и выручки продолжит храниться в статистических целях в течение установленного законом срока хранения бухгалтерских документов. Это действие необратимо." :
-           "عند حذف حسابك، سيتم إغلاق بيانات اعتماد تسجيل الدخول الخاصة بك وجميع صلاحيات وصول الموظفين في منشأتك نهائيًا، وسيتم إلغاء اشتراكك. لن يتم حذف سجلات عملائك، ولكن سيتم إخفاء هوية تفاصيل التعريف الشخصية (الاسم، الهاتف، البريد الإلكتروني)؛ سيستمر الاحتفاظ بسجل المواعيد والإيرادات إحصائيًا لفترة الاحتفاظ بالمحاسبة القانونية. لا يمكن التراجع عن هذا الإجراء."}
+          {t("settingsPage.dangerZoneBody")}
         </p>
         <Button
           variant="destructive"
@@ -1591,7 +1517,7 @@ export default function AyarlarPage() {
           onClick={() => setDeleteDialogOpen(true)}
         >
           <Trash2 className="h-4 w-4" />
-          {t("settingsPage.legalSectionTitle").includes("Fikri") ? "Hesabımı Sil" : t("settingsPage.legalSectionTitle").includes("Intellectual") ? "Delete My Account" : t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ? "Удалить мой аккаунт" : "حذف حسابي"}
+          {t("settingsPage.deleteAccountButton")}
         </Button>
       </SectionCard>
 
@@ -1605,16 +1531,12 @@ export default function AyarlarPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {t("settingsPage.legalSectionTitle").includes("Fikri") ? "Hesabını silmek üzeresin" : t("settingsPage.legalSectionTitle").includes("Intellectual") ? "You are about to delete your account" : t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ? "Вы собираетесь удалить свой аккаунт" : "أنت على وشك حذف حسابك"}
+              {t("settingsPage.deleteDialogTitle")}
             </DialogTitle>
             <DialogDescription>
-              {t("settingsPage.legalSectionTitle").includes("Fikri") ? 
-               `Bu işlem geri alınamaz. Onaylamak için aşağıya <strong>{DELETE_CONFIRM_PHRASE}</strong> yazın.` :
-               t("settingsPage.legalSectionTitle").includes("Intellectual") ?
-               `This action cannot be undone. Type <strong>{DELETE_CONFIRM_PHRASE}</strong> below to confirm.` :
-               t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ?
-               `Это действие не может быть отменено. Введите <strong>{DELETE_CONFIRM_PHRASE}</strong> ниже для подтверждения.` :
-               `لا يمكن التراجع عن هذا الإجراء. اكتب <strong>{DELETE_CONFIRM_PHRASE}</strong> أدناه للتأكيد.`}
+              {t("settingsPage.deleteDialogDescPre")}{" "}
+              <strong>{DELETE_CONFIRM_PHRASE}</strong>{" "}
+              {t("settingsPage.deleteDialogDescPost")}
             </DialogDescription>
           </DialogHeader>
           <Input
@@ -1625,7 +1547,7 @@ export default function AyarlarPage() {
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              {t("settingsPage.legalSectionTitle").includes("Fikri") ? "Vazgeç" : t("settingsPage.legalSectionTitle").includes("Intellectual") ? "Cancel" : t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ? "Отмена" : "إلغاء"}
+              {t("settingsPage.deleteCancelButton")}
             </Button>
             <Button
               variant="destructive"
@@ -1634,7 +1556,7 @@ export default function AyarlarPage() {
               className="gap-2"
             >
               {deletingAccount ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-              {t("settingsPage.legalSectionTitle").includes("Fikri") ? "Kalıcı Olarak Sil" : t("settingsPage.legalSectionTitle").includes("Intellectual") ? "Delete Permanently" : t("settingsPage.legalSectionTitle").includes("Интеллектуальная") ? "Удалить навсегда" : "حذف نهائي"}
+              {t("settingsPage.deleteConfirmButton")}
             </Button>
           </DialogFooter>
         </DialogContent>
