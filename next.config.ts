@@ -17,19 +17,24 @@ const securityHeaders = [
   { key: "X-XSS-Protection", value: "1; mode=block" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
-    // microphone=(self): sesli randevu (Web Speech API / getUserMedia) yalnızca
-    // kendi origin'imizde çalışabilsin. `microphone=()` bıraktığımızda tarayıcı
-    // getUserMedia'yı sessizce reddediyor, izin penceresi HİÇ açılmıyor ve site
-    // Chrome mikrofon ayarları listesinde bile görünmüyordu. camera/geolocation
-    // hâlâ tamamen kapalı — onlara ihtiyaç yok.
-    key: "Permissions-Policy",
-    value: "camera=(), microphone=(self), geolocation=(), interest-cohort=()",
-  },
-  {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
   },
 ];
+
+// Permissions-Policy yola göre değişir, bu yüzden securityHeaders'tan ayrı:
+//  - Varsayılan (pazarlama, /r/[slug] müşteri sayfaları, API): mikrofon TAMAMEN
+//    kapalı. Bu yüzeylerin hiçbiri getUserMedia çağırmıyor.
+//  - Yalnızca /dashboard/*: mikrofon=(self) — sesli randevu (Web Speech API /
+//    getUserMedia) sadece kendi origin'imizde çalışabilsin. Cross-origin iframe'ler
+//    yine erişemez ve tarayıcı izin penceresi yine kullanıcıya sorar.
+// NOT: `microphone=()` genel değerken tarayıcı getUserMedia'yı sessizce
+// reddediyor, izin penceresi HİÇ açılmıyor ve site Chrome mikrofon ayarları
+// listesinde bile görünmüyordu (bkz. 28 Ağu düzeltmesi).
+const PERMISSIONS_POLICY_DEFAULT =
+  "camera=(), microphone=(), geolocation=(), interest-cohort=()";
+const PERMISSIONS_POLICY_DASHBOARD =
+  "camera=(), microphone=(self), geolocation=(), interest-cohort=()";
 
 const nextConfig: NextConfig = {
   typescript: {
@@ -64,7 +69,18 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/(.*)",
-        headers: securityHeaders,
+        headers: [
+          ...securityHeaders,
+          { key: "Permissions-Policy", value: PERMISSIONS_POLICY_DEFAULT },
+        ],
+      },
+      {
+        // Aynı yolu eşleyen SON header kazanır (Next.js davranışı) — /dashboard/*
+        // altında mikrofonu (self) olarak geçersiz kılar, başka her yerde kapalı kalır.
+        source: "/dashboard/:path*",
+        headers: [
+          { key: "Permissions-Policy", value: PERMISSIONS_POLICY_DASHBOARD },
+        ],
       },
     ];
   },
