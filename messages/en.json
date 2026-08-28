@@ -691,6 +691,37 @@
     "s9Title": "8. Policy Changes",
     "s9P": "Changes to this policy will be announced through the platform. Continuing to use the platform after changes take effect means you accept the updated policy."
   },
+  "accountDeletionPage": {
+    "metaDescription": "Learn how to delete your Siriplan account and personal data.",
+    "pageTitle": "Account & Data Deletion Request",
+    "lastUpdated": "Last updated: August 2026",
+    "appInfo": "<strong>App:</strong> Siriplan (com.siriplan.app) — <strong>Developer:</strong> BY Sirius Group Ai & Technology Co Ltd.",
+    "intro": "This page explains how to permanently delete your Siriplan account and the personal data linked to it. You do not need to sign in to view this page or submit a request.",
+    "inAppTitle": "Option 1 — From within the app (instant)",
+    "inAppP": "Sign in with your business owner account:",
+    "inAppSteps": [
+      "Open the Settings page from the bottom menu.",
+      "Scroll to the Danger Zone section at the bottom of the page.",
+      "Tap Delete My Account.",
+      "In the dialog, type the confirmation phrase (\"DELETE MY ACCOUNT\") and tap Permanently Delete.",
+      "The action completes immediately: you are signed out and your login credentials are deleted."
+    ],
+    "emailTitle": "Option 2 — Request by email",
+    "emailP": "If you cannot access the app, send an email with the subject \"Account Deletion Request\" to <strong>privacy@bysirius.com</strong> from the email address registered to your account. Once your identity is verified, your request is completed within 30 days at the latest. You may also use the form at bysirius.com/iletisim.",
+    "partialTitle": "Requesting deletion of specific data only",
+    "partialP": "Without closing your account entirely, you can ask us to delete or correct specific personal data (e.g. phone number, email address, profile details). For such requests, simply write to <strong>privacy@bysirius.com</strong>.",
+    "deletedTitle": "Data that is deleted",
+    "deletedItems": [
+      "Your login credentials (email and password) — permanently deleted.",
+      "Your business contact and integration details: phone, address, logo/cover image, WhatsApp / Instagram / Google Calendar / Telegram connections.",
+      "Staff contact details: phone, email, profile photo, bio, messaging IDs.",
+      "Personal identifiers in customer records (name, phone, email, notes, tags) — anonymized.",
+      "Your active Stripe subscription is cancelled."
+    ],
+    "retainedTitle": "Data that is retained and for how long",
+    "retainedP": "Financial records such as appointment and revenue/invoice history are retained in anonymized, aggregate form (with no direct way to identify you) for 10 years, as required by the Turkish Commercial Code and Tax Procedure Law. At the end of this period all records are permanently destroyed. No personal data is kept without a legal retention obligation.",
+    "contactNote": "Questions: <strong>privacy@bysirius.com</strong>"
+  },
   "termsPage": {
     "metaDescription": "Siriplan terms of service and terms of use.",
     "pageTitle": "Terms of Service",
@@ -827,6 +858,7 @@
     "terms": "Terms of Service",
     "cookie": "Cookie Policy",
     "kvkk": "KVKK",
+    "accountDeletion": "Account Deletion",
     "powered": "Powered by",
     "rights": "All rights reserved.",
     "whatsappSupport": "WhatsApp Support"
@@ -1594,7 +1626,8 @@
       "confirmSave": "Confirm & save",
       "confirmEdit": "Edit / cancel",
       "phoneOptional": "can be added later",
-      "phoneAutofilled": "{name} is on file — phone number added to the form"
+      "phoneAutofilled": "{name} is on file — phone number added to the form",
+      "holdForVoice": "Hold to book by voice"
     },
     "randevularPage": {
       "sortDefault": "Sort: Default",

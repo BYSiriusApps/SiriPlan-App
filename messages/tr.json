@@ -691,6 +691,37 @@
     "s9Title": "8. Politika Değişiklikleri",
     "s9P": "Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir."
   },
+  "accountDeletionPage": {
+    "metaDescription": "Siriplan hesabınızı ve kişisel verilerinizi nasıl sildireceğinizi öğrenin.",
+    "pageTitle": "Hesap ve Veri Silme Talebi",
+    "lastUpdated": "Son güncelleme: Ağustos 2026",
+    "appInfo": "<strong>Uygulama:</strong> Siriplan (com.siriplan.app) — <strong>Geliştirici:</strong> BY Sirius Group Ai & Technology Co Ltd.",
+    "intro": "Bu sayfada Siriplan hesabınızı ve hesabınıza bağlı kişisel verilerinizi nasıl kalıcı olarak sildirebileceğiniz açıklanır. Bu sayfayı görüntülemek veya talep göndermek için giriş yapmanız gerekmez.",
+    "inAppTitle": "Yöntem 1 — Uygulama içinden (anında)",
+    "inAppP": "İşletme sahibi hesabınızla giriş yapın:",
+    "inAppSteps": [
+      "Alt menüden Ayarlar sayfasını açın.",
+      "Sayfanın en altındaki Tehlikeli Bölge bölümüne inin.",
+      "Hesabımı Sil düğmesine dokunun.",
+      "Açılan pencerede onay metnini (\"HESABIMI SİL\") yazıp Kalıcı Olarak Sil düğmesine dokunun.",
+      "İşlem anında tamamlanır: oturumunuz kapatılır ve giriş bilgileriniz silinir."
+    ],
+    "emailTitle": "Yöntem 2 — E-posta ile talep",
+    "emailP": "Uygulamaya erişemiyorsanız, hesabınıza kayıtlı e-posta adresinden <strong>privacy@bysirius.com</strong> adresine \"Hesap Silme Talebi\" konulu bir e-posta gönderin. Kimliğiniz doğrulandıktan sonra talebiniz en geç 30 gün içinde sonuçlandırılır. Alternatif olarak bysirius.com/iletisim sayfasındaki formu kullanabilirsiniz.",
+    "partialTitle": "Yalnızca belirli verilerin silinmesini talep etme",
+    "partialP": "Hesabınızı tamamen kapatmadan yalnızca belirli kişisel verilerinizin (ör. telefon numarası, e-posta adresi, profil bilgileri) silinmesini veya düzeltilmesini isteyebilirsiniz. Bu tür talepler için de <strong>privacy@bysirius.com</strong> adresine yazmanız yeterlidir.",
+    "deletedTitle": "Silinen veriler",
+    "deletedItems": [
+      "Giriş bilgileriniz (e-posta ve şifre) — kalıcı olarak silinir.",
+      "İşletmenizin iletişim ve entegrasyon bilgileri: telefon, adres, logo/kapak görseli, WhatsApp / Instagram / Google Takvim / Telegram bağlantıları.",
+      "Personel iletişim bilgileri: telefon, e-posta, profil fotoğrafı, biyografi, mesajlaşma kimlikleri.",
+      "Müşteri kayıtlarındaki kişisel tanımlayıcılar (ad, telefon, e-posta, notlar, etiketler) — anonimleştirilir.",
+      "Aktif Stripe aboneliğiniz iptal edilir."
+    ],
+    "retainedTitle": "Saklanan veriler ve saklama süresi",
+    "retainedP": "Randevu ve ciro/fatura geçmişi gibi mali nitelikli kayıtlar, Türk Ticaret Kanunu ve Vergi Usul Kanunu uyarınca kimliğiniz doğrudan tespit edilemeyecek şekilde (anonim ve istatistiksel olarak) 10 yıl boyunca saklanır. Bu sürenin sonunda tüm kayıtlar kalıcı olarak imha edilir. Yasal saklama yükümlülüğü bulunmayan hiçbir kişisel veri saklanmaz.",
+    "contactNote": "Sorularınız için: <strong>privacy@bysirius.com</strong>"
+  },
   "termsPage": {
     "metaDescription": "Siriplan kullanım koşulları ve hizmet şartları.",
     "pageTitle": "Kullanım Koşulları",
@@ -827,6 +858,7 @@
     "terms": "Kullanım Koşulları",
     "cookie": "Çerez Politikası",
     "kvkk": "KVKK",
+    "accountDeletion": "Hesap Silme",
     "powered": "Powered by",
     "rights": "Tüm hakları saklıdır.",
     "whatsappSupport": "WhatsApp Destek"
@@ -1594,7 +1626,8 @@
       "confirmSave": "Onayla ve Kaydet",
       "confirmEdit": "Düzenle / İptal",
       "phoneOptional": "sonra eklenebilir",
-      "phoneAutofilled": "{name} kayıtlı — telefon numarası forma eklendi"
+      "phoneAutofilled": "{name} kayıtlı — telefon numarası forma eklendi",
+      "holdForVoice": "Sesli randevu için basılı tutun"
     },
     "randevularPage": {
       "sortDefault": "Sıralama: Varsayılan",

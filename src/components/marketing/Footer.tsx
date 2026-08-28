@@ -41,6 +41,7 @@ export async function Footer() {
     { key: "terms",   href: "/kosullar" },
     { key: "cookie",  href: "/cerezler" },
     { key: "kvkk",    href: "/kvkk"     },
+    { key: "accountDeletion", href: "/hesap-silme" },
   ] as const;
 
   return (
