@@ -1,1 +1,13 @@
-[]
+[[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.siriplan.app",
+      "sha256_cert_fingerprints": [
+        "30:90:3B:F2:14:A9:DB:0D:40:54:47:17:05:38:7E:2B:E8:40:64:F6:BE:1C:08:3D:71:22:74:4A:1C:53:2F:F8",
+        "D4:9A:E7:F5:CA:DD:E5:DE:84:CC:5E:CF:42:AA:51:3B:95:9F:A6:91:08:86:AD:6F:0E:0A:6F:F2:9E:6E:48:8B"
+      ]
+    }
+  }
+]]
