@@ -10,8 +10,11 @@
   "background_color": "#022058",
   "theme_color": "#022058",
   "lang": "tr",
+  "dir": "ltr",
   "scope": "/",
   "categories": ["business", "productivity", "lifestyle"],
+  "launch_handler": { "client_mode": "navigate-existing" },
+  "handle_links": "preferred",
   "prefer_related_applications": false,
   "icons": [
     {
