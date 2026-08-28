@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { hasMobileAppCookie } from "@/lib/mobile-app-shared";
 
 /** next-intl yerel kodu → Web Speech API BCP-47 dil etiketi. */
 const SPEECH_LANGS: Record<string, string> = {
@@ -24,11 +25,17 @@ export function speechLangFor(locale: string): string {
   return SPEECH_LANGS[locale] ?? SPEECH_LANGS.tr;
 }
 
-type Platform = "ios" | "android" | "desktop";
+type Platform = "nativeApp" | "ios" | "android" | "desktop";
 
 function detectPlatform(): Platform {
   if (typeof navigator === "undefined") return "desktop";
   const ua = navigator.userAgent || "";
+  // Native sarmalayıcı (iOS WebView / Android TWA) içindeysek mikrofon iznini
+  // tarayıcı değil, uygulamanın kendisi kontrol eder — ayrı yönerge gerekir.
+  const inNativeApp =
+    ua.includes("SiriPlanApp") ||
+    (typeof document !== "undefined" && hasMobileAppCookie(document.cookie));
+  if (inNativeApp) return "nativeApp";
   if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
   if (/Android/i.test(ua)) return "android";
   return "desktop";

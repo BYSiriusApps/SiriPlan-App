@@ -896,31 +896,10 @@
       "eyebrow": "Plan & Fatura",
       "title": "Abonelik",
       "subtitle": "Plan ve fatura yönetimi",
-      "currentPlan": "Mevcut Plan",
-      "statusActive": "Aktif",
-      "statusPastDue": "Ödeme Bekliyor",
-      "statusCanceled": "İptal Edildi",
-      "planSuffix": "{planName} Planı",
-      "proOpen": "Pro özellikleri açık",
-      "trialEndsAt": "Deneme {date} tarihinde bitiyor",
-      "featureWebsite": "Website Modu",
-      "featureCampaigns": "Kampanya Modülü",
-      "featureGamification": "Gamification",
-      "featureAi": "AI Asistanı",
-      "comparePlans": "Planları Karşılaştır & Aboneliği Başlat",
-    "websiteModu": "Website Modu",
-    "kampanyaModulu": "Kampanya Modülü",
-    "gamification": "Gamification",
-    "aiAsistani": "AI Asistanı",
-      "upgradeToPro": "Pro'ya Yükselt",
-      "manageBilling": "Fatura & Ödeme Yöntemini Yönet",
-      "contactSupport": "Destek ile iletişime geçin",
-      "limitInfoMobile": "Hesabınızın planı ve kullanım limitleri yukarıda görünür.",
-      "trialPromo": "Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez. Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz.",
-      "staffLabel": "Personel",
-      "appointmentsLabel": "Randevu (bu ay)",
-      "unlimited": "Sınırsız",
-      "trialName": "Deneme"
+      "websiteModu": "Website Modu",
+      "kampanyaModulu": "Kampanya Modülü",
+      "gamification": "Gamification",
+      "aiAsistani": "AI Asistanı"
     },
     "reportsPage": {
       "eyebrow": "Analizler",
@@ -1464,6 +1443,11 @@
       "blockedTitle": "Mikrofon erişimi kapalı",
       "blockedBody": "Tarayıcınız bu site için mikrofonu engelliyor. Aşağıdaki adımlarla açıp tekrar deneyebilirsiniz.",
       "steps": {
+        "nativeApp": [
+          "Telefon Ayarları → Uygulamalar → Siriplan → İzinler → Mikrofon → İzin Ver.",
+          "Listede \"Mikrofon\" yoksa uygulamanın bu sürümü ses kaydını desteklemiyordur — sesli randevuyu tarayıcıdan (Chrome/Safari) siriplan.com üzerinde kullanın.",
+          "İzni verdikten sonra uygulamaya dönüp \"Tekrar Dene\"ye dokunun."
+        ],
         "desktop": [
           "Adres çubuğunun solundaki kilit veya ayar simgesine tıklayın.",
           "\"Mikrofon\" iznini \"İzin Ver\" olarak değiştirin.",

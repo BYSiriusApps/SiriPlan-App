@@ -17,8 +17,13 @@ const securityHeaders = [
   { key: "X-XSS-Protection", value: "1; mode=block" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
+    // microphone=(self): sesli randevu (Web Speech API / getUserMedia) yalnızca
+    // kendi origin'imizde çalışabilsin. `microphone=()` bıraktığımızda tarayıcı
+    // getUserMedia'yı sessizce reddediyor, izin penceresi HİÇ açılmıyor ve site
+    // Chrome mikrofon ayarları listesinde bile görünmüyordu. camera/geolocation
+    // hâlâ tamamen kapalı — onlara ihtiyaç yok.
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+    value: "camera=(), microphone=(self), geolocation=(), interest-cohort=()",
   },
   {
     key: "Strict-Transport-Security",
