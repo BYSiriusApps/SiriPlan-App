@@ -232,10 +232,17 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
       setIsListening(true);
       setVoiceSummary(null);
       setIsConfirmingVoice(false);
+      try { navigator.vibrate?.(60); } catch {}
+      toast.dismiss("voice-parsing");
+      toast(tm("listening"), { id: "voice-listening", duration: 8000, icon: "🎤" });
     };
-    recognition.onend = () => setIsListening(false);
+    recognition.onend = () => {
+      setIsListening(false);
+      toast.dismiss("voice-listening");
+    };
     recognition.onerror = (e: any) => {
       setIsListening(false);
+      toast.dismiss("voice-listening");
       if (e.error !== "no-speech") {
         toast.error(tm("captureFailed"));
       }
@@ -246,7 +253,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
       const transcript = event.results[0][0].transcript;
       if (!transcript) return;
 
-      toast.loading("Sesiniz çözümleniyor...", { id: "voice-parsing" });
+      toast.loading(tm("processing"), { id: "voice-parsing" });
       try {
         const res = await fetch("/api/ai/voice-booking", {
           method: "POST",
@@ -275,15 +282,31 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           setVoiceSummary(parsed);
           setIsConfirmingVoice(true);
 
-          setTimeout(() => {
-            startVoiceConfirmation();
-          }, 1000);
+          const missing: string[] = Array.isArray(data.missing) ? data.missing : [];
+          if (missing.length) {
+            const labels = missing
+              .map((m: string) =>
+                m === "customer_name" ? tm("fieldCustomer")
+                : m === "service" ? tm("fieldService")
+                : m === "datetime" ? tm("fieldDatetime")
+                : m,
+              )
+              .join(", ");
+            toast(tm("filledPartial", { fields: labels }), { icon: "📝", duration: 6000 });
+          } else {
+            toast.success(tm("filledComplete"));
+            setTimeout(() => {
+              startVoiceConfirmation();
+            }, 1000);
+          }
+        } else if (data.response) {
+          toast(data.response, { icon: "🎙️" });
         } else {
-          toast.error(data.response || "Bilgiler anlaşılamadı. Lütfen tekrar deneyin.");
+          toast.error(tm("notUnderstood"));
         }
       } catch {
         toast.dismiss("voice-parsing");
-        toast.error("Sesli analiz başarısız oldu.");
+        toast.error(tm("analyzeFailed"));
       }
     };
 
@@ -384,9 +407,12 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
             {/* Voice Listening Alert */}
             {isListening && !isConfirmingVoice && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl p-3.5 flex items-center justify-between animate-pulse">
-                <span className="text-xs font-semibold flex items-center gap-2">
-                  <Mic className="h-4 w-4 text-red-500 animate-bounce" />
-                  Dinleniyor... (Ör: "Ahmet Yılmaz yarın 15:30 Saç Kesimi")
+                <span className="text-xs font-semibold flex flex-col gap-0.5">
+                  <span className="flex items-center gap-2">
+                    <Mic className="h-4 w-4 text-red-500 animate-bounce" />
+                    {tm("listening")}
+                  </span>
+                  <span className="text-[10px] font-normal opacity-80 pl-6">{tm("listeningHint")}</span>
                 </span>
                 <Button
                   variant="ghost"

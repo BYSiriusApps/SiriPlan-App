@@ -73,7 +73,22 @@ export function HelpAssistant() {
           toast.success("Randevu oluşturuldu!");
           router.refresh();
         } else if (data.actionTaken === "navigate_quickbook") {
-          router.push("/dashboard/randevular/yeni");
+          const p = data.parsed || {};
+          const qp = new URLSearchParams();
+          if (p.customer_name) qp.set("customer_name", p.customer_name);
+          if (p.customer_phone) qp.set("customer_phone", p.customer_phone);
+          if (p.staff_id) qp.set("staff_id", p.staff_id);
+          if (p.service_id) qp.set("service_id", p.service_id);
+          if (p.appointment_at) {
+            const dt = new Date(p.appointment_at);
+            if (!isNaN(dt.getTime())) {
+              const local = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString();
+              qp.set("date", local.slice(0, 10));
+              qp.set("time", local.slice(11, 16));
+            }
+          }
+          const qs = qp.toString();
+          router.push(`/dashboard/randevular/yeni${qs ? `?${qs}` : ""}`);
         } else if (data.actionTaken === "navigate_stok") {
           router.push("/dashboard/stok");
         }

@@ -1566,7 +1566,17 @@
       "close": "Kapat",
       "unsupported": "Tarayıcınız sesli komut özelliğini desteklemiyor. Chrome veya Safari'nin güncel sürümünü deneyin.",
       "permissionRequired": "Sesli randevu için mikrofon izni gerekiyor.",
-      "captureFailed": "Ses alınamadı. Mikrofon izninizi kontrol edip tekrar deneyin."
+      "captureFailed": "Ses alınamadı. Mikrofon izninizi kontrol edip tekrar deneyin.",
+      "listening": "🎤 Dinliyorum — şimdi konuşun",
+      "listeningHint": "Örnek: \"Ahmet Yılmaz yarın 15.30 saç kesimi\"",
+      "processing": "Sesiniz alındı, çözümleniyor…",
+      "filledComplete": "Randevu bilgilerini forma aktardım — kontrol edip kaydedin.",
+      "filledPartial": "Şunları anladım. Eksik alanları tamamlayıp kaydedin: {fields}",
+      "notUnderstood": "Söyledikleriniz anlaşılamadı. Tekrar deneyin.",
+      "analyzeFailed": "Sesli analiz başarısız oldu. Tekrar deneyin.",
+      "fieldCustomer": "müşteri adı",
+      "fieldService": "hizmet",
+      "fieldDatetime": "tarih/saat"
     },
     "randevularPage": {
       "sortDefault": "Sıralama: Varsayılan",

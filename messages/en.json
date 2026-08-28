@@ -1566,7 +1566,17 @@
       "close": "Close",
       "unsupported": "Your browser doesn't support voice commands. Try a recent version of Chrome or Safari.",
       "permissionRequired": "Voice booking needs microphone permission.",
-      "captureFailed": "Couldn't capture audio. Check your microphone permission and try again."
+      "captureFailed": "Couldn't capture audio. Check your microphone permission and try again.",
+      "listening": "🎤 Listening — speak now",
+      "listeningHint": "Example: \"John Smith tomorrow 3:30pm haircut\"",
+      "processing": "Got your voice, analyzing…",
+      "filledComplete": "Filled the form from your voice — review and save.",
+      "filledPartial": "Here's what I understood. Complete the missing fields and save: {fields}",
+      "notUnderstood": "Couldn't understand that. Please try again.",
+      "analyzeFailed": "Voice analysis failed. Please try again.",
+      "fieldCustomer": "customer name",
+      "fieldService": "service",
+      "fieldDatetime": "date/time"
     },
     "randevularPage": {
       "sortDefault": "Sort: Default",
