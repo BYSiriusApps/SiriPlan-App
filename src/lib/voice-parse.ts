@@ -56,6 +56,17 @@ function deburr(s: string): string {
     .trim();
 }
 
+/**
+ * İki kelimenin "aynı kökten" sayılıp sayılmayacağı — Türkçe çekim eklerini
+ * tolere etmek için önek eşleşmesi ("kesim" ↔ "kesimi", "ahmet" ↔ "ahmete").
+ * Kısa kelimelerde (<4) yanlış eşleşmeyi önlemek için yalnızca birebir kabul.
+ */
+function tokenSimilar(a: string, b: string): boolean {
+  if (a === b) return true;
+  if (Math.min(a.length, b.length) < 4) return false;
+  return a.startsWith(b) || b.startsWith(a);
+}
+
 const WEEKDAYS: Record<string, number> = {
   pazar: 0, pazartesi: 1, sali: 2, carsamba: 3, persembe: 4, cuma: 5, cumartesi: 6,
   sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6,
@@ -95,7 +106,9 @@ interface TimeResult {
 
 /** Metinden saati çıkarır: "15:30", "15.30", "15 30", "saat 3", "üç buçuk", "yarım" vb. */
 function parseTime(norm: string): TimeResult | null {
-  // 15:30 / 15.30 / 15h30
+  // 15:30 / 15.30 / "15 30" — deburr ayraçları boşluğa çevirdiği için \s dahil.
+  // (Telefon numarası bu aşamadan önce stripPhone ile atıldığından "22 33"
+  // gibi numara parçaları buraya gelmez.)
   let m = norm.match(/\b([01]?\d|2[0-3])[:.\s]([0-5]\d)\b/);
   if (m) return { hour: Number(m[1]), minute: Number(m[2]) };
 
@@ -205,8 +218,10 @@ function parseDate(norm: string, now: Date, tz: string): DateResult | null {
  * boşluk/tire olabilir) yakalar. Metindeki başka rakamlar (saat vb.) numarayı
  * bozmasın diye ham rakam yığınına değil, telefon şekline bakar.
  */
+const PHONE_RE = /(?:\+?90[\s.-]?)?0?\s?(5\d{2})[\s.-]?(\d{3})[\s.-]?(\d{2})[\s.-]?(\d{2})/;
+
 function parsePhone(raw: string): string {
-  const m = raw.match(/(?:\+?90[\s.-]?)?0?\s?(5\d{2})[\s.-]?(\d{3})[\s.-]?(\d{2})[\s.-]?(\d{2})/);
+  const m = raw.match(PHONE_RE);
   if (m) return `${m[1]}${m[2]}${m[3]}${m[4]}`;
   // Aksi halde 10-11 haneli bitişik bir dizi
   const digits = raw.replace(/\D/g, "");
@@ -214,27 +229,50 @@ function parsePhone(raw: string): string {
   return d ? d[1] : "";
 }
 
-/** Hizmet listesinden metne en iyi uyanı bulur. */
-function matchService(norm: string, services: VoiceService[]): VoiceService | null {
-  let best: VoiceService | null = null;
-  let bestLen = 0;
-  for (const svc of services) {
-    const sn = deburr(svc.name);
-    if (!sn) continue;
-    if (norm.includes(sn) && sn.length > bestLen) {
-      best = svc;
-      bestLen = sn.length;
-    }
-  }
-  if (best) return best;
+/**
+ * Telefon numarasını metinden çıkarır — "0532 111 22 33" içindeki "22 33"
+ * saat sanılıp randevuyu 22:33'e kaydırmasın diye tarih/saat/hizmet eşleştirmesi
+ * numarasız metin üzerinde yapılır.
+ */
+function stripPhone(raw: string): string {
+  return raw.replace(new RegExp(PHONE_RE, "g"), " ").replace(/\b0?5\d{9}\b/g, " ");
+}
 
-  // token bazlı: hizmet adındaki >=3 harfli her token metinde geçiyorsa
+/**
+ * Hizmet listesinden metne en iyi uyanı bulur.
+ * Puanlama: eşleşen kelime oranı + tam ifade geçiyorsa bonus. Çekim eklerini
+ * `tokenSimilar` ile tolere eder ("saç kesimi" ↔ "kesim"). İki hizmet birbirine
+ * çok yakın puandaysa (ör. yalnızca "saç" ortak) belirsiz sayıp boş döner —
+ * kullanıcı listeden seçsin.
+ */
+function matchService(norm: string, services: VoiceService[]): VoiceService | null {
+  const normToks = norm.split(" ").filter((t) => t.length >= 2);
+  const scored: { svc: VoiceService; score: number; full: string }[] = [];
+
   for (const svc of services) {
-    const toks = deburr(svc.name).split(" ").filter((t) => t.length >= 3);
-    if (toks.length && toks.every((t) => new RegExp(`\\b${t}`).test(norm))) {
-      return svc;
+    const full = deburr(svc.name);
+    if (!full) continue;
+    const toks = full.split(" ").filter((t) => t.length >= 2 && t !== "ve" && t !== "ile");
+    if (!toks.length) continue;
+
+    let matched = 0;
+    for (const st of toks) {
+      if (normToks.some((nt) => tokenSimilar(nt, st))) matched++;
     }
+    if (!matched) continue;
+
+    let score = matched / toks.length;
+    if (norm.includes(full)) score += 1; // tam ifade geçiyor
+    scored.push({ svc, score, full });
   }
+
+  if (!scored.length) return null;
+  scored.sort((a, b) => b.score - a.score || b.full.length - a.full.length);
+
+  const [top, second] = scored;
+  if (top.score >= 1) return top.svc; // tüm kelimeler ya da tam ifade
+  if (second && top.score - second.score < 0.25) return null; // belirsiz
+  if (top.score >= 0.5) return top.svc;
   return null;
 }
 
@@ -252,15 +290,26 @@ function matchStaff(
     const full = deburr(st.full_name);
     if (full && norm.includes(full)) return st;
   }
+
+  // Ad ya da soyadın herhangi biri (çekim ekli olabilir) metinde geçiyorsa.
+  // İlk kelime (i=0) neredeyse her zaman müşteri adıdır, atlanır. Metnin
+  // sonuna yakın geçen eşleşme tercih edilir ("... Zeynep yapsın").
+  const normToks = norm.split(" ").filter(Boolean);
+  let best: VoiceStaff | null = null;
+  let bestPos = -1;
   for (const st of staff) {
-    const first = deburr(st.full_name).split(" ")[0];
-    if (!first || first.length < 3 || excludeNorms.has(first)) continue;
-    // İlk kelime neredeyse her zaman müşteri adıdır — personel eşleşmesi sayma.
-    const firstWordOfTranscript = norm.split(" ")[0];
-    if (first === firstWordOfTranscript) continue;
-    if (new RegExp(`\\b${first}\\b`).test(norm)) return st;
+    const parts = deburr(st.full_name).split(" ").filter((p) => p.length >= 3);
+    for (const p of parts) {
+      if (excludeNorms.has(p)) continue;
+      for (let i = 1; i < normToks.length; i++) {
+        if (tokenSimilar(normToks[i], p) && i > bestPos) {
+          best = st;
+          bestPos = i;
+        }
+      }
+    }
   }
-  return null;
+  return best;
 }
 
 /** Bu kelimelerden biri gelince müşteri adının bittiğini varsayarız. */
@@ -270,7 +319,7 @@ const NAME_STOP = new Set([
   "lutfen", "istiyorum", "istiyor", "yaptir", "gelecek", "haftaya", "bugun",
   "yarin", "obur", "ertesi", "bucuk", "sabah", "aksam", "oglen", "ogleden",
   "bey", "beye", "beyefendi", "hanim", "hanima", "hanimefendi", "hanimefendiye",
-  "musteri", "musterisi", "musteriye",
+  "musteri", "musterisi", "musteriye", "hizmet", "hizmeti", "personel", "personeli",
   "book", "appointment", "for", "with", "tomorrow", "today", "next", "week", "at", "an",
 ]);
 
@@ -287,8 +336,16 @@ function titleCase(name: string): string {
  * 1) "... <Ad> için ..." kalıbı varsa ondan (personel dative'inden ayırır).
  * 2) Yoksa metnin başındaki kelimeleri ilk "stop" kelimesine kadar alır.
  */
-function guessCustomerName(original: string, service: VoiceService | null): string {
+function guessCustomerName(
+  original: string,
+  service: VoiceService | null,
+  serviceTokens: Set<string>,
+): string {
   const serviceFirstTok = service ? deburr(service.name).split(" ")[0] : "";
+  const hitsService = (n: string) =>
+    n === serviceFirstTok ||
+    serviceTokens.has(n) ||
+    [...serviceTokens].some((st) => tokenSimilar(n, st));
 
   // "Selin için", "Selin Ak için" → "Selin Ak"
   const PARTICLES = new Set(["de", "da", "te", "ta", "e", "a", "ye", "ya", "na", "ne", "ile", "la", "le"]);
@@ -304,7 +361,7 @@ function guessCustomerName(original: string, service: VoiceService | null): stri
         !NAME_STOP.has(n) &&
         !(n in WEEKDAYS) &&
         !(n in MONTHS) &&
-        n !== serviceFirstTok
+        !hitsService(n)
       );
     });
     // "için"e en yakın 1-2 kelime yeterli
@@ -312,13 +369,15 @@ function guessCustomerName(original: string, service: VoiceService | null): stri
     if (tail.join("").length >= 3) return titleCase(tail.join(" "));
   }
 
+  const LEAD_IN = new Set(["musteri", "musterinin", "isim", "ismi", "adi", "ad", "sayin"]);
   const kept: string[] = [];
   for (const word of original.trim().split(/\s+/)) {
     const n = deburr(word);
     if (!n) continue;
+    if (kept.length === 0 && LEAD_IN.has(n)) continue; // "müşteri Ahmet" → "Ahmet"
     if (/\d/.test(word)) break;
     if (NAME_STOP.has(n) || n in WEEKDAYS || n in MONTHS) break;
-    if (serviceFirstTok && n === serviceFirstTok) break;
+    if (hitsService(n)) break;
     kept.push(word.replace(/[.,;:!?]+$/, ""));
     if (kept.length >= 3) break;
   }
@@ -337,14 +396,22 @@ export function parseVoiceBooking(
 ): ParsedBooking {
   const now = opts?.now ?? new Date();
   const tz = opts?.timezone || DEFAULT_ORG_TIMEZONE;
-  const norm = deburr(transcript);
+  // Tarih/saat/hizmet eşleştirmesi telefon numarasız metin üzerinde yapılır.
+  const norm = deburr(stripPhone(transcript));
+
+  const allServiceTokens = new Set<string>();
+  for (const s of services) {
+    for (const tk of deburr(s.name).split(" ")) {
+      if (tk.length >= 3 && tk !== "ile") allServiceTokens.add(tk);
+    }
+  }
 
   const service = matchService(norm, services);
   const phone = parsePhone(transcript);
   const time = parseTime(norm);
   const date = parseDate(norm, now, tz);
 
-  const customer_name = guessCustomerName(transcript, service);
+  const customer_name = guessCustomerName(transcript, service, allServiceTokens);
   const nameNorms = new Set(deburr(customer_name).split(" ").filter(Boolean));
   const staffMatch = matchStaff(norm, staff, nameNorms);
 

@@ -41,6 +41,30 @@ interface CustomerHit {
 /** Personel seçiminde "Farketmez" için kullanılan sentinel değer — backend'e auto_assign_staff olarak iletilir. */
 const ANY_STAFF = "__any__";
 
+/** Sesli özet kutusundaki bir satır — boşsa ve eksik işaretliyse amber gösterir. */
+function VoiceRow({
+  label,
+  value,
+  missing,
+  emptyLabel,
+}: {
+  label: string;
+  value?: string;
+  missing?: boolean;
+  emptyLabel: string;
+}) {
+  return (
+    <p>
+      <strong className="text-foreground">{label}:</strong>{" "}
+      {value ? (
+        value
+      ) : (
+        <span className={missing ? "text-amber-600 dark:text-amber-400 font-medium" : ""}>{emptyLabel}</span>
+      )}
+    </p>
+  );
+}
+
 interface Props {
   /** Pre-selected staff when opening from a staff column in CalendarGrid */
   preselectedStaffId?: string;
@@ -61,7 +85,9 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
   // Voice states
   const [isListening, setIsListening] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState("");
   const [voiceSummary, setVoiceSummary] = useState<any | null>(null);
+  const [voiceMissing, setVoiceMissing] = useState<string[]>([]);
   const [isConfirmingVoice, setIsConfirmingVoice] = useState(false);
   const recognitionRef = useRef<any>(null);
 
@@ -178,38 +204,69 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     }
   }, [open]);
 
-  const startVoiceConfirmation = useCallback(() => {
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+  // Ses işleyicileri kurulduğu andaki state'i yakalar; taze değere ref'ten bak.
+  const voiceStateRef = useRef({ customerName, customerPhone, selectedStaffId, selectedServiceId, note });
+  useEffect(() => {
+    voiceStateRef.current = { customerName, customerPhone, selectedStaffId, selectedServiceId, note };
+  });
 
-    const recognition = new SpeechRecognition();
-    recognitionRef.current = recognition;
-    recognition.lang = speechLang;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+  const voiceLabelFor = useCallback((m: string) => (
+    m === "customer_name" ? tm("fieldCustomer")
+    : m === "service" ? tm("fieldService")
+    : m === "datetime" ? tm("fieldDatetime")
+    : m === "staff" ? tm("fieldStaff")
+    : m
+  ), [tm]);
 
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => setIsListening(false);
+  /**
+   * Ayrıştırılan bilgiyi forma AKTARIR — dolu alanları ezmeden yalnızca boşları
+   * doldurur (tarih/saat hariç: her zaman ön dolu olduğundan sesteki değer öncelikli).
+   */
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const applyVoiceParsed = useCallback((parsed: any) => {
+    if (!parsed) return;
+    const cur = voiceStateRef.current;
 
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    recognition.onresult = async (event: any) => {
-      const transcript = event.results[0][0].transcript?.toLowerCase() || "";
-      if (transcript.includes("onay") || transcript.includes("evet") || transcript.includes("kaydet") || transcript.includes("tamam")) {
-        toast.success("Sesli onay alındı, kaydediliyor...");
-        await saveAppointment();
-      } else if (transcript.includes("iptal") || transcript.includes("vazgeç") || transcript.includes("hayır")) {
-        toast.info("İptal edildi.");
-        setIsConfirmingVoice(false);
-        setVoiceSummary(null);
-      } else {
-        toast.info(`Anlaşılmadı: "${transcript}". 'Onaylıyorum' veya 'İptal' diyebilirsiniz.`);
+    if (!cur.customerName && parsed.customer_name) setCustomerName(parsed.customer_name);
+    if (!cur.customerPhone && parsed.customer_phone) setCustomerPhone(parsed.customer_phone);
+    if (!cur.selectedStaffId && parsed.staff_id) setSelectedStaffId(parsed.staff_id);
+    if (!cur.selectedServiceId && parsed.service_id) setSelectedServiceId(parsed.service_id);
+    if (!cur.note && parsed.note) setNote(parsed.note);
+    if (parsed.appointment_at) {
+      const dt = new Date(parsed.appointment_at);
+      if (!isNaN(dt.getTime())) {
+        setAppointmentAt(new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString().slice(0, 16));
       }
-    };
+    }
 
-    recognition.start();
-  }, [customerName, customerPhone, selectedStaffId, selectedServiceId, appointmentAt, note, speechLang]);
+    const mName = cur.customerName || parsed.customer_name || "";
+    const mStaffId = cur.selectedStaffId || parsed.staff_id || "";
+    const mServiceId = cur.selectedServiceId || parsed.service_id || "";
+    const svc = services.find((s) => s.id === mServiceId);
+    const mStaffName = staff.find((s) => s.id === mStaffId)?.full_name || parsed.staff_name || "";
+
+    const missing: string[] = [];
+    if (!mName) missing.push("customer_name");
+    if (!mServiceId) missing.push("service");
+    if (!mStaffId) missing.push("staff");
+
+    setVoiceMissing(missing);
+    setVoiceSummary({
+      customer_name: mName,
+      customer_phone: cur.customerPhone || parsed.customer_phone || "",
+      staff_name: mStaffName,
+      service_name: svc?.name || parsed.service_name || "",
+      appointment_at: parsed.appointment_at || "",
+      note: cur.note || parsed.note || "",
+    });
+    setIsConfirmingVoice(true);
+
+    if (missing.length) {
+      toast(tm("filledPartial", { fields: missing.map(voiceLabelFor).join(", ") }), { icon: "📝", duration: 7000 });
+    } else {
+      toast.success(tm("filledComplete"));
+    }
+  }, [services, staff, tm, voiceLabelFor]);
 
   const startVoiceBooking = useCallback(async () => {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -222,36 +279,80 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     const hasPermission = await requestMic();
     if (!hasPermission) return;
 
+    if (recognitionRef.current) { try { recognitionRef.current.abort(); } catch {} }
+
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
     recognition.lang = speechLang;
-    recognition.interimResults = false;
+    recognition.interimResults = true;
+    recognition.continuous = true;
     recognition.maxAlternatives = 1;
+
+    const LISTEN_MS = 15000;
+    const startedAt = Date.now();
+    const timer: { id?: ReturnType<typeof setTimeout> } = {};
+    let accum = "";
+    let finishing = false;
+    let discarded = false;
+    let restarts = 0;
+
+    const finish = () => {
+      if (finishing || discarded) return;
+      finishing = true;
+      if (timer.id) clearTimeout(timer.id);
+      try { recognition.stop(); } catch {}
+    };
+    timer.id = setTimeout(finish, LISTEN_MS);
+    recognitionRef.current._stop = finish;
+
+    setLiveTranscript("");
 
     recognition.onstart = () => {
       setIsListening(true);
       setVoiceSummary(null);
       setIsConfirmingVoice(false);
+      setVoiceMissing([]);
       try { navigator.vibrate?.(60); } catch {}
       toast.dismiss("voice-parsing");
-      toast(tm("listening"), { id: "voice-listening", duration: 8000, icon: "🎤" });
-    };
-    recognition.onend = () => {
-      setIsListening(false);
-      toast.dismiss("voice-listening");
-    };
-    recognition.onerror = (e: any) => {
-      setIsListening(false);
-      toast.dismiss("voice-listening");
-      if (e.error !== "no-speech") {
-        toast.error(tm("captureFailed"));
-      }
+      toast(tm("listening"), { id: "voice-listening", duration: LISTEN_MS, icon: "🎤" });
     };
 
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    recognition.onresult = async (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      if (!transcript) return;
+    recognition.onresult = (event: any) => {
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const r = event.results[i];
+        if (r.isFinal) accum += r[0].transcript + " ";
+        else interim += r[0].transcript;
+      }
+      setLiveTranscript((accum + interim).trim());
+    };
+
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    recognition.onerror = (e: any) => {
+      if (e.error === "no-speech") return;
+      discarded = true;
+      if (timer.id) clearTimeout(timer.id);
+      setIsListening(false);
+      setLiveTranscript("");
+      toast.dismiss("voice-listening");
+      if (e.error !== "aborted") toast.error(tm("captureFailed"));
+    };
+
+    recognition.onend = async () => {
+      if (discarded) return;
+      if (!finishing && restarts < 40 && Date.now() - startedAt < LISTEN_MS) {
+        restarts++;
+        try { recognition.start(); return; } catch {}
+      }
+      finishing = true;
+      if (timer.id) clearTimeout(timer.id);
+      setIsListening(false);
+      setLiveTranscript("");
+      toast.dismiss("voice-listening");
+
+      const transcript = accum.trim();
+      if (!transcript) { toast.error(tm("notUnderstood")); return; }
 
       toast.loading(tm("processing"), { id: "voice-parsing" });
       try {
@@ -264,41 +365,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
         toast.dismiss("voice-parsing");
 
         if (data.actionTaken === "confirm_appointment" && data.parsed) {
-          const parsed = data.parsed;
-          if (parsed.customer_name) setCustomerName(parsed.customer_name);
-          if (parsed.customer_phone) setCustomerPhone(parsed.customer_phone);
-          if (parsed.staff_id) setSelectedStaffId(parsed.staff_id);
-          if (parsed.service_id) setSelectedServiceId(parsed.service_id);
-          if (parsed.appointment_at) {
-            const dt = new Date(parsed.appointment_at);
-            if (!isNaN(dt.getTime())) {
-              const offset = dt.getTimezoneOffset();
-              const localDt = new Date(dt.getTime() - offset * 60 * 1000);
-              setAppointmentAt(localDt.toISOString().slice(0, 16));
-            }
-          }
-          if (parsed.note) setNote(parsed.note);
-
-          setVoiceSummary(parsed);
-          setIsConfirmingVoice(true);
-
-          const missing: string[] = Array.isArray(data.missing) ? data.missing : [];
-          if (missing.length) {
-            const labels = missing
-              .map((m: string) =>
-                m === "customer_name" ? tm("fieldCustomer")
-                : m === "service" ? tm("fieldService")
-                : m === "datetime" ? tm("fieldDatetime")
-                : m,
-              )
-              .join(", ");
-            toast(tm("filledPartial", { fields: labels }), { icon: "📝", duration: 6000 });
-          } else {
-            toast.success(tm("filledComplete"));
-            setTimeout(() => {
-              startVoiceConfirmation();
-            }, 1000);
-          }
+          applyVoiceParsed(data.parsed);
         } else if (data.response) {
           toast(data.response, { icon: "🎙️" });
         } else {
@@ -311,7 +378,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     };
 
     recognition.start();
-  }, [slotMinutes, staff, services, startVoiceConfirmation, requestMic, speechLang, tm]);
+  }, [requestMic, speechLang, tm, applyVoiceParsed]);
 
   async function saveAppointment() {
     if (!selectedStaffId) { toast.error(t("errorStaffRequired")); return false; }
@@ -406,26 +473,30 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
             {/* Voice Listening Alert */}
             {isListening && !isConfirmingVoice && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl p-3.5 flex items-center justify-between animate-pulse">
-                <span className="text-xs font-semibold flex flex-col gap-0.5">
-                  <span className="flex items-center gap-2">
-                    <Mic className="h-4 w-4 text-red-500 animate-bounce" />
-                    {tm("listening")}
+              <div className="bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl p-3.5 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold flex flex-col gap-0.5">
+                    <span className="flex items-center gap-2">
+                      <Mic className="h-4 w-4 text-red-500 animate-pulse" />
+                      {tm("listening")}
+                    </span>
+                    <span className="text-[10px] font-normal opacity-80 pl-6">{tm("listeningHint")}</span>
                   </span>
-                  <span className="text-[10px] font-normal opacity-80 pl-6">{tm("listeningHint")}</span>
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  type="button"
-                  onClick={() => {
-                    if (recognitionRef.current) recognitionRef.current.abort();
-                    setIsListening(false);
-                  }}
-                  className="h-7 px-2 text-xs hover:bg-red-500/20 text-red-600"
-                >
-                  İptal
-                </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    onClick={() => recognitionRef.current?._stop?.()}
+                    className="h-7 px-2 text-xs hover:bg-red-500/20 text-red-600 shrink-0"
+                  >
+                    {tm("finishListening")}
+                  </Button>
+                </div>
+                {liveTranscript && (
+                  <p className="text-[11px] text-foreground/80 bg-background/60 rounded-lg px-2.5 py-1.5">
+                    <span className="opacity-60">{tm("heard")}: </span>{liveTranscript}
+                  </p>
+                )}
               </div>
             )}
 
@@ -434,28 +505,48 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-3">
                 <h3 className="text-sm font-semibold flex items-center gap-2 text-primary">
                   <Check className="h-4 w-4" />
-                  Randevu Bilgilerini Onaylayın
+                  {tm("confirmTitle")}
                 </h3>
                 <div className="text-xs space-y-1.5 text-muted-foreground">
-                  <p><strong className="text-foreground">Müşteri:</strong> {voiceSummary.customer_name || "Belirtilmedi"}</p>
-                  {voiceSummary.customer_phone && <p><strong className="text-foreground">Telefon:</strong> {voiceSummary.customer_phone}</p>}
-                  <p><strong className="text-foreground">Personel:</strong> {voiceSummary.staff_name || "Belirtilmedi"}</p>
-                  <p><strong className="text-foreground">Hizmet:</strong> {voiceSummary.service_name || "Belirtilmedi"}</p>
-                  <p><strong className="text-foreground">Tarih/Saat:</strong> {voiceSummary.appointment_at ? new Date(voiceSummary.appointment_at).toLocaleString("tr-TR") : "Belirtilmedi"}</p>
-                  {voiceSummary.note && <p><strong className="text-foreground">Not:</strong> {voiceSummary.note}</p>}
+                  <VoiceRow label={tm("lblCustomer")} value={voiceSummary.customer_name} missing={voiceMissing.includes("customer_name")} emptyLabel={tm("notProvided")} />
+                  {voiceSummary.customer_phone && <p><strong className="text-foreground">{tm("lblPhone")}:</strong> {voiceSummary.customer_phone}</p>}
+                  <VoiceRow label={tm("lblStaff")} value={voiceSummary.staff_name} missing={voiceMissing.includes("staff")} emptyLabel={tm("notProvided")} />
+                  <VoiceRow label={tm("lblService")} value={voiceSummary.service_name} missing={voiceMissing.includes("service")} emptyLabel={tm("notProvided")} />
+                  {voiceSummary.appointment_at && (
+                    <p><strong className="text-foreground">{tm("lblDatetime")}:</strong> {new Date(voiceSummary.appointment_at).toLocaleString()}</p>
+                  )}
+                  {voiceSummary.note && <p><strong className="text-foreground">{tm("lblNote")}:</strong> {voiceSummary.note}</p>}
                 </div>
-                <div className="flex gap-2 pt-1">
+                {voiceMissing.length > 0 && (
+                  <p className="text-[11px] rounded-lg bg-amber-500/10 border border-amber-500/20 px-2.5 py-2 text-amber-700 dark:text-amber-400">
+                    {tm("missingHint")}
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {voiceMissing.length > 0 && (
+                    <Button
+                      size="sm"
+                      type="button"
+                      variant="secondary"
+                      onClick={startVoiceBooking}
+                      className="flex-1 min-w-[140px] gap-1.5"
+                    >
+                      <Mic className="h-3.5 w-3.5" />
+                      {tm("completeByVoice")}
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     type="button"
                     onClick={() => {
                       setIsConfirmingVoice(false);
                       setVoiceSummary(null);
+                      setVoiceMissing([]);
                       saveAppointment();
                     }}
-                    className="flex-1"
+                    className="flex-1 min-w-[120px]"
                   >
-                    Onayla ve Kaydet
+                    {tm("confirmSave")}
                   </Button>
                   <Button
                     size="sm"
@@ -464,17 +555,13 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
                     onClick={() => {
                       setIsConfirmingVoice(false);
                       setVoiceSummary(null);
+                      setVoiceMissing([]);
                     }}
-                    className="flex-1"
+                    className="flex-1 min-w-[100px]"
                   >
-                    Düzenle / İptal
+                    {tm("confirmEdit")}
                   </Button>
                 </div>
-                {isListening && (
-                  <p className="text-[10px] text-center text-red-500 animate-pulse font-medium">
-                    🎙️ 'Onaylıyorum' veya 'İptal' diyerek sesle kontrol edebilirsiniz.
-                  </p>
-                )}
               </div>
             )}
 
@@ -733,7 +820,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           "h-9 w-9 p-0 shrink-0 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary transition-all",
           isListening ? "border-red-500 text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20" : ""
         )}
-        title="Sesle Randevu Oluştur"
+        title={tm("fillByVoice")}
       >
         <Mic className="h-4 w-4" />
       </Button>

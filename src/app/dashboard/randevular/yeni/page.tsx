@@ -43,6 +43,30 @@ function isBookable(s: Service): s is BookableService {
   return s.is_bookable_online && s.price != null && s.duration_minutes != null;
 }
 
+/** Sesli özet kutusundaki bir satır — boşsa ve eksik işaretliyse amber gösterir. */
+function VoiceRow({
+  label,
+  value,
+  missing,
+  emptyLabel,
+}: {
+  label: string;
+  value?: string;
+  missing?: boolean;
+  emptyLabel: string;
+}) {
+  return (
+    <p>
+      <strong className="text-foreground">{label}:</strong>{" "}
+      {value ? (
+        value
+      ) : (
+        <span className={missing ? "text-amber-600 dark:text-amber-400 font-medium" : ""}>{emptyLabel}</span>
+      )}
+    </p>
+  );
+}
+
 export default function YeniRandevuPage() {
   const t = useTranslations("dashboard");
   const tm = useTranslations("dashboard.mic");
@@ -83,7 +107,9 @@ export default function YeniRandevuPage() {
 
   // Voice states
   const [isListening, setIsListening] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState("");
   const [voiceSummary, setVoiceSummary] = useState<any | null>(null);
+  const [voiceMissing, setVoiceMissing] = useState<string[]>([]);
   const [isConfirmingVoice, setIsConfirmingVoice] = useState(false);
   const recognitionRef = useRef<any>(null);
   const voiceTriggeredRef = useRef(false);
@@ -189,38 +215,97 @@ export default function YeniRandevuPage() {
     setSelectedServices((prev) => prev.filter((s) => s.id !== id));
   }
 
-  const startVoiceConfirmation = useCallback(() => {
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+  // Ses işleyicileri, kurulduğu andaki state'i yakalar; taze değere ref'ten bak.
+  const formRef = useRef(form);
+  const selectedServicesRef = useRef(selectedServices);
+  useEffect(() => { formRef.current = form; }, [form]);
+  useEffect(() => { selectedServicesRef.current = selectedServices; }, [selectedServices]);
 
-    const recognition = new SpeechRecognition();
-    recognitionRef.current = recognition;
-    recognition.lang = speechLang;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+  const voiceLabelFor = useCallback((m: string) => (
+    m === "customer_name" ? tm("fieldCustomer")
+    : m === "service" ? tm("fieldService")
+    : m === "datetime" ? tm("fieldDatetime")
+    : m === "staff" ? tm("fieldStaff")
+    : m
+  ), [tm]);
 
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => setIsListening(false);
+  /**
+   * Ayrıştırılan bilgiyi forma AKTARIR — dolu alanları ezmeden yalnızca
+   * boşları doldurur, hizmeti mevcut seçime ekler. Birleştirilmiş duruma göre
+   * özet kutusunu ve eksik alan listesini günceller.
+   */
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const applyVoiceParsed = useCallback((parsed: any) => {
+    if (!parsed) return;
+    const cur = formRef.current;
+    const curServices = selectedServicesRef.current;
 
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    recognition.onresult = async (event: any) => {
-      const transcript = event.results[0][0].transcript?.toLowerCase() || "";
-      if (transcript.includes("onay") || transcript.includes("evet") || transcript.includes("kaydet") || transcript.includes("tamam")) {
-        toast.success("Sesli onay alındı, kaydediliyor...");
-        await saveAppointment();
-      } else if (transcript.includes("iptal") || transcript.includes("vazgeç") || transcript.includes("hayır")) {
-        toast.info("İptal edildi.");
-        setIsConfirmingVoice(false);
-        setVoiceSummary(null);
-      } else {
-        toast.info(`Anlaşılmadı: "${transcript}". 'Onaylıyorum' veya 'İptal' diyebilirsiniz.`);
+    let apptLocal = "";
+    if (parsed.appointment_at) {
+      const dt = new Date(parsed.appointment_at);
+      if (!isNaN(dt.getTime())) {
+        apptLocal = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 16);
       }
-    };
+    }
 
-    recognition.start();
-  }, [form, selectedServices, orgId, orgName, sendWaMessage, waTemplate, staff, orgAddress, orgLocationUrl, totalPrice, totalDuration, kvkkAttested, fromWaitlistId, speechLang]);
+    setForm((f) => ({
+      ...f,
+      customer_name: f.customer_name || parsed.customer_name || "",
+      customer_phone: f.customer_phone || parsed.customer_phone || "",
+      staff_id: f.staff_id || parsed.staff_id || "",
+      note: f.note || parsed.note || "",
+      appointment_at: f.appointment_at || apptLocal || "",
+    }));
+
+    let addedServiceName = "";
+    if (parsed.service_id) {
+      const svc = services.find((s) => s.id === parsed.service_id);
+      if (svc && !curServices.some((s) => s.id === svc.id)) {
+        addedServiceName = svc.name;
+        setSelectedServices((prev) =>
+          prev.some((s) => s.id === svc.id)
+            ? prev
+            : [...prev, { id: svc.id, name: svc.name, price: Number(svc.price), duration_minutes: svc.duration_minutes }],
+        );
+      } else if (svc) {
+        addedServiceName = svc.name;
+      }
+    }
+
+    // setState asenkron — özet/eksik için birleşmiş anlık değerleri kendimiz kur.
+    const mName = cur.customer_name || parsed.customer_name || "";
+    const mPhone = cur.customer_phone || parsed.customer_phone || "";
+    const mStaffId = cur.staff_id || parsed.staff_id || "";
+    const mStaffName = staff.find((s) => s.id === mStaffId)?.full_name || parsed.staff_name || "";
+    const serviceNames = curServices.map((s) => s.name);
+    if (addedServiceName && !serviceNames.includes(addedServiceName)) serviceNames.push(addedServiceName);
+    const mAppt = cur.appointment_at || apptLocal;
+
+    const missing: string[] = [];
+    if (!mName) missing.push("customer_name");
+    if (serviceNames.length === 0) missing.push("service");
+    if (!mAppt) missing.push("datetime");
+    if (!mStaffId) missing.push("staff");
+
+    setVoiceMissing(missing);
+    setVoiceSummary({
+      customer_name: mName,
+      customer_phone: mPhone,
+      staff_name: mStaffName,
+      service_name: serviceNames.join(", "),
+      appointment_at: parsed.appointment_at || (mAppt ? new Date(mAppt).toISOString() : ""),
+      note: cur.note || parsed.note || "",
+    });
+    setIsConfirmingVoice(true);
+
+    if (missing.length) {
+      toast(tm("filledPartial", { fields: missing.map(voiceLabelFor).join(", ") }), { icon: "📝", duration: 7000 });
+    } else {
+      toast.success(tm("filledComplete"));
+    }
+  }, [services, staff, tm, voiceLabelFor]);
 
   const startVoiceBooking = useCallback(async () => {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -233,36 +318,80 @@ export default function YeniRandevuPage() {
     const hasPermission = await requestMic();
     if (!hasPermission) return;
 
+    if (recognitionRef.current) { try { recognitionRef.current.abort(); } catch {} }
+
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
     recognition.lang = speechLang;
-    recognition.interimResults = false;
+    recognition.interimResults = true;
+    recognition.continuous = true;
     recognition.maxAlternatives = 1;
+
+    const LISTEN_MS = 15000;
+    const startedAt = Date.now();
+    const timer: { id?: ReturnType<typeof setTimeout> } = {};
+    let accum = "";
+    let finishing = false;
+    let discarded = false;
+    let restarts = 0;
+
+    const finish = () => {
+      if (finishing || discarded) return;
+      finishing = true;
+      if (timer.id) clearTimeout(timer.id);
+      try { recognition.stop(); } catch {}
+    };
+    timer.id = setTimeout(finish, LISTEN_MS);
+    recognitionRef.current._stop = finish;
+
+    setLiveTranscript("");
 
     recognition.onstart = () => {
       setIsListening(true);
       setVoiceSummary(null);
       setIsConfirmingVoice(false);
+      setVoiceMissing([]);
       try { navigator.vibrate?.(60); } catch {}
       toast.dismiss("voice-parsing");
-      toast(tm("listening"), { id: "voice-listening", duration: 8000, icon: "🎤" });
-    };
-    recognition.onend = () => {
-      setIsListening(false);
-      toast.dismiss("voice-listening");
-    };
-    recognition.onerror = (e: any) => {
-      setIsListening(false);
-      toast.dismiss("voice-listening");
-      if (e.error !== "no-speech") {
-        toast.error(tm("captureFailed"));
-      }
+      toast(tm("listening"), { id: "voice-listening", duration: LISTEN_MS, icon: "🎤" });
     };
 
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    recognition.onresult = async (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      if (!transcript) return;
+    recognition.onresult = (event: any) => {
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const r = event.results[i];
+        if (r.isFinal) accum += r[0].transcript + " ";
+        else interim += r[0].transcript;
+      }
+      setLiveTranscript((accum + interim).trim());
+    };
+
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    recognition.onerror = (e: any) => {
+      if (e.error === "no-speech") return; // duraklamada onend sürdürür
+      discarded = true;
+      if (timer.id) clearTimeout(timer.id);
+      setIsListening(false);
+      setLiveTranscript("");
+      toast.dismiss("voice-listening");
+      if (e.error !== "aborted") toast.error(tm("captureFailed"));
+    };
+
+    recognition.onend = async () => {
+      if (discarded) return;
+      if (!finishing && restarts < 40 && Date.now() - startedAt < LISTEN_MS) {
+        restarts++;
+        try { recognition.start(); return; } catch {}
+      }
+      finishing = true;
+      if (timer.id) clearTimeout(timer.id);
+      setIsListening(false);
+      setLiveTranscript("");
+      toast.dismiss("voice-listening");
+
+      const transcript = accum.trim();
+      if (!transcript) { toast.error(tm("notUnderstood")); return; }
 
       toast.loading(tm("processing"), { id: "voice-parsing" });
       try {
@@ -275,59 +404,7 @@ export default function YeniRandevuPage() {
         toast.dismiss("voice-parsing");
 
         if (data.actionTaken === "confirm_appointment" && data.parsed) {
-          const parsed = data.parsed;
-          setForm((f) => ({
-            ...f,
-            customer_name: parsed.customer_name || f.customer_name,
-            customer_phone: parsed.customer_phone || f.customer_phone,
-            staff_id: parsed.staff_id || f.staff_id,
-            note: parsed.note || f.note,
-          }));
-
-          if (parsed.service_id) {
-            const svc = services.find((s) => s.id === parsed.service_id);
-            if (svc) {
-              setSelectedServices([{
-                id: svc.id,
-                name: svc.name,
-                price: Number(svc.price),
-                duration_minutes: svc.duration_minutes
-              }]);
-            }
-          }
-
-          if (parsed.appointment_at) {
-            const dt = new Date(parsed.appointment_at);
-            if (!isNaN(dt.getTime())) {
-              const offset = dt.getTimezoneOffset();
-              const localDt = new Date(dt.getTime() - offset * 60 * 1000);
-              setForm((f) => ({
-                ...f,
-                appointment_at: localDt.toISOString().slice(0, 16),
-              }));
-            }
-          }
-
-          setVoiceSummary(parsed);
-          setIsConfirmingVoice(true);
-
-          const missing: string[] = Array.isArray(data.missing) ? data.missing : [];
-          if (missing.length) {
-            const labels = missing
-              .map((m: string) =>
-                m === "customer_name" ? tm("fieldCustomer")
-                : m === "service" ? tm("fieldService")
-                : m === "datetime" ? tm("fieldDatetime")
-                : m,
-              )
-              .join(", ");
-            toast(tm("filledPartial", { fields: labels }), { icon: "📝", duration: 6000 });
-          } else {
-            toast.success(tm("filledComplete"));
-            setTimeout(() => {
-              startVoiceConfirmation();
-            }, 1000);
-          }
+          applyVoiceParsed(data.parsed);
         } else if (data.response) {
           toast(data.response, { icon: "🎙️" });
         } else {
@@ -340,7 +417,7 @@ export default function YeniRandevuPage() {
     };
 
     recognition.start();
-  }, [slotMinutes, staff, services, startVoiceConfirmation, requestMic, speechLang, tm]);
+  }, [requestMic, speechLang, tm, applyVoiceParsed]);
 
   // Auto-start voice booking if requested via URL params
   useEffect(() => {
@@ -474,7 +551,7 @@ export default function YeniRandevuPage() {
             )}
           >
             <Mic className="h-3.5 w-3.5" />
-            Konuşarak Doldur
+            {tm("fillByVoice")}
           </Button>
         </CardHeader>
         <CardContent>
@@ -487,26 +564,30 @@ export default function YeniRandevuPage() {
               
               {/* Voice Listening Alert */}
               {isListening && !isConfirmingVoice && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl p-3.5 flex items-center justify-between animate-pulse">
-                  <span className="text-xs font-semibold flex flex-col gap-0.5">
-                    <span className="flex items-center gap-2">
-                      <Mic className="h-4 w-4 text-red-500 animate-bounce" />
-                      {tm("listening")}
+                <div className="bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl p-3.5 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold flex flex-col gap-0.5">
+                      <span className="flex items-center gap-2">
+                        <Mic className="h-4 w-4 text-red-500 animate-pulse" />
+                        {tm("listening")}
+                      </span>
+                      <span className="text-[10px] font-normal opacity-80 pl-6">{tm("listeningHint")}</span>
                     </span>
-                    <span className="text-[10px] font-normal opacity-80 pl-6">{tm("listeningHint")}</span>
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    type="button"
-                    onClick={() => {
-                      if (recognitionRef.current) recognitionRef.current.abort();
-                      setIsListening(false);
-                    }}
-                    className="h-7 px-2 text-xs hover:bg-red-500/20 text-red-600"
-                  >
-                    İptal
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      type="button"
+                      onClick={() => recognitionRef.current?._stop?.()}
+                      className="h-7 px-2 text-xs hover:bg-red-500/20 text-red-600 shrink-0"
+                    >
+                      {tm("finishListening")}
+                    </Button>
+                  </div>
+                  {liveTranscript && (
+                    <p className="text-[11px] text-foreground/80 bg-background/60 rounded-lg px-2.5 py-1.5">
+                      <span className="opacity-60">{tm("heard")}: </span>{liveTranscript}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -515,28 +596,51 @@ export default function YeniRandevuPage() {
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-3">
                   <h3 className="text-sm font-semibold flex items-center gap-2 text-primary">
                     <Check className="h-4 w-4" />
-                    Randevu Bilgilerini Onaylayın
+                    {tm("confirmTitle")}
                   </h3>
                   <div className="text-xs space-y-1.5 text-muted-foreground">
-                    <p><strong className="text-foreground">Müşteri:</strong> {voiceSummary.customer_name || "Belirtilmedi"}</p>
-                    {voiceSummary.customer_phone && <p><strong className="text-foreground">Telefon:</strong> {voiceSummary.customer_phone}</p>}
-                    <p><strong className="text-foreground">Personel:</strong> {voiceSummary.staff_name || "Belirtilmedi"}</p>
-                    <p><strong className="text-foreground">Hizmet:</strong> {voiceSummary.service_name || "Belirtilmedi"}</p>
-                    <p><strong className="text-foreground">Tarih/Saat:</strong> {voiceSummary.appointment_at ? new Date(voiceSummary.appointment_at).toLocaleString("tr-TR") : "Belirtilmedi"}</p>
-                    {voiceSummary.note && <p><strong className="text-foreground">Not:</strong> {voiceSummary.note}</p>}
+                    <VoiceRow label={tm("lblCustomer")} value={voiceSummary.customer_name} missing={voiceMissing.includes("customer_name")} emptyLabel={tm("notProvided")} />
+                    {voiceSummary.customer_phone && <p><strong className="text-foreground">{tm("lblPhone")}:</strong> {voiceSummary.customer_phone}</p>}
+                    <VoiceRow label={tm("lblStaff")} value={voiceSummary.staff_name} missing={voiceMissing.includes("staff")} emptyLabel={tm("notProvided")} />
+                    <VoiceRow label={tm("lblService")} value={voiceSummary.service_name} missing={voiceMissing.includes("service")} emptyLabel={tm("notProvided")} />
+                    <VoiceRow
+                      label={tm("lblDatetime")}
+                      value={voiceSummary.appointment_at ? new Date(voiceSummary.appointment_at).toLocaleString() : ""}
+                      missing={voiceMissing.includes("datetime")}
+                      emptyLabel={tm("notProvided")}
+                    />
+                    {voiceSummary.note && <p><strong className="text-foreground">{tm("lblNote")}:</strong> {voiceSummary.note}</p>}
                   </div>
-                  <div className="flex gap-2 pt-1">
+                  {voiceMissing.length > 0 && (
+                    <p className="text-[11px] rounded-lg bg-amber-500/10 border border-amber-500/20 px-2.5 py-2 text-amber-700 dark:text-amber-400">
+                      {tm("missingHint")}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {voiceMissing.length > 0 && (
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="secondary"
+                        onClick={startVoiceBooking}
+                        className="flex-1 min-w-[140px] gap-1.5"
+                      >
+                        <Mic className="h-3.5 w-3.5" />
+                        {tm("completeByVoice")}
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       type="button"
                       onClick={() => {
                         setIsConfirmingVoice(false);
                         setVoiceSummary(null);
+                        setVoiceMissing([]);
                         saveAppointment();
                       }}
-                      className="flex-1"
+                      className="flex-1 min-w-[120px]"
                     >
-                      Onayla ve Kaydet
+                      {tm("confirmSave")}
                     </Button>
                     <Button
                       size="sm"
@@ -545,17 +649,13 @@ export default function YeniRandevuPage() {
                       onClick={() => {
                         setIsConfirmingVoice(false);
                         setVoiceSummary(null);
+                        setVoiceMissing([]);
                       }}
-                      className="flex-1"
+                      className="flex-1 min-w-[100px]"
                     >
-                      Düzenle / İptal
+                      {tm("confirmEdit")}
                     </Button>
                   </div>
-                  {isListening && (
-                    <p className="text-[10px] text-center text-red-500 animate-pulse font-medium">
-                      🎙️ 'Onaylıyorum' veya 'İptal' diyerek sesle kontrol edebilirsiniz.
-                    </p>
-                  )}
                 </div>
               )}
 
