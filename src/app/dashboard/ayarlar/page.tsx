@@ -189,7 +189,7 @@ const DELETE_CONFIRM_PHRASE = "HESABIMI SİL";
 
 export default function AyarlarPage() {
   const t = useTranslations("dashboard");
-  const tsp = useTranslations("dashboard.staffPermissions");
+  const tsp = useTranslations("staffPermissions");
   const router = useRouter();
   const [org, setOrg] = useState<Partial<Organization> | null>(null);
   const [staffList, setStaffList] = useState<StaffListItem[]>([]);
