@@ -14,8 +14,9 @@ const ORG = "8e73d29c-e312-49d1-8259-2ce510028320";
 const iso = (d) => d.toISOString().slice(0, 10);
 const addDays = (n) => { const d = new Date(); d.setUTCHours(12, 0, 0, 0); d.setUTCDate(d.getUTCDate() + n); return iso(d); };
 const TODAY = addDays(0);
-const PAST = [addDays(-2), addDays(-1)];
-const FUT = [addDays(1), addDays(2), addDays(3), addDays(4), addDays(5), addDays(6), addDays(7)];
+const PAST = [addDays(-4), addDays(-3), addDays(-2), addDays(-1)];
+// bu hafta sonu + eylülün ilk haftası
+const FUT = [addDays(1), addDays(2), addDays(3), addDays(4), addDays(5), addDays(6), addDays(7), addDays(8), addDays(9)];
 // UTC minutes-from-midnight; local = UTC+3
 const AMc = [300, 360, 420, 480, 540, 600];              // 08:00–13:00 local  (past / done)
 const PMc = [660, 720, 780, 840, 900];                    // 14:00–18:00 local  (upcoming today)
@@ -95,10 +96,13 @@ const req = appts.filter((a) => a.status === "talep");
 const rest = appts.filter((a) => !["tamamlandi", "onaylandi", "talep", ...EXEMPT].includes(a.status));
 if (rest.length) console.log("!! unexpected status:", rest.map((r) => r.status));
 
+// tamamlanan + gelmedi/iptal -> son 4 gün + bugün sabah
 assign(done, stream([...PAST, TODAY], AMc));
 assign(miss, stream([...PAST, TODAY], [...AMc, 660, 720]));
-assign(conf, [...stream([TODAY], PMc), ...stream(FUT, DAYc)]);
-assign(req, stream(FUT.slice(0, 3), PMc));
+// onaylanan -> bugün öğleden sonra (3) + bu hafta sonu ve eylül ilk haftası (2/gün)
+assign(conf, [...stream([TODAY], PMc.slice(0, 3)), ...stream(FUT.slice(0, 6), DAYc)]);
+// bekleyen talepler -> önümüzdeki birkaç gün öğleden sonra
+assign(req, stream(FUT.slice(1, 5), PMc));
 
 out.sort((a, b) => a.to.localeCompare(b.to));
 console.log(`\nPLAN — ${out.length}   ${APPLY ? "*** APPLYING ***" : "(dry-run)"}\n`);
