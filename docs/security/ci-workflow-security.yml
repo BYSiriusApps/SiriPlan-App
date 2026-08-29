@@ -1,0 +1,96 @@
+name: security
+
+# SEC-03 (izolasyon testi CI'da) + SEC-05 (bağımlılık & sır taraması)
+#
+# İki bağımsız iş:
+#   static  — her PR ve push'ta çalışır; dış sır gerektirmez. Lint, bağımlılık
+#             denetimi, i18n paritesi. Kırılırsa merge engellenir.
+#   isolation — supabase/migrations altında değişiklik olan push'larda ve elle
+#             tetiklemeyle çalışır. Canlıya (siriplan.com) karşı çapraz-kiracı
+#             izolasyon + yetki testlerini koşar. Repository Variables içinde
+#             SECURITY_TESTS_ENABLED=1 tanımlıysa aktif olur; değilse atlanır
+#             (fork PR'larda sır sızmasın diye).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Her pazartesi 05:00 TRT — haftalık düzenli tarama.
+    - cron: "0 2 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # SEC-05 — bilinen zafiyeti olan bağımlılık kapısı. moderate ve altı
+      # rapor edilir ama merge'i engellemez; high/critical hattı kırar.
+      - name: npm audit (high/critical gate)
+        run: npm audit --audit-level=high
+
+      - name: npm audit (tam rapor, bilgi amaçlı)
+        if: always()
+        run: npm audit || true
+
+      - name: i18n paritesi
+        run: npm run i18n:audit
+
+      - name: Lint
+        run: npm run lint
+
+  isolation:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'push')
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Gate — SECURITY_TESTS_ENABLED kontrolü
+        id: gate
+        run: |
+          if [ "${{ vars.SECURITY_TESTS_ENABLED }}" = "1" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::SECURITY_TESTS_ENABLED tanımlı değil — canlı izolasyon testi atlandı."
+          fi
+
+      # Betikler .env.local'den okur; CI'da secrets'tan üretiyoruz.
+      # ANON_KEY zaten istemci paketinde public — sır değil.
+      - name: .env.local üret
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+          } > .env.local
+
+      - name: Çapraz-kiracı izolasyon testi (canlı)
+        if: steps.gate.outputs.run == 'true'
+        run: npm run security:isolation -- --base=https://siriplan.com
+
+      - name: Yetki & müşteri-silme testi (canlı)
+        if: steps.gate.outputs.run == 'true'
+        run: npm run security:permissions -- --base=https://siriplan.com

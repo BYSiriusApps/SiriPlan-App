@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint src",
-    "i18n:audit": "node scripts/i18n-audit.mjs"
+    "i18n:audit": "node scripts/i18n-audit.mjs",
+    "security:isolation": "node scripts/security/tenant-isolation.mjs",
+    "security:permissions": "node scripts/security/permissions-audit.mjs",
+    "security:csp": "node scripts/security/csp-scan.mjs",
+    "security:all": "npm run security:isolation && npm run security:permissions"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
