@@ -24,9 +24,10 @@ interface Props {
   orgId: string;
   staff: StaffCard[];
   services: ServiceItem[];
+  currentStaffId?: string | null;
 }
 
-export function RandevularHeader({ orgId, staff, services }: Props) {
+export function RandevularHeader({ orgId, staff, services, currentStaffId }: Props) {
   const t = useTranslations("dashboard");
   return (
     <div className="flex items-center justify-between flex-wrap gap-3">
@@ -54,7 +55,7 @@ export function RandevularHeader({ orgId, staff, services }: Props) {
         >
           {t("detailedForm")}
         </Link>
-        <QuickBookSheet orgId={orgId} staff={staff} services={services} />
+        <QuickBookSheet orgId={orgId} staff={staff} services={services} currentStaffId={currentStaffId} />
       </div>
     </div>
   );

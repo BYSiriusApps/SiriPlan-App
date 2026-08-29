@@ -29,7 +29,9 @@ export async function GET(req: NextRequest) {
     .order("display_order");
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ staff: data });
+  // `currentStaffId`: isteği yapan kullanıcının kendi personel kaydı (varsa) —
+  // randevu formu personel belirtilmediğinde bunu otomatik seçer.
+  return NextResponse.json({ staff: data, currentStaffId: member.staff_id ?? null });
 }
 
 export async function POST(req: NextRequest) {

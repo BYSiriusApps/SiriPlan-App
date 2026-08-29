@@ -75,6 +75,8 @@ export default function YeniRandevuPage() {
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [staff, setStaff] = useState<Staff[]>([]);
+  // İsteği yapan kullanıcının kendi personel kaydı — personel belirtilmediğinde otomatik seçilir.
+  const [myStaffId, setMyStaffId] = useState<string>("");
   const [services, setServices] = useState<BookableService[]>([]);
   const [orgId, setOrgId] = useState<string>("");
   const [orgName, setOrgName] = useState<string>("");
@@ -142,7 +144,20 @@ export default function YeniRandevuPage() {
       fetch("/api/org").then((r) => r.json()),
     ])
       .then(([staffData, servicesData, orgData]) => {
-        setStaff(staffData.staff || []);
+        const staffList: Staff[] = staffData.staff || [];
+        setStaff(staffList);
+
+        // Personel otomatik seçimi: URL'de personel gelmediyse ve kullanıcı henüz
+        // seçmediyse — (1) kullanıcının kendi personel kaydı, yoksa (2) tek personel varsa o.
+        const myId: string =
+          staffData.currentStaffId && staffList.some((s) => s.id === staffData.currentStaffId)
+            ? staffData.currentStaffId
+            : "";
+        setMyStaffId(myId);
+        if (!prefillStaffId) {
+          const autoStaffId = myId || (staffList.length === 1 ? staffList[0].id : "");
+          if (autoStaffId) setForm((f) => (f.staff_id ? f : { ...f, staff_id: autoStaffId }));
+        }
         const bookableServices = ((servicesData.services || []) as Service[]).filter(isBookable);
         setServices(bookableServices);
         setOrgId(orgData.org?.id || "");
@@ -239,6 +254,8 @@ export default function YeniRandevuPage() {
     if (!parsed) return;
     const cur = formRef.current;
     const curServices = selectedServicesRef.current;
+    // Personel söylenmediyse: kullanıcının kendi kaydı, yoksa tek personel.
+    const autoStaffId = myStaffId || (staff.length === 1 ? staff[0].id : "");
 
     let apptLocal = "";
     if (parsed.appointment_at) {
@@ -254,7 +271,7 @@ export default function YeniRandevuPage() {
       ...f,
       customer_name: f.customer_name || parsed.customer_name || "",
       customer_phone: f.customer_phone || parsed.customer_phone || "",
-      staff_id: f.staff_id || parsed.staff_id || "",
+      staff_id: f.staff_id || parsed.staff_id || autoStaffId,
       note: f.note || parsed.note || "",
       appointment_at: f.appointment_at || apptLocal || "",
     }));
@@ -277,7 +294,7 @@ export default function YeniRandevuPage() {
     // setState asenkron — özet/eksik için birleşmiş anlık değerleri kendimiz kur.
     const mName = cur.customer_name || parsed.customer_name || "";
     const mPhone = cur.customer_phone || parsed.customer_phone || "";
-    const mStaffId = cur.staff_id || parsed.staff_id || "";
+    const mStaffId = cur.staff_id || parsed.staff_id || autoStaffId;
     const mStaffName = staff.find((s) => s.id === mStaffId)?.full_name || parsed.staff_name || "";
     const serviceNames = curServices.map((s) => s.name);
     if (addedServiceName && !serviceNames.includes(addedServiceName)) serviceNames.push(addedServiceName);
@@ -323,7 +340,7 @@ export default function YeniRandevuPage() {
         })
         .catch(() => {});
     }
-  }, [services, staff, tm, voiceLabelFor]);
+  }, [services, staff, myStaffId, tm, voiceLabelFor]);
 
   const startVoiceBooking = useCallback(async () => {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */

@@ -11,7 +11,7 @@ import {
 import { tr, enUS, ru, ar } from "date-fns/locale";
 import {
   Calendar, MessageCircle, Megaphone, Star, ChevronRight, Plus,
-  Clock, BarChart3, Wallet, Users, Scissors, Mic,
+  Clock, BarChart3, Wallet, Users, Scissors,
 } from "lucide-react";
 import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
 import { istanbulTimeStr, istanbulDateStr, DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
@@ -24,6 +24,7 @@ import { getDashboardWidgetPrefs } from "@/app/actions/dashboard-widgets";
 import { DashboardWidgetGrid, type DashboardWidget } from "@/components/dashboard/DashboardWidgetGrid";
 import { getTranslations, getLocale } from "next-intl/server";
 import { ApproveButton } from "@/components/dashboard/ApproveButton";
+import { NewAppointmentFab } from "@/components/dashboard/NewAppointmentFab";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
@@ -896,22 +897,8 @@ export default async function DashboardPage() {
         <DashboardWidgetGrid orgId={orgId} widgets={displayWidgets} initialPrefs={dashboardWidgetPrefs} />
       </div>
 
-      {/* ── Sabit "+ Randevu" ve Sesli Arama düğmesi (mobil kullanım için) ── */}
-      <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-2">
-        <Link
-          href="/dashboard/randevular/yeni?voice=true"
-          className="flex items-center justify-center w-12 h-12 rounded-full font-bold shadow-2xl hover:scale-105 transition-transform bg-red-600 text-white border border-red-500 animate-pulse"
-          title="Sesle Randevu Oluştur"
-        >
-          <Mic className="h-5 w-5 animate-bounce" />
-        </Link>
-        <Link
-          href="/dashboard/randevular/yeni"
-          className="flex items-center gap-1.5 px-4 py-3 rounded-full font-bold text-sm shadow-2xl hover:scale-105 transition-transform bg-primary text-primary-foreground neon-primary"
-        >
-          <Plus className="h-4 w-4" /> {t("homePage.newApptButton")}
-        </Link>
-      </div>
+      {/* ── Sabit "Randevu" düğmesi (mobil): tek dokunuş formu açar, basılı tutma sesli randevu ── */}
+      <NewAppointmentFab />
     </div>
   );
 }

@@ -152,6 +152,7 @@ export default async function TakvimPage({
           duration_minutes: s.duration_minutes,
         }))}
         today={today}
+        currentStaffId={member.staff_id}
       />
 
       {!staff || staff.length === 0 ? (

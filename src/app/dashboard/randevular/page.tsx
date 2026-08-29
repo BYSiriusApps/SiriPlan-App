@@ -212,6 +212,7 @@ export default async function RandevularPage({
           price: s.price,
           duration_minutes: s.duration_minutes,
         }))}
+        currentStaffId={member.staff_id}
       />
 
       <RandevularFilters

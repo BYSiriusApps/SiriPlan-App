@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { DateTimeSlotPicker, nextSlot } from "@/components/dashboard/DateTimeSlotPicker";
 import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
 import { useMicAccess } from "@/components/dashboard/useMicAccess";
+import { useLongPress } from "@/components/dashboard/useLongPress";
 
 interface StaffCard {
   id: string;
@@ -72,9 +73,11 @@ interface Props {
   orgId: string;
   staff: StaffCard[];
   services: ServiceItem[];
+  /** İsteği yapan kullanıcının kendi personel kaydı — personel seçilmediğinde otomatik seçilir. */
+  currentStaffId?: string | null;
 }
 
-export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, staff, services }: Props) {
+export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, staff, services, currentStaffId }: Props) {
   const router = useRouter();
   const t = useTranslations("dashboard.quickBook");
   const td = useTranslations("dashboard");
@@ -91,8 +94,15 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   const [isConfirmingVoice, setIsConfirmingVoice] = useState(false);
   const recognitionRef = useRef<any>(null);
 
+  // Personel belirtilmediğinde otomatik seçim: kullanıcının kendi kaydı, yoksa tek personel.
+  const autoStaffId = useMemo(() => {
+    if (currentStaffId && staff.some((s) => s.id === currentStaffId)) return currentStaffId;
+    if (staff.length === 1) return staff[0].id;
+    return "";
+  }, [currentStaffId, staff]);
+
   // Form state
-  const [selectedStaffId, setSelectedStaffId] = useState(preselectedStaffId ?? "");
+  const [selectedStaffId, setSelectedStaffId] = useState(preselectedStaffId ?? autoStaffId);
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [appointmentAt, setAppointmentAt] = useState(() => nextSlot(preselectedDate));
   const [customerName, setCustomerName] = useState("");
@@ -141,7 +151,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   // Reset on open
   useEffect(() => {
     if (open) {
-      setSelectedStaffId(preselectedStaffId ?? "");
+      setSelectedStaffId(preselectedStaffId ?? autoStaffId);
       setSelectedServiceId("");
       setAppointmentAt(nextSlot(preselectedDate, slotMinutes));
       setCustomerName("");
@@ -229,7 +239,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
     if (!cur.customerName && parsed.customer_name) setCustomerName(parsed.customer_name);
     if (!cur.customerPhone && parsed.customer_phone) setCustomerPhone(parsed.customer_phone);
-    if (!cur.selectedStaffId && parsed.staff_id) setSelectedStaffId(parsed.staff_id);
+    if (!cur.selectedStaffId) setSelectedStaffId(parsed.staff_id || autoStaffId);
     if (!cur.selectedServiceId && parsed.service_id) setSelectedServiceId(parsed.service_id);
     if (!cur.note && parsed.note) setNote(parsed.note);
     if (parsed.appointment_at) {
@@ -240,7 +250,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     }
 
     const mName = cur.customerName || parsed.customer_name || "";
-    const mStaffId = cur.selectedStaffId || parsed.staff_id || "";
+    const mStaffId = cur.selectedStaffId || parsed.staff_id || autoStaffId;
     const mServiceId = cur.selectedServiceId || parsed.service_id || "";
     const svc = services.find((s) => s.id === mServiceId);
     const mStaffName = staff.find((s) => s.id === mStaffId)?.full_name || parsed.staff_name || "";
@@ -286,7 +296,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
         })
         .catch(() => {});
     }
-  }, [services, staff, tm, voiceLabelFor]);
+  }, [services, staff, autoStaffId, tm, voiceLabelFor]);
 
   const startVoiceBooking = useCallback(async () => {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -400,6 +410,17 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     recognition.start();
   }, [requestMic, speechLang, tm, applyVoiceParsed]);
 
+  // Mikrofon düğmesi: tek dokunuş yalnızca formu açar; basılı tutma formu açıp
+  // dinlemeye başlar. (Eskiden tek dokunuş da dinlemeyi başlatıyordu — "randevu"
+  // ve "mikrofon" düğmeleri ayırt edilemiyordu.)
+  const micLongPress = useLongPress({
+    onTap: () => setOpen(true),
+    onLongPress: () => {
+      setOpen(true);
+      setTimeout(() => startVoiceBooking(), 250);
+    },
+  });
+
   async function saveAppointment() {
     if (!selectedStaffId) { toast.error(t("errorStaffRequired")); return false; }
     if (!selectedServiceId) { toast.error(t("errorServiceRequired")); return false; }
@@ -490,6 +511,20 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
           </SheetHeader>
 
           <form onSubmit={handleSubmit} className="px-6 py-5 space-y-6">
+
+            {/* Konuşarak doldur — form açıkken sesli girişe geçiş */}
+            {!isListening && !isConfirmingVoice && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={startVoiceBooking}
+                className="w-full gap-1.5 text-primary border-primary/20 hover:bg-primary/5 hover:text-primary"
+              >
+                <Mic className="h-3.5 w-3.5" />
+                {tm("fillByVoice")}
+              </Button>
+            )}
 
             {/* Voice Listening Alert */}
             {isListening && !isConfirmingVoice && (
@@ -825,22 +860,18 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
         </SheetContent>
       </Sheet>
 
-      {/* Voice Booking Mic Button next to the trigger */}
+      {/* Mikrofon düğmesi: tek dokunuş formu açar, basılı tutma sesli randevuyu başlatır */}
       <Button
         type="button"
         variant="outline"
         size="sm"
-        onClick={() => {
-          setOpen(true);
-          setTimeout(() => {
-            startVoiceBooking();
-          }, 200);
-        }}
+        {...micLongPress.handlers}
         className={cn(
-          "h-9 w-9 p-0 shrink-0 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary transition-all",
-          isListening ? "border-red-500 text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20" : ""
+          "h-9 w-9 p-0 shrink-0 touch-none border-primary/20 text-primary hover:bg-primary/5 hover:text-primary transition-all",
+          isListening || micLongPress.holding ? "border-red-500 text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20" : ""
         )}
-        title={tm("fillByVoice")}
+        title={tm("holdForVoice")}
+        aria-label={tm("holdForVoice")}
       >
         <Mic className="h-4 w-4" />
       </Button>

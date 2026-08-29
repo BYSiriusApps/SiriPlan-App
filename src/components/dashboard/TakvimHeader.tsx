@@ -24,9 +24,10 @@ interface Props {
   staff: StaffCard[];
   services: ServiceItem[];
   today: string;
+  currentStaffId?: string | null;
 }
 
-export function TakvimHeader({ orgId, staff, services, today }: Props) {
+export function TakvimHeader({ orgId, staff, services, today, currentStaffId }: Props) {
   const t = useTranslations("dashboard");
   return (
     <div className="flex items-center justify-between flex-wrap gap-3">
@@ -45,6 +46,7 @@ export function TakvimHeader({ orgId, staff, services, today }: Props) {
         staff={staff}
         services={services}
         preselectedDate={today}
+        currentStaffId={currentStaffId}
       />
     </div>
   );
