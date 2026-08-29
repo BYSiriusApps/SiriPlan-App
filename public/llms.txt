@@ -1,81 +1,31 @@
-# Siriplan — AI Destekli Randevu ve İşletme Yönetim Platformu
+# Siriplan
 
-> Siriplan, Türkiye'deki kuaför, berber, güzellik salonu, spa, nail studio, estetik merkezi ve klinikler için yapay zeka destekli randevu, müşteri ve gelir yönetim platformudur. BY Sirius Group tarafından geliştirilmiştir.
+> Siriplan, randevulu hizmet veren işletmeler (kuaför, berber, güzellik salonu, spa, nail studio, estetik merkezi, diş kliniği, pet kuaför vb.) için online randevu, müşteri ve işletme yönetim platformudur. BY Sirius Group AI and Technology Co. Ltd. tarafından geliştirilir.
 
-## Platform Hakkında
+## Sayfalar
 
-Siriplan, hizmet sektöründeki küçük ve orta ölçekli işletmelerin randevu yönetimini dijitalleştirmesine olanak tanır. Platform; online randevu alma, otomatik müşteri hatırlatmaları (WhatsApp/SMS), personel takvimi, gelir analizi ve AI asistan özellikleri sunar.
-
-**Hedef kitle:** Kuaförler, berberler, güzellik uzmanları, spa & masaj merkezleri, nail stüdyolar, estetik ve medikal estetik klinikler, diyetisyenler, fitness antrenörleri.
-
-**Teknoloji:** Next.js, Supabase, Stripe, WhatsApp Business API, Claude AI.
-
-**Fiyatlandırma:** Starter ($39/ay), Pro ($79/ay), Business ($149/ay) — 7 gün ücretsiz deneme.
-
-## Ana Sayfalar
-
-- Ana Sayfa: https://siriplan.com
+- Ana sayfa: https://siriplan.com
 - Özellikler: https://siriplan.com/ozellikler
 - Fiyatlandırma: https://siriplan.com/fiyatlar
-- Demo İste: https://siriplan.com/demo
 - Entegrasyonlar: https://siriplan.com/entegrasyonlar
 - Hakkımızda: https://siriplan.com/hakkimizda
 - Blog: https://siriplan.com/blog
 - İletişim: https://siriplan.com/iletisim
 - SSS: https://siriplan.com/sss
 
-## Sektöre Özel Sayfalar
+## Sektörler
 
-- Kuaför Randevu Sistemi: https://siriplan.com/kategori/kuafor
-- Berber Programı: https://siriplan.com/kategori/berber
-- Güzellik Salonu Yönetimi: https://siriplan.com/kategori/guzellik
-- Spa & Masaj Merkezi: https://siriplan.com/kategori/spa
-- Nail Studio: https://siriplan.com/kategori/nail
-- Estetik Merkezi: https://siriplan.com/kategori/estetik
-- Makyaj Stüdyosu: https://siriplan.com/kategori/makyaj
-- Dövme & Piercing: https://siriplan.com/kategori/tattoo
-- Diyetisyen & Beslenme: https://siriplan.com/kategori/diyetisyen
-- Fitness & Kas Geliştirme: https://siriplan.com/kategori/kas
+Sektöre özel sayfalar: https://siriplan.com/kategori/{sektor}
 
-## Temel Özellikler
+## İletişim
 
-1. **Online Randevu** — Müşteriler 7/24 web veya link üzerinden randevu alır
-2. **WhatsApp Hatırlatmaları** — Otomatik randevu hatırlatma ve onay mesajları
-3. **Personel Takvimi** — Çoklu personel ve hizmet yönetimi
-4. **AI Asistan** — Müşteri sorularını yanıtlayan chatbot
-5. **Gelir Analizi** — Günlük/haftalık/aylık ciro takibi
-6. **Müşteri Kartı** — Müşteri geçmişi, notlar, tercih takibi
-7. **Online Ödeme** — Stripe üzerinden ön ödeme ve depozito
-8. **Çoklu Şube** — Business planda birden fazla lokasyon yönetimi
-9. **SMS & E-posta** — Pazarlama kampanyaları
-10. **KVKK Uyumlu** — Türkiye veri koruma kanununa tam uyum
+- E-posta: info@bysirius.com
+- Web: https://bysirius.com
 
-## Blog Konuları
+## Yasal
 
-- Randevu doluluk oranı artırma stratejileri
-- Kuaför salonu dijital pazarlama
-- WhatsApp ile müşteri iletişimi
-- Güzellik sektöründe sadakat programları
-- Online randevu sistemine geçiş rehberi
-- Salon yönetimi ve verimlilik ipuçları
-
-## Şirket Bilgisi
-
-- **Şirket:** BY Sirius Group Ai & Technology Co Ltd.
-- **Web:** https://bysirius.com
-- **Telefon:** +90 535 503 26 34
-- **E-posta:** info@bysirius.com
-- **Lokasyon:** Türkiye
-- **Kuruluş:** 2024
-
-## Sık Sorulan Sorular (Özet)
-
-**Siriplan ücretsiz mi?** 7 günlük ücretsiz deneme sunulmaktadır; sonrasında aylık planlar geçerlidir.
-
-**Hangi sektörler kullanabilir?** Kuaför, berber, güzellik, spa, nail, estetik, diyetisyen, fitness ve tüm randevulu hizmet sektörleri.
-
-**Uygulama var mı?** Mobil tarayıcıdan tam uyumlu olarak çalışır; PWA olarak ana ekrana eklenebilir.
-
-**WhatsApp entegrasyonu nasıl çalışır?** WhatsApp Business API ile otomatik randevu hatırlatması, onay ve kampanya mesajları gönderilir.
-
-**Ödeme güvenli mi?** Ödemeler Stripe altyapısı üzerinden güvenli şekilde işlenir, kart bilgileri Siriplan'da saklanmaz.
+- Gizlilik Politikası: https://siriplan.com/gizlilik
+- Kullanım Koşulları: https://siriplan.com/kosullar
+- Çerez Politikası: https://siriplan.com/cerezler
+- KVKK Aydınlatma Metni: https://siriplan.com/kvkk
+- Güvenlik: https://siriplan.com/guvenlik

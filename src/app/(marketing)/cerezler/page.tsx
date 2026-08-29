@@ -26,6 +26,10 @@ export default async function CerezlerPage() {
 
       <div className="prose prose-sm dark:prose-invert max-w-none space-y-8">
 
+        <p className="rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground leading-relaxed not-prose">
+          {t("cookiesPage.bannerNote")}
+        </p>
+
         <section>
           <h2 className="text-xl font-semibold mb-3">{t("cookiesPage.s1Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
