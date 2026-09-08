@@ -18,6 +18,7 @@ import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { CustomerSearchField } from "@/components/dashboard/CustomerSearchField";
 import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
 import { useMicAccess } from "@/components/dashboard/useMicAccess";
+import { lookupCustomerBySpokenName } from "@/lib/voice-customer-lookup";
 
 const FAVORITES_KEY = "siriplan_fav_services";
 
@@ -325,20 +326,13 @@ export default function YeniRandevuPage() {
 
     // İsim söylendi ama telefon yoksa: kayıtlı müşteriden numarayı otomatik getir.
     if (mName && !mPhone) {
-      const key = mName.trim().toLocaleLowerCase("tr-TR");
-      fetch(`/api/customers?q=${encodeURIComponent(mName)}&limit=3`)
-        .then((r) => r.json())
-        .then((j) => {
-          const list: { full_name?: string; phone?: string; email?: string }[] = j.customers || [];
-          const exact = list.filter((c) => (c.full_name || "").trim().toLocaleLowerCase("tr-TR") === key);
-          const pick = exact.length === 1 ? exact[0] : list.length === 1 ? list[0] : null;
-          if (!pick?.phone) return;
-          setForm((f) => (f.customer_phone ? f : { ...f, customer_phone: pick.phone!, customer_email: f.customer_email || pick.email || "" }));
-          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-          setVoiceSummary((s: any) => (s && !s.customer_phone ? { ...s, customer_phone: pick.phone } : s));
-          toast.success(tm("phoneAutofilled", { name: pick.full_name }));
-        })
-        .catch(() => {});
+      lookupCustomerBySpokenName(mName).then((pick) => {
+        if (!pick) return;
+        setForm((f) => (f.customer_phone ? f : { ...f, customer_phone: pick.phone, customer_email: f.customer_email || pick.email || "" }));
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        setVoiceSummary((s: any) => (s && !s.customer_phone ? { ...s, customer_phone: pick.phone } : s));
+        toast.success(tm("phoneAutofilled", { name: pick.full_name }));
+      });
     }
   }, [services, staff, myStaffId, tm, voiceLabelFor]);
 

@@ -323,8 +323,25 @@ const NAME_STOP = new Set([
   "book", "appointment", "for", "with", "tomorrow", "today", "next", "week", "at", "an",
 ]);
 
+/**
+ * Ardışık yinelenen kelimeleri atar. Konuşma tanıma, kekeleme/yankı yüzünden
+ * sık sık ilk adı tekrarlıyor ("Melike Melike Yılmaz", "Yusuf Yusuf Cin").
+ * Karşılaştırma Türkçe-duyarlı küçük harf + aksan sadeleştirmeyle yapılır
+ * ("Ali ALİ Veli" → "Ali Veli"). Yalnızca YAN YANA tekrarları atar —
+ * "Ayşe Nur Ayşe" gibi meşru adları bozmaz.
+ */
+export function dedupeAdjacentWords(name: string): string {
+  const out: string[] = [];
+  for (const w of name.split(/\s+/).filter(Boolean)) {
+    const prev = out[out.length - 1];
+    if (prev && deburr(prev) === deburr(w)) continue;
+    out.push(w);
+  }
+  return out.join(" ");
+}
+
 function titleCase(name: string): string {
-  return name
+  return dedupeAdjacentWords(name)
     .split(/\s+/)
     .filter(Boolean)
     .map((w) => w.charAt(0).toLocaleUpperCase("tr-TR") + w.slice(1))
