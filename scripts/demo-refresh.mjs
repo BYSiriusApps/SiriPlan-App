@@ -28,6 +28,8 @@ const NAME_FIX = {
   "özgün üstüay": "Özgün Üstüay", "OZGUN USTUAY": "Özgün Üstüay",
   "Helin üstüay": "Helin Üstüay", "Hayriye toy": "Hayriye Toy",
   "Mine rey": "Mine Rey", "Lale kul": "Lale Kul", "Cilt Uzmanı": "Derya Şahin",
+  "Eylül yıl": "Eylül Yıldız", "Melike Melike Yılmaz": "Melike Yılmaz",
+  "Yusuf Yusuf Cin": "Yusuf Cin", "Yusuf guney": "Yusuf Güney", "Yusuf kuzey": "Yusuf Kuzey",
 };
 const hhmm = (m) => `${String((m / 60) | 0).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}:00`;
 // slot-major cell stream: spreads appts across days first, then later times
@@ -59,6 +61,25 @@ const ACTIVE_SVC = [
   }
 }
 
+// ── STATÜ DENGELEME ─────────────────────────────────────────
+// /api/cron/noshow (18:30, son 24s penceresi) geçmişteki "onaylandi"
+// randevuları "gelmedi"ye çeviriyor. Demo kimse tarafından işletilmediği
+// için her gün biraz daha "no-show mezarlığına" dönüşüyordu (49 randevunun
+// 32'si gelmedi). Çözüm: tamamlandı geçmişte kalır, gelmedi'lerin çoğu
+// "onaylandi"ya çevrilip GELECEĞE dağıtılır; sadece birkaçı geçmişte
+// gerçek "gelmedi" olarak durur. gelmedi→onaylandi geçişi completion
+// trigger'ını tetiklemez (yalnızca tamamlandı'ya giriş/çıkış tetikler).
+const KEEP_MISS = 6; // geçmişte kalacak gerçekçi "gelmedi" sayısı
+{
+  let kept = 0;
+  for (const a of appts) {
+    if (a.status !== "gelmedi") continue;
+    if (kept < KEEP_MISS) { kept++; continue; }
+    a.status = "onaylandi";
+    a._statusChanged = true;
+  }
+}
+
 const EXEMPT = new Set(["iptal", "gelmedi"]);
 const booked = {};                     // booked[day][staff] = [[s,e)]
 const hit = (d, st, s, e) => (booked[d]?.[st] ?? []).some(([bs, be]) => s < be && bs < e);
@@ -76,13 +97,15 @@ const assign = (list, cells) => {
         const fix = NAME_FIX[(a.customer_name || "").trim()];
         out.push({ id: a.id, to: `${day}T${hhmm(min)}+00:00`, status: a.status, staff: sName[a.staff_id] ?? "—",
           nameFrom: a.customer_name, nameTo: fix && fix !== a.customer_name ? fix : null,
-          staffId: a._staffChanged ? a.staff_id : null });
+          staffId: a._staffChanged ? a.staff_id : null,
+          statusTo: a._statusChanged ? a.status : null });
         done = true;
       }
     }
     if (!done) { // rare fallback
       const [day, min] = cells[k % cells.length];
-      out.push({ id: a.id, to: `${day}T${hhmm(min)}+00:00`, status: a.status, staff: sName[a.staff_id] ?? "—", nameFrom: a.customer_name, nameTo: null });
+      out.push({ id: a.id, to: `${day}T${hhmm(min)}+00:00`, status: a.status, staff: sName[a.staff_id] ?? "—", nameFrom: a.customer_name, nameTo: null,
+        staffId: a._staffChanged ? a.staff_id : null, statusTo: a._statusChanged ? a.status : null });
     }
     k++;
   }
@@ -96,11 +119,14 @@ const req = appts.filter((a) => a.status === "talep");
 const rest = appts.filter((a) => !["tamamlandi", "onaylandi", "talep", ...EXEMPT].includes(a.status));
 if (rest.length) console.log("!! unexpected status:", rest.map((r) => r.status));
 
-// tamamlanan + gelmedi/iptal -> son 4 gün + bugün sabah
+// tamamlanan -> son 4 gün + bugün sabah
 assign(done, stream([...PAST, TODAY], AMc));
-assign(miss, stream([...PAST, TODAY], [...AMc, 660, 720]));
-// onaylanan -> bugün öğleden sonra (3) + bu hafta sonu ve eylül ilk haftası (2/gün)
-assign(conf, [...stream([TODAY], PMc.slice(0, 3)), ...stream(FUT.slice(0, 6), DAYc)]);
+// gelmedi/iptal (az sayıda, gerçekçi) -> yalnızca geçmiş günler
+assign(miss, stream(PAST, [...AMc, 660, 720]));
+// onaylanan -> bugün öğleden sonra + önümüzdeki 9 gün (güne ~3 randevu).
+// Çoğu geleceğe dağıtılıyor ki noshow cron'u geçmişi her gün eritse bile
+// takvimde daima dolu bir "yaklaşan randevu" listesi kalsın.
+assign(conf, [...stream([TODAY], PMc.slice(0, 2)), ...stream(FUT, DAYc)]);
 // bekleyen talepler -> önümüzdeki birkaç gün öğleden sonra
 assign(req, stream(FUT.slice(1, 5), PMc));
 
@@ -111,7 +137,10 @@ for (const p of out) {
   console.log(`${p.to.slice(0, 10)} ${lt} [${p.status.padEnd(10)}] ${p.staff.padEnd(14)} ${p.nameTo ? `${p.nameFrom} => ${p.nameTo}` : p.nameFrom}`);
 }
 const bd = {}; for (const p of out) bd[p.to.slice(0, 10)] = (bd[p.to.slice(0, 10)] || 0) + 1;
-console.log("\nper day:", bd, "| name fixes:", out.filter((p) => p.nameTo).length);
+const sc = {}; for (const p of out) sc[p.status] = (sc[p.status] || 0) + 1;
+console.log("\nper day:", bd);
+console.log("status:", sc, "| name fixes:", out.filter((p) => p.nameTo).length,
+  "| status flips (gelmedi→onaylandi):", out.filter((p) => p.statusTo).length);
 if (!APPLY) { console.log("\n(dry-run)"); process.exit(0); }
 
 console.log("\nphase 1: park");
@@ -126,14 +155,27 @@ for (const p of out) {
   const patch = { appointment_at: p.to };
   if (p.nameTo) patch.customer_name = p.nameTo;
   if (p.staffId) patch.staff_id = p.staffId;
+  if (p.statusTo) patch.status = p.statusTo;
+  // "onaylandi" randevularda WhatsApp hatırlatma zaman damgalarını doldur:
+  // Supabase pg_cron'u (016) demo müşterilerinin gerçek görünümlü telefonlarına
+  // (05xx…) platform numarasından hatırlatma göndermesin — get_due_whatsapp_reminders()
+  // yalnızca wa_reminder2_sent_at IS NULL olanları seçiyor.
+  if (p.status === "onaylandi") {
+    patch.wa_reminder_sent_at = p.to;
+    patch.wa_reminder2_sent_at = p.to;
+  }
   const { error: e } = await sb.from("appointments").update(patch).eq("id", p.id).eq("org_id", ORG);
   if (e) { fail++; console.error("FAIL", p.to, e.message); } else ok++;
 }
 console.log(`done: ${ok} ok / ${fail} fail`);
 const { data: pr } = await sb.from("appointment_requests").select("id").eq("org_id", ORG).limit(1);
 if (pr?.[0]) {
+  // pending talep tarihleri de bugüne göre kayar: randevu 3 gün sonra 12:30,
+  // talep dünden düşmüş gibi görünsün diye created_at 1 gün önce 08:15.
+  const reqAt = `${addDays(3)}T12:30:00+00:00`;
+  const reqCreated = `${addDays(-1)}T08:15:00+00:00`;
   const { error: e } = await sb.from("appointment_requests")
-    .update({ appointment_at: "2026-08-29T12:30:00+00:00", status: "pending", created_at: "2026-08-27T08:15:00+00:00" })
+    .update({ appointment_at: reqAt, status: "pending", created_at: reqCreated })
     .eq("id", pr[0].id).eq("org_id", ORG);
-  console.log("request:", e ? "FAIL " + e.message : "pending @ 08-29 12:30");
+  console.log("request:", e ? "FAIL " + e.message : `pending @ ${reqAt.slice(0, 16)}`);
 }
