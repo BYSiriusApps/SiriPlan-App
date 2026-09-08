@@ -58,6 +58,8 @@ interface EmailStrings {
   birthdaySubject: (name: string, org: string) => string;
   /** WhatsApp serbest metni — şablon değil, düz mesaj. */
   birthdayWhatsApp: (name: string, org: string, url: string) => string;
+  /** Ticari elektronik iletide zorunlu ret bilgisi (6563 m.9). */
+  birthdayOptOut: string;
 }
 
 const tr: EmailStrings = {
@@ -93,6 +95,7 @@ const tr: EmailStrings = {
   birthdaySubject: (name, org) => `🎂 Doğum Gününüz Kutlu Olsun, ${name}! — ${org}`,
   birthdayWhatsApp: (name, org, url) =>
     `🎂 Doğum günün kutlu olsun, ${name}!\n\n${org} ailesi olarak bu özel günde yanındayız.\n\nSeni misafir etmek ve güzel hissettirmek isteriz. Bu ay yapacağın ziyarette sana özel %10 indirim sunuyoruz! 🎁\n\nRandevu için: ${url}`,
+  birthdayOptOut: 'Bu tanıtım mesajlarını almak istemiyorsanız işletmeye "RET" yazmanız yeterlidir.',
 };
 
 const en: EmailStrings = {
@@ -128,6 +131,7 @@ const en: EmailStrings = {
   birthdaySubject: (name, org) => `🎂 Happy Birthday, ${name}! — ${org}`,
   birthdayWhatsApp: (name, org, url) =>
     `🎂 Happy birthday, ${name}!\n\nEveryone at ${org} is thinking of you on your special day.\n\nWe'd love to welcome you and help you feel your best. Enjoy 10% off your visit this month! 🎁\n\nBook here: ${url}`,
+  birthdayOptOut: 'If you no longer wish to receive these promotional messages, reply "STOP" to the business.',
 };
 
 const ru: EmailStrings = {
@@ -163,6 +167,7 @@ const ru: EmailStrings = {
   birthdaySubject: (name, org) => `🎂 С днём рождения, ${name}! — ${org}`,
   birthdayWhatsApp: (name, org, url) =>
     `🎂 С днём рождения, ${name}!\n\nВесь коллектив ${org} поздравляет вас в этот особенный день.\n\nБудем рады видеть вас и помочь вам выглядеть прекрасно. В этом месяце для вас скидка 10%! 🎁\n\nЗапись: ${url}`,
+  birthdayOptOut: 'Если вы больше не хотите получать рекламные сообщения, ответьте бизнесу «СТОП».',
 };
 
 const ar: EmailStrings = {
@@ -198,6 +203,7 @@ const ar: EmailStrings = {
   birthdaySubject: (name, org) => `🎂 عيد ميلاد سعيد يا ${name}! — ${org}`,
   birthdayWhatsApp: (name, org, url) =>
     `🎂 عيد ميلاد سعيد يا ${name}!\n\nفريق ${org} يشاركك هذا اليوم المميز.\n\nيسعدنا استقبالك ومساعدتك على الشعور بأفضل حال. لك خصم 10% على زيارتك هذا الشهر! 🎁\n\nللحجز: ${url}`,
+  birthdayOptOut: 'إذا لم تعد ترغب في تلقّي هذه الرسائل الترويجية، اكتب «إيقاف» للنشاط التجاري.',
 };
 
 const TABLE: Record<EmailLocale, EmailStrings> = { tr, en, ru, ar };

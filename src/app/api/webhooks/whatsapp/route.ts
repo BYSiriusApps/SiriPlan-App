@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { verifyMetaSignature, safeCompare } from "@/lib/webhook-signature";
 import { hit } from "@/lib/rate-limit";
 import { sanitizeUserMessage, wrapAsUserData } from "@/lib/ai-input";
+import { isMarketingOptOut, recordMarketingOptOut } from "@/lib/marketing-opt-out";
 
 export const runtime = "nodejs";
 
@@ -165,6 +166,27 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (!org || !org.wa_token) {
+      return NextResponse.json({ ok: true });
+    }
+
+    // ── Pazarlama iletisi RET (opt-out) — 6563 m.9 / İYS ──────────────────
+    // Müşteri "RET" (veya eşdeğeri) yazdıysa pazarlama onayını geri çek ve
+    // teyit mesajı gönder. AI/otomatik yanıt akışına DÜŞMEDEN burada biter.
+    // İşlemsel bildirimler (randevu onay/hatırlatma) bundan etkilenmez.
+    if (isMarketingOptOut(messageText)) {
+      const optOutPhone = senderPhone.replace(/^90/, "0");
+      await recordMarketingOptOut(supabase, {
+        orgId: org.id,
+        phone: optOutPhone,
+        source: "whatsapp_reply",
+        messageSnapshot: messageText,
+      });
+      await sendWAMessage(
+        senderPhone,
+        `Talebiniz alındı. Bu numaraya artık tanıtım ve kampanya mesajı gönderilmeyecek. Randevu onay ve hatırlatmaları devam eder.`,
+        org.wa_token,
+        org.wa_phone_number_id!
+      );
       return NextResponse.json({ ok: true });
     }
 

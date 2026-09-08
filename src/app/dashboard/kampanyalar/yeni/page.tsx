@@ -52,6 +52,7 @@ export default function YeniKampanyaPage() {
     scheduled_at: "",
   });
   const [kvkkConsent, setKvkkConsent] = useState(false);
+  const [iysConsent, setIysConsent] = useState(false);
 
   // ── Hedef müşteri seçimi (filtreleme + seçme) ──
   const [customers, setCustomers] = useState<PickerCustomer[]>([]);
@@ -117,6 +118,7 @@ export default function YeniKampanyaPage() {
     if (!form.name.trim()) return toast.error("Kampanya adı zorunlu");
     if (!form.message_template.trim()) return toast.error("Mesaj şablonu zorunlu");
     if (!kvkkConsent) return toast.error("KVKK onayı zorunludur. Müşterilerin rızasını doğrulayın.");
+    if (!iysConsent) return toast.error("İYS beyanı zorunludur. Ticari elektronik ileti gönderen işletme İYS'ye kayıtlı olmalı ve onayları İYS'ye yüklemiş olmalıdır.");
 
     const segment: Record<string, unknown> = {};
     if (form.type === "inactive") {
@@ -412,7 +414,20 @@ export default function YeniKampanyaPage() {
           </span>
         </label>
 
-        <Button type="submit" className="w-full" disabled={loading || !kvkkConsent}>
+        <label className="flex items-start gap-3 p-4 rounded-xl border-2 border-orange-200 bg-orange-50 dark:border-orange-900/50 dark:bg-orange-950/20 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={iysConsent}
+            onChange={(e) => setIysConsent(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded accent-orange-600 shrink-0"
+          />
+          <span className="text-sm text-orange-800 dark:text-orange-300">
+            <strong>İYS Beyanı:</strong> 6563 sayılı Kanun uyarınca ticari elektronik ileti gönderen işletme sıfatıyla İleti Yönetim Sistemi&apos;ne (İYS) kayıtlıyım; bu müşterilerin onaylarını İYS&apos;ye yükledim ve ret taleplerini İYS&apos;ye işlerim. Siriplan yalnızca teknik gönderim altyapısı sağlar; İYS yükümlülükleri bana aittir.{" "}
+            <a href="https://iys.org.tr" target="_blank" rel="noreferrer" className="underline">iys.org.tr</a>
+          </span>
+        </label>
+
+        <Button type="submit" className="w-full" disabled={loading || !kvkkConsent || !iysConsent}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
           Kampanya Oluştur
         </Button>

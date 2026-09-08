@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveCampaignRecipients, renderCampaignMessage } from "@/lib/campaign-segment";
 import { sendSms } from "@/lib/sms";
+import { optOutFooter } from "@/lib/marketing-opt-out";
 
 /**
  * Kampanya gönderiminin tek gerçek uygulaması. Hem kullanıcının "Şimdi Gönder"
@@ -90,11 +91,12 @@ export async function sendCampaignNow(
       continue;
     }
 
-    const message = renderCampaignMessage(campaign.message_template, {
-      customerName: c.full_name,
-      orgName: org.name,
-      lastVisitAt: c.last_visit_at,
-    });
+    const message =
+      renderCampaignMessage(campaign.message_template, {
+        customerName: c.full_name,
+        orgName: org.name,
+        lastVisitAt: c.last_visit_at,
+      }) + optOutFooter(channel === "sms" ? "sms" : "whatsapp");
 
     if (channel === "sms") {
       const result = await sendSms({ toPhone: c.phone, orgId: campaign.org_id, message });
