@@ -118,7 +118,6 @@
         "Haftanın Elemanı gamification"
       ],
       "notIncluded": [
-        "Müşteri sesli randevu hizmeti",
         "AI WhatsApp/IG asistanı"
       ]
     },
@@ -126,10 +125,9 @@
       "name": "Business",
       "desc": "Çok şubeli işletmeler için",
       "features": [
-        "Sınırsız şube",
+        "5 şubeye kadar",
         "Sınırsız personel",
         "Tüm Pro özellikleri",
-        "Müşteri sesli randevu hizmeti",
         "AI WhatsApp/IG asistanı",
         "Özel entegrasyonlar"
       ],
@@ -172,7 +170,7 @@
       "q4": "Faturalama nasıl çalışıyor?",
       "a4": "Stripe ile güvenli ödeme. Aylık veya yıllık seçebilirsiniz. Yıllıkta %18 tasarruf edersiniz.",
       "q5": "Birden fazla şube yönetebilir miyim?",
-      "a5": "Business planında sınırsız şube yönetebilirsiniz. Starter/Pro için Ek Şube Paketi eklenerek genişletilebilir."
+      "a5": "Business planında 5 şubeye kadar yönetebilirsiniz. Starter/Pro için Ek Şube Paketi eklenerek genişletilebilir."
     },
     "ctaTitle": "Hâlâ Kararsız mısınız?",
     "ctaSubtitle": "Demo talep edin, ekibimiz 30 dakikada salonunuz için en uygun planı anlatsın.",
@@ -496,7 +494,7 @@
           },
           "q4": {
             "q": "Birden fazla şube yönetebilir miyim?",
-            "a": "Evet. Business planında sınırsız şube yönetebilirsiniz. Starter ve Pro planlar için şube başına ek paket seçeneği mevcuttur."
+            "a": "Evet. Business planında 5 şubeye kadar yönetebilirsiniz. Starter ve Pro planlar için şube başına ek paket seçeneği mevcuttur."
           }
         }
       },
@@ -894,7 +892,7 @@
       "q3": "WhatsApp AI asistanı nasıl çalışıyor?",
       "a3": "Müşterilerinizin WhatsApp mesajlarını 7/24 anlık olarak yanıtlar. Randevu soruları, fiyat bilgisi ve yönlendirmeyi otomatik yapar. Siz sadece hizmetinize odaklanın.",
       "q4": "Birden fazla şube yönetebilir miyim?",
-      "a4": "Business planında sınırsız şube tek ekrandan yönetilir. Starter veya Pro planına Ek Şube Paketi eklenerek genişletilebilir.",
+      "a4": "Business planında 5 şubeye kadar tek ekrandan yönetilir. Starter veya Pro planına Ek Şube Paketi eklenerek genişletilebilir.",
       "q5": "KVKK uyumlu mu?",
       "a5": "Evet. Müşteri verileri KVKK mevzuatına uygun işlenir, uçtan uca şifreleme uygulanır. Aydınlatma metni şablonu ve onay yönetimi dahildir.",
       "q6": "İstediğim zaman iptal edebilir miyim?",
@@ -926,6 +924,35 @@
     "trialNote": "14 gün ücretsiz, kredi kartı gerekmez"
   },
   "dashboard": {
+    "tour": {
+      "welcomeTitle": "Kuruluma birlikte başlayalım",
+      "welcomeBody": "Birkaç dakikada işletme bilgilerinizi, randevu linkinizi ve otomatik mesajları ayarlayın — müşterileriniz ilk günden düzgün bir deneyim yaşasın.",
+      "startBtn": "Turu Başlat",
+      "skipForNow": "Şimdilik atla",
+      "skip": "Turu kapat",
+      "back": "Geri",
+      "next": "İleri",
+      "finish": "Bitir",
+      "restartBtn": "Kurulum turunu tekrar başlat",
+      "stepCounter": "{current} / {total}",
+      "ariaLabel": "Kurulum turu",
+      "introTitle": "Ayarlar sayfasındasınız",
+      "introBody": "Bu sayfadaki her bölüm ya randevu sayfanızı ya da müşterilerinize giden mesajları besler. Kısaca gezelim; sonra alanları doldurup en alttan Kaydet'e basın.",
+      "basicInfoTitle": "Temel Bilgiler",
+      "basicInfoBody": "İşletme adı, telefon ve adres. Adres/konum bilgisi randevu onay ve hatırlatma mesajlarında yer alır — boş bırakırsanız mesajlarda harita/konum linki hiç görünmez. Logo, randevu sayfanızda ve e-postalarda çıkar. Saat dilimini doğru seçin; tüm randevu saatleri buna göre hesaplanır.",
+      "bookingLinkTitle": "Randevu Linki & Online Randevu",
+      "bookingLinkBody": "siriplan.com/r/isletme-adiniz — müşterilerinize verdiğiniz link. QR kodunu indirip işletmenizde asabilirsiniz. Online randevuyu buradan tamamen açıp kapatabilir, hangi hizmetlerin internetten alınacağını seçebilirsiniz.",
+      "workingHoursTitle": "Çalışma Saatleri",
+      "workingHoursBody": "Haftalık açılış/kapanış saatleriniz. Online randevu slotları YALNIZCA bu aralıkta gösterilir. Bir günü kapalı bırakırsanız o gün internetten randevu alınamaz.",
+      "autoMessageTitle": "Otomatik Mesajlar",
+      "autoMessageBody": "Randevu onay, iptal, değişiklik ve hatırlatma mesajlarının metni. {musteri}, {salon}, {tarih} gibi değişkenler otomatik dolar. Hazır şablonlardan birini seçebilir veya kendi metninizi yazabilirsiniz — boş bırakırsanız varsayılan metin gönderilir.",
+      "whatsappNotifTitle": "WhatsApp Bildirimleri",
+      "whatsappNotifBody": "Otomatik WhatsApp mesajlarını açıp kapatır ve hatırlatmanın randevudan kaç saat önce gideceğini belirlersiniz. Kapalıyken müşterileriniz hiçbir otomatik WhatsApp mesajı almaz. SMS bildirimleri için kendi SMS sağlayıcı bilgilerinizi girmeniz gerekir.",
+      "integrationsTitle": "Entegrasyonlar & Telegram",
+      "integrationsBody": "Instagram/TikTok kullanıcı adlarınız randevu sayfanızda ikon olarak görünür. Telegram: chat ID girerseniz yeni randevu geldiğinde veya iptal edildiğinde telefonunuza Telegram'dan anında bildirim düşer — e-posta beklemeden haberdar olursunuz. Chat ID'yi nasıl alacağınız kutunun içinde adım adım yazıyor.",
+      "doneTitle": "Hazırsınız!",
+      "doneBody": "Alanları doldurduktan sonra sayfanın en altındaki Kaydet düğmesine basmayı unutmayın. Bu turu istediğiniz zaman Ayarlar başlığının altındaki 'Kurulum turunu tekrar başlat' ile yeniden açabilirsiniz."
+    },
     "incomePage": {
       "eyebrow": "Finans",
       "title": "Gelir & Gider",
@@ -1853,6 +1880,7 @@
       "tabRevize": "Randevu Güncelleme",
       "tabHatirlatma": "Randevu Hatırlatma",
       "templatePickLabel": "Şablon seç:",
+      "templatePromoWarning": "Bu mesajlar randevu bildirimidir. Kampanya, indirim veya tanıtım ifadesi eklerseniz ileti \"ticari elektronik ileti\" hâline gelir; İYS kaydı ve müşteri açık rızası yükümlülüğü doğar. Tanıtım için Kampanyalar bölümünü kullanın.",
       "variablesLabel": "Değişkenler:",
       "previewLabel": "Örnek önizleme:",
       "presetSicakLabel": "Sıcak",

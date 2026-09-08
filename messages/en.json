@@ -118,7 +118,6 @@
         "Staff of the Week gamification"
       ],
       "notIncluded": [
-        "Customer voice booking service",
         "AI WhatsApp/IG assistant"
       ]
     },
@@ -126,10 +125,9 @@
       "name": "Business",
       "desc": "For multi-location businesses",
       "features": [
-        "Unlimited locations",
+        "Up to 5 locations",
         "Unlimited staff",
         "All Pro features",
-        "Customer voice booking service",
         "AI WhatsApp/IG assistant",
         "Custom integrations"
       ],
@@ -172,7 +170,7 @@
       "q4": "How does billing work?",
       "a4": "Secure payment via Stripe. Choose monthly or annual billing. Save 18% with annual billing.",
       "q5": "Can I manage multiple locations?",
-      "a5": "You can manage unlimited locations on the Business plan. Starter/Pro can be extended with the Extra Location add-on."
+      "a5": "You can manage up to 5 locations on the Business plan. Starter/Pro can be extended with the Extra Location add-on."
     },
     "ctaTitle": "Still Undecided?",
     "ctaSubtitle": "Request a demo — our team will walk you through the best plan for your salon in 30 minutes.",
@@ -496,7 +494,7 @@
           },
           "q4": {
             "q": "Can I manage multiple locations?",
-            "a": "Yes. You can manage unlimited locations on the Business plan. Starter and Pro plans have an extra-location add-on option."
+            "a": "Yes. You can manage up to 5 locations on the Business plan. Starter and Pro plans have an extra-location add-on option."
           }
         }
       },
@@ -894,7 +892,7 @@
       "q3": "How does the WhatsApp AI assistant work?",
       "a3": "It instantly responds to your customers' WhatsApp messages 24/7. Appointment questions, pricing info, and directions are handled automatically. You just focus on your service.",
       "q4": "Can I manage multiple branches?",
-      "a4": "In the Business plan, unlimited branches are managed from a single screen. The Starter or Pro plan can be expanded by adding the Extra Branch Package.",
+      "a4": "In the Business plan, up to 5 branches are managed from a single screen. The Starter or Pro plan can be expanded by adding the Extra Branch Package.",
       "q5": "Is it KVKK compliant?",
       "a5": "Yes. Customer data is processed in accordance with KVKK regulations, end-to-end encryption is applied. Disclosure text template and consent management are included.",
       "q6": "Can I cancel anytime?",
@@ -926,6 +924,35 @@
     "trialNote": "14 days free, no credit card required"
   },
   "dashboard": {
+    "tour": {
+      "welcomeTitle": "Let's set things up together",
+      "welcomeBody": "Take a few minutes to configure your business details, booking link and automatic messages — so your customers get a smooth experience from day one.",
+      "startBtn": "Start Tour",
+      "skipForNow": "Skip for now",
+      "skip": "Close tour",
+      "back": "Back",
+      "next": "Next",
+      "finish": "Finish",
+      "restartBtn": "Restart the setup tour",
+      "stepCounter": "{current} / {total}",
+      "ariaLabel": "Setup tour",
+      "introTitle": "You're on the Settings page",
+      "introBody": "Every section here feeds either your booking page or the messages sent to your customers. Let's take a quick look; then fill in the fields and press Save at the bottom.",
+      "basicInfoTitle": "Basic Info",
+      "basicInfoBody": "Business name, phone and address. The address/location appears in booking confirmation and reminder messages — if you leave it blank, no map/location link shows in messages. Your logo appears on your booking page and in emails. Set the correct time zone; all appointment times are calculated from it.",
+      "bookingLinkTitle": "Booking Link & Online Booking",
+      "bookingLinkBody": "siriplan.com/r/your-business — the link you give your customers. You can download the QR code and display it at your venue. From here you can turn online booking fully on or off and choose which services can be booked online.",
+      "workingHoursTitle": "Working Hours",
+      "workingHoursBody": "Your weekly opening/closing times. Online booking slots are shown ONLY within this range. If you leave a day closed, no online bookings can be made that day.",
+      "autoMessageTitle": "Automatic Messages",
+      "autoMessageBody": "The text of your booking confirmation, cancellation, change and reminder messages. Variables like {musteri}, {salon}, {tarih} are filled in automatically. Pick a ready template or write your own — if left blank, the default text is sent.",
+      "whatsappNotifTitle": "WhatsApp Notifications",
+      "whatsappNotifBody": "Turn automatic WhatsApp messages on or off and set how many hours before the appointment the reminder goes out. While off, your customers receive no automatic WhatsApp messages. For SMS notifications you need to enter your own SMS provider details.",
+      "integrationsTitle": "Integrations & Telegram",
+      "integrationsBody": "Your Instagram/TikTok handles appear as icons on your booking page. Telegram: if you enter a chat ID, you get an instant Telegram notification on your phone when a new appointment comes in or is cancelled — without waiting for email. The box explains step by step how to get your chat ID.",
+      "doneTitle": "You're ready!",
+      "doneBody": "After filling in the fields, don't forget to press the Save button at the bottom of the page. You can reopen this tour any time via 'Restart the setup tour' under the Settings heading."
+    },
     "incomePage": {
       "eyebrow": "Finance",
       "title": "Income & Expenses",
@@ -1853,6 +1880,7 @@
       "tabRevize": "Appointment Update",
       "tabHatirlatma": "Appointment Reminder",
       "templatePickLabel": "Pick a template:",
+      "templatePromoWarning": "These messages are appointment notifications. Adding any campaign, discount or promotional wording turns them into \"commercial electronic messages\", triggering İYS registration and explicit customer consent obligations. Use the Campaigns section for promotions.",
       "variablesLabel": "Variables:",
       "previewLabel": "Sample preview:",
       "presetSicakLabel": "Warm",
