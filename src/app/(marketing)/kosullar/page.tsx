@@ -83,6 +83,20 @@ export default async function KosullarPage() {
         </section>
 
         <section>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s10Title")}</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            {t("termsPage.s10P")}
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-3">{t("termsPage.s11Title")}</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            {t("termsPage.s11P")}
+          </p>
+        </section>
+
+        <section>
           <h2 className="text-xl font-semibold mb-3">{t("termsPage.s9Title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
             {t.rich("termsPage.s9P", { strong })}

@@ -16,6 +16,7 @@ import { DateTimeSlotPicker, nextSlot } from "@/components/dashboard/DateTimeSlo
 import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
 import { useMicAccess } from "@/components/dashboard/useMicAccess";
 import { useLongPress } from "@/components/dashboard/useLongPress";
+import { lookupCustomerBySpokenName } from "@/lib/voice-customer-lookup";
 
 interface StaffCard {
   id: string;
@@ -280,21 +281,14 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     // İsim söylendi ama telefon yoksa: kayıtlı müşteriden numarayı otomatik getir.
     const mPhone = cur.customerPhone || parsed.customer_phone || "";
     if (mName && !mPhone) {
-      const key = mName.trim().toLocaleLowerCase("tr-TR");
-      fetch(`/api/customers?q=${encodeURIComponent(mName)}&limit=3`)
-        .then((r) => r.json())
-        .then((j) => {
-          const list: { full_name?: string; phone?: string; email?: string }[] = j.customers || [];
-          const exact = list.filter((c) => (c.full_name || "").trim().toLocaleLowerCase("tr-TR") === key);
-          const pick = exact.length === 1 ? exact[0] : list.length === 1 ? list[0] : null;
-          if (!pick?.phone) return;
-          setCustomerPhone((p) => p || pick.phone || "");
-          setCustomerEmail((e) => e || pick.email || "");
-          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-          setVoiceSummary((s: any) => (s && !s.customer_phone ? { ...s, customer_phone: pick.phone } : s));
-          toast.success(tm("phoneAutofilled", { name: pick.full_name }));
-        })
-        .catch(() => {});
+      lookupCustomerBySpokenName(mName).then((pick) => {
+        if (!pick) return;
+        setCustomerPhone((p) => p || pick.phone);
+        setCustomerEmail((e) => e || pick.email || "");
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        setVoiceSummary((s: any) => (s && !s.customer_phone ? { ...s, customer_phone: pick.phone } : s));
+        toast.success(tm("phoneAutofilled", { name: pick.full_name }));
+      });
     }
   }, [services, staff, autoStaffId, tm, voiceLabelFor]);
 

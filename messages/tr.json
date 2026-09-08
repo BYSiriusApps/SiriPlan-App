@@ -118,7 +118,6 @@
         "Haftanın Elemanı gamification"
       ],
       "notIncluded": [
-        "Müşteri sesli randevu hizmeti",
         "AI WhatsApp/IG asistanı"
       ]
     },
@@ -126,10 +125,9 @@
       "name": "Business",
       "desc": "Çok şubeli işletmeler için",
       "features": [
-        "Sınırsız şube",
+        "5 şubeye kadar",
         "Sınırsız personel",
         "Tüm Pro özellikleri",
-        "Müşteri sesli randevu hizmeti",
         "AI WhatsApp/IG asistanı",
         "Özel entegrasyonlar"
       ],
@@ -172,7 +170,7 @@
       "q4": "Faturalama nasıl çalışıyor?",
       "a4": "Stripe ile güvenli ödeme. Aylık veya yıllık seçebilirsiniz. Yıllıkta %18 tasarruf edersiniz.",
       "q5": "Birden fazla şube yönetebilir miyim?",
-      "a5": "Business planında sınırsız şube yönetebilirsiniz. Starter/Pro için Ek Şube Paketi eklenerek genişletilebilir."
+      "a5": "Business planında 5 şubeye kadar yönetebilirsiniz. Starter/Pro için Ek Şube Paketi eklenerek genişletilebilir."
     },
     "ctaTitle": "Hâlâ Kararsız mısınız?",
     "ctaSubtitle": "Demo talep edin, ekibimiz 30 dakikada salonunuz için en uygun planı anlatsın.",
@@ -496,7 +494,7 @@
           },
           "q4": {
             "q": "Birden fazla şube yönetebilir miyim?",
-            "a": "Evet. Business planında sınırsız şube yönetebilirsiniz. Starter ve Pro planlar için şube başına ek paket seçeneği mevcuttur."
+            "a": "Evet. Business planında 5 şubeye kadar yönetebilirsiniz. Starter ve Pro planlar için şube başına ek paket seçeneği mevcuttur."
           }
         }
       },
@@ -590,7 +588,7 @@
     "metaDescription": "6698 Sayılı Kişisel Verilerin Korunması Kanunu kapsamında aydınlatma metni.",
     "pageTitle": "KVKK Aydınlatma Metni",
     "lawSubtitle": "6698 Sayılı Kişisel Verilerin Korunması Kanunu",
-    "lastUpdated": "Son güncelleme: Ocak 2026",
+    "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "controllerTitle": "Veri Sorumlusu",
     "controllerP1": "<strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Şirket\") olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") uyarınca veri sorumlusu sıfatıyla kişisel verilerinizi aşağıda açıklanan amaçlar doğrultusunda ve mevzuata uygun biçimde işlemekteyiz.",
@@ -628,7 +626,7 @@
       "Açık rızanız dahilinde pazarlama iletişimi (KVKK m. 5/1)"
     ],
     "transferTitle": "Verilerin Aktarılması",
-    "transferP": "Kişisel verileriniz; ödeme altyapısı (Stripe), bildirim hizmetleri ve hosting sağlayıcıları ile KVKK'nın 8. ve 9. maddeleri kapsamında, veri işleme sözleşmeleri çerçevesinde aktarılabilir. Yurt dışı aktarım, yeterli koruma sağlandığı hallerde gerçekleştirilir.",
+    "transferP": "Kişisel verileriniz; barındırma ve veritabanı altyapısı, uygulama dağıtımı, kod deposu, e-posta gönderimi, ödeme (Stripe) ve mesajlaşma (WhatsApp/SMS) hizmet sağlayıcıları ile KVKK'nın 8. ve 9. maddeleri kapsamında, veri işleme sözleşmeleri çerçevesinde paylaşılabilir. Bu sağlayıcıların bir kısmı yurt dışında (AB veya ABD) yerleşiktir; yurt dışı aktarımlar uygun güvenceler sağlanarak gerçekleştirilir.",
     "rightsTitle": "KVKK Madde 11 Kapsamındaki Haklarınız",
     "rightsItems": [
       "Kişisel verilerinizin işlenip işlenmediğini öğrenme",
@@ -649,7 +647,7 @@
   "privacyPage": {
     "metaDescription": "Siriplan gizlilik politikası — kişisel verilerinizi nasıl işlediğimizi öğrenin.",
     "pageTitle": "Gizlilik Politikası",
-    "lastUpdated": "Son güncelleme: Ocak 2026",
+    "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Veri Sorumlusu",
     "s1P1": "Bu gizlilik politikası, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Şirket\", \"biz\", \"bize\") tarafından işletilen <strong>Siriplan</strong> platformu için geçerlidir. Şirket, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında veri sorumlusu sıfatını taşımaktadır.",
@@ -674,7 +672,7 @@
     "s4Title": "4. Veri Güvenliği",
     "s4P": "Verileriniz SSL/TLS şifrelemesi ile korunur. Sunucu altyapımız endüstri standardı güvenlik protokollerine uymaktadır. Ödeme bilgileriniz hiçbir zaman sunucularımızda saklanmaz; tüm ödeme işlemleri PCI-DSS uyumlu Stripe altyapısı üzerinden gerçekleşir.",
     "s5Title": "5. Üçüncü Taraf Paylaşımı",
-    "s5P": "Kişisel verileriniz, hizmet sunumu için zorunlu olmadıkça üçüncü taraflarla paylaşılmaz. Yalnızca; ödeme (Stripe), bildirim (WhatsApp/SMS) ve altyapı hizmetleri sağlayıcıları ile veri işleme sözleşmesi çerçevesinde paylaşım yapılabilir.",
+    "s5P": "Kişisel verileriniz, hizmetin sunulması için gerekli olduğu ölçüde ve veri işleme sözleşmeleri çerçevesinde şu kategorilerdeki hizmet sağlayıcılarla paylaşılabilir: barındırma ve veritabanı altyapısı, uygulama dağıtımı, kod deposu ve sürüm yönetimi, e-posta gönderimi, ödeme (Stripe) ve mesajlaşma (WhatsApp/SMS). Bu sağlayıcıların bir kısmı Türkiye dışında (AB veya ABD) yerleşiktir; aktarım, KVKK'nın 9. maddesi kapsamında uygun güvenceler ve sözleşmesel yükümlülükler çerçevesinde yapılır. Verileriniz üçüncü taraflara satılmaz veya pazarlama amacıyla paylaşılmaz.",
     "s6Title": "6. Haklarınız",
     "s6Intro": "KVKK Madde 11 kapsamında aşağıdaki haklara sahipsiniz:",
     "s6Items": [
@@ -689,7 +687,9 @@
     "s8P1": "İşletme sahibi ve bireysel kullanıcılar olarak, hem web paneli hem de mobil uygulamalar (iOS & Android) üzerinden doğrudan Ayarlar > Hesabımı Sil bölümünden veya privacy@bysirius.com adresine talep göndererek hesabınızı ve ilişkili tüm verilerinizi kalıcı olarak sildirebilirsiniz. Talebiniz mağaza politikalarına ve KVKK standartlarına uygun olarak en kısa sürede yerine getirilecektir.",
     "s8P2": "İşletmenize ait iletişim bilgileri ile müşteri kayıtlarınızdaki kişisel tanımlayıcı bilgiler (isim, telefon, e-posta) anonimleştirilir. Randevu ve ciro geçmişi gibi mali nitelikli kayıtlar, Türk Ticaret Kanunu uyarınca öngörülen yasal saklama süresi boyunca kimliği doğrudan tespit edilemeyecek şekilde istatistiksel olarak saklanabilir.",
     "s9Title": "8. Politika Değişiklikleri",
-    "s9P": "Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir."
+    "s9P": "Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir.",
+    "s10Title": "9. Yurt Dışı Kullanıcılar ve Uygulanacak Hükümler",
+    "s10P": "Siriplan, BY Sirius Group Ai & Technology Co Ltd. tarafından işletilmektedir. Türkiye dışından erişen kullanıcıların kişisel verileri de bu politikada açıklanan amaç ve yöntemlerle işlenir. Bulunduğunuz ülkenin veri koruma mevzuatı size ek haklar tanıyorsa, bu hakları kullanmak için privacy@bysirius.com adresine başvurabilirsiniz; talepler yürürlükteki mevzuatın öngördüğü süre ve kapsamda değerlendirilir."
   },
   "accountDeletionPage": {
     "metaDescription": "Siriplan hesabınızı ve kişisel verilerinizi nasıl sildireceğinizi öğrenin.",
@@ -725,7 +725,7 @@
   "termsPage": {
     "metaDescription": "Siriplan kullanım koşulları ve hizmet şartları.",
     "pageTitle": "Kullanım Koşulları",
-    "lastUpdated": "Son güncelleme: Ocak 2026",
+    "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Taraflar ve Kapsam",
     "s1P": "Bu Kullanım Koşulları, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Siriplan\", \"biz\") ile platformu kullanan bireyler ve işletmeler (\"Kullanıcı\") arasındaki hukuki ilişkiyi düzenler. Platformu kullanarak bu koşulları kabul etmiş sayılırsınız.",
@@ -737,10 +737,12 @@
       "Hesap bilgilerinizi gizli tutmak zorundasınız.",
       "Platform yasadışı, yanıltıcı veya zararlı amaçlarla kullanılamaz.",
       "Müşteri verilerini yalnızca hizmet sunumu amacıyla işleyebilirsiniz.",
-      "KVKK ve diğer ilgili mevzuata uyum sağlamak kullanıcının sorumluluğundadır."
+      "KVKK ve diğer ilgili mevzuata uyum sağlamak kullanıcının sorumluluğundadır.",
+      "Platforma yüklediğiniz müşteri, randevu ve personel verileri bakımından veri sorumlusu sizsiniz; bu veriler için gerekli hukuki dayanağı ve açık rızaları almak, ilgili kişileri aydınlatmak sizin yükümlülüğünüzdedir.",
+      "Platformu kullanımınızdan veya yüklediğiniz içeriklerden doğan; üçüncü kişilerin (kendi müşterileriniz dâhil) talepleri, idari para cezaları ve yargılama giderleri dâhil her türlü zarar ve talebe karşı Şirket'i tazmin etmeyi kabul edersiniz."
     ],
     "s4Title": "4. Ücretlendirme ve Abonelik",
-    "s4P": "Abonelik ücretleri seçilen plana göre aylık veya yıllık olarak tahsil edilir. Yıllık planda %18 indirim uygulanır. Deneme süresi sonunda ücretlendirme başlar; istediğiniz zaman iptal edebilirsiniz. İptal sonrası mevcut dönem sonuna kadar erişim devam eder. İade politikamız için support@bysirius.com ile iletişime geçebilirsiniz.",
+    "s4P": "Abonelik ücretleri seçilen plana göre aylık veya yıllık olarak peşin tahsil edilir. Yıllık planda %18 indirim uygulanır. Ücretsiz deneme süresi, hizmeti satın almadan önce değerlendirmeniz içindir. Aboneliğinizi istediğiniz zaman iptal edebilirsiniz; iptal sonraki yenilemeyi durdurur ve mevcut dönem sonuna kadar erişiminiz sürer. Yürürlükteki mevzuatın zorunlu kıldığı hâller dışında, başlamış abonelik dönemlerine ilişkin ücretler iade edilmez. Sorularınız için support@bysirius.com.",
     "s5Title": "5. Hizmet Kesintileri ve Sorumluluk Sınırları",
     "s5P": "Platform %99,9 uptime hedefiyle çalışır; ancak bakım veya teknik nedenlerle kısa süreli kesintiler yaşanabilir. BY Sirius Group Ai & Technology Co Ltd., dolaylı, arızi veya sonuçta ortaya çıkan zararlardan sorumlu tutulamaz. Sorumluluğumuz, ilgili ay içinde ödediğiniz abonelik ücretiyle sınırlıdır.",
     "s6Title": "6. Fikri Mülkiyet",
@@ -749,13 +751,17 @@
     "s7P": "Kullanım koşullarının ihlali durumunda hesabınız önceden bildirmeksizin askıya alınabilir veya kapatılabilir. Hesap kapatma öncesinde verilerinizi dışa aktarma hakkına sahipsiniz.",
     "s8Title": "8. Uygulanacak Hukuk",
     "s8P": "Bu sözleşme Türk Hukuku'na tabidir. Uyuşmazlıklarda İstanbul Mahkemeleri ve İcra Daireleri yetkilidir.",
-    "s9Title": "9. İletişim",
-    "s9P": "Sorularınız için: <strong>legal@bysirius.com</strong> | <strong>bysirius.com</strong>"
+    "s9Title": "11. İletişim",
+    "s9P": "Sorularınız için: <strong>legal@bysirius.com</strong> | <strong>bysirius.com</strong>",
+    "s10Title": "9. Garanti Reddi ve Üçüncü Taraf Hizmetler",
+    "s10P": "Platform \"olduğu gibi\" ve \"mevcut hâliyle\" sunulur. Şirket; hizmetin kesintisiz, hatasız veya belirli bir amaca uygun olacağına dair açık ya da zımni hiçbir garanti vermez. Platform; barındırma, veritabanı, e-posta, ödeme ve mesajlaşma alanlarında üçüncü taraf hizmet sağlayıcılara dayanır. Bu sağlayıcıların kesintileri, politika veya fiyat değişiklikleri ya da hizmeti sonlandırmalarından kaynaklanan aksaklıklardan Şirket sorumlu tutulamaz. Şirket, önceden makul bildirimde bulunarak özellikleri değiştirme, sınırlama veya kaldırma hakkını saklı tutar.",
+    "s11Title": "10. Yapay Zekâ Özellikleri, Veri Yedekleme ve Mücbir Sebep",
+    "s11P": "Platformdaki yapay zekâ destekli özellikler (asistan, metin ve öneri üretimi vb.) otomatik olarak üretilir; doğru, eksiksiz veya güncel olacağı garanti edilmez ve kullanılmadan önce tarafınızca kontrol edilmelidir. Bu çıktılara dayanılarak alınan kararlardan Şirket sorumlu değildir. Verilerinizin düzenli olarak dışa aktarılması ve kendi yedeğinizin alınması sizin sorumluluğunuzdadır. Şirketin makul kontrolü dışındaki olaylar (altyapı sağlayıcı arızaları, siber saldırı, mevzuat değişikliği, doğal afet, elektrik veya iletişim kesintileri dâhil mücbir sebepler) nedeniyle oluşan gecikme veya ifa edememeden Şirket sorumlu tutulamaz."
   },
   "cookiesPage": {
     "metaDescription": "Siriplan çerez politikası — çerezlerin nasıl kullanıldığını öğrenin.",
     "pageTitle": "Çerez Politikası",
-    "lastUpdated": "Son güncelleme: Ocak 2026",
+    "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Çerez Nedir?",
     "s1P": "Çerezler (cookies), web siteleri tarafından tarayıcınıza yerleştirilen küçük metin dosyalarıdır. Siriplan platformu, daha iyi bir kullanıcı deneyimi sunmak ve hizmet kalitesini artırmak amacıyla çerezlerden faydalanır.",
@@ -782,7 +788,8 @@
     "s4Title": "4. Üçüncü Taraf Çerezler",
     "s4P": "Ödeme altyapısı (Stripe) gibi üçüncü taraf hizmet sağlayıcılar kendi çerezlerini yerleştirebilir. Bu çerezler ilgili sağlayıcının gizlilik politikasına tabidir.",
     "s5Title": "5. İletişim",
-    "s5P": "Çerez politikamıza ilişkin sorularınız için: <strong>privacy@bysirius.com</strong>"
+    "s5P": "Çerez politikamıza ilişkin sorularınız için: <strong>privacy@bysirius.com</strong>",
+    "bannerNote": "Platformu ilk ziyaretinizde analitik çerezler için onayınızı isteriz; analitik çerezler yalnızca onay verdiğinizde yüklenir. Bu tercihinizi, sayfa alt bilgisindeki \"Çerez ayarları\" bağlantısından dilediğiniz zaman değiştirebilirsiniz."
   },
   "demoPage": {
     "metaDescription": "Siriplan'ın tüm özelliklerini canlı demo ile keşfedin.",
@@ -861,7 +868,10 @@
     "accountDeletion": "Hesap Silme",
     "powered": "Powered by",
     "rights": "Tüm hakları saklıdır.",
-    "whatsappSupport": "WhatsApp Destek"
+    "whatsappSupport": "WhatsApp Destek",
+    "security": "Güvenlik",
+    "cookieSettings": "Çerez ayarları",
+    "companyReg": "İngiltere ve Galler'de kayıtlı şirket · Companies House No. 17142392"
   },
   "home": {
     "trust": {
@@ -882,7 +892,7 @@
       "q3": "WhatsApp AI asistanı nasıl çalışıyor?",
       "a3": "Müşterilerinizin WhatsApp mesajlarını 7/24 anlık olarak yanıtlar. Randevu soruları, fiyat bilgisi ve yönlendirmeyi otomatik yapar. Siz sadece hizmetinize odaklanın.",
       "q4": "Birden fazla şube yönetebilir miyim?",
-      "a4": "Business planında sınırsız şube tek ekrandan yönetilir. Starter veya Pro planına Ek Şube Paketi eklenerek genişletilebilir.",
+      "a4": "Business planında 5 şubeye kadar tek ekrandan yönetilir. Starter veya Pro planına Ek Şube Paketi eklenerek genişletilebilir.",
       "q5": "KVKK uyumlu mu?",
       "a5": "Evet. Müşteri verileri KVKK mevzuatına uygun işlenir, uçtan uca şifreleme uygulanır. Aydınlatma metni şablonu ve onay yönetimi dahildir.",
       "q6": "İstediğim zaman iptal edebilir miyim?",
@@ -914,6 +924,35 @@
     "trialNote": "14 gün ücretsiz, kredi kartı gerekmez"
   },
   "dashboard": {
+    "tour": {
+      "welcomeTitle": "Kuruluma birlikte başlayalım",
+      "welcomeBody": "Birkaç dakikada işletme bilgilerinizi, randevu linkinizi ve otomatik mesajları ayarlayın — müşterileriniz ilk günden düzgün bir deneyim yaşasın.",
+      "startBtn": "Turu Başlat",
+      "skipForNow": "Şimdilik atla",
+      "skip": "Turu kapat",
+      "back": "Geri",
+      "next": "İleri",
+      "finish": "Bitir",
+      "restartBtn": "Kurulum turunu tekrar başlat",
+      "stepCounter": "{current} / {total}",
+      "ariaLabel": "Kurulum turu",
+      "introTitle": "Ayarlar sayfasındasınız",
+      "introBody": "Bu sayfadaki her bölüm ya randevu sayfanızı ya da müşterilerinize giden mesajları besler. Kısaca gezelim; sonra alanları doldurup en alttan Kaydet'e basın.",
+      "basicInfoTitle": "Temel Bilgiler",
+      "basicInfoBody": "İşletme adı, telefon ve adres. Adres/konum bilgisi randevu onay ve hatırlatma mesajlarında yer alır — boş bırakırsanız mesajlarda harita/konum linki hiç görünmez. Logo, randevu sayfanızda ve e-postalarda çıkar. Saat dilimini doğru seçin; tüm randevu saatleri buna göre hesaplanır.",
+      "bookingLinkTitle": "Randevu Linki & Online Randevu",
+      "bookingLinkBody": "siriplan.com/r/isletme-adiniz — müşterilerinize verdiğiniz link. QR kodunu indirip işletmenizde asabilirsiniz. Online randevuyu buradan tamamen açıp kapatabilir, hangi hizmetlerin internetten alınacağını seçebilirsiniz.",
+      "workingHoursTitle": "Çalışma Saatleri",
+      "workingHoursBody": "Haftalık açılış/kapanış saatleriniz. Online randevu slotları YALNIZCA bu aralıkta gösterilir. Bir günü kapalı bırakırsanız o gün internetten randevu alınamaz.",
+      "autoMessageTitle": "Otomatik Mesajlar",
+      "autoMessageBody": "Randevu onay, iptal, değişiklik ve hatırlatma mesajlarının metni. {musteri}, {salon}, {tarih} gibi değişkenler otomatik dolar. Hazır şablonlardan birini seçebilir veya kendi metninizi yazabilirsiniz — boş bırakırsanız varsayılan metin gönderilir.",
+      "whatsappNotifTitle": "WhatsApp Bildirimleri",
+      "whatsappNotifBody": "Otomatik WhatsApp mesajlarını açıp kapatır ve hatırlatmanın randevudan kaç saat önce gideceğini belirlersiniz. Kapalıyken müşterileriniz hiçbir otomatik WhatsApp mesajı almaz. SMS bildirimleri için kendi SMS sağlayıcı bilgilerinizi girmeniz gerekir.",
+      "integrationsTitle": "Entegrasyonlar & Telegram",
+      "integrationsBody": "Instagram/TikTok kullanıcı adlarınız randevu sayfanızda ikon olarak görünür. Telegram: chat ID girerseniz yeni randevu geldiğinde veya iptal edildiğinde telefonunuza Telegram'dan anında bildirim düşer — e-posta beklemeden haberdar olursunuz. Chat ID'yi nasıl alacağınız kutunun içinde adım adım yazıyor.",
+      "doneTitle": "Hazırsınız!",
+      "doneBody": "Alanları doldurduktan sonra sayfanın en altındaki Kaydet düğmesine basmayı unutmayın. Bu turu istediğiniz zaman Ayarlar başlığının altındaki 'Kurulum turunu tekrar başlat' ile yeniden açabilirsiniz."
+    },
     "incomePage": {
       "eyebrow": "Finans",
       "title": "Gelir & Gider",
@@ -1841,6 +1880,7 @@
       "tabRevize": "Randevu Güncelleme",
       "tabHatirlatma": "Randevu Hatırlatma",
       "templatePickLabel": "Şablon seç:",
+      "templatePromoWarning": "Bu mesajlar randevu bildirimidir. Kampanya, indirim veya tanıtım ifadesi eklerseniz ileti \"ticari elektronik ileti\" hâline gelir; İYS kaydı ve müşteri açık rızası yükümlülüğü doğar. Tanıtım için Kampanyalar bölümünü kullanın.",
       "variablesLabel": "Değişkenler:",
       "previewLabel": "Örnek önizleme:",
       "presetSicakLabel": "Sıcak",
@@ -2090,5 +2130,22 @@
         "sun": "Pazar"
       }
     }
+  },
+  "securityPage": {
+    "metaDescription": "Siriplan güvenlik açığı bildirimi ve sorumlu ifşa politikası.",
+    "pageTitle": "Güvenlik ve Açık Bildirimi",
+    "lastUpdated": "Son güncelleme: Ağustos 2026",
+    "intro": "Kullanıcılarımızın verisinin güvenliğini ciddiye alıyoruz. Bir güvenlik açığı tespit ettiyseniz, aşağıdaki kurallara uyarak bize bildirmenizi rica ederiz.",
+    "reportTitle": "Nasıl bildirilir?",
+    "reportP": "Bulgularınızı, açığı yeniden üretmek için gereken adımlarla birlikte info@bysirius.com adresine iletin. Mümkünse ekran görüntüsü veya kısa bir kayıt ekleyin. Makine tarafından okunabilir bilgi için /.well-known/security.txt dosyasına bakın.",
+    "rulesTitle": "Kurallar",
+    "rulesItems": [
+      "Yalnızca kendi hesabınıza ait veriler üzerinde test yapın; başka kullanıcıların verisine erişmeyin, değiştirmeyin veya silmeyin.",
+      "Hizmet kesintisine yol açacak testlerden (DDoS, kaba kuvvet saldırısı, spam) kaçının.",
+      "Açığı, tarafımıza bildirip makul bir düzeltme süresi tanımadan kamuya açıklamayın.",
+      "Elde ettiğiniz hiçbir veriyi saklamayın veya üçüncü taraflarla paylaşmayın."
+    ],
+    "harborTitle": "Değerlendirme",
+    "harborP": "Bu kurallara iyi niyetle uyan araştırmacılara karşı yasal işlem başlatmayız. Bu sayfa bir ödül (bug bounty) programı taahhüdü değildir ve belirli bir yanıt veya düzeltme süresi garanti edilmez; bildirimleri makul sürede değerlendirmeye çalışırız."
   }
 }

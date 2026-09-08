@@ -25,6 +25,7 @@ import { DashboardWidgetGrid, type DashboardWidget } from "@/components/dashboar
 import { getTranslations, getLocale } from "next-intl/server";
 import { ApproveButton } from "@/components/dashboard/ApproveButton";
 import { NewAppointmentFab } from "@/components/dashboard/NewAppointmentFab";
+import { OnboardingWelcome } from "@/components/dashboard/OnboardingTour";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
@@ -151,6 +152,19 @@ export default async function DashboardPage() {
     weekQuery = weekQuery.eq("staff_id", staffId);
     last7Query = last7Query.eq("staff_id", staffId);
     monthApptsQuery = monthApptsQuery.eq("staff_id", staffId);
+  }
+
+  // Kurulum turu karşılama kutusu — yalnızca işletme sahibi + tur hiç görülmemişse.
+  // Kolon migration'ı gecikirse sorgu hata döner ve tourRow null olur → kutu
+  // gösterilmez (mevcut işletmeler migration'da geriye dönük "tamamlandı" yazılır).
+  let showOnboarding = false;
+  if (member.role === "owner") {
+    const { data: tourRow } = await supabase
+      .from("organizations")
+      .select("onboarding_tour_completed_at")
+      .eq("id", orgId)
+      .maybeSingle();
+    showOnboarding = !!tourRow && !tourRow.onboarding_tour_completed_at;
   }
 
   const [
@@ -891,7 +905,13 @@ export default async function DashboardPage() {
           </p>
         </div>
       </header>
- 
+
+      {showOnboarding && (
+        <div className="pb-2">
+          <OnboardingWelcome orgId={orgId} />
+        </div>
+      )}
+
       {/* ── Bento ızgara: mobil tek sütun, geniş ekran 12 sütun — kişiselleştirilebilir ── */}
       <div className="px-4 pb-24 max-w-6xl mx-auto">
         <DashboardWidgetGrid orgId={orgId} widgets={displayWidgets} initialPrefs={dashboardWidgetPrefs} />

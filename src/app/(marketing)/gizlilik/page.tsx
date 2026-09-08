@@ -95,6 +95,13 @@ export default async function GizlilikPage() {
           </p>
         </section>
 
+        <section>
+          <h2 className="text-xl font-semibold mb-3">{t("privacyPage.s10Title")}</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            {t("privacyPage.s10P")}
+          </p>
+        </section>
+
       </div>
     </div>
   );

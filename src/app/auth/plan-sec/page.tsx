@@ -59,7 +59,7 @@ const PLANS = [
     description: "Zincir ve büyük ölçekli işletmeler için",
     features: [
       "Tüm Pro özellikleri",
-      "Sınırsız şube",
+      "5 şubeye kadar",
       "AI asistanı (WA/IG auto-reply)",
       "Öncelikli destek",
       "Özel entegrasyonlar",

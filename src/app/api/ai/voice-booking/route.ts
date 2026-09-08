@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
-import { parseVoiceBooking } from "@/lib/voice-parse";
+import { parseVoiceBooking, dedupeAdjacentWords } from "@/lib/voice-parse";
 import { DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
 
 export const dynamic = "force-dynamic";
@@ -118,7 +118,9 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
             const args = fnCall.args || {};
             // Gemini'nin bulamadığı alanları yerel ayrıştırıcıyla tamamla.
             const local = localParse();
-            const customerName = (args.customer_name || local.customer_name || "").trim();
+            // Gemini de konuşmadaki tekrarı ("Melike Melike Yılmaz") aynen
+            // döndürebiliyor — yan yana yinelenen kelimeleri burada da temizle.
+            const customerName = dedupeAdjacentWords((args.customer_name || local.customer_name || "").trim());
             const customerPhone = (args.customer_phone || local.customer_phone || "").trim();
             const appointmentAt = args.appointment_at || local.appointment_at || "";
             const staffId = args.staff_id || local.staff_id || "";

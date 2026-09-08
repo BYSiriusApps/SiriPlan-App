@@ -42,20 +42,22 @@ export default async function MusterilerPage({
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <div>
+        <div>
+          <div className="flex items-baseline gap-2 flex-wrap">
             <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("customersPage.eyebrow")}</span>
             <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("customers")}</h1>
-            <p className="text-muted-foreground text-sm">{t("customerCountLabel", { count: customers?.length || 0 })}</p>
           </div>
-          <HomeButton />
+          <p className="text-muted-foreground text-sm">{t("customerCountLabel", { count: customers?.length || 0 })}</p>
         </div>
-        <Link
-          href="/dashboard/musteriler/yeni"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          {t("addCustomer")}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/musteriler/yeni"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            {t("addCustomer")}
+          </Link>
+          <HomeButton corner />
+        </div>
       </div>
 
       <CustomerList

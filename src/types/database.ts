@@ -67,6 +67,8 @@ export interface Organization {
   kvkk_notice_text: string | null;
   timezone: string;
   settings_json: Record<string, unknown>;
+  /** Kurulum turu tamamlandı/atlandı zamanı. NULL = panelde karşılama kutusu çıkar. Migration gecikirse alan hiç gelmeyebilir. */
+  onboarding_tour_completed_at?: string | null;
   created_at: string;
   updated_at: string;
 }

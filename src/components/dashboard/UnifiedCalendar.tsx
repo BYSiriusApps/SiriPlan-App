@@ -165,6 +165,10 @@ export function UnifiedCalendar({
   };
   const [isPending, startTransition] = useTransition();
   const [popover, setPopover] = useState<Popover | null>(null);
+  // Popover'ı ölçülen boyutuna göre ekran içine sıkıştır — telefonda alt
+  // kısmı (durum düğmeleri) ekran dışında kalıyordu.
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [popoverPos, setPopoverPos] = useState<{ left: number; top: number } | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   // Çoklu personel seçimi. Boş küme = "tümü". Staff rolü kendine kilitli.
   // Set yerine sıralı diziyle tutmak, useMemo bağımlılıklarında referans
@@ -180,6 +184,16 @@ export function UnifiedCalendar({
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   }
+
+  // Personel sütun görünümünde tek seferde en fazla bu kadar sütun gösterilir —
+  // mobilde randevu detayları sığsın diye (fazlası için sayfalama okları).
+  const STAFF_PER_PAGE = 2;
+  const [staffPage, setStaffPage] = useState(0);
+  // Personel seçimi değişince sayfalamayı başa sar.
+  useEffect(() => {
+    setStaffPage(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStaffKey, lockedStaffId]);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const colorOf = useMemo(() => {
@@ -198,6 +212,10 @@ export function UnifiedCalendar({
     });
     return (id: string) => map.get(id) ?? STAFF_COLORS[0];
   }, [staff]);
+
+  // Personel sütununun tamamına verilen çok soluk renk zemini — randevu
+  // bloklarının önde kalması için düşük opaklık.
+  const columnTintOf = (id: string) => hexToRgba(colorOf(id).solid, 0.07);
 
   const staffName = useMemo(() => {
     const map = new Map(staff.map((s) => [s.id, s.full_name]));
@@ -305,6 +323,14 @@ export function UnifiedCalendar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [staff, selectedStaffKey, lockedStaffId]);
 
+  // Sayfalanmış personel sütunları — görünen aralık [start, start+STAFF_PER_PAGE).
+  const staffPageCount = Math.max(1, Math.ceil(staffColumns.length / STAFF_PER_PAGE));
+  const safeStaffPage = Math.min(staffPage, staffPageCount - 1);
+  const pagedStaffColumns =
+    staffColumns.length > STAFF_PER_PAGE
+      ? staffColumns.slice(safeStaffPage * STAFF_PER_PAGE, safeStaffPage * STAFF_PER_PAGE + STAFF_PER_PAGE)
+      : staffColumns;
+
   // YEREL saate göre gün bazında grupla (UTC slice değil — tz kayması yapmaz)
   const byDay = useMemo(() => {
     const map: Record<string, Appointment[]> = {};
@@ -336,6 +362,27 @@ export function UnifiedCalendar({
     }
   }
 
+  // Popover açıldığında / içerik değiştiğinde ölçüp ekran içine sıkıştır.
+  // (Konum belirlenene kadar kutu `visibility:hidden` — sıçrama görünmez.)
+  useEffect(() => {
+    if (!popover) { setPopoverPos(null); return; }
+    const el = popoverRef.current;
+    if (!el || typeof window === "undefined") return;
+    const margin = 8;
+    const { width, height } = el.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let left = popover.x;
+    let top = popover.y;
+    // Sağa sığmıyorsa randevu bloğunun soluna al, yine de kenara kenetle.
+    if (left + width > vw - margin) left = popover.x - width - 16;
+    if (left < margin) left = margin;
+    if (left + width > vw - margin) left = Math.max(margin, vw - width - margin);
+    if (top + height > vh - margin) top = vh - height - margin;
+    if (top < margin) top = margin;
+    setPopoverPos({ left, top });
+  }, [popover]);
+
   function openPopover(e: React.MouseEvent, appt: Appointment) {
     e.preventDefault();
     e.stopPropagation();
@@ -344,6 +391,7 @@ export function UnifiedCalendar({
       return;
     }
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setPopoverPos(null); // yeni konum ölçülene kadar gizle — eski yerde belirmesin
     setPopover({ appt, x: rect.right + 8, y: rect.top });
   }
 
@@ -833,13 +881,36 @@ export function UnifiedCalendar({
       {/* ─── PERSONEL SÜTUN GÖRÜNÜMÜ (SWIMLANE) ─────────────────── */}
       {view === "staff" && (
         <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+          {/* Sayfalama: aynı anda en fazla STAFF_PER_PAGE personel — sütunlar
+              geniş kalsın, randevu detayları kesilmesin. */}
+          {staffColumns.length > STAFF_PER_PAGE && (
+            <div className="flex items-center justify-between gap-2 border-b bg-muted/20 px-2 py-1.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setStaffPage(Math.max(0, safeStaffPage - 1))}
+                disabled={safeStaffPage === 0}
+                className="inline-flex items-center gap-1 rounded-md border px-2 py-1 font-medium hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+              </button>
+              <span className="font-medium text-muted-foreground">
+                {safeStaffPage * STAFF_PER_PAGE + 1}–{Math.min((safeStaffPage + 1) * STAFF_PER_PAGE, staffColumns.length)} / {staffColumns.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => setStaffPage(Math.min(staffPageCount - 1, safeStaffPage + 1))}
+                disabled={safeStaffPage >= staffPageCount - 1}
+                className="inline-flex items-center gap-1 rounded-md border px-2 py-1 font-medium hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent"
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
           <div className="overflow-x-auto">
-            {/* minmax tabanlı, sabit min-w YOK: mobilde en az 3 personel sütunu
-                kaydırmadan sığar, sütun sayısı azsa 1fr kalan alanı doldurur;
-                4+ personelde taşan kısım için yatay kaydırma devreye girer. */}
-            <div className="grid" style={{ gridTemplateColumns: `40px repeat(${staffColumns.length || 1}, minmax(76px, 1fr))` }}>
+            {/* Görünen personel sayısı kadar eşit sütun; kalan genişliği doldurur. */}
+            <div className="grid" style={{ gridTemplateColumns: `40px repeat(${pagedStaffColumns.length || 1}, 1fr)` }}>
               {hourRail}
-              {staffColumns.map((s) => {
+              {pagedStaffColumns.map((s) => {
                 const c = colorOf(s.id);
                 const dayStr = gridDays[0] || today;
                 const staffAppts = (byDay[dayStr] || []).filter((a) => a.staff_id === s.id);
@@ -849,7 +920,11 @@ export function UnifiedCalendar({
                 const isOff = offNames.includes(s.full_name);
 
                 return (
-                  <div key={s.id} className="border-r last:border-r-0 min-w-0 relative">
+                  <div
+                    key={s.id}
+                    className="border-r last:border-r-0 min-w-0 relative"
+                    style={{ background: columnTintOf(s.id) }}
+                  >
                     <div
                       className="h-10 border-b flex flex-col items-center justify-center text-xs font-semibold px-2 text-center"
                       style={{ background: c.soft, borderBottomColor: c.border }}
@@ -1025,10 +1100,12 @@ export function UnifiedCalendar({
         <>
           <div className="fixed inset-0 z-40" onClick={() => setPopover(null)} />
           <div
-            className="fixed z-50 w-56 rounded-xl shadow-2xl overflow-hidden"
+            ref={popoverRef}
+            className="fixed z-50 w-56 max-w-[calc(100vw-1rem)] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-xl shadow-2xl"
             style={{
-              left: Math.min(popover.x, typeof window !== "undefined" ? window.innerWidth - 240 : popover.x),
-              top: Math.min(popover.y, typeof window !== "undefined" ? window.innerHeight - 320 : popover.y),
+              left: popoverPos ? popoverPos.left : popover.x,
+              top: popoverPos ? popoverPos.top : popover.y,
+              visibility: popoverPos ? "visible" : "hidden",
               background: "var(--card)",
               border: "1px solid var(--border)",
             }}

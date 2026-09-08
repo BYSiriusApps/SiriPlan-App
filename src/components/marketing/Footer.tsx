@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
 import { BySiriusBadge } from "@/components/layout/BySiriusBadge";
+import { CookieSettingsButton } from "@/components/analytics/CookieSettingsButton";
 import { getTranslations } from "next-intl/server";
 
 export async function Footer() {
@@ -41,6 +42,7 @@ export async function Footer() {
     { key: "terms",   href: "/kosullar" },
     { key: "cookie",  href: "/cerezler" },
     { key: "kvkk",    href: "/kvkk"     },
+    { key: "security", href: "/guvenlik" },
     { key: "accountDeletion", href: "/hesap-silme" },
   ] as const;
 
@@ -134,27 +136,33 @@ export async function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <CookieSettingsButton label={t("cookieSettings")} />
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()}{" "}
-            <a
-              href="https://bysirius.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-foreground transition-colors font-medium"
-            >
-              BY Sirius Group Ai & Technology Co Ltd.
-            </a>{" "}
-            {t("rights")}{" "}
-            <span className="text-muted-foreground/30">|</span>{" "}
-            <Link href="/kosullar" className="hover:text-foreground transition-colors underline underline-offset-2">
-              Fikri Mülkiyet & AI Telif Hakları
-            </Link>
-          </p>
+          <div className="text-xs text-muted-foreground text-center sm:text-left">
+            <p>
+              © {new Date().getFullYear()}{" "}
+              <a
+                href="https://bysirius.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors font-medium"
+              >
+                BY Sirius Group AI and Technology Co. Ltd.
+              </a>{" "}
+              {t("rights")}{" "}
+              <span className="text-muted-foreground/30">|</span>{" "}
+              <Link href="/kosullar" className="hover:text-foreground transition-colors underline underline-offset-2">
+                Fikri Mülkiyet &amp; AI Telif Hakları
+              </Link>
+            </p>
+            <p className="mt-1 text-muted-foreground/70">{t("companyReg")}</p>
+          </div>
           <div className="flex items-center gap-5">
             {/* Social links */}
             <div className="flex items-center gap-3">
@@ -193,7 +201,7 @@ export async function Footer() {
               </a>
             </div>
             <span className="text-muted-foreground/40">·</span>
-            <span className="text-xs text-muted-foreground">🇹🇷 Türkiye</span>
+            <span className="text-xs text-muted-foreground">🇬🇧 United Kingdom</span>
           </div>
         </div>
       </div>

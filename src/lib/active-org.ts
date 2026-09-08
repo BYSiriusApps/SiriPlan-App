@@ -22,6 +22,7 @@ export interface ActiveOrgInfo {
   feature_website?: boolean | null;
   timezone?: string | null;
   settings_json?: Record<string, unknown> | null;
+  onboarding_tour_completed_at?: string | null;
 }
 
 export interface ActiveMember {

@@ -270,6 +270,10 @@ export async function sendBirthdayEmail(data: {
     <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
       ${S.birthdayClosing}
     </p>
+
+    <p style="margin:16px 0 0;font-size:11px;color:#9ca3af;">
+      ${esc(S.birthdayOptOut)}
+    </p>
   `;
 
   await getResend().emails.send({

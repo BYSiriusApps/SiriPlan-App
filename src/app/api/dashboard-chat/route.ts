@@ -112,7 +112,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["birden fazla işletme", "şube değiştir", "işletme değiştir", "organizasyon değiştir", "birden fazla salon"],
     answer:
-      "Aynı hesapla birden fazla işletmede (organizasyonda) üyeyseniz, kenar menüdeki işletme seçiciden aktif işletmenizi değiştirebilirsiniz — her işletmenin randevu, müşteri ve personel verisi ayrı tutulur. Business planında sınırsız şube desteklenir.",
+      "Aynı hesapla birden fazla işletmede (organizasyonda) üyeyseniz, kenar menüdeki işletme seçiciden aktif işletmenizi değiştirebilirsiniz — her işletmenin randevu, müşteri ve personel verisi ayrı tutulur. Business planında 5 şubeye kadar desteklenir.",
   },
   {
     keywords: ["hızlı randevu", "quick book", "tek tıkla randevu"],

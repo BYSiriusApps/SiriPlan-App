@@ -35,19 +35,18 @@ export function TakvimHeader({ orgId, staff, services, today, currentStaffId }: 
         <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary shrink-0">
           <CalendarDays className="h-5 w-5" />
         </div>
-        <div>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Takvim</span>
-          <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("calendar")}</h1>
-        </div>
-        <HomeButton />
+        <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("calendar")}</h1>
       </div>
-      <QuickBookSheet
-        orgId={orgId}
-        staff={staff}
-        services={services}
-        preselectedDate={today}
-        currentStaffId={currentStaffId}
-      />
+      <div className="flex items-center gap-2">
+        <QuickBookSheet
+          orgId={orgId}
+          staff={staff}
+          services={services}
+          preselectedDate={today}
+          currentStaffId={currentStaffId}
+        />
+        <HomeButton corner />
+      </div>
     </div>
   );
 }

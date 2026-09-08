@@ -27,6 +27,7 @@ import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { useIsMobileApp } from "@/lib/use-mobile-app";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
+import { OnboardingTour, OnboardingRestartButton } from "@/components/dashboard/OnboardingTour";
 import { TIMEZONE_OPTIONS } from "@/lib/timezones";
 import {
   DEFAULT_WA_TEMPLATE,
@@ -96,14 +97,18 @@ function SectionCard({
   title,
   description,
   children,
+  dataTour,
 }: {
   icon: LucideIcon;
   iconClassName?: string;
   title: string;
   description?: string;
   children: React.ReactNode;
+  /** Kurulum turunun bu bölümü işaret etmesi için (bkz. OnboardingTour). */
+  dataTour?: string;
 }) {
   return (
+    <div data-tour={dataTour} className={dataTour ? "scroll-mt-24" : undefined}>
     <GlassCard3D className="glass-card" glow intensity={3}>
       <div className="panel-header">
         <span className="flex items-center gap-2 text-[13px] font-bold tracking-wider uppercase text-primary">
@@ -116,6 +121,7 @@ function SectionCard({
         {children}
       </div>
     </GlassCard3D>
+    </div>
   );
 }
 
@@ -412,6 +418,7 @@ export default function AyarlarPage() {
 
   return (
     <div className="px-4 pt-6 pb-24 max-w-2xl mx-auto space-y-4">
+      {org.id && <OnboardingTour orgId={org.id} />}
       <header className="flex items-start justify-between gap-3 pb-1">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
@@ -422,6 +429,7 @@ export default function AyarlarPage() {
             <HomeButton />
           </div>
           <p className="text-sm text-muted-foreground mt-1">{t("settingsPage.subtitle")}</p>
+          <div className="mt-2"><OnboardingRestartButton /></div>
         </div>
       </header>
 
@@ -444,7 +452,7 @@ export default function AyarlarPage() {
       </Link>
 
       {/* Basic info */}
-      <SectionCard icon={Building2} title={t("settingsPage.basicInfoTitle")}>
+      <SectionCard icon={Building2} title={t("settingsPage.basicInfoTitle")} dataTour="basic-info">
         <div className="flex items-center gap-3">
           {org.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -583,6 +591,7 @@ export default function AyarlarPage() {
         iconClassName="text-rose-600"
         title={t("settingsPage.bookingLinkTitle")}
         description={t("settingsPage.bookingLinkDesc")}
+        dataTour="booking-link"
       >
         {org.slug ? (
           <>
@@ -665,7 +674,7 @@ export default function AyarlarPage() {
       </SectionCard>
 
       {/* Integrations */}
-      <SectionCard icon={Link2} title={t("settingsPage.integrationsTitle")}>
+      <SectionCard icon={Link2} title={t("settingsPage.integrationsTitle")} dataTour="integrations">
         <div>
           <Label>{t("settingsPage.instagramLabel")}</Label>
           <div className="flex mt-1">
@@ -746,6 +755,7 @@ export default function AyarlarPage() {
         iconClassName="text-green-600"
         title={t("settingsPage.autoMessageTitle")}
         description={t("settingsPage.autoMessageDesc")}
+        dataTour="auto-message"
       >
         <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
           <p className="text-xs text-amber-700 dark:text-amber-400">
@@ -776,6 +786,10 @@ export default function AyarlarPage() {
             </button>
           ))}
         </div>
+
+        <p className="mb-3 text-xs leading-relaxed text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg p-2.5">
+          {t("settingsPage.templatePromoWarning")}
+        </p>
 
         {manualTab === "onay" && (
           <div className="space-y-3">
@@ -1010,6 +1024,7 @@ export default function AyarlarPage() {
         iconClassName="text-green-600"
         title={t("settingsPage.whatsappNotifTitle")}
         description={t("settingsPage.whatsappNotifDesc")}
+        dataTour="whatsapp-notif"
       >
         <div className="space-y-4">
           <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
@@ -1377,7 +1392,7 @@ export default function AyarlarPage() {
       <InstallPwaCard />
 
       {/* Working hours */}
-      <SectionCard icon={Clock} title={t("settingsPage.workingHoursTitle")} description={t("settingsPage.workingHoursDesc")}>
+      <SectionCard icon={Clock} title={t("settingsPage.workingHoursTitle")} description={t("settingsPage.workingHoursDesc")} dataTour="working-hours">
         <div className="space-y-2">
           {DAY_KEYS.map((dayKey) => {
             const hours = (org.working_hours_json as Record<string, { open: string; close: string } | null>)?.[dayKey];
