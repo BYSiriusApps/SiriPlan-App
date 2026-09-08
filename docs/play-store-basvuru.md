@@ -60,6 +60,24 @@ com.siriplan.app. Digital Asset Links are published at
 https://siriplan.com/.well-known/assetlinks.json.
 ```
 
+## Mağaza girişi metinleri (tr-TR — Play Console'a kopyala)
+
+**Uygulama adı:** `SiriPlan`
+
+**Kısa açıklama (76/80):**
+```
+Kuaför, berber ve güzellik salonları için akıllı randevu ve işletme yönetimi
+```
+
+**Tam açıklama:** tam metin scratchpad `play-store-magaza-metinleri.md` içinde. Özet yapı: giriş paragrafı + "B2B, abonelik yalnızca web'de" notu + Öne Çıkan Özellikler + İsteğe Bağlı Entegrasyonlar (WhatsApp/SMS varsayılan kapalı) + Kimler İçin + Gizlilik linkleri (/gizlilik, /kvkk, /hesap-silme) + iletişim: `info@bysirius.com`.
+
+**Simge:** `public/icons/icon-play-512x512.png` · **Özellik grafiği:** `public/icons/feature-graphic-1024x500.png` · **Ekran görüntüleri:** `docs/play-store/screenshots/` (8 adet, 1080×1920, tr-TR, demo hesaptan).
+
+Ekran görüntüsü başlıkları (Play'de opsiyonel):
+1. Panel özeti  2. Çoklu personel takvimi  3. Randevu listesi & durum takibi  4. Sesli randevu oluşturma  5. WhatsApp/Instagram istekleri  6. Müşteri kayıtları & sadakat puanı  7. Ciro & analitik raporları  8. Otomatik kampanya modülü
+
+Üretim komutları (yeniden çekmek gerekirse): scratchpad `screens_final.mjs` + `screens_fix.mjs` (Playwright, `NEXT_LOCALE=tr` çerezi + `sahip.demo@siriplan.com`).
+
 ## Data safety
 
 `/gizlilik` ve `/kvkk` ile tutarlı: Ad, e-posta, telefon, uygulama içi eylemler toplanıyor; amaç hesap yönetimi + uygulama işlevi; üçüncü tarafla paylaşım yok; aktarımda şifreleme var; kullanıcı silme talep edebilir (Ayarlar → "Hesabımı Sil").
@@ -71,8 +89,9 @@ WhatsApp/SMS entegrasyonları isteğe bağlı ve varsayılan kapalı — yalnız
 
 ## Kalan adımlar (Play Console'da)
 
-- [ ] Feature graphic 1024×500 yükle (scratchpad `siriplan-feature-graphic-1024x500.png`)
-- [ ] En az 2 telefon ekran görüntüsü
+- [x] Feature graphic 1024×500 hazır (`public/icons/feature-graphic-1024x500.png`) → Play Console'a yükle
+- [x] Telefon ekran görüntüleri hazır (`docs/play-store/screenshots/`, 8 adet) → Play Console'a yükle
+- [x] Mağaza metinleri (ad / kısa / tam açıklama) hazır → yapıştır
 - [ ] Data safety formu
 - [ ] İçerik derecelendirme (IARC) anketi
 - [ ] App access + reviewer notes (yukarıdaki metin)
