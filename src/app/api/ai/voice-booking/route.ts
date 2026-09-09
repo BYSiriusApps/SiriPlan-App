@@ -3,6 +3,8 @@ import { getActiveMember } from "@/lib/active-org";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { parseVoiceBooking, dedupeAdjacentWords } from "@/lib/voice-parse";
 import { DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
+import { hasProTools } from "@/lib/entitlements";
+import { isMobileApp } from "@/lib/mobile-app";
 
 export const dynamic = "force-dynamic";
 
@@ -29,8 +31,23 @@ export async function POST(req: NextRequest) {
     const [{ data: staffList }, { data: servicesList }, { data: orgRow }] = await Promise.all([
       adminSupabase.from("staff").select("id, full_name").eq("org_id", orgId).eq("is_active", true),
       adminSupabase.from("services").select("id, name, price, duration_minutes").eq("org_id", orgId).eq("is_active", true),
-      adminSupabase.from("organizations").select("timezone").eq("id", orgId).single(),
+      adminSupabase.from("organizations").select("timezone, plan, trial_ends_at").eq("id", orgId).single(),
     ]);
+
+    // Sesli asistan Pro+ özelliğidir (fiyatlandırma: Starter'da "dahil değil").
+    // Asıl yetkilendirme burada; UI'daki gizleme yalnızca kozmetik. Gemini
+    // maliyeti de burada kesilir.
+    if (!hasProTools(orgRow)) {
+      return NextResponse.json(
+        {
+          error: (await isMobileApp())
+            ? "Sesli asistan mevcut planınıza dahil değil."
+            : "Sesli asistan yalnızca Pro ve Business planlarında kullanılabilir.",
+        },
+        { status: 403 }
+      );
+    }
+
     const timezone = orgRow?.timezone || DEFAULT_ORG_TIMEZONE;
 
     /** Yerel ayrıştırıcı — Gemini yoksa/başarısızsa ya da eksik alan kaldığında. */

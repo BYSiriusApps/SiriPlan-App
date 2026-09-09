@@ -16,6 +16,7 @@ import { DateTimeSlotPicker, nextSlot } from "@/components/dashboard/DateTimeSlo
 import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
 import { useMicAccess } from "@/components/dashboard/useMicAccess";
 import { useLongPress } from "@/components/dashboard/useLongPress";
+import { usePlan } from "@/components/dashboard/PlanContext";
 import { lookupCustomerBySpokenName } from "@/lib/voice-customer-lookup";
 
 interface StaffCard {
@@ -84,6 +85,9 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   const td = useTranslations("dashboard");
   const tm = useTranslations("dashboard.mic");
   const { requestMic, micDialog, speechLang } = useMicAccess();
+  // Sesli asistan Pro+ özelliği — Starter / deneme dolmuş planlarda mikrofon
+  // yüzeyleri gizlenir. (Asıl kontrol /api/ai/voice-booking'de 403.)
+  const { proTools } = usePlan();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -411,7 +415,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     onTap: () => setOpen(true),
     onLongPress: () => {
       setOpen(true);
-      setTimeout(() => startVoiceBooking(), 250);
+      if (proTools) setTimeout(() => startVoiceBooking(), 250);
     },
   });
 
@@ -506,8 +510,8 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
 
           <form onSubmit={handleSubmit} className="px-6 py-5 space-y-6">
 
-            {/* Konuşarak doldur — form açıkken sesli girişe geçiş */}
-            {!isListening && !isConfirmingVoice && (
+            {/* Konuşarak doldur — form açıkken sesli girişe geçiş (Pro+) */}
+            {proTools && !isListening && !isConfirmingVoice && (
               <Button
                 type="button"
                 variant="outline"
@@ -854,23 +858,25 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
         </SheetContent>
       </Sheet>
 
-      {/* Mikrofon düğmesi: tek dokunuş formu açar, basılı tutma sesli randevuyu başlatır */}
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        {...micLongPress.handlers}
-        className={cn(
-          "h-9 w-9 p-0 shrink-0 touch-none border-primary/20 text-primary hover:bg-primary/5 hover:text-primary transition-all",
-          isListening || micLongPress.holding ? "border-red-500 text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20" : ""
-        )}
-        title={tm("holdForVoice")}
-        aria-label={tm("holdForVoice")}
-      >
-        <Mic className="h-4 w-4" />
-      </Button>
+      {/* Mikrofon düğmesi (Pro+): tek dokunuş formu açar, basılı tutma sesli randevuyu başlatır */}
+      {proTools && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          {...micLongPress.handlers}
+          className={cn(
+            "h-9 w-9 p-0 shrink-0 touch-none border-primary/20 text-primary hover:bg-primary/5 hover:text-primary transition-all",
+            isListening || micLongPress.holding ? "border-red-500 text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20" : ""
+          )}
+          title={tm("holdForVoice")}
+          aria-label={tm("holdForVoice")}
+        >
+          <Mic className="h-4 w-4" />
+        </Button>
+      )}
 
-      {micDialog}
+      {proTools && micDialog}
     </div>
   );
 }

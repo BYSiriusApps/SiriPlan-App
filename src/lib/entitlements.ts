@@ -44,6 +44,21 @@ export function isTrialActive(org: EntitlementOrg | null | undefined): boolean {
 }
 
 /**
+ * "Pro rozetli" araçlara erişim var mı? — panelde sesli asistan (mikrofonla
+ * randevu/stok komutu), bekleme listesi, müşteri skoru, PDF rapor export.
+ * Fiyatlandırmada bu 4 grup Starter'da "dahil değil" (✕); Pro + Business +
+ * aktif deneme'de açık.
+ *
+ * Not: Bu grup için ayrı `feature_*` kolonu yok — plandan CANLI hesaplanır,
+ * deneme bitince kendiliğinden kapanır. Yeni bir Pro-üstü araç eklerken
+ * buradan geçir. (Website / kampanya / gamification / AI'nın kendi
+ * feature_* kolonları var; onlar getEntitlements ile kontrol edilir.)
+ */
+export function hasProTools(org: EntitlementOrg | null | undefined): boolean {
+  return isTrialActive(org) || org?.plan === "pro" || org?.plan === "business";
+}
+
+/**
  * İşletmenin ETKİN özellik yetkileri.
  * - Aktif deneme → Pro seviyesi (website, kampanya, gamification açık).
  * - Diğer tüm durumlar → org satırındaki feature_* kolonları (ödeme sonrası

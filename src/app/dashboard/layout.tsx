@@ -1,6 +1,8 @@
 import { getSessionUser, createClient } from "@/lib/supabase/server";
 import { getActiveMember, getMemberships, isPlatformAdmin } from "@/lib/active-org";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
+import { hasProTools } from "@/lib/entitlements";
+import { PlanProvider } from "@/components/dashboard/PlanContext";
 import Link from "next/link";
 import { AlertTriangle, CalendarClock } from "lucide-react";
 import { isMobileApp } from "@/lib/mobile-app";
@@ -76,6 +78,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <NextIntlClientProvider messages={messages}>
+     <PlanProvider value={{ plan: org.plan, proTools: hasProTools(org) }}>
       <AiAssistantProvider>
         <div className="flex min-h-screen bg-background">
           {/* Desktop sidebar — hidden on mobile and when printing (adisyon vb.) */}
@@ -140,6 +143,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Toaster position="top-right" richColors />
         </div>
       </AiAssistantProvider>
+     </PlanProvider>
     </NextIntlClientProvider>
   );
 }
