@@ -23,7 +23,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { Button } from "@/components/ui/button";
-import { Compass, X, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Compass, X, ChevronLeft, ChevronRight, Sparkles, BookOpen } from "lucide-react";
 
 const LS_KEY = "siriplan_onboarding_tour_done";
 /** Aynı sayfada "turu tekrar başlat" için — useSearchParams'a gerek kalmadan. */
@@ -39,15 +39,22 @@ function tourParamActive(): boolean {
   }
 }
 
-/** Sıra ÖNEMLİ — ayarlar sayfasındaki data-tour öznitelikleriyle eşleşir. */
+/**
+ * Sıra ÖNEMLİ — ayarlar sayfasındaki data-tour öznitelikleriyle eşleşir ve
+ * sayfadaki GÖRSEL sırayla aynı olmalı (aksi halde tur adımlar arası
+ * yukarı-aşağı zıplar). Sayfa akışı: temel bilgiler → randevu linki →
+ * entegrasyonlar/Telegram → otomatik mesajlar → online randevu ayarları
+ * (randevu dilimi) → WhatsApp bildirimleri → çalışma saatleri.
+ */
 const STEPS: { key: string; target?: string }[] = [
   { key: "intro" },
   { key: "basicInfo", target: "basic-info" },
   { key: "bookingLink", target: "booking-link" },
-  { key: "workingHours", target: "working-hours" },
-  { key: "autoMessage", target: "auto-message" },
-  { key: "whatsappNotif", target: "whatsapp-notif" },
   { key: "integrations", target: "integrations" },
+  { key: "autoMessage", target: "auto-message" },
+  { key: "onlineBooking", target: "online-booking" },
+  { key: "whatsappNotif", target: "whatsapp-notif" },
+  { key: "workingHours", target: "working-hours" },
   { key: "done" },
 ];
 
@@ -141,6 +148,7 @@ type Rect = { top: number; left: number; width: number; height: number };
 
 export function OnboardingTour({ orgId }: { orgId: string }) {
   const t = useTranslations("dashboard.tour");
+  const router = useRouter();
   const [active, setActive] = useState(false);
   const [idx, setIdx] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
@@ -320,6 +328,18 @@ export function OnboardingTour({ orgId }: { orgId: string }) {
         <div className="px-4 pb-3 pt-2">
           <p className="font-heading text-sm font-bold text-foreground">{t(`${step.key}Title`)}</p>
           <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{t(`${step.key}Body`)}</p>
+          {isLast && (
+            <button
+              onClick={() => {
+                finish();
+                router.push("/dashboard/rehber");
+              }}
+              className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-[12px] font-semibold text-primary transition-colors hover:bg-primary/15"
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              {t("openGuideBtn")}
+            </button>
+          )}
         </div>
 
         <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2.5">

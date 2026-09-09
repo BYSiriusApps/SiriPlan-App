@@ -165,6 +165,10 @@ export default function AyarlarPage() {
   const [staffList, setStaffList] = useState<StaffListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  // Kullanıcı herhangi bir alanı değiştirdi mi? Kaydet çubuğu bu duruma göre
+  // sayfanın altına yapışıp görünür kalır — kullanıcı uzun formda nerede
+  // olursa olsun kaydetmeyi unutmasın.
+  const [dirty, setDirty] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -317,12 +321,14 @@ export default function AyarlarPage() {
       toast.error(t("settingsPage.toastSaveFailed") + error.message);
     } else {
       toast.success(t("settingsPage.toastSaved"));
+      setDirty(false);
     }
     setSaving(false);
   }
 
   function setField(field: keyof Organization, value: unknown) {
     setOrg((prev) => prev ? { ...prev, [field]: value } : prev);
+    setDirty(true);
   }
 
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -946,6 +952,7 @@ export default function AyarlarPage() {
         icon={CalendarCheck}
         title={t("settingsPage.onlineBookingSettingsTitle")}
         description={t("settingsPage.onlineBookingDesc")}
+        dataTour="online-booking"
       >
         {(org.plan === "pro" || org.plan === "business") ? (
           <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
@@ -1577,10 +1584,23 @@ export default function AyarlarPage() {
         </DialogContent>
       </Dialog>
 
-      <Button className="w-full gap-2 rounded-full" onClick={handleSave} disabled={saving}>
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-        {t("settingsPage.saveButton")}
-      </Button>
+      {/* Kaydet çubuğu — sayfa çok uzun olduğu için alta YAPIŞIR (sticky) ve
+          kullanıcı hangi bölümde olursa olsun görünür kalır. Mobilde alt menü
+          (fixed) üstünde durması için ekstra alt boşluk. Salt CSS — mobil
+          uygulama paketiyle (AAB) ilgisi yok. */}
+      <div className="sticky bottom-20 z-40 md:bottom-4">
+        <div className="rounded-full border border-primary/20 bg-popover/95 p-1.5 shadow-lg backdrop-blur-md">
+          {dirty && (
+            <p className="px-3 pt-1 pb-1.5 text-center text-[11px] font-medium text-amber-600 dark:text-amber-400">
+              {t("settingsPage.unsavedChanges")}
+            </p>
+          )}
+          <Button className="w-full gap-2 rounded-full" onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {t("settingsPage.saveButton")}
+          </Button>
+        </div>
+      </div>
 
       <LegalNoticeModal isOpen={legalNoticeModalOpen} onOpenChange={setLegalNoticeModalOpen} />
     </div>
