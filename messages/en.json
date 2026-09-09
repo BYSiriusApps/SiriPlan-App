@@ -1215,7 +1215,9 @@
       "filterAll": "All",
       "emptyState": "Waitlist is empty",
       "addFirstEntry": "Add first entry",
-      "pendingApprovalsTitle": "Appointments Awaiting Approval"
+      "pendingApprovalsTitle": "Appointments Awaiting Approval",
+      "proTitle": "Waitlist is on the Pro and Business plans",
+      "proDesc": "Queue customers for full slots and notify them when one opens up. Appointments awaiting approval are still approved here on this plan too."
     },
     "expensesPage": {
       "eyebrow": "Finance",
@@ -1692,6 +1694,7 @@
       "retry": "Try again",
       "close": "Close",
       "unsupported": "Your browser doesn't support voice commands. Try a recent version of Chrome or Safari.",
+      "proOnly": "Voice booking is available only on the Pro and Business plans.",
       "permissionRequired": "Voice booking needs microphone permission.",
       "captureFailed": "Couldn't capture audio. Check your microphone permission and try again.",
       "listening": "🎤 Listening — speak now",

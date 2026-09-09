@@ -297,6 +297,10 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
   }, [services, staff, autoStaffId, tm, voiceLabelFor]);
 
   const startVoiceBooking = useCallback(async () => {
+    if (!proTools) {
+      toast.error(tm("proOnly"));
+      return;
+    }
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -406,7 +410,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
     };
 
     recognition.start();
-  }, [requestMic, speechLang, tm, applyVoiceParsed]);
+  }, [proTools, requestMic, speechLang, tm, applyVoiceParsed]);
 
   // Mikrofon düğmesi: tek dokunuş yalnızca formu açar; basılı tutma formu açıp
   // dinlemeye başlar. (Eskiden tek dokunuş da dinlemeyi başlatıyordu — "randevu"

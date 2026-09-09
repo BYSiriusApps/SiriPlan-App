@@ -19,6 +19,7 @@ import { CustomerSearchField } from "@/components/dashboard/CustomerSearchField"
 import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
 import { useMicAccess } from "@/components/dashboard/useMicAccess";
 import { lookupCustomerBySpokenName } from "@/lib/voice-customer-lookup";
+import { usePlan } from "@/components/dashboard/PlanContext";
 
 const FAVORITES_KEY = "siriplan_fav_services";
 
@@ -72,6 +73,7 @@ export default function YeniRandevuPage() {
   const t = useTranslations("dashboard");
   const tm = useTranslations("dashboard.mic");
   const { requestMic, micDialog, speechLang } = useMicAccess();
+  const { proTools } = usePlan(); // sesli asistan Pro+ (API'de 403 ile de korunur)
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
@@ -337,6 +339,10 @@ export default function YeniRandevuPage() {
   }, [services, staff, myStaffId, tm, voiceLabelFor]);
 
   const startVoiceBooking = useCallback(async () => {
+    if (!proTools) {
+      toast.error(tm("proOnly"));
+      return;
+    }
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -446,11 +452,11 @@ export default function YeniRandevuPage() {
     };
 
     recognition.start();
-  }, [requestMic, speechLang, tm, applyVoiceParsed]);
+  }, [proTools, requestMic, speechLang, tm, applyVoiceParsed]);
 
-  // Auto-start voice booking if requested via URL params
+  // Auto-start voice booking if requested via URL params (yalnızca Pro+)
   useEffect(() => {
-    if (!dataLoading && !voiceTriggeredRef.current && typeof window !== "undefined") {
+    if (proTools && !dataLoading && !voiceTriggeredRef.current && typeof window !== "undefined") {
       const qs = new URLSearchParams(window.location.search);
       if (qs.get("voice") === "true") {
         voiceTriggeredRef.current = true;
@@ -459,7 +465,7 @@ export default function YeniRandevuPage() {
         }, 500);
       }
     }
-  }, [dataLoading, startVoiceBooking]);
+  }, [proTools, dataLoading, startVoiceBooking]);
 
   // Clean up on unmount
   useEffect(() => {
@@ -569,19 +575,21 @@ export default function YeniRandevuPage() {
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("apptNew.cardTitle")}</CardTitle>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={startVoiceBooking}
-            className={cn(
-              "gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5 shrink-0",
-              isListening ? "border-red-500 text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20" : ""
-            )}
-          >
-            <Mic className="h-3.5 w-3.5" />
-            {tm("fillByVoice")}
-          </Button>
+          {proTools && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={startVoiceBooking}
+              className={cn(
+                "gap-1.5 text-xs text-primary border-primary/20 hover:bg-primary/5 shrink-0",
+                isListening ? "border-red-500 text-red-500 animate-pulse bg-red-50 dark:bg-red-950/20" : ""
+              )}
+            >
+              <Mic className="h-3.5 w-3.5" />
+              {tm("fillByVoice")}
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {dataLoading ? (

@@ -1215,7 +1215,9 @@
       "filterAll": "Tümü",
       "emptyState": "Bekleme listesi boş",
       "addFirstEntry": "İlk Kaydı Ekle",
-      "pendingApprovalsTitle": "Onay Bekleyen Randevular"
+      "pendingApprovalsTitle": "Onay Bekleyen Randevular",
+      "proTitle": "Bekleme listesi Pro ve Business planlarında",
+      "proDesc": "Dolu saatler için müşterileri sıraya alın, yer açıldığında bilgilendirin. Onay bekleyen randevularınızı bu planda da buradan onaylarsınız."
     },
     "expensesPage": {
       "eyebrow": "Mali İşler",
@@ -1692,6 +1694,7 @@
       "retry": "Tekrar Dene",
       "close": "Kapat",
       "unsupported": "Tarayıcınız sesli komut özelliğini desteklemiyor. Chrome veya Safari'nin güncel sürümünü deneyin.",
+      "proOnly": "Sesli randevu yalnızca Pro ve Business planlarında kullanılabilir.",
       "permissionRequired": "Sesli randevu için mikrofon izni gerekiyor.",
       "captureFailed": "Ses alınamadı. Mikrofon izninizi kontrol edip tekrar deneyin.",
       "listening": "🎤 Dinliyorum — şimdi konuşun",

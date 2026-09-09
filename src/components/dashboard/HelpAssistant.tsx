@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAiAssistant } from "./AiAssistantContext";
 import { useMicAccess } from "./useMicAccess";
+import { usePlan } from "./PlanContext";
 
 interface Message {
   role: "user" | "assistant";
@@ -19,6 +20,7 @@ export function HelpAssistant() {
   const t = useTranslations("dashboard.aiAssistant");
   const tm = useTranslations("dashboard.mic");
   const { requestMic, micDialog, speechLang } = useMicAccess();
+  const { proTools } = usePlan(); // sesli girdi Pro+ (API'de 403 ile de korunur)
   const { open, setOpen } = useAiAssistant();
   const [minimized, setMinimized] = useState(false);
   const [showQuick, setShowQuick] = useState(true);
@@ -30,6 +32,10 @@ export function HelpAssistant() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const startVoiceInput = useCallback(async () => {
+    if (!proTools) {
+      toast.error(tm("proOnly"));
+      return;
+    }
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -100,7 +106,7 @@ export function HelpAssistant() {
     };
 
     recognition.start();
-  }, [router, requestMic, speechLang, tm]);
+  }, [proTools, router, requestMic, speechLang, tm]);
 
   const quickQuestions = [t("quickQ1"), t("quickQ2"), t("quickQ3"), t("quickQ4"), t("quickQ5"), t("quickQ6"), t("quickQ7"), t("quickQ8")];
 
@@ -274,19 +280,21 @@ export function HelpAssistant() {
                     disabled={loading}
                     className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60 min-w-0"
                   />
-                  <button
-                    onClick={startVoiceInput}
-                    type="button"
-                    title={isListening ? "Dinleniyor..." : "Sesli Komut Ver (Gemini AI)"}
-                    className={cn(
-                      "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-                      isListening
-                        ? "bg-red-500 text-white animate-pulse"
-                        : "bg-muted-foreground/10 hover:bg-muted-foreground/20 text-muted-foreground"
-                    )}
-                  >
-                    <Mic className="w-3.5 h-3.5" />
-                  </button>
+                  {proTools && (
+                    <button
+                      onClick={startVoiceInput}
+                      type="button"
+                      title={isListening ? "Dinleniyor..." : "Sesli Komut Ver (Gemini AI)"}
+                      className={cn(
+                        "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                        isListening
+                          ? "bg-red-500 text-white animate-pulse"
+                          : "bg-muted-foreground/10 hover:bg-muted-foreground/20 text-muted-foreground"
+                      )}
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                   <button
                     onClick={() => send(input)}
                     disabled={loading || !input.trim()}
