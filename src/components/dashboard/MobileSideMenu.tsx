@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import {
   Menu, Bot, Link2, Copy, Check, MessageCircle,
   UserCog, Scissors, ListPlus, Megaphone, Globe, BarChart3, Wallet, Import, CreditCard, Inbox, Package,
-  Calendar, BookOpen, Users, HelpCircle,
+  Calendar, BookOpen, Users, HelpCircle, CircleUser,
 } from "lucide-react";
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
@@ -35,6 +35,7 @@ const SECONDARY_NAV = [
   { href: "/dashboard/stok", icon: Package, tKey: "stock", minRole: "staff" },
   { href: "/dashboard/veri-gocu", icon: Import, tKey: "dataMigration", minRole: "manager" },
   { href: "/dashboard/rehber", icon: HelpCircle, tKey: "guide", minRole: "staff" },
+  { href: "/dashboard/hesabim", icon: CircleUser, tKey: "myAccount", minRole: "staff" },
   { href: "/dashboard/abonelik", icon: CreditCard, tKey: "subscription", minRole: "manager" },
 ];
 
