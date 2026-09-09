@@ -58,6 +58,29 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // ── TEK KULLANIMLIK: hesap oluşturmadan ÖNCE daveti atomik olarak sahiplen.
+  // Aksi halde aynı link iki kez açılırsa iki Auth kullanıcısı denenip
+  // "e-posta zaten kayıtlı" hatasına düşülür ya da yarış oluşur.
+  const nowIso = new Date().toISOString();
+  const { data: claimed } = await admin
+    .from("staff_invitations")
+    .update({ status: "accepted", accepted_at: nowIso })
+    .eq("id", invite.id)
+    .eq("status", "pending")
+    .gt("expires_at", nowIso)
+    .select("id");
+
+  if (!claimed || claimed.length === 0) {
+    return NextResponse.json(
+      { error: "Bu davet zaten kullanılmış veya süresi dolmuş" },
+      { status: 409 }
+    );
+  }
+
+  /** Üyelik/hesap oluşturma başarısız olursa daveti yeniden kullanılabilir yap. */
+  const releaseInvite = () =>
+    admin.from("staff_invitations").update({ status: "pending", accepted_at: null }).eq("id", invite.id);
+
   const { data: created, error: createErr } = await admin.auth.admin.createUser({
     email: invite.email,
     password,
@@ -66,6 +89,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (createErr) {
+    await releaseInvite();
     const msg = /already.*registered/i.test(createErr.message)
       ? "Bu e-posta ile zaten bir hesabınız var. Lütfen giriş yaparak devam edin."
       : createErr.message;
@@ -88,13 +112,11 @@ export async function POST(req: NextRequest) {
 
   if (memberErr) {
     await admin.auth.admin.deleteUser(userId);
+    await releaseInvite();
     return NextResponse.json({ error: memberErr.message }, { status: 500 });
   }
 
-  await admin
-    .from("staff_invitations")
-    .update({ status: "accepted", accepted_at: new Date().toISOString() })
-    .eq("id", invite.id);
+  // Davet zaten yukarıda atomik olarak "accepted" yapıldı.
 
   // Oturumu kur — /api/auth/login'deki aynı cookie-aware client deseni.
   const supabase = await createClient();

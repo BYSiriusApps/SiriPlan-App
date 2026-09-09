@@ -55,6 +55,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Bu organizasyona zaten üyesiniz" }, { status: 409 });
   }
 
+  // ── TEK KULLANIMLIK: daveti ATOMİK olarak sahiplen ───────────────────────
+  // status'ü "pending" → "accepted" çekmeyi tek WHERE ile yaparız; iki
+  // eşzamanlı istek yarışırsa yalnızca biri satırı günceller, diğeri 0 satır
+  // görür ve reddedilir (org_members'a çift kayıt oluşmaz).
+  const nowIso = new Date().toISOString();
+  const { data: claimed } = await admin
+    .from("staff_invitations")
+    .update({ status: "accepted", accepted_at: nowIso })
+    .eq("id", invite.id)
+    .eq("status", "pending")
+    .gt("expires_at", nowIso)
+    .select("id");
+
+  if (!claimed || claimed.length === 0) {
+    return NextResponse.json(
+      { error: "Bu davet zaten kullanılmış veya süresi dolmuş" },
+      { status: 409 }
+    );
+  }
+
   // Create org_member. Rol ve izinler burada bir kez daha daraltılır: davet
   // satırı service role ile okunduğu için (RLS yok), davet oluşturulurken
   // yapılan doğrulamaya körü körüne güvenilmez — "owner" rolü hiçbir davetle
@@ -71,14 +91,14 @@ export async function POST(req: NextRequest) {
     });
 
   if (memberErr) {
+    // Üyelik oluşturulamadı — daveti yeniden kullanılabilir yap (aksi halde
+    // kullanıcı bir daha katılamaz).
+    await admin
+      .from("staff_invitations")
+      .update({ status: "pending", accepted_at: null })
+      .eq("id", invite.id);
     return NextResponse.json({ error: memberErr.message }, { status: 500 });
   }
-
-  // Mark invite as accepted
-  await admin
-    .from("staff_invitations")
-    .update({ status: "accepted", accepted_at: new Date().toISOString() })
-    .eq("id", invite.id);
 
   return NextResponse.json({ success: true, org_id: invite.org_id });
 }

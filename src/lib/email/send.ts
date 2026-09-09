@@ -229,7 +229,7 @@ export async function sendStaffInviteEmail(data: {
     </a>
 
     <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
-      Bu davet bağlantısı 7 gün geçerlidir. Sorularınız için <a href="mailto:info@bysirius.com" style="color:#e11d48;text-decoration:none;">info@bysirius.com</a> adresinden ulaşabilirsiniz.
+      Bu davet bağlantısı 24 saat geçerlidir ve yalnızca bir kez kullanılabilir. Sorularınız için <a href="mailto:info@bysirius.com" style="color:#e11d48;text-decoration:none;">info@bysirius.com</a> adresinden ulaşabilirsiniz.
     </p>
   `;
 

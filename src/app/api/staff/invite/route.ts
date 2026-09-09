@@ -99,7 +99,10 @@ export async function POST(req: NextRequest) {
     for (const key of OWNER_ONLY_PERMS) mergedPermissions[key] = false;
   }
 
-  // Create invitation
+  // Create invitation. Süre 24 saat (DB varsayılanı 7 gün — burada açıkça
+  // kısaltılıyor). Tek kullanımlıktır: kabul/kayıt uçları status'ü atomik
+  // olarak "accepted"a çeker (bkz. accept/route.ts, register/route.ts).
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   const { data: invite, error: inviteErr } = await supabase
     .from("staff_invitations")
     .insert({
@@ -111,6 +114,7 @@ export async function POST(req: NextRequest) {
       permissions_json: mergedPermissions,
       status: "pending",
       created_by: user.id,
+      expires_at: expiresAt,
     })
     .select("token, expires_at")
     .single();
@@ -128,7 +132,7 @@ export async function POST(req: NextRequest) {
   const message =
     `🎉 ${orgName} sizi Siriplan'a personel olarak davet etti!\n\n` +
     `Katılmak için aşağıdaki bağlantıyı kullanın:\n${inviteUrl}\n\n` +
-    `Davet süresi: 7 gün`;
+    `Bağlantı 24 saat geçerlidir ve yalnızca bir kez kullanılabilir.`;
 
   // Bildirim kanalları — sonuçları bekleyip TEK TEK durum döndürüyoruz.
   // Eskiden fire-and-forget + .catch(()=>{}) idi: e-posta/WhatsApp sessizce

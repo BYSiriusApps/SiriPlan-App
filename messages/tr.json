@@ -1570,7 +1570,7 @@
       "dialogTitle": "Personel Davet Et",
       "dialogDesc": "Davet linki ile personel kendi hesabını oluşturup işletmenize katılır.",
       "successTitle": "Davet oluşturuldu!",
-      "successDescGeneric": "Aşağıdaki daveti personele iletin — kendi hesabını oluşturup işletmenize katılır. Bağlantı 7 gün geçerlidir.",
+      "successDescGeneric": "Aşağıdaki daveti personele iletin — kendi hesabını oluşturup işletmenize katılır. Bağlantı 24 saat geçerlidir ve yalnızca bir kez kullanılabilir.",
       "linkLabel": "Davet bağlantısı",
       "copyLink": "Bağlantıyı kopyala",
       "linkCopied": "Bağlantı kopyalandı",
