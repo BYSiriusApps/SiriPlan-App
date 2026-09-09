@@ -18,10 +18,13 @@
 
 ## Digital Asset Links
 
-- Dosya: [`public/.well-known/assetlinks.json`](../public/.well-known/assetlinks.json) — tekil geçerli dizi, `package_name: com.siriplan.app` + iki SHA-256 (App signing key + Upload key).
-- **Geçmiş hata:** iç içe dizi (`[[ ... ]]`) yüzünden geçersizdi → TWA'da adres çubuğu görünüyordu. Düzeltildi (commit `54e4ec5`), deploy edildi, canlıda doğrulandı.
-- İmza anahtarı ileride değişirse parmak izlerini bu dosyada güncelle → commit/push → Vercel deploy.
-- Değişiklik sonrası **test uygulamasını cihazdan kaldırıp yeniden kur** (Android doğrulama sonucunu kurulumda cache'ler).
+- Dosya: [`public/.well-known/assetlinks.json`](../public/.well-known/assetlinks.json) — tekil geçerli dizi, `package_name: com.siriplan.app`.
+- **Doğru parmak izinin tek kaynağı:** Play Console → Test edin ve yayınlayın → Kurulum → **Uygulama bütünlüğü → Uygulama imzalama**. O sayfa doğru `assetlinks.json` içeriğini hazır üretir. Elle tahmin etme.
+- **Geçmiş hata 1:** iç içe dizi (`[[ ... ]]`) → geçersiz JSON (commit `54e4ec5`).
+- **Geçmiş hata 2 (9 Eyl):** `e62ba07`'de girilen iki parmak izi (`42:0D:B1...`, `D9:51:28...`) Play App Signing anahtarıyla eşleşmiyordu → DAL doğrulaması başarısız, TWA "Running in Chrome" adres çubuklu sekme olarak açılıyordu. Play Console'un verdiği gerçek App Signing SHA-256 (`7C:A5:3C:5A:...:36:EC:E7`) ile düzeltildi (commit `cbc13a4`).
+- İmza anahtarı ileride değişirse veya bir yükleme anahtarı (sideload testi için) eklenmesi gerekirse: parmak izini Play Console'dan al → bu dosyaya ekle → commit/push → Vercel deploy.
+- Değişiklik sonrası: `https://siriplan.com/.well-known/assetlinks.json` + Google DAL API ile doğrula, sonra **uygulamayı kaldır → Chrome önbelleğini temizle → telefonu yeniden başlat → Play'den tekrar kur** (Android doğrulama sonucunu kurulumda cache'ler).
+- **Yeni AAB gerekmez** — bu bir web dosyası.
 
 ## Abonelik / IAP uyumu
 
