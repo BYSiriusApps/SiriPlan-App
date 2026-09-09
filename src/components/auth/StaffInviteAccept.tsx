@@ -48,8 +48,12 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
     fetch(`/api/staff/invite/accept?token=${token}`)
       .then((r) => r.json())
       .then((d) => {
-        if (d.error) setError(d.error);
-        else setInfo(d);
+        if (d.error) { setError(d.error); return; }
+        setInfo(d);
+        // Telefonla gönderilen davetlerde e-posta yok → "Yeni Hesap Oluştur"
+        // akışı (e-posta/şifre ister) kullanılamaz. Bu numaranın zaten bir
+        // hesabı olması çok olası; doğrudan giriş sekmesini aç.
+        if (!d.email) setMode("login");
       })
       .catch(() => setError("Bağlantı hatası"))
       .finally(() => setLoading(false));
@@ -197,10 +201,18 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
           </>
         ) : (
           <Tabs value={mode} onValueChange={(v) => setMode(v === "login" ? "login" : "register")}>
-            <TabsList className="w-full">
-              <TabsTrigger value="register" className="flex-1">Yeni Hesap Oluştur</TabsTrigger>
-              <TabsTrigger value="login" className="flex-1">Zaten Hesabım Var</TabsTrigger>
-            </TabsList>
+            {/* Telefonla davette e-posta yok → "Yeni Hesap Oluştur" akışı
+                çalışmaz; yalnızca giriş gösterilir. */}
+            {info?.email ? (
+              <TabsList className="w-full">
+                <TabsTrigger value="register" className="flex-1">Yeni Hesap Oluştur</TabsTrigger>
+                <TabsTrigger value="login" className="flex-1">Zaten Hesabım Var</TabsTrigger>
+              </TabsList>
+            ) : (
+              <p className="rounded-lg bg-muted/50 p-2.5 text-center text-xs text-muted-foreground">
+                Bu numaraya kayıtlı hesabınızla giriş yapıp daveti kabul edin.
+              </p>
+            )}
 
             <TabsContent value="register" className="pt-4">
               <form onSubmit={handleRegister} className="space-y-3">
