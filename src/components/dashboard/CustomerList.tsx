@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import type { Customer } from "@/types/database";
 import { maskPhone } from "@/lib/phone";
+import { usePlan } from "@/components/dashboard/PlanContext";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
@@ -71,6 +72,10 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
   const activeLocale = useLocale();
   const dateFnsLocale = DATE_FNS_LOCALES[activeLocale as keyof typeof DATE_FNS_LOCALES] ?? tr;
   const router = useRouter();
+  // Müşteri skoru Pro+ özelliği — Starter'da skor rozeti ve "skora göre sırala"
+  // gizlenir. Skor cron'u yine herkes için hesaplar (kendi verisi, sızıntı yok).
+  const { proTools } = usePlan();
+  const sorts = useMemo(() => (proTools ? SORTS : SORTS.filter((s) => s.value !== "score")), [proTools]);
   const [q, setQ] = useState("");
   const [sortBy, setSortBy] = useState<SortValue>("last_visit");
   // false = azalan (en yeni/en yüksek üstte) — listenin bugüne kadarki davranışı.
@@ -168,7 +173,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
           )}
         </div>
         <div className="flex gap-1 flex-wrap items-center">
-          {SORTS.map((s) => (
+          {sorts.map((s) => (
             <button
               key={s.value}
               onClick={() => changeSort(s.value)}
@@ -304,9 +309,11 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                             <MegaphoneOff className="h-3.5 w-3.5 text-muted-foreground/40" />
                           </span>
                         )}
-                        <Badge variant="outline" className={cn("text-xs", scoreColor(cust.score))}>
-                          {scoreEmoji(cust.score)} {cust.score}
-                        </Badge>
+                        {proTools && (
+                          <Badge variant="outline" className={cn("text-xs", scoreColor(cust.score))}>
+                            {scoreEmoji(cust.score)} {cust.score}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -17,6 +17,7 @@ import CustomerLanguageSelect from "./CustomerLanguageSelect";
 import CustomerBirthDateEdit from "./CustomerBirthDateEdit";
 import { STATUS_LABEL_KEYS } from "@/lib/appointment-status";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
+import { hasProTools } from "@/lib/entitlements";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800";
@@ -57,11 +58,13 @@ export default async function MusteriDetailPage({
   if (!customer) notFound();
   const c = customer as Customer;
 
-  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null } | null };
+  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null; plan?: string | null; trial_ends_at?: string | null } | null };
   const m = member as unknown as MemberWithOrg;
   const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
+  // Müşteri skoru Pro+ özelliği — Starter'da skor rozeti gizlenir.
+  const showScore = hasProTools(m.organizations);
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
@@ -70,10 +73,12 @@ export default async function MusteriDetailPage({
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="text-xl font-bold brand-gradient-text">{c.full_name}</h1>
-        <Badge className={cn("ml-auto text-xs", scoreColor(c.score))}>
-          <Star className="h-3 w-3 mr-1 fill-current" />
-          {c.score} {t("customerDetail.scoreSuffix")}
-        </Badge>
+        {showScore && (
+          <Badge className={cn("ml-auto text-xs", scoreColor(c.score))}>
+            <Star className="h-3 w-3 mr-1 fill-current" />
+            {c.score} {t("customerDetail.scoreSuffix")}
+          </Badge>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

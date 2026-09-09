@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { hasProTools } from "@/lib/entitlements";
 import { logAudit } from "@/lib/audit";
 import * as XLSX from "xlsx";
 import { startOfDay, endOfDay, format as formatDate } from "date-fns";
@@ -27,6 +28,15 @@ export async function GET(req: NextRequest) {
   const member = await getActiveMember(supabase);
   if (!member || !["owner", "manager"].includes(member.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // PDF rapor export Pro+ özelliğidir (fiyatlandırma: Starter "Veri export (CSV)"
+  // içerir, PDF içermez). CSV / Excel / JSON her planda açık kalır.
+  if (format === "pdf" && !hasProTools(member.organizations)) {
+    return NextResponse.json(
+      { error: "PDF rapor export yalnızca Pro ve Business planlarında kullanılabilir." },
+      { status: 403 }
+    );
   }
 
   const orgId = member.org_id;

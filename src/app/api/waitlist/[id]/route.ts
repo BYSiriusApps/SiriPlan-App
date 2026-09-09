@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { hasProTools } from "@/lib/entitlements";
 
 type Params = { params: Promise<{ id: string }> };
+
+const PRO_ONLY = "Bekleme listesi yalnızca Pro ve Business planlarında kullanılabilir.";
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
@@ -13,6 +16,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (!hasProTools(member.organizations)) return NextResponse.json({ error: PRO_ONLY }, { status: 403 });
 
   const ALLOWED = ["status", "preferred_dates"];
   const updates: Record<string, unknown> = {};
@@ -47,6 +51,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (!hasProTools(member.organizations)) return NextResponse.json({ error: PRO_ONLY }, { status: 403 });
 
   const { error } = await supabase
     .from("waitlist")

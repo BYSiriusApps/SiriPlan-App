@@ -9,6 +9,7 @@ import { TrendingUp, Users, Star, Download, CalendarCheck, ChevronLeft, ChevronR
 import Link from "next/link";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { formatMoney } from "@/lib/currency";
+import { hasProTools } from "@/lib/entitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,8 @@ export default async function RaporlarPage({
   const orgId = member.org_id;
   const now = new Date();
   const currency = ((member.organizations?.settings_json as Record<string, unknown> | null)?.currency as string) || "TRY";
+  // PDF rapor export Pro+ (Starter "Veri export (CSV)" içerir, PDF içermez).
+  const canPdf = hasProTools(member.organizations);
 
   // ── Gün sonu özeti: geriye dönük tarih seçilebilir (?gun=yyyy-MM-dd) ──
   const dayParam = sp.gun && /^\d{4}-\d{2}-\d{2}$/.test(sp.gun) ? sp.gun : format(now, "yyyy-MM-dd");
@@ -174,15 +177,17 @@ export default async function RaporlarPage({
           </div>
           <HomeButton />
         </div>
-        <a
-          href={`/api/export?format=pdf&gun=${dayParam}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-accent transition-colors"
-        >
-          <Download className="h-4 w-4" />
-          {t("reportsPage.daySummaryPdf")}
-        </a>
+        {canPdf && (
+          <a
+            href={`/api/export?format=pdf&gun=${dayParam}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-accent transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            {t("reportsPage.daySummaryPdf")}
+          </a>
+        )}
       </div>
 
       {/* ── GÜN SONU ÖZETİ — tarih seçilebilir (geçmiş günler dahil) ── */}

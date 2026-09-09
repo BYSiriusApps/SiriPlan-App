@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { hasProTools } from "@/lib/entitlements";
 import { z } from "zod";
+
+// Bekleme listesi Pro+ özelliğidir (fiyatlandırma: Starter'da "dahil değil").
+// "Onay bekleyen randevular" (talep) bu tablodan bağımsızdır — dashboard ana
+// sayfası + randevular listesinden onaylanır, o akış her planda çalışır.
+const PRO_ONLY = "Bekleme listesi yalnızca Pro ve Business planlarında kullanılabilir.";
 
 const CreateSchema = z.object({
   customer_name: z.string().min(2).max(100),
@@ -19,6 +25,7 @@ export async function GET(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (!hasProTools(member.organizations)) return NextResponse.json({ error: PRO_ONLY }, { status: 403 });
 
   const status = searchParams.get("status");
 
@@ -51,6 +58,7 @@ export async function POST(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (!hasProTools(member.organizations)) return NextResponse.json({ error: PRO_ONLY }, { status: 403 });
 
   const { data, error } = await supabase
     .from("waitlist")
