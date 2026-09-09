@@ -10,7 +10,6 @@ import { MobileNav } from "@/components/dashboard/MobileNav";
 import { HelpAssistant } from "@/components/dashboard/HelpAssistant";
 import { AiAssistantProvider } from "@/components/dashboard/AiAssistantContext";
 import { SubscriptionLockBanner } from "@/components/dashboard/SubscriptionLockBanner";
-import { MobileTrialEndedScreen } from "@/components/dashboard/MobileTrialEndedScreen";
 import { RouteTransition } from "@/components/dashboard/RouteTransition";
 import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
@@ -55,18 +54,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
     }
   }
 
-  // Native mobil uygulama (App Store/Play Store) mağaza kurallarına uymak için
-  // fiyat/ödeme arayüzü içeremez. Deneme süresi dolan/ödemesi başarısız olan
-  // işletmeler için web'deki "banner + panel" soft-lock yerine, mobil
-  // uygulamada fiyat veya ödeme linki içermeyen tam ekran bilgilendirme
-  // gösterilir (bkz. MobileTrialEndedScreen). Web davranışı değişmez.
-  if (mobileApp && subscriptionLock.locked && subscriptionLock.reason) {
-    return (
-      <NextIntlClientProvider messages={messages}>
-        <MobileTrialEndedScreen reason={subscriptionLock.reason} />
-      </NextIntlClientProvider>
-    );
-  }
+  // Deneme süresi dolan / ödemesi başarısız olan işletme, native mobil
+  // uygulamada da paneli görüntülemeye devam eder (salt-okunur); yazma
+  // işlemleri proxy.ts'te API seviyesinde 402 ile engellenir. Mobil uygulamada
+  // uyarı şeridi mağaza kurallarına uymak için fiyat/web ödeme linki yerine
+  // yalnızca müşteri destek iletişimi gösterir (bkz. SubscriptionLockBanner).
+  // Daha önce burada tam ekran bir kilit vardı — kullanıcı panele hiç
+  // giremiyordu; kaldırıldı.
 
   return (
     <NextIntlClientProvider messages={messages}>
@@ -89,7 +83,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {/* Main content — add bottom padding on mobile for nav bar */}
           <main className="dashboard-shell flex-1 overflow-auto pb-16 md:pb-0">
             {subscriptionLock.locked && subscriptionLock.reason && (
-              <SubscriptionLockBanner reason={subscriptionLock.reason} />
+              <SubscriptionLockBanner reason={subscriptionLock.reason} mobileApp={mobileApp} />
             )}
             {lowStockCount > 0 && (
               <div className="bg-amber-500 hover:bg-amber-600 transition-colors text-white px-4 py-2.5 text-xs font-semibold flex items-center justify-between gap-4 border-b border-amber-600">

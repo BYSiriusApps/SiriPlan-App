@@ -173,8 +173,8 @@ export default function PlanSecPage() {
   // Native mobil uygulama: mağaza kurallarına uymak için fiyat, "Satın Al"
   // butonu veya ödeme sayfasına link göstermeyiz. Deneme hâlâ aktifse tek
   // seçenek "ücretsiz denemeye devam et"; deneme dolmuşsa yalnızca destek
-  // iletişimi sunulur (bkz. MobileTrialEndedScreen — dashboard'a girince
-  // zaten aynı ekranı görecek, burada da tutarlı davranıyoruz).
+  // iletişimi sunulur. (Not: native uygulamada proxy.ts bu rotayı zaten
+  // /dashboard'a yönlendirir; burada da tutarlı davranıyoruz.)
   if (mobileApp) {
     const trialEnded = expired || trialActive === false;
     return (

@@ -120,7 +120,10 @@ export async function POST(req: NextRequest) {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
-  const inviteUrl = `${appUrl}/auth/davet?token=${invite.token}`;
+  // Token yol segmentinde — WhatsApp/e-posta/uygulama link yakalama katmanları
+  // sorgu parametrelerini bazen düşürüyor; `/auth/davet/<token>` her durumda
+  // doğru daveti açar. (`?token=` biçimi de hâlâ çalışır.)
+  const inviteUrl = `${appUrl}/auth/davet/${invite.token}`;
   const orgName = (org as { name: string }).name;
   const message =
     `🎉 ${orgName} sizi Siriplan'a personel olarak davet etti!\n\n` +
