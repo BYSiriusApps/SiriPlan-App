@@ -4,6 +4,20 @@ Ertelenmiş işler. "Geliştirme listesinde ne var?" diye sorulduğunda buradan 
 
 ---
 
+## 0. Teknik güvenlik — kalan işler (SEC-01..SEC-10)
+
+**Durum (9 Eyl 2026):** SEC-09 (olay müdahale) + SEC-10 (erişim yönetimi) ✅ tamam.
+GitHub Dependabot/Secret/Push protection açıldı. Kalan maddelerin tam listesi ve
+öncelik sırası: **`docs/security/TEKNIK-GUVENLIK-CHECKLIST.md` → "⏳ KALAN İŞLER"**.
+
+Öne çıkan (ücretsiz, kod-dışı):
+- `META_APP_SECRET` + 1 kiracı `sms_password` rotasyonu (en riskli açık, aylardır bekliyor).
+- Cloudflare Turnstile anahtarları (ücretsiz) → Vercel env.
+- Supabase günlük yedek kontrolü.
+- CI workflow dosyası (`.github/workflows/security.yml`) + Actions secret/variable.
+
+---
+
 ## 1. Supabase Auth e-postaları çok dilli olsun
 
 **Durum:** Ertelendi (28 Ağu 2026) — şu an uygulama pratikte TR-only.

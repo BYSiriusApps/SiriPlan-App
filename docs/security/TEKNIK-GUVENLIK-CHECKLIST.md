@@ -1,10 +1,46 @@
 # 06 · Teknik Güvenlik — Takip Listesi (SEC-01 … SEC-10)
 
-**Son güncelleme:** 2026-08-29
+**Son güncelleme:** 2026-09-09
 **İlke:** Ana yapı, işleyiş ve app (TWA) paketi bozulmadan; değişiklikler yalnızca
 eklemeli (yeni dosya / config / doküman).
 
 Durum anahtarı: ✅ tamam · 🟡 devam ediyor / kısmen · ⬜ yapılacak (kod-dışı / ops)
+
+---
+
+## ⏳ KALAN İŞLER — kullanıcı yapacak (öncelik sırası)
+
+Hepsi harici servis ayarı; uygulama kodunu/çalışmasını/deploy'unu **etkilemez**,
+sonrasında test gerekmez. Sırayla yapılabilir, acele yok.
+
+### A · Ücretsiz & hızlı (bugün yapılabilir)
+- [ ] **SEC-01** — `META_APP_SECRET` yenile (Meta App Dashboard → Vercel env → redeploy).
+      *Aylardır bekliyor, en riskli açık bu.* → tarih [ACCESS-MANAGEMENT-POLICY §2](ACCESS-MANAGEMENT-POLICY.md)'ye işle.
+- [ ] **SEC-01** — İlgili kiracının `sms_password` değerini Supabase `organizations`'ta yenile.
+- [ ] **SEC-04** — Cloudflare Turnstile anahtarları (**ÜCRETSİZ**, plan gerekmez):
+      `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` → Vercel env.
+- [ ] **SEC-07** — Supabase → Database → Backups: **günlük yedek var mı** kontrol et.
+      Varsa yeterli; yoksa Pro plan (günlük yedek için) öne alınmalı.
+- [x] **SEC-05** — GitHub → Settings → Advanced Security: Dependabot alerts + security
+      updates + Secret Protection + Push protection **açıldı (9 Eyl 2026)**.
+- [ ] **SEC-05** — (opsiyonel) Aynı sayfada "Dependabot malware alerts" → Enable.
+
+### B · CI otomasyonu (SEC-03) — workflow scope'lu erişim gerekir
+- [ ] Taslağı `.github/workflows/security.yml` olarak ekle
+      (içerik: [`ci-workflow-security.yml`](ci-workflow-security.yml) birebir; GitHub web
+      arayüzü "Add file" veya `workflow` scope'lu PAT ile).
+- [ ] GitHub repo → Settings → Secrets and variables → Actions:
+      **Secrets:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- [ ] Aynı yer → **Variables:** `SECURITY_TESTS_ENABLED` = `1`
+- [ ] Settings → Rules/Branches: `main` için `security / static` job'ını zorunlu kıl.
+
+### C · Büyüyünce / bütçe ayrılınca
+- [ ] **SEC-07** — Supabase PITR add-on + üç ayda bir geri yükleme tatbikatı.
+- [ ] **SEC-08** — Sentry (`@sentry/nextjs`, PII maskeli) + uptime izleme + `/api/health`.
+- [ ] **SEC-04** — Cloudflare/Vercel WAF & bot yönetimi (login, `/api/contact`, `/r/[slug]`).
+- [ ] **SEC-06** — Yıllık bağımsız sızma testi (harici firma).
+- [ ] **SEC-02** — Panelde Supabase MFA + oturum süresi + şüpheli giriş uyarısı
+      (giriş akışına dokunur → ayrı PR + canlı test).
 
 ---
 
@@ -16,7 +52,7 @@ Durum anahtarı: ✅ tamam · 🟡 devam ediyor / kısmen · ⬜ yapılacak (kod
 | SEC-02 | Panelde 2FA/MFA | ⬜ | Kapsam notu eklendi — kod değişikliği ayrı iş (risk: oturum akışı) |
 | SEC-03 | İzolasyon testi CI'da | 🟡 | Workflow taslağı (`docs/security/ci-workflow-security.yml`) + `npm run security:*` scriptleri; taslağın `.github/workflows/`'a elle eklenmesi + GitHub secret/var kurulumu bekliyor |
 | SEC-04 | Rate limiting + WAF + bot | 🟡 | Rate limit + bot-guard + tor-guard zaten var; Turnstile anahtarları + WAF katmanı bekliyor |
-| SEC-05 | Bağımlılık & sır taraması | 🟡 | `.github/dependabot.yml` + CI'da `npm audit` kapısı eklendi; GitHub secret scanning/push protection panelden açılacak |
+| SEC-05 | Bağımlılık & sır taraması | 🟡 | `.github/dependabot.yml` + CI'da `npm audit` kapısı; GitHub Dependabot/Secret/Push protection **açıldı (9 Eyl)**; CI workflow dosyası + npm audit temizliği kaldı |
 | SEC-06 | Sızma testi + ifşa politikası | 🟡 | `SECURITY.md` + `/.well-known/security.txt` + `/guvenlik` sayfası var; yıllık bağımsız pentest bekliyor |
 | SEC-07 | Yedek & kurtarma tatbikatı | 🟡 | `BACKUP-RECOVERY-PLAN.md` (RPO/RTO tanımlı); Supabase PITR + tatbikat bekliyor |
 | SEC-08 | İzleme + denetim logu | 🟡 | `audit_logs` + CSP-report var; `MONITORING-AND-AUDIT.md` yol haritası; Sentry + uptime bekliyor |
@@ -77,10 +113,11 @@ Durum anahtarı: ✅ tamam · 🟡 devam ediyor / kısmen · ⬜ yapılacak (kod
 ## SEC-05 · Bağımlılık & sır taraması — 🟡
 
 - [x] `.github/dependabot.yml` — haftalık npm + github-actions, minor/patch gruplu
-- [x] CI'da `npm audit --audit-level=high` kapısı + tam rapor (bilgi amaçlı)
-- [ ] GitHub → Settings → Code security: **Dependabot alerts** + **security updates** aç
-- [ ] GitHub → **Secret scanning** + **push protection** aç
-- [ ] İlk `npm audit` çıktısını temizle (yüksek/kritik varsa)
+- [x] CI'da `npm audit --audit-level=high` kapısı + tam rapor (bilgi amaçlı) — workflow dosyası eklenince aktif
+- [x] GitHub → Advanced Security: **Dependabot alerts** + **security updates** açıldı (9 Eyl 2026)
+- [x] GitHub → **Secret Protection** + **Push protection** açıldı (9 Eyl 2026)
+- [ ] (opsiyonel) "Dependabot malware alerts" → Enable
+- [ ] İlk `npm audit` çıktısını temizle (yüksek/kritik varsa) — `npm audit` ile bak
 
 ## SEC-06 · Sızma testi + ifşa politikası — 🟡
 
