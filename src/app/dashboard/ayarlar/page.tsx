@@ -892,7 +892,6 @@ export default function AyarlarPage() {
                 const cur = (org.settings_json ?? {}) as Record<string, unknown>;
                 let currentVal = "";
                 let targetKey = "";
-                let defaultVal = "";
 
                 if (manualTab === "onay") {
                   currentVal = (cur.wa_appointment_template as string | undefined) ?? DEFAULT_WA_TEMPLATE;
