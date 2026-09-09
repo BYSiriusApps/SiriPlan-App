@@ -127,38 +127,50 @@ export async function POST(req: NextRequest) {
     `Katılmak için aşağıdaki bağlantıyı kullanın:\n${inviteUrl}\n\n` +
     `Davet süresi: 7 gün`;
 
-  // Bildirim kanalları (fire-and-forget)
-  const tasks: Promise<void>[] = [];
-
-  if (data.phone && (data.notify_via === "whatsapp" || data.notify_via === "all")) {
-    tasks.push(sendWhatsAppMessage(data.phone, message).catch(() => {}));
-  }
+  // Bildirim kanalları — sonuçları bekleyip TEK TEK durum döndürüyoruz.
+  // Eskiden fire-and-forget + .catch(()=>{}) idi: e-posta/WhatsApp sessizce
+  // başarısız olsa bile arayüz "davet gönderildi" diyordu. Artık panel,
+  // hangi kanalın ulaştığını/ulaşamadığını gösterip linki elle paylaştırıyor.
+  type Delivery = "sent" | "failed" | "skipped";
+  let emailStatus: Delivery = "skipped";
+  let whatsappStatus: Delivery = "skipped";
+  let telegramStatus: Delivery = "skipped";
 
   if (data.email && (data.notify_via === "email" || data.notify_via === "all")) {
-    tasks.push(
-      sendStaffInviteEmail({ to: data.email, orgName, inviteUrl, role: data.role }).catch(() => {})
-    );
+    emailStatus = (await sendStaffInviteEmail({ to: data.email, orgName, inviteUrl, role: data.role }).catch(() => false))
+      ? "sent"
+      : "failed";
+  }
+
+  if (data.phone && (data.notify_via === "whatsapp" || data.notify_via === "all")) {
+    // Serbest metin: yalnızca alıcı son 24 saatte işletmeye yazdıysa teslim
+    // edilir. Personel daveti çoğunlukla bu pencere dışındadır → "failed",
+    // panel "WhatsApp'ta Paylaş" butonuyla linki elle göndertir.
+    whatsappStatus = (await sendWhatsAppMessage(data.phone, message).catch(() => false))
+      ? "sent"
+      : "failed";
   }
 
   // Telegram: if staff record has chat_id
-  if (data.staff_id) {
+  if (data.staff_id && (data.notify_via === "telegram" || data.notify_via === "all")) {
     const { data: staffRow } = await supabase
       .from("staff")
       .select("telegram_chat_id")
       .eq("id", data.staff_id)
       .single();
     const tgId = (staffRow as { telegram_chat_id?: string | null } | null)?.telegram_chat_id;
-    if (tgId && (data.notify_via === "telegram" || data.notify_via === "all")) {
-      tasks.push(sendTelegramMessage(tgId, message).catch(() => {}));
+    if (tgId) {
+      telegramStatus = (await sendTelegramMessage(tgId, message).then(() => true).catch(() => false))
+        ? "sent"
+        : "failed";
     }
   }
-
-  await Promise.allSettled(tasks);
 
   return NextResponse.json({
     token: invite.token,
     invite_url: inviteUrl,
     expires_at: invite.expires_at,
+    delivery: { email: emailStatus, whatsapp: whatsappStatus, telegram: telegramStatus },
   }, { status: 201 });
 }
 

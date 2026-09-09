@@ -95,7 +95,7 @@ function buildMessage(
 }
 
 async function dispatch(recipient: Recipient, message: string): Promise<void> {
-  const tasks: Promise<void>[] = [];
+  const tasks: Promise<unknown>[] = [];
   if (recipient.telegram_chat_id) {
     tasks.push(sendTelegramMessage(recipient.telegram_chat_id, message));
   }

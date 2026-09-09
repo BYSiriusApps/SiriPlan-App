@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { PERM_KEYS, DEFAULT_PERMS, OWNER_ONLY_PERMS } from "@/lib/permissions";
+import { toWhatsAppNumber } from "@/lib/phone";
 
 interface StaffOption {
   id: string;
@@ -41,6 +42,12 @@ export function StaffInviteDialog({ staffList, preselectedStaffId, viewerIsOwner
   const [loading, setLoading] = useState(false);
   const [inviteUrl, setInviteUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  type Delivery = "sent" | "failed" | "skipped";
+  const [delivery, setDelivery] = useState<{ email: Delivery; whatsapp: Delivery; telegram: Delivery }>({
+    email: "skipped",
+    whatsapp: "skipped",
+    telegram: "skipped",
+  });
 
   const [form, setForm] = useState({
     staff_id: preselectedStaffId ?? "",
@@ -86,6 +93,7 @@ export function StaffInviteDialog({ staffList, preselectedStaffId, viewerIsOwner
       return;
     }
     setInviteUrl(data.invite_url);
+    setDelivery(data.delivery ?? { email: "skipped", whatsapp: "skipped", telegram: "skipped" });
     setStep("success");
   }
 
@@ -93,6 +101,15 @@ export function StaffInviteDialog({ staffList, preselectedStaffId, viewerIsOwner
     navigator.clipboard.writeText(inviteUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    toast.success(t("linkCopied"));
+  }
+
+  /** wa.me derin bağlantısı — davet linkini sahibi kendi WhatsApp'ından iletir
+   *  (otomatik gönderim, kişi işletmeye yazmadıysa Meta tarafından teslim edilmez). */
+  function shareOnWhatsApp() {
+    const num = toWhatsAppNumber(form.phone);
+    const text = encodeURIComponent(t("shareText", { url: inviteUrl }));
+    window.open(`https://wa.me/${num}?text=${text}`, "_blank", "noopener,noreferrer");
   }
 
   function handleOpenChange(next: boolean) {
@@ -101,6 +118,7 @@ export function StaffInviteDialog({ staffList, preselectedStaffId, viewerIsOwner
       setStep("form");
       setForm({ staff_id: preselectedStaffId ?? "", email: "", phone: "", role: "staff", permissions: { ...DEFAULT_PERMS.staff } });
       setInviteUrl("");
+      setDelivery({ email: "skipped", whatsapp: "skipped", telegram: "skipped" });
     }
   }
 
@@ -133,15 +151,52 @@ export function StaffInviteDialog({ staffList, preselectedStaffId, viewerIsOwner
               <div className="text-center">
                 <CheckCircle2 className="h-10 w-10 text-green-500 mx-auto mb-2" />
                 <p className="font-medium">{t("successTitle")}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t("successDesc")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("successDescGeneric")}</p>
               </div>
-              <div className="flex gap-2">
-                <Input value={inviteUrl} readOnly className="text-xs" />
-                <Button variant="outline" size="icon" onClick={copyLink}>
-                  {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
-                </Button>
+
+              {/* Otomatik bildirim durumu — hangisi ulaştı, hangisi ulaşamadı */}
+              {(delivery.email !== "skipped" || delivery.whatsapp !== "skipped" || delivery.telegram !== "skipped") && (
+                <div className="rounded-lg border border-border bg-muted/40 p-2.5 space-y-1.5 text-xs">
+                  {delivery.email !== "skipped" && (
+                    <p className={`flex items-start gap-1.5 ${delivery.email === "sent" ? "text-green-600 dark:text-green-500" : "text-amber-600 dark:text-amber-500"}`}>
+                      <Mail className="h-3.5 w-3.5 mt-px shrink-0" />
+                      {delivery.email === "sent" ? t("deliveryEmailSent") : t("deliveryEmailFailed")}
+                    </p>
+                  )}
+                  {delivery.whatsapp !== "skipped" && (
+                    <p className={`flex items-start gap-1.5 ${delivery.whatsapp === "sent" ? "text-green-600 dark:text-green-500" : "text-amber-600 dark:text-amber-500"}`}>
+                      <Send className="h-3.5 w-3.5 mt-px shrink-0" />
+                      {delivery.whatsapp === "sent" ? t("deliveryWhatsappSent") : t("deliveryWhatsappFailed")}
+                    </p>
+                  )}
+                  {delivery.telegram === "sent" && (
+                    <p className="flex items-start gap-1.5 text-green-600 dark:text-green-500">
+                      <Send className="h-3.5 w-3.5 mt-px shrink-0" />
+                      {t("deliveryTelegramSent")}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">{t("linkLabel")}</Label>
+                <div className="flex gap-2">
+                  <Input value={inviteUrl} readOnly className="text-xs" onFocus={(e) => e.currentTarget.select()} />
+                  <Button variant="outline" size="icon" onClick={copyLink} title={t("copyLink")}>
+                    {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+                  </Button>
+                </div>
               </div>
-              <Button className="w-full" onClick={() => handleOpenChange(false)}>{t("closeButton")}</Button>
+
+              <div className="flex flex-col gap-2">
+                {form.phone && (
+                  <Button variant="outline" className="w-full gap-1.5" onClick={shareOnWhatsApp}>
+                    <Send className="h-3.5 w-3.5" />
+                    {t("shareWhatsapp")}
+                  </Button>
+                )}
+                <Button className="w-full" onClick={() => handleOpenChange(false)}>{t("closeButton")}</Button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">

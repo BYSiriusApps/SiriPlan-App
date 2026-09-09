@@ -201,13 +201,15 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
   });
 }
 
+/** @returns e-posta Resend tarafından kabul edildiyse `true`; anahtar yoksa
+ *  veya gönderim hata verirse `false` (çağıran taraf kullanıcıya durumu bildirir). */
 export async function sendStaffInviteEmail(data: {
   to: string;
   orgName: string;
   inviteUrl: string;
   role: "staff" | "manager";
-}) {
-  if (!emailEnabled()) return;
+}): Promise<boolean> {
+  if (!emailEnabled()) return false;
 
   const roleLabel = data.role === "manager" ? "Yönetici" : "Personel";
 
@@ -231,12 +233,22 @@ export async function sendStaffInviteEmail(data: {
     </p>
   `;
 
-  await getResend().emails.send({
-    from: `${fromName(data.orgName)} <${FROM}>`,
-    to: data.to,
-    subject: `${data.orgName} sizi Siriplan'a davet etti`,
-    html: baseLayout(content, data.orgName),
-  });
+  try {
+    const { error } = await getResend().emails.send({
+      from: `${fromName(data.orgName)} <${FROM}>`,
+      to: data.to,
+      subject: `${data.orgName} sizi Siriplan'a davet etti`,
+      html: baseLayout(content, data.orgName),
+    });
+    if (error) {
+      console.error("[email] staff invite gönderilemedi:", error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error("[email] staff invite gönderilemedi:", e);
+    return false;
+  }
 }
 
 export async function sendBirthdayEmail(data: {

@@ -15,6 +15,21 @@ export function normalizePhone(raw: string): string {
 }
 
 /**
+ * Meta WhatsApp Cloud API için E.164 (ülke kodlu, "+" yok) biçime çevirir:
+ * "0501 372 03 10" / "5013720310" / "+90 501…" → "905013720310".
+ * Meta, ülke kodu olmayan numarayı geçersiz alıcı sayıp isteği reddeder —
+ * bu yüzden `sendWhatsAppMessage` ham `replace(/\D/g)` YETMEZ.
+ */
+export function toWhatsAppNumber(raw: string | null | undefined): string {
+  const digits = (raw ?? "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("90") && digits.length >= 12) return digits;
+  if (digits.startsWith("0")) return "90" + digits.slice(1);
+  if (digits.length === 10) return "90" + digits; // 5xxxxxxxxx
+  return digits; // zaten uluslararası (başka ülke) veya biçimi bilinmiyor
+}
+
+/**
  * Telefon numarasını "0535 *** ** 34" biçiminde maskeler — ilk 4 ve son 2 hane
  * görünür kalır.
  *
