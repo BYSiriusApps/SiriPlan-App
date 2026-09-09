@@ -522,11 +522,13 @@ async function handleCreateAppointment(req: NextRequest) {
   const finalDuration = data.total_duration_override ?? service.duration_minutes;
 
   // Panelden (giriş yapmış, org üyesi) girilen randevular direkt onaylı düşer.
-  // Herkese açık rezervasyon widget'ından (/r/[slug], anonim) gelenler VARSAYILAN
-  // OLARAK direkt onaylanır (deneme/Starter dahil — ilk kayıttan itibaren sürtünmesiz
-  // rezervasyon deneyimi). Manuel onay kuyruğu ("bekliyor") sadece Pro/Business'ta,
-  // salon sahibi has_auto_booking'i bilinçli olarak KAPATIRSA devreye girer.
-  const webAutoBookingEligible = data.source === "web" && (!planAllowsAutoBooking || !!org.has_auto_booking);
+  // Herkese açık rezervasyon widget'ından (/r/[slug], anonim) gelenler de
+  // VARSAYILAN OLARAK direkt onaylanır — otomatik onay TÜM planlarda açıktır
+  // ve `has_auto_booking` kolonu varsayılan true'dur (bkz.
+  // 20260909_auto_booking_all_plans.sql). Salon sahibi Ayarlar'dan bu kutuyu
+  // KAPATIRSA (has_auto_booking === false) randevular "talep" kuyruğuna düşer
+  // ve salona "yeni randevu talebi" bildirimi gider (aşağıda).
+  const webAutoBookingEligible = data.source === "web" && org.has_auto_booking !== false;
   const initialStatus = isPanelBooking || webAutoBookingEligible ? "onaylandi" : "talep";
 
   let appt: Record<string, unknown>;
@@ -563,8 +565,10 @@ async function handleCreateAppointment(req: NextRequest) {
     return NextResponse.json({ error: pgErr.message || "Randevu oluşturulamadı" }, { status: 500 });
   }
 
-  // Bildirim gönder (fire-and-forget)
-  notifyAppointment({
+  // Salona bildirim (fire-and-forget). "talep" durumundaki randevu linki
+  // girişleri "Randevu Onaylandı" değil "Yeni Randevu Talebi — panele girin"
+  // olarak bildirilir; salon sahibi onayı atlamasın.
+  const notifyPayload = {
     id: (appt as { id: string }).id,
     org_id: data.org_id,
     customer_name: data.customer_name,
@@ -576,7 +580,12 @@ async function handleCreateAppointment(req: NextRequest) {
     price: finalPrice,
     note: data.note,
     source: data.source,
-  }).catch(() => {});
+  };
+  if (initialStatus === "talep") {
+    notifyAppointmentRequest({ ...notifyPayload, serviceName: service.name }).catch(() => {});
+  } else {
+    notifyAppointment(notifyPayload).catch(() => {});
+  }
 
   // Müşteriye anlık WhatsApp onay bildirimi — telefon zorunlu alan olduğu
   // için email girilmemiş olsa bile bu kanal her zaman devreye girer.

@@ -2,7 +2,7 @@ import { getSessionUser, createClient } from "@/lib/supabase/server";
 import { getActiveMember, getMemberships, isPlatformAdmin } from "@/lib/active-org";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
 import Link from "next/link";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CalendarClock } from "lucide-react";
 import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
@@ -39,19 +39,31 @@ export default async function DashboardLayout({ children }: { children: React.Re
   ]);
 
   let lowStockCount = 0;
+  // Randevu linkinden gelip onay bekleyen ("talep") randevular. Otomatik onay
+  // artık varsayılan açık — bu sayı yalnızca salon kutuyu KAPATTIYSA > 0 olur.
+  // O durumda her sayfada bir şerit gösterip onay atlanmasını önlüyoruz.
+  let pendingApptCount = 0;
   if (org && (role === "owner" || role === "manager")) {
     const supabase = await createClient();
-    const { data: inventoryItems } = await supabase
-      .from("inventory_items")
-      .select("current_stock, min_stock_alert")
-      .eq("org_id", org.id)
-      .eq("is_active", true);
+    const [{ data: inventoryItems }, { count: pendingCount }] = await Promise.all([
+      supabase
+        .from("inventory_items")
+        .select("current_stock, min_stock_alert")
+        .eq("org_id", org.id)
+        .eq("is_active", true),
+      supabase
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("org_id", org.id)
+        .eq("status", "talep"),
+    ]);
 
     if (inventoryItems) {
       lowStockCount = inventoryItems.filter(
         (item: any) => Number(item.current_stock) <= Number(item.min_stock_alert)
       ).length;
     }
+    pendingApptCount = pendingCount ?? 0;
   }
 
   // Deneme süresi dolan / ödemesi başarısız olan işletme, native mobil
@@ -84,6 +96,20 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <main className="dashboard-shell flex-1 overflow-auto pb-16 md:pb-0">
             {subscriptionLock.locked && subscriptionLock.reason && (
               <SubscriptionLockBanner reason={subscriptionLock.reason} mobileApp={mobileApp} />
+            )}
+            {pendingApptCount > 0 && (
+              <div className="bg-rose-600 hover:bg-rose-700 transition-colors text-white px-4 py-2.5 text-xs font-semibold flex items-center justify-between gap-4 border-b border-rose-700">
+                <span className="flex items-center gap-1.5">
+                  <CalendarClock className="h-4 w-4 shrink-0" />
+                  {pendingApptCount} randevu onayınızı bekliyor — randevu linkinden geldi.
+                </span>
+                <Link
+                  href="/dashboard/bekleme-listesi"
+                  className="underline hover:text-rose-100 transition-colors shrink-0 font-bold"
+                >
+                  Onayla →
+                </Link>
+              </div>
             )}
             {lowStockCount > 0 && (
               <div className="bg-amber-500 hover:bg-amber-600 transition-colors text-white px-4 py-2.5 text-xs font-semibold flex items-center justify-between gap-4 border-b border-amber-600">

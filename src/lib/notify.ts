@@ -216,14 +216,26 @@ export async function notifyAppointmentRequest(
   try {
     const supabase = await createAdminClient();
 
-    const { data: orgRow } = await supabase
-      .from("organizations")
-      .select("telegram_chat_id, whatsapp_number, address, location_url, timezone")
-      .eq("id", req.org_id)
-      .single();
+    // Servis/personel adı verilmediyse ID'den çöz — /r/[slug] (web) akışı
+    // bunları hazır göndermiyor; bildirim "Hizmet / Personel" gibi boş
+    // kalmasın diye burada tamamlanır.
+    const staffTargetId = req.assigned_staff_id ?? req.staff_id;
+    const [{ data: orgRow }, { data: svcRow }, { data: stfRow }] = await Promise.all([
+      supabase
+        .from("organizations")
+        .select("telegram_chat_id, whatsapp_number, address, location_url, timezone")
+        .eq("id", req.org_id)
+        .single(),
+      !req.serviceName && req.service_id
+        ? supabase.from("services").select("name").eq("id", req.service_id).single()
+        : Promise.resolve({ data: null }),
+      !req.staffName && staffTargetId
+        ? supabase.from("staff").select("full_name").eq("id", staffTargetId).single()
+        : Promise.resolve({ data: null }),
+    ]);
 
-    const serviceName = req.serviceName ?? "Hizmet";
-    const staffName = req.staffName ?? "Personel";
+    const serviceName = req.serviceName ?? (svcRow as { name?: string } | null)?.name ?? "Hizmet";
+    const staffName = req.staffName ?? (stfRow as { full_name?: string } | null)?.full_name ?? "Personel";
     const orgForLocation = orgRow as { address?: string | null; location_url?: string | null; timezone?: string | null } | null;
     const locationLink =
       orgForLocation?.location_url?.trim() ||

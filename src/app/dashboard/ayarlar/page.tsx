@@ -293,7 +293,7 @@ export default function AyarlarPage() {
         wa_phone_number_id: org.wa_phone_number_id,
         kdv_enabled: org.kdv_enabled ?? false,
         kdv_rate: org.kdv_rate ?? 20,
-        has_auto_booking: org.has_auto_booking ?? false,
+        has_auto_booking: org.has_auto_booking !== false,
         kvkk_notice_text: org.kvkk_notice_text,
         settings_json: org.settings_json ?? {},
     };
@@ -954,26 +954,23 @@ export default function AyarlarPage() {
         description={t("settingsPage.onlineBookingDesc")}
         dataTour="online-booking"
       >
-        {(org.plan === "pro" || org.plan === "business") ? (
-          <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
-            <Checkbox
-              id="has_auto_booking"
-              checked={org.has_auto_booking ?? false}
-              onCheckedChange={(checked) => setField("has_auto_booking", !!checked)}
-              className="mt-0.5"
-            />
-            <label htmlFor="has_auto_booking" className="cursor-pointer flex-1">
-              <p className="text-sm font-medium">{t("settingsPage.autoConfirmLabel")}</p>
-              <p className="text-xs text-muted-foreground">
-                {t("settingsPage.autoConfirmDesc")}
-              </p>
-            </label>
-          </div>
-        ) : (
-          <div className="p-3 rounded-lg bg-muted/50 border border-border text-xs text-muted-foreground">
-            {t("settingsPage.autoConfirmFreeText")}
-          </div>
-        )}
+        {/* Otomatik onay tüm planlarda; varsayılan işaretli
+            (has_auto_booking DB varsayılanı true). Kapatılınca randevular
+            "talep" kuyruğuna düşer ve salona bildirim gider. */}
+        <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
+          <Checkbox
+            id="has_auto_booking"
+            checked={org.has_auto_booking !== false}
+            onCheckedChange={(checked) => setField("has_auto_booking", !!checked)}
+            className="mt-0.5"
+          />
+          <label htmlFor="has_auto_booking" className="cursor-pointer flex-1">
+            <p className="text-sm font-medium">{t("settingsPage.autoConfirmLabel")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("settingsPage.autoConfirmDesc")}
+            </p>
+          </label>
+        </div>
         {/* Randevu Dilimi */}
         <div className="pt-3 border-t border-border mt-3">
           <Label className="text-sm font-medium mb-1 block">{t("settingsPage.slotIntervalLabel")}</Label>
