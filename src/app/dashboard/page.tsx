@@ -25,7 +25,7 @@ import { DashboardWidgetGrid, type DashboardWidget } from "@/components/dashboar
 import { getTranslations, getLocale } from "next-intl/server";
 import { ApproveButton } from "@/components/dashboard/ApproveButton";
 import { NewAppointmentFab } from "@/components/dashboard/NewAppointmentFab";
-import { OnboardingWelcome } from "@/components/dashboard/OnboardingTour";
+import { OnboardingWelcome, OnboardingTour, STAFF_STEPS } from "@/components/dashboard/OnboardingTour";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
@@ -154,11 +154,14 @@ export default async function DashboardPage() {
     monthApptsQuery = monthApptsQuery.eq("staff_id", staffId);
   }
 
-  // Kurulum turu karşılama kutusu — yalnızca işletme sahibi + tur hiç görülmemişse.
-  // Kolon migration'ı gecikirse sorgu hata döner ve tourRow null olur → kutu
-  // gösterilmez (mevcut işletmeler migration'da geriye dönük "tamamlandı" yazılır).
-  let showOnboarding = false;
-  if (member.role === "owner") {
+  // Kurulum turu karşılama kutusu.
+  //  - İşletme sahibi: org bayrağı (onboarding_tour_completed_at) NULL ise çıkar.
+  //    Kolon migration'ı gecikirse tourRow null → kutu gösterilmez.
+  //  - Personel / yönetici: kutu daima render edilir; bileşen kendi cihazındaki
+  //    localStorage'a göre gizlenir (org bayrağına dokunulmaz).
+  const isOwner = member.role === "owner";
+  let showOnboarding = !isOwner;
+  if (isOwner) {
     const { data: tourRow } = await supabase
       .from("organizations")
       .select("onboarding_tour_completed_at")
@@ -908,8 +911,12 @@ export default async function DashboardPage() {
 
       {showOnboarding && (
         <div className="pb-2">
-          <OnboardingWelcome orgId={orgId} />
+          <OnboardingWelcome orgId={orgId} role={member.role} />
         </div>
+      )}
+      {/* Personel turu bu sayfada çalışır (ayarlar sayfasına erişemezler). */}
+      {member.role === "staff" && (
+        <OnboardingTour orgId={orgId} steps={STAFF_STEPS} basePath="/dashboard" personalOnly />
       )}
 
       {/* ── Bento ızgara: mobil tek sütun, geniş ekran 12 sütun — kişiselleştirilebilir ── */}

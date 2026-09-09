@@ -46,7 +46,10 @@ function tourParamActive(): boolean {
  * entegrasyonlar/Telegram → otomatik mesajlar → online randevu ayarları
  * (randevu dilimi) → WhatsApp bildirimleri → çalışma saatleri.
  */
-const STEPS: { key: string; target?: string }[] = [
+type Step = { key: string; target?: string };
+
+/** İşletme sahibi / yönetici turu — ayarlar sayfasında çalışır. */
+const STEPS: Step[] = [
   { key: "intro" },
   { key: "basicInfo", target: "basic-info" },
   { key: "bookingLink", target: "booking-link" },
@@ -55,15 +58,30 @@ const STEPS: { key: string; target?: string }[] = [
   { key: "onlineBooking", target: "online-booking" },
   { key: "whatsappNotif", target: "whatsapp-notif" },
   { key: "workingHours", target: "working-hours" },
+  { key: "staffPermissions", target: "staff-permissions" },
   { key: "done" },
 ];
 
-async function markCompleted(orgId: string) {
+/**
+ * Personel turu — panel ana sayfasında çalışır, hedef işaretlemez (ortalanmış
+ * kartlar). Personel ayarlar sayfasına erişemez; bu tur "neyi nerede yaparım +
+ * yetkilerim" odaklı.
+ */
+export const STAFF_STEPS: Step[] = [
+  { key: "staffIntro" },
+  { key: "staffNav" },
+  { key: "staffPerms" },
+  { key: "staffAccount" },
+  { key: "staffDone" },
+];
+
+async function markCompleted(orgId: string, personalOnly = false) {
   try {
     localStorage.setItem(LS_KEY, "1");
   } catch {
     /* özel pencere / depolama kapalı — sorun değil */
   }
+  if (personalOnly) return; // personel: yalnızca kendi cihazında işaretle, org bayrağına dokunma
   try {
     await createClient()
       .from("organizations")
@@ -77,10 +95,12 @@ async function markCompleted(orgId: string) {
 /* ────────────────────────────────────────────────────────────
  * Panel ana sayfası: karşılama kutusu
  * ──────────────────────────────────────────────────────────── */
-export function OnboardingWelcome({ orgId }: { orgId: string }) {
+export function OnboardingWelcome({ orgId, role = "owner" }: { orgId: string; role?: string }) {
   const t = useTranslations("dashboard.tour");
   const router = useRouter();
   const [hidden, setHidden] = useState(false);
+  // Personel ayarlar turuna erişemez → ana sayfada çalışan kısa personel turu.
+  const isStaffOnly = role === "staff";
 
   useEffect(() => {
     try {
@@ -92,13 +112,27 @@ export function OnboardingWelcome({ orgId }: { orgId: string }) {
 
   if (hidden) return null;
 
+  const startTour = () => {
+    if (isStaffOnly) {
+      try {
+        window.history.replaceState(window.history.state, "", "/dashboard?tour=1");
+      } catch {
+        /* yok say */
+      }
+      window.dispatchEvent(new Event(TOUR_EVENT));
+      setHidden(true);
+    } else {
+      router.push("/dashboard/ayarlar?tour=1");
+    }
+  };
+
   return (
     <div className="px-4 max-w-6xl mx-auto">
       <GlassCard3D className="glass-card relative overflow-hidden" glow intensity={3}>
         <button
           onClick={() => {
             setHidden(true);
-            void markCompleted(orgId);
+            void markCompleted(orgId, isStaffOnly);
           }}
           aria-label={t("skip")}
           className="absolute top-2.5 right-2.5 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
@@ -111,15 +145,15 @@ export function OnboardingWelcome({ orgId }: { orgId: string }) {
           </div>
           <div className="min-w-0 flex-1 space-y-2.5">
             <div>
-              <p className="font-heading text-base font-bold text-foreground">{t("welcomeTitle")}</p>
-              <p className="text-sm text-muted-foreground mt-0.5">{t("welcomeBody")}</p>
+              <p className="font-heading text-base font-bold text-foreground">
+                {t(isStaffOnly ? "welcomeStaffTitle" : "welcomeTitle")}
+              </p>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {t(isStaffOnly ? "welcomeStaffBody" : "welcomeBody")}
+              </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                size="sm"
-                onClick={() => router.push("/dashboard/ayarlar?tour=1")}
-                className="gap-1.5"
-              >
+              <Button size="sm" onClick={startTour} className="gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
                 {t("startBtn")}
               </Button>
@@ -128,7 +162,7 @@ export function OnboardingWelcome({ orgId }: { orgId: string }) {
                 variant="ghost"
                 onClick={() => {
                   setHidden(true);
-                  void markCompleted(orgId);
+                  void markCompleted(orgId, isStaffOnly);
                 }}
               >
                 {t("skipForNow")}
@@ -146,7 +180,20 @@ export function OnboardingWelcome({ orgId }: { orgId: string }) {
  * ──────────────────────────────────────────────────────────── */
 type Rect = { top: number; left: number; width: number; height: number };
 
-export function OnboardingTour({ orgId }: { orgId: string }) {
+export function OnboardingTour({
+  orgId,
+  steps = STEPS,
+  basePath = "/dashboard/ayarlar",
+  personalOnly = false,
+}: {
+  orgId: string;
+  /** Adım listesi — varsayılan: ayarlar turu. Personel turu için STAFF_STEPS. */
+  steps?: Step[];
+  /** Tur bittiğinde URL'den ?tour=1 temizlenip bu yola dönülür. */
+  basePath?: string;
+  /** Personel turu: org bayrağına dokunma, yalnızca localStorage. */
+  personalOnly?: boolean;
+}) {
   const t = useTranslations("dashboard.tour");
   const router = useRouter();
   const [active, setActive] = useState(false);
@@ -155,21 +202,21 @@ export function OnboardingTour({ orgId }: { orgId: string }) {
   const bubbleRef = useRef<HTMLDivElement>(null);
   const [bubblePos, setBubblePos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
-  const step = STEPS[idx];
-  const total = STEPS.length;
+  const step = steps[idx];
+  const total = steps.length;
 
   const finish = useCallback(() => {
-    void markCompleted(orgId);
+    void markCompleted(orgId, personalOnly);
     setIdx(0);
     setActive(false);
     // Sadece ?tour=1'i URL'den temizle — sayfa yeniden yüklenmesin (useSearchParams
     // kullanmıyoruz, bu yüzden Next router'ıyla senkron kalmak gerekmiyor).
     try {
-      window.history.replaceState(window.history.state, "", "/dashboard/ayarlar");
+      window.history.replaceState(window.history.state, "", basePath);
     } catch {
       /* yok say */
     }
-  }, [orgId]);
+  }, [orgId, personalOnly, basePath]);
 
   // ?tour=1 (ilk yükleme / geri-ileri) + aynı sayfadaki "tekrar başlat" olayı
   useEffect(() => {

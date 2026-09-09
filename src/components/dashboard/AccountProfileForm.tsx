@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Loader2, Save, ShieldCheck, Check, X, Palette, LayoutGrid } from "lucide-react";
+import { Loader2, Save, ShieldCheck, Check, X, Palette, LayoutGrid, Compass } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -185,6 +185,13 @@ export function AccountProfileForm({ initial, role, orgName, email, permissionsJ
             <Palette className="h-4 w-4 text-primary" />
             {t("themeHint")}
           </p>
+          <Link
+            href={role === "staff" ? "/dashboard?tour=1" : "/dashboard/ayarlar?tour=1"}
+            className="flex items-center gap-2 rounded-lg border border-border p-2.5 text-sm hover:bg-accent/50 transition-colors"
+          >
+            <Compass className="h-4 w-4 text-primary" />
+            {t("restartTour")}
+          </Link>
         </div>
       </Section>
     </div>

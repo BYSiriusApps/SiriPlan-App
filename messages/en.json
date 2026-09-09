@@ -952,9 +952,23 @@
       "onlineBookingBody": "Set the appointment slot interval here: customers see times in 15, 30 or 60-minute steps on your booking page — match it to your service length. Automatic confirmation of bookings is on by default on every plan; turn the checkbox off and you approve each request yourself and get a notification.",
       "whatsappNotifTitle": "WhatsApp Notifications",
       "whatsappNotifBody": "Turn automatic WhatsApp messages on or off and set how many hours before the appointment the reminder goes out. While off, your customers receive no automatic WhatsApp messages. For SMS notifications you need to enter your own SMS provider details.",
+      "staffPermissionsTitle": "Staff Permissions",
+      "staffPermissionsBody": "Here you set what each staff member can see and do in the panel (customer phone numbers, reports, cancelling appointments, etc.). When sending an invite you also pick a role (Staff / Manager) plus fine-tuning. Staff can view their own permissions on the My Account page but cannot change them.",
       "doneTitle": "You're ready!",
       "doneBody": "Press the Save button — it stays pinned to the bottom of the page — as you fill in each section; your details are only stored when you save. For stock management, the calendar, dashboard personalization and everything else, check the User Guide. You can reopen this tour any time via 'Restart the setup tour' under the Settings heading.",
-      "openGuideBtn": "Open the User Guide"
+      "openGuideBtn": "Open the User Guide",
+      "welcomeStaffTitle": "Welcome to the business panel",
+      "welcomeStaffBody": "Take 1 minute to see where things are in the panel and what your permissions are.",
+      "staffIntroTitle": "Welcome to the panel",
+      "staffIntroBody": "You manage your appointments, calendar and (if permitted) customer records from this panel. Let's take a quick tour.",
+      "staffNavTitle": "Menu",
+      "staffNavBody": "Use the left menu (the bottom menu button on mobile) to reach Calendar, Appointments and Customers. Only the sections available to you are shown.",
+      "staffPermsTitle": "Your permissions",
+      "staffPermsBody": "The business owner decides what you can see and do in the panel. If you can't see a section or perform an action, that permission is off — you can view your full permission list on the 'My Account' page. Contact the owner for changes.",
+      "staffAccountTitle": "My Account",
+      "staffAccountBody": "Update your name, phone and panel language on the 'My Account' page. To change your password, use the 'Forgot password' link on the login screen.",
+      "staffDoneTitle": "You're ready!",
+      "staffDoneBody": "Check the User Guide for anything you get stuck on. You can restart this tour any time from the My Account page."
     },
     "incomePage": {
       "eyebrow": "Finance",
@@ -1326,7 +1340,8 @@
       "personalizeTitle": "Personalize the Panel",
       "personalizeDesc": "Applies only to the sections available to you.",
       "widgetsLink": "Edit home dashboard tiles",
-      "themeHint": "Light/dark theme: use the theme switch in the side menu"
+      "themeHint": "Light/dark theme: use the theme switch in the side menu",
+      "restartTour": "Restart the intro tour"
     },
     "detailedForm": "Detailed Form",
     "addCustomer": "+ Add Customer",

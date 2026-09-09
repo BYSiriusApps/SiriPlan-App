@@ -952,9 +952,23 @@
       "onlineBookingBody": "Randevu dilimi aralığını buradan seçersiniz: müşteriler randevu sayfanızda saatleri 15, 30 veya 60 dakikalık adımlarla görür — hizmet sürenize göre ayarlayın. Randevuların otomatik onaylanması tüm planlarda ve varsayılan olarak açıktır; kutuyu kapatırsanız her talebi siz onaylarsınız ve size bildirim gelir.",
       "whatsappNotifTitle": "WhatsApp Bildirimleri",
       "whatsappNotifBody": "Otomatik WhatsApp mesajlarını açıp kapatır ve hatırlatmanın randevudan kaç saat önce gideceğini belirlersiniz. Kapalıyken müşterileriniz hiçbir otomatik WhatsApp mesajı almaz. SMS bildirimleri için kendi SMS sağlayıcı bilgilerinizi girmeniz gerekir.",
+      "staffPermissionsTitle": "Personel Yetkileri",
+      "staffPermissionsBody": "Buradan her personelin panelde neleri görüp yapabileceğini ayarlarsınız (müşteri telefonları, raporlar, randevu iptali vb.). Davet gönderirken de rol (Personel / Yönetici) + ince ayar seçersiniz. Personel kendi yetkilerini Hesabım sayfasında görebilir ama değiştiremez.",
       "doneTitle": "Hazırsınız!",
       "doneBody": "Her bölümü doldurdukça sayfanın altına yapışık duran Kaydet düğmesine basın — girdiğiniz bilgiler yalnızca kaydettiğinizde saklanır. Stok yönetimi, takvim, panel kişiselleştirme ve diğer tüm konular için Kullanım Kılavuzu'na göz atın; bu turu istediğiniz zaman Ayarlar başlığının altındaki 'Kurulum turunu tekrar başlat' ile yeniden açabilirsiniz.",
-      "openGuideBtn": "Kullanım Kılavuzunu Aç"
+      "openGuideBtn": "Kullanım Kılavuzunu Aç",
+      "welcomeStaffTitle": "İşletme paneline hoş geldiniz",
+      "welcomeStaffBody": "1 dakikada panelde neyi nerede yapacağınızı ve yetkilerinizi görün.",
+      "staffIntroTitle": "Panele hoş geldiniz",
+      "staffIntroBody": "Bu panelden randevularınızı, takviminizi ve (yetkiniz varsa) müşteri kayıtlarını yönetirsiniz. Kısa bir tur yapalım.",
+      "staffNavTitle": "Menü",
+      "staffNavBody": "Sol menüden (mobilde alttaki menü düğmesinden) Takvim, Randevular ve Müşteriler bölümlerine geçersiniz. Yalnızca size açık bölümler görünür.",
+      "staffPermsTitle": "Yetkileriniz",
+      "staffPermsBody": "Panelde neleri görüp yapabileceğinizi işletme sahibi belirler. Bir bölümü göremiyorsanız veya bir işlemi yapamıyorsanız yetkiniz kapalı demektir — 'Hesabım' sayfasında tam yetki listenizi görebilirsiniz. Değişiklik için işletme sahibine başvurun.",
+      "staffAccountTitle": "Hesabım",
+      "staffAccountBody": "Adınızı, telefonunuzu ve panel dilinizi 'Hesabım' sayfasından güncellersiniz. Şifre değişikliği için giriş ekranındaki 'Şifremi unuttum' bağlantısını kullanın.",
+      "staffDoneTitle": "Hazırsınız!",
+      "staffDoneBody": "Takıldığınız her konu için Kullanım Kılavuzu'na göz atabilir, bu turu Hesabım sayfasından yeniden başlatabilirsiniz."
     },
     "incomePage": {
       "eyebrow": "Finans",
@@ -1326,7 +1340,8 @@
       "personalizeTitle": "Paneli Kişiselleştir",
       "personalizeDesc": "Yalnızca size açık bölümler için geçerlidir.",
       "widgetsLink": "Ana sayfa özet kutularını düzenle",
-      "themeHint": "Açık/koyu tema: kenar menüdeki tema anahtarından"
+      "themeHint": "Açık/koyu tema: kenar menüdeki tema anahtarından",
+      "restartTour": "Tanıtım turunu yeniden başlat"
     },
     "detailedForm": "Detaylı Form",
     "addCustomer": "+ Müşteri Ekle",

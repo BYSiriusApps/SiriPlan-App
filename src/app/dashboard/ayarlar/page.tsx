@@ -1446,7 +1446,7 @@ export default function AyarlarPage() {
       </SectionCard>
 
       {/* Staff permissions */}
-      <SectionCard icon={ShieldCheck} title={tsp("cardTitle")} description={tsp("cardDesc")}>
+      <SectionCard icon={ShieldCheck} title={tsp("cardTitle")} description={tsp("cardDesc")} dataTour="staff-permissions">
         {[
           {
             key: "staff_phone_access",
