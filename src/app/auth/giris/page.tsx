@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,16 @@ export default function GirisPage() {
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [email, setEmail] = useState("");
+  // Kayıt sayfası "zaten hesabın var" derse e-posta/telefonu ?identifier= ile
+  // buraya taşır. Hidrasyon uyuşmazlığı olmasın diye efektte okunur.
+  useEffect(() => {
+    try {
+      const id = new URLSearchParams(window.location.search).get("identifier")?.trim();
+      if (id) setEmail(id);
+    } catch {
+      /* yok say */
+    }
+  }, []);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);

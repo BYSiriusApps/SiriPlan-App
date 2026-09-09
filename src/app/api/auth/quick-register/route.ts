@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { sendWelcomeEmail } from "@/lib/email/send";
 import { notifyAdminNewSignup } from "@/lib/notify-admin";
 import { seedDefaultServices } from "@/lib/services/seed";
@@ -13,6 +13,51 @@ const VALID_BUSINESS_TYPES = new Set([
 ]);
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
+const RETURNING_EXPIRED_MSG =
+  "Bu bilgilerle daha önce bir işletme hesabı açılmış ve 14 günlük deneme süresi dolmuş. " +
+  "Giriş yapıp bir plan seçerek kaldığınız yerden devam edebilirsiniz — verileriniz duruyor.";
+
+/**
+ * Bu e-posta veya telefonla daha önce açılmış, DENEMESİ DOLMUŞ bir işletme var mı?
+ * Varsa kullanıcıyı "yeni hesap" yerine "giriş yap + plan seç" akışına
+ * yönlendiren mesaj döner. Aktif abonelikli / süren denemeli işletmeler için
+ * null döner — "bu telefon aktif bir işletmede kullanılıyor" gibi bir bilgi
+ * sızdırmamak için yalnızca "deneme dolmuş" durumu açıkça belirtilir.
+ */
+async function returningExpiredTrialMessage(
+  admin: SupabaseClient,
+  email: string,
+  phone: string | null,
+): Promise<string | null> {
+  const nowIso = new Date().toISOString();
+  type OrgRow = { plan?: string | null; trial_ends_at?: string | null; phone?: string | null };
+  const rows: OrgRow[] = [];
+
+  const { data: byEmail } = await admin
+    .from("organizations")
+    .select("plan, trial_ends_at")
+    .ilike("email", email)
+    .limit(5);
+  if (byEmail) rows.push(...(byEmail as OrgRow[]));
+
+  const digits = (phone || "").replace(/\D/g, "").slice(-10);
+  if (digits.length === 10) {
+    const { data: byPhone } = await admin
+      .from("organizations")
+      .select("plan, trial_ends_at, phone")
+      .ilike("phone", `%${digits.slice(-4)}%`)
+      .limit(20);
+    for (const o of (byPhone ?? []) as OrgRow[]) {
+      if ((o.phone || "").replace(/\D/g, "").slice(-10) === digits) rows.push(o);
+    }
+  }
+
+  const expired = rows.some(
+    (o) => o.plan === "trial" && !!o.trial_ends_at && o.trial_ends_at < nowIso,
+  );
+  return expired ? RETURNING_EXPIRED_MSG : null;
+}
 
 function safeTimezone(tz: unknown): string {
   if (typeof tz !== "string" || !tz) return "Europe/Istanbul";
@@ -136,6 +181,13 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Daha önce açılıp denemesi dolmuş bir işletme (e-posta VEYA telefon) →
+  // yeni hesap açtırmak yerine giriş + plan seçimine yönlendir.
+  const returningMsg = await returningExpiredTrialMessage(admin, email, phone || null);
+  if (returningMsg) {
+    return NextResponse.json({ error: returningMsg, code: "returning_expired" }, { status: 409 });
+  }
+
   // 1. Create user with email already confirmed
   const { data: newUser, error: createErr } = await admin.auth.admin.createUser({
     email,
@@ -145,10 +197,15 @@ export async function POST(req: NextRequest) {
   });
 
   if (createErr) {
-    const msg = createErr.message.includes("already registered")
-      ? "Bu e-posta zaten kayıtlı."
-      : createErr.message;
-    return NextResponse.json({ error: msg }, { status: 400 });
+    if (createErr.message.includes("already registered")) {
+      // E-posta kayıtlı ama denemesi dolmamış (yukarıdaki kontrol geçti) →
+      // aktif/süren bir hesap; giriş yapması gerekiyor.
+      return NextResponse.json(
+        { error: "Bu e-posta ile zaten bir hesabınız var. Lütfen giriş yapın.", code: "already_registered" },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json({ error: createErr.message }, { status: 400 });
   }
 
   const userId = newUser.user.id;

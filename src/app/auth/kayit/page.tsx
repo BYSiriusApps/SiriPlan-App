@@ -78,6 +78,8 @@ export default function KayitPage() {
   const [gizlilikChecked, setGizlilikChecked] = useState(false);
   const [marketingChecked, setMarketingChecked] = useState(false);
   const [kvkkError, setKvkkError] = useState(false);
+  // Bu e-posta/telefonla daha önce açılmış hesap için kalıcı yönlendirme kutusu.
+  const [authNotice, setAuthNotice] = useState<string | null>(null);
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -154,10 +156,19 @@ export default function KayitPage() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        toast.error(data.error || "Kayıt başarısız. Lütfen tekrar deneyin.");
+        // Daha önce açılmış hesap (deneme dolmuş ya da aktif) → toast yerine
+        // kalıcı, "Giriş Yap" bağlantılı bir bilgi kutusu göster.
+        if (data.code === "returning_expired" || data.code === "already_registered") {
+          setAuthNotice(data.error);
+          toast.error(data.error);
+        } else {
+          setAuthNotice(null);
+          toast.error(data.error || "Kayıt başarısız. Lütfen tekrar deneyin.");
+        }
         setLoading(false);
         return;
       }
+      setAuthNotice(null);
 
       // Now sign in with the created credentials
       const supabase = createClient();
@@ -240,6 +251,17 @@ export default function KayitPage() {
         <CardDescription>Kredi kartı gerekmez • Anında başlayın</CardDescription>
       </CardHeader>
       <CardContent>
+        {authNotice && (
+          <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20 p-3.5 text-sm">
+            <p className="text-amber-800 dark:text-amber-300 leading-relaxed">{authNotice}</p>
+            <Link
+              href={`/auth/giris?identifier=${encodeURIComponent(form.email || buildPhone(form.countryCode, form.phone))}`}
+              className="mt-2.5 inline-flex items-center justify-center rounded-lg bg-amber-600 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-700 transition-colors"
+            >
+              Giriş Yap →
+            </Link>
+          </div>
+        )}
         <form onSubmit={handleRegister} className="space-y-3">
           {/*
             Honeypot: görsel olarak yok, klavye sırasında yok, ekran okuyucudan

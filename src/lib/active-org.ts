@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient, getSessionUser } from "@/lib/supabase/server";
+import { getSubscriptionLock } from "@/lib/subscription-lock";
 
 export const ACTIVE_ORG_COOKIE = "active_org";
 
@@ -75,7 +76,13 @@ const loadMembershipRows = cache(async (userId: string): Promise<ActiveMember[]>
  *
  * Seçim sırası:
  *  1. `active_org` cookie'sindeki işletme (üyelik hâlâ geçerliyse)
- *  2. En eski üyelik (ilk kaydolunan işletme)
+ *  2. Aboneliği KİLİTLİ olmayan en eski üyelik (aktif abonelik / süren deneme)
+ *  3. En eski üyelik (hepsi kilitliyse)
+ *
+ * (2) sayesinde: kendi denemesi dolmuş ama aktif bir işletmenin personeli olan
+ * kullanıcı panele girince "deneme doldu" kilidiyle karşılaşmaz — çalışabildiği
+ * işletmeye düşer. Kullanıcı çerezle bilinçli olarak kilitli işletmeye geçtiyse
+ * o kazanır (plan seçmek isteyebilir).
  *
  * Eski kodda `.single()` kullanılıyordu; birden fazla işletmeye üye
  * kullanıcılarda bu sorgu hata verip kullanıcıyı /auth/kayit'a atıyordu
@@ -98,9 +105,13 @@ export async function getActiveMember(
     // cookies() erişilemeyen bağlamlarda ilk üyeliğe düş
   }
 
-  return (
-    memberships.find((m) => m.org_id === activeOrgId) ?? memberships[0]
+  const byCookie = memberships.find((m) => m.org_id === activeOrgId);
+  if (byCookie) return byCookie;
+
+  const unlocked = memberships.find(
+    (m) => m.organizations && !getSubscriptionLock(m.organizations).locked
   );
+  return unlocked ?? memberships[0];
 }
 
 /**
