@@ -941,7 +941,7 @@
       "basicInfoTitle": "Basic Info",
       "basicInfoBody": "Business name, phone and address. The address/location appears in booking confirmation and reminder messages — if you leave it blank, no map/location link shows in messages. Your logo appears on your booking page and in emails. Set the correct time zone; all appointment times are calculated from it.",
       "bookingLinkTitle": "Booking Link & Online Booking",
-      "bookingLinkBody": "siriplan.com/r/your-business — the link you give your customers. You can download the QR code and display it at your venue. From here you can turn online booking fully on or off and choose which services can be booked online.",
+      "bookingLinkBody": "siriplan.com/r/your-business — the link you give your customers. You can download the QR code and display it at your venue. From here you can turn online booking fully on or off and choose which services can be booked online. On the Pro/Business plan, 'Website Settings' in the left menu lets you switch this page to Website Mode and customize it like a mini website with your own colours, cover image and category photos (Classic or Showcase template).",
       "workingHoursTitle": "Working Hours",
       "workingHoursBody": "Your weekly opening/closing times. Online booking slots are shown ONLY within this range. If you leave a day closed, no online bookings can be made that day.",
       "integrationsTitle": "Integrations & Telegram",

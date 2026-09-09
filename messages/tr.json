@@ -941,7 +941,7 @@
       "basicInfoTitle": "Temel Bilgiler",
       "basicInfoBody": "İşletme adı, telefon ve adres. Adres/konum bilgisi randevu onay ve hatırlatma mesajlarında yer alır — boş bırakırsanız mesajlarda harita/konum linki hiç görünmez. Logo, randevu sayfanızda ve e-postalarda çıkar. Saat dilimini doğru seçin; tüm randevu saatleri buna göre hesaplanır.",
       "bookingLinkTitle": "Randevu Linki & Online Randevu",
-      "bookingLinkBody": "siriplan.com/r/isletme-adiniz — müşterilerinize verdiğiniz link. QR kodunu indirip işletmenizde asabilirsiniz. Online randevuyu buradan tamamen açıp kapatabilir, hangi hizmetlerin internetten alınacağını seçebilirsiniz.",
+      "bookingLinkBody": "siriplan.com/r/isletme-adiniz — müşterilerinize verdiğiniz link. QR kodunu indirip işletmenizde asabilirsiniz. Online randevuyu buradan tamamen açıp kapatabilir, hangi hizmetlerin internetten alınacağını seçebilirsiniz. Pro/Business planında soldaki menüdeki 'Website Ayarları' ile bu sayfayı Website Modu'na alıp kendi renkleriniz, kapak görseliniz ve kategori fotoğraflarınızla mini bir web sitesi gibi özelleştirebilirsiniz (Klasik veya Vitrin şablonu).",
       "workingHoursTitle": "Çalışma Saatleri",
       "workingHoursBody": "Haftalık açılış/kapanış saatleriniz. Online randevu slotları YALNIZCA bu aralıkta gösterilir. Bir günü kapalı bırakırsanız o gün internetten randevu alınamaz.",
       "integrationsTitle": "Entegrasyonlar & Telegram",
