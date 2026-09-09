@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
 import { BySiriusBadge } from "@/components/layout/BySiriusBadge";
+import { AppStoreBadges } from "@/components/marketing/AppStoreBadges";
 import { CookieSettingsButton } from "@/components/analytics/CookieSettingsButton";
 import { getTranslations } from "next-intl/server";
 
@@ -81,6 +82,11 @@ export async function Footer() {
               </a>
             </div>
             <BySiriusBadge variant="footer" />
+
+            <div className="mt-5">
+              <h3 className="text-xs font-semibold mb-2">{t("appDownloadTitle")}</h3>
+              <AppStoreBadges />
+            </div>
           </div>
 
           {/* Product */}

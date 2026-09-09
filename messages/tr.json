@@ -847,7 +847,15 @@
     "title": "İşletmeler Ne Diyor?",
     "subtitle": "Türkiye ve dünyadan salon sahiplerinin deneyimleri"
   },
+  "appDownload": {
+    "title": "SiriPlan'ı telefonunuza indirin",
+    "subtitle": "Randevularınızı, takviminizi ve işletmenizi her yerden yönetin. Aynı panel, cebinizde.",
+    "getItOn": "İNDİRİN",
+    "downloadOn": "İNDİRİN",
+    "comingSoon": "YAKINDA"
+  },
   "footer": {
+    "appDownloadTitle": "Mobil uygulama",
     "tagline": "Güzellik sektörünün akıllı yönetim platformu",
     "product": "Ürün",
     "features": "Özellikler",

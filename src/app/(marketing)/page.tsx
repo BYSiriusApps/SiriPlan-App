@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTranslations } from "next-intl/server";
 import { formatPrice, getAnnualMonthlyEquivalent, getAnnualSavings, getVisitorPricing } from "@/lib/pricing";
+import { AppStoreBadges } from "@/components/marketing/AppStoreBadges";
 
 // Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (/demo route'u) korunuyor.
 const DEMO_ENABLED = false;
@@ -338,6 +339,26 @@ export default async function HomePage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Mobil uygulama */}
+      <section className="py-16 border-y border-border">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+            <img
+              src="/icons/icon-192x192.png"
+              alt="SiriPlan"
+              className="w-20 h-20 rounded-2xl shadow-lg shrink-0"
+            />
+            <div className="flex-1">
+              <h2 className="text-2xl md:text-3xl font-bold mb-2">{t("appDownload.title")}</h2>
+              <p className="text-muted-foreground text-sm mb-5 max-w-lg">
+                {t("appDownload.subtitle")}
+              </p>
+              <AppStoreBadges className="justify-center md:justify-start" />
+            </div>
           </div>
         </div>
       </section>

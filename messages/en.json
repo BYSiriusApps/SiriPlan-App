@@ -847,7 +847,15 @@
     "title": "What Businesses Say",
     "subtitle": "Experiences from salon owners in Turkey and worldwide"
   },
+  "appDownload": {
+    "title": "Get SiriPlan on your phone",
+    "subtitle": "Manage your appointments, calendar and business from anywhere. The same dashboard, in your pocket.",
+    "getItOn": "GET IT ON",
+    "downloadOn": "DOWNLOAD ON THE",
+    "comingSoon": "COMING SOON"
+  },
   "footer": {
+    "appDownloadTitle": "Mobile app",
     "tagline": "The smart management platform for the beauty industry",
     "product": "Product",
     "features": "Features",
