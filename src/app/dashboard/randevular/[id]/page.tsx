@@ -42,6 +42,30 @@ export default async function ApptDetailPage({
 
   const a = appt as Appointment;
 
+  // Paketten düşme: müşterinin bu hizmet için (ya da hizmete bağlı olmayan)
+  // kullanılabilir aktif paketi varsa tamamlama formunda kutu çıkar.
+  let activePackage: { id: string; name: string; remaining: number } | null = null;
+  const apptDone = a.status === "tamamlandi" || a.status === "iptal" || a.status === "gelmedi";
+  if (a.customer_id && !apptDone) {
+    const { data: pkgs } = await supabase
+      .from("customer_packages")
+      .select("id, name, total_sessions, used_sessions, service_id, expires_at")
+      .eq("org_id", member.org_id)
+      .eq("customer_id", a.customer_id)
+      .eq("status", "active");
+    const today = new Date().toISOString().slice(0, 10);
+    const usable = (pkgs ?? [])
+      .filter(
+        (p) =>
+          (p.service_id === a.service_id || p.service_id === null) &&
+          p.total_sessions - p.used_sessions > 0 &&
+          (!p.expires_at || p.expires_at >= today),
+      )
+      .sort((x, _y) => (x.service_id === a.service_id ? -1 : 1))
+      .map((p) => ({ id: p.id, name: p.name, remaining: p.total_sessions - p.used_sessions }));
+    activePackage = usable[0] ?? (a.package_id ? usable.find((u) => u.id === a.package_id) ?? null : null);
+  }
+
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
@@ -131,7 +155,9 @@ export default async function ApptDetailPage({
           {a.payment_method && (
             <div>
               <p className="text-muted-foreground text-xs">Ödeme Yöntemi</p>
-              <p className="font-medium capitalize">{a.payment_method}</p>
+              <p className="font-medium capitalize">
+                {a.payment_method === "paket" ? "Paketten düşüldü 🎟️" : a.payment_method}
+              </p>
             </div>
           )}
           {a.source && (
@@ -160,7 +186,7 @@ export default async function ApptDetailPage({
       )}
 
       {/* Actions */}
-      <ApptActions appt={a} viewerRole={member.role} viewerStaffId={member.staff_id} />
+      <ApptActions appt={a} viewerRole={member.role} viewerStaffId={member.staff_id} activePackage={activePackage} />
     </div>
   );
 }

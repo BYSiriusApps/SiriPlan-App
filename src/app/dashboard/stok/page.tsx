@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import dynamic from "next/dynamic";
+import QRCode from "qrcode";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,9 +15,22 @@ import { HomeButton } from "@/components/dashboard/HomeButton";
 import { toast } from "sonner";
 import {
   Package, Plus, Trash2, Pencil, AlertTriangle, ArrowUpRight, ArrowDownRight,
-  RefreshCw, Search, Loader2, Sparkles, TrendingUp, DollarSign, Layers
+  RefreshCw, Search, Loader2, Sparkles, TrendingUp, DollarSign, Layers, Mic,
+  ScanLine, Barcode as BarcodeIcon, Printer
 } from "lucide-react";
 import { formatMoney, CURRENCY_SYMBOL } from "@/lib/currency";
+import { useMicAccess } from "@/components/dashboard/useMicAccess";
+import { usePlan } from "@/components/dashboard/PlanContext";
+import { isInternalBarcode } from "@/lib/barcode";
+
+const BarcodeScanner = dynamic(() => import("@/components/dashboard/BarcodeScanner"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center py-10">
+      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+    </div>
+  ),
+});
 
 export interface InventoryItem {
   id: string;
@@ -26,6 +41,8 @@ export interface InventoryItem {
   min_stock_alert: number;
   cost_price: number;
   sale_price: number;
+  barcode?: string | null;
+  barcode_source?: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -50,10 +67,15 @@ const EMPTY_ITEM = {
   min_stock_alert: "5",
   cost_price: "0",
   sale_price: "0",
+  barcode: "",
 };
 
 export default function StokPage() {
   const t = useTranslations("dashboard");
+  const tm = useTranslations("dashboard.mic");
+  const tb = useTranslations("dashboard.stockPage.barcode");
+  const { requestMic, micDialog, speechLang } = useMicAccess();
+  const { proTools } = usePlan(); // sesli stok komutu Pro+ (API'de 403 ile de korunur)
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [transactions, setTransactions] = useState<InventoryTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,9 +93,26 @@ export default function StokPage() {
   const [txForm, setTxForm] = useState({ type: "in" as "in" | "out" | "adjust", quantity: "1", unit_price: "", note: "" });
   const [savingTx, setSavingTx] = useState(false);
 
+  // ── Barkodla satış ──
+  const [showBarcodeSell, setShowBarcodeSell] = useState(false);
+  const [barcodeLookupLoading, setBarcodeLookupLoading] = useState(false);
+  const [barcodeSellItem, setBarcodeSellItem] = useState<InventoryItem | null>(null);
+  const [barcodeUnknown, setBarcodeUnknown] = useState<string | null>(null);
+  const [barcodeSellQty, setBarcodeSellQty] = useState("1");
+  const [barcodeSellPrice, setBarcodeSellPrice] = useState("");
+  const [barcodeSelling, setBarcodeSelling] = useState(false);
+  // Ürün formundaki mini tarayıcı
+  const [showFormScanner, setShowFormScanner] = useState(false);
+  const [generatingBarcode, setGeneratingBarcode] = useState(false);
+
   const [loadingTemplate, setLoadingTemplate] = useState(false);
   const [currency, setCurrency] = useState("TRY");
   const fmt = useCallback((n: number) => formatMoney(n, currency), [currency]);
+
+  // ── Sesli stok komutu (Pro+) ──
+  const [voiceListening, setVoiceListening] = useState(false);
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const voiceRecRef = useRef<any>(null);
 
   useEffect(() => {
     fetch("/api/org")
@@ -110,6 +149,82 @@ export default function StokPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => () => { try { voiceRecRef.current?.abort(); } catch {} }, []);
+
+  const startVoiceStock = useCallback(async () => {
+    if (!proTools) { toast.error(tm("proOnly")); return; }
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) { toast.error(tm("unsupported")); return; }
+    const ok = await requestMic();
+    if (!ok) return;
+
+    try { voiceRecRef.current?.abort(); } catch {}
+    const rec = new SR();
+    voiceRecRef.current = rec;
+    rec.lang = speechLang;
+    rec.interimResults = false;
+    rec.continuous = true;
+    rec.maxAlternatives = 1;
+
+    let accum = "";
+    let done = false;
+    const stopTimer = setTimeout(() => { try { rec.stop(); } catch {} }, 10000);
+
+    rec.onstart = () => {
+      setVoiceListening(true);
+      toast(tm("stockListening"), { id: "voice-stock", icon: "🎤", duration: 10000 });
+    };
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    rec.onresult = (e: any) => {
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) accum += e.results[i][0].transcript + " ";
+      }
+    };
+    rec.onerror = (/* eslint-disable-line @typescript-eslint/no-explicit-any */ ev: any) => {
+      if (ev?.error === "no-speech") return;
+      clearTimeout(stopTimer);
+      setVoiceListening(false);
+      toast.dismiss("voice-stock");
+      if (ev?.error !== "aborted") toast.error(tm("captureFailed"));
+    };
+    rec.onend = async () => {
+      if (done) return;
+      done = true;
+      clearTimeout(stopTimer);
+      setVoiceListening(false);
+      voiceRecRef.current = null;
+      toast.dismiss("voice-stock");
+      const transcript = accum.trim();
+      if (!transcript) { toast.error(tm("notUnderstood")); return; }
+      toast.loading(tm("processing"), { id: "voice-stock-p" });
+      try {
+        const res = await fetch("/api/ai/voice-booking", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transcript, intent: "inventory" }),
+        });
+        const data = await res.json();
+        toast.dismiss("voice-stock-p");
+        if (!res.ok) { toast.error(data.error || tm("analyzeFailed")); return; }
+        if (data.actionTaken === "inventory_updated" || data.actionTaken === "inventory_added") {
+          toast.success(data.response);
+          if (data.lowStock) toast(tm("stockLow"), { icon: "⚠️", duration: 8000 });
+          fetchData();
+        } else if (data.response) {
+          toast(data.response, { icon: "📦", duration: 7000 });
+        } else {
+          toast.error(tm("notUnderstood"));
+        }
+      } catch {
+        toast.dismiss("voice-stock-p");
+        toast.error(tm("analyzeFailed"));
+      }
+    };
+
+    rec.start();
+  }, [proTools, requestMic, speechLang, tm, fetchData]);
 
   // Categories list
   const categories = useMemo(() => {
@@ -167,11 +282,13 @@ export default function StokPage() {
         min_stock_alert: String(item.min_stock_alert),
         cost_price: String(item.cost_price || 0),
         sale_price: String(item.sale_price || 0),
+        barcode: item.barcode || "",
       });
     } else {
       setEditingItem(null);
       setItemForm(EMPTY_ITEM);
     }
+    setShowFormScanner(false);
     setShowItemModal(true);
   }
 
@@ -195,6 +312,7 @@ export default function StokPage() {
           min_stock_alert: itemForm.min_stock_alert,
           cost_price: itemForm.cost_price,
           sale_price: itemForm.sale_price,
+          barcode: itemForm.barcode.trim(),
         }),
       });
       if (res.ok) {
@@ -274,6 +392,136 @@ export default function StokPage() {
     }
   }
 
+  // ── Barkodla satış akışı ──
+  const openBarcodeSell = useCallback(() => {
+    setBarcodeSellItem(null);
+    setBarcodeUnknown(null);
+    setBarcodeSellQty("1");
+    setBarcodeSellPrice("");
+    setShowBarcodeSell(true);
+  }, []);
+
+  const handleBarcodeDetected = useCallback(async (code: string) => {
+    setBarcodeLookupLoading(true);
+    setBarcodeUnknown(null);
+    try {
+      const res = await fetch(`/api/inventory/barcode-lookup?code=${encodeURIComponent(code)}`);
+      const data = await res.json();
+      if (data.item) {
+        setBarcodeSellItem(data.item as InventoryItem);
+        setBarcodeSellQty("1");
+        setBarcodeSellPrice(String(data.item.sale_price || ""));
+      } else {
+        setBarcodeSellItem(null);
+        setBarcodeUnknown(code);
+      }
+    } catch {
+      toast.error(tb("lookupFailed"));
+    } finally {
+      setBarcodeLookupLoading(false);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleBarcodeSell = useCallback(async () => {
+    if (!barcodeSellItem) return;
+    const qty = Number(barcodeSellQty);
+    if (!qty || qty <= 0) { toast.error(tb("invalidQty")); return; }
+    setBarcodeSelling(true);
+    try {
+      const res = await fetch("/api/inventory/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          item_id: barcodeSellItem.id,
+          type: "out",
+          quantity: qty,
+          unit_price: barcodeSellPrice ? Number(barcodeSellPrice) : null,
+          note: tb("saleNote"),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        toast.success(tb("sold", { name: barcodeSellItem.name, qty }));
+        if (data.lowStock) toast(tb("nowLow", { name: barcodeSellItem.name }), { icon: "⚠️", duration: 8000 });
+        setBarcodeSellItem(null);
+        setBarcodeUnknown(null);
+        fetchData();
+      } else {
+        toast.error(data.error || tb("sellFailed"));
+      }
+    } catch {
+      toast.error(tb("sellFailed"));
+    } finally {
+      setBarcodeSelling(false);
+    }
+  }, [barcodeSellItem, barcodeSellQty, barcodeSellPrice]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const linkUnknownToProduct = useCallback(() => {
+    if (!barcodeUnknown) return;
+    setShowBarcodeSell(false);
+    setEditingItem(null);
+    setItemForm({ ...EMPTY_ITEM, barcode: barcodeUnknown });
+    setShowFormScanner(false);
+    setShowItemModal(true);
+  }, [barcodeUnknown]);
+
+  const handleGenerateBarcode = useCallback(async () => {
+    setGeneratingBarcode(true);
+    try {
+      // Sunucu üretsin (çakışma kontrolü + kiracı-benzersiz). Kaydetmeden önizleme
+      // için: yeni üründe geçici olarak PING atmayıp yalnızca kaydederken üretmek
+      // yerine burada anlık üretim için hafif bir uç yok; bu yüzden formu
+      // "üret" işareti ile kaydederiz. Basit yol: kaydı üret bayrağıyla POST/PUT.
+      const isEdit = !!editingItem;
+      if (!itemForm.name.trim()) { toast.error(tb("nameFirst")); return; }
+      const res = await fetch("/api/inventory", {
+        method: isEdit ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...(isEdit ? { id: editingItem.id } : {}),
+          name: itemForm.name, category: itemForm.category, unit: itemForm.unit,
+          current_stock: itemForm.current_stock, min_stock_alert: itemForm.min_stock_alert,
+          cost_price: itemForm.cost_price, sale_price: itemForm.sale_price,
+          generateBarcode: true,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.item) {
+        setItemForm((f) => ({ ...f, barcode: data.item.barcode || "" }));
+        setEditingItem(data.item as InventoryItem);
+        toast.success(tb("generated"));
+        fetchData();
+      } else {
+        toast.error(data.error || tb("generateFailed"));
+      }
+    } catch {
+      toast.error(tb("generateFailed"));
+    } finally {
+      setGeneratingBarcode(false);
+    }
+  }, [editingItem, itemForm]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const printBarcodeLabel = useCallback(async (item: InventoryItem) => {
+    if (!item.barcode) return;
+    try {
+      const dataUrl = await QRCode.toDataURL(item.barcode, { width: 320, margin: 1 });
+      const w = window.open("", "_blank", "width=420,height=520");
+      if (!w) return;
+      w.document.write(
+        `<html><head><title>${item.name}</title></head>` +
+        `<body style="font-family:system-ui,sans-serif;text-align:center;padding:24px;margin:0">` +
+        `<img src="${dataUrl}" style="width:220px;height:220px" alt="barcode"/>` +
+        `<div style="font-size:15px;font-weight:600;margin-top:8px">${item.name}</div>` +
+        `<div style="font-family:monospace;font-size:13px;color:#555;margin-top:2px">${item.barcode}</div>` +
+        `<button onclick="window.print()" style="margin-top:16px;padding:8px 20px;font-size:14px;cursor:pointer">Yazdır</button>` +
+        `</body></html>`
+      );
+      w.document.close();
+    } catch {
+      toast.error(tb("printFailed"));
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const isTr = t("guide").includes("Kılavuzu");
   const isEn = t("guide").includes("User Guide");
   const isRu = t("guide").includes("Руководство");
@@ -289,6 +537,7 @@ export default function StokPage() {
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto">
+      {proTools && micDialog}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -315,6 +564,26 @@ export default function StokPage() {
               {getStokText("loadTemplate")}
             </Button>
           )}
+          {proTools && (
+            <Button
+              variant="outline"
+              onClick={startVoiceStock}
+              disabled={voiceListening}
+              className={`gap-2 text-primary border-primary/20 hover:bg-primary/5 hover:text-primary ${voiceListening ? "border-red-500 text-red-500 animate-pulse" : ""}`}
+              title={tm("stockHint")}
+            >
+              <Mic className="h-4 w-4" />
+              {tm("fillByVoice")}
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            onClick={openBarcodeSell}
+            className="gap-2 text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/20"
+          >
+            <ScanLine className="h-4 w-4" />
+            {tb("scanSell")}
+          </Button>
           <Button onClick={() => openItemForm()} className="gap-2">
             <Plus className="h-4 w-4" />
             {getStokText("newProduct")}
@@ -437,6 +706,12 @@ export default function StokPage() {
                         <td className="p-3 pl-4 font-medium">
                           <p className="leading-snug">{item.name}</p>
                           <p className="text-[11px] text-muted-foreground">{isTr ? "Birim" : isEn ? "Unit" : isRu ? "Единица" : "الوحدة"}: {item.unit}</p>
+                          {item.barcode && (
+                            <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground font-mono">
+                              <BarcodeIcon className="h-3 w-3" />
+                              {item.barcode}
+                            </span>
+                          )}
                         </td>
                         <td className="p-3">
                           <Badge variant="outline" className="text-[11px] font-normal">
@@ -469,6 +744,17 @@ export default function StokPage() {
                               <ArrowUpRight className="h-3.5 w-3.5" />
                               {isTr ? "Giriş/Çıkış" : isEn ? "In/Out" : isRu ? "Приход/Расход" : "إدخال/إخراج"}
                             </Button>
+                            {item.barcode && isInternalBarcode(item.barcode) && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 w-7 p-0"
+                                title={tb("printLabel")}
+                                onClick={() => printBarcodeLabel(item)}
+                              >
+                                <Printer className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="ghost"
@@ -592,6 +878,65 @@ export default function StokPage() {
                 />
               </div>
             </div>
+
+            {/* Barkod */}
+            <div>
+              <Label>{tb("field")}</Label>
+              <div className="mt-1 flex items-center gap-2">
+                <div className="relative flex-1">
+                  <BarcodeIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    className="pl-9 font-mono"
+                    placeholder={tb("fieldPlaceholder")}
+                    value={itemForm.barcode}
+                    onChange={(e) => setItemForm((f) => ({ ...f, barcode: e.target.value }))}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 gap-1"
+                  onClick={() => setShowFormScanner((s) => !s)}
+                >
+                  <ScanLine className="h-3.5 w-3.5" />
+                  {tb("scan")}
+                </Button>
+              </div>
+              <div className="mt-1.5 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleGenerateBarcode}
+                  disabled={generatingBarcode}
+                  className="inline-flex items-center gap-1 text-xs text-primary underline underline-offset-2 disabled:opacity-50"
+                >
+                  {generatingBarcode ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                  {tb("generate")}
+                </button>
+                {itemForm.barcode && isInternalBarcode(itemForm.barcode.trim().toUpperCase()) && editingItem && (
+                  <button
+                    type="button"
+                    onClick={() => editingItem && printBarcodeLabel({ ...editingItem, barcode: itemForm.barcode.trim().toUpperCase() })}
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                  >
+                    <Printer className="h-3 w-3" />
+                    {tb("printLabel")}
+                  </button>
+                )}
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">{tb("fieldHint")}</p>
+              {showFormScanner && (
+                <div className="mt-2 rounded-lg border border-border p-2">
+                  <BarcodeScanner
+                    onDetect={(code) => {
+                      setItemForm((f) => ({ ...f, barcode: code }));
+                      setShowFormScanner(false);
+                      toast.success(tb("scanned", { code }));
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter className="gap-2 pt-2">
             <Button variant="outline" onClick={() => setShowItemModal(false)}>
@@ -699,6 +1044,93 @@ export default function StokPage() {
               {isTr ? "İşlemi Kaydet" : isEn ? "Save Transaction" : isRu ? "Сохранить операцию" : "حفظ العملية"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Barkodla Satış */}
+      <Dialog open={showBarcodeSell} onOpenChange={setShowBarcodeSell}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ScanLine className="h-5 w-5 text-emerald-600" />
+              {tb("scanTitle")}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-3 pt-2">
+            {!barcodeSellItem && (
+              <BarcodeScanner onDetect={handleBarcodeDetected} busy={barcodeLookupLoading} />
+            )}
+
+            {barcodeLookupLoading && (
+              <div className="flex items-center justify-center py-3 text-sm text-muted-foreground">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {tb("looking")}
+              </div>
+            )}
+
+            {barcodeUnknown && !barcodeSellItem && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-900 dark:bg-amber-950/30">
+                <p className="font-medium text-amber-800 dark:text-amber-300">{tb("notLinked")}</p>
+                <p className="mt-0.5 font-mono text-xs text-amber-700 dark:text-amber-400">{barcodeUnknown}</p>
+                <Button size="sm" variant="outline" className="mt-2 gap-1" onClick={linkUnknownToProduct}>
+                  <Plus className="h-3.5 w-3.5" /> {tb("linkToProduct")}
+                </Button>
+              </div>
+            )}
+
+            {barcodeSellItem && (
+              <div className="space-y-3 rounded-lg border border-border p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold leading-snug">{barcodeSellItem.name}</p>
+                    <p className="text-[11px] text-muted-foreground font-mono">{barcodeSellItem.barcode}</p>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={Number(barcodeSellItem.current_stock) <= Number(barcodeSellItem.min_stock_alert) ? "text-amber-600 border-amber-300" : ""}
+                  >
+                    {tb("remaining")}: {barcodeSellItem.current_stock} {barcodeSellItem.unit}
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>{tb("qtyLabel")}</Label>
+                    <Input
+                      className="mt-1"
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={barcodeSellQty}
+                      onChange={(e) => setBarcodeSellQty(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>{tb("priceLabel")} ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
+                    <Input
+                      className="mt-1"
+                      type="number"
+                      step="0.5"
+                      value={barcodeSellPrice}
+                      onChange={(e) => setBarcodeSellPrice(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setBarcodeSellItem(null); setBarcodeUnknown(null); }}
+                    className="text-xs text-muted-foreground underline underline-offset-2"
+                  >
+                    {tb("scanAnother")}
+                  </button>
+                  <Button onClick={handleBarcodeSell} disabled={barcodeSelling} className="gap-1 bg-emerald-600 hover:bg-emerald-700">
+                    {barcodeSelling ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowDownRight className="h-4 w-4" />}
+                    {tb("sell")}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

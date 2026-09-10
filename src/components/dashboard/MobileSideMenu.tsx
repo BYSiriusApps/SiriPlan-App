@@ -14,7 +14,7 @@ import { useAiAssistant } from "@/components/dashboard/AiAssistantContext";
 import { cn } from "@/lib/utils";
 import {
   Menu, Bot, Link2, Copy, Check, MessageCircle,
-  UserCog, Scissors, ListPlus, Megaphone, Globe, BarChart3, Wallet, Import, CreditCard, Inbox, Package,
+  UserCog, Scissors, ListPlus, Megaphone, Globe, BarChart3, Wallet, Import, CreditCard, Inbox, Package, Ticket,
   Calendar, BookOpen, Users, HelpCircle, CircleUser,
 } from "lucide-react";
 
@@ -24,6 +24,7 @@ const SECONDARY_NAV = [
   { href: "/dashboard/takvim", icon: Calendar, tKey: "calendar", minRole: "staff" },
   { href: "/dashboard/randevular", icon: BookOpen, tKey: "appointments", minRole: "staff" },
   { href: "/dashboard/musteriler", icon: Users, tKey: "customers", minRole: "staff" },
+  { href: "/dashboard/paketler", icon: Ticket, tKey: "packages", minRole: "staff" },
   { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff", planRequired: "business" },
   { href: "/dashboard/personel", icon: UserCog, tKey: "staff", minRole: "manager" },
   { href: "/dashboard/hizmetler", icon: Scissors, tKey: "services", minRole: "staff" },

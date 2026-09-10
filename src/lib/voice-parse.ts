@@ -41,7 +41,7 @@ export interface ParsedBooking {
 }
 
 /** Türkçe küçük harf + aksan/özel karakter sadeleştirme (fuzzy eşleştirme için). */
-function deburr(s: string): string {
+export function deburr(s: string): string {
   return s
     .toLocaleLowerCase("tr-TR")
     .replace(/İ/g, "i")
@@ -61,7 +61,7 @@ function deburr(s: string): string {
  * tolere etmek için önek eşleşmesi ("kesim" ↔ "kesimi", "ahmet" ↔ "ahmete").
  * Kısa kelimelerde (<4) yanlış eşleşmeyi önlemek için yalnızca birebir kabul.
  */
-function tokenSimilar(a: string, b: string): boolean {
+export function tokenSimilar(a: string, b: string): boolean {
   if (a === b) return true;
   if (Math.min(a.length, b.length) < 4) return false;
   return a.startsWith(b) || b.startsWith(a);
@@ -80,12 +80,12 @@ const MONTHS: Record<string, number> = {
 };
 
 /** "üç", "on beş" gibi yazı ile sayıları 0-50 aralığında çözer (saat için). */
-const NUM_WORDS: Record<string, number> = {
+export const NUM_WORDS: Record<string, number> = {
   sifir: 0, bir: 1, iki: 2, uc: 3, dort: 4, bes: 5, alti: 6, yedi: 7, sekiz: 8,
   dokuz: 9, on: 10, yirmi: 20, otuz: 30, kirk: 40, elli: 50,
 };
 
-function wordsToNumber(tokens: string[]): number | null {
+export function wordsToNumber(tokens: string[]): number | null {
   let total = 0;
   let matched = false;
   for (const tok of tokens) {

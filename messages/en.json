@@ -1240,7 +1240,43 @@
     "stockPage": {
       "eyebrow": "Accounting & Stock",
       "title": "Stock Management",
-      "subtitle": "Track product stock, critical stock alerts, and incoming/outgoing goods"
+      "subtitle": "Track product stock, critical stock alerts, and incoming/outgoing goods",
+      "barcode": {
+        "scanSell": "Sell by Barcode",
+        "scanTitle": "Barcode Sale",
+        "scanHint": "Line the barcode up in the frame",
+        "scanned": "Barcode read: {code}",
+        "scan": "Scan",
+        "field": "Barcode",
+        "fieldPlaceholder": "Product barcode (EAN / UPC)",
+        "fieldHint": "Type or scan the barcode on the box, or generate one if the product has none.",
+        "generate": "Generate code",
+        "generated": "Barcode generated",
+        "generateFailed": "Could not generate barcode",
+        "nameFirst": "Enter the product name first",
+        "printLabel": "Print QR label",
+        "printFailed": "Could not create label",
+        "lookupFailed": "Barcode lookup failed",
+        "looking": "Looking up product…",
+        "notLinked": "This barcode isn't linked to a product",
+        "linkToProduct": "Add new product & link",
+        "remaining": "In stock",
+        "qtyLabel": "Qty",
+        "priceLabel": "Unit price",
+        "sell": "Sell",
+        "sold": "Sold {qty} × {name}",
+        "nowLow": "{name} is at critical stock",
+        "sellFailed": "Sale could not be saved",
+        "invalidQty": "Enter a valid quantity",
+        "saleNote": "Barcode retail sale",
+        "scanAnother": "Scan another",
+        "manualPlaceholder": "Enter barcode manually",
+        "manualSubmit": "Find",
+        "manualInvalid": "Invalid barcode",
+        "enterManually": "Enter manually",
+        "retryCamera": "Try camera again",
+        "cameraFallback": "Camera unavailable — you can type the barcode."
+      }
     },
     "months": [
       "January",
@@ -1264,6 +1300,10 @@
       {
         "value": "urun",
         "label": "Product Sales"
+      },
+      {
+        "value": "paket",
+        "label": "Package / Session Sales"
       },
       {
         "value": "komisyon",
@@ -1370,6 +1410,7 @@
     "topStaff": "Top Performance",
     "income": "Income & Expenses",
     "stock": "Inventory",
+    "packages": "Packages / Sessions",
     "staffView": "👤 Staff View",
     "preferredLanguage": "Preferred Language",
     "noLanguage": "Not Set",
@@ -1476,7 +1517,10 @@
       "workingTodayLabel": "Working Today",
       "noStaffToday": "No staff scheduled today",
       "servicesTitle": "Services",
-      "activeServicesCountLabel": "{count} active services"
+      "activeServicesCountLabel": "{count} active services",
+      "criticalStockTitle": "Critical Stock",
+      "criticalStockOk": "All stock levels are sufficient",
+      "criticalStockCount": "{count} product(s) at critical stock level"
     },
     "noStaffAdded": "No staff added yet.",
     "addStaffCta": "Add staff",
@@ -1733,7 +1777,16 @@
       "confirmEdit": "Edit / cancel",
       "phoneOptional": "can be added later",
       "phoneAutofilled": "{name} is on file — phone number added to the form",
-      "holdForVoice": "Hold to book by voice"
+      "holdForVoice": "Hold to book by voice",
+      "voiceCmdListening": "🎤 Say \"confirm\" or \"edit\"",
+      "voiceCmdConfirmed": "Confirmed — saving the appointment",
+      "voiceCmdCancelled": "Cancelled — you can edit the form manually",
+      "voiceCmdCompleting": "Listening again for the missing fields",
+      "voiceCmdNotUnderstood": "Command not understood — say \"confirm\" or \"edit\"",
+      "voiceCmdStop": "Turn off voice command",
+      "stockHint": "Tap the mic and say: \"3 units of shampoo out\"",
+      "stockListening": "🎤 Say the stock command — e.g. \"3 units of shampoo out\"",
+      "stockLow": "⚠️ A product dropped to its critical stock level"
     },
     "randevularPage": {
       "sortDefault": "Sort: Default",

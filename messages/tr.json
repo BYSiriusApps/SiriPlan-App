@@ -1240,7 +1240,43 @@
     "stockPage": {
       "eyebrow": "Ön Muhasebe & Stok",
       "title": "Stok Yönetimi",
-      "subtitle": "Ürün stoğu, kritik stok uyarıları ve mal giriş/çıkış takibi"
+      "subtitle": "Ürün stoğu, kritik stok uyarıları ve mal giriş/çıkış takibi",
+      "barcode": {
+        "scanSell": "Barkodla Sat",
+        "scanTitle": "Barkodla Satış",
+        "scanHint": "Barkodu çerçeveye getirin",
+        "scanned": "Barkod okundu: {code}",
+        "scan": "Tara",
+        "field": "Barkod",
+        "fieldPlaceholder": "Ürün barkodu (EAN / UPC)",
+        "fieldHint": "Kutunun üzerindeki barkodu yazın/tarayın ya da barkodu yoksa kod üretin.",
+        "generate": "Kod üret",
+        "generated": "Barkod üretildi",
+        "generateFailed": "Barkod üretilemedi",
+        "nameFirst": "Önce ürün adını girin",
+        "printLabel": "QR etiketi yazdır",
+        "printFailed": "Etiket oluşturulamadı",
+        "lookupFailed": "Barkod sorgulanamadı",
+        "looking": "Ürün aranıyor…",
+        "notLinked": "Bu barkod bir ürüne bağlı değil",
+        "linkToProduct": "Yeni ürün ekle & bağla",
+        "remaining": "Kalan",
+        "qtyLabel": "Adet",
+        "priceLabel": "Birim fiyat",
+        "sell": "Sat",
+        "sold": "{qty} × {name} satıldı",
+        "nowLow": "{name} kritik stok seviyesinde",
+        "sellFailed": "Satış kaydedilemedi",
+        "invalidQty": "Geçerli bir adet girin",
+        "saleNote": "Barkodla perakende satış",
+        "scanAnother": "Başka barkod tara",
+        "manualPlaceholder": "Barkodu elle girin",
+        "manualSubmit": "Bul",
+        "manualInvalid": "Geçersiz barkod",
+        "enterManually": "Elle gir",
+        "retryCamera": "Kamerayı tekrar dene",
+        "cameraFallback": "Kamera açılamadı — barkodu elle girebilirsiniz."
+      }
     },
     "months": [
       "Ocak",
@@ -1264,6 +1300,10 @@
       {
         "value": "urun",
         "label": "Ürün Satışı"
+      },
+      {
+        "value": "paket",
+        "label": "Paket / Seans Satışı"
       },
       {
         "value": "komisyon",
@@ -1370,6 +1410,7 @@
     "topStaff": "En İyi Performans",
     "income": "Gelir & Gider",
     "stock": "Stok Yönetimi",
+    "packages": "Paketler / Seans",
     "staffView": "👤 Personel Görünümü",
     "preferredLanguage": "Tercih Edilen Dil",
     "noLanguage": "Belirtilmedi",
@@ -1476,7 +1517,10 @@
       "workingTodayLabel": "Bugün Çalışıyor",
       "noStaffToday": "Bugün planlı personel yok",
       "servicesTitle": "Hizmetler",
-      "activeServicesCountLabel": "{count} aktif hizmet"
+      "activeServicesCountLabel": "{count} aktif hizmet",
+      "criticalStockTitle": "Kritik Stok",
+      "criticalStockOk": "Tüm stoklar yeterli seviyede",
+      "criticalStockCount": "{count} ürün kritik stok seviyesinde"
     },
     "noStaffAdded": "Personel eklenmemiş.",
     "addStaffCta": "Personel ekle",
@@ -1733,7 +1777,16 @@
       "confirmEdit": "Düzenle / İptal",
       "phoneOptional": "sonra eklenebilir",
       "phoneAutofilled": "{name} kayıtlı — telefon numarası forma eklendi",
-      "holdForVoice": "Sesli randevu için basılı tutun"
+      "holdForVoice": "Sesli randevu için basılı tutun",
+      "voiceCmdListening": "🎤 \"Onayla\" veya \"Düzelt\" deyin",
+      "voiceCmdConfirmed": "Onaylandı — randevu kaydediliyor",
+      "voiceCmdCancelled": "İptal edildi — formu elle düzenleyebilirsiniz",
+      "voiceCmdCompleting": "Eksik alanlar için tekrar dinliyorum",
+      "voiceCmdNotUnderstood": "Komut anlaşılamadı — \"onayla\" ya da \"düzelt\" deyin",
+      "voiceCmdStop": "Sesli komutu kapat",
+      "stockHint": "Mikrofona basıp söyleyin: \"Şampuandan 3 adet çıkış\"",
+      "stockListening": "🎤 Stok komutunu söyleyin — örn: \"Şampuandan 3 adet çıkış\"",
+      "stockLow": "⚠️ Bir ürün kritik stok seviyesine düştü"
     },
     "randevularPage": {
       "sortDefault": "Sıralama: Varsayılan",

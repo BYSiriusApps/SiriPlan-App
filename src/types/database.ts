@@ -201,12 +201,50 @@ export interface Appointment {
   reminder_sent_at: string | null;
   reminder2_sent_at: string | null;
   loyalty_punch_added: boolean;
+  /** Bu randevu tamamlanınca hangi paketten bir seans düşülecek. Migration gecikirse alan hiç gelmeyebilir. */
+  package_id?: string | null;
   created_at: string;
   updated_at: string;
   // Joined fields
   staff?: Staff;
   service?: Service;
   customer?: Customer;
+}
+
+export type PackageStatus = "active" | "completed" | "expired" | "cancelled";
+
+export interface CustomerPackage {
+  id: string;
+  org_id: string;
+  customer_id: string;
+  service_id: string | null;
+  name: string;
+  total_sessions: number;
+  used_sessions: number;
+  price_paid: number;
+  payment_method: string | null;
+  purchased_at: string;
+  expires_at: string | null;
+  status: PackageStatus;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined
+  service?: Pick<Service, "id" | "name"> | null;
+  customer?: Pick<Customer, "id" | "full_name" | "phone"> | null;
+  remaining_sessions?: number;
+}
+
+export interface CustomerPackageUsage {
+  id: string;
+  org_id: string;
+  package_id: string;
+  appointment_id: string | null;
+  delta: number;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
 }
 
 export interface Campaign {

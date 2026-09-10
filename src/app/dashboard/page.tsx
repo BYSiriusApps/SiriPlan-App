@@ -11,7 +11,7 @@ import {
 import { tr, enUS, ru, ar } from "date-fns/locale";
 import {
   Calendar, MessageCircle, Megaphone, Star, ChevronRight, Plus,
-  Clock, BarChart3, Wallet, Users, Scissors,
+  Clock, BarChart3, Wallet, Users, Scissors, Package, AlertTriangle,
 } from "lucide-react";
 import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
 import { istanbulTimeStr, istanbulDateStr, DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
@@ -187,6 +187,7 @@ export default async function DashboardPage() {
     { data: monthAppts },
     { data: monthExpenses },
     { data: recentCustomers },
+    { data: inventoryItems },
   ] = await Promise.all([
     todayQuery,
     nextQuery,
@@ -262,6 +263,12 @@ export default async function DashboardPage() {
       .eq("org_id", orgId)
       .order("created_at", { ascending: false })
       .limit(4),
+
+    supabase
+      .from("inventory_items")
+      .select("id, name, current_stock, min_stock_alert, unit")
+      .eq("org_id", orgId)
+      .eq("is_active", true),
   ]);
 
   type FullAppt = Appointment & {
@@ -344,6 +351,12 @@ export default async function DashboardPage() {
 
   /* Son eklenen müşteriler (Yeni Müşteri kutucuğu) */
   const recentCustList = (recentCustomers ?? []) as { id: string; full_name: string; phone: string; created_at: string }[];
+
+  /* Kritik stok (Kritik Stok kutucuğu) — mevcut min_stock_alert verisinden türetilir */
+  type InvRow = { id: string; name: string; current_stock: number; min_stock_alert: number; unit: string };
+  const criticalStock = ((inventoryItems ?? []) as InvRow[])
+    .filter((i) => Number(i.min_stock_alert) > 0 && Number(i.current_stock) <= Number(i.min_stock_alert))
+    .sort((a, b) => Number(a.current_stock) - Number(b.current_stock));
 
   const firstName =
     (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] ??
@@ -808,6 +821,50 @@ export default async function DashboardPage() {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        </GlassCard3D>
+      ),
+    },
+    {
+      key: "critical_stock",
+      label: "Kritik Stok",
+      colSpanClass: "lg:col-span-6",
+      node: (
+        <GlassCard3D key="critical_stock" className="glass-card h-full" glow intensity={4}>
+          <CardTitle
+            right={
+              <Link href="/dashboard/stok" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+                {t("all")} <ChevronRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            {t("homePage.criticalStockTitle")}
+          </CardTitle>
+          <div className="px-4 py-3.5 space-y-2">
+            {criticalStock.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-2">{t("homePage.criticalStockOk")}</p>
+            ) : (
+              <>
+                <p className="text-[12px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  {t("homePage.criticalStockCount", { count: criticalStock.length })}
+                </p>
+                {criticalStock.slice(0, 5).map((i) => (
+                  <Link
+                    key={i.id}
+                    href="/dashboard/stok"
+                    className="flex items-center justify-between gap-2 text-[13px] leading-snug hover:opacity-80 transition-opacity"
+                  >
+                    <span className="flex items-center gap-2 truncate text-foreground">
+                      <Package className="h-3.5 w-3.5 text-amber-500 shrink-0" /> {i.name}
+                    </span>
+                    <span className="tabular-nums shrink-0 text-amber-600 dark:text-amber-400 text-[11px] font-semibold">
+                      {i.current_stock} {i.unit}
+                    </span>
+                  </Link>
+                ))}
+              </>
             )}
           </div>
         </GlassCard3D>

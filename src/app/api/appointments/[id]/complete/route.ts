@@ -2,13 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { logAppointmentStatusChange } from "@/lib/audit";
+import { findActivePackageForService, recordPackageUsage } from "@/lib/package-tx";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const { tip = 0, payment_method = "nakit", extra_income = 0 } = await req.json();
+  const {
+    tip = 0,
+    payment_method = "nakit",
+    extra_income = 0,
+    // Paketten seans düş: true ise randevunun kayıtlı package_id'si ya da
+    // hizmete uyan aktif paket kullanılır. Belirli bir paket dayatmak için
+    // use_package_id gönderilebilir. false → paket hiç kullanılmaz.
+    use_package = true,
+    use_package_id = null,
+  } = await req.json();
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -33,10 +43,55 @@ export async function POST(
     return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
   }
 
+  // ── Paket eşleştirme ──────────────────────────────────────────
+  // Randevu bir pakete bağlıysa (booking sırasında seçildi) ya da müşterinin bu
+  // hizmet için aktif paketi varsa, tamamlanınca bir seans düşülür ve randevu
+  // ücretsiz (price = 0, payment_method = 'paket') olarak kapanır. Böylece aylık
+  // ciro paket satışıyla iki kez saymaz.
+  let packageResult: Awaited<ReturnType<typeof recordPackageUsage>> | null = null;
+  let usedPackage = false;
+  if (use_package && appt.customer_id) {
+    let targetPackageId: string | null =
+      (typeof use_package_id === "string" && use_package_id) ||
+      (appt.package_id as string | null) ||
+      null;
+
+    if (!targetPackageId) {
+      const match = await findActivePackageForService(
+        supabase,
+        member.org_id,
+        appt.customer_id,
+        appt.service_id,
+      );
+      targetPackageId = match?.id ?? null;
+    }
+
+    if (targetPackageId) {
+      packageResult = await recordPackageUsage(supabase, member.org_id, user.id, {
+        packageId: targetPackageId,
+        appointmentId: id,
+        note: "Randevu tamamlandı",
+      });
+      // alreadyUsed de "paketten karşılandı" sayılır (çift tamamlama).
+      usedPackage = packageResult.ok;
+      if (packageResult.ok && !(appt.package_id === targetPackageId)) {
+        await supabase.from("appointments").update({ package_id: targetPackageId }).eq("id", id);
+      }
+    }
+  }
+
+  const effectivePrice = usedPackage ? 0 : Number(appt.price);
+  const effectivePayment = usedPackage ? "paket" : payment_method;
+
   // Mark complete
   const { error: updateErr } = await supabase
     .from("appointments")
-    .update({ status: "tamamlandi", tip: tip || 0, payment_method })
+    .update({
+      status: "tamamlandi",
+      tip: tip || 0,
+      payment_method: effectivePayment,
+      ...(usedPackage ? { price: 0 } : {}),
+    })
     .eq("id", id);
 
   if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 });
@@ -80,9 +135,10 @@ export async function POST(
       .eq("id", id);
   }
 
-  // Update customer stats
+  // Update customer stats — paketten karşılanan randevu ciroya 0 katkı verir
+  // ama ziyaret sayılır.
   if (appt.customer_id) {
-    const totalEarned = Number(appt.price) + Number(tip || 0);
+    const totalEarned = effectivePrice + Number(tip || 0);
     const { data: cust } = await supabase
       .from("customers")
       .select("visit_count, total_spend")
@@ -101,5 +157,16 @@ export async function POST(
     }
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({
+    success: true,
+    usedPackage,
+    package: usedPackage
+      ? {
+          name: packageResult?.packageName,
+          remaining: packageResult?.remaining,
+          alreadyUsed: packageResult?.alreadyUsed ?? false,
+          completed: packageResult?.packageCompleted ?? false,
+        }
+      : null,
+  });
 }

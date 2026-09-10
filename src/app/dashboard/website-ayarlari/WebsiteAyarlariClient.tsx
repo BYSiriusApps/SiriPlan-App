@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { resizeImageFile } from "@/lib/image-resize";
+import { uploadImage } from "@/lib/upload-image";
 import { WEBSITE_PALETTES, type WebsitePaletteKey } from "@/lib/website-palettes";
 import { WEBSITE_LAYOUTS, resolveWebsiteLayout, type WebsiteLayoutKey } from "@/lib/website-layouts";
 import { Button } from "@/components/ui/button";
@@ -183,19 +184,15 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     }
     setUploadingCover(true);
     const resized = await resizeImageFile(file, 1920);
-    const supabase = createClient();
-    const ext = resized.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${org.id}/cover.${ext}`;
-    const { error: upErr } = await supabase.storage
-      .from("org-logos")
-      .upload(path, resized, { upsert: true, cacheControl: "3600" });
-    if (upErr) {
-      toast.error(w("toastUploadFailed") + upErr.message);
+    let cover_url: string;
+    try {
+      cover_url = await uploadImage({ kind: "cover", file: resized });
+    } catch (err) {
+      toast.error(w("toastUploadFailed") + (err instanceof Error ? err.message : ""));
       setUploadingCover(false);
       return;
     }
-    const { data: pub } = supabase.storage.from("org-logos").getPublicUrl(path);
-    const cover_url = `${pub.publicUrl}?t=${Date.now()}`;
+    const supabase = createClient();
     const { error: dbErr } = await supabase.from("organizations").update({ cover_url }).eq("id", org.id);
     setUploadingCover(false);
     if (dbErr) {
@@ -286,19 +283,14 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
   async function handleCategoryPhotoUpload(catId: string, file: File) {
     setCategoryBusyId(catId);
     const resized = await resizeImageFile(file);
-    const supabase = createClient();
-    const ext = resized.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${org.id}/categories/${catId}.${ext}`;
-    const { error: upErr } = await supabase.storage
-      .from("service-photos")
-      .upload(path, resized, { upsert: true, cacheControl: "3600" });
-    if (upErr) {
-      toast.error(w("toastUploadFailed") + upErr.message);
+    let photo_url: string;
+    try {
+      photo_url = await uploadImage({ kind: "category", id: catId, file: resized });
+    } catch (err) {
+      toast.error(w("toastUploadFailed") + (err instanceof Error ? err.message : ""));
       setCategoryBusyId(null);
       return;
     }
-    const { data: pub } = supabase.storage.from("service-photos").getPublicUrl(path);
-    const photo_url = `${pub.publicUrl}?t=${Date.now()}`;
     const res = await fetch(`/api/service-categories/${catId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -319,20 +311,15 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
     }
     setGalleryUploadingId(catId);
     const resized = await resizeImageFile(file);
-    const supabase = createClient();
-    const ext = resized.name.split(".").pop()?.toLowerCase() || "jpg";
     const photoId = crypto.randomUUID();
-    const path = `${org.id}/categories/${catId}/${photoId}.${ext}`;
-    const { error: upErr } = await supabase.storage
-      .from("service-photos")
-      .upload(path, resized, { upsert: true, cacheControl: "3600" });
-    if (upErr) {
-      toast.error(w("toastUploadFailed") + upErr.message);
+    let url: string;
+    try {
+      url = await uploadImage({ kind: "category-gallery", id: catId, photoId, file: resized });
+    } catch (err) {
+      toast.error(w("toastUploadFailed") + (err instanceof Error ? err.message : ""));
       setGalleryUploadingId(null);
       return;
     }
-    const { data: pub } = supabase.storage.from("service-photos").getPublicUrl(path);
-    const url = `${pub.publicUrl}?t=${Date.now()}`;
     const res = await fetch(`/api/service-categories/${catId}/photos`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -425,19 +412,14 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
   async function handleServicePhotoUpload(id: string, file: File) {
     setServiceBusyId(id);
     const resized = await resizeImageFile(file);
-    const supabase = createClient();
-    const ext = resized.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${org.id}/services/${id}.${ext}`;
-    const { error: upErr } = await supabase.storage
-      .from("service-photos")
-      .upload(path, resized, { upsert: true, cacheControl: "3600" });
-    if (upErr) {
-      toast.error(w("toastUploadFailed") + upErr.message);
+    let photo_url: string;
+    try {
+      photo_url = await uploadImage({ kind: "service", id, file: resized });
+    } catch (err) {
+      toast.error(w("toastUploadFailed") + (err instanceof Error ? err.message : ""));
       setServiceBusyId(null);
       return;
     }
-    const { data: pub } = supabase.storage.from("service-photos").getPublicUrl(path);
-    const photo_url = `${pub.publicUrl}?t=${Date.now()}`;
     const res = await fetch(`/api/services/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

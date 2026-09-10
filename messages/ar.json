@@ -1240,7 +1240,43 @@
     "stockPage": {
       "eyebrow": "المحاسبة والمخزون",
       "title": "إدارة المخزون",
-      "subtitle": "إدارة مخزون المنتجات وتنبيهات النقص وحركة الوارد والصادر"
+      "subtitle": "إدارة مخزون المنتجات وتنبيهات النقص وحركة الوارد والصادر",
+      "barcode": {
+        "scanSell": "بيع بالباركود",
+        "scanTitle": "بيع بالباركود",
+        "scanHint": "ضع الباركود داخل الإطار",
+        "scanned": "تم قراءة الباركود: {code}",
+        "scan": "مسح",
+        "field": "الباركود",
+        "fieldPlaceholder": "باركود المنتج (EAN / UPC)",
+        "fieldHint": "اكتب أو امسح الباركود الموجود على العبوة، أو أنشئ رمزًا إذا لم يكن للمنتج باركود.",
+        "generate": "إنشاء رمز",
+        "generated": "تم إنشاء الباركود",
+        "generateFailed": "تعذّر إنشاء الباركود",
+        "nameFirst": "أدخل اسم المنتج أولاً",
+        "printLabel": "طباعة ملصق QR",
+        "printFailed": "تعذّر إنشاء الملصق",
+        "lookupFailed": "فشل البحث عن الباركود",
+        "looking": "جارٍ البحث عن المنتج…",
+        "notLinked": "هذا الباركود غير مرتبط بمنتج",
+        "linkToProduct": "أضف منتجًا جديدًا واربطه",
+        "remaining": "المتبقي",
+        "qtyLabel": "الكمية",
+        "priceLabel": "سعر الوحدة",
+        "sell": "بيع",
+        "sold": "تم بيع {qty} × {name}",
+        "nowLow": "{name} عند مستوى المخزون الحرج",
+        "sellFailed": "تعذّر حفظ البيع",
+        "invalidQty": "أدخل كمية صحيحة",
+        "saleNote": "بيع تجزئة بالباركود",
+        "scanAnother": "مسح باركود آخر",
+        "manualPlaceholder": "أدخل الباركود يدويًا",
+        "manualSubmit": "بحث",
+        "manualInvalid": "باركود غير صالح",
+        "enterManually": "إدخال يدوي",
+        "retryCamera": "أعد تجربة الكاميرا",
+        "cameraFallback": "الكاميرا غير متاحة — يمكنك كتابة الباركود."
+      }
     },
     "months": [
       "يناير",
@@ -1264,6 +1300,10 @@
       {
         "value": "urun",
         "label": "مبيعات المنتجات"
+      },
+      {
+        "value": "paket",
+        "label": "مبيعات الباقات / الجلسات"
       },
       {
         "value": "komisyon",
@@ -1370,6 +1410,7 @@
     "topStaff": "أفضل أداء",
     "income": "الإيرادات والمصروفات",
     "stock": "المخزون",
+    "packages": "الباقات / الجلسات",
     "staffView": "👤 عرض الموظفين",
     "preferredLanguage": "اللغة المفضلة",
     "noLanguage": "غير محدد",
@@ -1476,7 +1517,10 @@
       "workingTodayLabel": "يعملون اليوم",
       "noStaffToday": "لا يوجد موظفون مجدولون اليوم",
       "servicesTitle": "الخدمات",
-      "activeServicesCountLabel": "{count} خدمة نشطة"
+      "activeServicesCountLabel": "{count} خدمة نشطة",
+      "criticalStockTitle": "مخزون حرج",
+      "criticalStockOk": "جميع مستويات المخزون كافية",
+      "criticalStockCount": "{count} منتج عند مستوى المخزون الحرج"
     },
     "noStaffAdded": "لم تتم إضافة أي موظف بعد.",
     "addStaffCta": "إضافة موظف",
@@ -1733,7 +1777,16 @@
       "confirmEdit": "تعديل / إلغاء",
       "phoneOptional": "يمكن إضافته لاحقًا",
       "phoneAutofilled": "{name} مسجَّل — تمت إضافة رقم الهاتف إلى النموذج",
-      "holdForVoice": "اضغط مطولاً للحجز بالصوت"
+      "holdForVoice": "اضغط مطولاً للحجز بالصوت",
+      "voiceCmdListening": "🎤 قل «تأكيد» أو «تعديل»",
+      "voiceCmdConfirmed": "تم التأكيد — يجري حفظ الموعد",
+      "voiceCmdCancelled": "تم الإلغاء — يمكنك تعديل النموذج يدويًا",
+      "voiceCmdCompleting": "أستمع مرة أخرى للحقول الناقصة",
+      "voiceCmdNotUnderstood": "لم يُفهم الأمر — قل «تأكيد» أو «تعديل»",
+      "voiceCmdStop": "إيقاف الأمر الصوتي",
+      "stockHint": "اضغط على الميكروفون وقل: «3 وحدات شامبو صرف»",
+      "stockListening": "🎤 قل أمر المخزون — مثال: «3 وحدات شامبو صرف»",
+      "stockLow": "⚠️ انخفض منتج إلى مستوى المخزون الحرج"
     },
     "randevularPage": {
       "sortDefault": "الترتيب: افتراضي",

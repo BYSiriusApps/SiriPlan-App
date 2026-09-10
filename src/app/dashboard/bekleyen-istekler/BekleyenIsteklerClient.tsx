@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { formatServicePrice } from "@/lib/currency";
 import { maskPhone } from "@/lib/phone";
-import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox } from "lucide-react";
+import Link from "next/link";
+import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 interface AppointmentRequest {
@@ -31,7 +32,23 @@ const SOURCE_META: Record<string, { label: string; icon: typeof MessageCircle; c
   instagram: { label: "Instagram", icon: Instagram, className: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400" },
 };
 
-export function BekleyenIsteklerClient({ initialRequests, showPhone = true }: { initialRequests: AppointmentRequest[]; showPhone?: boolean }) {
+interface CriticalStockItem {
+  id: string;
+  name: string;
+  current_stock: number;
+  min_stock_alert: number;
+  unit: string;
+}
+
+export function BekleyenIsteklerClient({
+  initialRequests,
+  showPhone = true,
+  criticalStock = [],
+}: {
+  initialRequests: AppointmentRequest[];
+  showPhone?: boolean;
+  criticalStock?: CriticalStockItem[];
+}) {
   const t = useTranslations("dashboard");
   const [requests, setRequests] = useState(initialRequests);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -68,6 +85,33 @@ export function BekleyenIsteklerClient({ initialRequests, showPhone = true }: { 
       <p className="text-muted-foreground text-sm -mt-3">
         {t("pendingRequestsPage.subtitle")}
       </p>
+
+      {criticalStock.length > 0 && (
+        <Card className="border-0 shadow-none bg-amber-50/60 dark:bg-amber-950/20">
+          <CardContent className="p-4">
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5 mb-2.5">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              {t("homePage.criticalStockCount", { count: criticalStock.length })}
+            </p>
+            <div className="space-y-1.5">
+              {criticalStock.map((i) => (
+                <Link
+                  key={i.id}
+                  href="/dashboard/stok"
+                  className="flex items-center justify-between gap-2 text-[13px] hover:opacity-80 transition-opacity"
+                >
+                  <span className="flex items-center gap-2 truncate">
+                    <Package className="h-3.5 w-3.5 text-amber-500 shrink-0" /> {i.name}
+                  </span>
+                  <span className="tabular-nums shrink-0 text-amber-600 dark:text-amber-400 text-[11px] font-semibold">
+                    {i.current_stock} {i.unit} / {i.min_stock_alert}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {requests.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">

@@ -209,6 +209,43 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
   }
 }
 
+/**
+ * Bir stok hareketi ürünü ilk kez kritik sınırın altına düşürdüğünde salon
+ * sahibine anlık bildirim (Telegram + WhatsApp). Yalnızca eşik GEÇİŞİNDE
+ * çağrılır (bkz. lib/inventory-tx.ts) — her harekette değil, spam olmaz.
+ */
+export async function notifyLowStock(
+  orgId: string,
+  item: { name: string; current_stock: number; min_stock_alert: number; unit: string }
+): Promise<void> {
+  try {
+    const supabase = await createAdminClient();
+    const { data: orgRow } = await supabase
+      .from("organizations")
+      .select("telegram_chat_id, whatsapp_number")
+      .eq("id", orgId)
+      .single();
+    if (!orgRow) return;
+
+    const message =
+      `⚠️ <b>Kritik Stok Uyarısı</b>\n\n` +
+      `📦 ${item.name}\n` +
+      `Kalan: ${item.current_stock} ${item.unit} (uyarı sınırı: ${item.min_stock_alert})\n\n` +
+      `Stok girişi yapmayı unutmayın.`;
+
+    await dispatch(
+      {
+        telegram_chat_id: (orgRow as { telegram_chat_id?: string | null }).telegram_chat_id,
+        whatsapp_number: (orgRow as { whatsapp_number?: string | null }).whatsapp_number,
+        label: "salon",
+      },
+      message
+    );
+  } catch {
+    // Bildirim hatası stok akışını engellememeli
+  }
+}
+
 /** Notify salon owner about a new pending appointment request */
 export async function notifyAppointmentRequest(
   req: AppointmentForNotify & { serviceName?: string; staffName?: string }

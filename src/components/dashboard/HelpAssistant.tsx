@@ -95,6 +95,9 @@ export function HelpAssistant() {
           }
           const qs = qp.toString();
           router.push(`/dashboard/randevular/yeni${qs ? `?${qs}` : ""}`);
+        } else if (data.actionTaken === "inventory_updated") {
+          toast.success(data.response || "Stok güncellendi");
+          router.refresh();
         } else if (data.actionTaken === "navigate_stok") {
           router.push("/dashboard/stok");
         }

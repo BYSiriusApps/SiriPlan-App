@@ -13,8 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 import { resizeImageFile } from "@/lib/image-resize";
+import { uploadImage } from "@/lib/upload-image";
 import {
   Scissors, Clock, Star, Pencil, Loader2, Trash2, Users, ChevronRight,
   ArrowUp, ArrowDown, ImagePlus, X, Check,
@@ -40,10 +40,11 @@ interface Props {
   initialServices: Service[];
   initialCategories: ServiceCategory[];
   canEdit: boolean;
-  orgId: string;
+  /** Artık kullanılmıyor — görsel yükleme /api/uploads üzerinden org'u oturumdan alıyor. */
+  orgId?: string;
 }
 
-export function HizmetlerClient({ initialServices, initialCategories, canEdit, orgId }: Props) {
+export function HizmetlerClient({ initialServices, initialCategories, canEdit }: Props) {
   const t = useTranslations("dashboard");
   // category_tag serbest metin olabildiği için (eski kayıtlar, elle girilenler)
   // çeviri yoksa etiketin kendisi gösterilir — eksik anahtar hata fırlatmasın.
@@ -201,25 +202,20 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit, o
       toast.error(t("servicesPage.pickImageFile"));
       return;
     }
-    if (file.size > 3 * 1024 * 1024) {
+    if (file.size > 15 * 1024 * 1024) {
       toast.error(t("servicesPage.fileTooLarge"));
       return;
     }
     setUploadingPhoto(true);
     const resized = await resizeImageFile(file);
-    const supabase = createClient();
-    const ext = resized.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${orgId}/services/${detailTarget.id}.${ext}`;
-    const { error: upErr } = await supabase.storage
-      .from("service-photos")
-      .upload(path, resized, { upsert: true, cacheControl: "3600" });
-    if (upErr) {
-      toast.error(t("servicesPage.uploadFailed", { error: upErr.message }));
+    let photo_url: string;
+    try {
+      photo_url = await uploadImage({ kind: "service", id: detailTarget.id, file: resized });
+    } catch (err) {
+      toast.error(t("servicesPage.uploadFailed", { error: err instanceof Error ? err.message : "" }));
       setUploadingPhoto(false);
       return;
     }
-    const { data: pub } = supabase.storage.from("service-photos").getPublicUrl(path);
-    const photo_url = `${pub.publicUrl}?t=${Date.now()}`;
     const res = await fetch(`/api/services/${detailTarget.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
