@@ -1,6 +1,6 @@
 # 06 · Teknik Güvenlik — Takip Listesi (SEC-01 … SEC-10)
 
-**Son güncelleme:** 2026-09-09
+**Son güncelleme:** 2026-09-11
 **İlke:** Ana yapı, işleyiş ve app (TWA) paketi bozulmadan; değişiklikler yalnızca
 eklemeli (yeni dosya / config / doküman).
 
@@ -24,6 +24,15 @@ sonrasında test gerekmez. Sırayla yapılabilir, acele yok.
 - [x] **SEC-05** — GitHub → Settings → Advanced Security: Dependabot alerts + security
       updates + Secret Protection + Push protection **açıldı (9 Eyl 2026)**.
 - [ ] **SEC-05** — (opsiyonel) Aynı sayfada "Dependabot malware alerts" → Enable.
+- [x] **SEC-05** — Dependabot bağımlılık açıkları temizlendi (11 Eyl 2026): `npm audit fix`
+      ile `next` 16.2.9→16.3.4 (2 kritik RCE), `sharp` 0.35.4, `postcss`/`js-yaml`/`qs`/
+      `brace-expansion` vb.; `xlsx` → SheetJS 0.20.3 (CDN tarball, prototype pollution + ReDoS).
+      Kalan: `next-intl` 3.x (2 moderate — 4.x kırıcı geçiş backlog'da).
+- [x] **SEC-11** — Görsel yükleme denetimi (11 Eyl 2026): panel yüklemeleri artık
+      `/api/uploads` üzerinden — magic-byte doğrulama + `sharp` ile piksel-piksel yeniden
+      kodlama (gömülü script/polyglot yükü atılır) + `service_role` yazımı; Storage bucket
+      `authenticated` INSERT/UPDATE politikaları kaldırıldı; `org-logos` SVG desteği kaldırıldı.
+      Migration `20260911_upload_hardening_storage.sql` → **kod deploy'undan SONRA** SQL Editor'e.
 
 ### B · CI otomasyonu (SEC-03) — workflow scope'lu erişim gerekir
 - [ ] Taslağı `.github/workflows/security.yml` olarak ekle
@@ -52,7 +61,7 @@ sonrasında test gerekmez. Sırayla yapılabilir, acele yok.
 | SEC-02 | Panelde 2FA/MFA | ⬜ | Kapsam notu eklendi — kod değişikliği ayrı iş (risk: oturum akışı) |
 | SEC-03 | İzolasyon testi CI'da | 🟡 | Workflow taslağı (`docs/security/ci-workflow-security.yml`) + `npm run security:*` scriptleri; taslağın `.github/workflows/`'a elle eklenmesi + GitHub secret/var kurulumu bekliyor |
 | SEC-04 | Rate limiting + WAF + bot | 🟡 | Rate limit + bot-guard + tor-guard zaten var; Turnstile anahtarları + WAF katmanı bekliyor |
-| SEC-05 | Bağımlılık & sır taraması | 🟡 | `.github/dependabot.yml` + CI'da `npm audit` kapısı; GitHub Dependabot/Secret/Push protection **açıldı (9 Eyl)**; CI workflow dosyası + npm audit temizliği kaldı |
+| SEC-05 | Bağımlılık & sır taraması | 🟡 | GitHub Dependabot/Secret/Push protection **açıldı (9 Eyl)**; **açıklar temizlendi (11 Eyl)** — `npm audit` 12→1 (kalan: next-intl moderate, 4.x kırıcı); CI workflow dosyası kaldı |
 | SEC-06 | Sızma testi + ifşa politikası | 🟡 | `SECURITY.md` + `/.well-known/security.txt` + `/guvenlik` sayfası var; yıllık bağımsız pentest bekliyor |
 | SEC-07 | Yedek & kurtarma tatbikatı | 🟡 | `BACKUP-RECOVERY-PLAN.md` (RPO/RTO tanımlı); Supabase PITR + tatbikat bekliyor |
 | SEC-08 | İzleme + denetim logu | 🟡 | `audit_logs` + CSP-report var; `MONITORING-AND-AUDIT.md` yol haritası; Sentry + uptime bekliyor |
