@@ -51,6 +51,9 @@ export default function BarcodeScanner({ onDetect, busy }: Props) {
   const [manualValue, setManualValue] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  const cameraSupported =
+    typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -239,7 +242,7 @@ export default function BarcodeScanner({ onDetect, busy }: Props) {
           {t("enterManually")}
         </button>
       ) : (
-        navigator?.mediaDevices?.getUserMedia && (
+        cameraSupported && (
           <button
             type="button"
             onClick={() => void start()}

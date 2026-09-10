@@ -1046,6 +1046,93 @@ export default function StokPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Barkodla Satış */}
+      <Dialog open={showBarcodeSell} onOpenChange={setShowBarcodeSell}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ScanLine className="h-5 w-5 text-emerald-600" />
+              {tb("scanTitle")}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-3 pt-2">
+            {!barcodeSellItem && (
+              <BarcodeScanner onDetect={handleBarcodeDetected} busy={barcodeLookupLoading} />
+            )}
+
+            {barcodeLookupLoading && (
+              <div className="flex items-center justify-center py-3 text-sm text-muted-foreground">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {tb("looking")}
+              </div>
+            )}
+
+            {barcodeUnknown && !barcodeSellItem && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-900 dark:bg-amber-950/30">
+                <p className="font-medium text-amber-800 dark:text-amber-300">{tb("notLinked")}</p>
+                <p className="mt-0.5 font-mono text-xs text-amber-700 dark:text-amber-400">{barcodeUnknown}</p>
+                <Button size="sm" variant="outline" className="mt-2 gap-1" onClick={linkUnknownToProduct}>
+                  <Plus className="h-3.5 w-3.5" /> {tb("linkToProduct")}
+                </Button>
+              </div>
+            )}
+
+            {barcodeSellItem && (
+              <div className="space-y-3 rounded-lg border border-border p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold leading-snug">{barcodeSellItem.name}</p>
+                    <p className="text-[11px] text-muted-foreground font-mono">{barcodeSellItem.barcode}</p>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={Number(barcodeSellItem.current_stock) <= Number(barcodeSellItem.min_stock_alert) ? "text-amber-600 border-amber-300" : ""}
+                  >
+                    {tb("remaining")}: {barcodeSellItem.current_stock} {barcodeSellItem.unit}
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>{tb("qtyLabel")}</Label>
+                    <Input
+                      className="mt-1"
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={barcodeSellQty}
+                      onChange={(e) => setBarcodeSellQty(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>{tb("priceLabel")} ({CURRENCY_SYMBOL[currency] ?? "₺"})</Label>
+                    <Input
+                      className="mt-1"
+                      type="number"
+                      step="0.5"
+                      value={barcodeSellPrice}
+                      onChange={(e) => setBarcodeSellPrice(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setBarcodeSellItem(null); setBarcodeUnknown(null); }}
+                    className="text-xs text-muted-foreground underline underline-offset-2"
+                  >
+                    {tb("scanAnother")}
+                  </button>
+                  <Button onClick={handleBarcodeSell} disabled={barcodeSelling} className="gap-1 bg-emerald-600 hover:bg-emerald-700">
+                    {barcodeSelling ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowDownRight className="h-4 w-4" />}
+                    {tb("sell")}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
