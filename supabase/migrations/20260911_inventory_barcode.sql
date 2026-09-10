@@ -1,6 +1,6 @@
 -- ============================================================
 -- SIRIPLAN — Stok: Barkod alanı (barkodla perakende satış)
--- Tarih: 2026-09-12
+-- Tarih: 2026-09-11
 -- Supabase Dashboard → SQL Editor'e yapıştırıp çalıştırın. İdempotenttir.
 --
 -- Amaç: telefon kamerasıyla barkod okutup tek dokunuşta perakende satış

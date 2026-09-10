@@ -55,3 +55,26 @@ kayıt doğrulama vb. e-postalarını Türkçe alır.
 **Maliyet:** ~1 route dosyası + auth metin tablosu. Orta.
 **İlgili dosya:** `docs/supabase-auth-emails.md` (mevcut TR-only kurulum),
 `src/lib/email/i18n.ts` (referans i18n deseni).
+
+---
+
+## 2. ⏳ Barkod: uygulama içi kamera için yeni AAB
+
+**Durum:** Barkodla ürün satışı (11 Eyl 2026) web'de canlı. Kamerayla tarama
+**mobil tarayıcıda** çalışır; kurulu Play Store uygulaması (TWA) içinde `getUserMedia`
+`android.permission.CAMERA` bildirilmediği için reddedilir → tarayıcı otomatik
+**elle barkod girişi** moduna düşer (satış yine çalışır).
+
+**Yapılacak (kamera uygulamada da çalışsın):**
+- PWABuilder / Bubblewrap projesinde CAMERA iznini aç (`"features": { "cameraPermission": true }`
+  veya `bubblewrap update --manifest` sonrası `AndroidManifest`'e `<uses-permission android:name="android.permission.CAMERA"/>`).
+- Yeni **AAB üret** → Play Console → yeni sürüm.
+- Play Console → **Data safety** formu: kamera kullanımı = "yalnızca cihazda, barkod
+  tarama; toplanmaz/paylaşılmaz" gerekçesi.
+- Test cihazında uygulamayı yeniden kur, `/dashboard/stok` → "Barkodla Sat" →
+  kamera izni sorulmalı ve tarama çalışmalı.
+
+**Not:** Bu AAB değişikliği yapılana kadar mağaza sürümü sağlam — özellik elle
+girişle tam kullanılabilir. `assetlinks.json` / imza etkilenmez.
+**İlgili:** `docs/play-store/aab-camera-todo.md`, `next.config.ts`
+(`PERMISSIONS_POLICY_DASHBOARD` = `camera=(self)`), `src/components/dashboard/BarcodeScanner.tsx`.
