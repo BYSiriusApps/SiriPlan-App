@@ -36,6 +36,9 @@ const CreateSchema = z.object({
   extra_services_json: z.array(ExtraServiceSchema).optional().default([]),
   total_price_override: z.number().optional(),
   total_duration_override: z.number().optional(),
+  // Peşin seans paketi: panelden girilen randevu bu pakete bağlanır, tamamlanınca
+  // bir seans düşülür (bkz. /api/appointments/[id]/complete). Anonim akışta yok sayılır.
+  package_id: z.string().uuid().optional(),
   appointment_at: z.string(),
   note: z.preprocess((v) => (v === "" ? undefined : v), z.string().optional()),
   source: z.enum(["web", "website", "whatsapp", "instagram", "tiktok", "telefon", "yuzyuze", "manual"]).default("web"),
@@ -551,6 +554,8 @@ async function handleCreateAppointment(req: NextRequest) {
         note: data.note,
         status: initialStatus,
         is_auto: (isExternalSource && !!org.has_auto_booking) || webAutoBookingEligible,
+        // Paket bağı yalnızca panelden (üye) gelen randevularda geçerli.
+        ...(isPanelBooking && data.package_id ? { package_id: data.package_id } : {}),
       })
       .select("*")
       .single();

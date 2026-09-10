@@ -1266,6 +1266,10 @@
         "label": "Ürün Satışı"
       },
       {
+        "value": "paket",
+        "label": "Paket / Seans Satışı"
+      },
+      {
         "value": "komisyon",
         "label": "Komisyon"
       },
@@ -1370,6 +1374,7 @@
     "topStaff": "En İyi Performans",
     "income": "Gelir & Gider",
     "stock": "Stok Yönetimi",
+    "packages": "Paketler / Seans",
     "staffView": "👤 Personel Görünümü",
     "preferredLanguage": "Tercih Edilen Dil",
     "noLanguage": "Belirtilmedi",

@@ -18,6 +18,7 @@ import CustomerBirthDateEdit from "./CustomerBirthDateEdit";
 import { STATUS_LABEL_KEYS } from "@/lib/appointment-status";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { hasProTools } from "@/lib/entitlements";
+import CustomerPackages from "./CustomerPackages";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800";
@@ -39,7 +40,7 @@ export default async function MusteriDetailPage({
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  const [{ data: customer }, { data: appointments }] = await Promise.all([
+  const [{ data: customer }, { data: appointments }, { data: serviceRows }] = await Promise.all([
     supabase
       .from("customers")
       .select("*")
@@ -53,6 +54,12 @@ export default async function MusteriDetailPage({
       .eq("customer_id", id)
       .order("appointment_at", { ascending: false })
       .limit(30),
+    supabase
+      .from("services")
+      .select("id, name")
+      .eq("org_id", member.org_id)
+      .eq("is_active", true)
+      .order("display_order"),
   ]);
 
   if (!customer) notFound();
@@ -65,6 +72,8 @@ export default async function MusteriDetailPage({
   const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
   // Müşteri skoru Pro+ özelliği — Starter'da skor rozeti gizlenir.
   const showScore = hasProTools(m.organizations);
+  const currency = (settings.currency as string) || "TRY";
+  const serviceOpts = (serviceRows ?? []) as { id: string; name: string }[];
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
@@ -256,6 +265,14 @@ export default async function MusteriDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      {/* Paketler / seans takibi */}
+      <CustomerPackages
+        customerId={c.id}
+        customerName={c.full_name}
+        services={serviceOpts}
+        currency={currency}
+      />
 
       {/* Appointment history */}
       <div>

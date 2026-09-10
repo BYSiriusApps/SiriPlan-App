@@ -24,9 +24,10 @@ interface ApptActionsProps {
   appt: Appointment;
   viewerRole: string;
   viewerStaffId: string | null;
+  activePackage?: { id: string; name: string; remaining: number } | null;
 }
 
-export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptActionsProps) {
+export default function ApptActions({ appt, viewerRole, viewerStaffId, activePackage = null }: ApptActionsProps) {
   const router = useRouter();
   const t = useTranslations("dashboard");
   const ta = useTranslations("dashboard.apptActions");
@@ -35,6 +36,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
   const [extraIncome, setExtraIncome] = useState("");
   const [payMethod, setPayMethod] = useState("nakit");
   const [internalNote, setInternalNote] = useState(appt.internal_note || "");
+  const [usePackage, setUsePackage] = useState(true);
   const [orgName, setOrgName] = useState("");
   const [orgAddress, setOrgAddress] = useState("");
   const [orgLocationUrl, setOrgLocationUrl] = useState("");
@@ -119,11 +121,20 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
         tip: parseFloat(tip) || 0,
         payment_method: payMethod,
         extra_income: parseFloat(extraIncome) || 0,
+        use_package: !!activePackage && usePackage,
+        use_package_id: activePackage && usePackage ? activePackage.id : null,
       }),
     });
     setLoading(null);
     if (res.ok) {
-      toast.success(ta("toastCompleted"));
+      const body = await res.json().catch(() => ({}));
+      if (body?.usedPackage && body?.package) {
+        toast.success(
+          `Paketten düşüldü — ${body.package.name} · kalan ${body.package.remaining} seans`
+        );
+      } else {
+        toast.success(ta("toastCompleted"));
+      }
       router.refresh();
     } else {
       const e = await res.json();
@@ -265,6 +276,27 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId }: ApptAct
                     {ta("extraIncomeHint")}
                   </p>
                 </div>
+
+                {activePackage && (
+                  <label className="flex items-start gap-3 p-3 rounded-xl border border-violet-200 dark:border-violet-900/50 bg-violet-50/60 dark:bg-violet-950/20 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={usePackage}
+                      onChange={(e) => setUsePackage(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded accent-violet-600 shrink-0"
+                    />
+                    <span className="min-w-0">
+                      <span className="text-sm font-medium">
+                        Paketten düş — {activePackage.name}
+                      </span>
+                      <span className="block text-xs text-muted-foreground mt-0.5">
+                        Kalan {activePackage.remaining} seans. İşaretliyse randevu ücretsiz
+                        (₺0 · ödeme yöntemi &ldquo;paket&rdquo;) kapanır ve bir seans düşülür.
+                      </span>
+                    </span>
+                  </label>
+                )}
+
                 <Button className="w-full" onClick={handleComplete} disabled={!!loading}>
                   {loading === "complete" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
                   {ta("markCompletedBtn")}

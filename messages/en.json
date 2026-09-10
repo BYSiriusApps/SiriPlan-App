@@ -1266,6 +1266,10 @@
         "label": "Product Sales"
       },
       {
+        "value": "paket",
+        "label": "Package / Session Sales"
+      },
+      {
         "value": "komisyon",
         "label": "Commission"
       },
@@ -1370,6 +1374,7 @@
     "topStaff": "Top Performance",
     "income": "Income & Expenses",
     "stock": "Inventory",
+    "packages": "Packages / Sessions",
     "staffView": "👤 Staff View",
     "preferredLanguage": "Preferred Language",
     "noLanguage": "Not Set",

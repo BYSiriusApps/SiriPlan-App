@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Calendar, BookOpen, Users, UserCog,
   Scissors, Megaphone, BarChart3, Import, Settings,
-  CreditCard, Wallet, ChevronRight, ShieldCheck, ListPlus, Globe, Inbox, Package,
+  CreditCard, Wallet, ChevronRight, ShieldCheck, ListPlus, Globe, Inbox, Package, Ticket,
   HelpCircle, CircleUser,
 } from "lucide-react";
 import { OrgSwitcher } from "@/components/dashboard/OrgSwitcher";
@@ -29,6 +29,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/bekleme-listesi", icon: ListPlus,      tKey: "waitlistAndApprovals", minRole: "staff"   },
   { href: "/dashboard/bekleyen-istekler", icon: Inbox,       tKey: "pendingRequests", minRole: "staff", planRequired: "business" },
   { href: "/dashboard/musteriler",    icon: Users,           tKey: "customers",      minRole: "staff"   },
+  { href: "/dashboard/paketler",      icon: Ticket,          tKey: "packages",       minRole: "staff"   },
   { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "manager" },
   { href: "/dashboard/personel",      icon: UserCog,         tKey: "staff",          minRole: "manager" },
   { href: "/dashboard/kampanyalar",   icon: Megaphone,       tKey: "campaigns",      badge: "Pro", minRole: "manager" },
