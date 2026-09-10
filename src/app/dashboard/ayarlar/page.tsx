@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { getActiveMemberClient } from "@/lib/active-org-client";
+import { uploadImage } from "@/lib/upload-image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -339,24 +340,20 @@ export default function AyarlarPage() {
       toast.error(t("settingsPage.toastPickImage"));
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > 15 * 1024 * 1024) {
       toast.error(t("settingsPage.toastFileTooLarge"));
       return;
     }
     setUploadingLogo(true);
-    const supabase = createClient();
-    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-    const path = `${org.id}/logo.${ext}`;
-    const { error: upErr } = await supabase.storage
-      .from("org-logos")
-      .upload(path, file, { upsert: true, cacheControl: "3600" });
-    if (upErr) {
-      toast.error(t("settingsPage.toastUploadFailed") + upErr.message);
+    let publicUrl: string;
+    try {
+      publicUrl = await uploadImage({ kind: "logo", file });
+    } catch (err) {
+      toast.error(t("settingsPage.toastUploadFailed") + (err instanceof Error ? err.message : ""));
       setUploadingLogo(false);
       return;
     }
-    const { data: pub } = supabase.storage.from("org-logos").getPublicUrl(path);
-    const publicUrl = `${pub.publicUrl}?t=${Date.now()}`;
+    const supabase = createClient();
     const { error: dbErr } = await supabase
       .from("organizations")
       .update({ logo_url: publicUrl })
