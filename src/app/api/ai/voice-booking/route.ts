@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { parseVoiceBooking, dedupeAdjacentWords } from "@/lib/voice-parse";
+import { parseVoiceInventory } from "@/lib/voice-inventory-parse";
+import { recordInventoryTransaction, type InventoryTxType } from "@/lib/inventory-tx";
 import { DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
 import { hasProTools } from "@/lib/entitlements";
 import { isMobileApp } from "@/lib/mobile-app";
@@ -26,6 +28,40 @@ export async function POST(req: NextRequest) {
 
     const adminSupabase = await createAdminClient();
     const orgId = member.org_id;
+
+    // Sesli stok komutu (Stok sayfasındaki mikrofon) `intent: "inventory"` gönderir.
+    const inventoryIntent = body.intent === "inventory";
+
+    /** Aktif stok ürünleri — yalnızca stok niyeti varken çekilir (randevu akışını yavaşlatmaz). */
+    const loadInventoryItems = async () => {
+      const { data } = await adminSupabase
+        .from("inventory_items")
+        .select("id, name, unit, current_stock, min_stock_alert")
+        .eq("org_id", orgId)
+        .eq("is_active", true);
+      return data || [];
+    };
+
+    /** Stok hareketini paylaşılan yardımcıyla işler ve okunur bir yanıt döner. */
+    const runInventoryTx = async (cmd: { item_id: string; item_name: string; type: InventoryTxType; quantity: number }) => {
+      const res = await recordInventoryTransaction(adminSupabase, orgId, user.id, {
+        item_id: cmd.item_id,
+        type: cmd.type,
+        quantity: cmd.quantity,
+        note: "Sesli komut ile güncellendi",
+      });
+      if (!res.ok) {
+        return NextResponse.json({ response: `Stok güncellenemedi: ${res.error}` });
+      }
+      const dirLabel = cmd.type === "in" ? "girişi" : cmd.type === "out" ? "çıkışı" : "sayımı";
+      const lowNote = res.lowStock ? ` ⚠️ Stok kritik sınırda (${res.stockAfter} ${res.unit}).` : "";
+      return NextResponse.json({
+        response: `📦 ${cmd.item_name}: ${cmd.quantity} ${res.unit} ${dirLabel} işlendi. Kalan stok: ${res.stockAfter} ${res.unit}.${lowNote}`,
+        actionTaken: "inventory_updated",
+        lowStock: res.lowStock,
+        item: { id: cmd.item_id, name: cmd.item_name, current_stock: res.stockAfter },
+      });
+    };
 
     // Fetch staff, services and timezone context for fuzzy matching
     const [{ data: staffList }, { data: servicesList }, { data: orgRow }] = await Promise.all([
@@ -111,6 +147,7 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
                         category: { type: "STRING", description: "Kategori (ör: Saç Bakımı, Tıraş Ürünleri)" },
                         unit: { type: "STRING", description: "Birim (adet, şişe, kutu)" },
                         quantity: { type: "NUMBER", description: "Stok adedi veya girilen miktar" },
+                        direction: { type: "STRING", enum: ["in", "out", "adjust"], description: "update_stock için: in=stok girişi/mal alımı, out=kullanım/satış, adjust=sayım (yeni mutlak değer)" },
                         price: { type: "NUMBER", description: "Satış veya maliyet fiyatı" },
                       },
                       required: ["action", "name"],
@@ -240,13 +277,49 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
                 item,
               });
             }
+
+            // update_stock / update_price → mevcut bir ürünü isimle bul.
+            const invItems = await loadInventoryItems();
+            const localCmd = parseVoiceInventory(transcript, invItems);
+            const targetId =
+              localCmd.item_id ||
+              invItems.find((i) => (args.name || "").toLocaleLowerCase("tr-TR")
+                && i.name.toLocaleLowerCase("tr-TR").includes(String(args.name).toLocaleLowerCase("tr-TR")))?.id ||
+              "";
+
+            if (!targetId) {
+              return NextResponse.json({
+                response: `📦 "${args.name || transcript}" adlı ürün stok listesinde bulunamadı. Stok ekranına yönlendiriyorum.`,
+                actionTaken: "navigate_stok",
+              });
+            }
+            const target = invItems.find((i) => i.id === targetId)!;
+
+            if (args.action === "update_price" && args.price != null) {
+              await adminSupabase
+                .from("inventory_items")
+                .update({ sale_price: Number(args.price), updated_at: new Date().toISOString() })
+                .eq("id", targetId)
+                .eq("org_id", orgId);
+              return NextResponse.json({
+                response: `💰 ${target.name} satış fiyatı ₺${Number(args.price).toLocaleString("tr-TR")} olarak güncellendi.`,
+                actionTaken: "inventory_updated",
+              });
+            }
+
+            const dir: InventoryTxType =
+              args.direction === "in" || args.direction === "out" || args.direction === "adjust"
+                ? args.direction
+                : localCmd.type;
+            const qty = Number(args.quantity) > 0 ? Number(args.quantity) : localCmd.quantity;
+            return runInventoryTx({ item_id: targetId, item_name: target.name, type: dir, quantity: qty });
           }
         }
 
         // Gemini fonksiyon çağırmadı, sadece metinle cevap verdi:
         // parseOnly değilse ve randevu/stok niyeti yoksa bu metni göster;
         // aksi halde aşağıdaki yerel ayrıştırıcıya düş.
-        if (part?.text && !body.parseOnly) {
+        if (part?.text && !body.parseOnly && !inventoryIntent) {
           const t = transcript.toLocaleLowerCase("tr-TR");
           if (!/\brandevu\b|\bsaat\b|\byarın\b|\bbugün\b/.test(t)) {
             return NextResponse.json({ response: part.text });
@@ -261,9 +334,16 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
       /\bstok\b|\bürün\b|\bşampuan\b|\bboya\b/.test(textLower) &&
       !/\brandevu\b/.test(textLower);
 
-    if (looksLikeStock) {
+    if (inventoryIntent || looksLikeStock) {
+      const invItems = await loadInventoryItems();
+      const cmd = parseVoiceInventory(transcript, invItems);
+      if (cmd.matched) {
+        return runInventoryTx(cmd);
+      }
       return NextResponse.json({
-        response: `📦 "${transcript}" alındı. Stok yönetimi ekranına yönlendiriliyorsunuz.`,
+        response: invItems.length
+          ? `📦 "${transcript}" komutunda ürün/miktar net anlaşılamadı. Stok ekranından elle güncelleyebilirsiniz.`
+          : `📦 Henüz stok ürününüz yok. Stok ekranına yönlendiriyorum.`,
         actionTaken: "navigate_stok",
       });
     }

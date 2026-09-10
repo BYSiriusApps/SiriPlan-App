@@ -1481,7 +1481,10 @@
       "workingTodayLabel": "يعملون اليوم",
       "noStaffToday": "لا يوجد موظفون مجدولون اليوم",
       "servicesTitle": "الخدمات",
-      "activeServicesCountLabel": "{count} خدمة نشطة"
+      "activeServicesCountLabel": "{count} خدمة نشطة",
+      "criticalStockTitle": "مخزون حرج",
+      "criticalStockOk": "جميع مستويات المخزون كافية",
+      "criticalStockCount": "{count} منتج عند مستوى المخزون الحرج"
     },
     "noStaffAdded": "لم تتم إضافة أي موظف بعد.",
     "addStaffCta": "إضافة موظف",
@@ -1738,7 +1741,16 @@
       "confirmEdit": "تعديل / إلغاء",
       "phoneOptional": "يمكن إضافته لاحقًا",
       "phoneAutofilled": "{name} مسجَّل — تمت إضافة رقم الهاتف إلى النموذج",
-      "holdForVoice": "اضغط مطولاً للحجز بالصوت"
+      "holdForVoice": "اضغط مطولاً للحجز بالصوت",
+      "voiceCmdListening": "🎤 قل «تأكيد» أو «تعديل»",
+      "voiceCmdConfirmed": "تم التأكيد — يجري حفظ الموعد",
+      "voiceCmdCancelled": "تم الإلغاء — يمكنك تعديل النموذج يدويًا",
+      "voiceCmdCompleting": "أستمع مرة أخرى للحقول الناقصة",
+      "voiceCmdNotUnderstood": "لم يُفهم الأمر — قل «تأكيد» أو «تعديل»",
+      "voiceCmdStop": "إيقاف الأمر الصوتي",
+      "stockHint": "اضغط على الميكروفون وقل: «3 وحدات شامبو صرف»",
+      "stockListening": "🎤 قل أمر المخزون — مثال: «3 وحدات شامبو صرف»",
+      "stockLow": "⚠️ انخفض منتج إلى مستوى المخزون الحرج"
     },
     "randevularPage": {
       "sortDefault": "الترتيب: افتراضي",

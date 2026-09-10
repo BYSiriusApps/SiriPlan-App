@@ -1481,7 +1481,10 @@
       "workingTodayLabel": "Bugün Çalışıyor",
       "noStaffToday": "Bugün planlı personel yok",
       "servicesTitle": "Hizmetler",
-      "activeServicesCountLabel": "{count} aktif hizmet"
+      "activeServicesCountLabel": "{count} aktif hizmet",
+      "criticalStockTitle": "Kritik Stok",
+      "criticalStockOk": "Tüm stoklar yeterli seviyede",
+      "criticalStockCount": "{count} ürün kritik stok seviyesinde"
     },
     "noStaffAdded": "Personel eklenmemiş.",
     "addStaffCta": "Personel ekle",
@@ -1738,7 +1741,16 @@
       "confirmEdit": "Düzenle / İptal",
       "phoneOptional": "sonra eklenebilir",
       "phoneAutofilled": "{name} kayıtlı — telefon numarası forma eklendi",
-      "holdForVoice": "Sesli randevu için basılı tutun"
+      "holdForVoice": "Sesli randevu için basılı tutun",
+      "voiceCmdListening": "🎤 \"Onayla\" veya \"Düzelt\" deyin",
+      "voiceCmdConfirmed": "Onaylandı — randevu kaydediliyor",
+      "voiceCmdCancelled": "İptal edildi — formu elle düzenleyebilirsiniz",
+      "voiceCmdCompleting": "Eksik alanlar için tekrar dinliyorum",
+      "voiceCmdNotUnderstood": "Komut anlaşılamadı — \"onayla\" ya da \"düzelt\" deyin",
+      "voiceCmdStop": "Sesli komutu kapat",
+      "stockHint": "Mikrofona basıp söyleyin: \"Şampuandan 3 adet çıkış\"",
+      "stockListening": "🎤 Stok komutunu söyleyin — örn: \"Şampuandan 3 adet çıkış\"",
+      "stockLow": "⚠️ Bir ürün kritik stok seviyesine düştü"
     },
     "randevularPage": {
       "sortDefault": "Sıralama: Varsayılan",

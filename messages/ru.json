@@ -1481,7 +1481,10 @@
       "workingTodayLabel": "Работают сегодня",
       "noStaffToday": "Сегодня нет запланированного персонала",
       "servicesTitle": "Услуги",
-      "activeServicesCountLabel": "{count} активных услуг"
+      "activeServicesCountLabel": "{count} активных услуг",
+      "criticalStockTitle": "Критический запас",
+      "criticalStockOk": "Все запасы на достаточном уровне",
+      "criticalStockCount": "{count} товар(ов) на критическом уровне запаса"
     },
     "noStaffAdded": "Сотрудники ещё не добавлены.",
     "addStaffCta": "Добавить сотрудника",
@@ -1738,7 +1741,16 @@
       "confirmEdit": "Изменить / отменить",
       "phoneOptional": "можно добавить позже",
       "phoneAutofilled": "{name} есть в базе — номер телефона добавлен в форму",
-      "holdForVoice": "Удерживайте для голосовой записи"
+      "holdForVoice": "Удерживайте для голосовой записи",
+      "voiceCmdListening": "🎤 Скажите «подтвердить» или «изменить»",
+      "voiceCmdConfirmed": "Подтверждено — запись сохраняется",
+      "voiceCmdCancelled": "Отменено — форму можно изменить вручную",
+      "voiceCmdCompleting": "Снова слушаю недостающие поля",
+      "voiceCmdNotUnderstood": "Команда не распознана — скажите «подтвердить» или «изменить»",
+      "voiceCmdStop": "Отключить голосовую команду",
+      "stockHint": "Нажмите микрофон и скажите: «3 шт. шампуня расход»",
+      "stockListening": "🎤 Произнесите складскую команду — напр. «3 шт. шампуня расход»",
+      "stockLow": "⚠️ Товар опустился до критического уровня запаса"
     },
     "randevularPage": {
       "sortDefault": "Сортировка: по умолчанию",

@@ -1481,7 +1481,10 @@
       "workingTodayLabel": "Working Today",
       "noStaffToday": "No staff scheduled today",
       "servicesTitle": "Services",
-      "activeServicesCountLabel": "{count} active services"
+      "activeServicesCountLabel": "{count} active services",
+      "criticalStockTitle": "Critical Stock",
+      "criticalStockOk": "All stock levels are sufficient",
+      "criticalStockCount": "{count} product(s) at critical stock level"
     },
     "noStaffAdded": "No staff added yet.",
     "addStaffCta": "Add staff",
@@ -1738,7 +1741,16 @@
       "confirmEdit": "Edit / cancel",
       "phoneOptional": "can be added later",
       "phoneAutofilled": "{name} is on file — phone number added to the form",
-      "holdForVoice": "Hold to book by voice"
+      "holdForVoice": "Hold to book by voice",
+      "voiceCmdListening": "🎤 Say \"confirm\" or \"edit\"",
+      "voiceCmdConfirmed": "Confirmed — saving the appointment",
+      "voiceCmdCancelled": "Cancelled — you can edit the form manually",
+      "voiceCmdCompleting": "Listening again for the missing fields",
+      "voiceCmdNotUnderstood": "Command not understood — say \"confirm\" or \"edit\"",
+      "voiceCmdStop": "Turn off voice command",
+      "stockHint": "Tap the mic and say: \"3 units of shampoo out\"",
+      "stockListening": "🎤 Say the stock command — e.g. \"3 units of shampoo out\"",
+      "stockLow": "⚠️ A product dropped to its critical stock level"
     },
     "randevularPage": {
       "sortDefault": "Sort: Default",
