@@ -5,11 +5,13 @@ import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { startOfMonth, endOfMonth, format, subMonths, startOfDay, endOfDay, addDays } from "date-fns";
 import { tr } from "date-fns/locale";
-import { TrendingUp, Users, Star, Download, CalendarCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { TrendingUp, Users, Star, Download, CalendarCheck, ChevronLeft, ChevronRight, Activity, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { formatMoney } from "@/lib/currency";
 import { hasProTools } from "@/lib/entitlements";
+import { TrendChart } from "@/components/dashboard/TrendChart";
+import { compareValue } from "@/lib/report-trends";
 
 export const dynamic = "force-dynamic";
 
@@ -50,9 +52,10 @@ export default async function RaporlarPage({
       .order("appointment_at"),
     supabase
       .from("expenses")
-      .select("type, amount")
+      .select("id, type, amount, category, description, note")
       .eq("org_id", orgId)
-      .eq("date", dayParam),
+      .eq("date", dayParam)
+      .order("created_at"),
     supabase
       .from("customers")
       .select("id", { count: "exact", head: true })
@@ -111,9 +114,26 @@ export default async function RaporlarPage({
           revenue: (data || []).filter((a) => a.status === "tamamlandi").reduce((s, a) => s + Number(a.price) + Number(a.tip || 0), 0),
           total: (data || []).length,
           completed: (data || []).filter((a) => a.status === "tamamlandi").length,
+          noshow: (data || []).filter((a) => a.status === "gelmedi").length,
         }));
     })
   );
+
+  // ── Değişim analizi: bu ay vs geçen ay yeni müşteri sayısı ──
+  const [{ count: newCustThisMonth }, { count: newCustPrevMonth }] = await Promise.all([
+    supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .gte("created_at", startOfMonth(now).toISOString())
+      .lte("created_at", endOfMonth(now).toISOString()),
+    supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .gte("created_at", startOfMonth(subMonths(now, 1)).toISOString())
+      .lte("created_at", endOfMonth(subMonths(now, 1)).toISOString()),
+  ]);
 
   const [{ data: topServices }, { data: topStaff }, { data: noShowData }] = await Promise.all([
     supabase
@@ -165,6 +185,24 @@ export default async function RaporlarPage({
   const noShowRate = total > 0 ? ((noshows / total) * 100).toFixed(1) : "0";
 
   const currentMonthRevenue = monthlyStats[0].revenue;
+
+  // ── Gün sonu: bekleyen randevular + gün içi manuel gelir/gider dökümü ──
+  type DayExpense = { id: string; type: string; amount: number; category: string | null; description: string | null; note: string | null };
+  const dExpenses = (dayExpenses ?? []) as DayExpense[];
+  const dPending = dAppts.filter((a) => a.status === "talep" || a.status === "onaylandi");
+
+  // ── Değişim analizi: eski → yeni sıralı 6 aylık ciro serisi + bu ay/geçen ay karşılaştırması ──
+  const chrono = [...monthlyStats].reverse();
+  const revenueSeries = chrono.map((m) => ({ label: m.month, value: m.revenue }));
+  const cur = monthlyStats[0];
+  const prev = monthlyStats[1] ?? { revenue: 0, completed: 0, total: 0, noshow: 0 };
+  const rate = (n: number, d: number) => (d > 0 ? (n / d) * 100 : 0);
+  const comparison = [
+    { label: "Ciro", ...compareValue(cur.revenue, prev.revenue), fmt: (v: number) => formatMoney(v, currency), invert: false },
+    { label: "Tamamlanan Randevu", ...compareValue(cur.completed, prev.completed), fmt: (v: number) => String(Math.round(v)), invert: false },
+    { label: "No-show Oranı", ...compareValue(rate(cur.noshow, cur.total), rate(prev.noshow, prev.total)), fmt: (v: number) => `%${v.toFixed(1)}`, invert: true },
+    { label: "Yeni Müşteri", ...compareValue(newCustThisMonth ?? 0, newCustPrevMonth ?? 0), fmt: (v: number) => String(Math.round(v)), invert: false },
+  ];
 
   return (
     <div className="p-6 space-y-6">
@@ -234,6 +272,31 @@ export default async function RaporlarPage({
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Bekleyen randevu uyarısı — ciroya/gelir-gidere yansıması için "Tamamlandı" gerekir */}
+          {dPending.length > 0 && (
+            <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-3">
+              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="text-sm text-amber-800 dark:text-amber-300 space-y-1.5">
+                <p>
+                  <span className="font-semibold">{dPending.length} randevu hâlâ bekliyor.</span>{" "}
+                  Gün cirosuna ve Gelir-Gider ekranına yansıması için gerçekleşenleri randevu detayından
+                  <span className="font-medium"> “Tamamlandı”</span> olarak işaretleyin.
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {dPending.map((a) => (
+                    <Link
+                      key={a.id}
+                      href={`/dashboard/randevular/${a.id}`}
+                      className="inline-flex items-center gap-1 rounded-md bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 text-xs font-medium hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors"
+                    >
+                      {format(new Date(a.appointment_at), "HH:mm")} · {a.customer_name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Günlük KPI'lar */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
             {[
@@ -308,6 +371,82 @@ export default async function RaporlarPage({
               })}
             </div>
           )}
+
+          {/* Gün içi gelir/gider kayıtları — elle girilen + otomatik randevu satırları */}
+          {dExpenses.length > 0 && (
+            <div className="space-y-1 pt-2 border-t">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-1.5">
+                Gün İçi Gelir / Gider Kayıtları
+              </p>
+              <div className="hidden md:grid grid-cols-[90px_1fr_140px_90px] gap-3 px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <span>Tür</span>
+                <span>Açıklama</span>
+                <span>Kategori</span>
+                <span className="text-right">Tutar</span>
+              </div>
+              {dExpenses.map((e) => {
+                const isGelir = e.type === "gelir";
+                const auto = (e.note ?? "").startsWith("Otomatik");
+                return (
+                  <div key={e.id} className="data-row grid grid-cols-[1fr_auto] md:grid-cols-[90px_1fr_140px_90px] items-center gap-3 px-3 py-2 rounded-lg text-sm">
+                    <span className={`hidden md:inline-flex w-fit px-2 py-0.5 rounded-full text-[11px] font-medium ${isGelir ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
+                      {isGelir ? "Gelir" : "Gider"}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate">{e.description ?? "—"}</p>
+                      {auto && <span className="text-[10px] text-muted-foreground">Randevudan otomatik</span>}
+                    </div>
+                    <span className="hidden md:block text-xs text-muted-foreground truncate">{e.category ?? "—"}</span>
+                    <span className={`text-right font-semibold tabular-nums ${isGelir ? "text-emerald-600" : "text-red-600"}`}>
+                      {isGelir ? "+" : "−"}{formatMoney(Number(e.amount), currency)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Değişim Analizi — dönemsel trend + bu ay / geçen ay karşılaştırması ── */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Activity className="h-4 w-4 text-primary" />
+            Değişim Analizi
+            <span className="text-sm font-normal text-muted-foreground">— son 6 ay</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <TrendChart
+            series={revenueSeries}
+            variant="line"
+            format={(v) => formatMoney(v, currency)}
+            height={140}
+          />
+          <div className="space-y-1">
+            <div className="hidden sm:grid grid-cols-[1fr_120px_120px_110px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+              <span>Metrik</span>
+              <span className="text-right">Geçen Ay</span>
+              <span className="text-right">Bu Ay</span>
+              <span className="text-right">Değişim</span>
+            </div>
+            {comparison.map((c) => {
+              // invert: no-show gibi metriklerde "düşüş" iyidir
+              const good = c.dir === "flat" ? "flat" : c.invert ? (c.dir === "down" ? "up" : "down") : c.dir;
+              const cls = good === "up" ? "text-emerald-600" : good === "down" ? "text-red-600" : "text-muted-foreground";
+              return (
+                <div key={c.label} className="data-row grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_120px_120px_110px] items-center gap-3 px-3 py-2.5 rounded-lg text-sm">
+                  <span className="font-medium">{c.label}</span>
+                  <span className="hidden sm:block text-right text-muted-foreground tabular-nums">{c.fmt(c.previous)}</span>
+                  <span className="hidden sm:block text-right font-semibold tabular-nums">{c.fmt(c.current)}</span>
+                  <span className={`text-right font-semibold tabular-nums ${cls}`}>
+                    {c.dir === "up" ? "▲" : c.dir === "down" ? "▼" : "▬"} {c.text}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
 

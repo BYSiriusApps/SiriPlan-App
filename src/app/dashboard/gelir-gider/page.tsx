@@ -16,8 +16,11 @@ import {
   TrendingUp, TrendingDown, Wallet, Plus, Trash2, Loader2,
   DollarSign, ArrowUpCircle, ArrowDownCircle, RefreshCw, Pencil,
   ToggleLeft, ToggleRight, RepeatIcon, ChevronDown, ChevronUp, Percent,
+  Activity, CalendarClock,
 } from "lucide-react";
 import { formatMoney, CURRENCY_SYMBOL } from "@/lib/currency";
+import { TrendChart } from "@/components/dashboard/TrendChart";
+import { compareValue, buildMonthlySeries } from "@/lib/report-trends";
 
 type Expense = {
   id: string;
@@ -29,6 +32,8 @@ type Expense = {
   date: string;
   payment_method: string;
   created_at: string;
+  /** Tamamlanan randevudan türetilmiş salt-okunur satır (expenses tablosunda yok). */
+  auto?: boolean;
 };
 
 type RecurringExpense = {
@@ -69,6 +74,8 @@ export default function GelirGiderPage() {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [entries, setEntries] = useState<Expense[]>([]);
+  const [apptRevenue, setApptRevenue] = useState<Expense[]>([]);
+  const [trendRows, setTrendRows] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -117,15 +124,36 @@ export default function GelirGiderPage() {
     }
   }, [role, router]);
 
+  // 012 trigger canlıysa oluşan "Otomatik — Randevu #…" gelir satırlarını dışla;
+  // randevu cirosu her zaman /api/appointments/revenue'dan (appointments tablosu) gelir.
+  const isAutoApptRow = (e: Expense) =>
+    e.type === "gelir" && e.category === "randevu" && (e.note ?? "").startsWith("Otomatik — Randevu");
+
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const url = viewMode === "yillik"
-      ? `/api/expenses?year=${year}`
-      : `/api/expenses?year=${year}&month=${month}`;
-    const res = await fetch(url);
-    if (res.ok) setEntries(await res.json());
+    const qs = viewMode === "yillik" ? `year=${year}` : `year=${year}&month=${month}`;
+    const [expRes, revRes] = await Promise.all([
+      fetch(`/api/expenses?${qs}`),
+      fetch(`/api/appointments/revenue?${qs}`),
+    ]);
+    if (expRes.ok) {
+      const rows = (await expRes.json()) as Expense[];
+      setEntries(rows.filter((e) => !isAutoApptRow(e)));
+    }
+    if (revRes.ok) setApptRevenue(((await revRes.json()) as Expense[]).map((e) => ({ ...e, auto: true, created_at: e.date })));
     setLoading(false);
   }, [year, month, viewMode]);
+
+  // Trend kartı: seçili görünümden bağımsız, seçili yılın tamamı (12 ay).
+  const fetchTrend = useCallback(async () => {
+    const [expRes, revRes] = await Promise.all([
+      fetch(`/api/expenses?year=${year}`),
+      fetch(`/api/appointments/revenue?year=${year}`),
+    ]);
+    const exp = expRes.ok ? ((await expRes.json()) as Expense[]).filter((e) => !isAutoApptRow(e)) : [];
+    const rev = revRes.ok ? ((await revRes.json()) as Expense[]).map((e) => ({ ...e, auto: true, created_at: e.date })) : [];
+    setTrendRows([...exp, ...rev]);
+  }, [year]);
 
   const fetchRecurring = useCallback(async () => {
     setRecurringLoading(true);
@@ -135,15 +163,50 @@ export default function GelirGiderPage() {
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchTrend(); }, [fetchTrend]);
   useEffect(() => { fetchRecurring(); }, [fetchRecurring]);
 
-  const totalGelir = entries.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
-  const totalGider = entries.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
+  // Elle girilen kayıtlar + tamamlanan randevu cirosu (salt-okunur) birleşik.
+  const allEntries = useMemo(
+    () => [...entries, ...apptRevenue].sort((a, b) => (a.date < b.date ? 1 : -1)),
+    [entries, apptRevenue],
+  );
+
+  const totalGelir = allEntries.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
+  const totalGider = allEntries.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
   const netKar = totalGelir - totalGider;
+  const apptRevenueTotal = apptRevenue.reduce((s, e) => s + Number(e.amount), 0);
   // Girilen gelir tutarlarının KDV dahil olduğu varsayılır — brüt tutardan KDV payı ayrıştırılır.
   const kdvTutari = kdvEnabled ? totalGelir * (kdvRate / (100 + kdvRate)) : 0;
 
-  const visible = entries.filter((e) => filterType === "all" || e.type === filterType);
+  const visible = allEntries.filter((e) => filterType === "all" || e.type === filterType);
+
+  // ── Değişim analizi: seçili yılın 12 ayı için net seyir + dönem karşılaştırması ──
+  const trendSeries = useMemo(() => {
+    const gelir = Array(12).fill(0) as number[];
+    const gider = Array(12).fill(0) as number[];
+    for (const e of trendRows) {
+      const m = new Date(e.date).getMonth();
+      if (e.type === "gelir") gelir[m] += Number(e.amount);
+      else gider[m] += Number(e.amount);
+    }
+    const nowM = new Date().getFullYear() === year ? new Date().getMonth() : 11;
+    const pts = buildMonthlySeries(months.map((m) => m.slice(0, 3)), gelir, gider).slice(0, nowM + 1);
+    return { pts, gelir, gider, nowM };
+  }, [trendRows, months, year]);
+
+  const periodCompare = useMemo(() => {
+    const { gelir, gider, nowM } = trendSeries;
+    if (viewMode === "yillik" || nowM < 1) return null;
+    const idx = Math.min(month - 1, nowM);
+    const prevIdx = idx - 1;
+    if (prevIdx < 0) return null;
+    return [
+      { label: "Gelir", ...compareValue(gelir[idx], gelir[prevIdx]), invert: false },
+      { label: "Gider", ...compareValue(gider[idx], gider[prevIdx]), invert: true },
+      { label: "Net Kâr", ...compareValue(gelir[idx] - gider[idx], gelir[prevIdx] - gider[prevIdx]), invert: false },
+    ];
+  }, [trendSeries, month, viewMode]);
 
   // Yıllık kümülatif özet — seçili yılın 12 ayı için aylık ve birikimli toplamlar
   const monthlyBreakdown = useMemo(() => {
@@ -152,14 +215,14 @@ export default function GelirGiderPage() {
     let cumGider = 0;
     return Array.from({ length: 12 }, (_, i) => {
       const m = i + 1;
-      const monthEntries = entries.filter((e) => new Date(e.date).getMonth() + 1 === m);
+      const monthEntries = allEntries.filter((e) => new Date(e.date).getMonth() + 1 === m);
       const gelir = monthEntries.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
       const gider = monthEntries.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
       cumGelir += gelir;
       cumGider += gider;
       return { month: m, gelir, gider, net: gelir - gider, cumGelir, cumGider, cumNet: cumGelir - cumGider };
     });
-  }, [entries, viewMode]);
+  }, [allEntries, viewMode]);
 
   async function handleSave() {
     if (!form.amount || !form.description || !form.date) {
@@ -609,6 +672,63 @@ export default function GelirGiderPage() {
         )}
       </div>
 
+      {/* Randevu cirosu bilgi notu */}
+      {apptRevenueTotal > 0 && (
+        <p className="text-xs text-muted-foreground flex items-center gap-1.5 -mt-1">
+          <CalendarClock className="h-3.5 w-3.5 text-primary shrink-0" />
+          {isTr
+            ? `Bu dönemin toplam gelirine, tamamlanan randevulardan otomatik ${fmt(apptRevenueTotal)} dahildir. Bekleyen randevular "Tamamlandı" işaretlenince buraya yansır.`
+            : isEn
+            ? `${fmt(apptRevenueTotal)} from completed appointments is included automatically. Pending appointments appear here once marked "Completed".`
+            : isRu
+            ? `${fmt(apptRevenueTotal)} из завершённых записей включено автоматически. Ожидающие записи появятся после отметки «Завершено».`
+            : `${fmt(apptRevenueTotal)} من المواعيد المكتملة مُدرج تلقائياً.`}
+        </p>
+      )}
+
+      {/* ── Değişim Analizi ── */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Activity className="h-4 w-4 text-primary" />
+            {isTr ? "Değişim Analizi" : isEn ? "Change Analysis" : isRu ? "Анализ изменений" : "تحليل التغيير"}
+            <span className="text-sm font-normal text-muted-foreground">— {year}</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <TrendChart
+            series={trendSeries.pts.map((p) => ({ label: p.label, value: p.net }))}
+            variant="bar"
+            format={(v) => fmt(v)}
+            height={140}
+          />
+          {periodCompare && (
+            <div className="space-y-1">
+              <div className="hidden sm:grid grid-cols-[1fr_130px_130px_110px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+                <span>{isTr ? "Metrik" : isEn ? "Metric" : isRu ? "Метрика" : "المقياس"}</span>
+                <span className="text-right">{months[Math.max(0, Math.min(month - 2, 11))]}</span>
+                <span className="text-right">{months[month - 1]}</span>
+                <span className="text-right">{isTr ? "Değişim" : isEn ? "Change" : isRu ? "Изменение" : "التغيير"}</span>
+              </div>
+              {periodCompare.map((c) => {
+                const good = c.dir === "flat" ? "flat" : c.invert ? (c.dir === "down" ? "up" : "down") : c.dir;
+                const cls = good === "up" ? "text-emerald-600" : good === "down" ? "text-red-600" : "text-muted-foreground";
+                return (
+                  <div key={c.label} className="data-row grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_130px_130px_110px] items-center gap-3 px-3 py-2.5 rounded-lg text-sm">
+                    <span className="font-medium">{c.label}</span>
+                    <span className="hidden sm:block text-right text-muted-foreground tabular-nums">{fmt(c.previous)}</span>
+                    <span className="hidden sm:block text-right font-semibold tabular-nums">{fmt(c.current)}</span>
+                    <span className={`text-right font-semibold tabular-nums ${cls}`}>
+                      {c.dir === "up" ? "▲" : c.dir === "down" ? "▼" : "▬"} {c.text}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Yıllık kümülatif tablo */}
       {viewMode === "yillik" && (
         <Card className="border-0 shadow-sm">
@@ -723,14 +843,22 @@ export default function GelirGiderPage() {
               {visible.map((e) => (
                 <div
                   key={e.id}
-                  className="data-row grid grid-cols-[1fr_auto] md:grid-cols-[100px_1fr_140px_120px_100px_40px] items-center gap-3 px-3 py-3 rounded-lg transition-colors group"
+                  className={`data-row grid grid-cols-[1fr_auto] md:grid-cols-[100px_1fr_140px_120px_100px_40px] items-center gap-3 px-3 py-3 rounded-lg transition-colors group ${e.auto ? "bg-muted/40" : ""}`}
                 >
                   <div className="md:contents">
                     <span className="hidden md:block text-xs text-muted-foreground">
                       {new Date(e.date).toLocaleDateString("tr-TR")}
                     </span>
                     <div>
-                      <p className="text-sm font-medium leading-tight">{e.description}</p>
+                      <p className="text-sm font-medium leading-tight">
+                        {e.description}
+                        {e.auto && (
+                          <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium align-middle">
+                            <CalendarClock className="h-2.5 w-2.5" />
+                            {isTr ? "Randevudan otomatik" : isEn ? "Auto from appointment" : isRu ? "Авто из записи" : "تلقائي من الموعد"}
+                          </span>
+                        )}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-0.5 md:hidden">
                         {new Date(e.date).toLocaleDateString("tr-TR")} · {categoryLabel(e.type, e.category)}
                       </p>
@@ -753,21 +881,25 @@ export default function GelirGiderPage() {
                     <span className={`text-sm font-semibold md:hidden ${e.type === "gelir" ? "text-emerald-600" : "text-red-600"}`}>
                       {e.type === "gelir" ? "+" : "-"}{fmt(Number(e.amount))}
                     </span>
-                    {/* Mobilde her zaman görünür; masaüstünde hover'da belirir */}
-                    <button
-                      title="Düzenle"
-                      onClick={() => openEditEntry(e)}
-                      className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      title="Sil"
-                      onClick={() => handleDelete(e.id)}
-                      className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    {/* Otomatik randevu satırları düzenlenemez/silinemez — kaynağı randevu kaydı */}
+                    {!e.auto && (
+                      <>
+                        <button
+                          title="Düzenle"
+                          onClick={() => openEditEntry(e)}
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          title="Sil"
+                          onClick={() => handleDelete(e.id)}
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
@@ -778,13 +910,13 @@ export default function GelirGiderPage() {
       )}
 
       {/* Category breakdown */}
-      {entries.length > 0 && (
+      {allEntries.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             { label: "Gelir Dağılımı", type: "gelir", cats: categoriesGelir, color: "bg-emerald-500" },
             { label: "Gider Dağılımı", type: "gider", cats: categoriesGider, color: "bg-red-500" },
           ].map(({ label, type, cats, color }) => {
-            const typeEntries = entries.filter((e) => e.type === type);
+            const typeEntries = allEntries.filter((e) => e.type === type);
             const total = typeEntries.reduce((s, e) => s + Number(e.amount), 0);
             if (total === 0) return null;
             const byCategory = cats.map((c) => ({
