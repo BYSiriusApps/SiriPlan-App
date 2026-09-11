@@ -89,7 +89,8 @@
         "1 location, 8 staff",
         "Unlimited appointments",
         "Personal booking link (siriplan.com/r/your-salon)",
-        "Stock & inventory management",
+        "Stock & inventory management (barcode sales)",
+        "Package / session tracking",
         "Income & expense reports & VAT calculation",
         "WhatsApp reminders",
         "Loyalty card system",
@@ -208,6 +209,10 @@
             "title": "Inventory Management",
             "desc": "Track product stock, low-stock alerts, and transactions. Ready-made templates for hair, barber, beauty, and dental clinics."
           },
+          "barcodeSale": {
+            "title": "Barcode Retail Sale",
+            "desc": "Scan a product's barcode with the camera, complete the sale in seconds, and stock updates automatically."
+          },
           "qr": {
             "title": "QR Code Booking",
             "desc": "Stick it on your salon door or print it on business cards. Customers scan and their appointment is ready."
@@ -249,6 +254,10 @@
           "loyalty": {
             "title": "Loyalty Card",
             "desc": "Customizable reward system like 10 appointments = 1 free service. Increases customer retention."
+          },
+          "packages": {
+            "title": "Package / Session Tracking",
+            "desc": "Track prepaid session packages per customer — the remaining session count decreases automatically as each appointment is completed."
           },
           "campaigns": {
             "title": "Campaign Module",

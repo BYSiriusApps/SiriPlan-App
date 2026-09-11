@@ -89,7 +89,8 @@
         "1 şube, 8 personel",
         "Sınırsız randevu",
         "Kişisel randevu linki (siriplan.com/r/salon-adin)",
-        "Stok yönetimi (mal/ürün takibi)",
+        "Stok yönetimi (mal/ürün takibi, barkodla satış)",
+        "Paket / seans takibi",
         "Gelir - gider raporları & KDV hesaplama",
         "WhatsApp hatırlatmaları",
         "Sadakat kartı sistemi",
@@ -208,6 +209,10 @@
             "title": "Stok Yönetimi",
             "desc": "Mal/ürün stoğunuzu, kritik stok uyarılarını ve stok hareketlerini takip edin. Kuaför, berber, güzellik ve diş klinikleri için hazır şablonlar."
           },
+          "barcodeSale": {
+            "title": "Barkodla Perakende Satış",
+            "desc": "Ürünü kamerayla barkodundan okutun, satış saniyeler içinde tamamlansın, stok otomatik düşsün."
+          },
           "qr": {
             "title": "QR Kod Randevu",
             "desc": "Salonunuzun kapısına yapıştırın, kartvizite basın. Müşteri kamerası açsın, randevusu hazır olsun."
@@ -249,6 +254,10 @@
           "loyalty": {
             "title": "Sadakat Kartı",
             "desc": "10 randevu = 1 bedava hizmet gibi özelleştirilebilir ödül sistemi. Müşteri bağlılığını artırır."
+          },
+          "packages": {
+            "title": "Paket / Seans Takibi",
+            "desc": "Peşin satılan seans paketlerini müşteri bazında takip edin; her randevu tamamlandığında kalan seans otomatik düşer."
           },
           "campaigns": {
             "title": "Kampanya Modülü",

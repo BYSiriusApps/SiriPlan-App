@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Calendar, Bot, Users, Trophy, MessageSquare, BarChart3, FileDown, Upload, Bell, Zap, Star, Shield, Globe, Smartphone, QrCode, CreditCard } from "lucide-react";
+import { ArrowRight, Calendar, Bot, Users, Trophy, MessageSquare, BarChart3, FileDown, Upload, Bell, Zap, Star, Shield, Globe, Smartphone, QrCode, CreditCard, ScanBarcode, PackageCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getTranslations } from "next-intl/server";
@@ -16,6 +16,7 @@ const GROUP_META = [
       { key: "website", icon: Globe, badge: "pro" },
       { key: "waitlist", icon: Smartphone, badge: "pro" },
       { key: "inventory", icon: Upload, badge: "all" },
+      { key: "barcodeSale", icon: ScanBarcode, badge: "all" },
       { key: "qr", icon: QrCode, badge: "all" },
       { key: "reminders", icon: Bell, badge: "all" },
     ],
@@ -40,6 +41,7 @@ const GROUP_META = [
     items: [
       { key: "score", icon: Users, badge: "pro" },
       { key: "loyalty", icon: Star, badge: "all" },
+      { key: "packages", icon: PackageCheck, badge: "all" },
       { key: "campaigns", icon: MessageSquare, badge: "pro" },
     ],
   },
