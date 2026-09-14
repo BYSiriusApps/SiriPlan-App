@@ -6,6 +6,7 @@ import { logAudit } from "@/lib/audit";
 import * as XLSX from "xlsx";
 import { startOfDay, endOfDay, format as formatDate } from "date-fns";
 import { tr } from "date-fns/locale";
+import { safeCell } from "@/lib/spreadsheet-safety";
 
 // PDF/Gün Sonu raporları müşteri adı/telefon gibi herkese açık randevu
 // formundan gelen alanları ham HTML'e gömüyor — bu alanlar escape edilmezse
@@ -96,16 +97,30 @@ function renderReportShell(opts: {
 </html>`;
 }
 
-// Basit inline-SVG sparkline (PDF içi — bağımlılıksız).
-function sparklineSvg(values: number[]): string {
-  if (values.length < 2) return "";
-  const W = 520, H = 60, pad = 4;
+// İnline-SVG sparkline (PDF içi — bağımlılıksız). Her noktanın tarihi altta,
+// tutarı üstte sabit yazı olarak basılır — PDF'te hover olmadığı için
+// değerler <title> tooltip'ine bırakılamaz, doğrudan görünür olmalı.
+function sparklineSvg(points: { date: string; value: number }[], fmtValue: (v: number) => string): string {
+  if (points.length < 2) return "";
+  const W = 520, chartH = 56, topPad = 18, bottomPad = 20, padX = 14;
+  const H = topPad + chartH + bottomPad;
+  const values = points.map((p) => p.value);
   const max = Math.max(...values, 1);
-  const pts = values
-    .map((v, i) => `${pad + (i / (values.length - 1)) * (W - pad * 2)},${H - pad - (v / max) * (H - pad * 2)}`)
-    .join(" ");
-  return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none">
+  const min = Math.min(...values, 0);
+  const span = max - min || 1;
+  const x = (i: number) => padX + (i / (points.length - 1)) * (W - padX * 2);
+  const y = (v: number) => topPad + (1 - (v - min) / span) * chartH;
+  const pts = points.map((p, i) => `${x(i)},${y(p.value)}`).join(" ");
+  const dots = points.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.value)}" r="3" fill="#e11d48"/>`).join("");
+  const valueLabels = points
+    .map((p, i) => `<text x="${x(i)}" y="${Math.max(10, y(p.value) - 8)}" font-size="9" text-anchor="middle" fill="#a10e38" font-weight="600">${escapeHtml(fmtValue(p.value))}</text>`)
+    .join("");
+  const dateLabels = points
+    .map((p, i) => `<text x="${x(i)}" y="${H - 4}" font-size="9" text-anchor="middle" fill="#6d5c67">${escapeHtml(p.date)}</text>`)
+    .join("");
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
     <polyline points="${pts}" fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}${valueLabels}${dateLabels}
   </svg>`;
 }
 
@@ -197,7 +212,7 @@ export async function GET(req: NextRequest) {
   if (format === "csv") {
     const headers = ["Ad Soyad", "Telefon", "E-posta", "Doğum Tarihi", "Toplam Harcama", "Ziyaret Sayısı", "Son Ziyaret", "Skor", "Kayıt Tarihi"];
     const rows = (customers || []).map((c) => [
-      c.full_name, c.phone, c.email || "", c.birth_date || "",
+      safeCell(c.full_name), c.phone, safeCell(c.email || ""), c.birth_date || "",
       c.total_spend, c.visit_count, c.last_visit_at || "", c.score, c.created_at,
     ]);
     const csv = [headers, ...rows]
@@ -217,7 +232,7 @@ export async function GET(req: NextRequest) {
     // Customers sheet
     const custHeaders = ["Ad Soyad", "Telefon", "E-posta", "Doğum Tarihi", "Cinsiyet", "Toplam Harcama (₺)", "Ziyaret Sayısı", "Son Ziyaret", "Skor", "Sadakat Puanı", "Kayıt Tarihi"];
     const custRows = (customers || []).map((c) => [
-      c.full_name, c.phone, c.email || "", c.birth_date || "", c.gender || "",
+      safeCell(c.full_name), c.phone, safeCell(c.email || ""), c.birth_date || "", safeCell(c.gender || ""),
       Number(c.total_spend), c.visit_count,
       c.last_visit_at ? new Date(c.last_visit_at).toLocaleDateString("tr-TR") : "",
       c.score, c.loyalty_punches,
@@ -230,7 +245,7 @@ export async function GET(req: NextRequest) {
     // Services sheet
     const svcHeaders = ["Hizmet Adı", "Kategori", "Süre (dk)", "Fiyat (₺)", "Durum"];
     const svcRows = (services || []).map((s) => [
-      s.name, s.category_tag, s.duration_minutes, Number(s.price),
+      safeCell(s.name), safeCell(s.category_tag), s.duration_minutes, Number(s.price),
       s.is_active ? "Aktif" : "Pasif",
     ]);
     const wsSvc = XLSX.utils.aoa_to_sheet([svcHeaders, ...svcRows]);
@@ -240,7 +255,7 @@ export async function GET(req: NextRequest) {
     // Staff sheet
     const staffHeaders = ["Ad Soyad", "Unvan", "Telefon", "E-posta", "Komisyon (%)", "Durum"];
     const staffRows = (staff || []).map((s) => [
-      s.full_name, s.role, s.phone || "", s.email || "",
+      safeCell(s.full_name), safeCell(s.role), s.phone || "", safeCell(s.email || ""),
       Math.round((Number(s.commission_rate) || 0) * 100),
       s.is_active ? "Aktif" : "Pasif",
     ]);
@@ -252,9 +267,9 @@ export async function GET(req: NextRequest) {
     const apptHeaders = ["Tarih", "Müşteri", "Telefon", "Personel", "Hizmet", "Tutar (₺)", "Durum", "Kaynak"];
     const apptRows = (appointments || []).map((a) => [
       new Date(a.appointment_at).toLocaleString("tr-TR"),
-      a.customer_name, a.customer_phone,
-      (a.staff as { full_name?: string })?.full_name || "",
-      (a.service as { name?: string })?.name || "",
+      safeCell(a.customer_name), a.customer_phone,
+      safeCell((a.staff as { full_name?: string })?.full_name || ""),
+      safeCell((a.service as { name?: string })?.name || ""),
       Number(a.price),
       a.status, a.source,
     ]);
@@ -403,7 +418,7 @@ async function buildGunSonuPdf(
   const orgRow = org as { name?: string; logo_url?: string | null } | null;
   const orgName = orgRow?.name || "Salon";
 
-  // Son 7 gün — gün bazlı ciro toplamı (sparkline verisi)
+  // Son 7 gün — gün bazlı ciro toplamı (sparkline verisi: tarih etiketi + tutar)
   const weekByDay: Record<string, number> = {};
   for (let i = 0; i < 7; i++) {
     const d = new Date(reportDay.getTime() - (6 - i) * 86400000);
@@ -413,6 +428,10 @@ async function buildGunSonuPdf(
     const key = a.appointment_at.slice(0, 10);
     if (key in weekByDay) weekByDay[key] += Number(a.price) + Number(a.tip ?? 0);
   });
+  const weekPoints = Object.keys(weekByDay).map((key) => ({
+    date: formatDate(new Date(key + "T12:00:00"), "d MMM", { locale: tr }),
+    value: weekByDay[key],
+  }));
 
   const apptRows = dAppts.map((a) => `
     <tr>
@@ -454,7 +473,7 @@ ${pendingWarning}
 </div>
 
 <h2>Son 7 Gün — Ciro Seyri</h2>
-${sparklineSvg(Object.values(weekByDay))}
+${sparklineSvg(weekPoints, (v) => `${v.toLocaleString("tr-TR")} ₺`)}
 
 <h2>Gün İçi Randevu Dökümü</h2>
 ${dAppts.length === 0

@@ -196,6 +196,16 @@ export default function GelirGiderPage() {
     return { pts, gelir, gider, nowM };
   }, [trendRows, months, year]);
 
+  // En yüksek / en düşük net kârlı ay (yıl içinde, veri girilmiş aylar arasında).
+  const monthExtremes = useMemo(() => {
+    const withData = trendSeries.pts.filter((p) => p.gelir > 0 || p.gider > 0);
+    if (withData.length < 1) return null;
+    const sorted = [...withData].sort((a, b) => b.net - a.net);
+    const best = sorted[0];
+    const worst = sorted.length > 1 ? sorted[sorted.length - 1] : null;
+    return { best, worst };
+  }, [trendSeries]);
+
   const periodCompare = useMemo(() => {
     const { gelir, gider, nowM } = trendSeries;
     if (viewMode === "yillik" || nowM < 1) return null;
@@ -725,6 +735,26 @@ export default function GelirGiderPage() {
                   </div>
                 );
               })}
+            </div>
+          )}
+          {monthExtremes && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              <div className="rounded-lg border border-border p-2.5 flex items-center justify-between gap-2 text-sm">
+                <span className="flex items-center gap-1.5 min-w-0 text-muted-foreground">
+                  <span>🏆</span>
+                  <span className="truncate">{isTr ? "En Yüksek Net Kârlı Ay" : isEn ? "Best Net Profit Month" : isRu ? "Лучший месяц по прибыли" : "أفضل شهر ربحاً"} — {monthExtremes.best.label}</span>
+                </span>
+                <span className="font-semibold tabular-nums text-emerald-600 shrink-0">{fmt(monthExtremes.best.net)}</span>
+              </div>
+              {monthExtremes.worst && (
+                <div className="rounded-lg border border-border p-2.5 flex items-center justify-between gap-2 text-sm">
+                  <span className="flex items-center gap-1.5 min-w-0 text-muted-foreground">
+                    <span>📉</span>
+                    <span className="truncate">{isTr ? "En Düşük Net Kârlı Ay" : isEn ? "Lowest Net Profit Month" : isRu ? "Худший месяц по прибыли" : "أقل شهر ربحاً"} — {monthExtremes.worst.label}</span>
+                  </span>
+                  <span className={`font-semibold tabular-nums shrink-0 ${monthExtremes.worst.net >= 0 ? "text-emerald-600" : "text-red-600"}`}>{fmt(monthExtremes.worst.net)}</span>
+                </div>
+              )}
             </div>
           )}
         </CardContent>

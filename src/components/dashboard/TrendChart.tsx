@@ -7,6 +7,10 @@ import { seriesDelta } from "@/lib/report-trends";
  *
  * dashboard/page.tsx içindeki `Sparkline`'ın genelleştirilmiş hâli:
  * negatif değer (net kâr/zarar), bar/line varyantı, dönemsel % rozeti ekler.
+ *
+ * Her noktanın tarihi grafiğin altında (x ekseni), tutarı ise grafiğin
+ * hemen altındaki dökümde her zaman görünür yazılır — sadece hover
+ * tooltip'ine (<title>) bırakılmaz, çünkü dokunmatik/PDF'te hover yoktur.
  */
 
 export type TrendPoint = { label: string; value: number };
@@ -36,18 +40,21 @@ export function TrendChart({
     );
   }
 
-  const W = 320;
-  const H = height;
-  const padX = 6;
-  const padY = 10;
+  const W = Math.max(320, series.length * 42);
+  const chartH = height;
+  const topPad = 8;
+  const bottomPad = 26; // x ekseni (tarih) etiketleri için
+  const H = topPad + chartH + bottomPad;
+  const padX = 12;
   const values = series.map((p) => p.value);
   const max = Math.max(...values, 0);
   const min = Math.min(...values, 0);
   const span = max - min || 1;
 
   const x = (i: number) => padX + (i / (series.length - 1)) * (W - padX * 2);
-  const y = (v: number) => padY + (1 - (v - min) / span) * (H - padY * 2);
+  const y = (v: number) => topPad + (1 - (v - min) / span) * chartH;
   const zeroY = y(0);
+  const axisY = topPad + chartH;
 
   const uid = `tc-${variant}-${series.length}-${Math.round(max)}`;
   const delta = seriesDelta(values);
@@ -55,6 +62,8 @@ export function TrendChart({
     delta.dir === "up" ? "text-emerald-600" : delta.dir === "down" ? "text-red-600" : "text-muted-foreground";
 
   const linePts = series.map((p, i) => `${x(i)},${y(p.value)}`).join(" ");
+  // Çok noktalı serilerde tarih etiketleri üst üste binmesin diye her 2. etiket gösterilir.
+  const labelStep = series.length > 8 ? 2 : 1;
 
   return (
     <div className={className}>
@@ -71,7 +80,7 @@ export function TrendChart({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="w-full overflow-visible text-primary"
-        style={{ height }}
+        style={{ height: H }}
         preserveAspectRatio="none"
         role="img"
         aria-label="Dönemsel değişim grafiği"
@@ -83,7 +92,9 @@ export function TrendChart({
           </linearGradient>
         </defs>
 
-        {/* sıfır çizgisi (negatif değer varsa görünür) */}
+        {/* taban çizgisi (x ekseni) */}
+        <line x1={padX} x2={W - padX} y1={axisY} y2={axisY} stroke="currentColor" strokeOpacity="0.15" />
+        {/* sıfır çizgisi (negatif değer varsa görünür, tabandan ayrıysa) */}
         {min < 0 && (
           <line
             x1={padX}
@@ -145,11 +156,33 @@ export function TrendChart({
             ))}
           </>
         )}
+
+        {/* x ekseni — her noktanın tarih/ay etiketi, grafiğin altında sabit yazı */}
+        {series.map((p, i) =>
+          i % labelStep === 0 || i === series.length - 1 ? (
+            <text
+              key={i}
+              x={x(i)}
+              y={H - 6}
+              fontSize="8"
+              textAnchor="middle"
+              fill="currentColor"
+              fillOpacity="0.6"
+            >
+              {p.label}
+            </text>
+          ) : null
+        )}
       </svg>
 
-      <div className="flex justify-between mt-1 text-[10px] text-muted-foreground tabular-nums">
-        <span>{format(series[0].value)}</span>
-        <span>{format(series[series.length - 1].value)}</span>
+      {/* Değer dökümü — her noktanın tarihi + tutarı her zaman okunur (hover'a bağlı değil) */}
+      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+        {series.map((p, i) => (
+          <span key={i} className="text-[10px] tabular-nums whitespace-nowrap">
+            <span className="text-muted-foreground">{p.label}</span>{" "}
+            <span className="font-semibold">{format(p.value)}</span>
+          </span>
+        ))}
       </div>
     </div>
   );

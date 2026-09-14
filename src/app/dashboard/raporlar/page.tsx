@@ -139,7 +139,7 @@ export default async function RaporlarPage({
   const [{ data: topServices }, { data: topStaff }, { data: noShowData }] = await Promise.all([
     supabase
       .from("appointments")
-      .select("service_id, services(name), price, status")
+      .select("service_id, services(name), price, status, appointment_at")
       .eq("org_id", orgId)
       .eq("status", "tamamlandi")
       .gte("appointment_at", startOfMonth(now).toISOString()),
@@ -167,7 +167,8 @@ export default async function RaporlarPage({
     serviceMap[sid].revenue += Number(a.price);
     serviceMap[sid].count++;
   });
-  const topServicesArr = Object.values(serviceMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+  const allServicesArr = Object.values(serviceMap).sort((a, b) => b.revenue - a.revenue);
+  const topServicesArr = allServicesArr.slice(0, 5);
 
   // Aggregate top staff
   const staffMap: Record<string, { name: string; revenue: number; count: number }> = {};
@@ -178,7 +179,17 @@ export default async function RaporlarPage({
     staffMap[sid].revenue += Number(a.price);
     staffMap[sid].count++;
   });
-  const topStaffArr = Object.values(staffMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+  const allStaffArr = Object.values(staffMap).sort((a, b) => b.revenue - a.revenue);
+  const topStaffArr = allStaffArr.slice(0, 5);
+
+  // Gün bazlı ciro (bu ay, tamamlanan randevular) — en yüksek/en düşük cirolu gün için
+  const dayMap: Record<string, number> = {};
+  (topServices || []).forEach((a) => {
+    const day = (a as unknown as { appointment_at?: string }).appointment_at?.slice(0, 10);
+    if (!day) return;
+    dayMap[day] = (dayMap[day] ?? 0) + Number(a.price);
+  });
+  const dayEntriesArr = Object.entries(dayMap).sort((a, b) => b[1] - a[1]);
 
   // No-show rate
   const total = (noShowData || []).length;
@@ -186,6 +197,19 @@ export default async function RaporlarPage({
   const noShowRate = total > 0 ? ((noshows / total) * 100).toFixed(1) : "0";
 
   const currentMonthRevenue = monthlyStats[0].revenue;
+
+  // ── İstatistikler: en yüksek/en düşük — ay / gün / hizmet / personel ──
+  const monthsSorted = [...monthlyStats].sort((a, b) => b.revenue - a.revenue);
+  const bestMonth = monthsSorted[0];
+  const worstMonth = monthsSorted[monthsSorted.length - 1];
+  const bestDay = dayEntriesArr[0];
+  const worstDay = dayEntriesArr.length > 1 ? dayEntriesArr[dayEntriesArr.length - 1] : null;
+  const bestService = allServicesArr[0];
+  const worstService = allServicesArr.length > 1 ? allServicesArr[allServicesArr.length - 1] : null;
+  const bestStaffStat = allStaffArr[0];
+  const worstStaffStat = allStaffArr.length > 1 ? allStaffArr[allStaffArr.length - 1] : null;
+  const formatDayLabel = (isoDay: string) =>
+    new Date(isoDay + "T12:00:00").toLocaleDateString(isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG", { day: "numeric", month: "short" });
 
   // ── Gün sonu: bekleyen randevular + gün içi manuel gelir/gider dökümü ──
   type DayExpense = { id: string; type: string; amount: number; category: string | null; description: string | null; note: string | null };
@@ -447,6 +471,67 @@ export default async function RaporlarPage({
                 </div>
               );
             })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── İstatistikler — en yüksek / en düşük (ay, gün, hizmet, personel) ── */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Star className="h-4 w-4 text-amber-500" />
+            İstatistikler
+            <span className="text-sm font-normal text-muted-foreground">— en yüksek / en düşük</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {[
+              {
+                title: "Ay (son 6 ay)",
+                best: bestMonth ? { label: bestMonth.month, value: formatMoney(bestMonth.revenue, currency, locale) } : null,
+                worst: worstMonth && worstMonth !== bestMonth ? { label: worstMonth.month, value: formatMoney(worstMonth.revenue, currency, locale) } : null,
+              },
+              {
+                title: "Gün (bu ay)",
+                best: bestDay ? { label: formatDayLabel(bestDay[0]), value: formatMoney(bestDay[1], currency, locale) } : null,
+                worst: worstDay ? { label: formatDayLabel(worstDay[0]), value: formatMoney(worstDay[1], currency, locale) } : null,
+              },
+              {
+                title: "Hizmet (bu ay)",
+                best: bestService ? { label: bestService.name, value: formatMoney(bestService.revenue, currency, locale) } : null,
+                worst: worstService ? { label: worstService.name, value: formatMoney(worstService.revenue, currency, locale) } : null,
+              },
+              {
+                title: "Personel (bu ay)",
+                best: bestStaffStat ? { label: bestStaffStat.name, value: formatMoney(bestStaffStat.revenue, currency, locale) } : null,
+                worst: worstStaffStat ? { label: worstStaffStat.name, value: formatMoney(worstStaffStat.revenue, currency, locale) } : null,
+              },
+            ].map((group) => (
+              <div key={group.title} className="rounded-lg border border-border p-3 space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{group.title}</p>
+                {group.best ? (
+                  <div className="flex items-center justify-between gap-2 text-sm">
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <span>🏆</span>
+                      <span className="truncate">{group.best.label}</span>
+                    </span>
+                    <span className="font-semibold tabular-nums text-emerald-600 shrink-0">{group.best.value}</span>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Veri yok</p>
+                )}
+                {group.worst && (
+                  <div className="flex items-center justify-between gap-2 text-sm">
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <span>📉</span>
+                      <span className="truncate">{group.worst.label}</span>
+                    </span>
+                    <span className="font-semibold tabular-nums text-red-600 shrink-0">{group.worst.value}</span>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
