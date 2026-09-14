@@ -128,6 +128,7 @@ SiriPlan panelinde tamamlanan randevular için profesyonel adisyon ve fiş dök�
    - Alınan Hizmet(ler), Hizmet Tutarı, Eklenen Bahşiş ve Toplam Tutar
    - Ödeme Yöntemi (*Nakit, Kredi Kartı, Havale/EFT, Diğer*)
 4. **Yazdır veya PDF Kaydet**: Sağ üstteki **"Yazdır"** butonu ile adisyonu doğrudan termal yazıcıya/standart yazıcıya gönderebilir veya bilgisayarınıza/telefonunuza PDF olarak indirebilirsiniz.
+5. **Diğer Erişim Yolları**: Detay sayfasına girmeden de adisyona ulaşabilirsiniz — bir randevuyu "Tamamlandı" işaretlediğinizde çıkan bildirimdeki kısayoldan, Randevular listesindeki tamamlanmış randevu kartının altındaki "Adisyon" düğmesinden veya müşteri detay sayfasındaki geçmiş randevu satırının yanındaki fiş ikonundan.
 
 ---
 
@@ -206,6 +207,7 @@ SiriPlan aboneliği ve faturalandırması SiriPlan hesabınıza bağlıdır ve u
   - **Personel → Maaş Hesapla** sayfasına gidin.
   - Ay ve personel seçin. Sistem otomatik olarak **Taban Maaş + (Yapılan Ciro × Komisyon %) + Bahşişler** formülüyle toplam ödemeyi çıkarır.
   - **"Gider Olarak Kaydet"** butonuna basarak tek tıkla işletme kasasından düşürün.
+- **KDV Hesaplama**: **Ayarlar → KDV Hesaplama**'dan oranınızı girip özelliği açık/kapalı tutabilirsiniz (yeni işletmelerde varsayılan olarak açıktır). Yasal oran değiştiğinde aynı ekrandan güncellersiniz — sabit kodlanmış bir oran kullanılmaz. Açıkken "Tahmini KDV" kartı hem Gelir-Gider hem de Raporlar sayfasında, o ayki gelirin KDV dahil olduğu varsayılarak hesaplanır.
 
 ---
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { format } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
@@ -10,7 +11,7 @@ const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Phone, User, CheckCircle2, XCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Calendar, Phone, User, CheckCircle2, XCircle, AlertCircle, Loader2, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import type { Appointment, AppointmentStatus } from "@/types/database";
 import { STATUS_LABEL_KEYS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
@@ -31,6 +32,7 @@ export function RandevuCard({ appt: initial, canQuickAct }: { appt: ApptWithRela
   const t = useTranslations("dashboard");
   const activeLocale = useLocale();
   const dateFnsLocale = DATE_FNS_LOCALES[activeLocale as keyof typeof DATE_FNS_LOCALES] ?? tr;
+  const router = useRouter();
   const [appt, setAppt] = useState(initial);
   const [updating, setUpdating] = useState(false);
 
@@ -59,10 +61,20 @@ export function RandevuCard({ appt: initial, canQuickAct }: { appt: ApptWithRela
       return;
     }
     setAppt((a) => ({ ...a, status: newStatus }));
-    toast.success("Durum güncellendi");
+    if (newStatus === "tamamlandi") {
+      toast.success(t("apptActions.toastCompleted"), {
+        action: {
+          label: t("adisyonLink"),
+          onClick: () => router.push(`/dashboard/randevular/${appt.id}/adisyon`),
+        },
+      });
+    } else {
+      toast.success("Durum güncellendi");
+    }
   }
 
   const actions = QUICK_ACTIONS.filter((a) => a.key !== appt.status);
+  const showReceiptShortcut = appt.status === "tamamlandi";
 
   return (
     <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
@@ -105,23 +117,34 @@ export function RandevuCard({ appt: initial, canQuickAct }: { appt: ApptWithRela
           </div>
         </Link>
 
-        {canQuickAct && actions.length > 0 && (
-          <div className="flex gap-1.5 flex-wrap mt-3 pt-3 border-t border-border">
-            {actions.map((a) => (
-              <button
-                key={a.key}
-                type="button"
-                disabled={updating}
-                onClick={() => updateStatus(a.key)}
-                className={cn(
-                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
-                  a.className
-                )}
+        {((canQuickAct && actions.length > 0) || showReceiptShortcut) && (
+          <div className="flex items-center gap-1.5 flex-wrap mt-3 pt-3 border-t border-border">
+            {canQuickAct &&
+              actions.map((a) => (
+                <button
+                  key={a.key}
+                  type="button"
+                  disabled={updating}
+                  onClick={() => updateStatus(a.key)}
+                  className={cn(
+                    "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
+                    a.className
+                  )}
+                >
+                  {updating ? <Loader2 className="h-3 w-3 animate-spin" /> : <a.icon className="h-3 w-3" />}
+                  {t(a.labelKey)}
+                </button>
+              ))}
+            {showReceiptShortcut && (
+              <Link
+                href={`/dashboard/randevular/${appt.id}/adisyon`}
+                onClick={(e) => e.stopPropagation()}
+                className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
-                {updating ? <Loader2 className="h-3 w-3 animate-spin" /> : <a.icon className="h-3 w-3" />}
-                {t(a.labelKey)}
-              </button>
-            ))}
+                <Receipt className="h-3 w-3" />
+                {t("adisyonLink")}
+              </Link>
+            )}
           </div>
         )}
       </CardContent>

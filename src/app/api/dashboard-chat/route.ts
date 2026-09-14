@@ -148,12 +148,19 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["adisyon", "hesap fişi", "fiş yazdır", "fiş bas", "yazdır"],
     answer:
-      "Randevu detay sayfasındaki 'Adisyon' butonuyla, randevuya ait detayları (hizmet, fiyat, bahşiş, toplam tutar ve ödeme yöntemi) gösteren yazdırılabilir fiş açılır. Sağ üstteki 'Yazdır' butonuyla doğrudan termal yazıcıya gönderebilir veya PDF kaydedebilirsiniz.",
+      "Randevu detay sayfasındaki 'Adisyon' butonuyla, randevuya ait detayları (hizmet, fiyat, bahşiş, toplam tutar ve ödeme yöntemi) gösteren yazdırılabilir fiş açılır. Sağ üstteki 'Yazdır' butonuyla doğrudan termal yazıcıya gönderebilir veya PDF kaydedebilirsiniz.\n" +
+      "Adisyona 3 yerden ulaşabilirsiniz: (1) Bir randevuyu 'Tamamlandı' işaretlediğinizde çıkan bildirimdeki 'Adisyon' kısayolundan, (2) Randevular listesindeki tamamlanmış randevu kartının altındaki 'Adisyon' düğmesinden, (3) Müşteri detay sayfasındaki geçmiş randevu satırının yanındaki fiş ikonundan.",
   },
   {
     keywords: ["maaş hesap", "maaş öde", "personel maaş", "komisyon hesap", "taban maaş", "prim hesap", "maaş"],
     answer:
       "Personel → 'Maaş Hesapla' sayfasından seçtiğiniz ay için personelin toplam hak edişini (Taban Maaş + [Yapılan Ciro × Komisyon %] + Bahşişler) görebilirsiniz. 'Gider Olarak Kaydet' butonuyla tek tıkla Gelir-Gider kasasından düşürebilirsiniz.",
+  },
+  {
+    keywords: ["kdv", "vergi oran", "vergi hesap", "katma değer"],
+    answer:
+      "Ayarlar → 'KDV Hesaplama' bölümünden oranınızı girip özelliği açabilirsiniz (yeni işletmelerde artık varsayılan olarak açık gelir). Yasal KDV oranı değiştiğinde aynı ekrandan güncelleyebilirsiniz — sabit bir oran kodda tutulmaz, her işletme kendi oranını kullanır. " +
+      "Açıkken 'Tahmini KDV' kartı hem Gelir-Gider hem de Raporlar sayfasında, o ayki toplam gelirin KDV dahil olduğu varsayılarak hesaplanır ve görüntülenir.",
   },
   {
     keywords: ["kılavuz", "rehber", "kullanım kılavuzu", "nasıl kullanılır", "nasıl yapılır", "video", "sunum"],

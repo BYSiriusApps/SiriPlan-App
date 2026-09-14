@@ -65,6 +65,7 @@ Randevu detay sayfasındaki (`/dashboard/randevular/[id]`) **"Adisyon"** butonun
 - Randevu tarihi, müşteri ve personel bilgileri,
 - Hizmet(ler), hizmet fiyatı, bahşiş tutarı, toplam ücret ve ödeme yöntemi (*Nakit, Kredi/Banka Kartı, Havale/EFT, Diğer*) görüntülenir.
 - **Yazdır / PDF**: Tek tıkla yazıcıya gönderilebilir veya PDF olarak indirilebilir.
+- **Erişim kısayolları**: Adisyona randevu detayı dışında da ulaşılabilir — bir randevuyu "Tamamlandı" işaretlediğinizde çıkan bildirimden, Randevular listesindeki tamamlanmış randevu kartının altındaki "Adisyon" düğmesinden veya müşteri detay sayfasındaki geçmiş randevu satırının yanındaki fiş ikonundan.
 
 ## 6. İşletme Web Sitesi & Vitrin Görünümü (`/r/[slug]`)
 
@@ -104,6 +105,7 @@ Günlük/dönemsel ciro, gider, randevu sayısı ve personel/hizmet bazlı perfo
 
 - Manuel gelir ve gider kayıtları tutulur.
 - **Maaş Hesapla**: Taban Maaş + (Ciro × Komisyon %) + Bahşiş formülü ile tek tıkla gider olarak kaydedilir.
+- **KDV Hesaplama**: Ayarlar → KDV Hesaplama'dan oranınızı girip özelliği açabilirsiniz (yeni işletmelerde varsayılan olarak açıktır). Yasal oran değiştiğinde aynı ekrandan güncellenir — sabit kodlanmış bir oran kullanılmaz. Açıkken "Tahmini KDV" kartı hem bu sayfada hem de Raporlar'da, o ayki gelirin KDV dahil olduğu varsayılarak hesaplanır.
 
 ## 14. Ayarlar
 

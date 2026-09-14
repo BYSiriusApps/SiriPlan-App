@@ -331,6 +331,7 @@ export default function RehberPage() {
                     <li>{isTr ? "Randevunun üzerine tıklayıp detay sayfasında bulunan \"Adisyon\" butonuna tıklayın." : isEn ? "Click on the appointment and press the \"Adisyon\" (Receipt) button." : isRu ? "Нажмите на запись и выберите кнопку «Чек»." : "انقر فوق الموعد واضغط على زر \"الفاتورة\" الموجود في صفحة التفاصيل."}</li>
                     <li>{isTr ? "Adisyon içeriğinde: İşletme Logosu, İşletme Adı, Adres, Telefon, Hizmet(ler), Bahşiş ve Toplam Tutar ile Ödeme Yöntemi görünür." : isEn ? "Receipt content displays: Business Logo, Name, Address, Phone, Services, Tip, Total Amount, and Payment Method." : isRu ? "В чеке выводятся: логотип, название компании, адрес, телефон, услуги, чаевые, общая сумма и способ оплаты." : "في محتوى الفاتورة يظهر: شعار العمل، اسم العمل، العنوان، الهاتف، الخدمة (الخدمات)، الإكرامية، والمبلغ الإجمالي مع طريقة الدفع."}</li>
                     <li>{isTr ? "Sağ üstteki \"Yazdır\" butonu ile adisyonu doğrudan termal yazıcıya gönderebilir veya PDF olarak kaydedebilirsiniz." : isEn ? "Use \"Print\" in top right to send to a thermal printer directly or save as PDF." : isRu ? "Нажмите «Печать» вверху справа для вывода на термопринтер или сохранения в PDF." : "باستخدام زر \"طباعة\" في أعلى اليمين، يمكنك إرسال الفاتورة مباشرة إلى الطابعة الحرارية أو حفظها كملف PDF."}</li>
+                    <li>{isTr ? "Detay sayfasına girmeden de 3 kısayoldan ulaşabilirsiniz: bir randevuyu \"Tamamlandı\" işaretlediğinizde çıkan bildirimden, Randevular listesindeki tamamlanmış randevu kartının altındaki \"Adisyon\" düğmesinden veya müşteri detay sayfasındaki geçmiş randevu satırının yanındaki fiş ikonundan." : isEn ? "You can also reach it from 3 shortcuts without opening the detail page: the notification shown when you mark an appointment \"Completed\", the \"Adisyon\" button under a completed appointment card in the Appointments list, or the receipt icon next to a past visit row on the customer detail page." : isRu ? "К чеку можно перейти и без открытия детальной страницы записи — тремя способами: из уведомления при отметке записи «Завершено», из кнопки «Чек» под карточкой завершенной записи в списке записей или по значку чека рядом со строкой прошлого визита на странице клиента." : "يمكنك أيضًا الوصول إليها من 3 اختصارات دون فتح صفحة التفاصيل: من الإشعار الذي يظهر عند تحديد الموعد كـ\"مكتمل\"، من زر \"الفاتورة\" أسفل بطاقة الموعد المكتمل في قائمة المواعيد، أو من أيقونة الفاتورة بجانب سطر الزيارة السابقة في صفحة تفاصيل العميل."}</li>
                   </ol>
                 </div>
               )}
@@ -501,6 +502,16 @@ export default function RehberPage() {
                         : isRu 
                         ? "Рассчитывайте выплаты в Персонал → Расчет зарплаты: Оклад + (Оборот x % Комиссии) + Чаевые. Запишите в расходы одним нажатием после выплаты."
                         : "احسب إجمالي المدفوعات لذلك الشهر بنقرة واحدة من صفحة الموظفين ← حساب الرواتب: الراتب الأساسي + (الأرباح المحققة × نسبة العمولة %) + الإكراميات. عند اكتمال الدفع، سجله كمصروف في الصندوق بنقرة واحدة."}
+                    </li>
+                    <li>
+                      <b>{isTr ? "KDV Hesaplama:" : isEn ? "VAT Calculation:" : isRu ? "Расчёт НДС:" : "حساب ضريبة القيمة المضافة:"}</b>{" "}
+                      {isTr
+                        ? "Ayarlar → KDV Hesaplama'dan oranınızı girip özelliği açabilirsiniz (yeni işletmelerde varsayılan olarak açıktır). Yasal oran değiştiğinde aynı ekrandan güncellersiniz — sabit kodlanmış bir oran kullanılmaz. Açıkken \"Tahmini KDV\" kartı hem bu sayfada hem de Raporlar'da, o ayki gelirin KDV dahil olduğu varsayılarak hesaplanır."
+                        : isEn
+                        ? "Enter your rate and turn it on from Settings → VAT Calculation (on by default for new businesses). Update it from the same screen whenever the legal rate changes — no rate is hard-coded. When on, the \"Estimated VAT\" card is calculated on both this page and Reports, assuming that month's income includes VAT."
+                        : isRu
+                        ? "Введите вашу ставку и включите функцию в Настройки → Расчёт НДС (по умолчанию включено для новых организаций). Обновляйте её на том же экране при изменении законодательной ставки — фиксированная ставка нигде не заложена в коде. Когда включено, карточка «Оценочный НДС» рассчитывается и на этой странице, и в Отчётах, считая, что доход за месяц включает НДС."
+                        : "أدخل نسبتك وفعّل الميزة من الإعدادات ← حساب ضريبة القيمة المضافة (مفعّلة افتراضيًا للمنشآت الجديدة). حدّثها من نفس الشاشة كلما تغيرت النسبة القانونية — لا توجد نسبة ثابتة مبرمجة. عند التفعيل، تُحسب بطاقة \"ضريبة القيمة المضافة التقديرية\" في هذه الصفحة وفي التقارير، بافتراض أن دخل ذلك الشهر يشمل الضريبة."}
                     </li>
                   </ul>
                 </div>

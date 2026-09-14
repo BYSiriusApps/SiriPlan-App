@@ -7,7 +7,7 @@ import { tr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle, Ban, Globe } from "lucide-react";
+import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle, Ban, Globe, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { maskPhone } from "@/lib/phone";
 import type { Customer, Appointment } from "@/types/database";
@@ -284,8 +284,8 @@ export default async function MusteriDetailPage({
             <p className="text-muted-foreground text-sm text-center py-6">{t("customerDetail.noAppointments")}</p>
           ) : (
             (appointments as (Appointment & { staff?: { full_name: string }; service?: { name: string } })[]).map((appt) => (
-              <Link key={appt.id} href={`/dashboard/randevular/${appt.id}`}>
-                <div className="data-row flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors">
+              <div key={appt.id} className="data-row flex items-center gap-1 px-3 py-2.5 rounded-lg transition-colors">
+                <Link href={`/dashboard/randevular/${appt.id}`} className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="text-center w-14 shrink-0">
                       <p className="text-xs text-muted-foreground">
                         {format(new Date(appt.appointment_at), "d MMM yyyy", { locale: tr })}
@@ -304,8 +304,18 @@ export default async function MusteriDetailPage({
                         {t(STATUS_LABEL_KEYS[appt.status] ?? "statusTalep")}
                       </Badge>
                     </div>
-                </div>
-              </Link>
+                </Link>
+                {appt.status === "tamamlandi" && (
+                  <Link
+                    href={`/dashboard/randevular/${appt.id}/adisyon`}
+                    className="shrink-0 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                    aria-label={t("adisyonLink")}
+                    title={t("adisyonLink")}
+                  >
+                    <Receipt className="h-4 w-4" />
+                  </Link>
+                )}
+              </div>
             ))
           )}
         </div>

@@ -197,6 +197,11 @@ export default async function RaporlarPage({
   const noShowRate = total > 0 ? ((noshows / total) * 100).toFixed(1) : "0";
 
   const currentMonthRevenue = monthlyStats[0].revenue;
+  // KDV oranı organizasyon bazında ayarlanabilir (Ayarlar → KDV Hesaplama) —
+  // yasal oran değiştiğinde her işletme kendi oranını orada günceller, burada sabit kodlanmaz.
+  const kdvEnabled = !!member.organizations?.kdv_enabled;
+  const kdvRate = Number(member.organizations?.kdv_rate ?? 20);
+  const kdvTutari = kdvEnabled ? currentMonthRevenue * (kdvRate / (100 + kdvRate)) : 0;
 
   // ── İstatistikler: en yüksek/en düşük — ay / gün / hizmet / personel ──
   const monthsSorted = [...monthlyStats].sort((a, b) => b.revenue - a.revenue);
@@ -640,12 +645,18 @@ export default async function RaporlarPage({
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={`grid grid-cols-2 ${kdvEnabled ? "lg:grid-cols-5" : "lg:grid-cols-4"} gap-4`}>
         {[
           { label: "Bu Ay Ciro", value: formatMoney(currentMonthRevenue, currency, locale) },
           { label: t("reportsPage.noShowRate"), value: `%${noShowRate}` },
           { label: "Tamamlanma Oranı", value: total > 0 ? `%${((monthlyStats[0].completed / total) * 100).toFixed(0)}` : "-" },
           { label: "Toplam İşlem", value: String(total) },
+          ...(kdvEnabled
+            ? [{
+                label: (isTr ? "Tahmini KDV" : isEn ? "Estimated VAT" : isRu ? "Оценочный НДС" : "ضريبة القيمة المضافة") + ` (%${kdvRate})`,
+                value: formatMoney(kdvTutari, currency, locale),
+              }]
+            : []),
         ].map((kpi) => (
           <div key={kpi.label} className="kpi-tile p-4 text-center">
             <p className="text-xs text-muted-foreground">{kpi.label}</p>
