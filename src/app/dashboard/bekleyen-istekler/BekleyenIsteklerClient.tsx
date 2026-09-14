@@ -11,7 +11,7 @@ import { HomeButton } from "@/components/dashboard/HomeButton";
 import { formatServicePrice } from "@/lib/currency";
 import { maskPhone } from "@/lib/phone";
 import Link from "next/link";
-import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks } from "lucide-react";
+import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 interface AppointmentRequest {
@@ -66,6 +66,8 @@ export function BekleyenIsteklerClient({
   const to = useTranslations("dashboard.overdueAppointments");
   const [requests, setRequests] = useState(initialRequests);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
   const [overdue, setOverdue] = useState(overdueAppointments);
   const [overdueBusyId, setOverdueBusyId] = useState<string | null>(null);
   const [markingAll, setMarkingAll] = useState(false);
@@ -84,6 +86,37 @@ export function BekleyenIsteklerClient({
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || "İşlem gerçekleştirilemedi");
+    }
+  }
+
+  function toLocalInputValue(iso: string) {
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function startEditing(r: AppointmentRequest) {
+    setEditingId(r.id);
+    setEditValue(toLocalInputValue(r.appointment_at));
+  }
+
+  async function handleReschedule(id: string) {
+    if (!editValue) return;
+    const iso = new Date(editValue).toISOString();
+    setBusyId(id);
+    const res = await fetch(`/api/appointment-requests/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reschedule", appointment_at: iso }),
+    });
+    setBusyId(null);
+    if (res.ok) {
+      setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, appointment_at: iso } : r)));
+      setEditingId(null);
+      toast.success("Randevu talebi yeni saate taşındı");
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || "Saat değiştirilemedi");
     }
   }
 
@@ -309,19 +342,44 @@ export function BekleyenIsteklerClient({
                       </p>
                       {r.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{r.note}&quot;</p>}
                     </div>
-                    <div className="flex gap-2 shrink-0">
-                      <Button
-                        variant="outline" size="sm" className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
-                        disabled={busy} onClick={() => handleAction(r.id, "reject")}
-                      >
-                        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
-                        Reddet
-                      </Button>
-                      <Button size="sm" className="gap-1.5" disabled={busy} onClick={() => handleAction(r.id, "approve")}>
-                        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                        Onayla
-                      </Button>
-                    </div>
+                    {editingId === r.id ? (
+                      <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                        <input
+                          type="datetime-local"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="text-xs border rounded-lg px-2 py-1.5 bg-background"
+                        />
+                        <Button size="sm" className="gap-1.5" disabled={busy} onClick={() => handleReschedule(r.id)}>
+                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                          Kaydet
+                        </Button>
+                        <Button size="sm" variant="outline" disabled={busy} onClick={() => setEditingId(null)}>
+                          Vazgeç
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2 shrink-0">
+                        <Button
+                          variant="outline" size="sm" className="gap-1.5"
+                          disabled={busy} onClick={() => startEditing(r)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          Düzenle
+                        </Button>
+                        <Button
+                          variant="outline" size="sm" className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
+                          disabled={busy} onClick={() => handleAction(r.id, "reject")}
+                        >
+                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
+                          Reddet
+                        </Button>
+                        <Button size="sm" className="gap-1.5" disabled={busy} onClick={() => handleAction(r.id, "approve")}>
+                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                          Onayla
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

@@ -7,14 +7,14 @@ import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send
 
 type Params = { params: Promise<{ id: string }> };
 
-/** PATCH /api/appointment-requests/[id] — { action: 'approve' | 'reject' } */
+/** PATCH /api/appointment-requests/[id] — { action: 'approve' | 'reject' | 'reschedule', appointment_at? } */
 export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const body = await req.json();
-  const action: "approve" | "reject" = body.action;
+  const action: "approve" | "reject" | "reschedule" = body.action;
 
-  if (action !== "approve" && action !== "reject") {
-    return NextResponse.json({ error: "action must be 'approve' or 'reject'" }, { status: 400 });
+  if (action !== "approve" && action !== "reject" && action !== "reschedule") {
+    return NextResponse.json({ error: "action must be 'approve', 'reject' veya 'reschedule'" }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -43,6 +43,21 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       .update({ status: "rejected", updated_at: new Date().toISOString() })
       .eq("id", id);
     return NextResponse.json({ status: "rejected" });
+  }
+
+  if (action === "reschedule") {
+    const newAt = body.appointment_at;
+    if (!newAt || Number.isNaN(new Date(newAt).getTime())) {
+      return NextResponse.json({ error: "Geçerli bir tarih/saat gerekli" }, { status: 400 });
+    }
+    const { data: updated, error: updErr } = await supabase
+      .from("appointment_requests")
+      .update({ appointment_at: newAt, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select("appointment_at")
+      .single();
+    if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 });
+    return NextResponse.json({ status: "rescheduled", appointment_at: updated.appointment_at });
   }
 
   // action === "approve" → create appointment from request

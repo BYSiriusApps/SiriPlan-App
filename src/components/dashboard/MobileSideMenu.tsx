@@ -44,9 +44,10 @@ interface Props {
   role: string;
   orgSlug?: string;
   plan?: string;
+  pendingWorkCount?: number;
 }
 
-export function MobileSideMenu({ role, orgSlug, plan }: Props) {
+export function MobileSideMenu({ role, orgSlug, plan, pendingWorkCount = 0 }: Props) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
   const { setOpen: setAssistantOpen } = useAiAssistant();
@@ -88,7 +89,14 @@ export function MobileSideMenu({ role, orgSlug, plan }: Props) {
           aria-label="Menü"
         />
       }>
-        <Menu className="h-5 w-5" />
+        <span className="relative">
+          <Menu className="h-5 w-5" />
+          {pendingWorkCount > 0 && (
+            <span className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-rose-500 text-white">
+              {pendingWorkCount > 99 ? "99+" : pendingWorkCount}
+            </span>
+          )}
+        </span>
         <span>Menü</span>
       </SheetTrigger>
 
@@ -149,7 +157,12 @@ export function MobileSideMenu({ role, orgSlug, plan }: Props) {
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  {t(item.tKey)}
+                  <span className="flex-1 truncate">{t(item.tKey)}</span>
+                  {item.href === "/dashboard/bekleyen-istekler" && pendingWorkCount > 0 && (
+                    <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-rose-500 text-white shrink-0">
+                      {pendingWorkCount > 99 ? "99+" : pendingWorkCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}

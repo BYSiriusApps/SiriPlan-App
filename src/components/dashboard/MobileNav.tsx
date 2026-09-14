@@ -18,7 +18,7 @@ const MOBILE_NAV = [
   { href: "/dashboard/ayarlar",    icon: Settings,        tKey: "settings",      minRole: "manager" },
 ];
 
-export function MobileNav({ role = "staff", permissionsJson = null, orgSlug, plan }: { role?: string; permissionsJson?: Record<string, boolean> | null; orgSlug?: string; plan?: string }) {
+export function MobileNav({ role = "staff", permissionsJson = null, orgSlug, plan, pendingWorkCount = 0 }: { role?: string; permissionsJson?: Record<string, boolean> | null; orgSlug?: string; plan?: string; pendingWorkCount?: number }) {
   const pathname = usePathname();
   const t = useTranslations("dashboard");
   const visible = MOBILE_NAV.filter(item => {
@@ -54,7 +54,7 @@ export function MobileNav({ role = "staff", permissionsJson = null, orgSlug, pla
         );
       })}
 
-      <MobileSideMenu role={role} orgSlug={orgSlug} plan={plan} />
+      <MobileSideMenu role={role} orgSlug={orgSlug} plan={plan} pendingWorkCount={pendingWorkCount} />
     </nav>
   );
 }

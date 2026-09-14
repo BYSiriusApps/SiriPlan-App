@@ -45,9 +45,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // artık varsayılan açık — bu sayı yalnızca salon kutuyu KAPATTIYSA > 0 olur.
   // O durumda her sayfada bir şerit gösterip onay atlanmasını önlüyoruz.
   let pendingApptCount = 0;
-  if (org && (role === "owner" || role === "manager")) {
+  // Sidebar/mobil menüde "Bekleyen İşler" yanındaki sayaç — WhatsApp/Instagram/
+  // link üzerinden gelen talepler + kritik stok. Tüm roller görsün diye (staff
+  // dahil) role kısıtı YOK; yalnızca yukarıdaki tam genişlik şeritler owner/
+  // manager'a özel kalıyor.
+  let pendingWorkCount = 0;
+  if (org) {
     const supabase = await createClient();
-    const [{ data: inventoryItems }, { count: pendingCount }] = await Promise.all([
+    const [{ data: inventoryItems }, { count: talepCount }, { count: requestCount }] = await Promise.all([
       supabase
         .from("inventory_items")
         .select("current_stock, min_stock_alert")
@@ -58,14 +63,22 @@ export default async function DashboardLayout({ children }: { children: React.Re
         .select("id", { count: "exact", head: true })
         .eq("org_id", org.id)
         .eq("status", "talep"),
+      supabase
+        .from("appointment_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("org_id", org.id)
+        .eq("status", "pending"),
     ]);
 
     if (inventoryItems) {
       lowStockCount = inventoryItems.filter(
-        (item: any) => Number(item.current_stock) <= Number(item.min_stock_alert)
+        (item: any) => Number(item.min_stock_alert) > 0 && Number(item.current_stock) <= Number(item.min_stock_alert)
       ).length;
     }
-    pendingApptCount = pendingCount ?? 0;
+    if (role === "owner" || role === "manager") {
+      pendingApptCount = talepCount ?? 0;
+    }
+    pendingWorkCount = lowStockCount + (requestCount ?? 0);
   }
 
   // Deneme süresi dolan / ödemesi başarısız olan işletme, native mobil
@@ -92,6 +105,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               activeOrgId={org.id}
               memberships={memberships}
               isPlatformAdmin={isAdmin}
+              pendingWorkCount={pendingWorkCount}
             />
           </div>
 
@@ -133,7 +147,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
           {/* Mobile bottom navigation */}
           <div className="print:hidden">
-            <MobileNav role={role} permissionsJson={member?.permissions_json} orgSlug={org.slug} plan={org.plan} />
+            <MobileNav role={role} permissionsJson={member?.permissions_json} orgSlug={org.slug} plan={org.plan} pendingWorkCount={pendingWorkCount} />
           </div>
 
           <div className="print:hidden">

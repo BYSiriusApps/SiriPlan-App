@@ -71,6 +71,7 @@ interface SidebarProps {
   activeOrgId?: string;
   memberships?: { org_id: string; role: string; org_name: string }[];
   isPlatformAdmin?: boolean;
+  pendingWorkCount?: number;
 }
 
 export function Sidebar({
@@ -82,6 +83,7 @@ export function Sidebar({
   activeOrgId,
   memberships = [],
   isPlatformAdmin = false,
+  pendingWorkCount = 0,
 }: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("dashboard");
@@ -181,7 +183,11 @@ export function Sidebar({
                 style={{ color: isActive ? "var(--sidebar-primary)" : "inherit" }}
               />
               <span className="flex-1 truncate">{("label" in item && typeof item.label === "string" ? item.label : t(item.tKey))}</span>
-              {item.badge && (
+              {item.href === "/dashboard/bekleyen-istekler" && pendingWorkCount > 0 ? (
+                <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-rose-500 text-white shrink-0">
+                  {pendingWorkCount > 99 ? "99+" : pendingWorkCount}
+                </span>
+              ) : item.badge ? (
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold"
                   style={{
@@ -192,7 +198,7 @@ export function Sidebar({
                 >
                   {item.badge}
                 </span>
-              )}
+              ) : null}
               {isActive && (
                 <ChevronRight className="h-3 w-3 shrink-0" style={{ color: "var(--sidebar-primary)" }} />
               )}
