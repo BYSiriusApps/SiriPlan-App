@@ -1,7 +1,7 @@
 import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { startOfMonth, endOfMonth, format, subMonths, startOfDay, endOfDay, addDays } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -21,6 +21,7 @@ export default async function RaporlarPage({
   searchParams: Promise<{ gun?: string }>;
 }) {
   const t = await getTranslations("dashboard");
+  const locale = await getLocale();
   const sp = await searchParams;
   const supabase = await createClient();
   const user = await getSessionUser();
@@ -198,7 +199,7 @@ export default async function RaporlarPage({
   const prev = monthlyStats[1] ?? { revenue: 0, completed: 0, total: 0, noshow: 0 };
   const rate = (n: number, d: number) => (d > 0 ? (n / d) * 100 : 0);
   const comparison = [
-    { label: "Ciro", ...compareValue(cur.revenue, prev.revenue), fmt: (v: number) => formatMoney(v, currency), invert: false },
+    { label: "Ciro", ...compareValue(cur.revenue, prev.revenue), fmt: (v: number) => formatMoney(v, currency, locale), invert: false },
     { label: "Tamamlanan Randevu", ...compareValue(cur.completed, prev.completed), fmt: (v: number) => String(Math.round(v)), invert: false },
     { label: "No-show Oranı", ...compareValue(rate(cur.noshow, cur.total), rate(prev.noshow, prev.total)), fmt: (v: number) => `%${v.toFixed(1)}`, invert: true },
     { label: "Yeni Müşteri", ...compareValue(newCustThisMonth ?? 0, newCustPrevMonth ?? 0), fmt: (v: number) => String(Math.round(v)), invert: false },
@@ -302,8 +303,8 @@ export default async function RaporlarPage({
             {[
               { label: "Randevu", value: String(dAppts.length) },
               { label: "Tamamlanan", value: String(dDone.length) },
-              { label: t("reportsPage.dayRevenue"), value: formatMoney(dayRevenue + dayManuelGelir, currency) },
-              { label: "Gün Gideri", value: formatMoney(dayGider, currency) },
+              { label: t("reportsPage.dayRevenue"), value: formatMoney(dayRevenue + dayManuelGelir, currency, locale) },
+              { label: "Gün Gideri", value: formatMoney(dayGider, currency, locale) },
               { label: "Yeni Müşteri", value: String(dayNewCust ?? 0) },
             ].map((kpi) => (
               <div key={kpi.label} className="kpi-tile p-3 text-center">
@@ -363,7 +364,7 @@ export default async function RaporlarPage({
                     <div className="flex items-center gap-2 justify-end">
                       <span className={`md:hidden px-2 py-0.5 rounded-full text-[10px] font-medium ${st.cls}`}>{st.label}</span>
                       <span className="text-sm font-semibold text-right tabular-nums">
-                        {formatMoney(Number(a.price), currency)}
+                        {formatMoney(Number(a.price), currency, locale)}
                       </span>
                     </div>
                   </Link>
@@ -398,7 +399,7 @@ export default async function RaporlarPage({
                     </div>
                     <span className="hidden md:block text-xs text-muted-foreground truncate">{e.category ?? "—"}</span>
                     <span className={`text-right font-semibold tabular-nums ${isGelir ? "text-emerald-600" : "text-red-600"}`}>
-                      {isGelir ? "+" : "−"}{formatMoney(Number(e.amount), currency)}
+                      {isGelir ? "+" : "−"}{formatMoney(Number(e.amount), currency, locale)}
                     </span>
                   </div>
                 );
@@ -421,7 +422,7 @@ export default async function RaporlarPage({
           <TrendChart
             series={revenueSeries}
             variant="line"
-            format={(v) => formatMoney(v, currency)}
+            format={(v) => formatMoney(v, currency, locale)}
             height={140}
           />
           <div className="space-y-1">
@@ -476,7 +477,7 @@ export default async function RaporlarPage({
                       }}
                     />
                   </div>
-                  <span className="w-28 text-xs font-semibold text-right tabular-nums">{formatMoney(m.revenue, currency)}</span>
+                  <span className="w-28 text-xs font-semibold text-right tabular-nums">{formatMoney(m.revenue, currency, locale)}</span>
                   <span className="w-16 text-xs text-muted-foreground text-right tabular-nums">{m.completed}/{m.total}</span>
                 </div>
               );
@@ -514,7 +515,7 @@ export default async function RaporlarPage({
                       <p className="text-sm font-medium truncate">{s.name}</p>
                       <p className="text-xs text-muted-foreground">{s.count} randevu</p>
                     </div>
-                    <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency)}</p>
+                    <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency, locale)}</p>
                   </div>
                 ))}
               </div>
@@ -544,7 +545,7 @@ export default async function RaporlarPage({
                       <p className="text-sm font-medium truncate">{s.name}</p>
                       <p className="text-xs text-muted-foreground">{s.count} tamamlanan randevu</p>
                     </div>
-                    <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency)}</p>
+                    <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency, locale)}</p>
                   </div>
                 ))}
               </div>
@@ -556,7 +557,7 @@ export default async function RaporlarPage({
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Bu Ay Ciro", value: formatMoney(currentMonthRevenue, currency) },
+          { label: "Bu Ay Ciro", value: formatMoney(currentMonthRevenue, currency, locale) },
           { label: t("reportsPage.noShowRate"), value: `%${noShowRate}` },
           { label: "Tamamlanma Oranı", value: total > 0 ? `%${((monthlyStats[0].completed / total) * 100).toFixed(0)}` : "-" },
           { label: "Toplam İşlem", value: String(total) },

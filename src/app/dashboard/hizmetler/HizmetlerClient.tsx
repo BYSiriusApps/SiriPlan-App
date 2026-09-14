@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -46,6 +46,7 @@ interface Props {
 
 export function HizmetlerClient({ initialServices, initialCategories, canEdit }: Props) {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   // category_tag serbest metin olabildiği için (eski kayıtlar, elle girilenler)
   // çeviri yoksa etiketin kendisi gösterilir — eksik anahtar hata fırlatmasın.
   const categoryTagLabel = (tag: string) =>
@@ -338,8 +339,8 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-sm">{service.name}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-sm truncate max-w-full">{service.name}</p>
                         <Badge
                           variant="outline"
                           className={cn("text-[10px]", CATEGORY_COLORS[service.category_tag] || CATEGORY_COLORS.genel)}
@@ -380,7 +381,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
                     <div className="flex items-center gap-3">
                       <div className="text-right shrink-0">
                         <p className="font-bold text-sm">
-                          {service.price !== null ? formatServicePrice(service.price, service.currency) : t("servicesPage.noPriceSet")}
+                          {service.price !== null ? formatServicePrice(service.price, service.currency, locale) : t("servicesPage.noPriceSet")}
                         </p>
                         <p className="text-xs text-muted-foreground flex items-center justify-end gap-1">
                           <Clock className="h-3 w-3" />
@@ -460,7 +461,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
                     <p className="text-2xl font-bold text-primary">
-                      {detailTarget.price !== null ? formatServicePrice(detailTarget.price, detailTarget.currency) : "—"}
+                      {detailTarget.price !== null ? formatServicePrice(detailTarget.price, detailTarget.currency, locale) : "—"}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">{t("servicesPage.detailPriceLabel")}</p>
                   </div>

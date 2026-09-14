@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,6 +68,7 @@ const EMPTY_RECURRING = {
 
 export default function GelirGiderPage() {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const now = new Date();
@@ -98,7 +99,7 @@ export default function GelirGiderPage() {
   const [kdvEnabled, setKdvEnabled] = useState(false);
   const [kdvRate, setKdvRate] = useState(20);
   const [currency, setCurrency] = useState("TRY");
-  const fmt = useCallback((n: number) => formatMoney(n, currency), [currency]);
+  const fmt = useCallback((n: number) => formatMoney(n, currency, locale), [currency, locale]);
 
   // Get categories and months from translations
   const categoriesGelir = useMemo(() => t.raw("incomeCategories") as Array<{ value: string; label: string }>, [t]);

@@ -26,6 +26,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { ApproveButton } from "@/components/dashboard/ApproveButton";
 import { NewAppointmentFab } from "@/components/dashboard/NewAppointmentFab";
 import { OnboardingWelcome, OnboardingTour, STAFF_STEPS } from "@/components/dashboard/OnboardingTour";
+import { numberLocaleOf } from "@/lib/currency";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
@@ -73,6 +74,7 @@ export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
   const locale = await getLocale();
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
+  const numLocale = numberLocaleOf(locale);
 
   const supabase = await createClient();
   const user = await getSessionUser();
@@ -624,7 +626,7 @@ export default async function DashboardPage() {
                     {t("homePage.weeklyStarLabel", { name: champ.staff.full_name })}
                   </p>
                   <p className="text-[11px] opacity-75">
-                    {t("homePage.staffStatsLabel", { count: champ.appointments_done, revenue: Number(champ.total_revenue).toLocaleString("tr-TR") })}
+                    {t("homePage.staffStatsLabel", { count: champ.appointments_done, revenue: Number(champ.total_revenue).toLocaleString(numLocale) })}
                   </p>
                 </div>
               </div>
@@ -699,7 +701,7 @@ export default async function DashboardPage() {
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-lg font-bold text-foreground truncate">
-                ₺{monthRevenue.toLocaleString("tr-TR")}
+                ₺{monthRevenue.toLocaleString(numLocale)}
               </p>
               <p className="text-[11px] text-muted-foreground">{t("homePage.monthRevenueLabel")}</p>
             </div>
@@ -734,17 +736,17 @@ export default async function DashboardPage() {
                 <Wallet className="h-5 w-5 text-primary" />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-lg font-bold text-foreground truncate">₺{netTotal.toLocaleString("tr-TR")}</p>
+                <p className="text-lg font-bold text-foreground truncate">₺{netTotal.toLocaleString(numLocale)}</p>
                 <p className="text-[11px] text-muted-foreground">{t("homePage.netLabel")}</p>
               </div>
             </div>
             <div className="flex items-center justify-between text-[13px] py-1">
               <span className="text-muted-foreground">{t("homePage.extraIncomeLabel")}</span>
-              <span className="font-semibold" style={{ color: "var(--chart-2)" }}>+₺{extraIncomeTotal.toLocaleString("tr-TR")}</span>
+              <span className="font-semibold" style={{ color: "var(--chart-2)" }}>+₺{extraIncomeTotal.toLocaleString(numLocale)}</span>
             </div>
             <div className="flex items-center justify-between text-[13px] py-1">
               <span className="text-muted-foreground">{t("homePage.expenseLabel")}</span>
-              <span className="font-semibold" style={{ color: "var(--destructive)" }}>-₺{expenseTotal.toLocaleString("tr-TR")}</span>
+              <span className="font-semibold" style={{ color: "var(--destructive)" }}>-₺{expenseTotal.toLocaleString(numLocale)}</span>
             </div>
           </div>
         </GlassCard3D>
@@ -899,7 +901,7 @@ export default async function DashboardPage() {
                   <Scissors className="h-3.5 w-3.5 text-primary shrink-0" /> {s.name}
                 </span>
                 <span className="tabular-nums shrink-0 text-muted-foreground text-[11px]">
-                  ₺{Number(s.price).toLocaleString("tr-TR")} · {s.duration_minutes}{t("minutesShort")}
+                  ₺{Number(s.price).toLocaleString(numLocale)} · {s.duration_minutes}{t("minutesShort")}
                 </span>
               </Link>
             ))}
@@ -921,7 +923,7 @@ export default async function DashboardPage() {
       node: (
         <GlassCard3D key="staff_personal_report" className="glass-card" glow intensity={4}>
           <CardTitle>
-            Performans Raporum
+            {t("homePage.performanceReportTitle")}
           </CardTitle>
           <div className="px-4 py-4 flex items-center gap-3">
             <span
@@ -932,12 +934,12 @@ export default async function DashboardPage() {
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-lg font-bold text-foreground truncate">
-                ₺{monthRevenue.toLocaleString("tr-TR")}
+                ₺{monthRevenue.toLocaleString(numLocale)}
               </p>
-              <p className="text-[11px] text-muted-foreground">Bu Ay Kazandırdığım Toplam Tutar</p>
+              <p className="text-[11px] text-muted-foreground">{t("homePage.monthlyEarningsLabel")}</p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-sm font-semibold text-foreground">{monthApptsCount} Tamamlanan Randevu</p>
+              <p className="text-sm font-semibold text-foreground">{t("homePage.completedApptsCountLabel", { count: monthApptsCount })}</p>
             </div>
           </div>
         </GlassCard3D>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
@@ -65,6 +65,7 @@ interface Props {
 
 export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, initialServices }: Props) {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const [org, setOrg] = useState<Organization>(initialOrg);
   const [categories, setCategories] = useState<ServiceCategory[]>(initialCategories);
   const [services, setServices] = useState<Service[]>(initialServices);
@@ -837,7 +838,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{svc.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {svc.price !== null ? formatServicePrice(svc.price, svc.currency) : w("priceNotSet")}
+                      {svc.price !== null ? formatServicePrice(svc.price, svc.currency, locale) : w("priceNotSet")}
                       {svc.duration_minutes !== null ? ` • ${svc.duration_minutes} ${w("minShort")}` : ""}
                     </p>
                   </div>

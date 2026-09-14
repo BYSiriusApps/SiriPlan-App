@@ -172,13 +172,13 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
             </button>
           )}
         </div>
-        <div className="flex gap-1 flex-wrap items-center">
+        <div className="flex gap-1.5 items-center overflow-x-auto pb-1 sm:flex-wrap">
           {sorts.map((s) => (
             <button
               key={s.value}
               onClick={() => changeSort(s.value)}
               className={cn(
-                "px-3 py-2 rounded-lg text-xs font-medium border transition-colors",
+                "px-3 py-2 rounded-lg text-xs font-medium border transition-colors shrink-0 whitespace-nowrap",
                 sortBy === s.value
                   ? "bg-primary text-primary-foreground border-primary"
                   : "border-border hover:bg-accent"
@@ -190,7 +190,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
           <button
             onClick={() => setAsc((v) => !v)}
             title={t("customerList.toggleSort")}
-            className="px-3 py-2 rounded-lg text-xs font-medium border border-border hover:bg-accent transition-colors flex items-center gap-1.5"
+            className="px-3 py-2 rounded-lg text-xs font-medium border border-border hover:bg-accent transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap"
           >
             {asc ? <ArrowUpNarrowWide className="h-3.5 w-3.5" /> : <ArrowDownWideNarrow className="h-3.5 w-3.5" />}
             {directionLabel(t, sortBy, asc)}
@@ -199,7 +199,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
             onClick={() => setKampanyaOnly((v) => !v)}
             title={t("customerList.marketingOnly")}
             className={cn(
-              "px-3 py-2 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5",
+              "px-3 py-2 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap",
               kampanyaOnly ? "bg-green-600 text-white border-green-600" : "border-border hover:bg-accent"
             )}
           >
@@ -209,7 +209,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
           {hasFilter && (
             <button
               onClick={() => { setQ(""); setKampanyaOnly(false); }}
-              className="px-3 py-2 rounded-lg text-xs font-medium border border-red-200 dark:border-red-900 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex items-center gap-1"
+              className="px-3 py-2 rounded-lg text-xs font-medium border border-red-200 dark:border-red-900 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex items-center gap-1 shrink-0 whitespace-nowrap"
             >
               <X className="h-3.5 w-3.5" />
               {t("customerList.clearFilters")}

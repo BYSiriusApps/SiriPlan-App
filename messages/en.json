@@ -11,6 +11,25 @@
     "language": "Language",
     "faq": "FAQ"
   },
+  "chatWidget": {
+    "ariaLabel": "AI Assistant",
+    "title": "Siriplan AI",
+    "online": "Online",
+    "minimize": "Minimize",
+    "close": "Close",
+    "send": "Send",
+    "footer": "Siriplan AI · Powered by BY Sirius",
+    "placeholder": "Type your message...",
+    "greeting": "Hi! 👋 I'm the Siriplan AI assistant.\n\nI can help you with pricing, features, sign-up or support. What would you like to ask?",
+    "errorResponse": "I can't respond right now. Please try again.",
+    "connectionError": "Connection error. You can reach us at info@bysirius.com.",
+    "quickQuestions": {
+      "pricing": "How much does it cost?",
+      "freeTrial": "Is there a free trial?",
+      "sectors": "Which industries is it for?",
+      "howToStart": "How do I get started?"
+    }
+  },
   "hero": {
     "badge": "Trusted by 10+ Sectors",
     "title": "Manage Your Business <highlight>Smartly</highlight>",
@@ -1510,6 +1529,9 @@
       "weeklyStarLabel": "Star of the Week: {name}",
       "staffStatsLabel": "{count} appointments · ₺{revenue}",
       "newApptButton": "Appointment",
+      "performanceReportTitle": "My Performance Report",
+      "monthlyEarningsLabel": "Total Amount I Earned This Month",
+      "completedApptsCountLabel": "{count} Completed Appointments",
       "campStatus": {
         "draft": "Draft",
         "scheduled": "Scheduled",

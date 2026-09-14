@@ -99,12 +99,12 @@ export default async function AdisyonPage({
             <tbody className="tabular-nums">
               <tr>
                 <td className="py-1">{a.service?.name ?? "—"}</td>
-                <td className="py-1 text-right">{formatMoney(Number(a.price), currency)}</td>
+                <td className="py-1 text-right">{formatMoney(Number(a.price), currency, locale)}</td>
               </tr>
               {Number(a.tip) > 0 && (
                 <tr>
                   <td className="py-1 text-muted-foreground">Bahşiş</td>
-                  <td className="py-1 text-right">{formatMoney(Number(a.tip), currency)}</td>
+                  <td className="py-1 text-right">{formatMoney(Number(a.tip), currency, locale)}</td>
                 </tr>
               )}
             </tbody>
@@ -113,7 +113,7 @@ export default async function AdisyonPage({
 
         <div className="border-t border-dashed pt-4 flex justify-between items-center">
           <span className="font-semibold">Toplam</span>
-          <span className="font-bold text-lg tabular-nums">{formatMoney(total, currency)}</span>
+          <span className="font-bold text-lg tabular-nums">{formatMoney(total, currency, locale)}</span>
         </div>
 
         {a.payment_method && (

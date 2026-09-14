@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import QRCode from "qrcode";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +80,7 @@ export default function StokPage() {
   const t = useTranslations("dashboard");
   const tm = useTranslations("dashboard.mic");
   const tb = useTranslations("dashboard.stockPage.barcode");
+  const locale = useLocale();
   const { requestMic, micDialog, speechLang } = useMicAccess();
   const { proTools } = usePlan(); // sesli stok komutu Pro+ (API'de 403 ile de korunur)
   const [items, setItems] = useState<InventoryItem[]>([]);
@@ -113,7 +114,7 @@ export default function StokPage() {
 
   const [loadingTemplate, setLoadingTemplate] = useState(false);
   const [currency, setCurrency] = useState("TRY");
-  const fmt = useCallback((n: number) => formatMoney(n, currency), [currency]);
+  const fmt = useCallback((n: number) => formatMoney(n, currency, locale), [currency, locale]);
 
   // ── Sesli stok komutu (Pro+) ──
   const [voiceListening, setVoiceListening] = useState(false);

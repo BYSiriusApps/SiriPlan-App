@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
@@ -64,6 +64,7 @@ export function BekleyenIsteklerClient({
 }) {
   const t = useTranslations("dashboard");
   const to = useTranslations("dashboard.overdueAppointments");
+  const locale = useLocale();
   const [requests, setRequests] = useState(initialRequests);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -247,7 +248,7 @@ export function BekleyenIsteklerClient({
                 return (
                   <div
                     key={a.id}
-                    className="flex items-center justify-between gap-3 flex-wrap bg-background rounded-xl p-3 border border-orange-200/60 dark:border-orange-900/40"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-background rounded-xl p-3 border border-orange-200/60 dark:border-orange-900/40"
                   >
                     <Link href={`/dashboard/randevular/${a.id}`} className="min-w-0 flex-1 hover:opacity-80 transition-opacity">
                       <p className="font-semibold text-sm truncate">{a.customer_name}</p>
@@ -258,11 +259,11 @@ export function BekleyenIsteklerClient({
                         </span>
                         {a.service_name && <span>{a.service_name}</span>}
                         {a.staff_name && <span>· {a.staff_name}</span>}
-                        {a.price !== null && <span>· {formatServicePrice(a.price, undefined)}</span>}
+                        {a.price !== null && <span>· {formatServicePrice(a.price, undefined, locale)}</span>}
                       </div>
                     </Link>
                     {a.canAct ? (
-                      <div className="flex gap-1.5 shrink-0">
+                      <div className="flex gap-1.5 flex-wrap w-full sm:w-auto shrink-0">
                         <Button
                           size="sm"
                           className="gap-1 bg-green-600 hover:bg-green-700 text-white"
@@ -338,7 +339,7 @@ export function BekleyenIsteklerClient({
                       <p className="text-sm mt-1.5">
                         <span className="font-medium">{r.service?.name ?? "—"}</span>
                         {r.staff?.full_name && <span className="text-muted-foreground"> · {r.staff.full_name}</span>}
-                        {r.price !== null && <span className="text-muted-foreground"> · {formatServicePrice(r.price, undefined)}</span>}
+                        {r.price !== null && <span className="text-muted-foreground"> · {formatServicePrice(r.price, undefined, locale)}</span>}
                       </p>
                       {r.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{r.note}&quot;</p>}
                     </div>

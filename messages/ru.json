@@ -11,6 +11,25 @@
     "language": "Язык",
     "faq": "FAQ"
   },
+  "chatWidget": {
+    "ariaLabel": "AI-ассистент",
+    "title": "Siriplan AI",
+    "online": "Онлайн",
+    "minimize": "Свернуть",
+    "close": "Закрыть",
+    "send": "Отправить",
+    "footer": "Siriplan AI · Powered by BY Sirius",
+    "placeholder": "Введите сообщение...",
+    "greeting": "Привет! 👋 Я AI-ассистент Siriplan.\n\nМогу помочь с ценами, функциями, регистрацией или поддержкой. Что вас интересует?",
+    "errorResponse": "Сейчас не могу ответить. Попробуйте ещё раз.",
+    "connectionError": "Ошибка соединения. Вы можете связаться с нами по адресу info@bysirius.com.",
+    "quickQuestions": {
+      "pricing": "Сколько это стоит?",
+      "freeTrial": "Есть ли бесплатный пробный период?",
+      "sectors": "Для каких отраслей подходит?",
+      "howToStart": "Как начать?"
+    }
+  },
   "hero": {
     "badge": "Надёжная платформа для 10+ отраслей",
     "title": "Управляйте бизнесом <highlight>Умно</highlight>",
@@ -1510,6 +1529,9 @@
       "weeklyStarLabel": "Звезда недели: {name}",
       "staffStatsLabel": "{count} записей · ₺{revenue}",
       "newApptButton": "Запись",
+      "performanceReportTitle": "Мой отчёт об эффективности",
+      "monthlyEarningsLabel": "Общая сумма, которую я заработал(а) в этом месяце",
+      "completedApptsCountLabel": "{count} завершённых записей",
       "campStatus": {
         "draft": "Черновик",
         "scheduled": "Запланировано",

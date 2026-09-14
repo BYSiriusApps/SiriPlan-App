@@ -11,6 +11,25 @@
     "language": "اللغة",
     "faq": "الأسئلة الشائعة"
   },
+  "chatWidget": {
+    "ariaLabel": "مساعد الذكاء الاصطناعي",
+    "title": "Siriplan AI",
+    "online": "متصل الآن",
+    "minimize": "تصغير",
+    "close": "إغلاق",
+    "send": "إرسال",
+    "footer": "Siriplan AI · Powered by BY Sirius",
+    "placeholder": "اكتب رسالتك...",
+    "greeting": "مرحباً! 👋 أنا مساعد Siriplan الذكي.\n\nيمكنني مساعدتك بخصوص الأسعار والمميزات والتسجيل أو الدعم. ماذا تريد أن تسأل؟",
+    "errorResponse": "لا أستطيع الرد الآن. يرجى المحاولة مرة أخرى.",
+    "connectionError": "خطأ في الاتصال. يمكنكم التواصل معنا عبر info@bysirius.com.",
+    "quickQuestions": {
+      "pricing": "كم تبلغ التكلفة؟",
+      "freeTrial": "هل يوجد تجربة مجانية؟",
+      "sectors": "لأي القطاعات يناسب؟",
+      "howToStart": "كيف يمكنني البدء؟"
+    }
+  },
   "hero": {
     "badge": "منصة موثوقة في أكثر من 10 قطاعات",
     "title": "أدِر عملك <highlight>بذكاء</highlight>",
@@ -1510,6 +1529,9 @@
       "weeklyStarLabel": "نجم الأسبوع: {name}",
       "staffStatsLabel": "{count} موعد · ₺{revenue}",
       "newApptButton": "موعد",
+      "performanceReportTitle": "تقرير أدائي",
+      "monthlyEarningsLabel": "إجمالي المبلغ الذي حققته هذا الشهر",
+      "completedApptsCountLabel": "{count} موعد مكتمل",
       "campStatus": {
         "draft": "مسودة",
         "scheduled": "مجدول",

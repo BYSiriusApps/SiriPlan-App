@@ -106,22 +106,32 @@ interface Positioned {
   appt: Appointment;
   lane: number;
   lanes: number;
-  // Aynı şeritteki bir sonraki randevunun başlangıcı (epoch ms) — minimum kutu
-  // yüksekliği bunun üstüne taşıp görsel olarak çakışıyormuş gibi görünmesin diye.
-  capStart: number | null;
+  // Aynı şeritteki bir sonraki randevunun (kenetlenmiş) başlangıç dakikası —
+  // minimum kutu yüksekliği bunun üstüne taşıp görsel olarak çakışıyormuş gibi
+  // görünmesin diye.
+  capMinutes: number | null;
 }
 
-// Aynı gün içinde çakışan randevuları yan yana şeritlere yerleştirir
-function layoutDay(appts: Appointment[]): Positioned[] {
-  const sorted = [...appts].sort(
-    (a, b) => new Date(a.appointment_at).getTime() - new Date(b.appointment_at).getTime()
-  );
+// Aynı gün içinde çakışan randevuları yan yana şeritlere yerleştirir.
+// Şerit ataması gerçek randevu saatleri yerine EKRANDA GÖRÜNEN (grid saatlerine
+// kenetlenmiş, en az minVisualMin yükseklikte) aralığa göre yapılır — aksi halde
+// grid dışında kalan (ör. hatalı/gece yarısı verisi) veya çok kısa randevular
+// aynı pikselde üst üste yığılıp okunaksız hale gelir, halbuki lanes hesabı
+// bunları "çakışmıyor" sanıp tek şeride koyabilirdi.
+function layoutDay(appts: Appointment[], gridStartMin: number, gridEndMin: number, minVisualMin: number): Positioned[] {
+  const minOfDay = (iso: string) => {
+    const d = new Date(iso);
+    return d.getHours() * 60 + d.getMinutes();
+  };
+  const sorted = [...appts].sort((a, b) => minOfDay(a.appointment_at) - minOfDay(b.appointment_at));
   const laneEnds: number[] = [];
   const placed: { appt: Appointment; lane: number; start: number; end: number }[] = [];
 
   for (const appt of sorted) {
-    const start = new Date(appt.appointment_at).getTime();
-    const end = start + appt.duration_minutes * 60_000;
+    const rawStart = minOfDay(appt.appointment_at);
+    const rawEnd = rawStart + appt.duration_minutes;
+    const start = Math.max(rawStart, gridStartMin);
+    const end = Math.max(start + minVisualMin, Math.min(rawEnd, gridEndMin));
     let lane = laneEnds.findIndex((e) => e <= start);
     if (lane === -1) {
       lane = laneEnds.length;
@@ -139,7 +149,7 @@ function layoutDay(appts: Appointment[]): Positioned[] {
     const nextInLane = placed
       .filter((q) => q.lane === p.lane && q.start > p.start)
       .sort((a, b) => a.start - b.start)[0];
-    return { appt: p.appt, lane: p.lane, lanes, capStart: nextInLane ? nextInLane.start : null };
+    return { appt: p.appt, lane: p.lane, lanes, capMinutes: nextInLane ? nextInLane.start : null };
   });
 }
 
@@ -412,6 +422,11 @@ export function UnifiedCalendar({
   }
 
   const gridHeight = hours.length * HOUR_PX;
+  // layoutDay için: grid'in görünen saat aralığı + minimum kutu yüksekliğinin
+  // dakika karşılığı (bkz. apptBlockStyle'daki aynı minimum).
+  const gridStartMin = hours[0] * 60;
+  const gridEndMin = (hours[hours.length - 1] + 1) * 60;
+  const minVisualMin = ((view === "day" ? 32 : 24) / HOUR_PX) * 60;
 
   // ── Sürükle-bırak: randevuyu farklı bir saate (hafta/gün görünümü) veya
   // farklı bir güne (yalnızca hafta görünümü) taşımak için. Personel/lane
@@ -597,7 +612,7 @@ export function UnifiedCalendar({
     </div>
   ) : null;
 
-  function apptBlockStyle(appt: Appointment, capStart?: number | null) {
+  function apptBlockStyle(appt: Appointment, capMinutes?: number | null) {
     const d = new Date(appt.appointment_at);
     const startMin = d.getHours() * 60 + d.getMinutes();
     const rawTop = ((startMin - hours[0] * 60) / 60) * HOUR_PX;
@@ -605,12 +620,12 @@ export function UnifiedCalendar({
     // birbirinin üzerine taşar. Bunun yerine kısa kutularda 2. satır (hizmet) gizlenir.
     let height = Math.max(view === "day" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
     // Aynı şeritteki bir sonraki randevu bu minimumdan önce başlıyorsa (ör. art arda
-    // 15dk'lık randevular), kutuyu onun üstüne taşırmayacak şekilde kırp — aksi halde
-    // aslında çakışmayan randevular görsel olarak üst üste binmiş gibi görünür.
-    if (capStart != null) {
-      const capDate = new Date(capStart);
-      const capMin = capDate.getHours() * 60 + capDate.getMinutes();
-      const capPx = ((capMin - hours[0] * 60) / 60) * HOUR_PX - rawTop;
+    // 15dk'lık randevular ya da grid dışı/hatalı saatli bir randevu), kutuyu onun
+    // üstüne taşırmayacak şekilde kırp — aksi halde aslında çakışmayan randevular
+    // görsel olarak üst üste binmiş gibi görünür. capMinutes, layoutDay'de zaten
+    // grid saatlerine kenetlenmiş olarak hesaplanır.
+    if (capMinutes != null) {
+      const capPx = ((capMinutes - hours[0] * 60) / 60) * HOUR_PX - rawTop;
       if (capPx > 0) height = Math.min(height, Math.max(14, capPx - 2));
     }
     // Grid dışına taşan randevular gizlenmesin — kenara kenetle
@@ -619,9 +634,9 @@ export function UnifiedCalendar({
   }
 
   function renderApptBlock(p: Positioned, opts?: { showStaff?: boolean; dayIndex?: number }) {
-    const { appt, lane, lanes, capStart } = p;
+    const { appt, lane, lanes, capMinutes } = p;
     const c = colorOf(appt.staff_id);
-    const { top, height } = apptBlockStyle(appt, capStart);
+    const { top, height } = apptBlockStyle(appt, capMinutes);
     const width = 100 / lanes;
     const done = appt.status === "tamamlandi";
     const noShow = appt.status === "gelmedi";
@@ -848,7 +863,7 @@ export function UnifiedCalendar({
               {hourRail}
               {gridDays.map((dayStr, dayIndex) => {
                 const dayAppts = byDay[dayStr] || [];
-                const positioned = layoutDay(dayAppts);
+                const positioned = layoutDay(dayAppts, gridStartMin, gridEndMin, minVisualMin);
                 const isToday = dayStr === today;
                 const closed = orgClosedOn(dayStr);
                 const offNames = offStaffNamesOn(dayStr);
@@ -939,7 +954,7 @@ export function UnifiedCalendar({
                 const c = colorOf(s.id);
                 const dayStr = gridDays[0] || today;
                 const staffAppts = (byDay[dayStr] || []).filter((a) => a.staff_id === s.id);
-                const positioned = layoutDay(staffAppts);
+                const positioned = layoutDay(staffAppts, gridStartMin, gridEndMin, minVisualMin);
                 const isToday = dayStr === today;
                 const offNames = offStaffNamesOn(dayStr);
                 const isOff = offNames.includes(s.full_name);
@@ -993,7 +1008,7 @@ export function UnifiedCalendar({
             {(() => {
               const dayStr = gridDays[0];
               const dayAppts = byDay[dayStr] || [];
-              const positioned = layoutDay(dayAppts);
+              const positioned = layoutDay(dayAppts, gridStartMin, gridEndMin, minVisualMin);
               const isToday = dayStr === today;
               const closed = orgClosedOn(dayStr);
               const offNames = offStaffNamesOn(dayStr);

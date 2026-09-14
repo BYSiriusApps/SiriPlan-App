@@ -11,6 +11,25 @@
     "language": "Dil",
     "faq": "SSS"
   },
+  "chatWidget": {
+    "ariaLabel": "AI Asistan",
+    "title": "Siriplan AI",
+    "online": "Çevrimiçi",
+    "minimize": "Küçült",
+    "close": "Kapat",
+    "send": "Gönder",
+    "footer": "Siriplan AI · Powered by BY Sirius",
+    "placeholder": "Mesajınızı yazın...",
+    "greeting": "Merhaba! 👋 Ben Siriplan AI asistanıyım.\n\nFiyatlar, özellikler, kayıt veya destek hakkında size yardımcı olabilirim. Ne sormak istersiniz?",
+    "errorResponse": "Şu an yanıt veremiyorum. Lütfen tekrar deneyin.",
+    "connectionError": "Bağlantı hatası. info@bysirius.com adresinden bize ulaşabilirsiniz.",
+    "quickQuestions": {
+      "pricing": "Fiyatlar ne kadar?",
+      "freeTrial": "Ücretsiz deneme var mı?",
+      "sectors": "Hangi sektörlere uygun?",
+      "howToStart": "Nasıl başlayabilirim?"
+    }
+  },
   "hero": {
     "badge": "10+ Sektörde Güvenilen Randevu Platformu",
     "title": "İşletmenizi <highlight>Akıllıca</highlight> Yönetin",
@@ -1510,6 +1529,9 @@
       "weeklyStarLabel": "Haftanın Yıldızı: {name}",
       "staffStatsLabel": "{count} randevu · ₺{revenue}",
       "newApptButton": "Randevu",
+      "performanceReportTitle": "Performans Raporum",
+      "monthlyEarningsLabel": "Bu Ay Kazandırdığım Toplam Tutar",
+      "completedApptsCountLabel": "{count} Tamamlanan Randevu",
       "campStatus": {
         "draft": "Hazır",
         "scheduled": "Planlandı",
