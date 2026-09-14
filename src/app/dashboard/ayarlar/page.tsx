@@ -1143,8 +1143,6 @@ export default function AyarlarPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="sicak">randevu_iptali ({t("settingsPage.templateStandard")})</SelectItem>
-                    <SelectItem value="v1">randevu_iptali_1 ({t("settingsPage.templateVariant", { n: "1" })})</SelectItem>
-                    <SelectItem value="v2">randevu_iptali_2 ({t("settingsPage.templateVariant", { n: "2" })})</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">

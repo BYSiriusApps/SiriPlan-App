@@ -63,20 +63,16 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     metaName: "randevu_iptali",
     bodyParamOrder: ["customer_name", "business_name", "date", "time"],
   },
-  iptal_v1: {
-    key: "iptal_v1",
-    purpose: "iptal",
-    style: "v1",
-    metaName: "randevu_iptali_1",
-    bodyParamOrder: ["customer_name", "business_name", "date", "time"],
-  },
-  iptal_v2: {
-    key: "iptal_v2",
-    purpose: "iptal",
-    style: "v2",
-    metaName: "randevu_iptali_2",
-    bodyParamOrder: ["customer_name", "business_name", "date", "time"],
-  },
+  // iptal_v1/iptal_v2 KALDIRILDI (14 Eyl): Meta'daki onaylı "randevu_iptali_1"
+  // 5, "randevu_iptali_2" 6 gövde parametresi bekliyor ama buradaki tanım hâlâ
+  // "randevu_iptali"nin 4 param'ını kopyalamıştı — hiç doğrulanmamış. Sonuç:
+  // (#132000) ile Meta reddediyor, iptal stili v1/v2 seçili herhangi bir salon
+  // için müşteriye iptal mesajı SESSİZCE hiç gitmiyordu (canlıda bysirius-admin
+  // orgu etkilenmiş durumda yakalandı). resolveTemplate() artık bu iki anahtar
+  // bulunamayınca "iptal_sicak"a düşüyor — DB'de hâlâ style="v1"/"v2" yazan
+  // eski org'lar da otomatik iyileşiyor. Gerçek 5/6 param sırası WhatsApp
+  // Yöneticisi'nden görülüp eklenirse geri açılabilir (bkz. hatırlatmanın 27
+  // Ağustos'ta aynı yöntemle düzeltilmesi).
   revize_sicak: {
     key: "revize_sicak",
     purpose: "revize",
@@ -121,7 +117,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
 /** Bir amaç için hangi stiller mevcut — Ayarlar sayfasındaki dropdown'ları besler. */
 export const STYLES_BY_PURPOSE: Record<WaPurpose, WaStyle[]> = {
   onay: ["sicak", "v2"],
-  iptal: ["sicak", "v1", "v2"],
+  iptal: ["sicak"],
   revize: ["sicak"],
   hatirlatma: ["sicak", "v1", "v2"],
 };
