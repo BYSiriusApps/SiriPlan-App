@@ -317,7 +317,7 @@ export function BekleyenIsteklerClient({
             return (
               <Card key={r.id} className="kpi-tile border-0 shadow-none">
                 <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-semibold text-sm">{r.customer_name}</p>
@@ -344,12 +344,12 @@ export function BekleyenIsteklerClient({
                       {r.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{r.note}&quot;</p>}
                     </div>
                     {editingId === r.id ? (
-                      <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto sm:shrink-0">
                         <input
                           type="datetime-local"
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
-                          className="text-xs border rounded-lg px-2 py-1.5 bg-background"
+                          className="text-xs border rounded-lg px-2 py-1.5 bg-background w-full sm:w-auto"
                         />
                         <Button size="sm" className="gap-1.5" disabled={busy} onClick={() => handleReschedule(r.id)}>
                           {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
@@ -360,7 +360,7 @@ export function BekleyenIsteklerClient({
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex gap-2 shrink-0">
+                      <div className="flex gap-2 flex-wrap w-full sm:w-auto sm:shrink-0">
                         <Button
                           variant="outline" size="sm" className="gap-1.5"
                           disabled={busy} onClick={() => startEditing(r)}
