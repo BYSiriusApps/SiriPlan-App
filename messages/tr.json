@@ -1224,6 +1224,15 @@
       "sourceLabel": "WhatsApp / Instagram",
       "subtitle": "WhatsApp veya Instagram üzerinden gelen ve manuel onayınızı bekleyen randevu talepleri."
     },
+    "overdueAppointments": {
+      "title": "Sonuçlandırılmamış Randevular",
+      "subtitle": "Randevu saati geçtiği hâlde hâlâ \"Onaylandı\" durumunda kalan randevular. Kontrol edip tamamlandı, gelmedi veya iptal olarak işaretleyin.",
+      "markAllBtn": "Tümünü Tamamlandı İşaretle",
+      "markAllConfirm": "{count} randevu tamamlandı olarak işaretlenecek (paketi varsa seanstan düşülür, yoksa ücreti nakit sayılır). Onaylıyor musunuz?",
+      "markAllDone": "{done}/{total} randevu tamamlandı olarak işaretlendi",
+      "markAllFailed": "Bazı randevular işaretlenemedi, lütfen tekrar deneyin",
+      "notAssigned": "Size atanmadı"
+    },
     "waitlistPage": {
       "eyebrow": "Randevu",
       "subtitle": "Dolu saatler için müşterileri bekleme listesine ekleyin",

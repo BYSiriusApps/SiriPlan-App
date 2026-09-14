@@ -37,11 +37,21 @@ export function RandevuCard({ appt: initial, canQuickAct }: { appt: ApptWithRela
   async function updateStatus(newStatus: AppointmentStatus) {
     if (updating) return;
     setUpdating(true);
-    const res = await fetch(`/api/appointments/${appt.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    });
+    // "Tamamlandı" için /complete uç noktası kullanılır — düz PATCH yalnızca
+    // status kolonunu değiştirir; müşteri istatistikleri (ziyaret/ciro),
+    // sadakat damgası ve paket seansı düşümü atlanmış olurdu.
+    const res =
+      newStatus === "tamamlandi"
+        ? await fetch(`/api/appointments/${appt.id}/complete`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          })
+        : await fetch(`/api/appointments/${appt.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus }),
+          });
     const data = await res.json().catch(() => ({}));
     setUpdating(false);
     if (!res.ok) {

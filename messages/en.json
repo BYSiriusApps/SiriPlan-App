@@ -1224,6 +1224,15 @@
       "sourceLabel": "WhatsApp / Instagram",
       "subtitle": "Appointment requests received via WhatsApp or Instagram that are awaiting your manual approval."
     },
+    "overdueAppointments": {
+      "title": "Unresolved Appointments",
+      "subtitle": "Appointments whose time has passed but are still marked \"Approved\". Review them and mark as completed, no-show, or cancelled.",
+      "markAllBtn": "Mark All as Completed",
+      "markAllConfirm": "{count} appointments will be marked as completed (package sessions are deducted, others are counted as cash). Continue?",
+      "markAllDone": "{done}/{total} appointments marked as completed",
+      "markAllFailed": "Some appointments could not be updated, please try again",
+      "notAssigned": "Not assigned to you"
+    },
     "waitlistPage": {
       "eyebrow": "Appointment",
       "subtitle": "Add customers to the waitlist for fully booked hours",

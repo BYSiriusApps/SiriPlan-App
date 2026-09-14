@@ -344,11 +344,21 @@ export function UnifiedCalendar({
   async function updateStatus(apptId: string, newStatus: string) {
     setUpdatingId(apptId);
     try {
-      const res = await fetch(`/api/appointments/${apptId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      // "Tamamlandı" için /complete uç noktası kullanılır — düz PATCH yalnızca
+      // status kolonunu değiştirir; müşteri istatistikleri (ziyaret/ciro),
+      // sadakat damgası ve paket seansı düşümü atlanmış olurdu.
+      const res =
+        newStatus === "tamamlandi"
+          ? await fetch(`/api/appointments/${apptId}/complete`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            })
+          : await fetch(`/api/appointments/${apptId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ status: newStatus }),
+            });
       if (res.ok) {
         toast.success(t("statusUpdatedToast", { status: statusLabel(newStatus) }));
         setPopover(null);

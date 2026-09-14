@@ -11,7 +11,7 @@ import { HomeButton } from "@/components/dashboard/HomeButton";
 import { formatServicePrice } from "@/lib/currency";
 import { maskPhone } from "@/lib/phone";
 import Link from "next/link";
-import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle } from "lucide-react";
+import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 
 interface AppointmentRequest {
@@ -40,18 +40,35 @@ interface CriticalStockItem {
   unit: string;
 }
 
+interface OverdueAppointment {
+  id: string;
+  customer_name: string;
+  appointment_at: string;
+  duration_minutes: number;
+  price: number;
+  staff_name: string | null;
+  service_name: string | null;
+  canAct: boolean;
+}
+
 export function BekleyenIsteklerClient({
   initialRequests,
   showPhone = true,
   criticalStock = [],
+  overdueAppointments = [],
 }: {
   initialRequests: AppointmentRequest[];
   showPhone?: boolean;
   criticalStock?: CriticalStockItem[];
+  overdueAppointments?: OverdueAppointment[];
 }) {
   const t = useTranslations("dashboard");
+  const to = useTranslations("dashboard.overdueAppointments");
   const [requests, setRequests] = useState(initialRequests);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [overdue, setOverdue] = useState(overdueAppointments);
+  const [overdueBusyId, setOverdueBusyId] = useState<string | null>(null);
+  const [markingAll, setMarkingAll] = useState(false);
 
   async function handleAction(id: string, action: "approve" | "reject") {
     setBusyId(id);
@@ -67,6 +84,59 @@ export function BekleyenIsteklerClient({
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || "İşlem gerçekleştirilemedi");
+    }
+  }
+
+  async function handleOverdueAction(id: string, status: "tamamlandi" | "gelmedi" | "iptal") {
+    setOverdueBusyId(id);
+    const res =
+      status === "tamamlandi"
+        ? await fetch(`/api/appointments/${id}/complete`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          })
+        : await fetch(`/api/appointments/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status }),
+          });
+    setOverdueBusyId(null);
+    if (res.ok) {
+      setOverdue((prev) => prev.filter((a) => a.id !== id));
+      toast.success(t("statusUpdatedToast", { status: t(status === "tamamlandi" ? "markCompleted" : status === "gelmedi" ? "statusGelmedi" : "statusIptal") }));
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || t("updateFailed"));
+    }
+  }
+
+  async function handleMarkAllCompleted() {
+    const actionable = overdue.filter((a) => a.canAct);
+    if (actionable.length === 0) return;
+    if (!window.confirm(to("markAllConfirm", { count: actionable.length }))) return;
+
+    setMarkingAll(true);
+    let done = 0;
+    const failedIds: string[] = [];
+    for (const a of actionable) {
+      const res = await fetch(`/api/appointments/${a.id}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      }).catch(() => null);
+      if (res?.ok) {
+        done++;
+      } else {
+        failedIds.push(a.id);
+      }
+    }
+    setMarkingAll(false);
+    setOverdue((prev) => prev.filter((a) => failedIds.includes(a.id) || !a.canAct));
+    if (failedIds.length === 0) {
+      toast.success(to("markAllDone", { done, total: actionable.length }));
+    } else {
+      toast.error(to("markAllFailed"));
     }
   }
 
@@ -108,6 +178,92 @@ export function BekleyenIsteklerClient({
                   </span>
                 </Link>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {overdue.length > 0 && (
+        <Card className="border-0 shadow-none bg-orange-50/60 dark:bg-orange-950/20">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <p className="text-sm font-semibold text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {to("title")} ({overdue.length})
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">{to("subtitle")}</p>
+              </div>
+              {overdue.some((a) => a.canAct) && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 shrink-0 bg-background"
+                  disabled={markingAll}
+                  onClick={handleMarkAllCompleted}
+                >
+                  {markingAll ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ListChecks className="h-3.5 w-3.5" />}
+                  {to("markAllBtn")}
+                </Button>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              {overdue.map((a) => {
+                const busy = overdueBusyId === a.id;
+                return (
+                  <div
+                    key={a.id}
+                    className="flex items-center justify-between gap-3 flex-wrap bg-background rounded-xl p-3 border border-orange-200/60 dark:border-orange-900/40"
+                  >
+                    <Link href={`/dashboard/randevular/${a.id}`} className="min-w-0 flex-1 hover:opacity-80 transition-opacity">
+                      <p className="font-semibold text-sm truncate">{a.customer_name}</p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {format(new Date(a.appointment_at), "d MMMM yyyy, HH:mm", { locale: tr })}
+                        </span>
+                        {a.service_name && <span>{a.service_name}</span>}
+                        {a.staff_name && <span>· {a.staff_name}</span>}
+                        {a.price !== null && <span>· {formatServicePrice(a.price, undefined)}</span>}
+                      </div>
+                    </Link>
+                    {a.canAct ? (
+                      <div className="flex gap-1.5 shrink-0">
+                        <Button
+                          size="sm"
+                          className="gap-1 bg-green-600 hover:bg-green-700 text-white"
+                          disabled={busy || markingAll}
+                          onClick={() => handleOverdueAction(a.id, "tamamlandi")}
+                        >
+                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                          {t("markCompleted")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1 text-orange-600 border-orange-200 hover:bg-orange-50"
+                          disabled={busy || markingAll}
+                          onClick={() => handleOverdueAction(a.id, "gelmedi")}
+                        >
+                          {t("statusGelmedi")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1 text-red-600 border-red-200 hover:bg-red-50"
+                          disabled={busy || markingAll}
+                          onClick={() => handleOverdueAction(a.id, "iptal")}
+                        >
+                          {t("cancelAction")}
+                        </Button>
+                      </div>
+                    ) : (
+                      <Badge variant="outline" className="text-[10px] shrink-0">{to("notAssigned")}</Badge>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

@@ -11,7 +11,9 @@ export default async function BekleyenIsteklerPage() {
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  const [{ data: requests }, { data: inventoryItems }] = await Promise.all([
+  const nowIso = new Date().toISOString();
+
+  const [{ data: requests }, { data: inventoryItems }, { data: overdueRaw }] = await Promise.all([
     supabase
       .from("appointment_requests")
       .select("*, staff(full_name), service:services(name)")
@@ -23,6 +25,17 @@ export default async function BekleyenIsteklerPage() {
       .select("id, name, current_stock, min_stock_alert, unit")
       .eq("org_id", member.org_id)
       .eq("is_active", true),
+    // Randevu saati geçmiş ama hâlâ "Onaylandı" durumunda kalmış randevular —
+    // personel tamamlandı/gelmedi/iptal işaretlemeyi unutmuş olabilir, iş
+    // listesinde eksik kalmasınlar.
+    supabase
+      .from("appointments")
+      .select("id, customer_name, appointment_at, duration_minutes, price, staff_id, staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+      .eq("org_id", member.org_id)
+      .eq("status", "onaylandi")
+      .lt("appointment_at", nowIso)
+      .order("appointment_at", { ascending: true })
+      .limit(200),
   ]);
 
   type InvRow = { id: string; name: string; current_stock: number; min_stock_alert: number; unit: string };
@@ -30,11 +43,38 @@ export default async function BekleyenIsteklerPage() {
     .filter((i) => Number(i.min_stock_alert) > 0 && Number(i.current_stock) <= Number(i.min_stock_alert))
     .sort((a, b) => Number(a.current_stock) - Number(b.current_stock));
 
+  type OverdueRow = {
+    id: string; customer_name: string; appointment_at: string; duration_minutes: number;
+    price: number; staff_id: string | null;
+    staff: { full_name: string } | null; service: { name: string } | null;
+  };
+  const now = new Date(nowIso).getTime();
+  const overdueAppointments = ((overdueRaw ?? []) as unknown as OverdueRow[]).filter(
+    (a) => new Date(a.appointment_at).getTime() + Number(a.duration_minutes || 0) * 60_000 < now
+  );
+  const canActOnAll = member.role !== "staff";
+
   type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null } | null };
   const m = member as unknown as MemberWithOrg;
   const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhone = m.role !== "staff" || staffPhoneAccess;
 
-  return <BekleyenIsteklerClient initialRequests={requests || []} showPhone={showPhone} criticalStock={criticalStock} />;
+  return (
+    <BekleyenIsteklerClient
+      initialRequests={requests || []}
+      showPhone={showPhone}
+      criticalStock={criticalStock}
+      overdueAppointments={overdueAppointments.map((a) => ({
+        id: a.id,
+        customer_name: a.customer_name,
+        appointment_at: a.appointment_at,
+        duration_minutes: a.duration_minutes,
+        price: a.price,
+        staff_name: a.staff?.full_name ?? null,
+        service_name: a.service?.name ?? null,
+        canAct: canActOnAll || a.staff_id === member.staff_id,
+      }))}
+    />
+  );
 }

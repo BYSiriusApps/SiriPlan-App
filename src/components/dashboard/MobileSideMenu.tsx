@@ -25,7 +25,7 @@ const SECONDARY_NAV = [
   { href: "/dashboard/randevular", icon: BookOpen, tKey: "appointments", minRole: "staff" },
   { href: "/dashboard/musteriler", icon: Users, tKey: "customers", minRole: "staff" },
   { href: "/dashboard/paketler", icon: Ticket, tKey: "packages", minRole: "staff" },
-  { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff", planRequired: "business" },
+  { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff" },
   { href: "/dashboard/personel", icon: UserCog, tKey: "staff", minRole: "manager" },
   { href: "/dashboard/hizmetler", icon: Scissors, tKey: "services", minRole: "staff" },
   { href: "/dashboard/bekleme-listesi", icon: ListPlus, tKey: "waitlistAndApprovals", minRole: "staff" },
