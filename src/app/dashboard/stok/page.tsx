@@ -59,6 +59,12 @@ export interface InventoryTransaction {
   item?: { name: string; unit: string } | null;
 }
 
+// Sayısal alanlarda önceki "0" değerinin üzerine yazılınca "05" gibi baştaki
+// sıfırın kalmasını önler (mobil klavyede imleç mevcut "0"ın sonuna düşüyor).
+function stripLeadingZero(v: string): string {
+  return v.replace(/^0+(?=\d)/, "");
+}
+
 const EMPTY_ITEM = {
   name: "",
   category: "Saç Bakımı",
@@ -377,12 +383,13 @@ export default function StokPage() {
           note: txForm.note,
         }),
       });
+      const d = await res.json().catch(() => ({}));
       if (res.ok) {
         toast.success("Stok hareketi kaydedildi");
+        if (d.lowStock) toast(tb("nowLow", { name: txTargetItem.name }), { icon: "⚠️", duration: 8000 });
         setShowTxModal(false);
         fetchData();
       } else {
-        const d = await res.json().catch(() => ({}));
         toast.error(d.error || "İşlem başarısız");
       }
     } catch {
@@ -525,6 +532,30 @@ export default function StokPage() {
   const isTr = t("guide").includes("Kılavuzu");
   const isEn = t("guide").includes("User Guide");
   const isRu = t("guide").includes("Руководство");
+
+  // Select bileşeninin gövdesi (children) açıkça verilmezse, seçili değerin
+  // etiketini içerideki öğelerden otomatik çözmeye çalışıyor; ama JSX içerik
+  // her zaman güvenilir eşleşmiyor ve ham value ("out" gibi) görünebiliyor.
+  // Bu yüzden etiketleri burada tanımlayıp SelectValue'a açıkça veriyoruz.
+  const UNIT_OPTIONS = [
+    { value: "adet", label: isTr ? "adet" : isEn ? "pcs" : isRu ? "шт" : "قطعة" },
+    { value: "şişe", label: isTr ? "şişe" : isEn ? "bottle" : isRu ? "бутылка" : "زجاجة" },
+    { value: "kutu", label: isTr ? "kutu" : isEn ? "box" : isRu ? "коробка" : "علبة" },
+    { value: "tüp", label: isTr ? "tüp" : isEn ? "tube" : isRu ? "тюбик" : "أنبوب" },
+    { value: "ml", label: "ml" },
+    { value: "gram", label: isTr ? "gram" : isEn ? "gram" : isRu ? "грамм" : "جرام" },
+  ];
+  const unitLabel = (v: string) => UNIT_OPTIONS.find((o) => o.value === v)?.label ?? v;
+
+  const TX_TYPE_OPTIONS: { value: "in" | "out" | "adjust"; icon: string; label: string }[] = [
+    { value: "in", icon: "➕", label: isTr ? "Stok Girişi (Mal Alımı)" : isEn ? "Stock In (Purchase)" : isRu ? "Поступление товара" : "إدخال مخزون (شراء)" },
+    { value: "out", icon: "➖", label: isTr ? "Stok Çıkışı (Kullanım / Satış)" : isEn ? "Stock Out (Usage / Sale)" : isRu ? "Расход товара" : "إخراج مخزون (استخدام/بيع)" },
+    { value: "adjust", icon: "✏️", label: isTr ? "Stok Düzeltme (Sayım)" : isEn ? "Stock Adjustment (Count)" : isRu ? "Корректировка запасов" : "تعديل مخزون (جرد)" },
+  ];
+  const txTypeLabel = (v: string) => {
+    const opt = TX_TYPE_OPTIONS.find((o) => o.value === v);
+    return opt ? `${opt.icon} ${opt.label}` : v;
+  };
 
   const getStokText = (key: string) => {
     if (key === "loadTemplate") return isTr ? "Örnek Katalog Yükle" : isEn ? "Load Sample Catalog" : isRu ? "Загрузить пример каталога" : "تحميل كتالوج عينة";
@@ -820,16 +851,13 @@ export default function StokPage() {
               <div>
                 <Label>{isTr ? "Ölçü Birimi" : isEn ? "Unit of Measure" : isRu ? "Единица измерения" : "وحدة القياس"}</Label>
                 <Select value={itemForm.unit} onValueChange={(v) => setItemForm((f) => ({ ...f, unit: v || "adet" }))}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
+                  <SelectTrigger className="mt-1 w-full">
+                    <SelectValue>{(v: string) => unitLabel(v)}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="adet">{isTr ? "adet" : isEn ? "pcs" : isRu ? "шт" : "قطعة"}</SelectItem>
-                    <SelectItem value="şişe">{isTr ? "şişe" : isEn ? "bottle" : isRu ? "бутылка" : "زجاجة"}</SelectItem>
-                    <SelectItem value="kutu">{isTr ? "kutu" : isEn ? "box" : isRu ? "коробка" : "علبة"}</SelectItem>
-                    <SelectItem value="tüp">{isTr ? "tüp" : isEn ? "tube" : isRu ? "тюбик" : "أنبوب"}</SelectItem>
-                    <SelectItem value="ml">ml</SelectItem>
-                    <SelectItem value="gram">{isTr ? "gram" : isEn ? "gram" : isRu ? "грамм" : "جرام"}</SelectItem>
+                    {UNIT_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -842,7 +870,7 @@ export default function StokPage() {
                   className="mt-1"
                   type="number"
                   value={itemForm.current_stock}
-                  onChange={(e) => setItemForm((f) => ({ ...f, current_stock: e.target.value }))}
+                  onChange={(e) => setItemForm((f) => ({ ...f, current_stock: stripLeadingZero(e.target.value) }))}
                 />
               </div>
               <div>
@@ -851,7 +879,7 @@ export default function StokPage() {
                   className="mt-1"
                   type="number"
                   value={itemForm.min_stock_alert}
-                  onChange={(e) => setItemForm((f) => ({ ...f, min_stock_alert: e.target.value }))}
+                  onChange={(e) => setItemForm((f) => ({ ...f, min_stock_alert: stripLeadingZero(e.target.value) }))}
                 />
               </div>
             </div>
@@ -864,7 +892,7 @@ export default function StokPage() {
                   type="number"
                   step="0.5"
                   value={itemForm.cost_price}
-                  onChange={(e) => setItemForm((f) => ({ ...f, cost_price: e.target.value }))}
+                  onChange={(e) => setItemForm((f) => ({ ...f, cost_price: stripLeadingZero(e.target.value) }))}
                 />
               </div>
               <div>
@@ -874,7 +902,7 @@ export default function StokPage() {
                   type="number"
                   step="0.5"
                   value={itemForm.sale_price}
-                  onChange={(e) => setItemForm((f) => ({ ...f, sale_price: e.target.value }))}
+                  onChange={(e) => setItemForm((f) => ({ ...f, sale_price: stripLeadingZero(e.target.value) }))}
                 />
               </div>
             </div>
@@ -980,13 +1008,13 @@ export default function StokPage() {
                   }));
                 }}
               >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
+                <SelectTrigger className="mt-1 w-full">
+                  <SelectValue>{(v: string) => txTypeLabel(v)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="in">➕ {isTr ? "Stok Girişi (Mal Alımı)" : isEn ? "Stock In (Purchase)" : isRu ? "Поступление товара" : "إدخال مخزون (شراء)"}</SelectItem>
-                  <SelectItem value="out">➖ {isTr ? "Stok Çıkışı (Kullanım / Satış)" : isEn ? "Stock Out (Usage / Sale)" : isRu ? "Расход товара" : "إخراج مخزون (استخدام/بيع)"}</SelectItem>
-                  <SelectItem value="adjust">✏️ {isTr ? "Stok Düzeltme (Sayım)" : isEn ? "Stock Adjustment (Count)" : isRu ? "Корректировка запасов" : "تعديل مخزون (جرد)"}</SelectItem>
+                  {TX_TYPE_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{o.icon} {o.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -999,7 +1027,7 @@ export default function StokPage() {
                 min="0.1"
                 step="1"
                 value={txForm.quantity}
-                onChange={(e) => setTxForm((f) => ({ ...f, quantity: e.target.value }))}
+                onChange={(e) => setTxForm((f) => ({ ...f, quantity: stripLeadingZero(e.target.value) }))}
               />
             </div>
 
@@ -1011,7 +1039,7 @@ export default function StokPage() {
                   type="number"
                   step="0.5"
                   value={txForm.unit_price}
-                  onChange={(e) => setTxForm((f) => ({ ...f, unit_price: e.target.value }))}
+                  onChange={(e) => setTxForm((f) => ({ ...f, unit_price: stripLeadingZero(e.target.value) }))}
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">
                   {isTr 
@@ -1101,7 +1129,7 @@ export default function StokPage() {
                       min="1"
                       step="1"
                       value={barcodeSellQty}
-                      onChange={(e) => setBarcodeSellQty(e.target.value)}
+                      onChange={(e) => setBarcodeSellQty(stripLeadingZero(e.target.value))}
                     />
                   </div>
                   <div>
@@ -1111,7 +1139,7 @@ export default function StokPage() {
                       type="number"
                       step="0.5"
                       value={barcodeSellPrice}
-                      onChange={(e) => setBarcodeSellPrice(e.target.value)}
+                      onChange={(e) => setBarcodeSellPrice(stripLeadingZero(e.target.value))}
                     />
                   </div>
                 </div>
