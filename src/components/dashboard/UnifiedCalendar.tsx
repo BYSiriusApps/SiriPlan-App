@@ -106,6 +106,9 @@ interface Positioned {
   appt: Appointment;
   lane: number;
   lanes: number;
+  // Aynı şeritteki bir sonraki randevunun başlangıcı (epoch ms) — minimum kutu
+  // yüksekliği bunun üstüne taşıp görsel olarak çakışıyormuş gibi görünmesin diye.
+  capStart: number | null;
 }
 
 // Aynı gün içinde çakışan randevuları yan yana şeritlere yerleştirir
@@ -133,7 +136,10 @@ function layoutDay(appts: Appointment[]): Positioned[] {
   return placed.map((p) => {
     const overlapping = placed.filter((q) => q.start < p.end && q.end > p.start);
     const lanes = Math.max(...overlapping.map((q) => q.lane)) + 1;
-    return { appt: p.appt, lane: p.lane, lanes };
+    const nextInLane = placed
+      .filter((q) => q.lane === p.lane && q.start > p.start)
+      .sort((a, b) => a.start - b.start)[0];
+    return { appt: p.appt, lane: p.lane, lanes, capStart: nextInLane ? nextInLane.start : null };
   });
 }
 
@@ -591,22 +597,31 @@ export function UnifiedCalendar({
     </div>
   ) : null;
 
-  function apptBlockStyle(appt: Appointment) {
+  function apptBlockStyle(appt: Appointment, capStart?: number | null) {
     const d = new Date(appt.appointment_at);
     const startMin = d.getHours() * 60 + d.getMinutes();
     const rawTop = ((startMin - hours[0] * 60) / 60) * HOUR_PX;
     // Not: yüksekliği gerçek süreden fazla şişirmiyoruz — art arda kısa randevular
     // birbirinin üzerine taşar. Bunun yerine kısa kutularda 2. satır (hizmet) gizlenir.
-    const height = Math.max(view === "day" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
+    let height = Math.max(view === "day" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
+    // Aynı şeritteki bir sonraki randevu bu minimumdan önce başlıyorsa (ör. art arda
+    // 15dk'lık randevular), kutuyu onun üstüne taşırmayacak şekilde kırp — aksi halde
+    // aslında çakışmayan randevular görsel olarak üst üste binmiş gibi görünür.
+    if (capStart != null) {
+      const capDate = new Date(capStart);
+      const capMin = capDate.getHours() * 60 + capDate.getMinutes();
+      const capPx = ((capMin - hours[0] * 60) / 60) * HOUR_PX - rawTop;
+      if (capPx > 0) height = Math.min(height, Math.max(14, capPx - 2));
+    }
     // Grid dışına taşan randevular gizlenmesin — kenara kenetle
     const top = Math.min(Math.max(rawTop, 0), gridHeight - 24);
     return { top, height: Math.min(height, gridHeight - top) };
   }
 
   function renderApptBlock(p: Positioned, opts?: { showStaff?: boolean; dayIndex?: number }) {
-    const { appt, lane, lanes } = p;
+    const { appt, lane, lanes, capStart } = p;
     const c = colorOf(appt.staff_id);
-    const { top, height } = apptBlockStyle(appt);
+    const { top, height } = apptBlockStyle(appt, capStart);
     const width = 100 / lanes;
     const done = appt.status === "tamamlandi";
     const noShow = appt.status === "gelmedi";
