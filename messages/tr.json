@@ -482,7 +482,7 @@
       },
       "address": {
         "label": "Adres",
-        "value": "BY Sirius Group Ai & Technology Co Ltd., Türkiye"
+        "value": "İngiltere (Kayıtlı Merkez)\nTürkiye (Operasyon Ofisi)"
       },
       "hours": {
         "label": "Çalışma Saatleri",
@@ -886,6 +886,119 @@
     "dietitian": "Diyetisyen",
     "eyebrow": "Kaş & Kirpik",
     "petGrooming": "Pet Kuaför"
+  },
+  "blogPage": {
+    "metaTitle": "Blog",
+    "metaDescription": "SiriPlan blog — salon yönetimi, dijital dönüşüm ve sektör haberleri.",
+    "badge": "SiriPlan Blog",
+    "heroTitleLine": "Salon Yönetiminde",
+    "heroTitleHighlight": "Uzman Tavsiyeleri",
+    "heroSubtitle": "Dijital dönüşüm, müşteri yönetimi, ciro artırma taktikleri ve sektörden haberler.",
+    "readMore": "Oku",
+    "readTimeSuffix": "okuma",
+    "newsletterText": "Daha fazla içerik için bültenimize abone olun.",
+    "ctaButton": "Ücretsiz Deneyin — 14 Gün",
+    "backToBlog": "Blog'a Dön",
+    "postCtaTitle": "14 Gün Ücretsiz Deneyin",
+    "postCtaSubtitle": "Kredi kartı gerekmez. Verileriniz güvende.",
+    "postCtaButton": "Ücretsiz Başlayın",
+    "relatedPostsTitle": "İlgili Yazılar"
+  },
+  "categoryPage": {
+    "solutionBadge": "{title} Çözümü",
+    "featuresTitle": "{title} İşletmeleri İçin Özel Özellikler",
+    "platformAdvantagesTitle": "Platform Avantajları",
+    "platformFeatures": {
+      "channels": { "title": "Çok Kanallı Randevu", "desc": "Web, WA, IG, QR" },
+      "ai": { "title": "AI Asistanı", "desc": "7/24 otomatik yanıt" },
+      "customerScore": { "title": "Müşteri Skoru", "desc": "Sadakat programı" },
+      "revenue": { "title": "Ciro Analitik", "desc": "Gerçek zamanlı rapor" },
+      "gamification": { "title": "Gamification", "desc": "Haftanın Elemanı" },
+      "kvkk": { "title": "KVKK Uyumlu", "desc": "Güvenli veri saklama" },
+      "migration": { "title": "Kolay Göç", "desc": "Mevcut verilerinizi taşıyın" },
+      "uptime": { "title": "%99.9 Uptime", "desc": "Kesintisiz çalışma" }
+    },
+    "tryFree": "14 Gün Ücretsiz Dene",
+    "watchDemo": "Demo İzle",
+    "ctaTitle": "{title} İşletmenizi Büyütmeye Hazır mısınız?",
+    "ctaSubtitle": "14 gün ücretsiz deneyin. Kredi kartı gerekmez.",
+    "ctaButton": "Ücretsiz Hesap Oluştur",
+    "metaTitleSuffix": "Randevu Sistemi",
+    "sectors": {
+      "kuafor": {
+        "title": "Kuaför",
+        "headline": "Kuaför Salonunuz İçin Akıllı Randevu Sistemi",
+        "desc": "Saç kesimi, boyama, bakım ve şekillendirme randevularını tek ekrandan yönetin. WhatsApp ile otomatik hatırlatma, müşteri sadakat programı ve ciro takibi.",
+        "features": ["Çok personelli randevu takibi", "Hizmet bazlı süre yönetimi", "WhatsApp & Instagram otomasyonu", "Sadakat puanı sistemi", "Personel komisyon raporları", "Ön ödeme toplama"],
+        "testimonialText": "SiriPlan'a geçtikten sonra no-show oranımız %70 düştü. WhatsApp hatırlatmaları sayesinde her randevumuz dolup taşıyor.",
+        "keywords": ["kuaför randevu sistemi", "kuaför programı", "online kuaför randevu"]
+      },
+      "berber": {
+        "title": "Berber",
+        "headline": "Berber Dükkanı İçin Randevu & Yönetim Yazılımı",
+        "desc": "Saç kesimi, sakal düzeltme ve bakım randevularını kolayca yönetin. Müşteri geçmişi, kişisel tercihler ve hızlı checkout sistemi.",
+        "features": ["Hızlı randevu oluşturma", "Müşteri tercih notları", "QR kod ile self servis randevu", "Günlük ciro özeti", "SMS & WhatsApp hatırlatma", "Personel çalışma saati takibi"],
+        "testimonialText": "Haftanın Elemanı sistemi personelimi çok motive etti. Ciro takibi ve personel komisyon raporu artık çok kolay.",
+        "keywords": ["berber randevu sistemi", "berber programı", "online berber randevu"]
+      },
+      "guzellik": {
+        "title": "Güzellik Salonu",
+        "headline": "Güzellik Salonu Yönetiminde Yeni Standart",
+        "desc": "Cilt bakımı, makyaj, lazer ve epilasyon hizmetlerini tek platformda yönetin. Müşteri kartı, ürün takibi ve kampanya modülü.",
+        "features": ["Hizmet & paket satışı", "Ürün stok takibi", "Müşteri geçmişi ve notları", "Instagram DM otomasyonu", "Toplu kampanya gönderimi", "KDV'li ciro raporları"],
+        "keywords": ["güzellik salonu randevu sistemi", "güzellik salonu programı"]
+      },
+      "spa": {
+        "title": "SPA & Masaj",
+        "headline": "SPA Merkezi İçin Profesyonel Randevu Yönetimi",
+        "desc": "Masaj, sauna, hamam, duş ve paket programlarını yönetin. Çift yönlü kabin takibi, personel uygunluk ve ön ödeme sistemi.",
+        "features": ["Kabin & oda bazlı rezervasyon", "Paket program satışı", "Otomatik hatırlatma", "Müşteri memnuniyet skoru", "Bekleme listesi", "Gelir & doluluk raporları"],
+        "testimonialText": "3 şube yönetimi artık tek ekrandan. Doluluk oranımız %40 arttı.",
+        "keywords": ["spa randevu sistemi", "masaj salonu programı"]
+      },
+      "nail": {
+        "title": "Nail Salon",
+        "headline": "Nail Salon İçin Akıllı Randevu Sistemi",
+        "desc": "Manikür, pedikür, jel, akrilik ve protez tırnak randevularını yönetin. Uzun süreli hizmetler için blok rezervasyon ve tekrar eden müşteri takibi.",
+        "features": ["Hizmet süresi bazlı blok rezervasyon", "Tekrar eden müşteri hatırlatma", "Before/after fotoğraf notları", "Sadakat kartı sistemi", "Online ön ödeme", "Kapasiteli slot yönetimi"],
+        "keywords": ["nail salon randevu sistemi", "tırnak salonu programı"]
+      },
+      "estetik": {
+        "title": "Estetik Klinik",
+        "headline": "Estetik & Güzellik Kliniği Randevu Yönetimi",
+        "desc": "Botoks, dolgu, lazer epilasyon, mezoterapi ve cilt bakımı randevularını KVKK uyumlu şekilde yönetin.",
+        "features": ["Hasta kartı & tedavi geçmişi", "KVKK uyumlu veri saklama", "Online onay formu", "Hekim uygunluk takvimi", "Takip randevusu hatırlatma", "Ön ödeme & taksit"],
+        "keywords": ["estetik klinik randevu sistemi", "klinik yönetim yazılımı"]
+      },
+      "makyaj": {
+        "title": "Makyaj Stüdyosu",
+        "headline": "Makyaj Stüdyosu İçin Randevu & Müşteri Yönetimi",
+        "desc": "Gelin makyajı, fotoğraf çekimi, özel gün ve günlük makyaj randevularını kolayca planlayın.",
+        "features": ["Etkinlik bazlı randevu", "Müşteri tercih profili", "Kaparo & ön ödeme sistemi", "Gelin randevu paketi", "Instagram entegrasyonu", "Fotoğraf notları"],
+        "keywords": ["makyaj stüdyosu randevu sistemi", "makyajcı randevu programı"]
+      },
+      "tattoo": {
+        "title": "Tattoo Studio",
+        "headline": "Tattoo Studio İçin Profesyonel Randevu Sistemi",
+        "desc": "Dövme, piercing ve lazer seans randevularını yönetin. Tasarım onay süreci, kaparo ve çok seanslı proje takibi.",
+        "features": ["Proje bazlı çok seanslı randevu", "Kaparo & bakiye takibi", "Tasarım notları & fotoğraflar", "Müşteri onam belgesi", "Tattoo sanatçısı takvimi", "WA ile seans hatırlatma"],
+        "keywords": ["tattoo studio randevu sistemi", "dövmeci randevu programı"]
+      },
+      "diyetisyen": {
+        "title": "Diyetisyen",
+        "headline": "Diyetisyen Kliniği İçin Randevu & Danışan Yönetimi",
+        "desc": "Beslenme danışmanlığı, takip seansları ve online konsültasyon randevularını yönetin. Danışan kartı ve ilerleme takibi.",
+        "features": ["Online & yüz yüze seans", "Danışan takip profili", "Tekrar eden haftalık randevu", "E-posta & WA hatırlatma", "Ödeme & paket yönetimi", "Randevu geçmişi"],
+        "keywords": ["diyetisyen randevu sistemi", "beslenme danışmanı programı"]
+      },
+      "kas": {
+        "title": "Kaş & Kirpik",
+        "headline": "Kaş & Kirpik Stüdyosu İçin Randevu Sistemi",
+        "desc": "Kaş tasarımı, microblading, kirpik uzatma ve laminasyon randevularını yönetin. Seans süresi ve doluluk optimizasyonu.",
+        "features": ["Seans süresi bazlı rezervasyon", "Tekrar eden müşteri hatırlatma", "Renk ve stil notları", "Müşteri fotoğraf galerisi", "Online ön ödeme", "Sadakat programı"],
+        "keywords": ["kaş kirpik randevu sistemi", "kirpik stüdyo programı"]
+      }
+    }
   },
   "testimonials": {
     "title": "İşletmeler Ne Diyor?",

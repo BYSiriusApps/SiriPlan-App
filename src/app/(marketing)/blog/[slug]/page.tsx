@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Clock, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { getTranslations } from "next-intl/server";
 import { blogPosts, getBlogPost } from "@/lib/blog-posts";
 
 type Params = { slug: string };
@@ -65,6 +65,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
   const { slug } = await params;
   const post = getBlogPost(slug);
   if (!post) notFound();
+  const t = await getTranslations("blogPage");
 
   const relatedPosts = blogPosts.filter((p) => p.slug !== slug).slice(0, 2);
 
@@ -75,7 +76,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
         <div className="container mx-auto px-4 max-w-3xl">
           <Link href="/blog" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" />
-            Blog&apos;a Dön
+            {t("backToBlog")}
           </Link>
           <div className="flex items-center gap-2 mb-4">
             <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${CATEGORY_COLORS[post.category] || "bg-muted text-muted-foreground"}`}>
@@ -99,7 +100,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
             </span>
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5" />
-              {post.readTime} okuma
+              {post.readTime} {t("readTimeSuffix")}
             </span>
           </div>
         </div>
@@ -120,13 +121,13 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
       {/* CTA */}
       <section className="py-10 bg-primary/5 border-y border-primary/20">
         <div className="container mx-auto px-4 max-w-xl text-center">
-          <h2 className="text-xl font-bold mb-3">14 Gün Ücretsiz Deneyin</h2>
+          <h2 className="text-xl font-bold mb-3">{t("postCtaTitle")}</h2>
           <p className="text-sm text-muted-foreground mb-5">
-            Kredi kartı gerekmez. Verileriniz güvende.
+            {t("postCtaSubtitle")}
           </p>
           <Link href="/auth/kayit">
             <Button className="bg-primary hover:bg-primary/90 gap-2">
-              Ücretsiz Başlayın
+              {t("postCtaButton")}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
@@ -137,7 +138,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
       {relatedPosts.length > 0 && (
         <section className="py-12">
           <div className="container mx-auto px-4 max-w-3xl">
-            <h2 className="text-xl font-bold mb-6">İlgili Yazılar</h2>
+            <h2 className="text-xl font-bold mb-6">{t("relatedPostsTitle")}</h2>
             <div className="grid sm:grid-cols-2 gap-5">
               {relatedPosts.map((related) => (
                 <Link
@@ -149,7 +150,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${CATEGORY_COLORS[related.category] || "bg-muted text-muted-foreground"}`}>
                       {related.category}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">{related.readTime} okuma</span>
+                    <span className="text-[10px] text-muted-foreground">{related.readTime} {t("readTimeSuffix")}</span>
                   </div>
                   <h3 className="font-semibold text-sm leading-snug group-hover:text-primary transition-colors">
                     {related.title}

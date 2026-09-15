@@ -482,7 +482,7 @@
       },
       "address": {
         "label": "Address",
-        "value": "BY Sirius Group Ai & Technology Co Ltd., Turkey"
+        "value": "United Kingdom (Registered Office)\nTurkey (Operations Office)"
       },
       "hours": {
         "label": "Business Hours",
@@ -886,6 +886,119 @@
     "dietitian": "Dietitian",
     "eyebrow": "Brow & Lash",
     "petGrooming": "Pet Grooming"
+  },
+  "blogPage": {
+    "metaTitle": "Blog",
+    "metaDescription": "SiriPlan blog — salon management, digital transformation and industry news.",
+    "badge": "SiriPlan Blog",
+    "heroTitleLine": "Expert Advice on",
+    "heroTitleHighlight": "Salon Management",
+    "heroSubtitle": "Digital transformation, customer management, revenue-boosting tactics and industry news.",
+    "readMore": "Read",
+    "readTimeSuffix": "read",
+    "newsletterText": "Subscribe to our newsletter for more content.",
+    "ctaButton": "Try Free — 14 Days",
+    "backToBlog": "Back to Blog",
+    "postCtaTitle": "Try Free for 14 Days",
+    "postCtaSubtitle": "No credit card required. Your data stays safe.",
+    "postCtaButton": "Start Free",
+    "relatedPostsTitle": "Related Posts"
+  },
+  "categoryPage": {
+    "solutionBadge": "{title} Solution",
+    "featuresTitle": "Features Built for {title} Businesses",
+    "platformAdvantagesTitle": "Platform Advantages",
+    "platformFeatures": {
+      "channels": { "title": "Multi-Channel Booking", "desc": "Web, WhatsApp, Instagram, QR" },
+      "ai": { "title": "AI Assistant", "desc": "24/7 automatic replies" },
+      "customerScore": { "title": "Customer Score", "desc": "Loyalty program" },
+      "revenue": { "title": "Revenue Analytics", "desc": "Real-time reports" },
+      "gamification": { "title": "Gamification", "desc": "Employee of the Week" },
+      "kvkk": { "title": "Data Protection Compliant", "desc": "Secure data storage" },
+      "migration": { "title": "Easy Migration", "desc": "Import your existing data" },
+      "uptime": { "title": "99.9% Uptime", "desc": "Uninterrupted operation" }
+    },
+    "tryFree": "Try Free for 14 Days",
+    "watchDemo": "Watch Demo",
+    "ctaTitle": "Ready to Grow Your {title} Business?",
+    "ctaSubtitle": "Try it free for 14 days. No credit card required.",
+    "ctaButton": "Create Free Account",
+    "metaTitleSuffix": "Appointment System",
+    "sectors": {
+      "kuafor": {
+        "title": "Hair Salon",
+        "headline": "Smart Appointment System for Your Hair Salon",
+        "desc": "Manage haircut, coloring, treatment and styling appointments from one screen. Automatic WhatsApp reminders, customer loyalty program and revenue tracking.",
+        "features": ["Multi-staff appointment tracking", "Service-based duration management", "WhatsApp & Instagram automation", "Loyalty points system", "Staff commission reports", "Deposit collection"],
+        "testimonialText": "After switching to SiriPlan, our no-show rate dropped by 70%. Thanks to WhatsApp reminders, every appointment slot is fully booked.",
+        "keywords": ["hair salon booking system", "hair salon software", "online hair salon appointment"]
+      },
+      "berber": {
+        "title": "Barbershop",
+        "headline": "Appointment & Management Software for Your Barbershop",
+        "desc": "Easily manage haircut, beard trim and grooming appointments. Customer history, personal preferences and a fast checkout system.",
+        "features": ["Quick appointment creation", "Customer preference notes", "Self-service booking via QR code", "Daily revenue summary", "SMS & WhatsApp reminders", "Staff work-hour tracking"],
+        "testimonialText": "The Employee of the Week system really motivated my staff. Revenue tracking and staff commission reports are now effortless.",
+        "keywords": ["barbershop booking system", "barbershop software", "online barbershop appointment"]
+      },
+      "guzellik": {
+        "title": "Beauty Salon",
+        "headline": "The New Standard in Beauty Salon Management",
+        "desc": "Manage skincare, makeup, laser and hair removal services on one platform. Customer profiles, product tracking and a campaign module.",
+        "features": ["Service & package sales", "Product inventory tracking", "Customer history and notes", "Instagram DM automation", "Bulk campaign sending", "VAT-inclusive revenue reports"],
+        "keywords": ["beauty salon booking system", "beauty salon software"]
+      },
+      "spa": {
+        "title": "Spa & Massage",
+        "headline": "Professional Appointment Management for Your Spa Center",
+        "desc": "Manage massage, sauna, hammam, shower and package programs. Cabin/room-based scheduling, staff availability and a deposit system.",
+        "features": ["Cabin & room-based booking", "Package program sales", "Automatic reminders", "Customer satisfaction score", "Waiting list", "Revenue & occupancy reports"],
+        "testimonialText": "Managing 3 branches is now possible from a single screen. Our occupancy rate rose by 40%.",
+        "keywords": ["spa booking system", "massage salon software"]
+      },
+      "nail": {
+        "title": "Nail Salon",
+        "headline": "Smart Appointment System for Your Nail Salon",
+        "desc": "Manage manicure, pedicure, gel, acrylic and nail extension appointments. Block booking for long services and returning-customer tracking.",
+        "features": ["Duration-based block booking", "Returning-customer reminders", "Before/after photo notes", "Loyalty card system", "Online deposits", "Capacity-based slot management"],
+        "keywords": ["nail salon booking system", "nail salon software"]
+      },
+      "estetik": {
+        "title": "Aesthetic Clinic",
+        "headline": "Appointment Management for Aesthetic & Beauty Clinics",
+        "desc": "Manage Botox, filler, laser hair removal, mesotherapy and skincare appointments with compliant data handling.",
+        "features": ["Patient card & treatment history", "Compliant data storage", "Online consent form", "Doctor availability calendar", "Follow-up appointment reminders", "Deposit & installment payments"],
+        "keywords": ["aesthetic clinic booking system", "clinic management software"]
+      },
+      "makyaj": {
+        "title": "Makeup Studio",
+        "headline": "Appointment & Customer Management for Your Makeup Studio",
+        "desc": "Easily schedule bridal makeup, photoshoot, special-occasion and everyday makeup appointments.",
+        "features": ["Event-based booking", "Customer preference profile", "Deposit & advance payment system", "Bridal appointment package", "Instagram integration", "Photo notes"],
+        "keywords": ["makeup studio booking system", "makeup artist booking software"]
+      },
+      "tattoo": {
+        "title": "Tattoo Studio",
+        "headline": "Professional Appointment System for Your Tattoo Studio",
+        "desc": "Manage tattoo, piercing and laser removal session appointments. Design approval process, deposits and multi-session project tracking.",
+        "features": ["Multi-session project booking", "Deposit & balance tracking", "Design notes & photos", "Customer consent form", "Tattoo artist calendar", "WhatsApp session reminders"],
+        "keywords": ["tattoo studio booking system", "tattoo artist booking software"]
+      },
+      "diyetisyen": {
+        "title": "Dietitian",
+        "headline": "Appointment & Client Management for Dietitian Clinics",
+        "desc": "Manage nutrition consulting, follow-up sessions and online consultation appointments. Client profiles and progress tracking.",
+        "features": ["Online & in-person sessions", "Client progress profile", "Recurring weekly appointments", "Email & WhatsApp reminders", "Payment & package management", "Appointment history"],
+        "keywords": ["dietitian booking system", "nutrition consultant software"]
+      },
+      "kas": {
+        "title": "Brow & Lash",
+        "headline": "Appointment System for Your Brow & Lash Studio",
+        "desc": "Manage brow design, microblading, lash extension and lamination appointments. Session-duration and occupancy optimization.",
+        "features": ["Duration-based booking", "Returning-customer reminders", "Color & style notes", "Customer photo gallery", "Online deposits", "Loyalty program"],
+        "keywords": ["brow lash booking system", "lash studio software"]
+      }
+    }
   },
   "testimonials": {
     "title": "What Businesses Say",

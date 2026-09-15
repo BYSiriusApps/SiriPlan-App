@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getTranslations } from "next-intl/server";
 import { blogPosts as posts } from "@/lib/blog-posts";
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description: "SiriPlan blog — salon yönetimi, dijital dönüşüm ve sektör haberleri.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("blogPage");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
 
 const CATEGORY_COLORS: Record<string, string> = {
   "İpuçları": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
@@ -18,7 +22,9 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Ciro": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
 };
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const t = await getTranslations("blogPage");
+
   return (
     <div className="flex flex-col">
       {/* Hero */}
@@ -26,14 +32,14 @@ export default function BlogPage() {
         <div className="container mx-auto px-4 text-center max-w-2xl">
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <PenLine className="w-3.5 h-3.5" />
-            SiriPlan Blog
+            {t("badge")}
           </div>
           <h1 className="text-3xl md:text-5xl font-bold mb-4">
-            Salon Yönetiminde<br />
-            <span className="brand-gradient-text">Uzman Tavsiyeleri</span>
+            {t("heroTitleLine")}<br />
+            <span className="brand-gradient-text">{t("heroTitleHighlight")}</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            Dijital dönüşüm, müşteri yönetimi, ciro artırma taktikleri ve sektörden haberler.
+            {t("heroSubtitle")}
           </p>
         </div>
       </section>
@@ -55,7 +61,7 @@ export default function BlogPage() {
                     </span>
                     <span className="text-xs text-muted-foreground">{post.date}</span>
                     <span className="text-xs text-muted-foreground">·</span>
-                    <span className="text-xs text-muted-foreground">{post.readTime} okuma</span>
+                    <span className="text-xs text-muted-foreground">{post.readTime} {t("readTimeSuffix")}</span>
                   </div>
                   <h2 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors leading-snug">
                     {post.title}
@@ -66,7 +72,7 @@ export default function BlogPage() {
                 </div>
                 <div className="flex items-center sm:items-end shrink-0">
                   <span className="flex items-center gap-1 text-xs text-primary font-medium group-hover:gap-2 transition-all">
-                    Oku <ArrowRight className="w-3 h-3" />
+                    {t("readMore")} <ArrowRight className="w-3 h-3" />
                   </span>
                 </div>
               </Link>
@@ -75,11 +81,11 @@ export default function BlogPage() {
 
           <div className="mt-12 text-center">
             <p className="text-muted-foreground text-sm mb-4">
-              Daha fazla içerik için bültenimize abone olun.
+              {t("newsletterText")}
             </p>
             <Link href="/auth/kayit">
               <Button className="bg-primary hover:bg-primary/90 gap-2">
-                Ücretsiz Deneyin — 14 Gün
+                {t("ctaButton")}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>

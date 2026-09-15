@@ -63,12 +63,12 @@ export default async function IletisimPage() {
                             href={c.href}
                             target={c.href.startsWith("http") ? "_blank" : undefined}
                             rel="noopener noreferrer"
-                            className="font-semibold text-sm hover:text-primary transition-colors"
+                            className="font-semibold text-sm hover:text-primary transition-colors whitespace-pre-line"
                           >
                             {value}
                           </a>
                         ) : (
-                          <p className="font-semibold text-sm">{value}</p>
+                          <p className="font-semibold text-sm whitespace-pre-line">{value}</p>
                         )}
                       </div>
                     </div>
