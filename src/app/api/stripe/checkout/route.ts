@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { getLocale } from "next-intl/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getStripe, PLANS, type PlanKey } from "@/lib/stripe/config";
 import { createClient } from "@/lib/supabase/server";
@@ -7,6 +8,17 @@ import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
+
+// Stripe Checkout'un desteklediği diller. Arapça Stripe'ta yok — 'auto'ya
+// bırakılırsa tarayıcı diline göre karar verir (genelde İngilizce'ye düşer).
+// Bizim NEXT_LOCALE çerezimiz kullanıcının sitede seçtiği dili yansıttığı
+// için tarayıcı dilinden daha güvenilir; o yüzden burada açıkça eşleniyor.
+const STRIPE_LOCALE: Record<string, Stripe.Checkout.SessionCreateParams.Locale> = {
+  tr: "tr",
+  en: "en",
+  ru: "ru",
+  ar: "en",
+};
 
 export async function POST(req: NextRequest) {
   // Mağaza kurallarına uyum: native uygulama (App Store/Play Store) içinden
@@ -62,6 +74,7 @@ export async function POST(req: NextRequest) {
   // çerezi → IP ülkesi; bkz. lib/pricing.ts). Ödeme ekranında başka bir para
   // birimiyle karşılaşmaması için aynı kaynaktan okunuyor.
   const visitorCurrency = getPricingCurrencyFromHeaders(req.headers).toLowerCase();
+  const locale = await getLocale();
 
   const params: Stripe.Checkout.SessionCreateParams = {
     customer: customerId,
@@ -75,6 +88,7 @@ export async function POST(req: NextRequest) {
       metadata: { org_id: member.org_id, plan },
     },
     allow_promotion_codes: true,
+    locale: STRIPE_LOCALE[locale] ?? "auto",
   };
 
   // Stripe, çok para birimli fiyatlarda `currency` GEÇİLMEDİKÇE Price'ın
