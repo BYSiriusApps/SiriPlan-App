@@ -37,12 +37,43 @@ function normName(s: string): string {
  * Konuşma tanıma yan yana tekrar ürettiğinde ("melike melike yılmaz") ardışık
  * yineleme atılır — yoksa arama sorgusu "melike melike" olup hiçbir kaydı bulmaz.
  */
-function cleanTokens(spoken: string): string[] {
+export function cleanTokens(spoken: string): string[] {
   const toks = normName(spoken)
     .split(" ")
     .map((t) => t.replace(/['‘’].*$/, ""))
     .filter((t) => t.length >= 2);
   return toks.filter((t, i) => i === 0 || t !== toks[i - 1]);
+}
+
+/**
+ * Aday listesinden söylenen ada en uyanı seçer — istemci (fetch ile) ve
+ * sunucu (doğrudan DB sorgusuyla) tarafından ortak kullanılır.
+ * Belirsiz durumlarda (birden çok eşit aday) hiç doldurmadan `null` döner.
+ */
+export function pickBestCustomerMatch(
+  tokens: string[],
+  candidates: LookedUpCustomer[],
+): LookedUpCustomer | null {
+  const list = candidates.filter((c) => c && c.phone);
+  if (!list.length) return null;
+
+  const key = tokens.join(" ");
+
+  // 1) Birebir (normalize) ad eşleşmesi.
+  const exact = list.filter((c) => normName(c.full_name) === key);
+  if (exact.length === 1) return exact[0];
+  if (exact.length > 1) return null;
+
+  // 2) Söylenen tüm kelimeler kayıtlı adın kelime kümesinde geçiyor.
+  const subset = list.filter((c) => {
+    const set = new Set(normName(c.full_name).split(" "));
+    return tokens.every((t) => set.has(t));
+  });
+  if (subset.length === 1) return subset[0];
+  if (subset.length > 1) return null;
+
+  // 3) Tek aday döndüyse onu kullan; birden çoksa belirsiz → dokunma.
+  return list.length === 1 ? list[0] : null;
 }
 
 export async function lookupCustomerBySpokenName(
@@ -57,28 +88,8 @@ export async function lookupCustomerBySpokenName(
   try {
     const res = await fetch(`/api/customers?q=${encodeURIComponent(query)}&limit=8`);
     const json = await res.json();
-    const list: LookedUpCustomer[] = (json.customers || []).filter(
-      (c: LookedUpCustomer) => c && c.phone,
-    );
-    if (!list.length) return null;
-
-    const key = tokens.join(" ");
-
-    // 1) Birebir (normalize) ad eşleşmesi.
-    const exact = list.filter((c) => normName(c.full_name) === key);
-    if (exact.length === 1) return exact[0];
-    if (exact.length > 1) return null;
-
-    // 2) Söylenen tüm kelimeler kayıtlı adın kelime kümesinde geçiyor.
-    const subset = list.filter((c) => {
-      const set = new Set(normName(c.full_name).split(" "));
-      return tokens.every((t) => set.has(t));
-    });
-    if (subset.length === 1) return subset[0];
-    if (subset.length > 1) return null;
-
-    // 3) Tek aday döndüyse onu kullan; birden çoksa belirsiz → dokunma.
-    return list.length === 1 ? list[0] : null;
+    const list: LookedUpCustomer[] = json.customers || [];
+    return pickBestCustomerMatch(tokens, list);
   } catch {
     return null;
   }

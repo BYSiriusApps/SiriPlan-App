@@ -53,6 +53,15 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "2. Google Maps'te işletmenizi bulup \"Paylaş\" ile linki kopyalayıp buraya yapıştırın.",
   },
   {
+    keywords: ["instagram bağlan", "facebook messenger", "meta bağlantı", "instagram otomasyon", "dm otomatik yanıt", "instagram dm"],
+    answer:
+      "Instagram DM ve Facebook Messenger'a gelen mesajlara otomatik AI yanıtı vermek için:\n" +
+      "1. Meta for Developers'ta (developers.facebook.com) \"Business\" tipinde bir uygulama oluşturun, Messenger ve Instagram ürünlerini ekleyin.\n" +
+      "2. Facebook Sayfanızı bağlayın — Instagram hesabınız aynı Sayfaya bağlıysa iki kanal da tek bağlantıyla çalışır.\n" +
+      "3. Sayfa Erişim Belirteci'ni (Page Access Token) ve Sayfa Kimliği'ni (Page ID) kopyalayıp Ayarlar → \"Instagram & Facebook Messenger Bağlantısı\" bölümüne yapıştırın ve kaydedin.\n" +
+      "Bu alanlar boşken gelen DM'lere otomatik yanıt verilmez. Detaylı adımlar için docs/sosyal-medya/meta-otomasyon-kilavuzu.md dosyasına bakabilirsiniz.",
+  },
+  {
     keywords: ["telegram", "bot", "@siriplan_bot"],
     answer:
       "Telegram bildirimlerini aktif etmek için:\n" +

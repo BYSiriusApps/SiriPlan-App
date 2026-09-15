@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, Trash2, AlertTriangle, KeyRound, Globe, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, Trash2, AlertTriangle, KeyRound, Globe, Instagram, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -292,6 +292,8 @@ export default function AyarlarPage() {
         sms_sender_id: org.sms_sender_id,
         wa_token: org.wa_token,
         wa_phone_number_id: org.wa_phone_number_id,
+        ig_page_access_token: org.ig_page_access_token,
+        ig_page_id: org.ig_page_id,
         kdv_enabled: org.kdv_enabled ?? false,
         kdv_rate: org.kdv_rate ?? 20,
         has_auto_booking: org.has_auto_booking !== false,
@@ -1323,6 +1325,40 @@ export default function AyarlarPage() {
           <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50 text-xs text-muted-foreground space-y-1">
             <p className="font-medium text-green-700 dark:text-green-400">{t("settingsPage.waHowToTitle")}</p>
             <p>{t("settingsPage.waHowToText")}</p>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Instagram & Facebook Messenger Bağlantısı — gelen DM'lere otomatik AI yanıtı için */}
+      <SectionCard
+        icon={Instagram}
+        iconClassName="text-pink-600"
+        title={t("settingsPage.metaBusinessConnTitle")}
+        description={t("settingsPage.metaBusinessConnDesc")}
+      >
+        <div className="space-y-3">
+          <div>
+            <Label>{t("settingsPage.igAccessTokenLabel")}</Label>
+            <Input
+              type="password"
+              className="mt-1"
+              value={org.ig_page_access_token || ""}
+              onChange={(e) => setField("ig_page_access_token", e.target.value || null)}
+              placeholder="Meta for Developers → Messenger/Instagram → Sayfa Erişim Belirteci"
+            />
+          </div>
+          <div>
+            <Label>{t("settingsPage.igPageIdLabel")}</Label>
+            <Input
+              className="mt-1"
+              value={org.ig_page_id || ""}
+              onChange={(e) => setField("ig_page_id", e.target.value || null)}
+              placeholder={t("settingsPage.igPageIdPlaceholder")}
+            />
+          </div>
+          <div className="p-3 rounded-lg bg-pink-50 dark:bg-pink-950/20 border border-pink-200 dark:border-pink-900/50 text-xs text-muted-foreground space-y-1">
+            <p className="font-medium text-pink-700 dark:text-pink-400">{t("settingsPage.metaHowToTitle")}</p>
+            <p>{t("settingsPage.metaHowToText")}</p>
           </div>
         </div>
       </SectionCard>

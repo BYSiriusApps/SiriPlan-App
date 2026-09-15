@@ -25,7 +25,12 @@ const ExtraServiceSchema = z.object({
 const CreateSchema = z.object({
   org_id: z.string().uuid(),
   customer_name: z.string().min(2).max(100),
-  customer_phone: z.string().min(10).max(20),
+  // Uzunluk alt sınırı burada YOK: panelden (sesli asistan dahil) girilen
+  // randevularda telefon opsiyoneldir, sonradan tamamlanabilir (bkz. aşağıda
+  // isPanelBooking kontrolü). Anonim/herkese açık akışta zorunluluk ayrıca
+  // runtime'da uygulanır — orada bot/istismar önlemleri telefonun dolu
+  // olduğunu varsayar.
+  customer_phone: z.string().max(20),
   customer_email: z.preprocess(
     (v) => (v === "" ? undefined : v),
     z.string().email().optional()
@@ -158,6 +163,14 @@ async function handleCreateAppointment(req: NextRequest) {
       const callingMember = await getActiveMember(supabase);
       isPanelBooking = callingMember?.org_id === data.org_id;
     }
+  }
+
+  // Anonim/herkese açık akışta telefon zorunlu kalır — aşağıdaki bot/istismar
+  // önlemleri (IP+telefon başına hız sınırı, tekrar eden randevu sayısı,
+  // online_booking_blocked eşleşmesi) numaranın dolu olduğunu varsayar.
+  // Panelden girilen randevularda (sesli asistan dahil) opsiyoneldir.
+  if (!isPanelBooking && data.customer_phone.trim().length < 10) {
+    return NextResponse.json({ error: "Telefon numarası zorunludur." }, { status: 400 });
   }
 
   // appointment_at şema düzeyinde sadece `string` — geçerli bir tarih olduğu
@@ -433,12 +446,17 @@ async function handleCreateAppointment(req: NextRequest) {
   }
 
   let customerId: string | null = null;
-  const { data: existingCustomer } = await adminSupabase
-    .from("customers")
-    .select("id, online_booking_blocked")
-    .eq("org_id", data.org_id)
-    .eq("phone", data.customer_phone)
-    .single();
+  // Telefon boşsa (panelden opsiyonel bırakılmış) "phone" alanına göre eşleşme
+  // ARANMAZ — aksi halde telefonsuz her randevu phone='' üzerinden aynı tek
+  // kayda ".single()" hatasıyla çarpar ya da rastgele bir müşteriyle eşleşir.
+  const { data: existingCustomer } = data.customer_phone
+    ? await adminSupabase
+        .from("customers")
+        .select("id, online_booking_blocked")
+        .eq("org_id", data.org_id)
+        .eq("phone", data.customer_phone)
+        .single()
+    : { data: null };
 
   // Sık gelmeyen/no-show müşteriler için: sadece anonim self-servis akışını
   // (online widget) engeller — panelden (isPanelBooking) elle randevu her zaman serbest.
@@ -592,10 +610,10 @@ async function handleCreateAppointment(req: NextRequest) {
     notifyAppointment(notifyPayload).catch(() => {});
   }
 
-  // Müşteriye anlık WhatsApp onay bildirimi — telefon zorunlu alan olduğu
-  // için email girilmemiş olsa bile bu kanal her zaman devreye girer.
-  // Sadece gerçekten onaylanmış randevularda gönderilir.
-  if (initialStatus === "onaylandi") {
+  // Müşteriye anlık WhatsApp onay bildirimi — yalnızca telefon varsa (panelden
+  // opsiyonel bırakılmışsa telefon sonradan eklendiğinde bu bildirim gitmez,
+  // randevu yine de onaylı oluşur). Sadece gerçekten onaylanmış randevularda gönderilir.
+  if (initialStatus === "onaylandi" && data.customer_phone) {
     const { date, time } = formatApptDateTime(data.appointment_at, orgTimezone);
     sendPurposeTemplate({
       toPhone: data.customer_phone,

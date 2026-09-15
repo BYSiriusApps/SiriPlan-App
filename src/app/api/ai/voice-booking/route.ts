@@ -7,8 +7,36 @@ import { recordInventoryTransaction, type InventoryTxType } from "@/lib/inventor
 import { DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
 import { hasProTools } from "@/lib/entitlements";
 import { isMobileApp } from "@/lib/mobile-app";
+import { cleanTokens, pickBestCustomerMatch, type LookedUpCustomer } from "@/lib/voice-customer-lookup";
+import { sanitizeFilterValue } from "@/lib/utils";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Söylenen isim kayıtlı bir müşteriyle eşleşiyorsa telefonunu getirir —
+ * `voice-customer-lookup.ts`'teki istemci tarafı sürümüyle aynı eşleştirme
+ * mantığını kullanır, ama `/api/customers` üzerinden fetch yerine doğrudan
+ * DB'yi sorgular (bu route zaten sunucu tarafında, org_id elde).
+ */
+async function lookupPhoneForName(
+  db: SupabaseClient,
+  orgId: string,
+  spokenName: string,
+): Promise<string> {
+  const tokens = cleanTokens(spokenName);
+  if (!tokens.length) return "";
+  const safe = sanitizeFilterValue(tokens.slice(0, 2).join(" "));
+  if (!safe) return "";
+  const { data } = await db
+    .from("customers")
+    .select("full_name, phone, email")
+    .eq("org_id", orgId)
+    .or(`full_name.ilike.%${safe}%,phone.ilike.%${safe}%`)
+    .limit(8);
+  const pick = pickBestCustomerMatch(tokens, (data || []) as LookedUpCustomer[]);
+  return pick?.phone || "";
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -225,12 +253,16 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
               });
             }
 
+            // İsim söylendi ama telefon yoksa: kayıtlı müşteriden numarayı otomatik getir.
+            const resolvedPhone =
+              customerPhone || (customerName ? await lookupPhoneForName(adminSupabase, orgId, customerName) : "");
+
             const { data: newAppt, error: apptErr } = await adminSupabase
               .from("appointments")
               .insert({
                 org_id: orgId,
                 customer_name: customerName || "Misafir Müşteri",
-                customer_phone: customerPhone,
+                customer_phone: resolvedPhone,
                 staff_id: resolvedStaffId,
                 assigned_staff_id: resolvedStaffId,
                 service_id: serviceId,
@@ -369,12 +401,15 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
     const svc = servicesList?.find((s) => s.id === local.service_id);
     const staffForCreate = local.staff_id || staffList?.[0]?.id || "";
     if (local.customer_name && local.appointment_at && local.service_id && staffForCreate) {
+      // İsim söylendi ama telefon yoksa: kayıtlı müşteriden numarayı otomatik getir.
+      const resolvedPhone =
+        local.customer_phone || (await lookupPhoneForName(adminSupabase, orgId, local.customer_name));
       const { data: newAppt, error: apptErr } = await adminSupabase
         .from("appointments")
         .insert({
           org_id: orgId,
           customer_name: local.customer_name,
-          customer_phone: local.customer_phone,
+          customer_phone: resolvedPhone,
           staff_id: staffForCreate,
           assigned_staff_id: staffForCreate,
           service_id: local.service_id,

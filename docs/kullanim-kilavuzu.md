@@ -111,6 +111,8 @@ Günlük/dönemsel ciro, gider, randevu sayısı ve personel/hizmet bazlı perfo
 
 Genel bilgiler, logo/banner yükleme, WhatsApp/SMS/Telegram bildirim şablonları, yetkilendirme ve abonelik yönetimi.
 
+- **Instagram & Facebook Messenger Bağlantısı**: Sayfa Erişim Belirteci ve Sayfa Kimliği girilince Instagram DM ve Facebook Messenger'a gelen mesajlara AI otomatik yanıt verir (WhatsApp'takiyle aynı `feature_ai` mantığı). Salon sahibinin Meta tarafında yapması gereken adımlar için bkz. [`docs/sosyal-medya/meta-otomasyon-kilavuzu.md`](sosyal-medya/meta-otomasyon-kilavuzu.md). TikTok'ta otomasyon desteklenmez, yalnızca profil linki gösterilir.
+
 ## 15. Veri Göçü (İçe/Dışa Aktarma)
 
 Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olarak indirilmesi.

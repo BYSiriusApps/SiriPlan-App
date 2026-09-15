@@ -141,6 +141,14 @@ export default function YeniRandevuPage() {
         appointment_at: prefillDate ? `${prefillDate}T${prefillTime || "09:00"}` : f.appointment_at,
       }));
     }
+    // İsim geldi ama telefon gelmediyse (ör. Yardım Asistanı'nın yönlendirdiği
+    // "eksikleri tamamla" linki): kayıtlı müşteriden numarayı otomatik getir.
+    if (prefillName && !prefillPhone) {
+      lookupCustomerBySpokenName(prefillName).then((pick) => {
+        if (!pick) return;
+        setForm((f) => (f.customer_phone ? f : { ...f, customer_phone: pick.phone, customer_email: f.customer_email || pick.email || "" }));
+      });
+    }
 
     Promise.all([
       fetch("/api/staff").then((r) => r.json()),
