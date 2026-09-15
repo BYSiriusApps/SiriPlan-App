@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, CalendarDays, type LucideIcon } from "lucide-react";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { ManageBillingButton } from "@/components/dashboard/ManageBillingButton";
+import { CancelSubscriptionButton } from "@/components/dashboard/CancelSubscriptionButton";
 import Link from "next/link";
 
 const SUPPORT_EMAIL = "info@bysirius.com";
@@ -38,6 +39,7 @@ export default async function AbonelikPage() {
     feature_ai: boolean; feature_campaigns: boolean; feature_gamification: boolean;
     feature_api: boolean; feature_whitelabel: boolean;
     stripe_customer_id?: string | null;
+    stripe_subscription_id?: string | null;
   };
 
   const planDetail = PLAN_DETAILS[org.plan as keyof typeof PLAN_DETAILS] || PLAN_DETAILS.trial;
@@ -180,9 +182,31 @@ export default async function AbonelikPage() {
               {org.plan === "trial" ? t("dashboard.subscriptionPage.compareAndStart") : t("dashboard.subscriptionPage.upgradeToPro")}
             </Link>
           ) : null}
-          {org.stripe_customer_id && (org.plan === "pro" || org.plan === "business") && (
+          {org.stripe_customer_id && org.plan !== "trial" && (
             <ManageBillingButton label={t("dashboard.subscriptionPage.manageBilling")} />
           )}
+          {org.stripe_subscription_id &&
+            org.plan !== "trial" &&
+            org.subscription_status !== "canceled" &&
+            member.role === "owner" && (
+              <CancelSubscriptionButton
+                locale={locale}
+                labels={{
+                  trigger: t("dashboard.subscriptionPage.cancelSubscription"),
+                  confirmTitle: t("dashboard.subscriptionPage.cancelConfirmTitle"),
+                  confirmDescription: t("dashboard.subscriptionPage.cancelConfirmDescription"),
+                  confirmButton: t("dashboard.subscriptionPage.cancelConfirmButton"),
+                  cancelButton: t("dashboard.subscriptionPage.cancelDismissButton"),
+                  loading: t("dashboard.subscriptionPage.cancelLoading"),
+                  successToast: t("dashboard.subscriptionPage.cancelSuccessToast"),
+                  errorToast: t("dashboard.subscriptionPage.cancelErrorToast"),
+                  scheduledNote: t("dashboard.subscriptionPage.cancelScheduledNote"),
+                  undo: t("dashboard.subscriptionPage.cancelUndo"),
+                  undoLoading: t("dashboard.subscriptionPage.cancelUndoLoading"),
+                  undoSuccessToast: t("dashboard.subscriptionPage.cancelUndoSuccessToast"),
+                }}
+              />
+            )}
         </div>
       )}
 

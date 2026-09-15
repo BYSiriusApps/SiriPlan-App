@@ -152,8 +152,8 @@ function isMobileAppRequest(request: NextRequest): boolean {
 // abonelik başlatmaz, sadece mevcut hesapla ilgili işlemlerdir.
 //
 // İŞLETMENİN KENDİ MÜŞTERİ SAYFALARI İSTİSNA (/r/, /randevu/, /onay/):
-// Bunlar Siriplan'ın pazarlama sayfaları değil, salonun kendi randevu
-// sayfası, randevu detay ve KVKK onay ekranlarıdır — üzerlerinde Siriplan
+// Bunlar SiriPlan'ın pazarlama sayfaları değil, salonun kendi randevu
+// sayfası, randevu detay ve KVKK onay ekranlarıdır — üzerlerinde SiriPlan
 // fiyatı, plan yükseltme veya hesap açma çağrısı YOKTUR (tek dış bağlantı
 // footer'daki bysirius.com). Bunlar engellenince salon sahibi Ayarlar'daki
 // "Randevu linkim" ve "Örnek Web Sitesini Görüntüle" bağlantılarına

@@ -20,15 +20,42 @@ function esc(value: unknown): string {
     .replace(/>/g, "&gt;");
 }
 
-/** Yeni bir işletme Siriplan'a kaydolduğunda platform admine Telegram bildirimi gönderir */
+/** Yeni bir işletme SiriPlan'a kaydolduğunda platform admine Telegram bildirimi gönderir */
 export async function notifyAdminNewSignup(info: SignupInfo): Promise<void> {
   const message =
-    `🆕 <b>Yeni Kayıt — Siriplan</b>\n\n` +
+    `🆕 <b>Yeni Kayıt — SiriPlan</b>\n\n` +
     `🏢 ${esc(info.salonName)}\n` +
     `👤 ${esc(info.ownerName)}\n` +
     `📧 ${esc(info.email)}\n` +
     (info.phone ? `📱 ${esc(info.phone)}\n` : "") +
     (info.businessType ? `🏷️ ${esc(info.businessType)}` : "");
+
+  await sendAdminTelegramMessage(message).catch(() => {});
+}
+
+const ADDON_LABELS: Record<string, string> = {
+  whatsappAI: "AI WhatsApp Paketi",
+  sms: "SMS Paketi",
+  multiBranch: "Ek Şube Paketi",
+};
+
+export interface AddonRequestInfo {
+  addon: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  message?: string | null;
+}
+
+/** Fiyatlar sayfasındaki ek paket kartından "Bilgi Al" talebi gönderildiğinde platform admine Telegram bildirimi gönderir */
+export async function notifyAdminAddonRequest(info: AddonRequestInfo): Promise<void> {
+  const message =
+    `📦 <b>Ek Paket Talebi — SiriPlan</b>\n\n` +
+    `🏷️ ${esc(ADDON_LABELS[info.addon] ?? info.addon)}\n` +
+    `👤 ${esc(info.name)}\n` +
+    `📧 ${esc(info.email)}\n` +
+    (info.phone ? `📱 ${esc(info.phone)}\n` : "") +
+    (info.message ? `📝 ${esc(info.message)}` : "");
 
   await sendAdminTelegramMessage(message).catch(() => {});
 }
@@ -60,7 +87,7 @@ export async function notifyAdminContactMessage(info: ContactMessageInfo): Promi
   const body = info.message.length > 2500 ? `${info.message.slice(0, 2500)}\n…(kırpıldı)` : info.message;
 
   const message =
-    `📨 <b>Yeni İletişim Mesajı — Siriplan</b>\n\n` +
+    `📨 <b>Yeni İletişim Mesajı — SiriPlan</b>\n\n` +
     `👤 ${esc(info.name)}\n` +
     `📧 ${esc(info.email)}\n` +
     (info.phone ? `📱 ${esc(info.phone)}\n` : "") +

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 
-export const metadata = { title: "Platform Admin — Siriplan" };
+export const metadata = { title: "Platform Admin — SiriPlan" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();

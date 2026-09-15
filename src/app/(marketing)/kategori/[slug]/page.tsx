@@ -33,7 +33,7 @@ const sectors: Record<string, {
     testimonial: {
       name: "Ayşe Kaya",
       role: "Elegans Kuaför, İstanbul",
-      text: "Siriplan'a geçtikten sonra no-show oranımız %70 düştü. WhatsApp hatırlatmaları sayesinde her randevumuz dolup taşıyor.",
+      text: "SiriPlan'a geçtikten sonra no-show oranımız %70 düştü. WhatsApp hatırlatmaları sayesinde her randevumuz dolup taşıyor.",
     },
     keywords: ["kuaför randevu sistemi", "kuaför programı", "online kuaför randevu"],
   },

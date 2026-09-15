@@ -78,7 +78,7 @@ export default async function IletisimPage() {
 
               {/* WhatsApp CTA */}
               <a
-                href="https://wa.me/905355032634?text=Merhaba%2C%20Siriplan%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum."
+                href="https://wa.me/905355032634?text=Merhaba%2C%20SiriPlan%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 bg-[#25D366]/10 border border-[#25D366]/30 rounded-xl hover:bg-[#25D366]/20 transition-all group"

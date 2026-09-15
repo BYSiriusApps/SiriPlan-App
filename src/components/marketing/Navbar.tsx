@@ -62,11 +62,11 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <img
             src="/icons/icon-mark.png"
-            alt="Siriplan"
+            alt="SiriPlan"
             className="w-8 h-8 rounded-lg shadow-sm"
           />
           <span className="font-bold text-lg tracking-tight">
-            Siri<span className="text-primary">plan</span>
+            Siri<span className="text-primary">Plan</span>
           </span>
           <span className="hidden md:inline text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
             by BySirius

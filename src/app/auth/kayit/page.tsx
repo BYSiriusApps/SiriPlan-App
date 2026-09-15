@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { TIMEZONE_OPTIONS } from "@/lib/timezones";
-import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
+import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
 
 function isMobileDevice() {
   if (typeof navigator === "undefined") return false;
@@ -28,20 +29,15 @@ const LOCALES = [
   { code: "ar", label: "AR", flag: "🇸🇦", name: "العربية" },
 ];
 
-const BUSINESS_TYPES = [
-  { value: "kuafor",    label: "💇 Kuaför / Saç Salonu" },
-  { value: "berber",    label: "✂️ Berber" },
-  { value: "guzellik",  label: "💄 Güzellik Merkezi" },
-  { value: "spa",       label: "🧖 Spa & Masaj" },
-  { value: "nail",      label: "💅 Nail Salon / Tırnak" },
-  { value: "estetik",   label: "✨ Estetik Klinik" },
-  { value: "makyaj",    label: "🎨 Makyaj Stüdyosu" },
-  { value: "tattoo",    label: "🖋️ Tattoo Stüdyosu" },
-  { value: "diyetisyen",label: "🥗 Diyetisyen" },
-  { value: "kas_kirpik",label: "👁️ Kaş & Kirpik Stüdyosu" },
-];
+const BUSINESS_TYPE_KEYS = [
+  "kuafor", "berber", "guzellik", "spa", "nail",
+  "estetik", "makyaj", "tattoo", "diyetisyen", "kas_kirpik",
+] as const;
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
+const PURCHASE_PLAN_KEYS = ["starter", "pro", "business"] as const;
+type PurchasePlanKey = (typeof PURCHASE_PLAN_KEYS)[number];
 
 /** Ülke kodu + yerel numarayı depolama biçimine indirger. TR (90) için mevcut
  * "0555..." formatı korunur (geri uyum); diğer ülkeler için "+" olmadan
@@ -55,10 +51,19 @@ function buildPhone(countryCode: string, localPhone: string) {
 }
 
 export default function KayitPage() {
+  const t = useTranslations("auth.registerPage");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
+  // Başlangıç değeri "tr" — hydration uyuşmazlığı olmasın diye gerçek değer
+  // aşağıdaki effect'te NEXT_LOCALE çerezinden okunur (bkz. Navbar.tsx'teki
+  // aynı desen). Çerez zaten sunucunun kullandığı dille aynı, sadece bu buton
+  // grubunun İLK boyamada yanlış dili aktif göstermesini engelliyor.
   const [selectedLocale, setSelectedLocale] = useState("tr");
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/);
+    if (match) setSelectedLocale(match[1]);
+  }, []);
   const [form, setForm] = useState({
     salonName: "", type: "kuafor", fullName: "",
     email: "", phone: "", countryCode: "90", password: "",
@@ -80,6 +85,20 @@ export default function KayitPage() {
   const [kvkkError, setKvkkError] = useState(false);
   // Bu e-posta/telefonla daha önce açılmış hesap için kalıcı yönlendirme kutusu.
   const [authNotice, setAuthNotice] = useState<string | null>(null);
+  // Fiyatlar sayfasındaki "doğrudan satın al" butonundan gelindiyse (?plan=...),
+  // kayıt tamamlandığında panele değil doğrudan Stripe ödeme sayfasına yönlendirir
+  // (bkz. components/marketing/PricingCards.tsx). useSearchParams yerine
+  // window.location kullanılıyor — plan-sec sayfasındaki aynı desen (Suspense
+  // sınırı gerektirmiyor).
+  const [purchaseIntent, setPurchaseIntent] = useState<{ plan: PurchasePlanKey; annual: boolean } | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const planParam = params.get("plan");
+    if ((PURCHASE_PLAN_KEYS as readonly string[]).includes(planParam ?? "")) {
+      setPurchaseIntent({ plan: planParam as PurchasePlanKey, annual: params.get("billing") === "annual" });
+    }
+  }, []);
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -90,7 +109,7 @@ export default function KayitPage() {
 
   function validateEmail(email: string) {
     if (!EMAIL_RE.test(email)) {
-      setEmailError("Geçerli bir e-posta adresi girin (örn: ad@ornek.com)");
+      setEmailError(t("emailError"));
       return false;
     }
     setEmailError("");
@@ -99,16 +118,16 @@ export default function KayitPage() {
 
   function validatePhone(phone: string, countryCode: string) {
     const digits = phone.replace(/\D/g, "");
-    if (!digits) { setPhoneError("Telefon numarası zorunludur."); return false; }
+    if (!digits) { setPhoneError(t("phoneErrorRequired")); return false; }
     const cc = countryCode.replace(/\D/g, "") || "90";
     if (cc === "90") {
       const local = digits.replace(/^0+/, "");
       if (!/^5\d{9}$/.test(local)) {
-        setPhoneError("Geçerli bir cep telefonu numarası girin (örn: 532 123 45 67)");
+        setPhoneError(t("phoneErrorInvalidTr"));
         return false;
       }
     } else if (digits.length < 6 || digits.length > 14) {
-      setPhoneError("Geçerli bir telefon numarası girin.");
+      setPhoneError(t("phoneErrorInvalid"));
       return false;
     }
     setPhoneError("");
@@ -119,12 +138,12 @@ export default function KayitPage() {
     e.preventDefault();
     if (!validateEmail(form.email)) return;
     if (!validatePhone(form.phone, form.countryCode)) return;
-    if (!isValidTaxNumber(form.taxNumber)) { setTaxError(TAX_NUMBER_ERROR); toast.error(TAX_NUMBER_ERROR); return; }
-    if (form.password.length < 8) { toast.error("Şifre en az 8 karakter olmalı."); return; }
-    if (!form.salonName.trim()) { toast.error("İşletme adı zorunludur."); return; }
+    if (!isValidTaxNumber(form.taxNumber)) { setTaxError(t("taxNumberError")); toast.error(t("taxNumberError")); return; }
+    if (form.password.length < 8) { toast.error(t("passwordTooShort")); return; }
+    if (!form.salonName.trim()) { toast.error(t("salonNameRequired")); return; }
     if (!kvkkChecked || !gizlilikChecked) {
       setKvkkError(true);
-      toast.error("Devam etmek için zorunlu onayları işaretlemeniz gerekmektedir.");
+      toast.error(t("consentRequiredToast"));
       return;
     }
     setKvkkError(false);
@@ -163,7 +182,7 @@ export default function KayitPage() {
           toast.error(data.error);
         } else {
           setAuthNotice(null);
-          toast.error(data.error || "Kayıt başarısız. Lütfen tekrar deneyin.");
+          toast.error(data.error || t("registrationFailed"));
         }
         setLoading(false);
         return;
@@ -178,12 +197,32 @@ export default function KayitPage() {
       });
 
       if (signInErr) {
-        toast.error("Hesap oluşturuldu ancak giriş yapılamadı: " + signInErr.message);
+        toast.error(t("signInFailed", { message: signInErr.message }));
         router.push("/auth/giris");
         return;
       }
 
-      toast.success("Hesabınız oluşturuldu!");
+      toast.success(t("successToast"));
+
+      // Doğrudan satın alma niyetiyle gelindiyse (fiyatlar sayfası → ?plan=...)
+      // panele/PWA ekranına hiç uğramadan Stripe ödeme sayfasına yönlendir.
+      if (purchaseIntent) {
+        try {
+          const checkoutRes = await fetch("/api/stripe/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan: purchaseIntent.plan, annual: purchaseIntent.annual }),
+          });
+          const checkoutData = await checkoutRes.json();
+          if (checkoutRes.ok && checkoutData.url) {
+            window.location.href = checkoutData.url;
+            return;
+          }
+        } catch {
+          // yut ve aşağıdaki normal akışa (panel) düş
+        }
+        toast.error(t("checkoutFailed"));
+      }
 
       // Mobil cihazlarda paneline gitmeden önce "ana ekrana ekle" kısayolunu öner
       if (isMobileDevice()) {
@@ -194,7 +233,7 @@ export default function KayitPage() {
 
       window.location.href = "/dashboard";
     } catch {
-      toast.error("Bir hata oluştu. Lütfen tekrar deneyin.");
+      toast.error(t("genericError"));
       setLoading(false);
     }
   }
@@ -205,9 +244,9 @@ export default function KayitPage() {
         <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm">
           <CardContent className="pt-6 text-center space-y-2">
             <CheckCircle2 className="h-10 w-10 text-green-500 mx-auto" />
-            <CardTitle className="text-xl">Hesabınız oluşturuldu!</CardTitle>
+            <CardTitle className="text-xl">{t("successTitle")}</CardTitle>
             <CardDescription>
-              Panele girmeden önce Siriplan&apos;ı ana ekranınıza ekleyebilirsiniz — uygulama gibi tek dokunuşla açılır.
+              {t("successDesc")}
             </CardDescription>
           </CardContent>
         </Card>
@@ -215,7 +254,7 @@ export default function KayitPage() {
         <InstallPwaCard />
 
         <Button className="w-full" onClick={() => { window.location.href = "/dashboard"; }}>
-          Panele Git
+          {t("goToPanel")}
         </Button>
       </div>
     );
@@ -234,6 +273,7 @@ export default function KayitPage() {
                 onClick={() => {
                   setSelectedLocale(l.code);
                   document.cookie = `NEXT_LOCALE=${l.code};path=/;max-age=31536000;samesite=lax`;
+                  router.refresh();
                 }}
                 className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-all ${
                   selectedLocale === l.code
@@ -247,8 +287,8 @@ export default function KayitPage() {
             ))}
           </div>
         </div>
-        <CardTitle className="text-2xl">14 Gün Ücretsiz Deneyin</CardTitle>
-        <CardDescription>Kredi kartı gerekmez • Anında başlayın</CardDescription>
+        <CardTitle className="text-2xl">{purchaseIntent ? t("titlePurchase") : t("title")}</CardTitle>
+        <CardDescription>{purchaseIntent ? t("subtitlePurchase") : t("subtitle")}</CardDescription>
       </CardHeader>
       <CardContent>
         {authNotice && (
@@ -258,7 +298,7 @@ export default function KayitPage() {
               href={`/auth/giris?identifier=${encodeURIComponent(form.email || buildPhone(form.countryCode, form.phone))}`}
               className="mt-2.5 inline-flex items-center justify-center rounded-lg bg-amber-600 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-700 transition-colors"
             >
-              Giriş Yap →
+              {t("loginLinkCta")} →
             </Link>
           </div>
         )}
@@ -279,63 +319,63 @@ export default function KayitPage() {
             style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
           />
           <div className="space-y-1.5">
-            <Label>İşletme Türü</Label>
+            <Label>{t("businessTypeLabel")}</Label>
             <Select value={form.type} onValueChange={(v) => set("type", v ?? "kuafor")}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {BUSINESS_TYPES.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                {BUSINESS_TYPE_KEYS.map((key) => (
+                  <SelectItem key={key} value={key}>{t(`businessTypes.${key}`)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
-            <Label>Salon / İşletme Adı</Label>
+            <Label>{t("salonNameLabel")}</Label>
             <div className="relative">
               <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Salon Adınız" className="pl-9" value={form.salonName}
+              <Input placeholder={t("salonNamePlaceholder")} className="pl-9" value={form.salonName}
                 onChange={(e) => set("salonName", e.target.value)} required minLength={2} maxLength={60} />
             </div>
           </div>
 
           <div className="space-y-1.5">
             <Label>
-              VKN / TC Kimlik No{" "}
-              <span className="text-xs font-normal text-muted-foreground">(isteğe bağlı)</span>
+              {t("taxNumberLabel")}{" "}
+              <span className="text-xs font-normal text-muted-foreground">{t("optional")}</span>
             </Label>
             <div className="relative">
               <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 inputMode="numeric"
-                placeholder="Vergi No (10 hane) veya TCKN (11 hane)"
+                placeholder={t("taxNumberPlaceholder")}
                 className={`pl-9 ${taxError ? "border-red-500" : ""}`}
                 value={form.taxNumber}
                 onChange={(e) => set("taxNumber", normalizeTaxNumber(e.target.value))}
-                onBlur={() => { if (!isValidTaxNumber(form.taxNumber)) setTaxError(TAX_NUMBER_ERROR); }}
+                onBlur={() => { if (!isValidTaxNumber(form.taxNumber)) setTaxError(t("taxNumberError")); }}
                 maxLength={TAX_NUMBER_MAX_LENGTH}
               />
             </div>
             {taxError
               ? <p className="text-xs text-red-500 mt-0.5">{taxError}</p>
-              : <p className="text-xs text-muted-foreground">Faturalandırma için kullanılır, sonradan Ayarlar&apos;dan da girebilirsiniz.</p>}
+              : <p className="text-xs text-muted-foreground">{t("taxNumberHelp")}</p>}
           </div>
 
           <div className="space-y-1.5">
-            <Label>Adınız Soyadınız</Label>
+            <Label>{t("fullNameLabel")}</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Ad Soyad" className="pl-9" value={form.fullName}
+              <Input placeholder={t("fullNamePlaceholder")} className="pl-9" value={form.fullName}
                 onChange={(e) => set("fullName", e.target.value)} required />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>E-posta</Label>
+              <Label>{t("emailLabel")}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input type="email" inputMode="email" placeholder="ad@ornek.com"
+                <Input type="email" inputMode="email" placeholder={t("emailPlaceholder")}
                   className={`pl-9 ${emailError ? "border-red-500" : ""}`}
                   value={form.email} onChange={(e) => set("email", e.target.value)}
                   onBlur={() => form.email && validateEmail(form.email)}
@@ -344,11 +384,11 @@ export default function KayitPage() {
               {emailError && <p className="text-xs text-red-500 mt-0.5">{emailError}</p>}
             </div>
             <div className="space-y-1.5">
-              <Label>Telefon <span className="text-red-500">*</span></Label>
+              <Label>{t("phoneLabel")} <span className="text-red-500">*</span></Label>
               <div className="flex gap-1.5">
                 <div className="relative w-[4.5rem] shrink-0">
                   <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">+</span>
-                  <Input inputMode="numeric" placeholder="90" title="Ülke kodu"
+                  <Input inputMode="numeric" placeholder="90" title={t("countryCodeTitle")}
                     className="pl-4 pr-1 text-center"
                     value={form.countryCode}
                     onChange={(e) => set("countryCode", e.target.value.replace(/\D/g, "").slice(0, 4))}
@@ -356,7 +396,7 @@ export default function KayitPage() {
                 </div>
                 <div className="relative flex-1">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input type="tel" inputMode="tel" placeholder="5xx xxx xx xx"
+                  <Input type="tel" inputMode="tel" placeholder={t("phonePlaceholder")}
                     className={`pl-9 ${phoneError ? "border-red-500" : ""}`}
                     value={form.phone} onChange={(e) => set("phone", e.target.value)}
                     onBlur={() => form.phone && validatePhone(form.phone, form.countryCode)} required />
@@ -367,7 +407,7 @@ export default function KayitPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label>Saat Dilimi</Label>
+            <Label>{t("timezoneLabel")}</Label>
             <Select value={form.timezone} onValueChange={(v) => set("timezone", v ?? "Europe/Istanbul")}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -376,14 +416,14 @@ export default function KayitPage() {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">Randevularınız bu saat dilimine göre hesaplanır, dilediğiniz zaman Ayarlar&apos;dan değiştirebilirsiniz.</p>
+            <p className="text-xs text-muted-foreground">{t("timezoneHelp")}</p>
           </div>
 
           <div className="space-y-1.5">
-            <Label>Şifre</Label>
+            <Label>{t("passwordLabel")}</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input type="password" placeholder="En az 8 karakter" className="pl-9"
+              <Input type="password" placeholder={t("passwordPlaceholder")} className="pl-9"
                 value={form.password} onChange={(e) => set("password", e.target.value)}
                 minLength={8} required autoComplete="new-password" />
             </div>
@@ -399,8 +439,11 @@ export default function KayitPage() {
                 className="mt-0.5 shrink-0"
               />
               <label htmlFor="kvkk" className="leading-snug cursor-pointer">
-                <Link href="/kvkk" target="_blank" className="text-primary font-medium hover:underline">KVKK Aydınlatma Metni</Link>&apos;ni
-                {" "}okudum, kişisel verilerimin işlenmesini kabul ediyorum.{" "}
+                {t.rich("kvkkLabel", {
+                  link: (chunks) => (
+                    <Link href="/kvkk" target="_blank" className="text-primary font-medium hover:underline">{chunks}</Link>
+                  ),
+                })}{" "}
                 <span className="text-red-500 font-medium">*</span>
               </label>
             </div>
@@ -413,10 +456,14 @@ export default function KayitPage() {
                 className="mt-0.5 shrink-0"
               />
               <label htmlFor="gizlilik" className="leading-snug cursor-pointer">
-                <Link href="/gizlilik" target="_blank" className="text-primary font-medium hover:underline">Gizlilik Politikası</Link>&apos;nı
-                {" "}ve{" "}
-                <Link href="/kosullar" target="_blank" className="text-primary font-medium hover:underline">Kullanım Koşulları</Link>&apos;nı
-                {" "}okudum ve kabul ediyorum.{" "}
+                {t.rich("privacyLabel", {
+                  privacyLink: (chunks) => (
+                    <Link href="/gizlilik" target="_blank" className="text-primary font-medium hover:underline">{chunks}</Link>
+                  ),
+                  termsLink: (chunks) => (
+                    <Link href="/kosullar" target="_blank" className="text-primary font-medium hover:underline">{chunks}</Link>
+                  ),
+                })}{" "}
                 <span className="text-red-500 font-medium">*</span>
               </label>
             </div>
@@ -429,27 +476,27 @@ export default function KayitPage() {
                 className="mt-0.5 shrink-0"
               />
               <label htmlFor="marketing" className="leading-snug cursor-pointer text-muted-foreground">
-                Siriplan&apos;ın kampanya, duyuru ve özel tekliflerinden e-posta / SMS ile haberdar olmak istiyorum.{" "}
-                <span className="text-xs">(isteğe bağlı)</span>
+                {t("marketingLabel")}{" "}
+                <span className="text-xs">{t("optional")}</span>
               </label>
             </div>
 
             {kvkkError && (
               <p className="flex items-center gap-1 text-xs text-red-500 mt-1">
                 <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                Devam etmek için zorunlu onayları işaretleyin.
+                {t("consentRequired")}
               </p>
             )}
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            {loading ? "Hesap oluşturuluyor..." : "Ücretsiz Hesap Oluştur"}
+            {loading ? t("submitLoading") : purchaseIntent ? t("submitPurchase") : t("submit")}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
-            Zaten hesabınız var mı?{" "}
-            <Link href="/auth/giris" className="text-primary font-medium hover:underline">Giriş yapın</Link>
+            {t("hasAccount")}{" "}
+            <Link href="/auth/giris" className="text-primary font-medium hover:underline">{t("loginLink")}</Link>
           </p>
         </form>
       </CardContent>

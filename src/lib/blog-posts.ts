@@ -17,13 +17,13 @@ export const blogPosts: BlogPost[] = [
     excerpt: "Müşteri hatırlatmaları, online rezervasyon ve akıllı kampanyalarla salonunuzu nasıl dolduracağınızı keşfedin.",
     date: "15 Haziran 2026",
     readTime: "5 dk",
-    author: "Siriplan Ekibi",
+    author: "SiriPlan Ekibi",
     content: `
 Salon sahiplerinin en büyük sorunlarından biri doluluk oranını yüksek tutmak. İstatistiklere göre ortalama bir kuaför salonunun kapasitesinin **%30-40'ı boş kalıyor**. Bu rehberde bunu tersine çevirmek için 7 kanıtlanmış yöntemi paylaşıyoruz.
 
 ## 1. WhatsApp Hatırlatmaları Kurun
 
-Randevu öncesi otomatik WhatsApp hatırlatması, gelmeme (no-show) oranınızı %60'a kadar azaltabilir. Siriplan ile 24 saat ve 2 saat öncesi otomatik mesaj kurabilirsiniz.
+Randevu öncesi otomatik WhatsApp hatırlatması, gelmeme (no-show) oranınızı %60'a kadar azaltabilir. SiriPlan ile 24 saat ve 2 saat öncesi otomatik mesaj kurabilirsiniz.
 
 **Örnek mesaj:**
 > "Merhaba Ayşe Hanım! Yarın saat 14:00'te Elegans Kuaför'deki randevunuzu hatırlatmak istedik. Değişiklik için: [link]"
@@ -56,7 +56,7 @@ Dolu saatleri gerçekten dolu tutmak için bekleme listesi kullanın. İptal old
 
 > "Sizi özledik! Bu hafta gelirseniz %20 indirim sizi bekliyor. Randevu: [link]"
 
-Siriplan'ın kampanya modülü bu süreci tamamen otomatize eder.
+SiriPlan'ın kampanya modülü bu süreci tamamen otomatize eder.
 
 ## 7. Son Dakika Boşluklarını Doldurun
 
@@ -66,7 +66,7 @@ O gün kalan boş saatler için "Flash kampanya" mesajı gönderin. WhatsApp lis
 
 ## Sonuç
 
-Bu 7 yöntemi birlikte uyguladığınızda doluluk oranınızın 4-8 haftada belirgin şekilde arttığını göreceksiniz. Siriplan, tüm bu adımları tek platformdan otomatize etmenizi sağlar.
+Bu 7 yöntemi birlikte uyguladığınızda doluluk oranınızın 4-8 haftada belirgin şekilde arttığını göreceksiniz. SiriPlan, tüm bu adımları tek platformdan otomatize etmenizi sağlar.
 
 **14 gün ücretsiz deneyin, farkı kendiniz görün.**
     `,
@@ -78,7 +78,7 @@ Bu 7 yöntemi birlikte uyguladığınızda doluluk oranınızın 4-8 haftada bel
     excerpt: "7/24 çalışan yapay zeka asistanınız müşteri sorularını yanıtlar, randevu alır ve ön ödeme toplar.",
     date: "8 Haziran 2026",
     readTime: "4 dk",
-    author: "Siriplan Ekibi",
+    author: "SiriPlan Ekibi",
     content: `
 Saat 23:00'te telefonunuza gelen bir WhatsApp mesajı: "Yarın saat 10:00'da boş yeriniz var mı?" Normalde ya görmezden gelir ya sabah yanıtlarsınız. Müşteri o sırada başka salona gider.
 
@@ -86,7 +86,7 @@ AI asistanı bu sorunu tamamen ortadan kaldırıyor.
 
 ## AI Asistanı Nedir?
 
-Siriplan'ın AI asistanı, WhatsApp Business Cloud API ve Anthropic Claude kullanarak müşteri mesajlarını anlık analiz eder ve akıllı yanıtlar üretir.
+SiriPlan'ın AI asistanı, WhatsApp Business Cloud API ve Anthropic Claude kullanarak müşteri mesajlarını anlık analiz eder ve akıllı yanıtlar üretir.
 
 ### Ne Yapabilir?
 
@@ -107,7 +107,7 @@ Siriplan'ın AI asistanı, WhatsApp Business Cloud API ve Anthropic Claude kulla
 ### 1. WhatsApp Business Hesabı Alın
 Meta Business Manager üzerinden WhatsApp Business Cloud API başvurusu yapın. Onay süreci 3-7 iş günü alır.
 
-### 2. Siriplan'a Bağlayın
+### 2. SiriPlan'a Bağlayın
 Dashboard > Ayarlar > Entegrasyonlar > WhatsApp bölümünden API anahtarlarınızı girin.
 
 ### 3. Hizmet ve Fiyat Listesi Girin
@@ -118,7 +118,7 @@ Kendinize bir test mesajı gönderin. Asistan birkaç saniye içinde yanıt verm
 
 ## Gerçek Sonuçlar
 
-Siriplan kullanan salonlardan elde edilen veriler:
+SiriPlan kullanan salonlardan elde edilen veriler:
 - Mesai dışı alınan randevular: **+%35**
 - WhatsApp yanıt süresi: 30 dakikadan **3 saniyeye**
 - No-show oranı: **-%45**
@@ -127,7 +127,7 @@ Siriplan kullanan salonlardan elde edilen veriler:
 
 AI asistanı, yeni bir "personel" gibi düşünün — uyku uyumaz, asla hata yapmaz, her müşteriye aynı sabırla yaklaşır.
 
-**Siriplan Pro ile bugün aktive edin.**
+**SiriPlan Pro ile bugün aktive edin.**
     `,
   },
   {
@@ -137,13 +137,13 @@ AI asistanı, yeni bir "personel" gibi düşünün — uyku uyumaz, asla hata ya
     excerpt: "Puanlama sistemi, doğum günü kampanyaları ve kişiselleştirilmiş tekliflerle müşteri bağlılığını artırın.",
     date: "1 Haziran 2026",
     readTime: "6 dk",
-    author: "Siriplan Ekibi",
+    author: "SiriPlan Ekibi",
     content: `
 Yeni müşteri kazanmak, mevcut müşteriyi tutmaktan **5 kat daha maliyetlidir**. Bu yüzden müşteri sadakati, salon büyütmenin en karlı yoludur.
 
 ## Müşteri Sadakat Puanı Sistemi
 
-Siriplan'ın müşteri skoru, her müşteriye 0-100 arası otomatik puan atar. Puan hesaplamada:
+SiriPlan'ın müşteri skoru, her müşteriye 0-100 arası otomatik puan atar. Puan hesaplamada:
 
 - **Ziyaret sıklığı** (son 3 ayda kaç kez geldi)
 - **Harcama tutarı** (ortalama sepet)
@@ -165,7 +165,7 @@ Müşterinizin doğum gününde şunu görmesini hayal edin:
 
 > "Doğum gününüz kutlu olsun Ayşe Hanım! 🎂 Bu ay içinde gelen ziyaretinizde saç boyasında %25 indirim sizi bekliyor."
 
-Siriplan bu mesajı **otomatik olarak** doğum gününde gönderir. Hiçbir şey yapmanıza gerek yok.
+SiriPlan bu mesajı **otomatik olarak** doğum gününde gönderir. Hiçbir şey yapmanıza gerek yok.
 
 ## İnaktif Müşteri Kampanyaları
 
@@ -197,7 +197,7 @@ Müşteriniz yeni biri getirirse her ikisine de indirim kazandıran bir referans
 
 ## Ölçülebilir Sonuçlar
 
-Sadakat programı aktif kullanan Siriplan müşterilerinden elde edilen ortalama sonuçlar:
+Sadakat programı aktif kullanan SiriPlan müşterilerinden elde edilen ortalama sonuçlar:
 - Tekrar ziyaret oranı: **+%34**
 - Ortalama sepet tutarı: **+%18**
 - Müşteri yaşam döngüsü: **2.3x uzuyor**
@@ -212,7 +212,7 @@ Sadakat programı aktif kullanan Siriplan müşterilerinden elde edilen ortalama
     excerpt: "Müşteri verilerini nasıl toplamalı, saklayıp işlemeli ve pazarlama mesajları için nasıl onay almalısınız?",
     date: "22 Mayıs 2026",
     readTime: "8 dk",
-    author: "Siriplan Ekibi",
+    author: "SiriPlan Ekibi",
     content: `
 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK), salon sahiplerini doğrudan ilgilendiriyor. Müşteri adı, telefon numarası, fotoğraf veya ödeme bilgisi topladığınız anda KVKK kapsamına giriyorsunuz.
 
@@ -251,9 +251,9 @@ Hatırlatma mesajı gibi makul iş ihtiyaçları için önceki müşterilere ula
 ### Veri Saklama Süresi
 Yasal zorunluluk olmadıkça müşteri verileri **5 yıldan uzun** saklanmamalı.
 
-## Siriplan'ın KVKK Desteği
+## SiriPlan'ın KVKK Desteği
 
-Siriplan, KVKK uyumunu otomatize eder:
+SiriPlan, KVKK uyumunu otomatize eder:
 
 ✅ Randevu formunda zorunlu KVKK onay kutucuğu
 ✅ Pazarlama onayı ayrı tutuluyor
@@ -273,13 +273,13 @@ Siriplan, KVKK uyumunu otomatize eder:
     excerpt: "Instagram DM'lerinizi otomatik yanıtlayın, randevu alın ve satışlarınızı artırın. Adım adım kurulum.",
     date: "14 Mayıs 2026",
     readTime: "7 dk",
-    author: "Siriplan Ekibi",
+    author: "SiriPlan Ekibi",
     content: `
 Instagram, güzellik salonları için en güçlü pazarlama kanallarından biri. Peki ya gelen yüzlerce DM'e nasıl yetişeceksiniz?
 
 ## Instagram DM Otomasyonu Nedir?
 
-Siriplan'ın Instagram entegrasyonu sayesinde:
+SiriPlan'ın Instagram entegrasyonu sayesinde:
 - Her gelen DM'e anında yanıt
 - Fiyat, hizmet ve randevu soruları otomatik cevaplanır
 - Randevu linki DM üzerinden paylaşılır
@@ -296,16 +296,16 @@ Kişisel hesabınızı İşletme Hesabına çevirin: Profil > Ayarlar > Hesap T�
 ### Adım 3: Meta App Oluşturma
 developers.facebook.com → App oluştur → Instagram Basic Display seç
 
-### Adım 4: Siriplan'a Bağlama
+### Adım 4: SiriPlan'a Bağlama
 Dashboard > Ayarlar > Entegrasyonlar > Instagram
 
 Gerekli bilgiler:
 - Page Access Token
 - Page ID
-- Verify Token (Siriplan size verir)
+- Verify Token (SiriPlan size verir)
 
 ### Adım 5: Webhook Kurulumu
-Meta App → Webhooks → Instagram → Siriplan webhook URL'ini gir
+Meta App → Webhooks → Instagram → SiriPlan webhook URL'ini gir
 
 ### Adım 6: Test
 Hesabınıza test mesajı gönderin. Sistem yanıt vermeli.
@@ -335,7 +335,7 @@ Entegrasyonu aktif kullanan salonlarda:
 
 ---
 
-**Siriplan Pro ile Instagram AI asistanınızı bugün aktive edin.**
+**SiriPlan Pro ile Instagram AI asistanınızı bugün aktive edin.**
     `,
   },
   {
@@ -345,7 +345,7 @@ Entegrasyonu aktif kullanan salonlarda:
     excerpt: "Personel bazlı komisyon takibi, KDV beyanı için hazır raporlar ve tek tıkla PDF export.",
     date: "5 Mayıs 2026",
     readTime: "4 dk",
-    author: "Siriplan Ekibi",
+    author: "SiriPlan Ekibi",
     content: `
 Her ay muhasebeciye "Bu ay ne kadar kazandık?" sorusunu sormak yerine, sisteminizin sizi otomatik bilgilendirmesini hayal edin.
 
@@ -359,7 +359,7 @@ Salon sahiplerinin %70'i gerçek karlılıklarını bilmiyor. Brüt ciro ile net
 
 hepsini hesaba katmak gerekiyor.
 
-## Siriplan Ciro Dashboard'u
+## SiriPlan Ciro Dashboard'u
 
 ### Anlık Görünüm
 - Bugünkü ciro
@@ -398,13 +398,13 @@ Sadece geliri değil, giderleri de takip edin:
 - Personel maaşları
 - Reklam harcamaları
 
-Net kar = Ciro - Giderler. Siriplan bunu otomatik hesaplar.
+Net kar = Ciro - Giderler. SiriPlan bunu otomatik hesaplar.
 
 ---
 
 ## Sonuç
 
-El hesabı ve Excel yerine Siriplan'ın otomatik raporlama sistemi ile her ay 3-4 saat tasarruf edin. Muhasebeci maliyetinizi düşürün.
+El hesabı ve Excel yerine SiriPlan'ın otomatik raporlama sistemi ile her ay 3-4 saat tasarruf edin. Muhasebeci maliyetinizi düşürün.
 
 **14 gün ücretsiz deneyin.**
     `,

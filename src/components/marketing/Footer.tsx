@@ -54,9 +54,9 @@ export async function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <img src="/icons/icon-mark.png" alt="Siriplan" className="w-7 h-7 rounded-lg" />
+              <img src="/icons/icon-mark.png" alt="SiriPlan" className="w-7 h-7 rounded-lg" />
               <span className="font-bold text-base">
-                Siri<span className="text-primary">plan</span>
+                Siri<span className="text-primary">Plan</span>
               </span>
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
@@ -164,7 +164,7 @@ export async function Footer() {
               {t("rights")}{" "}
               <span className="text-muted-foreground/30">|</span>{" "}
               <Link href="/kosullar" className="hover:text-foreground transition-colors underline underline-offset-2">
-                Fikri Mülkiyet &amp; AI Telif Hakları
+                {t("ipCopyright")}
               </Link>
             </p>
             <p className="mt-1 text-muted-foreground/70">{t("companyReg")}</p>

@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       try {
         await sendPlatformSms(
           org.phone,
-          `Siriplan: "${org.name}" için 14 gunluk ucretsiz deneme sureniz 2 gun sonra doluyor. Devam etmek icin: ${appUrl}/auth/plan-sec`
+          `SiriPlan: "${org.name}" için 14 gunluk ucretsiz deneme sureniz 2 gun sonra doluyor. Devam etmek icin: ${appUrl}/auth/plan-sec`
         );
       } catch {}
     }
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       try {
         await sendPlatformSms(
           org.phone,
-          `Siriplan: "${org.name}" icin ucretsiz deneme sureniz sona erdi. Devam etmek icin: ${appUrl}/auth/plan-sec`
+          `SiriPlan: "${org.name}" icin ucretsiz deneme sureniz sona erdi. Devam etmek icin: ${appUrl}/auth/plan-sec`
         );
       } catch {}
     }

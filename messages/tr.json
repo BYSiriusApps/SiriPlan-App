@@ -13,14 +13,14 @@
   },
   "chatWidget": {
     "ariaLabel": "AI Asistan",
-    "title": "Siriplan AI",
+    "title": "SiriPlan AI",
     "online": "Çevrimiçi",
     "minimize": "Küçült",
     "close": "Kapat",
     "send": "Gönder",
-    "footer": "Siriplan AI · Powered by BY Sirius",
+    "footer": "SiriPlan AI · Powered by BY Sirius",
     "placeholder": "Mesajınızı yazın...",
-    "greeting": "Merhaba! 👋 Ben Siriplan AI asistanıyım.\n\nFiyatlar, özellikler, kayıt veya destek hakkında size yardımcı olabilirim. Ne sormak istersiniz?",
+    "greeting": "Merhaba! 👋 Ben SiriPlan AI asistanıyım.\n\nFiyatlar, özellikler, kayıt veya destek hakkında size yardımcı olabilirim. Ne sormak istersiniz?",
     "errorResponse": "Şu an yanıt veremiyorum. Lütfen tekrar deneyin.",
     "connectionError": "Bağlantı hatası. info@bysirius.com adresinden bize ulaşabilirsiniz.",
     "quickQuestions": {
@@ -96,6 +96,7 @@
     "mostPopular": "En Çok Tercih Edilen",
     "startTrial": "Ücretsiz Dene",
     "buyNow": "Hemen Satın Al",
+    "buyNowWithPrice": "{price} – Hemen Satın Al",
     "contactUs": "Teklif Al / İletişime Geç",
     "contactForPrice": "Özel Teklif Alın",
     "contactUsSub": "İşletmenize özel paket ve fiyatlandırma",
@@ -172,10 +173,24 @@
       "name": "Ek Şube Paketi",
       "desc": "Starter/Pro'ya ek şube ekleyin",
       "price": "$29/şube/ay"
+    },
+    "request": {
+      "cta": "Bilgi Al",
+      "title": "{name} için bilgi talebi",
+      "subtitle": "Formu doldurun, ekibimiz size dönüş yapsın.",
+      "nameLabel": "Ad Soyad",
+      "emailLabel": "E-posta",
+      "phoneLabel": "Telefon",
+      "messageLabel": "Notunuz",
+      "optional": "(isteğe bağlı)",
+      "submit": "Talep Gönder",
+      "submitLoading": "Gönderiliyor...",
+      "successToast": "Talebiniz alındı, en kısa sürede dönüş yapacağız.",
+      "errorToast": "Talep gönderilemedi. Lütfen tekrar deneyin."
     }
   },
   "pricingPage": {
-    "metaDescription": "Siriplan fiyatlandırma — Starter ₺1.314/ay, Pro ₺1.963/ay, Business ₺4.752/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
+    "metaDescription": "SiriPlan fiyatlandırma — Starter ₺1.314/ay, Pro ₺1.963/ay, Business ₺4.752/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
     "heroBadge": "14 Gün Ücretsiz — Kredi Kartı Gerekmez",
     "heroTitle": "Şeffaf Fiyatlandırma,",
     "heroTitleHighlight": "Sürpriz Yok",
@@ -199,7 +214,7 @@
     "ctaSecondary": "Demo Talep Edin"
   },
   "featuresPage": {
-    "metaDescription": "Siriplan'ın tüm özellikleri — AI randevu, müşteri yönetimi, kampanya modülü, ciro analitik ve çok daha fazlası.",
+    "metaDescription": "SiriPlan'ın tüm özellikleri — AI randevu, müşteri yönetimi, kampanya modülü, ciro analitik ve çok daha fazlası.",
     "heroBadge": "30+ Özellik — Tek Platform",
     "heroTitle": "Salonunuzu Büyütecek",
     "heroTitleHighlight": "Her Araç Burada",
@@ -352,7 +367,7 @@
     }
   },
   "integrationsPage": {
-    "metaDescription": "Siriplan entegrasyonları — WhatsApp, Instagram, Google Calendar, Stripe ve daha fazlası.",
+    "metaDescription": "SiriPlan entegrasyonları — WhatsApp, Instagram, Google Calendar, Stripe ve daha fazlası.",
     "heroEyebrow": "Entegrasyonlar",
     "heroTitle": "Tüm Araçlarınız",
     "heroTitleHighlight": "Tek Platformda",
@@ -414,13 +429,13 @@
     "ctaButton": "Ücretsiz Başlayın"
   },
   "aboutPage": {
-    "metaDescription": "BY Sirius Group Ai & Technology Co Ltd. ve Siriplan hakkında bilgi edinin.",
+    "metaDescription": "BY Sirius Group Ai & Technology Co Ltd. ve SiriPlan hakkında bilgi edinin.",
     "heroTitle": "Teknolojiyle İşletmenizi",
     "heroTitleHighlight": "Geleceğe Taşıyoruz",
-    "heroSubtitle": "Siriplan, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> çatısı altında geliştirilen, 10'dan fazla sektöre hizmet sunan yapay zeka destekli randevu ve işletme yönetim platformudur.",
+    "heroSubtitle": "SiriPlan, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> çatısı altında geliştirilen, 10'dan fazla sektöre hizmet sunan yapay zeka destekli randevu ve işletme yönetim platformudur.",
     "aboutTitle": "BY Sirius Group Kimdir?",
     "aboutP1": "<strong>BY Sirius Group Ai & Technology Co Ltd.</strong>, yapay zeka, SaaS çözümleri ve dijital dönüşüm alanlarında faaliyet gösteren teknoloji şirketidir. Kuruluşumuzdan bu yana işletmelerin dijitalleşme yolculuğunu kolaylaştırmak için yenilikçi ürünler geliştirmekteyiz.",
-    "aboutP2": "Siriplan, BY Sirius Group Ai & Technology Co Ltd.'un amiral gemisi ürünü olarak kuaförden kliniklere, berbelerden spa merkezlerine kadar geniş bir sektör yelpazesine randevu yönetimi ve operasyonel verimlilik sağlar.",
+    "aboutP2": "SiriPlan, BY Sirius Group Ai & Technology Co Ltd.'un amiral gemisi ürünü olarak kuaförden kliniklere, berbelerden spa merkezlerine kadar geniş bir sektör yelpazesine randevu yönetimi ve operasyonel verimlilik sağlar.",
     "websiteButton": "bysirius.com",
     "stats": {
       "sectors": "Desteklenen Sektör",
@@ -452,7 +467,7 @@
     "ctaContact": "İletişime Geçin"
   },
   "contactPage": {
-    "metaDescription": "Siriplan ekibiyle iletişime geçin. Sorularınızı yanıtlayalım, size en uygun çözümü birlikte bulalım.",
+    "metaDescription": "SiriPlan ekibiyle iletişime geçin. Sorularınızı yanıtlayalım, size en uygun çözümü birlikte bulalım.",
     "heroEyebrow": "İletişim",
     "heroTitle": "Size Nasıl",
     "heroTitleHighlight": "Yardımcı Olabiliriz?",
@@ -500,7 +515,7 @@
     "bySirius": "BY Sirius Group"
   },
   "faqPage": {
-    "metaDescription": "Siriplan hakkında merak edilen tüm sorular ve cevapları. Randevu, fiyatlandırma, teknik destek ve daha fazlası.",
+    "metaDescription": "SiriPlan hakkında merak edilen tüm sorular ve cevapları. Randevu, fiyatlandırma, teknik destek ve daha fazlası.",
     "heroEyebrow": "SSS",
     "heroTitle": "Sıkça Sorulan",
     "heroTitleHighlight": "Sorular",
@@ -510,8 +525,8 @@
         "title": "Genel",
         "items": {
           "q1": {
-            "q": "Siriplan nedir?",
-            "a": "Siriplan, kuaför, berber, güzellik salonu, SPA, klinik ve daha fazlası için geliştirilmiş yapay zeka destekli randevu ve işletme yönetim platformudur. BY Sirius Group Ai & Technology Co Ltd. tarafından geliştirilmiştir."
+            "q": "SiriPlan nedir?",
+            "a": "SiriPlan, kuaför, berber, güzellik salonu, SPA, klinik ve daha fazlası için geliştirilmiş yapay zeka destekli randevu ve işletme yönetim platformudur. BY Sirius Group Ai & Technology Co Ltd. tarafından geliştirilmiştir."
           },
           "q2": {
             "q": "Hangi sektörlere hitap ediyor?",
@@ -674,12 +689,12 @@
     "applicationP2": "Başvurularınız kimlik doğrulama yapıldıktan sonra en geç 30 gün içinde sonuçlandırılır."
   },
   "privacyPage": {
-    "metaDescription": "Siriplan gizlilik politikası — kişisel verilerinizi nasıl işlediğimizi öğrenin.",
+    "metaDescription": "SiriPlan gizlilik politikası — kişisel verilerinizi nasıl işlediğimizi öğrenin.",
     "pageTitle": "Gizlilik Politikası",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Veri Sorumlusu",
-    "s1P1": "Bu gizlilik politikası, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Şirket\", \"biz\", \"bize\") tarafından işletilen <strong>Siriplan</strong> platformu için geçerlidir. Şirket, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında veri sorumlusu sıfatını taşımaktadır.",
+    "s1P1": "Bu gizlilik politikası, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Şirket\", \"biz\", \"bize\") tarafından işletilen <strong>SiriPlan</strong> platformu için geçerlidir. Şirket, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında veri sorumlusu sıfatını taşımaktadır.",
     "s1P2": "<strong>Web sitesi:</strong> bysirius.com | <strong>E-posta:</strong> privacy@bysirius.com",
     "s2Title": "2. Toplanan Kişisel Veriler",
     "s2Intro": "Platform kullanımı sırasında aşağıdaki veriler işlenebilir:",
@@ -718,14 +733,14 @@
     "s9Title": "8. Politika Değişiklikleri",
     "s9P": "Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir.",
     "s10Title": "9. Yurt Dışı Kullanıcılar ve Uygulanacak Hükümler",
-    "s10P": "Siriplan, BY Sirius Group Ai & Technology Co Ltd. tarafından işletilmektedir. Türkiye dışından erişen kullanıcıların kişisel verileri de bu politikada açıklanan amaç ve yöntemlerle işlenir. Bulunduğunuz ülkenin veri koruma mevzuatı size ek haklar tanıyorsa, bu hakları kullanmak için privacy@bysirius.com adresine başvurabilirsiniz; talepler yürürlükteki mevzuatın öngördüğü süre ve kapsamda değerlendirilir."
+    "s10P": "SiriPlan, BY Sirius Group Ai & Technology Co Ltd. tarafından işletilmektedir. Türkiye dışından erişen kullanıcıların kişisel verileri de bu politikada açıklanan amaç ve yöntemlerle işlenir. Bulunduğunuz ülkenin veri koruma mevzuatı size ek haklar tanıyorsa, bu hakları kullanmak için privacy@bysirius.com adresine başvurabilirsiniz; talepler yürürlükteki mevzuatın öngördüğü süre ve kapsamda değerlendirilir."
   },
   "accountDeletionPage": {
-    "metaDescription": "Siriplan hesabınızı ve kişisel verilerinizi nasıl sildireceğinizi öğrenin.",
+    "metaDescription": "SiriPlan hesabınızı ve kişisel verilerinizi nasıl sildireceğinizi öğrenin.",
     "pageTitle": "Hesap ve Veri Silme Talebi",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
-    "appInfo": "<strong>Uygulama:</strong> Siriplan (com.siriplan.app) — <strong>Geliştirici:</strong> BY Sirius Group Ai & Technology Co Ltd.",
-    "intro": "Bu sayfada Siriplan hesabınızı ve hesabınıza bağlı kişisel verilerinizi nasıl kalıcı olarak sildirebileceğiniz açıklanır. Bu sayfayı görüntülemek veya talep göndermek için giriş yapmanız gerekmez.",
+    "appInfo": "<strong>Uygulama:</strong> SiriPlan (com.siriplan.app) — <strong>Geliştirici:</strong> BY Sirius Group Ai & Technology Co Ltd.",
+    "intro": "Bu sayfada SiriPlan hesabınızı ve hesabınıza bağlı kişisel verilerinizi nasıl kalıcı olarak sildirebileceğiniz açıklanır. Bu sayfayı görüntülemek veya talep göndermek için giriş yapmanız gerekmez.",
     "inAppTitle": "Yöntem 1 — Uygulama içinden (anında)",
     "inAppP": "İşletme sahibi hesabınızla giriş yapın:",
     "inAppSteps": [
@@ -752,14 +767,14 @@
     "contactNote": "Sorularınız için: <strong>privacy@bysirius.com</strong>"
   },
   "termsPage": {
-    "metaDescription": "Siriplan kullanım koşulları ve hizmet şartları.",
+    "metaDescription": "SiriPlan kullanım koşulları ve hizmet şartları.",
     "pageTitle": "Kullanım Koşulları",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Taraflar ve Kapsam",
-    "s1P": "Bu Kullanım Koşulları, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Siriplan\", \"biz\") ile platformu kullanan bireyler ve işletmeler (\"Kullanıcı\") arasındaki hukuki ilişkiyi düzenler. Platformu kullanarak bu koşulları kabul etmiş sayılırsınız.",
+    "s1P": "Bu Kullanım Koşulları, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"SiriPlan\", \"biz\") ile platformu kullanan bireyler ve işletmeler (\"Kullanıcı\") arasındaki hukuki ilişkiyi düzenler. Platformu kullanarak bu koşulları kabul etmiş sayılırsınız.",
     "s2Title": "2. Hizmet Tanımı",
-    "s2P": "Siriplan; randevu yönetimi, müşteri takibi, personel yönetimi, kampanya modülü ve ciro raporlaması gibi işletme yönetim araçları sunan SaaS (Hizmet Olarak Yazılım) platformudur. Platform erişimi seçilen abonelik planı kapsamında sağlanır.",
+    "s2P": "SiriPlan; randevu yönetimi, müşteri takibi, personel yönetimi, kampanya modülü ve ciro raporlaması gibi işletme yönetim araçları sunan SaaS (Hizmet Olarak Yazılım) platformudur. Platform erişimi seçilen abonelik planı kapsamında sağlanır.",
     "s3Title": "3. Kullanıcı Yükümlülükleri",
     "s3Items": [
       "Platforma yalnızca yetkili kişilerin erişim sağlamasından siz sorumlusunuz.",
@@ -788,12 +803,12 @@
     "s11P": "Platformdaki yapay zekâ destekli özellikler (asistan, metin ve öneri üretimi vb.) otomatik olarak üretilir; doğru, eksiksiz veya güncel olacağı garanti edilmez ve kullanılmadan önce tarafınızca kontrol edilmelidir. Bu çıktılara dayanılarak alınan kararlardan Şirket sorumlu değildir. Verilerinizin düzenli olarak dışa aktarılması ve kendi yedeğinizin alınması sizin sorumluluğunuzdadır. Şirketin makul kontrolü dışındaki olaylar (altyapı sağlayıcı arızaları, siber saldırı, mevzuat değişikliği, doğal afet, elektrik veya iletişim kesintileri dâhil mücbir sebepler) nedeniyle oluşan gecikme veya ifa edememeden Şirket sorumlu tutulamaz."
   },
   "cookiesPage": {
-    "metaDescription": "Siriplan çerez politikası — çerezlerin nasıl kullanıldığını öğrenin.",
+    "metaDescription": "SiriPlan çerez politikası — çerezlerin nasıl kullanıldığını öğrenin.",
     "pageTitle": "Çerez Politikası",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Çerez Nedir?",
-    "s1P": "Çerezler (cookies), web siteleri tarafından tarayıcınıza yerleştirilen küçük metin dosyalarıdır. Siriplan platformu, daha iyi bir kullanıcı deneyimi sunmak ve hizmet kalitesini artırmak amacıyla çerezlerden faydalanır.",
+    "s1P": "Çerezler (cookies), web siteleri tarafından tarayıcınıza yerleştirilen küçük metin dosyalarıdır. SiriPlan platformu, daha iyi bir kullanıcı deneyimi sunmak ve hizmet kalitesini artırmak amacıyla çerezlerden faydalanır.",
     "s2Title": "2. Kullandığımız Çerez Türleri",
     "s2Necessary": {
       "title": "Zorunlu Çerezler",
@@ -821,9 +836,9 @@
     "bannerNote": "Platformu ilk ziyaretinizde analitik çerezler için onayınızı isteriz; analitik çerezler yalnızca onay verdiğinizde yüklenir. Bu tercihinizi, sayfa alt bilgisindeki \"Çerez ayarları\" bağlantısından dilediğiniz zaman değiştirebilirsiniz."
   },
   "demoPage": {
-    "metaDescription": "Siriplan'ın tüm özelliklerini canlı demo ile keşfedin.",
+    "metaDescription": "SiriPlan'ın tüm özelliklerini canlı demo ile keşfedin.",
     "heroBadge": "Canlı Demo",
-    "heroTitle": "Siriplan'ı Keşfedin",
+    "heroTitle": "SiriPlan'ı Keşfedin",
     "heroSubtitle": "14 gün ücretsiz deneme ile tüm özellikleri kendi salonunuzda test edin. Kredi kartı gerekmez.",
     "videoTitle": "Demo Video",
     "videoComingSoon": "Yakında yayında",
@@ -908,7 +923,8 @@
     "whatsappSupport": "WhatsApp Destek",
     "security": "Güvenlik",
     "cookieSettings": "Çerez ayarları",
-    "companyReg": "İngiltere ve Galler'de kayıtlı şirket · Companies House No. 17142392"
+    "companyReg": "İngiltere ve Galler'de kayıtlı şirket · Companies House No. 17142392",
+    "ipCopyright": "Fikri Mülkiyet & AI Telif Hakları"
   },
   "home": {
     "trust": {
@@ -1001,7 +1017,7 @@
       "salonNameRequired": "İşletme adı zorunludur.",
       "kvkkLabel": "<link>KVKK Aydınlatma Metni</link>'ni okudum, kişisel verilerimin işlenmesini kabul ediyorum.",
       "privacyLabel": "<privacyLink>Gizlilik Politikası</privacyLink>'nı ve <termsLink>Kullanım Koşulları</termsLink>'nı okudum ve kabul ediyorum.",
-      "marketingLabel": "Siriplan'ın kampanya, duyuru ve özel tekliflerinden e-posta / SMS ile haberdar olmak istiyorum.",
+      "marketingLabel": "SiriPlan'ın kampanya, duyuru ve özel tekliflerinden e-posta / SMS ile haberdar olmak istiyorum.",
       "consentRequired": "Devam etmek için zorunlu onayları işaretleyin.",
       "consentRequiredToast": "Devam etmek için zorunlu onayları işaretlemeniz gerekmektedir.",
       "submitLoading": "Hesap oluşturuluyor...",
@@ -1014,8 +1030,12 @@
       "genericError": "Bir hata oluştu. Lütfen tekrar deneyin.",
       "successToast": "Hesabınız oluşturuldu!",
       "successTitle": "Hesabınız oluşturuldu!",
-      "successDesc": "Panele girmeden önce Siriplan'ı ana ekranınıza ekleyebilirsiniz — uygulama gibi tek dokunuşla açılır.",
-      "goToPanel": "Panele Git"
+      "successDesc": "Panele girmeden önce SiriPlan'ı ana ekranınıza ekleyebilirsiniz — uygulama gibi tek dokunuşla açılır.",
+      "goToPanel": "Panele Git",
+      "titlePurchase": "Hesap Oluşturun ve Ödemeye Geçin",
+      "subtitlePurchase": "Kayıt sonrası güvenli ödeme sayfasına yönlendirileceksiniz",
+      "submitPurchase": "Devam Et ve Öde",
+      "checkoutFailed": "Ödeme sayfası açılamadı. Panelinizden tekrar deneyebilirsiniz."
     }
   },
   "dashboard": {
@@ -1097,7 +1117,19 @@
       "compareAndStart": "Planları Karşılaştır & Aboneliği Başlat",
       "upgradeToPro": "Pro'ya Yükselt",
       "manageBilling": "Fatura & Ödeme Yöntemini Yönet",
-      "trialBottomNote": "Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez. Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz."
+      "trialBottomNote": "Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez. Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz.",
+      "cancelSubscription": "Aboneliği İptal Et",
+      "cancelConfirmTitle": "Aboneliği iptal etmek istediğinize emin misiniz?",
+      "cancelConfirmDescription": "Aboneliğiniz mevcut ödeme döneminizin sonuna kadar aktif kalır, kartınızdan tekrar ücret çekilmez. Dönem bitince hesabınız Deneme planına düşer.",
+      "cancelConfirmButton": "Evet, İptal Et",
+      "cancelDismissButton": "Vazgeç",
+      "cancelLoading": "İptal ediliyor...",
+      "cancelSuccessToast": "Aboneliğiniz iptal edildi.",
+      "cancelErrorToast": "İptal işlemi başarısız oldu. Lütfen tekrar deneyin veya destek ile iletişime geçin.",
+      "cancelScheduledNote": "Aboneliğiniz {date} tarihine kadar aktif kalacak, sonrasında yenilenmeyecek.",
+      "cancelUndo": "İptali Geri Al",
+      "cancelUndoLoading": "Geri alınıyor...",
+      "cancelUndoSuccessToast": "İptal geri alındı, aboneliğiniz normal şekilde devam edecek."
     },
     "reportsPage": {
       "eyebrow": "Analizler",
@@ -1772,7 +1804,7 @@
       "copyLink": "Bağlantıyı kopyala",
       "linkCopied": "Bağlantı kopyalandı",
       "shareWhatsapp": "WhatsApp'ta Paylaş",
-      "shareText": "Sizi Siriplan'a personel olarak davet ediyorum. Katılmak için: {url}",
+      "shareText": "Sizi SiriPlan'a personel olarak davet ediyorum. Katılmak için: {url}",
       "deliveryEmailSent": "E-posta gönderildi",
       "deliveryEmailFailed": "E-posta gönderilemedi — bağlantıyı elle iletin",
       "deliveryWhatsappSent": "WhatsApp mesajı gönderildi",
@@ -1822,7 +1854,7 @@
       "blockedBody": "Tarayıcınız bu site için mikrofonu engelliyor. Aşağıdaki adımlarla açıp tekrar deneyebilirsiniz.",
       "steps": {
         "nativeApp": [
-          "Telefon Ayarları → Uygulamalar → Siriplan → İzinler → Mikrofon → İzin Ver.",
+          "Telefon Ayarları → Uygulamalar → SiriPlan → İzinler → Mikrofon → İzin Ver.",
           "Listede \"Mikrofon\" yoksa uygulamanın bu sürümü ses kaydını desteklemiyordur — sesli randevuyu tarayıcıdan (Chrome/Safari) siriplan.com üzerinde kullanın.",
           "İzni verdikten sonra uygulamaya dönüp \"Tekrar Dene\"ye dokunun."
         ],
@@ -2163,7 +2195,7 @@
       "smsCostTitle": "Maliyet hakkında",
       "smsCostText": "SMS başına yaklaşık 0,08–0,20 TL arası (paket boyutuna göre) — sağlayıcı sitesinden kredi paketi satın almanız gerekir, aylık sabit ücret yoktur.",
       "waBusinessConnTitle": "WhatsApp Business Bağlantısı",
-      "waBusinessConnDesc": "Randevu onay/hatırlatma/iptal mesajları Siriplan'ın kendi WhatsApp hattından otomatik gider, bunun için bir şey yapmanıza gerek yok. Aşağıdaki bağlantı yalnızca Kampanyalar modülünden gönderdiğiniz pazarlama mesajlarının ve gelen mesajlara otomatik yanıtın kendi WhatsApp Business numaranızdan gitmesi içindir.",
+      "waBusinessConnDesc": "Randevu onay/hatırlatma/iptal mesajları SiriPlan'ın kendi WhatsApp hattından otomatik gider, bunun için bir şey yapmanıza gerek yok. Aşağıdaki bağlantı yalnızca Kampanyalar modülünden gönderdiğiniz pazarlama mesajlarının ve gelen mesajlara otomatik yanıtın kendi WhatsApp Business numaranızdan gitmesi içindir.",
       "waAccessTokenLabel": "Kalıcı Erişim Belirteci (Access Token)",
       "waPhoneNumberIdLabel": "Telefon Numarası Kimliği (Phone Number ID)",
       "waPhoneNumberIdPlaceholder": "örn. 109876543210987",
@@ -2196,7 +2228,7 @@
       "bizTattoo": "Tattoo Stüdyosu",
       "bizDiyetisyen": "Diyetisyen",
       "bizKasKirpik": "Kaş & Kirpik",
-      "legalBody": "Siriplan platformunun tüm kaynak kodları, tasarımları ve akışları FSEK ve Bern Sözleşmesi kapsamında koruma altındadır. Mağaza (App Store / Play Store) politikaları ve KVKK/GDPR veri gizliliği ile tam uyumlu altyapı sunulmaktadır.",
+      "legalBody": "SiriPlan platformunun tüm kaynak kodları, tasarımları ve akışları FSEK ve Bern Sözleşmesi kapsamında koruma altındadır. Mağaza (App Store / Play Store) politikaları ve KVKK/GDPR veri gizliliği ile tam uyumlu altyapı sunulmaktadır.",
       "dangerZoneTitle": "Tehlikeli Bölge",
       "dangerZoneBody": "Hesabınızı sildiğinizde giriş bilgileriniz ve işletmenizin tüm personel erişimleri kalıcı olarak kapatılır, aboneliğiniz iptal edilir. Müşteri kayıtlarınız silinmez, kişisel tanımlayıcı bilgileri (isim, telefon, e-posta) anonimleştirilir; randevu/ciro geçmişi yasal muhasebe saklama süresi boyunca istatistiksel olarak tutulmaya devam eder. Bu işlem geri alınamaz.",
       "deleteAccountButton": "Hesabımı Sil",
@@ -2353,7 +2385,7 @@
     }
   },
   "securityPage": {
-    "metaDescription": "Siriplan güvenlik açığı bildirimi ve sorumlu ifşa politikası.",
+    "metaDescription": "SiriPlan güvenlik açığı bildirimi ve sorumlu ifşa politikası.",
     "pageTitle": "Güvenlik ve Açık Bildirimi",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "intro": "Kullanıcılarımızın verisinin güvenliğini ciddiye alıyoruz. Bir güvenlik açığı tespit ettiyseniz, aşağıdaki kurallara uyarak bize bildirmenizi rica ederiz.",

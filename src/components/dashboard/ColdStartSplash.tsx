@@ -60,7 +60,7 @@ export function ColdStartSplash() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/icons/icon-mark.png"
-        alt="Siriplan"
+        alt="SiriPlan"
         className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-[2rem] shadow-2xl shadow-black/40"
       />
       <div className="relative text-center space-y-1">

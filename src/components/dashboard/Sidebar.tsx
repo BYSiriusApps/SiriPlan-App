@@ -111,15 +111,15 @@ export function Sidebar({
       {/* Logo + org name */}
       <div className="px-5 py-5 border-b border-sidebar-border">
         <Link href="/dashboard" className="flex items-center gap-3 group">
-          {/* Siriplan logo */}
+          {/* SiriPlan logo */}
           <img
             src="/icons/icon-mark.png"
-            alt="Siriplan"
+            alt="SiriPlan"
             className="w-9 h-9 rounded-xl shrink-0 group-hover:scale-105 transition-transform"
             style={{ boxShadow: "0 0 20px color-mix(in oklch, var(--sidebar-primary) 40%, transparent)" }}
           />
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold text-sidebar-foreground/45 uppercase tracking-[0.2em] leading-none mb-1.5">Siriplan</p>
+            <p className="text-[10px] font-semibold text-sidebar-foreground/45 uppercase tracking-[0.2em] leading-none mb-1.5">SiriPlan</p>
             <p className="font-heading text-[15px] font-semibold text-sidebar-foreground truncate leading-none">{orgName}</p>
           </div>
         </Link>

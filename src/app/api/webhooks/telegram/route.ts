@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     if (text.startsWith("/start")) {
       await sendTelegramMessage(
         String(chatId),
-        `👋 Merhaba! Randevu bildirimlerini bu sohbete almak için Chat ID'niz:\n\n<code>${chatId}</code>\n\nBu numarayı kopyalayıp Siriplan panelinde <b>Ayarlar → Sosyal Medya &amp; Entegrasyonlar → Telegram Bildirimleri</b> alanına yapıştırıp kaydedin.`
+        `👋 Merhaba! Randevu bildirimlerini bu sohbete almak için Chat ID'niz:\n\n<code>${chatId}</code>\n\nBu numarayı kopyalayıp SiriPlan panelinde <b>Ayarlar → Sosyal Medya &amp; Entegrasyonlar → Telegram Bildirimleri</b> alanına yapıştırıp kaydedin.`
       );
     }
 

@@ -422,7 +422,7 @@ export default function YeniKampanyaPage() {
             className="mt-0.5 h-4 w-4 rounded accent-orange-600 shrink-0"
           />
           <span className="text-sm text-orange-800 dark:text-orange-300">
-            <strong>İYS Beyanı:</strong> 6563 sayılı Kanun uyarınca ticari elektronik ileti gönderen işletme sıfatıyla İleti Yönetim Sistemi&apos;ne (İYS) kayıtlıyım; bu müşterilerin onaylarını İYS&apos;ye yükledim ve ret taleplerini İYS&apos;ye işlerim. Siriplan yalnızca teknik gönderim altyapısı sağlar; İYS yükümlülükleri bana aittir.{" "}
+            <strong>İYS Beyanı:</strong> 6563 sayılı Kanun uyarınca ticari elektronik ileti gönderen işletme sıfatıyla İleti Yönetim Sistemi&apos;ne (İYS) kayıtlıyım; bu müşterilerin onaylarını İYS&apos;ye yükledim ve ret taleplerini İYS&apos;ye işlerim. SiriPlan yalnızca teknik gönderim altyapısı sağlar; İYS yükümlülükleri bana aittir.{" "}
             <a href="https://iys.org.tr" target="_blank" rel="noreferrer" className="underline">iys.org.tr</a>
           </span>
         </label>

@@ -17,7 +17,7 @@ const FEATURE_META = [
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return {
-    title: "Siriplan Demo",
+    title: "SiriPlan Demo",
     description: t("demoPage.metaDescription"),
   };
 }

@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
   const inviteUrl = `${appUrl}/auth/davet/${invite.token}`;
   const orgName = (org as { name: string }).name;
   const message =
-    `🎉 ${orgName} sizi Siriplan'a personel olarak davet etti!\n\n` +
+    `🎉 ${orgName} sizi SiriPlan'a personel olarak davet etti!\n\n` +
     `Katılmak için aşağıdaki bağlantıyı kullanın:\n${inviteUrl}\n\n` +
     `Bağlantı 24 saat geçerlidir ve yalnızca bir kez kullanılabilir.`;
 

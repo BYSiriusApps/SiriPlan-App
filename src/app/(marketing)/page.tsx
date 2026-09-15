@@ -2,15 +2,17 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import {
   ArrowRight, Star, Zap, Users, TrendingUp, Shield, Sparkles,
-  Check, Bot, Calendar, MessageSquare, BarChart3, FileDown,
+  Bot, Calendar, MessageSquare, BarChart3, FileDown,
   Upload, Bell, Trophy, HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTranslations } from "next-intl/server";
-import { formatPrice, getAnnualMonthlyEquivalent, getAnnualSavings, getVisitorPricing } from "@/lib/pricing";
+import { getVisitorPricing } from "@/lib/pricing";
 import { AppStoreBadges } from "@/components/marketing/AppStoreBadges";
+import { PricingCards } from "@/components/marketing/PricingCards";
+import { AddonsSection } from "@/components/marketing/AddonsSection";
 
 // Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (/demo route'u) korunuyor.
 const DEMO_ENABLED = false;
@@ -42,18 +44,12 @@ const CATEGORY_META = [
   { key: "petGrooming", icon: "🐾"    },
 ] as const;
 
-const ADDON_META = [
-  { key: "whatsappAI",      icon: Bot            },
-  { key: "sms",             icon: MessageSquare  },
-  { key: "multiBranch",     icon: Zap            },
-] as const;
-
 const testimonials = [
   {
     name: "Ayşe Kaya",
     role: "Elegans Kuaför — İstanbul",
     avatar: "AK",
-    text: "Eski sistemimiz sürekli çöküyordu. Siriplan'a geçtik, verilerimizi 20 dakikada aktardık. Artık WhatsApp'tan gelen sorulara AI yanıt veriyor, ben sadece hizmetimi sunuyorum.",
+    text: "Eski sistemimiz sürekli çöküyordu. SiriPlan'a geçtik, verilerimizi 20 dakikada aktardık. Artık WhatsApp'tan gelen sorulara AI yanıt veriyor, ben sadece hizmetimi sunuyorum.",
     stars: 5,
   },
   {
@@ -75,20 +71,6 @@ const testimonials = [
 export default async function HomePage() {
   const t = await getTranslations();
   const pricing = getVisitorPricing(await headers());
-  const planMeta = ([
-    { key: "starter", highlight: false },
-    { key: "pro", highlight: true },
-    { key: "business", highlight: false },
-  ] as const).map((plan) => {
-    const details = pricing.plans[plan.key];
-    return {
-      ...plan,
-      monthly: formatPrice(details.monthly, pricing.currency),
-      annual: formatPrice(getAnnualMonthlyEquivalent(details.monthly, details.annual), pricing.currency),
-      annualTotal: formatPrice(details.annual, pricing.currency),
-      save: formatPrice(getAnnualSavings(details.monthly, details.annual), pricing.currency),
-    };
-  });
 
   const stats = [
     { value: "100+",   label: t("stats.businesses")  },
@@ -226,89 +208,11 @@ export default async function HomePage() {
               {t("pricing.subtitle")}
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {planMeta.map((plan) => {
-              const features = t.raw(`pricing.${plan.key}.features`) as string[];
-              return (
-                <Card
-                  key={plan.key}
-                  className={`relative overflow-visible ${plan.highlight ? "border-primary shadow-lg shadow-primary/10 scale-[1.02] z-10" : "border-border"}`}
-                >
-                  {plan.highlight && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-primary text-primary-foreground text-xs px-3">
-                        {t("pricing.mostPopular")}
-                      </Badge>
-                    </div>
-                  )}
-                  <CardContent className="p-6">
-                    <h3 className="font-bold text-lg mb-1">{t(`pricing.${plan.key}.name`)}</h3>
-                    <p className="text-xs text-muted-foreground mb-4">{t(`pricing.${plan.key}.desc`)}</p>
-                    <div className="mb-1">
-                      <span className="text-3xl font-bold">{plan.monthly}</span>
-                      <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-6">
-                      {t("pricing.annualLabel", {
-                        annual: plan.annual,
-                        total: plan.annualTotal,
-                        save: plan.save,
-                      })}
-                    </p>
-                    <Link href={plan.key === "business" ? "/auth/kayit?plan=business" : "/auth/kayit"}>
-                      <Button
-                        className={`w-full mb-6 ${plan.highlight || plan.key === "business" ? "bg-primary hover:bg-primary/90 text-primary-foreground" : ""}`}
-                        variant={plan.highlight || plan.key === "business" ? "default" : "outline"}
-                      >
-                        {plan.key === "business" ? t("pricing.buyNow") : t("pricing.startTrial")}
-                      </Button>
-                    </Link>
-                    <ul className="space-y-2.5">
-                      {features.map((f) => (
-                        <li key={f} className="flex items-start gap-2 text-xs">
-                          <Check className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                          <span className="text-muted-foreground">{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-          <p className="text-center text-xs text-muted-foreground mt-6">
-            {t("pricing.bottomNote")}
-          </p>
+          <PricingCards currency={pricing.currency} plans={pricing.plans} variant="home" />
         </div>
       </section>
 
-      {/* Add-ons */}
-      <section className="py-16 bg-muted/20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">{t("addons.title")}</h2>
-            <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-              {t("addons.subtitle")}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-            {ADDON_META.map((a) => (
-              <div key={a.key} className="flex items-start gap-4 p-5 bg-card rounded-xl border border-border hover:border-primary/30 transition-all">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <a.icon className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline justify-between gap-2 mb-1">
-                    <span className="font-semibold text-sm">{t(`addons.${a.key}.name`)}</span>
-                    <span className="text-primary font-bold text-xs shrink-0">{t(`addons.${a.key}.price`)}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{t(`addons.${a.key}.desc`)}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <AddonsSection />
 
       {/* Testimonials */}
       <section className="py-20">

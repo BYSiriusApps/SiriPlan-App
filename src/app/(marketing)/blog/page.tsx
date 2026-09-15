@@ -6,7 +6,7 @@ import { blogPosts as posts } from "@/lib/blog-posts";
 
 export const metadata: Metadata = {
   title: "Blog",
-  description: "Siriplan blog — salon yönetimi, dijital dönüşüm ve sektör haberleri.",
+  description: "SiriPlan blog — salon yönetimi, dijital dönüşüm ve sektör haberleri.",
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -26,7 +26,7 @@ export default function BlogPage() {
         <div className="container mx-auto px-4 text-center max-w-2xl">
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <PenLine className="w-3.5 h-3.5" />
-            Siriplan Blog
+            SiriPlan Blog
           </div>
           <h1 className="text-3xl md:text-5xl font-bold mb-4">
             Salon Yönetiminde<br />

@@ -40,7 +40,7 @@ export default async function HakkimizdaPage() {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-2xl">
-              Siri<span className="text-primary">plan</span>
+              Siri<span className="text-primary">Plan</span>
             </span>
           </div>
           <h1 className="text-3xl md:text-5xl font-bold mb-6">

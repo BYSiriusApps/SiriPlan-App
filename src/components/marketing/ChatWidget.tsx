@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { X, MessageCircle, Send, Bot, Minimize2 } from "lucide-react";
 
 interface Message {
@@ -11,6 +11,7 @@ interface Message {
 
 export function ChatWidget() {
   const t = useTranslations("chatWidget");
+  const locale = useLocale();
   const initialMessage = useMemo<Message>(() => ({ role: "assistant", text: t("greeting") }), [t]);
   const quickQuestions = useMemo(
     () => [t("quickQuestions.pricing"), t("quickQuestions.freeTrial"), t("quickQuestions.sectors"), t("quickQuestions.howToStart")],
@@ -44,7 +45,7 @@ export function ChatWidget() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed }),
+        body: JSON.stringify({ message: trimmed, locale }),
       });
       const data = await res.json();
       const assistantMsg: Message = {
@@ -60,7 +61,7 @@ export function ChatWidget() {
     } finally {
       setLoading(false);
     }
-  }, [loading, t]);
+  }, [loading, t, locale]);
 
   function handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && !e.shiftKey) {

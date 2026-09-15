@@ -13,14 +13,14 @@
   },
   "chatWidget": {
     "ariaLabel": "AI Assistant",
-    "title": "Siriplan AI",
+    "title": "SiriPlan AI",
     "online": "Online",
     "minimize": "Minimize",
     "close": "Close",
     "send": "Send",
-    "footer": "Siriplan AI · Powered by BY Sirius",
+    "footer": "SiriPlan AI · Powered by BY Sirius",
     "placeholder": "Type your message...",
-    "greeting": "Hi! 👋 I'm the Siriplan AI assistant.\n\nI can help you with pricing, features, sign-up or support. What would you like to ask?",
+    "greeting": "Hi! 👋 I'm the SiriPlan AI assistant.\n\nI can help you with pricing, features, sign-up or support. What would you like to ask?",
     "errorResponse": "I can't respond right now. Please try again.",
     "connectionError": "Connection error. You can reach us at info@bysirius.com.",
     "quickQuestions": {
@@ -96,6 +96,7 @@
     "mostPopular": "Most Popular",
     "startTrial": "Start Free Trial",
     "buyNow": "Buy Now",
+    "buyNowWithPrice": "{price} – Buy Now",
     "contactUs": "Get Quote / Contact Us",
     "contactForPrice": "Custom Quote",
     "contactUsSub": "Tailored packages and pricing for your business",
@@ -172,10 +173,24 @@
       "name": "Additional Branch Package",
       "desc": "Add extra branches to Starter/Pro",
       "price": "$29/branch/mo"
+    },
+    "request": {
+      "cta": "Get Info",
+      "title": "Request info about {name}",
+      "subtitle": "Fill out the form and our team will get back to you.",
+      "nameLabel": "Full Name",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone",
+      "messageLabel": "Message",
+      "optional": "(optional)",
+      "submit": "Send Request",
+      "submitLoading": "Sending...",
+      "successToast": "Your request has been received — we'll get back to you shortly.",
+      "errorToast": "Couldn't send your request. Please try again."
     }
   },
   "pricingPage": {
-    "metaDescription": "Siriplan pricing — Starter $29/mo, Pro $39/mo, Business $99/mo. 14-day free trial, no credit card required.",
+    "metaDescription": "SiriPlan pricing — Starter $29/mo, Pro $39/mo, Business $99/mo. 14-day free trial, no credit card required.",
     "heroBadge": "14-Day Free Trial — No Credit Card Required",
     "heroTitle": "Transparent Pricing,",
     "heroTitleHighlight": "No Surprises",
@@ -199,7 +214,7 @@
     "ctaSecondary": "Request a Demo"
   },
   "featuresPage": {
-    "metaDescription": "All of Siriplan's features — AI booking, customer management, campaign module, revenue analytics, and much more.",
+    "metaDescription": "All of SiriPlan's features — AI booking, customer management, campaign module, revenue analytics, and much more.",
     "heroBadge": "30+ Features — One Platform",
     "heroTitle": "Everything to Grow",
     "heroTitleHighlight": "Your Salon, Right Here",
@@ -352,7 +367,7 @@
     }
   },
   "integrationsPage": {
-    "metaDescription": "Siriplan integrations — WhatsApp, Instagram, Google Calendar, Stripe, and more.",
+    "metaDescription": "SiriPlan integrations — WhatsApp, Instagram, Google Calendar, Stripe, and more.",
     "heroEyebrow": "Integrations",
     "heroTitle": "All Your Tools",
     "heroTitleHighlight": "In One Platform",
@@ -414,13 +429,13 @@
     "ctaButton": "Start Free"
   },
   "aboutPage": {
-    "metaDescription": "Learn about BY Sirius Group Ai & Technology Co Ltd. and Siriplan.",
+    "metaDescription": "Learn about BY Sirius Group Ai & Technology Co Ltd. and SiriPlan.",
     "heroTitle": "Taking Your Business",
     "heroTitleHighlight": "Into the Future, with Technology",
-    "heroSubtitle": "Siriplan is an AI-powered appointment and business management platform developed under <strong>BY Sirius Group Ai & Technology Co Ltd.</strong>, serving more than 10 industries.",
+    "heroSubtitle": "SiriPlan is an AI-powered appointment and business management platform developed under <strong>BY Sirius Group Ai & Technology Co Ltd.</strong>, serving more than 10 industries.",
     "aboutTitle": "Who Is BY Sirius Group?",
     "aboutP1": "<strong>BY Sirius Group Ai & Technology Co Ltd.</strong> is a technology company operating in artificial intelligence, SaaS solutions, and digital transformation. Since our founding, we have been building innovative products to make businesses' digitalization journey easier.",
-    "aboutP2": "As BY Sirius Group Ai & Technology Co Ltd.'s flagship product, Siriplan provides appointment management and operational efficiency for a wide range of industries — from hair salons to clinics, barbershops to spas.",
+    "aboutP2": "As BY Sirius Group Ai & Technology Co Ltd.'s flagship product, SiriPlan provides appointment management and operational efficiency for a wide range of industries — from hair salons to clinics, barbershops to spas.",
     "websiteButton": "bysirius.com",
     "stats": {
       "sectors": "Industries Supported",
@@ -452,7 +467,7 @@
     "ctaContact": "Contact Us"
   },
   "contactPage": {
-    "metaDescription": "Get in touch with the Siriplan team. Let us answer your questions and find the best solution for you together.",
+    "metaDescription": "Get in touch with the SiriPlan team. Let us answer your questions and find the best solution for you together.",
     "heroEyebrow": "Contact",
     "heroTitle": "How Can We",
     "heroTitleHighlight": "Help You?",
@@ -500,7 +515,7 @@
     "bySirius": "BY Sirius Group"
   },
   "faqPage": {
-    "metaDescription": "All the frequently asked questions and answers about Siriplan. Booking, pricing, technical support, and more.",
+    "metaDescription": "All the frequently asked questions and answers about SiriPlan. Booking, pricing, technical support, and more.",
     "heroEyebrow": "FAQ",
     "heroTitle": "Frequently Asked",
     "heroTitleHighlight": "Questions",
@@ -510,8 +525,8 @@
         "title": "General",
         "items": {
           "q1": {
-            "q": "What is Siriplan?",
-            "a": "Siriplan is an AI-powered appointment and business management platform built for hair salons, barbershops, beauty salons, spas, clinics, and more. It's developed by BY Sirius Group Ai & Technology Co Ltd."
+            "q": "What is SiriPlan?",
+            "a": "SiriPlan is an AI-powered appointment and business management platform built for hair salons, barbershops, beauty salons, spas, clinics, and more. It's developed by BY Sirius Group Ai & Technology Co Ltd."
           },
           "q2": {
             "q": "Which industries does it serve?",
@@ -674,12 +689,12 @@
     "applicationP2": "Your requests will be finalized within 30 days at the latest, after identity verification."
   },
   "privacyPage": {
-    "metaDescription": "Siriplan privacy policy — learn how we process your personal data.",
+    "metaDescription": "SiriPlan privacy policy — learn how we process your personal data.",
     "pageTitle": "Privacy Policy",
     "lastUpdated": "Last updated: August 2026",
     "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
     "s1Title": "1. Data Controller",
-    "s1P1": "This privacy policy applies to the <strong>Siriplan</strong> platform operated by <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (the \"Company\", \"we\", \"us\"). The Company acts as the data controller under Law No. 6698 on the Protection of Personal Data (KVKK).",
+    "s1P1": "This privacy policy applies to the <strong>SiriPlan</strong> platform operated by <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (the \"Company\", \"we\", \"us\"). The Company acts as the data controller under Law No. 6698 on the Protection of Personal Data (KVKK).",
     "s1P2": "<strong>Website:</strong> bysirius.com | <strong>Email:</strong> privacy@bysirius.com",
     "s2Title": "2. Personal Data We Collect",
     "s2Intro": "The following data may be processed while using the platform:",
@@ -718,14 +733,14 @@
     "s9Title": "8. Policy Changes",
     "s9P": "Changes to this policy will be announced through the platform. Continuing to use the platform after changes take effect means you accept the updated policy.",
     "s10Title": "9. International Users and Applicable Provisions",
-    "s10P": "Siriplan is operated by BY Sirius Group Ai & Technology Co Ltd. The personal data of users accessing from outside Türkiye is also processed for the purposes and by the methods described in this policy. If the data protection law of your country grants you additional rights, you may exercise them by contacting privacy@bysirius.com; requests are assessed within the time and scope required by applicable law."
+    "s10P": "SiriPlan is operated by BY Sirius Group Ai & Technology Co Ltd. The personal data of users accessing from outside Türkiye is also processed for the purposes and by the methods described in this policy. If the data protection law of your country grants you additional rights, you may exercise them by contacting privacy@bysirius.com; requests are assessed within the time and scope required by applicable law."
   },
   "accountDeletionPage": {
-    "metaDescription": "Learn how to delete your Siriplan account and personal data.",
+    "metaDescription": "Learn how to delete your SiriPlan account and personal data.",
     "pageTitle": "Account & Data Deletion Request",
     "lastUpdated": "Last updated: August 2026",
-    "appInfo": "<strong>App:</strong> Siriplan (com.siriplan.app) — <strong>Developer:</strong> BY Sirius Group Ai & Technology Co Ltd.",
-    "intro": "This page explains how to permanently delete your Siriplan account and the personal data linked to it. You do not need to sign in to view this page or submit a request.",
+    "appInfo": "<strong>App:</strong> SiriPlan (com.siriplan.app) — <strong>Developer:</strong> BY Sirius Group Ai & Technology Co Ltd.",
+    "intro": "This page explains how to permanently delete your SiriPlan account and the personal data linked to it. You do not need to sign in to view this page or submit a request.",
     "inAppTitle": "Option 1 — From within the app (instant)",
     "inAppP": "Sign in with your business owner account:",
     "inAppSteps": [
@@ -752,14 +767,14 @@
     "contactNote": "Questions: <strong>privacy@bysirius.com</strong>"
   },
   "termsPage": {
-    "metaDescription": "Siriplan terms of service and terms of use.",
+    "metaDescription": "SiriPlan terms of service and terms of use.",
     "pageTitle": "Terms of Service",
     "lastUpdated": "Last updated: August 2026",
     "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
     "s1Title": "1. Parties and Scope",
-    "s1P": "These Terms of Service govern the legal relationship between <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Siriplan\", \"we\") and the individuals and businesses using the platform (the \"User\"). By using the platform, you are deemed to have accepted these terms.",
+    "s1P": "These Terms of Service govern the legal relationship between <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"SiriPlan\", \"we\") and the individuals and businesses using the platform (the \"User\"). By using the platform, you are deemed to have accepted these terms.",
     "s2Title": "2. Service Description",
-    "s2P": "Siriplan is a SaaS (Software as a Service) platform offering business management tools such as appointment management, customer tracking, staff management, a campaign module, and revenue reporting. Platform access is provided within the scope of the selected subscription plan.",
+    "s2P": "SiriPlan is a SaaS (Software as a Service) platform offering business management tools such as appointment management, customer tracking, staff management, a campaign module, and revenue reporting. Platform access is provided within the scope of the selected subscription plan.",
     "s3Title": "3. User Obligations",
     "s3Items": [
       "You are responsible for ensuring that only authorized individuals access the platform.",
@@ -788,12 +803,12 @@
     "s11P": "AI-assisted features on the platform (assistant, text and suggestion generation, etc.) are produced automatically; they are not guaranteed to be accurate, complete or current and must be reviewed by you before use. The Company is not responsible for decisions made in reliance on these outputs. Regularly exporting your data and keeping your own backup is your responsibility. The Company is not liable for delay or non-performance caused by events beyond its reasonable control (force majeure, including infrastructure provider failures, cyber-attacks, changes in law, natural disasters, power or communications outages)."
   },
   "cookiesPage": {
-    "metaDescription": "Siriplan cookie policy — learn how cookies are used.",
+    "metaDescription": "SiriPlan cookie policy — learn how cookies are used.",
     "pageTitle": "Cookie Policy",
     "lastUpdated": "Last updated: August 2026",
     "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
     "s1Title": "1. What Is a Cookie?",
-    "s1P": "Cookies are small text files placed on your browser by websites. The Siriplan platform uses cookies to provide a better user experience and improve service quality.",
+    "s1P": "Cookies are small text files placed on your browser by websites. The SiriPlan platform uses cookies to provide a better user experience and improve service quality.",
     "s2Title": "2. Types of Cookies We Use",
     "s2Necessary": {
       "title": "Necessary Cookies",
@@ -821,9 +836,9 @@
     "bannerNote": "On your first visit we ask for your consent for analytics cookies; analytics cookies are loaded only if you consent. You can change this preference at any time via the \"Cookie settings\" link in the page footer."
   },
   "demoPage": {
-    "metaDescription": "Discover all of Siriplan's features with a live demo.",
+    "metaDescription": "Discover all of SiriPlan's features with a live demo.",
     "heroBadge": "Live Demo",
-    "heroTitle": "Discover Siriplan",
+    "heroTitle": "Discover SiriPlan",
     "heroSubtitle": "Test all the features in your own salon with a 14-day free trial. No credit card required.",
     "videoTitle": "Demo Video",
     "videoComingSoon": "Coming soon",
@@ -908,7 +923,8 @@
     "whatsappSupport": "WhatsApp Support",
     "security": "Security",
     "cookieSettings": "Cookie settings",
-    "companyReg": "Company registered in England and Wales · Companies House No. 17142392"
+    "companyReg": "Company registered in England and Wales · Companies House No. 17142392",
+    "ipCopyright": "Intellectual Property & AI Copyright"
   },
   "home": {
     "trust": {
@@ -1001,7 +1017,7 @@
       "salonNameRequired": "Business name is required.",
       "kvkkLabel": "I have read and accept the <link>KVKK Data Protection Notice</link> regarding the processing of my personal data.",
       "privacyLabel": "I have read and accept the <privacyLink>Privacy Policy</privacyLink> and <termsLink>Terms of Service</termsLink>.",
-      "marketingLabel": "I want to receive campaign, announcement and special offer updates from Siriplan via email / SMS.",
+      "marketingLabel": "I want to receive campaign, announcement and special offer updates from SiriPlan via email / SMS.",
       "consentRequired": "You must check the required consents to continue.",
       "consentRequiredToast": "You must check the required consents to continue.",
       "submitLoading": "Creating your account...",
@@ -1014,8 +1030,12 @@
       "genericError": "Something went wrong. Please try again.",
       "successToast": "Your account has been created!",
       "successTitle": "Your account has been created!",
-      "successDesc": "Before going to your dashboard, you can add Siriplan to your home screen — it opens like an app with a single tap.",
-      "goToPanel": "Go to Dashboard"
+      "successDesc": "Before going to your dashboard, you can add SiriPlan to your home screen — it opens like an app with a single tap.",
+      "goToPanel": "Go to Dashboard",
+      "titlePurchase": "Create Your Account to Checkout",
+      "subtitlePurchase": "You'll be redirected to secure payment after signup",
+      "submitPurchase": "Continue to Payment",
+      "checkoutFailed": "Couldn't open the payment page. You can try again from your dashboard."
     }
   },
   "dashboard": {
@@ -1097,7 +1117,19 @@
       "compareAndStart": "Compare Plans & Start Subscription",
       "upgradeToPro": "Upgrade to Pro",
       "manageBilling": "Manage Billing & Payment Method",
-      "trialBottomNote": "All Pro features are free during the trial period — no credit card required. You can compare Starter and Pro before the trial ends and continue with the plan that suits you."
+      "trialBottomNote": "All Pro features are free during the trial period — no credit card required. You can compare Starter and Pro before the trial ends and continue with the plan that suits you.",
+      "cancelSubscription": "Cancel Subscription",
+      "cancelConfirmTitle": "Are you sure you want to cancel your subscription?",
+      "cancelConfirmDescription": "Your subscription stays active until the end of your current billing period, and your card won't be charged again. Once the period ends, your account moves to the Trial plan.",
+      "cancelConfirmButton": "Yes, Cancel",
+      "cancelDismissButton": "Never Mind",
+      "cancelLoading": "Cancelling...",
+      "cancelSuccessToast": "Your subscription has been cancelled.",
+      "cancelErrorToast": "Cancellation failed. Please try again or contact support.",
+      "cancelScheduledNote": "Your subscription stays active until {date}, then it won't renew.",
+      "cancelUndo": "Undo Cancellation",
+      "cancelUndoLoading": "Undoing...",
+      "cancelUndoSuccessToast": "Cancellation undone — your subscription will continue as normal."
     },
     "reportsPage": {
       "eyebrow": "Analytics",
@@ -1772,7 +1804,7 @@
       "copyLink": "Copy link",
       "linkCopied": "Link copied",
       "shareWhatsapp": "Share on WhatsApp",
-      "shareText": "I'm inviting you to Siriplan as a staff member. To join: {url}",
+      "shareText": "I'm inviting you to SiriPlan as a staff member. To join: {url}",
       "deliveryEmailSent": "Email sent",
       "deliveryEmailFailed": "Email could not be sent — share the link manually",
       "deliveryWhatsappSent": "WhatsApp message sent",
@@ -1822,7 +1854,7 @@
       "blockedBody": "Your browser is blocking the microphone for this site. Follow the steps below and try again.",
       "steps": {
         "nativeApp": [
-          "Phone Settings → Apps → Siriplan → Permissions → Microphone → Allow.",
+          "Phone Settings → Apps → SiriPlan → Permissions → Microphone → Allow.",
           "If \"Microphone\" isn't in the list, this build of the app doesn't support audio capture — use voice booking in a browser (Chrome/Safari) on siriplan.com instead.",
           "After granting it, return to the app and tap \"Try again\"."
         ],
@@ -2163,7 +2195,7 @@
       "smsCostTitle": "About cost",
       "smsCostText": "Roughly 0.08–0.20 TRY per SMS (depending on package size) — you need to buy a credit package from the provider's site; there is no fixed monthly fee.",
       "waBusinessConnTitle": "WhatsApp Business Connection",
-      "waBusinessConnDesc": "Appointment confirmation/reminder/cancellation messages are sent automatically from Siriplan's own WhatsApp line — you don't need to do anything for that. The connection below is only so that marketing messages sent from the Campaigns module and automatic replies to incoming messages go from your own WhatsApp Business number.",
+      "waBusinessConnDesc": "Appointment confirmation/reminder/cancellation messages are sent automatically from SiriPlan's own WhatsApp line — you don't need to do anything for that. The connection below is only so that marketing messages sent from the Campaigns module and automatic replies to incoming messages go from your own WhatsApp Business number.",
       "waAccessTokenLabel": "Permanent Access Token",
       "waPhoneNumberIdLabel": "Phone Number ID",
       "waPhoneNumberIdPlaceholder": "e.g. 109876543210987",
@@ -2196,7 +2228,7 @@
       "bizTattoo": "Tattoo Studio",
       "bizDiyetisyen": "Dietitian",
       "bizKasKirpik": "Brows & Lashes",
-      "legalBody": "All source code, designs, and flows of the Siriplan platform are protected under FSEK and the Berne Convention. A fully compliant infrastructure with Store (App Store / Play Store) policies and GDPR/KVKK data privacy is provided.",
+      "legalBody": "All source code, designs, and flows of the SiriPlan platform are protected under FSEK and the Berne Convention. A fully compliant infrastructure with Store (App Store / Play Store) policies and GDPR/KVKK data privacy is provided.",
       "dangerZoneTitle": "Danger Zone",
       "dangerZoneBody": "When you delete your account, your login credentials and all staff access of your business will be permanently closed, and your subscription will be cancelled. Your customer records will not be deleted, but personal identifying details (name, phone, email) will be anonymized; appointment and revenue history will continue to be kept statistically for the legal accounting retention period. This action cannot be undone.",
       "deleteAccountButton": "Delete My Account",
@@ -2353,7 +2385,7 @@
     }
   },
   "securityPage": {
-    "metaDescription": "Siriplan vulnerability reporting and responsible disclosure policy.",
+    "metaDescription": "SiriPlan vulnerability reporting and responsible disclosure policy.",
     "pageTitle": "Security and Vulnerability Reporting",
     "lastUpdated": "Last updated: August 2026",
     "intro": "We take the security of our users' data seriously. If you have identified a security vulnerability, we ask you to report it to us following the rules below.",
