@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { startOfMonth, endOfMonth, format, subMonths, startOfDay, endOfDay, addDays } from "date-fns";
-import { tr } from "date-fns/locale";
 import { TrendingUp, Users, Star, Download, CalendarCheck, ChevronLeft, ChevronRight, Activity, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { HomeButton } from "@/components/dashboard/HomeButton";
@@ -79,20 +78,11 @@ export default async function RaporlarPage({
   const nextDay = format(addDays(reportDay, 1), "yyyy-MM-dd");
   const isToday = dayParam === format(now, "yyyy-MM-dd");
 
-  const isTr = t("guide").includes("Kılavuzu");
-  const isEn = t("guide").includes("User Guide");
-  const isRu = t("guide").includes("Руководство");
-
-  const getRepText = (key: string) => {
-    if (key === "submit") return isTr ? "Getir" : isEn ? "Fetch" : isRu ? "Получить" : "عرض";
-    if (key === "todayBadge") return isTr ? " (bugün)" : isEn ? " (today)" : isRu ? " (сегодня)" : " (اليوم)";
-    if (key === "emptyDay") return isTr ? "Bu günde randevu kaydı yok" : isEn ? "No appointment records for this day" : isRu ? "Нет записей о приемах на этот день" : "لا توجد سجلات مواعيد لهذا اليوم";
-    return "";
-  };
+  const INTL_LOCALE: Record<string, string> = { tr: "tr-TR", en: "en-US", ru: "ru-RU", ar: "ar-EG" };
+  const intlLocale = INTL_LOCALE[locale] ?? "tr-TR";
 
   const getFormattedDate = (date: Date) => {
-    const localeStr = isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG";
-    return date.toLocaleDateString(localeStr, { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+    return date.toLocaleDateString(intlLocale, { day: "numeric", month: "long", year: "numeric", weekday: "long" });
   };
 
   // Last 6 months stats
@@ -101,8 +91,7 @@ export default async function RaporlarPage({
       const d = subMonths(now, i);
       const start = startOfMonth(d).toISOString();
       const end = endOfMonth(d).toISOString();
-      const localeStr = isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG";
-      const monthLabel = d.toLocaleDateString(localeStr, { month: "short", year: "numeric" });
+      const monthLabel = d.toLocaleDateString(intlLocale, { month: "short", year: "numeric" });
       return supabase
         .from("appointments")
         .select("price, tip, status")
@@ -214,7 +203,7 @@ export default async function RaporlarPage({
   const bestStaffStat = allStaffArr[0];
   const worstStaffStat = allStaffArr.length > 1 ? allStaffArr[allStaffArr.length - 1] : null;
   const formatDayLabel = (isoDay: string) =>
-    new Date(isoDay + "T12:00:00").toLocaleDateString(isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG", { day: "numeric", month: "short" });
+    new Date(isoDay + "T12:00:00").toLocaleDateString(intlLocale, { day: "numeric", month: "short" });
 
   // ── Gün sonu: bekleyen randevular + gün içi manuel gelir/gider dökümü ──
   type DayExpense = { id: string; type: string; amount: number; category: string | null; description: string | null; note: string | null };
@@ -266,7 +255,7 @@ export default async function RaporlarPage({
               <CalendarCheck className="h-4 w-4 text-primary" />
               {t("reportsPage.daySummary")}
               <span className="text-sm font-normal text-muted-foreground capitalize">
-                — {getFormattedDate(reportDay)}{isToday ? getRepText("todayBadge") : ""}
+                — {getFormattedDate(reportDay)}{isToday ? ` (${t("today")})` : ""}
               </span>
             </CardTitle>
             <div className="flex items-center gap-1.5">
@@ -345,7 +334,7 @@ export default async function RaporlarPage({
 
           {/* Günün randevu dökümü */}
           {dAppts.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-3">Bu günde randevu kaydı yok</p>
+            <p className="text-sm text-muted-foreground text-center py-3">{t("reportsPage.noAppointments")}</p>
           ) : (
             <div className="space-y-1">
               <div className="hidden md:grid grid-cols-[64px_1fr_1fr_120px_90px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
@@ -653,7 +642,7 @@ export default async function RaporlarPage({
           { label: "Toplam İşlem", value: String(total) },
           ...(kdvEnabled
             ? [{
-                label: (isTr ? "Tahmini KDV" : isEn ? "Estimated VAT" : isRu ? "Оценочный НДС" : "ضريبة القيمة المضافة") + ` (%${kdvRate})`,
+                label: t("reportsPage.estimatedVat") + ` (%${kdvRate})`,
                 value: formatMoney(kdvTutari, currency, locale),
               }]
             : []),

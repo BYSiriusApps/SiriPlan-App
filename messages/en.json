@@ -997,6 +997,20 @@
         "desc": "Manage brow design, microblading, lash extension and lamination appointments. Session-duration and occupancy optimization.",
         "features": ["Duration-based booking", "Returning-customer reminders", "Color & style notes", "Customer photo gallery", "Online deposits", "Loyalty program"],
         "keywords": ["brow lash booking system", "lash studio software"]
+      },
+      "dis-klinigi": {
+        "title": "Dental Clinic",
+        "headline": "Smart Appointment Management for Your Dental Clinic",
+        "desc": "Manage exams, check-ups and treatment appointments from one system. Speed up your clinic workflow with patient reminders, doctor-based calendars and a waitlist.",
+        "features": ["Doctor-based appointment calendar", "Patient reminders (SMS/WhatsApp)", "Treatment vs. check-up appointment types", "Waitlist", "Patient history and notes", "Multi-branch clinic support"],
+        "keywords": ["dental clinic appointment system", "dentist scheduling software"]
+      },
+      "petkuafor": {
+        "title": "Pet Grooming",
+        "headline": "Easy Appointment System for Your Pet Grooming Salon",
+        "desc": "Manage haircuts, baths and grooming appointments from one calendar. Send automatic reminders to pet owners and track staff availability.",
+        "features": ["Service-based calendar (haircut, bath, nail trimming)", "Automatic reminders (SMS/WhatsApp)", "Staff availability tracking", "Customer & pet records", "Waitlist", "Loyalty program"],
+        "keywords": ["pet grooming appointment system", "pet salon booking software"]
       }
     }
   },
@@ -1206,7 +1220,30 @@
     "dataMigrationPage": {
       "eyebrow": "Data Management",
       "title": "Data Migration",
-      "subtitle": "Import your data or download it securely"
+      "subtitle": "Import your data or download it securely",
+      "downloadTitle": "Download My Data",
+      "downloadDesc": "All your data belongs to you. Download it anytime.",
+      "excelInfo": "Excel: includes customers, services, staff and appointments on separate sheets. PDF: save via browser printing.",
+      "importTitle": "Import Data",
+      "importDesc": "Transfer your customer and appointment data from another application",
+      "selectSource": "Select source:",
+      "dragDrop": "Select CSV, Excel or JSON file",
+      "dragDropSub": "or drag and drop",
+      "importing": "Importing...",
+      "migrateTitle": "Do you want to switch from a competitor app?",
+      "step1": "Select source above",
+      "step2": "Upload your CSV, Excel or JSON file",
+      "step3": "Your data is imported automatically",
+      "step4": "Visit and spending history is preserved",
+      "jsonFullData": "Full Data",
+      "csvCustomers": "Customers",
+      "pdfPrint": "Print",
+      "sourceBookingApp": "Booking App",
+      "sourceOtherSoftware": "Other Software",
+      "noteLabel": "Note",
+      "noteSalonappy": "Export data as CSV from your booking program: Settings → Export Data",
+      "noteArvengo": "Export from your current software: Panel → Reports → Download Excel or CSV",
+      "noteExcel": "Column headers: Full Name, Phone (required) · Email, Birth Date, Notes, Total Visits, Total Spend, Last Visit (optional). CSV, Excel, and JSON are supported."
     },
     "subscriptionPage": {
       "eyebrow": "Plan & Billing",
@@ -1266,7 +1303,8 @@
       "topStaff": "Top Revenue (Staff) This Month",
       "monthlyRevenue": "This Month Revenue",
       "noShowRate": "No-Show Rate",
-      "totalTransactions": "Total Transactions"
+      "totalTransactions": "Total Transactions",
+      "estimatedVat": "Estimated VAT"
     },
     "websiteSettingsPage": {
       "eyebrow": "Website",
@@ -1476,12 +1514,113 @@
       "incomeDistribution": "Income Distribution",
       "expenseDistribution": "Expense Distribution",
       "applyToMonth": "Apply",
-      "applyActiveRecurring": "Apply ({count})"
+      "applyActiveRecurring": "Apply ({count})",
+      "recurringBills": "Recurring Bills",
+      "addRecord": "Add Record",
+      "recurringTemplates": "Recurring Expense Templates",
+      "recurringDesc": "Define monthly recurring expenses like rent, salary, bills. Apply to selected month with one click.",
+      "addTemplate": "Add Template",
+      "applyMonthButton": "Apply to {month}",
+      "noTemplatesYet": "No recurring expense templates yet",
+      "noTemplatesHint": "Add monthly recurring expenses like rent, salary, bills",
+      "addFirstTemplate": "Add First Template",
+      "labelDescription": "Description",
+      "labelCategory": "Category",
+      "labelPayment": "Payment",
+      "labelAmount": "Amount",
+      "labelDate": "Date",
+      "activeTemplatesTotal": "active templates · total",
+      "monthlyFixedExpense": "monthly fixed expense",
+      "totalIncome": "Total Income",
+      "totalExpense": "Total Expense",
+      "netProfitLoss": "Net Profit / Loss",
+      "estimatedVat": "Estimated VAT",
+      "vatAssumptionNote": "Income amount is assumed to include VAT",
+      "apptRevenueNote": "{amount} from completed appointments is included automatically. Pending appointments appear here once marked \"Completed\".",
+      "changeAnalysis": "Change Analysis",
+      "metric": "Metric",
+      "change": "Change",
+      "bestProfitMonth": "Best Net Profit Month",
+      "worstProfitMonth": "Lowest Net Profit Month",
+      "records": "Records",
+      "filterAll": "All",
+      "filterIncome": "Income",
+      "filterExpense": "Expense",
+      "noRecordsPeriod": "No records for this period",
+      "addManually": "Add Manually",
+      "applyRecurringBtn": "Apply Recurring Expenses",
+      "autoFromAppointment": "Auto from appointment",
+      "editRecord": "Edit Record",
+      "newRecord": "New Record",
+      "incomeType": "💰 Income",
+      "expenseType": "💸 Expense",
+      "descriptionPlaceholder": "Write description...",
+      "paymentMethodLabel": "Payment Method",
+      "paymentCash": "Cash",
+      "paymentCard": "Card",
+      "paymentTransfer": "Bank Transfer",
+      "paymentCheque": "Cheque",
+      "noteOptional": "Note (optional)",
+      "cancel": "Cancel",
+      "update": "Update",
+      "save": "Save",
+      "editTemplate": "Edit Template",
+      "newTemplate": "New Recurring Expense Template",
+      "templateApplyHint": "This template can be applied to the selected period with a single click every month.",
+      "templateDescPlaceholder": "Monthly Rent, Electricity...",
+      "saveTemplate": "Save Template"
     },
     "stockPage": {
       "eyebrow": "Accounting & Stock",
       "title": "Stock Management",
       "subtitle": "Track product stock, critical stock alerts, and incoming/outgoing goods",
+      "unitPcs": "pcs",
+      "unitBottle": "bottle",
+      "unitBox": "box",
+      "unitTube": "tube",
+      "unitGram": "gram",
+      "txTypeIn": "Stock In (Purchase)",
+      "txTypeOut": "Stock Out (Usage / Sale)",
+      "txTypeAdjust": "Stock Adjustment (Count)",
+      "loadTemplate": "Load Sample Catalog",
+      "newProduct": "Add New Product",
+      "totalProducts": "Total Product Types",
+      "criticalStock": "Critical Stock Alert",
+      "totalStockValue": "Total Stock Value (Cost)",
+      "searchPlaceholder": "Search product name...",
+      "allCategories": "All Categories",
+      "noProductsYet": "No stock products found yet",
+      "addProduct": "Add Product",
+      "productName": "Product Name",
+      "categoryLabel": "Category",
+      "stockStatus": "Stock Status",
+      "costPrice": "Cost Price",
+      "salePrice": "Sale Price",
+      "actions": "Actions",
+      "unitShort": "Unit",
+      "generalCategory": "General",
+      "criticalLimit": "Critical Limit",
+      "stockInOut": "Stock In/Out",
+      "stockInOutShort": "In/Out",
+      "editBtn": "Edit",
+      "editProduct": "Edit Product",
+      "productNamePlaceholder": "E.g. Shampoo 1000ml",
+      "categoryPlaceholder": "E.g. Hair Care",
+      "unitOfMeasure": "Unit of Measure",
+      "currentStock": "Current Stock",
+      "cancel": "Cancel",
+      "update": "Update",
+      "save": "Save",
+      "stockTransactionTitle": "Stock Transaction",
+      "transactionType": "Transaction Type",
+      "newStockLevel": "New Stock Level",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "defaultPriceNoteCost": "If left blank, the default cost price ({price}) will be used.",
+      "defaultPriceNoteSale": "If left blank, the default sale price ({price}) will be used.",
+      "descNoteLabel": "Description / Note (optional)",
+      "descNotePlaceholder": "E.g. Invoice No, Used Service etc.",
+      "saveTransaction": "Save Transaction",
       "barcode": {
         "scanSell": "Sell by Barcode",
         "scanTitle": "Barcode Sale",
@@ -1603,6 +1742,178 @@
     "reports": "Reports",
     "dataMigration": "Data Migration",
     "guide": "User Guide",
+    "guidePage": {
+      "supportEducation": "SUPPORT & EDUCATION",
+      "copyProtected": "Copy Protected",
+      "menu": {
+        "baslangic": "1. Quick Start",
+        "giris": "2. Login Flow & Roles",
+        "panel": "3. Dashboard Personalization",
+        "hizmetler": "4. Service Catalog Setup",
+        "personel": "5. Staff & Permissions",
+        "takvim": "6. Calendar & Appointment",
+        "adisyon": "7. Adisyon & Receipt Print",
+        "vitrin": "8. Web Showcase (/r/[slug])",
+        "whatsapp": "9. Notification Settings",
+        "telegram": "10. Telegram Bot",
+        "kampanya": "11. Bulk Campaigns",
+        "abonelik": "12. Subscription & Plan",
+        "sadakat": "13. Loyalty Points",
+        "maas": "14. Income-Expense & Salary",
+        "raporlar": "15. Reports & Data Migration",
+        "sss": "16. Frequently Asked Questions",
+        "sunum": "🎬 Interactive Presentation (19 Slides)"
+      },
+      "sections": {
+        "baslangic": {
+          "title": "1. Quick Start & Account Setup",
+          "intro": "Digitalize your salon in 5 minutes with SiriPlan Appointment & Business Management System. Stop paper-pen chaos, forgotten appointments, and empty chairs!",
+          "steps": [
+            { "title": "Register for Free", "desc": "Open your 14-day free trial account with your business name, email, and phone number. No credit card required." },
+            { "title": "Fill Business Information", "desc": "Go to Settings → General. Select your sector (Hairdresser, Beauty Salon, Nail Art, Spa, etc.), set your working days/hours, and upload your logo and cover photo." }
+          ]
+        },
+        "giris": {
+          "title": "2. Login Flow: Admin and Staff Login",
+          "intro": "SiriPlan supports multi-user and role architecture:",
+          "items": [
+            { "label": "Business Owner / Admin Login:", "desc": "Log in with registered Email or Phone + password. Full access to all financial data, settings, and reports." },
+            { "label": "Staff Login:", "desc": "Admin sends invitation link via Staff → Invite. Staff registers with their email/phone to access dashboard. Staff only see their own appointments and customer calendar, not business turnover or financials." }
+          ]
+        },
+        "panel": {
+          "title": "3. Dashboard Personalization",
+          "intro": "The main dashboard screen has a widget-based flexible structure:",
+          "items": [
+            { "label": "Drag & Drop Widgets:", "desc": "Click \"Personalize\" at the top right to drag and rearrange widget cards." },
+            { "label": "Show / Hide Cards:", "desc": "Hide cards you don't need by clicking the eye icon, and pin your favorites." },
+            { "label": "User-Specific Memory:", "desc": "View preferences are saved for each user individually (hiding a card for staff doesn't affect admin)." }
+          ]
+        },
+        "hizmetler": {
+          "title": "4. Define Your Services",
+          "intro": "Upload all treatments and services you offer to the system:",
+          "steps": [
+            "Go to Services on the left menu.",
+            "Click + New Service.",
+            "Fill details: enter service name, category, duration (blocks calendar slot), and price.",
+            "Press Save."
+          ]
+        },
+        "personel": {
+          "title": "5. Add Staff & Permissions",
+          "intro": "Set up calendar and roles for each professional in your team:",
+          "steps": [
+            "Go to Staff on the left menu.",
+            "Click + Add / Invite Staff.",
+            "Select staff name, phone, work days, and calendar display color.",
+            "Assign Role: Admin (Full access) or Staff (Can only see own appointments).",
+            "Salary & Commission: Set Base Salary and % Commission rate from staff details."
+          ]
+        },
+        "takvim": {
+          "title": "6. Calendar & Appointment Management",
+          "blocks": [
+            { "heading": "Click to Book Instantly:", "text": "When you click a vacant slot or staff column on the calendar, the New Appointment dialog opens with Date, Time, and Staff pre-filled." },
+            { "heading": "Customize & Filter Calendar:", "text": "View calendar by Day, Week, or Month. Compare all staff columns side-by-side or focus on a single staff member's schedule." }
+          ]
+        },
+        "adisyon": {
+          "title": "7. Ticket & Receipt Printing",
+          "intro": "Professional receipts and billing are available for completed appointments:",
+          "steps": [
+            "Click on the appointment and press the \"Adisyon\" (Receipt) button.",
+            "Receipt content displays: Business Logo, Name, Address, Phone, Services, Tip, Total Amount, and Payment Method.",
+            "Use \"Print\" in top right to send to a thermal printer directly or save as PDF.",
+            "You can also reach it from 3 shortcuts without opening the detail page: the notification shown when you mark an appointment \"Completed\", the \"Adisyon\" button under a completed appointment card in the Appointments list, or the receipt icon next to a past visit row on the customer detail page."
+          ]
+        },
+        "vitrin": {
+          "title": "8. Business Website & Online Booking (/r/[slug])",
+          "intro": "A dedicated booking page is provided for 24/7 online customer scheduling and salon showcase:",
+          "items": [
+            { "label": "Custom Web Address:", "desc": "A elegant link like siriplan.com/r/your-business-name is assigned to your business." },
+            { "label": "Upload Gallery & Images:", "desc": "Upload Logo, Cover, and Gallery photos from Settings → General to display beautifully on your public page." },
+            { "label": "Online Booking Wizard:", "desc": "Customers browse, select Service → Staff → Date/Time, and book in seconds." }
+          ]
+        },
+        "whatsapp": {
+          "title": "9. Automated WhatsApp / SMS Notifications",
+          "intro": "The most practical way to prevent client no-shows!",
+          "items": [
+            { "label": "Settings → Notifications:", "desc": "Activate WhatsApp, SMS, or Telegram integrations." },
+            { "label": "Auto Message Types:", "desc": "Booking Confirmation, Reminders (2h or 1d before), and Cancellations/Changes send automatically." },
+            { "label": "Message Tone:", "desc": "Choose Warm, Formal, or Short styles depending on your salon's concept." }
+          ]
+        },
+        "telegram": {
+          "title": "10. Telegram Notification Bot Setup (@siriplan_bot)",
+          "intro": "Receive instant free notifications on your phone for new appointment requests:",
+          "steps": [
+            "Search @siriplan_bot in Telegram, open the bot, and click \"Start\".",
+            "Copy the numeric Chat ID provided by the bot.",
+            "Paste it in the \"Telegram Chat ID\" field in Settings → Notifications on your SiriPlan panel."
+          ]
+        },
+        "kampanya": {
+          "title": "11. Bulk WhatsApp Campaigns",
+          "intro": "Send bulk messages to your clients to fill empty slots or promote campaigns:",
+          "steps": [
+            "Go to Campaigns tab and click + New Campaign.",
+            "Write the text using dynamic variables: Hello {{musteri_adi}}, {{salon_adi}}...",
+            "Filter the desired segment (e.g. inactive for last 30 days) and start sending."
+          ]
+        },
+        "abonelik": {
+          "title": "12. Subscription & Plan Management",
+          "paragraphs": [
+            "Plans: Starter, Pro, and Business plans are fixed and transparent. No requests for quote or waiting for agents. Every account starts with a 14-day free trial.",
+            "Plan Details: View your current plan, limits, and billing history under Settings → Subscription.",
+            "Your subscription is linked to SiriPlan and managed independently of app stores. For questions about upgrades or billing, contact support: info@bysirius.com · WhatsApp +90 535 503 26 34."
+          ]
+        },
+        "sadakat": {
+          "title": "13. CRM & Loyalty Points",
+          "intro": "Increase customer retention by using loyalty points feature:",
+          "items": [
+            { "label": "Customer History:", "desc": "Review past bookings, receipts, and custom notes from the customer details page." },
+            { "label": "Loyalty Points:", "desc": "Award points automatically on completed appointments. Configure which services award points under Services tab." }
+          ]
+        },
+        "maas": {
+          "title": "14. Cash Book & Staff Payroll",
+          "items": [
+            { "label": "Cash Management:", "desc": "Track expenses like rent, products, and utilities in Income/Expense to monitor net profit." },
+            { "label": "Staff Payroll & Commission:", "desc": "Calculate monthly payroll in Staff → Salary page: Base Salary + (Service Volume x Commission %) + Tips. Book as expense in cash book with a single click once paid." },
+            { "label": "VAT Calculation:", "desc": "Enter your rate and turn it on from Settings → VAT Calculation (on by default for new businesses). Update it from the same screen whenever the legal rate changes — no rate is hard-coded. When on, the \"Estimated VAT\" card is calculated on both this page and Reports, assuming that month's income includes VAT." }
+          ]
+        },
+        "raporlar": {
+          "title": "15. Reports & Data Migration",
+          "items": [
+            { "label": "Detailed Reports:", "desc": "Analyze daily/weekly appointments, revenue charts, top services, and staff performance." },
+            { "label": "Excel/CSV Export & Import:", "desc": "Upload your old customer list via Excel on the Data Migration page, or export your database as JSON/CSV." }
+          ]
+        },
+        "sss": {
+          "title": "16. Frequently Asked Questions (FAQ)",
+          "faqs": [
+            { "q": "How can I enable Telegram booking notifications?", "a": "Send a message to @siriplan_bot on Telegram and press /start. Paste the provided Chat ID into the Telegram field under Settings." },
+            { "q": "Should I request a custom quote for the Business plan?", "a": "No, all plans including Business are fixed and transparent. There is no quote request step." },
+            { "q": "Where can I view my active plan?", "a": "You can view your active plan, usage limits, and invoice history under Settings → Subscription. For billing questions: info@bysirius.com" }
+          ]
+        },
+        "sunum": {
+          "title": "🎬 SiriPlan Interactive Presentation",
+          "subtitle": "Review the user guide as a 19-slide visual slideshow.",
+          "fullscreenBtn": "Fullscreen Mode",
+          "fullscreenTitle": "SiriPlan Interactive Presentation",
+          "closeEsc": "Close (ESC)",
+          "ipTitle": "Intellectual Property Protection:",
+          "ipText": "This interactive presentation file is retrieved over a secure session-validated API. It cannot be shared or copied on external platforms."
+        }
+      }
+    },
     "settings": "Settings",
     "myAccount": "My Account",
     "subscription": "Subscription",
@@ -1906,6 +2217,43 @@
       "ownerTargetText": "This record belongs to the business owner — permissions cannot be changed here.",
       "selfEditText": "You cannot change your own permissions. Ask the business owner for changes.",
       "saveFailedToast": "Couldn't update permissions"
+    },
+    "staffDetailPage": {
+      "titleInfo": "Staff Details",
+      "nameLabel": "Full Name *",
+      "namePlaceholder": "Staff name",
+      "roleLabel": "Job Title / Role",
+      "rolePlaceholder": "Specialist, Assistant...",
+      "commission": "Commission (%)",
+      "salary": "Base Salary",
+      "phone": "Phone",
+      "email": "Email",
+      "language": "Preferred Language",
+      "langUnspecified": "Unspecified",
+      "langDesc": "The panel opens in this language when the staff logs in.",
+      "colorTitle": "Calendar Color",
+      "colorDesc": "This staff's appointments will be shown in this color on the calendar.",
+      "colorAuto": "Automatic (by order)",
+      "hoursTitle": "Working Hours",
+      "starts": "Start",
+      "ends": "End",
+      "notifTitle": "Notification Channels",
+      "notifDesc": "Automated booking notifications are sent through each filled channel.",
+      "workDays": "Working Days",
+      "save": "Save",
+      "servicesTitle": "Services Offered",
+      "servicesDesc": "Use the Services page to change service assignments.",
+      "timeOffTitle": "Leaves / Time Off",
+      "timeOffDesc": "Online booking and panel appointment creation are blocked during these date ranges.",
+      "timeOffBtn": "Add Time Off",
+      "activityTitle": "Staff Activities",
+      "auditLogTitle": "Status Change History",
+      "dangerTitle": "Danger Zone",
+      "dangerDesc": "Deactivating staff prevents them from being assigned to new appointments. Existing appointments are not affected.",
+      "deactivateBtn": "Deactivate",
+      "noteLabel": "Note",
+      "reasonPlaceholder": "Annual leave, report...",
+      "inactiveBadge": "Inactive"
     },
     "staffInvite": {
       "inviteButton": "Invite Staff",
