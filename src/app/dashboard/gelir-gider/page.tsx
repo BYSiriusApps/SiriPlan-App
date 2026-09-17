@@ -16,11 +16,12 @@ import {
   TrendingUp, TrendingDown, Wallet, Plus, Trash2, Loader2,
   DollarSign, ArrowUpCircle, ArrowDownCircle, RefreshCw, Pencil,
   ToggleLeft, ToggleRight, RepeatIcon, ChevronDown, ChevronUp, Percent,
-  Activity, CalendarClock,
+  Activity, CalendarClock, Download,
 } from "lucide-react";
 import { formatMoney, CURRENCY_SYMBOL } from "@/lib/currency";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { compareValue, buildMonthlySeries } from "@/lib/report-trends";
+import { usePlan } from "@/components/dashboard/PlanContext";
 
 type Expense = {
   id: string;
@@ -70,6 +71,7 @@ export default function GelirGiderPage() {
   const t = useTranslations("dashboard");
   const locale = useLocale();
   const router = useRouter();
+  const { proTools } = usePlan();
   const [role, setRole] = useState<string | null>(null);
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -388,8 +390,11 @@ export default function GelirGiderPage() {
     if (key === "recurringDesc") return isTr ? "Her ay tekrarlayan kira, maaş, fatura gibi giderleri tanımlayın. Tek tıkla seçili aya uygulayın." : isEn ? "Define monthly recurring expenses like rent, salary, bills. Apply to selected month with one click." : isRu ? "Определите ежемесячные постоянные расходы, такие как аренда, зарплата, счета. Примените к выбранному месяцу в один клик." : "حدد النفقات المتكررة الشهرية مثل الإيجار والرواتب والفواتير. قم بتطبقها على الشهر المحدد بنقرة واحدة.";
     if (key === "addTemplate") return isTr ? "Şablon Ekle" : isEn ? "Add Template" : isRu ? "Добавить шаблон" : "إضافة قالب";
     if (key === "applyToMonth") return isTr ? "Uygula" : isEn ? "Apply" : isRu ? "Применить" : "تطبيق";
+    if (key === "downloadPdf") return isTr ? "PDF İndir" : isEn ? "Download PDF" : isRu ? "Скачать PDF" : "تنزيل PDF";
     return "";
   };
+
+  const pdfHref = `/api/export?format=pdf&scope=gelir-gider&year=${year}&view=${viewMode}${viewMode === "aylik" ? `&month=${month}` : ""}`;
 
   return (
     <div className="p-4 md:p-6 space-y-5 max-w-5xl">
@@ -415,6 +420,17 @@ export default function GelirGiderPage() {
             )}
             {showRecurring ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
           </Button>
+          {proTools && (
+            <a
+              href={pdfHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-accent transition-colors shrink-0"
+            >
+              <Download className="h-4 w-4" />
+              {getIncomeText("downloadPdf")}
+            </a>
+          )}
           <Button onClick={() => setShowForm(true)} className="gap-2 shrink-0">
             <Plus className="h-4 w-4" />
             {getIncomeText("addRecord")}
