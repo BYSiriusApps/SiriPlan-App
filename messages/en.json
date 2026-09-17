@@ -101,6 +101,7 @@
     "contactForPrice": "Custom Quote",
     "contactUsSub": "Tailored packages and pricing for your business",
     "bottomNote": "14-day free trial for Starter & Pro · No credit card required · Cancel anytime",
+    "foreignFeeNote": "Payment is processed through our merchant account registered outside Turkey; your bank may add a small foreign transaction fee as a result. Our prices already account for this fee — it goes to your bank, not to SiriPlan.",
     "annualLabel": "or {annual}/mo · {total}/yr ({save})",
     "annualBilledNote": "Billed as {total} once a year · {monthly}/mo if paid monthly",
     "starter": {

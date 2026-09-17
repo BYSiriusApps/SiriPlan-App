@@ -174,6 +174,11 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
       <p className="text-center text-xs text-muted-foreground mt-6">
         {t("pricing.bottomNote")}
       </p>
+      {currency === "TRY" && (
+        <p className="text-center text-[11px] text-muted-foreground/80 mt-2 max-w-xl mx-auto">
+          {t("pricing.foreignFeeNote")}
+        </p>
+      )}
     </div>
   );
 }

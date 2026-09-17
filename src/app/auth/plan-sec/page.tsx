@@ -359,11 +359,18 @@ export default function PlanSecPage() {
           })}
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground mb-8">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground mb-3">
           <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Güvenli ödeme (Stripe)</span>
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Anında etkinleşir</span>
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> İstediğiniz zaman iptal</span>
         </div>
+        {currency === "TRY" && (
+          <p className="text-center text-[11px] text-muted-foreground/80 mb-8 max-w-lg mx-auto">
+            Ödeme yurt dışında kurulu üye işyerimiz üzerinden tahsil edilir; kartınızın bankası bu nedenle
+            küçük bir yurt dışı işlem komisyonu ekleyebilir. Fiyatlarımız bu komisyon göz önünde
+            bulundurularak belirlenmiştir — komisyon bankanıza aittir, SiriPlan tarafından eklenmez.
+          </p>
+        )}
 
         {trialActive !== false && (
           <div className="text-center">
