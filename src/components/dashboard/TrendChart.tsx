@@ -8,6 +8,10 @@ import { seriesDelta } from "@/lib/report-trends";
  * dashboard/page.tsx içindeki `Sparkline`'ın genelleştirilmiş hâli:
  * negatif değer (net kâr/zarar), bar/line varyantı, dönemsel % rozeti ekler.
  *
+ * Bar varyantı yalnızca en iyi (ve varsa negatifse en kötü) noktayı canlı
+ * renk + glow ile öne çıkarır, diğerleri soluk gridir — pazarlama
+ * materyallerindeki "en iyi gün" grafik stiliyle tutarlı.
+ *
  * Her noktanın tarihi grafiğin altında (x ekseni), tutarı ise grafiğin
  * hemen altındaki dökümde her zaman görünür yazılır — sadece hover
  * tooltip'ine (<title>) bırakılmaz, çünkü dokunmatik/PDF'te hover yoktur.
@@ -16,6 +20,19 @@ import { seriesDelta } from "@/lib/report-trends";
 export type TrendPoint = { label: string; value: number };
 
 const PRINT_FALLBACK = "#e11d48"; // globals.css --primary ile uyumlu
+const MUTED_FALLBACK = "#9ca3af"; // gray-400 — yazdırmada currentColor düşmezse
+const LOSS_FALLBACK = "#ef4444"; // red-500
+
+// Yalnızca baz çizgiden uzak olan köşeleri yuvarlar (pozitif değerde üst,
+// negatif değerde alt) — dikey çubuk baz çizgisine "oturmuş" görünür.
+function barPath(x: number, yTop: number, w: number, h: number, r: number, roundTop: boolean) {
+  const rad = Math.max(0, Math.min(r, w / 2, h));
+  if (h <= 0) return "";
+  if (roundTop) {
+    return `M${x},${yTop + h} L${x},${yTop + rad} Q${x},${yTop} ${x + rad},${yTop} L${x + w - rad},${yTop} Q${x + w},${yTop} ${x + w},${yTop + rad} L${x + w},${yTop + h} Z`;
+  }
+  return `M${x},${yTop} L${x + w},${yTop} L${x + w},${yTop + h - rad} Q${x + w},${yTop + h} ${x + w - rad},${yTop + h} L${x + rad},${yTop + h} Q${x},${yTop + h} ${x},${yTop + h - rad} Z`;
+}
 
 export function TrendChart({
   series,
@@ -65,6 +82,11 @@ export function TrendChart({
   // Çok noktalı serilerde tarih etiketleri üst üste binmesin diye her 2. etiket gösterilir.
   const labelStep = series.length > 8 ? 2 : 1;
 
+  // En iyi (en yüksek) nokta her zaman öne çıkar; seri negatife düşüyorsa
+  // en kötü (en düşük) nokta da ayrı bir renkle işaretlenir.
+  const bestIdx = values.indexOf(max);
+  const worstIdx = min < 0 ? values.indexOf(min) : -1;
+
   return (
     <div className={className}>
       {showDelta && (
@@ -90,6 +112,17 @@ export function TrendChart({
             <stop offset="0%" stopColor="currentColor" stopOpacity="0.26" />
             <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </linearGradient>
+          <linearGradient id={`${uid}-bar`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0.78" />
+          </linearGradient>
+          <filter id={`${uid}-glow`} x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3.2" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
 
         {/* taban çizgisi (x ekseni) */}
@@ -113,20 +146,23 @@ export function TrendChart({
             const bx = x(i) - bw / 2;
             const top = Math.min(y(p.value), zeroY);
             const bh = Math.max(2, Math.abs(y(p.value) - zeroY));
+            const isBest = i === bestIdx && max > 0;
+            const isWorst = i === worstIdx;
+            const d = barPath(bx, top, bw, bh, 5, p.value >= 0);
             return (
-              <rect
+              <path
                 key={i}
-                x={bx}
-                y={top}
-                width={bw}
-                height={bh}
-                rx="2"
-                fill={PRINT_FALLBACK}
-                style={{ fill: "currentColor" }}
-                fillOpacity={p.value < 0 ? 0.45 : 0.85}
+                d={d}
+                fill={isWorst ? LOSS_FALLBACK : isBest ? PRINT_FALLBACK : MUTED_FALLBACK}
+                style={{
+                  fill: isWorst ? "#ef4444" : isBest ? `url(#${uid}-bar)` : "currentColor",
+                  color: isBest || isWorst ? undefined : "var(--muted-foreground)",
+                }}
+                fillOpacity={isBest || isWorst ? 1 : 0.32}
+                filter={isBest || isWorst ? `url(#${uid}-glow)` : undefined}
               >
                 <title>{`${p.label}: ${format(p.value)}`}</title>
-              </rect>
+              </path>
             );
           })
         ) : (
@@ -141,19 +177,24 @@ export function TrendChart({
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            {series.map((p, i) => (
-              <circle
-                key={i}
-                cx={x(i)}
-                cy={y(p.value)}
-                r={i === series.length - 1 ? 4 : 2.5}
-                fill={PRINT_FALLBACK}
-                style={{ fill: "currentColor" }}
-                fillOpacity={i === series.length - 1 ? 1 : 0.55}
-              >
-                <title>{`${p.label}: ${format(p.value)}`}</title>
-              </circle>
-            ))}
+            {series.map((p, i) => {
+              const isBest = i === bestIdx && max > 0;
+              const isEnd = i === series.length - 1;
+              return (
+                <circle
+                  key={i}
+                  cx={x(i)}
+                  cy={y(p.value)}
+                  r={isBest ? 5 : isEnd ? 4 : 2.5}
+                  fill={PRINT_FALLBACK}
+                  style={{ fill: "currentColor" }}
+                  fillOpacity={isBest || isEnd ? 1 : 0.55}
+                  filter={isBest ? `url(#${uid}-glow)` : undefined}
+                >
+                  <title>{`${p.label}: ${format(p.value)}`}</title>
+                </circle>
+              );
+            })}
           </>
         )}
 
@@ -167,7 +208,8 @@ export function TrendChart({
               fontSize="8"
               textAnchor="middle"
               fill="currentColor"
-              fillOpacity="0.6"
+              fillOpacity={i === bestIdx ? 0.95 : 0.6}
+              fontWeight={i === bestIdx ? 700 : 400}
             >
               {p.label}
             </text>
@@ -178,8 +220,11 @@ export function TrendChart({
       {/* Değer dökümü — her noktanın tarihi + tutarı her zaman okunur (hover'a bağlı değil) */}
       <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
         {series.map((p, i) => (
-          <span key={i} className="text-[10px] tabular-nums whitespace-nowrap">
-            <span className="text-muted-foreground">{p.label}</span>{" "}
+          <span
+            key={i}
+            className={`text-[10px] tabular-nums whitespace-nowrap ${i === bestIdx ? "font-bold text-primary" : i === worstIdx ? "font-semibold text-red-600" : ""}`}
+          >
+            <span className={i === bestIdx || i === worstIdx ? "" : "text-muted-foreground"}>{p.label}</span>{" "}
             <span className="font-semibold">{format(p.value)}</span>
           </span>
         ))}

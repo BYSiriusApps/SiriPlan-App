@@ -944,9 +944,9 @@ export default function GelirGiderPage() {
       {allEntries.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { label: "Gelir Dağılımı", type: "gelir", cats: categoriesGelir, color: "bg-emerald-500" },
-            { label: "Gider Dağılımı", type: "gider", cats: categoriesGider, color: "bg-red-500" },
-          ].map(({ label, type, cats, color }) => {
+            { type: "gelir", cats: categoriesGelir, from: "#10b981", to: "#34d399" },
+            { type: "gider", cats: categoriesGider, from: "#ef4444", to: "#f87171" },
+          ].map(({ type, cats, from, to }) => {
             const typeEntries = allEntries.filter((e) => e.type === type);
             const total = typeEntries.reduce((s, e) => s + Number(e.amount), 0);
             if (total === 0) return null;
@@ -960,21 +960,32 @@ export default function GelirGiderPage() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">{isTr ? (type === "gelir" ? "Gelir Dağılımı" : "Gider Dağılımı") : isEn ? (type === "gelir" ? "Income Distribution" : "Expense Distribution") : isRu ? (type === "gelir" ? "Распределение доходов" : "Распределение расходов") : (type === "gelir" ? "توزيع الإيرادات" : "توزيع المصروفات")}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  {byCategory.map((c) => (
-                    <div key={c.label}>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-muted-foreground">{c.label}</span>
-                        <span className="font-medium">{fmt(c.value)}</span>
+                <CardContent className="space-y-2.5">
+                  {byCategory.map((c, i) => {
+                    const isTop = i === 0;
+                    const pct = (c.value / total) * 100;
+                    return (
+                      <div key={c.label}>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className={isTop ? "font-semibold text-foreground" : "text-muted-foreground"}>
+                            {c.label}
+                            {isTop && <span className="ml-1">🏆</span>}
+                          </span>
+                          <span className={isTop ? "font-bold" : "font-medium"}>{fmt(c.value)}</span>
+                        </div>
+                        <div className="h-2 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-700 ease-out"
+                            style={{
+                              width: `${pct}%`,
+                              background: isTop ? `linear-gradient(90deg, ${from}, ${to})` : `${from}4d`,
+                              boxShadow: isTop ? `0 0 10px ${from}66` : undefined,
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${color}`}
-                          style={{ width: `${(c.value / total) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </CardContent>
               </Card>
             );
