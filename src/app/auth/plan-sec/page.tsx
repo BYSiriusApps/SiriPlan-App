@@ -367,8 +367,9 @@ export default function PlanSecPage() {
         {currency === "TRY" && (
           <p className="text-center text-[11px] text-muted-foreground/80 mb-8 max-w-lg mx-auto">
             Ödeme yurt dışında kurulu üye işyerimiz üzerinden tahsil edilir; kartınızın bankası bu nedenle
-            küçük bir yurt dışı işlem komisyonu ekleyebilir. Fiyatlarımız bu komisyon göz önünde
-            bulundurularak belirlenmiştir — komisyon bankanıza aittir, SiriPlan tarafından eklenmez.
+            işlem tutarına genellikle %1-3 arası bir yurt dışı işlem komisyonu ekleyebilir. Fiyatlarımız
+            bu komisyon göz önünde bulundurularak belirlenmiştir — komisyon bankanıza aittir, SiriPlan
+            tarafından eklenmez.
           </p>
         )}
 
