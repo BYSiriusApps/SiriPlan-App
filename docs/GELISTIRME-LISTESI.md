@@ -55,3 +55,33 @@ kayıt doğrulama vb. e-postalarını Türkçe alır.
 **Maliyet:** ~1 route dosyası + auth metin tablosu. Orta.
 **İlgili dosya:** `docs/supabase-auth-emails.md` (mevcut TR-only kurulum),
 `src/lib/email/i18n.ts` (referans i18n deseni).
+
+---
+
+## 2. AI arama motorlarında görünürlük (GEO)
+
+**Durum:** Denetim + ilk teknik düzeltmeler yapıldı (17 Eyl 2026, dal
+`fix/geo-ai-search-visibility` — sitemap'e `/guvenlik` + `/hesap-silme` eklendi,
+robots.ts'e CCBot izni eklendi). PR açılmayı bekliyor.
+**Tetikleyici:** Kullanıcı "sonra bakacağım" dedi — plan hazır, karar/uygulama bekliyor.
+
+**Zaten sağlam olan temel:** robots.ts (GPTBot/ClaudeBot/PerplexityBot/Google-Extended/
+anthropic-ai/cohere-ai/CCBot açık), `public/llms.txt`, Organization+SoftwareApplication+
+WebSite+FAQPage JSON-LD, her sayfada canonical tag (edf59cd).
+
+**Bekleyen mimari karar:** Site locale'i URL'e göre değil çerez/IP'ye göre belirliyor
+(`src/i18n/request.ts`) — `/fiyatlar` TR/EN/RU/AR için aynı URL. Bu doğru hreflang
+eklemeyi engelliyor; AI crawler'lar (çerezsiz, genelde ABD IP'li) siteyi hep aynı dil
+sürümünde görüyor. İki seçenek: (a) mevcut yapıyı koru — TR pazarı için yeterli, ya da
+(b) locale-prefixli URL'lere geç (`/en/fiyatlar` vb.) — orta-büyük mimari değişiklik,
+sadece uluslararası AI arama görünürlüğü hedefleniyorsa gerekli.
+
+**Asıl kaldıraç (kod dışı):** AI motorları çoğunlukla üçüncü taraf atıflara güveniyor.
+Yazılım dizin siteleri (Capterra, GetApp), Google Business Profile, müşteri referansları
+(AggregateRating JSON-LD için girdi), sektörel forum/topluluk mention'ları, karşılaştırma
+içerikli blog yazıları öncelikli.
+
+**Maliyet:** Teknik kısım küçük (yapıldı). Off-site/içerik kısmı sürekli bir çaba,
+kod değil.
+**İlgili dosya:** [GEO görünürlük planı (doküman)](https://claude.ai/artifact/EZ3rskRP1B2t3ArKWXA6c3),
+`src/app/robots.ts`, `src/app/sitemap.ts`, `src/i18n/request.ts`, `src/app/(marketing)/sss/page.tsx`.
