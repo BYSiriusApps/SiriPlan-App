@@ -30,7 +30,7 @@ SQL Editor'e (SVG mime kaldırma + Storage doğrudan-yazım politikalarını dü
 
 ## 1. Supabase Auth e-postaları çok dilli olsun
 
-**Durum: KOD TARAFI TAMAMLANDI (17 Eyl 2026) — Dashboard adımı bekliyor.**
+**Durum: TAMAMLANDI VE CANLIDA DOĞRULANDI (17 Eyl 2026).**
 17 Eyl'de yabancı (RU) locale'li gerçek bir test hesabıyla doğrulandı: o ana kadar
 Supabase'in tek şablonu her kullanıcıya Türkçe gidiyordu (backlog tetikleyicisi
 gerçekleşti — bkz. [[password-reset-email-flow]]). Aynı oturumda çözüm de yazıldı:
@@ -47,15 +47,13 @@ gerçekleşti — bkz. [[password-reset-email-flow]]). Aynı oturumda çözüm d
   4 dile taşıyor (aynı buton/link/süre metinleri, sadece dil farklı).
 - Secret yoksa route her isteği 503 ile reddediyor — Dashboard'da kurulmadan
   risksiz/etkisiz, mevcut TR-only akışı bozmaz.
-- Uçtan uca test edildi (yerel dev sunucusu + gerçek imzalı istek + Resend
-  gönderim kaydı): `locale=ru` kullanıcıya konu satırı Rusça gitti, teslim edildi.
-
-**KALAN TEK ADIM (kullanıcı yapacak, Supabase Dashboard):**
-1. Authentication → Hooks → "Send Email" hook ekle → URL:
-   `https://siriplan.com/api/auth/email-hook`.
-2. "Generate secret" ile üretilen `v1,whsec_...` değerini kopyala.
-3. Vercel → Environment Variables → `SUPABASE_AUTH_HOOK_SECRET` olarak ekle,
-   redeploy. (Kod zaten canlıda; env eklenip hook kaydedilince aktif olur.)
+- Kullanıcı Supabase Dashboard'da hook'u kurdu (HTTPS →
+  `https://siriplan.com/api/auth/email-hook`) + secret'ı Vercel'e ekledi;
+  `main`'e merge + deploy edildi.
+- **Canlıda uçtan uca doğrulandı:** `locale=ar` test kullanıcısına gerçek şifre
+  sıfırlama tetiklendi, Resend'de Arapça konu satırıyla
+  ("SiriPlan — رابط إعادة تعيين كلمة المرور") teslim edildiği görüldü, test
+  kullanıcı silindi. (Aynı oturumda ru + en de ayrıca doğrulanmıştı.)
 
 **İlgili dosya:** `docs/supabase-auth-emails.md` (mevcut TR-only Dashboard kurulumu
 + yeni "Seçenek B" bölümü), `src/lib/email/i18n.ts` (referans i18n deseni).
