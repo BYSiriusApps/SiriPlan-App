@@ -1999,6 +1999,7 @@
     "liveNow": "In progress",
     "apptCountLabel": "{count} appointments",
     "moreCount": "+{count} more",
+    "monthDayEmpty": "No appointments on this day",
     "quickUpdate": "Quick Update",
     "cannotChangeStatus": "You can't change the status of an appointment that isn't assigned to you.",
     "approve": "Approve",

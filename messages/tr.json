@@ -1999,6 +1999,7 @@
     "liveNow": "Devam ediyor",
     "apptCountLabel": "{count} randevu",
     "moreCount": "+{count} daha",
+    "monthDayEmpty": "Bu günde randevu yok",
     "quickUpdate": "Hızlı Güncelle",
     "cannotChangeStatus": "Bu randevu size atanmadığı için durum değiştiremezsiniz.",
     "approve": "Onayla",

@@ -51,6 +51,7 @@ interface Appointment {
   id: string;
   status: string;
   customer_name: string;
+  customer_id?: string | null;
   appointment_at: string;
   duration_minutes: number;
   staff_id: string;
@@ -356,6 +357,22 @@ export function UnifiedCalendar({
     }
     return map;
   }, [visibleAppointments]);
+
+  // Ay görünümünde seçili gün — hücreler artık randevu metnini değil sadece
+  // renkli nokta göstergesi taşır; seçilen günün randevuları takvimin ALTINDA
+  // ayrı bir listede gösterilir (mobil uygulama tasarımıyla aynı desen).
+  // Ay değiştirildiğinde (gridDays farklı bir ay olur) seçim, görünürdeyse
+  // bugüne, değilse ayın görünen ilk gününe düşer.
+  const gridDaysKey = gridDays.join(",");
+  const [selectedMonthDay, setSelectedMonthDay] = useState<string>(() =>
+    gridDays.includes(today) ? today : (gridDays[0] ?? today)
+  );
+  useEffect(() => {
+    setSelectedMonthDay((prev) =>
+      gridDays.includes(prev) ? prev : gridDays.includes(today) ? today : (gridDays[0] ?? today)
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridDaysKey]);
 
   async function updateStatus(apptId: string, newStatus: string) {
     setUpdatingId(apptId);
@@ -1063,7 +1080,13 @@ export function UnifiedCalendar({
         </div>
       )}
 
-      {/* ─── AY GÖRÜNÜMÜ ────────────────────────────────────── */}
+      {/* ─── AY GÖRÜNÜMÜ ──────────────────────────────────────
+          Hücreler artık randevu metni taşımaz (küçük hücrelerde saat/isim
+          üst üste biniyordu) — sadece gün numarası + personel renginde
+          nokta göstergesi. Seçili günün randevuları takvimin ALTINDA ayrı
+          bir listede gösterilir (mobil uygulamadaki takvim ekranıyla aynı
+          desen): müşteri adı müşteri kartına, satırın geneli randevu
+          detayına (hizmet/personel/durum) götürür. */}
       {view === "month" && (
         <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
           <div className="grid grid-cols-7 border-b bg-muted/30">
@@ -1075,62 +1098,106 @@ export function UnifiedCalendar({
           </div>
           <div className="grid grid-cols-7">
             {gridDays.map((dayStr) => {
-              const dayAppts = (byDay[dayStr] || []).sort(
-                (a, b) => a.appointment_at.localeCompare(b.appointment_at)
-              );
+              const dayAppts = byDay[dayStr] || [];
               const isToday = dayStr === today;
+              const isSelected = dayStr === selectedMonthDay;
               const inMonth = dayStr.slice(0, 7) === viewDate.slice(0, 7);
-              const shown = dayAppts.slice(0, 3);
-              const more = dayAppts.length - shown.length;
+              const dots: (typeof STAFF_COLORS)[number][] = [];
+              const seenStaff = new Set<string>();
+              for (const a of dayAppts) {
+                if (seenStaff.has(a.staff_id)) continue;
+                seenStaff.add(a.staff_id);
+                dots.push(colorOf(a.staff_id));
+                if (dots.length >= 4) break;
+              }
               return (
-                <div
+                <button
                   key={dayStr}
+                  type="button"
+                  onClick={() => setSelectedMonthDay(dayStr)}
                   className={cn(
-                    "min-h-[104px] border-b border-r last:border-r-0 p-1.5 space-y-1",
-                    !inMonth && "bg-muted/20 opacity-60"
+                    "min-h-[64px] border-b border-r last:border-r-0 p-1.5 flex flex-col items-center gap-1 hover:bg-accent/40 transition-colors",
+                    !inMonth && "bg-muted/20 opacity-50",
+                    isSelected && "bg-primary/10 ring-1 ring-inset ring-primary/40"
                   )}
                 >
-                  <Link
-                    href={`/dashboard/takvim?view=day&date=${dayStr}`}
+                  <span
                     className={cn(
-                      "inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium hover:bg-accent transition-colors",
-                      isToday && "bg-primary text-primary-foreground font-bold"
+                      "inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium",
+                      isToday && "bg-primary text-primary-foreground font-bold",
+                      !isToday && isSelected && "font-bold text-primary"
                     )}
                   >
                     {Number(dayStr.slice(8, 10))}
-                  </Link>
-                  {shown.map((a) => {
-                    const c = colorOf(a.staff_id);
-                    return (
-                      <button
-                        key={a.id}
-                        onClick={(e) => openPopover(e, a)}
-                        className="w-full text-left rounded px-1 py-0.5 text-[10px] leading-tight truncate cursor-pointer hover:shadow transition-shadow"
-                        style={{
-                          background: a.status === "tamamlandi" ? "rgba(16,185,129,0.18)" : a.status === "gelmedi" ? "rgba(245,158,11,0.22)" : c.soft,
-                          borderLeft: `2px solid ${c.solid}`,
-                        }}
-                      >
-                        <span className="font-semibold" style={{ color: c.solid }}>
-                          {a.status === "tamamlandi" && "✓ "}
-                          {a.status === "gelmedi" && "⚠ "}
-                          {format(new Date(a.appointment_at), "HH:mm")}
-                        </span>{" "}
-                        {a.customer_name}
-                      </button>
-                    );
-                  })}
-                  {more > 0 && (
-                    <Link
-                      href={`/dashboard/takvim?view=day&date=${dayStr}`}
-                      className="block text-[10px] text-primary font-medium hover:underline px-1"
-                    >
-                      {t("moreCount", { count: more })}
-                    </Link>
+                  </span>
+                  {dots.length > 0 && (
+                    <span className="flex items-center gap-0.5">
+                      {dots.map((c, i) => (
+                        <span key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: c.solid }} />
+                      ))}
+                    </span>
                   )}
-                </div>
+                </button>
               );
             })}
+          </div>
+
+          {/* Seçili günün randevu listesi */}
+          <div className="border-t bg-muted/10">
+            <p className="px-3 pt-3 pb-1 text-sm font-semibold capitalize">
+              {format(new Date(selectedMonthDay + "T12:00:00"), "d MMMM", { locale: dateFnsLocale })}
+              {" — "}
+              {t("apptCountLabel", { count: (byDay[selectedMonthDay] || []).length })}
+            </p>
+            {(byDay[selectedMonthDay] || []).length === 0 ? (
+              <p className="px-3 pb-4 text-sm text-muted-foreground">{t("monthDayEmpty")}</p>
+            ) : (
+              <div className="pb-2">
+                {(byDay[selectedMonthDay] || [])
+                  .slice()
+                  .sort((a, b) => a.appointment_at.localeCompare(b.appointment_at))
+                  .map((a) => {
+                    const c = colorOf(a.staff_id);
+                    return (
+                      <div
+                        key={a.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => openPopover(e, a)}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openPopover(e as unknown as React.MouseEvent, a); }}
+                        className="flex items-start gap-3 px-3 py-2.5 border-b last:border-b-0 border-border/50 hover:bg-accent/40 transition-colors cursor-pointer"
+                      >
+                        <span className="text-sm font-semibold shrink-0 w-12 pt-0.5" style={{ color: c.solid }}>
+                          {format(new Date(a.appointment_at), "HH:mm")}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          {a.customer_id ? (
+                            <Link
+                              href={`/dashboard/musteriler/${a.customer_id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="font-semibold text-sm truncate block hover:underline"
+                            >
+                              {a.status === "tamamlandi" && <span className="mr-0.5">✓</span>}
+                              {a.status === "gelmedi" && <span className="mr-0.5">⚠</span>}
+                              {a.customer_name}
+                            </Link>
+                          ) : (
+                            <p className="font-semibold text-sm truncate">
+                              {a.status === "tamamlandi" && <span className="mr-0.5">✓</span>}
+                              {a.status === "gelmedi" && <span className="mr-0.5">⚠</span>}
+                              {a.customer_name}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground truncate">
+                            {a.service?.name}
+                            {staffName(a.staff_id) ? ` · ${staffName(a.staff_id)}` : ""}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
           </div>
         </div>
       )}
