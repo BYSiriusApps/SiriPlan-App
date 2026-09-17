@@ -292,7 +292,7 @@ export default function PlanSecPage() {
             return (
               <Card
                 key={plan.key}
-                className={`relative flex flex-col overflow-visible ${plan.color} transition-all hover:shadow-xl ${plan.highlight ? "md:scale-[1.04] shadow-lg" : ""}`}
+                className={`relative flex flex-col overflow-visible ${plan.color} transition-shadow hover:shadow-xl ${plan.highlight ? "md:-translate-y-2 shadow-lg" : ""}`}
               >
                 {plan.highlight && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
