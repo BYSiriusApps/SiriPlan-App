@@ -6,6 +6,7 @@ const BASE_URL = "https://siriplan.com";
 const sectorSlugs = [
   "kuafor", "berber", "guzellik", "spa", "nail",
   "estetik", "makyaj", "tattoo", "diyetisyen", "kas",
+  "dis-klinigi", "petkuafor",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -21,10 +22,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/iletisim`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/sss`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE_URL}/guvenlik`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/gizlilik`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE_URL}/kosullar`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE_URL}/kvkk`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE_URL}/cerezler`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE_URL}/hesap-silme`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 
   const sectorPages: MetadataRoute.Sitemap = sectorSlugs.map((slug) => ({

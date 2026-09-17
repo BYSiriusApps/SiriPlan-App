@@ -21,6 +21,8 @@ const SECTOR_META: Record<string, { emoji: string; testimonial?: { name: string;
   tattoo: { emoji: "🖋" },
   diyetisyen: { emoji: "🥗" },
   kas: { emoji: "👁" },
+  "dis-klinigi": { emoji: "🦷" },
+  petkuafor: { emoji: "🐾" },
 };
 
 const PLATFORM_FEATURE_ICONS = [

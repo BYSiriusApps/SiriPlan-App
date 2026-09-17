@@ -997,6 +997,20 @@
         "desc": "Manage brow design, microblading, lash extension and lamination appointments. Session-duration and occupancy optimization.",
         "features": ["Duration-based booking", "Returning-customer reminders", "Color & style notes", "Customer photo gallery", "Online deposits", "Loyalty program"],
         "keywords": ["brow lash booking system", "lash studio software"]
+      },
+      "dis-klinigi": {
+        "title": "Dental Clinic",
+        "headline": "Smart Appointment Management for Your Dental Clinic",
+        "desc": "Manage exams, check-ups and treatment appointments from one system. Speed up your clinic workflow with patient reminders, doctor-based calendars and a waitlist.",
+        "features": ["Doctor-based appointment calendar", "Patient reminders (SMS/WhatsApp)", "Treatment vs. check-up appointment types", "Waitlist", "Patient history and notes", "Multi-branch clinic support"],
+        "keywords": ["dental clinic appointment system", "dentist scheduling software"]
+      },
+      "petkuafor": {
+        "title": "Pet Grooming",
+        "headline": "Easy Appointment System for Your Pet Grooming Salon",
+        "desc": "Manage haircuts, baths and grooming appointments from one calendar. Send automatic reminders to pet owners and track staff availability.",
+        "features": ["Service-based calendar (haircut, bath, nail trimming)", "Automatic reminders (SMS/WhatsApp)", "Staff availability tracking", "Customer & pet records", "Waitlist", "Loyalty program"],
+        "keywords": ["pet grooming appointment system", "pet salon booking software"]
       }
     }
   },

@@ -997,6 +997,20 @@
         "desc": "Kaş tasarımı, microblading, kirpik uzatma ve laminasyon randevularını yönetin. Seans süresi ve doluluk optimizasyonu.",
         "features": ["Seans süresi bazlı rezervasyon", "Tekrar eden müşteri hatırlatma", "Renk ve stil notları", "Müşteri fotoğraf galerisi", "Online ön ödeme", "Sadakat programı"],
         "keywords": ["kaş kirpik randevu sistemi", "kirpik stüdyo programı"]
+      },
+      "dis-klinigi": {
+        "title": "Diş Kliniği",
+        "headline": "Diş Kliniğiniz İçin Akıllı Randevu Yönetimi",
+        "desc": "Muayene, kontrol ve tedavi randevularını tek sistemden yönetin. Hasta hatırlatmaları, doktor bazlı takvim ve bekleme listesiyle klinik akışınızı hızlandırın.",
+        "features": ["Doktor bazlı randevu takvimi", "Hasta hatırlatma (SMS/WhatsApp)", "Tedavi/kontrol randevusu ayrımı", "Bekleme listesi", "Hasta geçmişi ve notlar", "Çok şubeli klinik desteği"],
+        "keywords": ["diş kliniği randevu sistemi", "diş hekimi randevu programı"]
+      },
+      "petkuafor": {
+        "title": "Pet Kuaför",
+        "headline": "Pet Kuaförünüz İçin Kolay Randevu Sistemi",
+        "desc": "Tüy kesimi, banyo ve bakım randevularını tek takvimden yönetin. Hayvan sahiplerine otomatik hatırlatma gönderin, personel bazlı doluluk takip edin.",
+        "features": ["Hizmet bazlı randevu takvimi (tüy kesimi, banyo, tırnak bakımı)", "Otomatik hatırlatma (SMS/WhatsApp)", "Personel bazlı doluluk takibi", "Müşteri & evcil hayvan kayıtları", "Bekleme listesi", "Sadakat programı"],
+        "keywords": ["pet kuaför randevu sistemi", "evcil hayvan bakım randevusu"]
       }
     }
   },
