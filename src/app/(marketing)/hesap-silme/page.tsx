@@ -6,6 +6,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("accountDeletionPage.pageTitle"),
     description: t("accountDeletionPage.metaDescription"),
+    alternates: { canonical: "/hesap-silme" },
   };
 }
 

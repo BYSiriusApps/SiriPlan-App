@@ -16,6 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("footer.about"),
     description: t("aboutPage.metaDescription"),
+    alternates: { canonical: "/hakkimizda" },
   };
 }
 
