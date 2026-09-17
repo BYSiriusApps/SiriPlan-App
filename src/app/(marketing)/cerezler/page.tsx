@@ -6,6 +6,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("cookiesPage.pageTitle"),
     description: t("cookiesPage.metaDescription"),
+    alternates: { canonical: "/cerezler" },
   };
 }
 

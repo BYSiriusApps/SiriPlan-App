@@ -8,6 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("kvkkPage.pageTitle"),
     description: t("kvkkPage.metaDescription"),
+    alternates: { canonical: "/kvkk" },
   };
 }
 

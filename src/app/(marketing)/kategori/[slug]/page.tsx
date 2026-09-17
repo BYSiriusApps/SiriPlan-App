@@ -49,6 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     title: `${title} ${t("metaTitleSuffix")}`,
     description: desc,
     keywords,
+    alternates: { canonical: `/kategori/${slug}` },
   };
 }
 

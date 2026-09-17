@@ -19,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "SiriPlan Demo",
     description: t("demoPage.metaDescription"),
+    alternates: { canonical: "/demo" },
   };
 }
 

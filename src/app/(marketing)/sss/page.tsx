@@ -17,6 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("nav.faq"),
     description: t("faqPage.metaDescription"),
+    alternates: { canonical: "/sss" },
   };
 }
 

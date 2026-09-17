@@ -6,6 +6,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("termsPage.pageTitle"),
     description: t("termsPage.metaDescription"),
+    alternates: { canonical: "/kosullar" },
   };
 }
 

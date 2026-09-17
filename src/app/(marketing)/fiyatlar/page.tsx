@@ -20,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("nav.pricing"),
     description: t("pricingPage.metaDescription"),
+    alternates: { canonical: "/fiyatlar" },
   };
 }
 

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import {
@@ -18,6 +19,10 @@ import { AddonsSection } from "@/components/marketing/AddonsSection";
 const DEMO_ENABLED = false;
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const FEATURE_META = [
   { key: "booking",   icon: Calendar,       color: "text-rose-500",   bg: "bg-rose-50 dark:bg-rose-950/30"    },

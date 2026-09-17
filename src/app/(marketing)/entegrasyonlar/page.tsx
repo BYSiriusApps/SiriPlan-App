@@ -21,6 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t("footer.integrations"),
     description: t("integrationsPage.metaDescription"),
+    alternates: { canonical: "/entegrasyonlar" },
   };
 }
 
