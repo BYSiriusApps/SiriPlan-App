@@ -104,7 +104,7 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
               key={plan.key}
               className={`relative overflow-visible ${isFull ? "flex flex-col" : ""} ${
                 plan.highlight
-                  ? "border-primary shadow-lg shadow-primary/10 scale-[1.02] z-10"
+                  ? "border-primary shadow-lg shadow-primary/10 md:-translate-y-2 z-10"
                   : "border-border"
               }`}
             >
