@@ -6,6 +6,7 @@ const BASE_URL = "https://siriplan.com";
 const sectorSlugs = [
   "kuafor", "berber", "guzellik", "spa", "nail",
   "estetik", "makyaj", "tattoo", "diyetisyen", "kas",
+  "dis-klinigi", "petkuafor",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
