@@ -1999,6 +1999,7 @@
     "liveNow": "Идёт сейчас",
     "apptCountLabel": "{count} записей",
     "moreCount": "+{count} ещё",
+    "monthDayEmpty": "В этот день записей нет",
     "quickUpdate": "Быстрое обновление",
     "cannotChangeStatus": "Вы не можете изменить статус записи, которая не назначена вам.",
     "approve": "Подтвердить",

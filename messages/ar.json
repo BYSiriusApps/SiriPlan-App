@@ -1999,6 +1999,7 @@
     "liveNow": "جارٍ الآن",
     "apptCountLabel": "{count} موعد",
     "moreCount": "+{count} أخرى",
+    "monthDayEmpty": "لا توجد مواعيد في هذا اليوم",
     "quickUpdate": "تحديث سريع",
     "cannotChangeStatus": "لا يمكنك تغيير حالة موعد غير مسند إليك.",
     "approve": "الموافقة",
