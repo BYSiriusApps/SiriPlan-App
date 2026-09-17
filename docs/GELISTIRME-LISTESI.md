@@ -30,31 +30,35 @@ SQL Editor'e (SVG mime kaldırma + Storage doğrudan-yazım politikalarını dü
 
 ## 1. Supabase Auth e-postaları çok dilli olsun
 
-**Durum:** Ertelendi (28 Ağu 2026) — şu an uygulama pratikte TR-only.
-**Tetikleyici:** İlk yabancı (EN/AR/RU) kullanıcı onboard edildiğinde yapılmalı.
+**Durum: KOD TARAFI TAMAMLANDI (17 Eyl 2026) — Dashboard adımı bekliyor.**
+17 Eyl'de yabancı (RU) locale'li gerçek bir test hesabıyla doğrulandı: o ana kadar
+Supabase'in tek şablonu her kullanıcıya Türkçe gidiyordu (backlog tetikleyicisi
+gerçekleşti — bkz. [[password-reset-email-flow]]). Aynı oturumda çözüm de yazıldı:
 
-**Sorun:** Supabase'de her e-posta türü için TEK şablon var, dile göre varyant yok.
-Şu anki "Reset Password" şablonu Türkçe sabit → yabancı kullanıcı şifre sıfırlama,
-kayıt doğrulama vb. e-postalarını Türkçe alır.
+- `src/app/api/auth/email-hook/route.ts` — Supabase "Send Email" Auth Hook hedefi.
+  Standard Webhooks HMAC imzasını (`webhook-id/-timestamp/-signature`, replay
+  koruması) doğrular, `user.user_metadata.locale`'e göre 4 dilde (tr/en/ru/ar)
+  şablon seçip Resend'den gönderir. `recovery/signup/invite/email_change` action
+  tiplerini kapsar — şu an uygulamada gerçekten tetiklenen tek akış `recovery`
+  (signup `email_confirm:true` ile anında onaylandığı için Supabase e-postası hiç
+  göndermiyor; diğer ikisi de kodda yok, ileriye dönük hazır).
+- `src/lib/email/auth-i18n.ts` — metin tablosu (`src/lib/email/i18n.ts` deseniyle
+  aynı yapı), mevcut canlı "Şifre sıfırlama" şablonunun lacivert/altın markasını
+  4 dile taşıyor (aynı buton/link/süre metinleri, sadece dil farklı).
+- Secret yoksa route her isteği 503 ile reddediyor — Dashboard'da kurulmadan
+  risksiz/etkisiz, mevcut TR-only akışı bozmaz.
+- Uçtan uca test edildi (yerel dev sunucusu + gerçek imzalı istek + Resend
+  gönderim kaydı): `locale=ru` kullanıcıya konu satırı Rusça gitti, teslim edildi.
 
-**Çözüm (Send Email Auth Hook):**
-- Supabase → Authentication → Auth Hooks → "Send Email hook" →
-  `https://siriplan.com/api/auth/email-hook` adresini göster (HMAC secret ile).
-- Yeni route `src/app/api/auth/email-hook/route.ts`:
-  - Gelen payload'dan `email_action_type`, `token_hash`, `user` al, HMAC doğrula.
-  - `user.user_metadata.locale` oku (kayıtta zaten set ediliyor —
-    `src/app/auth/callback/route.ts` içindeki `meta.locale`).
-  - `src/lib/email/i18n.ts` tarzında bir "auth e-postaları metin tablosu" ekle
-    (recovery / signup confirm / invite / email change), `src/lib/email/send.ts`
-    içindeki `baseLayout` ile render et, Resend'den gönder.
-  - Recovery linki: `${SITE_URL}/auth/yeni-sifre?token_hash=<hash>&type=recovery`
-    (bu sayfa token'ı zaten kendisi doğruluyor — bkz. commit 5e9a635).
-- Sonuç: tüm auth e-postaları kullanıcının dilinde, markalı, `noreply@siriplan.com`.
-  Supabase dashboard şablonu tamamen devre dışı kalır.
+**KALAN TEK ADIM (kullanıcı yapacak, Supabase Dashboard):**
+1. Authentication → Hooks → "Send Email" hook ekle → URL:
+   `https://siriplan.com/api/auth/email-hook`.
+2. "Generate secret" ile üretilen `v1,whsec_...` değerini kopyala.
+3. Vercel → Environment Variables → `SUPABASE_AUTH_HOOK_SECRET` olarak ekle,
+   redeploy. (Kod zaten canlıda; env eklenip hook kaydedilince aktif olur.)
 
-**Maliyet:** ~1 route dosyası + auth metin tablosu. Orta.
-**İlgili dosya:** `docs/supabase-auth-emails.md` (mevcut TR-only kurulum),
-`src/lib/email/i18n.ts` (referans i18n deseni).
+**İlgili dosya:** `docs/supabase-auth-emails.md` (mevcut TR-only Dashboard kurulumu
++ yeni "Seçenek B" bölümü), `src/lib/email/i18n.ts` (referans i18n deseni).
 
 ---
 
