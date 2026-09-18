@@ -2612,7 +2612,7 @@
       "presetHizmetliText": "Hi {musteri}, your {hizmet} appointment on {tarih} {saat} with {personel} at {salon} has been created. We're expecting you!",
       "onlineBookingDesc": "Appointments from your booking link (/r/...) are auto-confirmed by default, added to the calendar, and a confirmation message is sent to the customer.",
       "autoConfirmLabel": "Auto-confirm online appointments",
-      "autoConfirmDesc": "On by default (every plan): appointments from your booking link are confirmed immediately, added to the calendar, and the customer gets a WhatsApp confirmation message. Turn it off and appointments are held in a \"pending\" queue until you approve them, and you get a notification for every new request.",
+      "autoConfirmDesc": "Available on every plan, off by default: appointments from your booking link are held in a \"pending\" queue until you approve them, and you get a notification for every new request. Turn it on and appointments are confirmed immediately, added to the calendar, and the customer gets a WhatsApp confirmation message.",
       "autoConfirmFreeText": "Appointments from your booking link are auto-confirmed and added to the calendar.",
       "slotIntervalLabel": "Appointment Slot Interval",
       "slotIntervalDesc": "The time intervals visitors see when choosing an appointment (15 minutes, 30 minutes or hourly).",
