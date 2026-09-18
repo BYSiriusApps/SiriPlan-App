@@ -46,7 +46,7 @@ export default async function AbonelikPage() {
   const Icon = planDetail.icon;
 
   const planDisplayName = org.plan === "trial"
-    ? (locale === "tr" ? "Deneme" : locale === "ru" ? "Пробный" : locale === "ar" ? "تجريبي" : "Trial")
+    ? t("dashboard.subscriptionPage.trialPlanName")
     : (org.plan === "starter" ? "Starter" : org.plan === "pro" ? "Pro" : "Business");
 
   const ent = getEntitlements(org);
@@ -112,7 +112,7 @@ export default async function AbonelikPage() {
                 {t("dashboard.subscriptionPage.planSuffix", { planName: planDisplayName })}
                 {trialActive && (
                   <span className="ml-2 align-middle text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                    {locale === "tr" ? "Pro özellikleri açık" : locale === "ru" ? "Возможности Pro активны" : locale === "ar" ? "ميزات Pro مفعلة" : "Pro features active"}
+                    {t("dashboard.subscriptionPage.proFeaturesActiveBadge")}
                   </span>
                 )}
               </p>

@@ -1258,6 +1258,8 @@
       "statusPastDue": "Payment Pending",
       "statusCancelled": "Cancelled",
       "planSuffix": "{planName} Plan",
+      "trialPlanName": "Trial",
+      "proFeaturesActiveBadge": "Pro features active",
       "trialEnds": "Trial ends on {date}",
       "staffLabel": "Staff",
       "appointmentsLabel": "Appointments (this month)",
