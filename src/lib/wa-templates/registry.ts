@@ -118,14 +118,15 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
   // EDİLMELİ ve onaylanmadan burada aktif olmaz. Onaylanana kadar
   // sendPurposeTemplate Meta'dan "template not found" alıp sessizce skip eder
   // (send.ts) — panel akışını kırmaz, sadece müşteriye WA gitmez.
-  // NOT: ilk denemede İngilizce dille yanlışlıkla submit edilmişti; o kayıt
-  // silinip "randevu_yeni_saat_onerisi" adı Türkçe olarak yeniden gönderildi
-  // (18 Eyl) — "_1" suffix'ine gerek kalmadı, isim burada eşleşiyor.
+  // NOT: ilk deneme yanlışlıkla İngilizce dille submit edilmişti; silindi ama
+  // Meta'nın isim serbest bırakma gecikmesi yüzünden aynı isimle (Türkçe)
+  // hemen yeniden gönderilemedi — "_1" suffix'iyle gönderildi (18 Eyl). Orijinal
+  // isim saatler sonra serbest kalırsa ayrıca geri alınabilir.
   oneri_sicak: {
     key: "oneri_sicak",
     purpose: "oneri",
     style: "sicak",
-    metaName: "randevu_yeni_saat_onerisi",
+    metaName: "randevu_yeni_saat_onerisi_1",
     bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
     hasUrlButton: true,
   },
