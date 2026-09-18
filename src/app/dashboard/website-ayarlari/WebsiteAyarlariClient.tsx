@@ -116,11 +116,6 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
       location_url: org.location_url,
     };
 
-    let { error } = await supabase
-      .from("organizations")
-      .select("website_layout")
-      .eq("id", org.id); // Check column beforehand silently or proceed with layout fallback
-    
     let dbError;
     const { error: primaryErr } = await supabase
       .from("organizations")
