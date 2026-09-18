@@ -29,13 +29,20 @@ export default async function AdminPage() {
   const orgIds = (orgs ?? []).map((o) => o.id);
 
   // Salon başına üye / personel / bu ayki randevu sayıları
-  const [memberRows, staffRows, apptRows] = await Promise.all([
+  const [memberRows, staffRows, apptRows, ownerConsentRows] = await Promise.all([
     admin.from("org_members").select("org_id").in("org_id", orgIds),
     admin.from("staff").select("org_id").eq("is_active", true).in("org_id", orgIds),
     admin
       .from("appointments")
       .select("org_id")
       .gte("created_at", monthStart.toISOString())
+      .in("org_id", orgIds),
+    // İşletme sahibinin kayıt sırasında verdiği KVKK/pazarlama izni — platformun
+    // bu salona/kişiye kampanya e-posta/SMS gönderip gönderemeyeceğini belirler.
+    admin
+      .from("org_members")
+      .select("org_id, kvkk_consent, kvkk_consent_at, marketing_consent, marketing_consent_at")
+      .eq("role", "owner")
       .in("org_id", orgIds),
   ]);
 
@@ -48,11 +55,27 @@ export default async function AdminPage() {
   const staffCounts = countBy(staffRows.data);
   const apptCounts = countBy(apptRows.data);
 
+  type OwnerConsentRow = {
+    org_id: string;
+    kvkk_consent: boolean | null;
+    kvkk_consent_at: string | null;
+    marketing_consent: boolean | null;
+    marketing_consent_at: string | null;
+  };
+  const consentByOrg: Record<string, OwnerConsentRow> = {};
+  for (const r of (ownerConsentRows.data ?? []) as OwnerConsentRow[]) {
+    consentByOrg[r.org_id] = r;
+  }
+
   const rows: AdminOrgRow[] = (orgs ?? []).map((o) => ({
     ...o,
     member_count: memberCounts[o.id] ?? 0,
     staff_count: staffCounts[o.id] ?? 0,
     month_appointments: apptCounts[o.id] ?? 0,
+    owner_kvkk_consent: !!consentByOrg[o.id]?.kvkk_consent,
+    owner_kvkk_consent_at: consentByOrg[o.id]?.kvkk_consent_at ?? null,
+    owner_marketing_consent: !!consentByOrg[o.id]?.marketing_consent,
+    owner_marketing_consent_at: consentByOrg[o.id]?.marketing_consent_at ?? null,
   }));
 
   const paidCount = rows.filter((r) => r.plan !== "trial").length;

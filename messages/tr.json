@@ -1473,6 +1473,8 @@
       "deleteCustomerAria": "{name} kaydını sil",
       "marketingAcceptedTitle": "Kampanya bildirimi onaylı",
       "marketingMissingTitle": "Kampanya bildirimi onayı yok",
+      "kvkkAcceptedTitle": "KVKK onayı verildi",
+      "kvkkMissingTitle": "KVKK onayı yok",
       "visit": "Ziyaret",
       "spend": "Harcama",
       "score": "Puan",
