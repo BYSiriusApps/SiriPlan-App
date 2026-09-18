@@ -11,7 +11,10 @@ GitHub Dependabot/Secret/Push protection açıldı. Kalan maddelerin tam listesi
 öncelik sırası: **`docs/security/TEKNIK-GUVENLIK-CHECKLIST.md` → "⏳ KALAN İŞLER"**.
 
 Öne çıkan (ücretsiz, kod-dışı):
-- `META_APP_SECRET` + 1 kiracı `sms_password` rotasyonu (en riskli açık, aylardır bekliyor).
+- ~~`META_APP_SECRET` + kiracı `sms_password` rotasyonu~~ **TAMAMLANDI (18 Eyl 2026)**:
+  `META_APP_SECRET` Vercel + local env'e eklendi (ilk kurulum, önceden hiç yoktu — WA webhook
+  işleme artık aktif olmalı, uçtan uca test bekliyor); `sms_password` hiçbir kiracıda kullanılmadığı
+  için N/A.
 - Cloudflare Turnstile anahtarları (ücretsiz) → Vercel env.
 - Supabase günlük yedek kontrolü.
 - ~~CI workflow dosyası + Actions secret/variable + main branch ruleset~~ **TAMAMLANDI

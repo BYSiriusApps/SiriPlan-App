@@ -14,9 +14,10 @@ Hepsi harici servis ayarı; uygulama kodunu/çalışmasını/deploy'unu **etkile
 sonrasında test gerekmez. Sırayla yapılabilir, acele yok.
 
 ### A · Ücretsiz & hızlı (bugün yapılabilir)
-- [ ] **SEC-01** — `META_APP_SECRET` yenile (Meta App Dashboard → Vercel env → redeploy).
-      *Aylardır bekliyor, en riskli açık bu.* → tarih [ACCESS-MANAGEMENT-POLICY §2](ACCESS-MANAGEMENT-POLICY.md)'ye işle.
-- [ ] **SEC-01** — İlgili kiracının `sms_password` değerini Supabase `organizations`'ta yenile.
+- [x] **SEC-01** — `META_APP_SECRET` eklendi (18 Eyl 2026): Meta App Dashboard → Vercel env
+      (`META_APP_SECRET`) + local `.env.local` → redeploy edildi.
+- [x] **SEC-01** — `sms_password` rotasyonu **N/A**: hiçbir kiracıda dolu değil (kimse SMS
+      entegrasyonunu kullanmıyor), rotasyon gerektirmiyor — listeden çıkarıldı.
 - [ ] **SEC-04** — Cloudflare Turnstile anahtarları (**ÜCRETSİZ**, plan gerekmez):
       `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` → Vercel env.
 - [ ] **SEC-07** — Supabase → Database → Backups: **günlük yedek var mı** kontrol et.
@@ -59,7 +60,7 @@ sonrasında test gerekmez. Sırayla yapılabilir, acele yok.
 
 | # | Konu | Durum | Bu turda yapılan |
 | --- | --- | --- | --- |
-| SEC-01 | Sır rotasyonu | ⬜ | Sır envanteri + rotasyon periyodu belgelendi (ACCESS-MANAGEMENT §2) — rotasyonun kendisi harici panel işi |
+| SEC-01 | Sır rotasyonu | ✅ | `META_APP_SECRET` eklendi (18 Eyl); `sms_password` N/A (hiç kullanılmıyor) |
 | SEC-02 | Panelde 2FA/MFA | ⬜ | Kapsam notu eklendi — kod değişikliği ayrı iş (risk: oturum akışı) |
 | SEC-03 | İzolasyon testi CI'da | 🟡 | Workflow taslağı (`docs/security/ci-workflow-security.yml`) + `npm run security:*` scriptleri; taslağın `.github/workflows/`'a elle eklenmesi + GitHub secret/var kurulumu bekliyor |
 | SEC-04 | Rate limiting + WAF + bot | 🟡 | Rate limit + bot-guard + tor-guard zaten var; Turnstile anahtarları + WAF katmanı bekliyor |
@@ -72,15 +73,16 @@ sonrasında test gerekmez. Sırayla yapılabilir, acele yok.
 
 ---
 
-## SEC-01 · Sır rotasyonu — ⬜ (harici)
-
-`META_APP_SECRET` ve 1 adet kiracı `sms_password` rotasyonu bekliyor.
+## SEC-01 · Sır rotasyonu — ✅ (18 Eyl 2026)
 
 - [x] Tüm sırların envanteri + saklama yeri + rotasyon periyodu belgelendi →
       [ACCESS-MANAGEMENT-POLICY.md §2](ACCESS-MANAGEMENT-POLICY.md)
-- [ ] `META_APP_SECRET` → Meta App Dashboard'dan yeni değer, Vercel env güncelle, redeploy
-- [ ] İlgili kiracının `sms_password` değerini yenile (Supabase `organizations`)
-- [ ] Rotasyon tarihini ACCESS-MANAGEMENT-POLICY §2 tablosuna işle
+- [x] `META_APP_SECRET` → Meta App Dashboard'dan alındı, Vercel env + local `.env.local`'a
+      eklendi, redeploy edildi. (Daha önce hiç tanımlı değildi — rotasyon değil, ilk kurulumdu;
+      bu yüzden gelen WhatsApp webhook'ları [`/api/webhooks/whatsapp`](../../src/app/api/webhooks/whatsapp/route.ts)
+      şimdiye kadar fail-closed olarak sessizce hiç işlenmiyordu, artık işleniyor olmalı — uçtan uca test bekliyor.)
+- [x] `sms_password` — kontrol edildi, hiçbir kiracıda dolu değil (SMS entegrasyonu hiç
+      kullanılmamış), rotasyon konusu yok.
 
 > Kod tarafında yapılacak bir şey yok — panel/dashboard işlemi.
 
