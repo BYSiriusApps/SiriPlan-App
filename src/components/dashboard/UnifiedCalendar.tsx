@@ -467,9 +467,13 @@ export function UnifiedCalendar({
   // diye burada yakalanır; API'ye ancak kullanıcı onaylayınca istek gider
   // (aksi halde her yanlış sürüklemede WhatsApp mesajı da gidiyordu).
   const [rescheduleConfirm, setRescheduleConfirm] = useState<{ appt: Appointment; origAt: string; newDate: Date } | null>(null);
-  const rescheduleDisplayRef = useRef<{ appt: Appointment; origAt: string; newDate: Date } | null>(null);
-  if (rescheduleConfirm) rescheduleDisplayRef.current = rescheduleConfirm;
-  const rescheduleDisplay = rescheduleConfirm ?? rescheduleDisplayRef.current;
+  // Kapanış animasyonu sırasında da içerik görünsün diye son değer state'te
+  // tutulur — render sırasında koşullu setState, React'in "adjust state
+  // while rendering" deseni (bkz. react.dev/learn/you-might-not-need-an-effect).
+  const [rescheduleDisplay, setRescheduleDisplay] = useState<{ appt: Appointment; origAt: string; newDate: Date } | null>(null);
+  if (rescheduleConfirm && rescheduleConfirm !== rescheduleDisplay) {
+    setRescheduleDisplay(rescheduleConfirm);
+  }
   // Pointer move her piksel hareketinde tetiklenir; setState'i rAF'a
   // sıkıştırmadan tüm takvim ağacı saniyede onlarca kez yeniden render
   // edilip donma hissi yaratıyordu.
