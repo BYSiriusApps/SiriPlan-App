@@ -10,7 +10,7 @@
  * buraya eklenebilir.
  */
 
-export type WaPurpose = "onay" | "iptal" | "revize" | "hatirlatma";
+export type WaPurpose = "onay" | "iptal" | "revize" | "hatirlatma" | "oneri";
 export type WaStyle = "sicak" | "v1" | "v2";
 
 export type WaParamSource =
@@ -112,6 +112,20 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     metaName: "randevu_hatirlatma_2",
     bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
+  // "Yeni Saat Öner" akışı (18 Eyl) — Meta Business Manager'da BU İSİMLE, 4
+  // gövde parametresi + dinamik URL butonuyla (statik kısım
+  // https://siriplan.com/oneri/, suffix = proposed_response_token) SUBMIT
+  // EDİLMELİ ve onaylanmadan burada aktif olmaz. Onaylanana kadar
+  // sendPurposeTemplate Meta'dan "template not found" alıp sessizce skip eder
+  // (send.ts) — panel akışını kırmaz, sadece müşteriye WA gitmez.
+  oneri_sicak: {
+    key: "oneri_sicak",
+    purpose: "oneri",
+    style: "sicak",
+    metaName: "randevu_yeni_saat_onerisi",
+    bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
+    hasUrlButton: true,
+  },
 };
 
 /** Bir amaç için hangi stiller mevcut — Ayarlar sayfasındaki dropdown'ları besler. */
@@ -120,6 +134,7 @@ export const STYLES_BY_PURPOSE: Record<WaPurpose, WaStyle[]> = {
   iptal: ["sicak"],
   revize: ["sicak"],
   hatirlatma: ["sicak", "v1", "v2"],
+  oneri: ["sicak"],
 };
 
 export function resolveTemplate(purpose: WaPurpose, style: WaStyle): WaTemplateDef | undefined {
@@ -131,6 +146,7 @@ export const DEFAULT_WA_TEMPLATE_STYLES: Record<WaPurpose, WaStyle> = {
   iptal: "sicak",
   revize: "sicak",
   hatirlatma: "sicak",
+  oneri: "sicak",
 };
 
 export const WA_REMINDER_OFFSET_PRESETS = [1, 2, 3, 6, 24] as const;

@@ -14,7 +14,10 @@ GitHub Dependabot/Secret/Push protection açıldı. Kalan maddelerin tam listesi
 - `META_APP_SECRET` + 1 kiracı `sms_password` rotasyonu (en riskli açık, aylardır bekliyor).
 - Cloudflare Turnstile anahtarları (ücretsiz) → Vercel env.
 - Supabase günlük yedek kontrolü.
-- CI workflow dosyası (`.github/workflows/security.yml`) + Actions secret/variable.
+- ~~CI workflow dosyası + Actions secret/variable + main branch ruleset~~ **TAMAMLANDI
+  (18 Eyl 2026)**: `.github/workflows/security.yml` main'de (commit `6f8abd6`), Secrets
+  (`NEXT_PUBLIC_SUPABASE_URL`/`ANON_KEY`) + Variable (`SECURITY_TESTS_ENABLED=1`) eklendi,
+  `main` ruleset'i Active + `static` check zorunlu.
 
 **11 Eyl 2026:** Dependabot açıklarının tamamı (next kritik RCE, xlsx prototype pollution vb.)
 temizlendi + panel görsel yüklemesi sunucu API + sharp yeniden kodlamaya taşındı. **Kalan tek
@@ -96,6 +99,32 @@ gerçekleşti — bkz. [[password-reset-email-flow]]). Aynı oturumda çözüm d
 
 **Kalan (kod dışı):** dal main'e merge edilmeli; sonrasında GSC'de yeni sitemap
 gönderilip birkaç hafta "duplicate/canonical" uyarısı geri gelmiyor mu izlenmeli.
+
+---
+
+## 3. Web push bildirimleri (gerçek tarayıcı/telefon push'u)
+
+**Durum (18 Eyl 2026):** Planlandı, henüz başlanmadı — [[yeni-saat-oner]] özelliği
+sırasında kullanıcı "web push'u da sonra kuracağız" dedi, bu turun kapsamı dışında
+tutuldu (bkz. o özelliğin kararı: bu turda sadece mevcut Telegram+WhatsApp kanalları).
+
+**Mevcut durum:** `public/sw.js` sadece PWA kurulabilirlik kriteri için var, `push`
+event listener'ı yok. VAPID/`web-push` paketi, `Notification`/`PushManager` kullanımı
+hiçbir yerde yok. Native tarafta da (Android TWA, PWABuilder ile üretiliyor — bu
+repoda `android/` kaynak kodu yok) FCM entegrasyonu yok.
+
+**Neden işe yarar:** Android TWA gerçek Chrome sekmesi çalıştırdığı için Web Push API
+(VAPID) teorik olarak native uygulamada da (Chrome'un kendi bildirim sistemi
+üzerinden) çalışır — ayrı bir Firebase/FCM kurulumuna gerek kalmadan.
+
+**Kapsam (kurulacaklarsa):**
+- VAPID anahtar çifti üretimi + `web-push` (veya eşdeğeri) paketinin eklenmesi.
+- `public/sw.js`'e `push` + `notificationclick` event listener'ı.
+- İzin isteme UI'ı (panelde "Bildirimlere izin ver" — muhtemelen Ayarlar sayfası).
+- `push_subscriptions` tablosu (kullanıcı/org bazlı, çoklu cihaz desteği).
+- `src/lib/notify.ts`'e üçüncü bir `dispatch` kanalı (Telegram + WhatsApp'ın yanına).
+- Test: gerçek bir cihazda (Android TWA + masaüstü Chrome) bildirim gelip
+  tıklanınca doğru sayfaya (`/dashboard/bekleyen-istekler` vb.) gittiğini doğrulamak.
 
 **Asıl kaldıraç (kod dışı, değişmedi):** AI motorları çoğunlukla üçüncü taraf atıflara
 güveniyor. Yazılım dizin siteleri (Capterra, GetApp), Google Business Profile, müşteri

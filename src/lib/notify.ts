@@ -246,6 +246,106 @@ export async function notifyLowStock(
   }
 }
 
+interface ProposalResponseForNotify {
+  org_id: string;
+  customer_name: string;
+  proposed_appointment_at: string;
+  accepted: boolean;
+  staff_id?: string | null;
+  assigned_staff_id?: string | null;
+}
+
+/** Müşteri işletmenin önerdiği yeni saati kabul/red edince salon+personele bildirim */
+export async function notifyProposalResponse(p: ProposalResponseForNotify): Promise<void> {
+  try {
+    const supabase = await createAdminClient();
+    const staffTargetId = p.assigned_staff_id ?? p.staff_id;
+
+    const [{ data: orgRow }, { data: staffRow }] = await Promise.all([
+      supabase
+        .from("organizations")
+        .select("telegram_chat_id, whatsapp_number, timezone")
+        .eq("id", p.org_id)
+        .single(),
+      staffTargetId
+        ? supabase.from("staff").select("telegram_chat_id, whatsapp_number").eq("id", staffTargetId).single()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    const { data: ownerMember } = await supabase
+      .from("org_members")
+      .select("staff_id")
+      .eq("org_id", p.org_id)
+      .eq("role", "owner")
+      .single();
+
+    let ownerStaff: { telegram_chat_id?: string | null; whatsapp_number?: string | null } | null = null;
+    if (ownerMember?.staff_id) {
+      const { data } = await supabase
+        .from("staff")
+        .select("telegram_chat_id, whatsapp_number")
+        .eq("id", ownerMember.staff_id)
+        .single();
+      ownerStaff = data;
+    }
+
+    const timeZone = (orgRow as { timezone?: string | null } | null)?.timezone || "Europe/Istanbul";
+    const dateLabel = new Date(p.proposed_appointment_at).toLocaleString("tr-TR", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone,
+    });
+
+    const message = p.accepted
+      ? `✅ <b>Öneri Kabul Edildi</b>\n\n👤 ${p.customer_name}\n🕐 Yeni saat: ${dateLabel}\n\nRandevu otomatik onaylandı.`
+      : `❌ <b>Öneri Reddedildi</b>\n\n👤 ${p.customer_name}\n🕐 Önerilen saat: ${dateLabel}\n\nTalep hâlâ bekliyor — farklı bir saat önerin ya da iptal edin.`;
+
+    const recipients: Recipient[] = [];
+    if (orgRow) {
+      recipients.push({
+        telegram_chat_id: (orgRow as { telegram_chat_id?: string | null }).telegram_chat_id,
+        whatsapp_number: (orgRow as { whatsapp_number?: string | null }).whatsapp_number,
+        label: "salon",
+      });
+    }
+    if (ownerStaff) {
+      recipients.push({
+        telegram_chat_id: ownerStaff.telegram_chat_id,
+        whatsapp_number: ownerStaff.whatsapp_number,
+        label: "owner-staff",
+      });
+    }
+    if (staffRow && staffTargetId && staffTargetId !== ownerMember?.staff_id) {
+      recipients.push({
+        telegram_chat_id: (staffRow as { telegram_chat_id?: string | null }).telegram_chat_id,
+        whatsapp_number: (staffRow as { whatsapp_number?: string | null }).whatsapp_number,
+        label: "assigned-staff",
+      });
+    }
+
+    const seenTg = new Set<string>();
+    const seenWa = new Set<string>();
+    const tasks: Promise<void>[] = [];
+    for (const r of recipients) {
+      const rCopy: Recipient = { label: r.label };
+      if (r.telegram_chat_id && !seenTg.has(r.telegram_chat_id)) {
+        rCopy.telegram_chat_id = r.telegram_chat_id;
+        seenTg.add(r.telegram_chat_id);
+      }
+      if (r.whatsapp_number && !seenWa.has(r.whatsapp_number)) {
+        rCopy.whatsapp_number = r.whatsapp_number;
+        seenWa.add(r.whatsapp_number);
+      }
+      if (rCopy.telegram_chat_id || rCopy.whatsapp_number) {
+        tasks.push(dispatch(rCopy, message));
+      }
+    }
+    await Promise.allSettled(tasks);
+  } catch {
+    // Bildirim hatası akışı engellememeli
+  }
+}
+
 /** Notify salon owner about a new pending appointment request */
 export async function notifyAppointmentRequest(
   req: AppointmentForNotify & { serviceName?: string; staffName?: string }

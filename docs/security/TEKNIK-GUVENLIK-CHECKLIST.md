@@ -34,14 +34,16 @@ sonrasında test gerekmez. Sırayla yapılabilir, acele yok.
       `authenticated` INSERT/UPDATE politikaları kaldırıldı; `org-logos` SVG desteği kaldırıldı.
       Migration `20260911_upload_hardening_storage.sql` → **kod deploy'undan SONRA** SQL Editor'e.
 
-### B · CI otomasyonu (SEC-03) — workflow scope'lu erişim gerekir
-- [ ] Taslağı `.github/workflows/security.yml` olarak ekle
-      (içerik: [`ci-workflow-security.yml`](ci-workflow-security.yml) birebir; GitHub web
-      arayüzü "Add file" veya `workflow` scope'lu PAT ile).
-- [ ] GitHub repo → Settings → Secrets and variables → Actions:
-      **Secrets:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- [ ] Aynı yer → **Variables:** `SECURITY_TESTS_ENABLED` = `1`
-- [ ] Settings → Rules/Branches: `main` için `security / static` job'ını zorunlu kıl.
+### B · CI otomasyonu (SEC-03) — ✅ TAMAMLANDI (18 Eyl 2026)
+- [x] `.github/workflows/security.yml` GitHub web arayüzünden main'e eklendi
+      (commit `6f8abd6`, içerik `ci-workflow-security.yml` ile birebir aynı).
+- [x] Settings → Secrets and variables → Actions →
+      **Secrets:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` eklendi
+      (Supabase yeni formatta "Publishable key" = ANON_KEY karşılığı).
+- [x] Aynı yer → **Variables:** `SECURITY_TESTS_ENABLED = 1` eklendi.
+- [x] Settings → Rulesets → `main` ruleset'i **Active**, target=default branch,
+      "Require status checks to pass" → `static` check zorunlu, "Block force pushes"
+      açık (ruleset ID 23655016).
 
 ### C · Büyüyünce / bütçe ayrılınca
 - [ ] **SEC-07** — Supabase PITR add-on + üç ayda bir geri yükleme tatbikatı.
