@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, MessageCircle, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2 } from "lucide-react";
+import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, ShieldCheck, ShieldOff, MessageCircle, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
 
@@ -300,6 +300,15 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                         </div>
                       )}
                       <div className="flex items-center gap-1">
+                        {cust.kvkk_consent ? (
+                          <span title={t("customerList.kvkkAcceptedTitle")}>
+                            <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
+                          </span>
+                        ) : (
+                          <span title={t("customerList.kvkkMissingTitle")}>
+                            <ShieldOff className="h-3.5 w-3.5 text-muted-foreground/40" />
+                          </span>
+                        )}
                         {cust.marketing_consent ? (
                           <span title={t("customerList.marketingAcceptedTitle")}>
                             <Megaphone className="h-3.5 w-3.5 text-green-500" />

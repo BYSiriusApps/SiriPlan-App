@@ -1473,6 +1473,8 @@
       "deleteCustomerAria": "Удалить {name}",
       "marketingAcceptedTitle": "Согласие на рассылку получено",
       "marketingMissingTitle": "Нет согласия на рассылку",
+      "kvkkAcceptedTitle": "Согласие на обработку данных (KVKK) получено",
+      "kvkkMissingTitle": "Нет согласия на обработку данных (KVKK)",
       "visit": "Визиты",
       "spend": "Расходы",
       "score": "Баллы",

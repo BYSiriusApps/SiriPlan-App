@@ -1473,6 +1473,8 @@
       "deleteCustomerAria": "حذف {name}",
       "marketingAcceptedTitle": "تم الموافقة على الرسائل",
       "marketingMissingTitle": "لا توجد موافقة على الرسائل",
+      "kvkkAcceptedTitle": "تمت الموافقة على حماية البيانات (KVKK)",
+      "kvkkMissingTitle": "لا توجد موافقة على حماية البيانات (KVKK)",
       "visit": "الزيارات",
       "spend": "الإنفاق",
       "score": "النقاط",
