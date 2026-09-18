@@ -1,10 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
+import createIntlMiddleware from "next-intl/middleware";
 import { updateSession } from "./lib/supabase/middleware";
 import { getSubscriptionLock } from "./lib/subscription-lock";
 import { hasPermission } from "./lib/permissions";
 import { MOBILE_APP_COOKIE, MOBILE_APP_PARAM, isMobileAppUserAgent, isMobileAppCookieValue } from "./lib/mobile-app-shared";
 import { CSP_NONCE_HEADER, buildCsp, buildCandidateCsp, generateNonce, isNonceEnabled, isReportOnlyEnabled, pathNeedsNonce } from "./lib/csp";
+import { routing } from "./i18n/routing";
+import { LOCALES, isLocale, resolveLocale, isKnownCrawler } from "./lib/i18n/resolve-locale";
+import type { User } from "@supabase/supabase-js";
 
 // Routes that require at minimum "manager" role
 const MANAGER_ROUTES = [
@@ -175,6 +179,63 @@ const MOBILE_APP_ALLOWED_PREFIXES = [
   "/onay/",    // KVKK / kampanya onay ekranı (token'lı)
 ];
 
+// Yalnızca pazarlama sayfaları (`app/[locale]/(marketing)`) locale-prefixli
+// URL alır (/en/fiyatlar vb.) — panel, auth akışları, API ve token'lı
+// müşteri sayfaları eskisi gibi cookie/IP bazlı, önek'siz kalır (bkz.
+// i18n/request.ts'teki detectLocale). Bu liste MOBILE_APP_ALLOWED_PREFIXES
+// ile kasıtlı olarak örtüşüyor: native uygulamanın zaten erişemediği tek
+// yüzey pazarlama siteleri, bu yüzden locale-prefixli bir pazarlama yolu da
+// (örn. /en/fiyatlar) native kilide aynı şekilde takılmaya devam eder.
+const LOCALE_ROUTING_EXCLUDED_PREFIXES = ["/dashboard", "/admin", "/api", "/auth", "/r/", "/randevu/", "/onay/"];
+
+function isMarketingPath(pathname: string): boolean {
+  return !LOCALE_ROUTING_EXCLUDED_PREFIXES.some((p) => pathname.startsWith(p));
+}
+
+const intlMiddleware = createIntlMiddleware(routing);
+
+// İlk ziyarette (NEXT_LOCALE çerezi yok, URL'de locale öneki yok) next-intl
+// yerine BURADAKİ zincir karar verir: next-intl'in `localeDetection` mantığı
+// yalnızca cookie + Accept-Language bilir, IP-ülke/hesap tercihini bilmez
+// (bkz. resolveLocale.js — cookie > accept-language > defaultLocale sırası).
+// Kararı NEXT_LOCALE çerezi olarak isteğin ÜZERİNE yazıyoruz (yanıta değil!)
+// ki next-intl kendi cookie kontrolünde bunu görsün ve Accept-Language'a hiç
+// düşmesin — iki ayrı tahmin motoru çakışmasın diye.
+//
+// Bilinen arama/AI crawler'ları İSTİSNA: onlar için IP/Accept-Language ne
+// derse desin her zaman varsayılan (tr, önek'siz) URL'e sabitlenir — aksi
+// halde ABD IP'li bir crawler `/fiyatlar`'a girip `/en/fiyatlar`'a
+// yönlendirilir ve GSC'nin 17 Eylül'de düzeltilen "hangi URL asıl"
+// karışıklığı geri gelir (bkz. docs/GELISTIRME-LISTESI.md madde 2).
+function seedLocaleCookie(request: NextRequest, user: User | null): void {
+  const pathname = request.nextUrl.pathname;
+  const hasLocaleCookie = isLocale(request.cookies.get("NEXT_LOCALE")?.value);
+  const hasLocalePrefix = LOCALES.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`));
+  if (hasLocaleCookie || hasLocalePrefix) return;
+
+  const locale = isKnownCrawler(request.headers.get("user-agent"))
+    ? "tr"
+    : resolveLocale({
+        accountLocale: (user?.user_metadata?.locale as string | undefined) ?? null,
+        countryCode: request.headers.get("x-vercel-ip-country") ?? request.headers.get("cf-ipcountry"),
+        acceptLanguage: request.headers.get("accept-language"),
+      });
+  request.cookies.set("NEXT_LOCALE", locale);
+}
+
+// next-intl'in ürettiği yanıtı (rewrite/redirect) döndürür; `updateSession`
+// içinde tazelenmiş olabilecek Supabase oturum çerezini (bkz. proxyInner)
+// üzerine taşır — aksi halde giriş yapmış bir kullanıcı pazarlama sayfasına
+// uğradığında yenilenmiş oturum çerezi sessizce kaybolurdu.
+function applyLocaleRouting(request: NextRequest, sessionResponse: NextResponse, user: User | null): NextResponse {
+  seedLocaleCookie(request, user);
+  const intlResponse = intlMiddleware(request);
+  for (const cookie of sessionResponse.cookies.getAll()) {
+    intlResponse.cookies.set(cookie);
+  }
+  return intlResponse;
+}
+
 // Bu istek için CSP nonce'u üretilmeli mi?
 //
 // Yalnızca panel BELGE isteklerinde: nonce'un tek işi, Next.js'in sayfaya
@@ -295,7 +356,10 @@ async function proxyInner(request: NextRequest, nonce: string | null) {
   const isDashboardOrAdmin = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
   const isApiWrite = pathname.startsWith("/api/") && WRITE_METHODS.has(request.method);
   const isPublicApiWrite = isApiWrite && PUBLIC_API_WRITE_PREFIXES.some((p) => pathname.startsWith(p));
-  if (!isDashboardOrAdmin && !isApiWrite) return sessionResponse;
+  if (!isDashboardOrAdmin && !isApiWrite) {
+    if (isMarketingPath(pathname)) return applyLocaleRouting(request, sessionResponse, user);
+    return sessionResponse;
+  }
 
   // Oturum sahibi `updateSession` içinde zaten sunucu tarafında doğrulandı;
   // burada yalnızca üyelik/rol sorguları için bir istemciye ihtiyaç var.
