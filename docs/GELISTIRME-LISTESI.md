@@ -23,8 +23,8 @@ precompile` prototype pollution — precompile projede kullanılmıyor). 4.x **k
 ayrı PR + tam i18n regresyon testi gerekir. Tetikleyici: acil değil; başka bir next-intl işi
 açıldığında birlikte yapılır.
 
-**Migration bekliyor:** `20260911_upload_hardening_storage.sql` — kod deploy'undan SONRA
-SQL Editor'e (SVG mime kaldırma + Storage doğrudan-yazım politikalarını düşürme).
+**Migration durumu:** `20260911_upload_hardening_storage.sql` uygulandı (kullanıcı beyanı 11
+Eyl, canlı sorguyla 17 Eyl doğrulandı — bkz. migration-apply-state). Bekleyen migration yok.
 
 ---
 
@@ -62,28 +62,46 @@ gerçekleşti — bkz. [[password-reset-email-flow]]). Aynı oturumda çözüm d
 
 ## 2. AI arama motorlarında görünürlük (GEO)
 
-**Durum:** Denetim + ilk teknik düzeltmeler yapıldı (17 Eyl 2026, dal
-`fix/geo-ai-search-visibility` — sitemap'e `/guvenlik` + `/hesap-silme` eklendi,
-robots.ts'e CCBot izni eklendi). PR açılmayı bekliyor.
-**Tetikleyici:** Kullanıcı "sonra bakacağım" dedi — plan hazır, karar/uygulama bekliyor.
+**Durum (18 Eyl 2026):** Mimari karar verildi — (b) locale-prefixli URL'lere geçildi
+(`fix/geo-ai-search-visibility` sonrası bekleyen tek karar buydu). Dal:
+`feat/geo-locale-prefix-urls`, henüz main'e merge/PR edilmedi, kullanıcı onayı bekliyor.
 
-**Zaten sağlam olan temel:** robots.ts (GPTBot/ClaudeBot/PerplexityBot/Google-Extended/
-anthropic-ai/cohere-ai/CCBot açık), `public/llms.txt`, Organization+SoftwareApplication+
-WebSite+FAQPage JSON-LD, her sayfada canonical tag (edf59cd).
+**Ne yapıldı:**
+- `src/app/(marketing)` → `src/app/[locale]/(marketing)` taşındı; dashboard/admin/api/
+  auth/r/randevu/onay dokunulmadan, önek'siz kaldı (next-intl `as-needed` prefix,
+  varsayılan tr önek almıyor).
+- `src/proxy.ts`: pazarlama yolları için next-intl `createMiddleware(routing)` çağrılıyor;
+  ilk ziyarette (cookie yok, URL'de önek yok) IP-ülke/hesap tercihini bilen mevcut zincir
+  next-intl'i çağırmadan ÖNCE `NEXT_LOCALE` çerezini seçiyor (`lib/i18n/resolve-locale.ts`)
+  — next-intl'in kendi Accept-Language tahminine hiç düşülmüyor. Bilinen arama/AI
+  crawler'ları (Googlebot/Bingbot/GPTBot/ClaudeBot/PerplexityBot/…) İSTİSNA: hiçbir zaman
+  locale'e göre yönlendirilmezler, her zaman çıplak (tr) URL'i görürler — aksi halde ABD
+  IP'li bir crawler `/fiyatlar`'dan `/en/fiyatlar`'a düşer ve GSC'nin 17 Eylül'de
+  düzelttiği "hangi URL asıl" karışıklığı geri gelirdi.
+- `src/i18n/request.ts`: `requestLocale` doluysa (marketing) onu kullanır, boşsa
+  (dashboard/auth/vb.) eski cookie/hesap/IP zincirine düşer — tek config, dallanma.
+- 17 sayfanın `alternates.canonical`'ı `src/lib/seo/alternates.ts`'teki `buildAlternates()`
+  ile self-referencing canonical + 4 dil + x-default hreflang'e genişletildi.
+- `src/app/sitemap.ts`: her sayfa × 4 locale = ayrı URL, her biri `alternates.languages`
+  ile tam hreflang kümesini taşıyor.
+- `src/components/marketing/Navbar.tsx`: dil değiştirici artık cookie yazıp
+  `router.refresh()` yerine `next-intl/navigation`'dan (`src/i18n/navigation.ts`,
+  yeni) `router.replace(pathname, {locale})` ile gerçek URL'e gidiyor.
+- Doğrulandı: `next build` + `tsc --noEmit` + lint (yeni hata yok) + `npm run i18n:audit`
+  temiz + manuel curl testleri (crawler bypass, native app route kilidi hem çıplak hem
+  `/en/...` yollarda çalışıyor, `/dashboard`/`/auth`/`/r`/`/randevu`/`/onay` tamamen
+  etkilenmedi, bilinmeyen tek segmentli yol hâlâ 404 — next-intl'in "[locale] catch-all
+  gibi davranabilir" uyarısına karşı `[locale]/layout.tsx`'te `notFound()` güvenlik ağı
+  eklendi).
 
-**Bekleyen mimari karar:** Site locale'i URL'e göre değil çerez/IP'ye göre belirliyor
-(`src/i18n/request.ts`) — `/fiyatlar` TR/EN/RU/AR için aynı URL. Bu doğru hreflang
-eklemeyi engelliyor; AI crawler'lar (çerezsiz, genelde ABD IP'li) siteyi hep aynı dil
-sürümünde görüyor. İki seçenek: (a) mevcut yapıyı koru — TR pazarı için yeterli, ya da
-(b) locale-prefixli URL'lere geç (`/en/fiyatlar` vb.) — orta-büyük mimari değişiklik,
-sadece uluslararası AI arama görünürlüğü hedefleniyorsa gerekli.
+**Kalan (kod dışı):** dal main'e merge edilmeli; sonrasında GSC'de yeni sitemap
+gönderilip birkaç hafta "duplicate/canonical" uyarısı geri gelmiyor mu izlenmeli.
 
-**Asıl kaldıraç (kod dışı):** AI motorları çoğunlukla üçüncü taraf atıflara güveniyor.
-Yazılım dizin siteleri (Capterra, GetApp), Google Business Profile, müşteri referansları
-(AggregateRating JSON-LD için girdi), sektörel forum/topluluk mention'ları, karşılaştırma
-içerikli blog yazıları öncelikli.
+**Asıl kaldıraç (kod dışı, değişmedi):** AI motorları çoğunlukla üçüncü taraf atıflara
+güveniyor. Yazılım dizin siteleri (Capterra, GetApp), Google Business Profile, müşteri
+referansları (AggregateRating JSON-LD için girdi), sektörel forum/topluluk mention'ları,
+karşılaştırma içerikli blog yazıları öncelikli.
 
-**Maliyet:** Teknik kısım küçük (yapıldı). Off-site/içerik kısmı sürekli bir çaba,
-kod değil.
 **İlgili dosya:** [GEO görünürlük planı (doküman)](https://claude.ai/artifact/EZ3rskRP1B2t3ArKWXA6c3),
-`src/app/robots.ts`, `src/app/sitemap.ts`, `src/i18n/request.ts`, `src/app/(marketing)/sss/page.tsx`.
+`src/proxy.ts`, `src/i18n/request.ts`, `src/i18n/routing.ts`, `src/i18n/navigation.ts`,
+`src/lib/i18n/resolve-locale.ts`, `src/lib/seo/alternates.ts`, `src/app/sitemap.ts`.

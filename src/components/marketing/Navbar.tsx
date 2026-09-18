@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { useState, useTransition, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import NextLink from "next/link";
+import { useState, useTransition } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemePicker } from "@/components/layout/ThemePicker";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 
 const NAV_HREFS = [
   { href: "/ozellikler", key: "features" },
@@ -21,30 +21,23 @@ const LOCALES = [
   { code: "en", label: "EN", flag: "🇬🇧" },
   { code: "ru", label: "RU", flag: "🇷🇺" },
   { code: "ar", label: "AR", flag: "🇸🇦" },
-];
-
-function getActiveLocale(): string {
-  if (typeof document === "undefined") return "tr";
-  const match = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/);
-  return match ? match[1] : "tr";
-}
+] as const;
 
 export function Navbar() {
   const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
-  const [activeLocale, setActiveLocale] = useState<string>("tr");
+  const activeLocale = useLocale();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const pathname = usePathname();
 
-  useEffect(() => {
-    setActiveLocale(getActiveLocale());
-  }, []);
-
-  function switchLocale(code: string) {
-    document.cookie = `NEXT_LOCALE=${code};path=/;max-age=31536000;samesite=lax`;
-    setActiveLocale(code);
+  // `/auth/*` gibi [locale] dışındaki bir sayfadan pazarlama sitesine geri
+  // dönmeden dil değiştirilemez — ama Navbar zaten yalnızca pazarlama
+  // sayfalarında render edildiği için pathname burada her zaman [locale]
+  // altındaki (locale-neutral) bir yoldur.
+  function switchLocale(code: (typeof LOCALES)[number]["code"]) {
     startTransition(() => {
-      router.refresh();
+      router.replace(pathname, { locale: code });
     });
   }
 
@@ -118,16 +111,20 @@ export function Navbar() {
 
           <ThemePicker />
 
-          <Link href="/auth/giris" className="hidden md:block">
+          {/* /auth/* [locale] segmentinin DIŞINDA (bkz. proxy.ts'teki
+              LOCALE_ROUTING_EXCLUDED_PREFIXES) — kasıtlı olarak sıradan
+              next/link, locale-aware Link DEĞİL; aksi halde /en/auth/giris
+              gibi var olmayan bir yola giderdi. */}
+          <NextLink href="/auth/giris" className="hidden md:block">
             <Button variant="ghost" size="sm">
               {t("login")}
             </Button>
-          </Link>
-          <Link href="/auth/kayit" className="hidden md:block">
+          </NextLink>
+          <NextLink href="/auth/kayit" className="hidden md:block">
             <Button size="sm" className="bg-primary hover:bg-primary/90 shadow-sm">
               {t("startFree")}
             </Button>
-          </Link>
+          </NextLink>
 
           {/* Mobile menu button */}
           <button
@@ -178,16 +175,16 @@ export function Navbar() {
             </div>
           </div>
           <div className="pt-3 flex gap-2">
-            <Link href="/auth/giris" className="flex-1">
+            <NextLink href="/auth/giris" className="flex-1">
               <Button variant="outline" size="sm" className="w-full">
                 {t("login")}
               </Button>
-            </Link>
-            <Link href="/auth/kayit" className="flex-1">
+            </NextLink>
+            <NextLink href="/auth/kayit" className="flex-1">
               <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
                 {t("startFree")}
               </Button>
-            </Link>
+            </NextLink>
           </div>
         </div>
       )}
