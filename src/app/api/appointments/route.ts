@@ -543,12 +543,12 @@ async function handleCreateAppointment(req: NextRequest) {
   const finalDuration = data.total_duration_override ?? service.duration_minutes;
 
   // Panelden (giriş yapmış, org üyesi) girilen randevular direkt onaylı düşer.
-  // Herkese açık rezervasyon widget'ından (/r/[slug], anonim) gelenler de
-  // VARSAYILAN OLARAK direkt onaylanır — otomatik onay TÜM planlarda açıktır
-  // ve `has_auto_booking` kolonu varsayılan true'dur (bkz.
-  // 20260909_auto_booking_all_plans.sql). Salon sahibi Ayarlar'dan bu kutuyu
-  // KAPATIRSA (has_auto_booking === false) randevular "talep" kuyruğuna düşer
-  // ve salona "yeni randevu talebi" bildirimi gider (aşağıda).
+  // Herkese açık rezervasyon widget'ından (/r/[slug], anonim) gelenler ise
+  // `has_auto_booking` kolonuna göre davranır — otomatik onay TÜM planlarda
+  // kullanılabilir ama ilk kayıtta kapalıdır (bkz.
+  // 20260918_auto_booking_default_off.sql). Salon sahibi Ayarlar'dan bu kutuyu
+  // AÇARSA (has_auto_booking === true) randevular direkt onaylanır; kapalıyken
+  // "talep" kuyruğuna düşer ve salona "yeni randevu talebi" bildirimi gider.
   const webAutoBookingEligible = data.source === "web" && org.has_auto_booking !== false;
   const initialStatus = isPanelBooking || webAutoBookingEligible ? "onaylandi" : "talep";
 
