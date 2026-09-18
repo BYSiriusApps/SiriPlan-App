@@ -137,3 +137,27 @@ karşılaştırma içerikli blog yazıları öncelikli.
 **İlgili dosya:** [GEO görünürlük planı (doküman)](https://claude.ai/artifact/EZ3rskRP1B2t3ArKWXA6c3),
 `src/proxy.ts`, `src/i18n/request.ts`, `src/i18n/routing.ts`, `src/i18n/navigation.ts`,
 `src/lib/i18n/resolve-locale.ts`, `src/lib/seo/alternates.ts`, `src/app/sitemap.ts`.
+
+---
+
+## 4. "Yeni Saat Öner" özelliğinin devreye alınması
+
+**Durum (18 Eyl 2026):** Kod tamamlandı, `feat/randevu-yeni-saat-oneri` dalında
+(origin'e push edildi). `main`'e MERGE EDİLMEDİ — henüz Meta şablon onayı yok.
+
+**Kalan adımlar (sırayla):**
+1. Meta Business Manager'da `randevu_yeni_saat_onerisi_1` şablonu onaylanmalı
+   (Türkçe, 4 gövde param + dinamik URL buton — submit edildi, onay bekleniyor;
+   ilk deneme `randevu_yeni_saat_onerisi` adıyla yanlışlıkla İngilizce gönderilip
+   silinemediği için `_1` suffix'iyle tekrar gönderildi).
+2. `supabase/migrations/20260918_appointment_reschedule_proposal.sql` Supabase SQL
+   Editor'e yapıştırılıp çalıştırılmalı (bkz. [[migration-apply-state]]).
+3. Meta onayı + migration tamamlanınca `feat/randevu-yeni-saat-oneri` dalı `main`'e
+   merge edilmeli.
+4. Gerçek bir test randevusuyla uçtan uca doğrulama: panel → Yeni Saat Öner →
+   WhatsApp mesajı → müşteri `/oneri/[token]` linki → Kabul Et/Reddet → panelde
+   doğru sonuç + Telegram/WA bildirimi.
+
+**İlgili dosya:** [[yeni-saat-oner-reschedule-proposal-sept18]] (memory),
+`src/lib/wa-templates/registry.ts`, `src/lib/appointment-requests/approve.ts`,
+`src/app/api/public/appointment-proposal/route.ts`, `src/app/oneri/[token]/page.tsx`.
