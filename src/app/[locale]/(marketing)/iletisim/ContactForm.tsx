@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { HONEYPOT_FIELD } from "@/lib/bot-guard";
 import { TurnstileWidget } from "@/components/marketing/TurnstileWidget";
+import { Link } from "@/i18n/navigation";
 
 const EMPTY = { name: "", phone: "", email: "", subject: "", message: "", website: "" };
 
@@ -202,8 +203,8 @@ export function ContactForm() {
           />
           <label htmlFor="kvkk">
             {t.rich("kvkkConsent", {
-              kvkkLink: (chunks) => <a href="/kvkk" className="underline hover:text-primary">{chunks}</a>,
-              gizlilikLink: (chunks) => <a href="/gizlilik" className="underline hover:text-primary">{chunks}</a>,
+              kvkkLink: (chunks) => <Link href="/kvkk" className="underline hover:text-primary">{chunks}</Link>,
+              gizlilikLink: (chunks) => <Link href="/gizlilik" className="underline hover:text-primary">{chunks}</Link>,
             })}
           </label>
         </div>
