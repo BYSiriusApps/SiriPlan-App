@@ -1520,6 +1520,7 @@
       "applyToMonth": "تطبيق",
       "applyActiveRecurring": "تطبيق ({count})",
       "recurringBills": "المصاريف الثابتة",
+      "pdfExport": "تقرير PDF",
       "addRecord": "إضافة سجل",
       "recurringTemplates": "قوالب المصاريف الثابتة",
       "recurringDesc": "حدد النفقات المتكررة الشهرية مثل الإيجار والرواتب والفواتير. قم بتطبقها على الشهر المحدد بنقرة واحدة.",

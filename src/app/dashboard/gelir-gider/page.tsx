@@ -16,11 +16,12 @@ import {
   TrendingUp, TrendingDown, Wallet, Plus, Trash2, Loader2,
   DollarSign, ArrowUpCircle, ArrowDownCircle, RefreshCw, Pencil,
   ToggleLeft, ToggleRight, RepeatIcon, ChevronDown, ChevronUp, Percent,
-  Activity, CalendarClock,
+  Activity, CalendarClock, Download,
 } from "lucide-react";
 import { formatMoney, CURRENCY_SYMBOL } from "@/lib/currency";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { compareValue, buildMonthlySeries } from "@/lib/report-trends";
+import { usePlan } from "@/components/dashboard/PlanContext";
 
 type Expense = {
   id: string;
@@ -70,6 +71,7 @@ export default function GelirGiderPage() {
   const t = useTranslations("dashboard");
   const locale = useLocale();
   const router = useRouter();
+  const { proTools } = usePlan();
   const [role, setRole] = useState<string | null>(null);
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -403,6 +405,17 @@ export default function GelirGiderPage() {
             )}
             {showRecurring ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
           </Button>
+          {proTools && (
+            <a
+              href={`/api/export?format=pdf&scope=gelir-gider&year=${year}${viewMode === "aylik" ? `&month=${month}` : ""}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium shrink-0 hover:bg-accent transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              {getIncomeText("pdfExport")}
+            </a>
+          )}
           <Button onClick={() => setShowForm(true)} className="gap-2 shrink-0">
             <Plus className="h-4 w-4" />
             {getIncomeText("addRecord")}
