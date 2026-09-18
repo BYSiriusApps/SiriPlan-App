@@ -1520,6 +1520,7 @@
       "applyToMonth": "Apply",
       "applyActiveRecurring": "Apply ({count})",
       "recurringBills": "Recurring Bills",
+      "pdfExport": "PDF Report",
       "addRecord": "Add Record",
       "recurringTemplates": "Recurring Expense Templates",
       "recurringDesc": "Define monthly recurring expenses like rent, salary, bills. Apply to selected month with one click.",

@@ -7,6 +7,7 @@ import * as XLSX from "xlsx";
 import { startOfDay, endOfDay, format as formatDate } from "date-fns";
 import { tr } from "date-fns/locale";
 import { safeCell } from "@/lib/spreadsheet-safety";
+import { formatMoney } from "@/lib/currency";
 
 // PDF/Gün Sonu raporları müşteri adı/telefon gibi herkese açık randevu
 // formundan gelen alanları ham HTML'e gömüyor — bu alanlar escape edilmezse
@@ -128,6 +129,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format") || "json"; // json | csv | excel | pdf
   const gun = searchParams.get("gun"); // yyyy-MM-dd — verilirse gün sonu özeti PDF'i üretilir
+  const scope = searchParams.get("scope"); // "gelir-gider" — verilirse dönemsel gelir-gider PDF'i üretilir
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -155,6 +157,16 @@ export async function GET(req: NextRequest) {
       details: { format: "pdf", scope: "gun_sonu", gun, role: member.role }, req,
     });
     return buildGunSonuPdf(supabase, orgId, gun, new URL(req.url).origin);
+  }
+
+  if (format === "pdf" && scope === "gelir-gider") {
+    const year = searchParams.get("year") ?? new Date().getFullYear().toString();
+    const month = searchParams.get("month");
+    await logAudit({
+      orgId, userId: user.id, action: "data_export", tableName: "expenses",
+      details: { format: "pdf", scope: "gelir_gider", year, month, role: member.role }, req,
+    });
+    return buildGelirGiderPdf(supabase, orgId, year, month, new URL(req.url).origin);
   }
 
   const [
@@ -500,6 +512,217 @@ ${(dayExpenses ?? []).length > 0 ? `
     salonLogoUrl: orgRow?.logo_url,
     title: "Gün Sonu Özeti",
     subtitle: formatDate(reportDay, "d MMMM yyyy, EEEE", { locale: tr }),
+    body,
+  });
+
+  return new NextResponse(html, {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+    },
+  });
+}
+
+const AY_ADLARI = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+
+// Gelir-gider ekranındaki kategori kodları (bkz. messages/tr.json incomeCategories/
+// expenseCategories) — export şu an tüm PDF/print raporlarında olduğu gibi sabit TR.
+const GELIR_KATEGORI_ETIKET: Record<string, string> = {
+  randevu: "Randevu Geliri", urun: "Ürün Satışı", paket: "Paket / Seans Satışı", komisyon: "Komisyon", diger: "Diğer Gelir",
+};
+const GIDER_KATEGORI_ETIKET: Record<string, string> = {
+  kira: "Kira", personel: "Personel Maaşı", malzeme: "Malzeme / Stok", fatura: "Fatura (Su/Elektrik/İnternet)",
+  pazarlama: "Pazarlama & Reklam", bakim: "Bakım & Tamir", vergi: "Vergi & Muhasebe", diger: "Diğer Gider",
+};
+function gelirGiderKategoriEtiket(type: "gelir" | "gider", category: string): string {
+  return (type === "gelir" ? GELIR_KATEGORI_ETIKET : GIDER_KATEGORI_ETIKET)[category] ?? category;
+}
+
+function gelirGiderKategoriTablosu(
+  rows: { category: string; amount: number }[],
+  type: "gelir" | "gider",
+  total: number,
+  fmt: (n: number) => string,
+): string {
+  if (rows.length === 0) return `<p style="color:#6d5c67;padding:8px 0">Bu dönem için kayıt yok</p>`;
+  const body = rows
+    .map((r) => `
+    <tr>
+      <td>${escapeHtml(gelirGiderKategoriEtiket(type, r.category))}</td>
+      <td style="text-align:right">${fmt(r.amount)}</td>
+      <td style="text-align:right">%${total > 0 ? ((r.amount / total) * 100).toFixed(1) : "0.0"}</td>
+    </tr>`)
+    .join("");
+  return `<table>
+  <thead><tr><th>Kategori</th><th style="text-align:right">Tutar</th><th style="text-align:right">Oran</th></tr></thead>
+  <tbody>${body}</tbody>
+</table>`;
+}
+
+async function buildGelirGiderPdf(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orgId: string,
+  yearParam: string,
+  monthParam: string | null,
+  origin: string,
+) {
+  const year = /^\d{4}$/.test(yearParam) ? parseInt(yearParam, 10) : new Date().getFullYear();
+  const month = monthParam && /^\d{1,2}$/.test(monthParam) && Number(monthParam) >= 1 && Number(monthParam) <= 12
+    ? parseInt(monthParam, 10)
+    : null;
+
+  let dateStart: string;
+  let dateEnd: string;
+  if (month) {
+    const mm = String(month).padStart(2, "0");
+    const lastDay = new Date(year, month, 0).getDate();
+    dateStart = `${year}-${mm}-01`;
+    dateEnd = `${year}-${mm}-${String(lastDay).padStart(2, "0")}`;
+  } else {
+    dateStart = `${year}-01-01`;
+    dateEnd = `${year}-12-31`;
+  }
+  const apptStart = `${dateStart}T00:00:00`;
+  const apptEnd = `${dateEnd}T23:59:59.999`;
+
+  const [{ data: org }, { data: expenseRows }, { data: apptRows }] = await Promise.all([
+    supabase.from("organizations").select("name, logo_url, kdv_enabled, kdv_rate, settings_json").eq("id", orgId).single(),
+    supabase
+      .from("expenses")
+      .select("type, category, amount, description, note, date, payment_method")
+      .eq("org_id", orgId)
+      .gte("date", dateStart)
+      .lte("date", dateEnd)
+      .order("date", { ascending: false }),
+    supabase
+      .from("appointments")
+      .select("id, appointment_at, price, tip, customer_name, staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+      .eq("org_id", orgId)
+      .eq("status", "tamamlandi")
+      .gte("appointment_at", apptStart)
+      .lte("appointment_at", apptEnd)
+      .order("appointment_at", { ascending: false }),
+  ]);
+
+  type ExpenseRow = {
+    type: "gelir" | "gider"; category: string; amount: number;
+    description: string; note: string | null; date: string; payment_method: string | null;
+  };
+  type ApptRow = {
+    id: string; appointment_at: string; price: number | null; tip: number | null; customer_name: string;
+    staff?: { full_name: string } | null; service?: { name: string } | null;
+  };
+  type Row = { type: "gelir" | "gider"; category: string; amount: number; description: string; note: string | null; date: string; payment_method: string | null; auto: boolean };
+
+  // 012 trigger canlıysa oluşan "Otomatik — Randevu #…" gelir satırlarını dışla —
+  // randevu cirosu her zaman appointments'tan (tek doğru kaynak) hesaplanır.
+  const isAutoApptRow = (e: ExpenseRow) =>
+    e.type === "gelir" && e.category === "randevu" && (e.note ?? "").startsWith("Otomatik — Randevu");
+  const manualRows: Row[] = ((expenseRows ?? []) as ExpenseRow[])
+    .filter((e) => !isAutoApptRow(e))
+    .map((e) => ({ ...e, auto: false }));
+  const apptIncomeRows: Row[] = ((apptRows ?? []) as unknown as ApptRow[]).map((a) => ({
+    type: "gelir",
+    category: "randevu",
+    amount: Number(a.price ?? 0) + Number(a.tip ?? 0),
+    description: `${a.service?.name ?? "Randevu"} — ${a.customer_name}`,
+    note: a.staff?.full_name ? `Personel: ${a.staff.full_name}` : null,
+    date: a.appointment_at.slice(0, 10),
+    payment_method: null,
+    auto: true,
+  }));
+  const allRows = [...manualRows, ...apptIncomeRows].sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  const orgRow = org as { name?: string; logo_url?: string | null; kdv_enabled?: boolean; kdv_rate?: number; settings_json?: Record<string, unknown> | null } | null;
+  const orgName = orgRow?.name || "Salon";
+  const currency = (orgRow?.settings_json?.currency as string) || "TRY";
+  const fmt = (n: number) => formatMoney(n, currency, "tr");
+
+  const totalGelir = allRows.filter((r) => r.type === "gelir").reduce((s, r) => s + Number(r.amount), 0);
+  const totalGider = allRows.filter((r) => r.type === "gider").reduce((s, r) => s + Number(r.amount), 0);
+  const netKar = totalGelir - totalGider;
+  const kdvEnabled = !!orgRow?.kdv_enabled;
+  const kdvRate = Number(orgRow?.kdv_rate ?? 20);
+  const kdvTutari = kdvEnabled ? totalGelir * (kdvRate / (100 + kdvRate)) : 0;
+
+  const groupByCategory = (rows: Row[]) => {
+    const map: Record<string, number> = {};
+    for (const r of rows) map[r.category] = (map[r.category] ?? 0) + Number(r.amount);
+    return Object.entries(map).map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount);
+  };
+  const gelirCats = groupByCategory(allRows.filter((r) => r.type === "gelir"));
+  const giderCats = groupByCategory(allRows.filter((r) => r.type === "gider"));
+
+  // Yıllık görünümde aylık kırılım + kümülatif net (sayfaya birebir eşlenir)
+  let monthlyRows = "";
+  if (!month) {
+    let cumGelir = 0, cumGider = 0;
+    monthlyRows = Array.from({ length: 12 }, (_, i) => {
+      const m = i + 1;
+      const mRows = allRows.filter((r) => new Date(r.date).getMonth() + 1 === m);
+      const g = mRows.filter((r) => r.type === "gelir").reduce((s, r) => s + Number(r.amount), 0);
+      const gd = mRows.filter((r) => r.type === "gider").reduce((s, r) => s + Number(r.amount), 0);
+      cumGelir += g; cumGider += gd;
+      return `<tr>
+        <td>${AY_ADLARI[m - 1]}</td>
+        <td style="text-align:right">${fmt(g)}</td>
+        <td style="text-align:right">${fmt(gd)}</td>
+        <td style="text-align:right">${fmt(g - gd)}</td>
+        <td style="text-align:right">${fmt(cumGelir - cumGider)}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  const detailRows = allRows.map((r) => `
+    <tr>
+      <td>${new Date(r.date).toLocaleDateString("tr-TR")}</td>
+      <td>${r.type === "gelir" ? "Gelir" : "Gider"}${r.auto ? ` <span class="pill">Otomatik · Randevu</span>` : ""}</td>
+      <td>${escapeHtml(r.description)}${r.note ? `<br><span style="color:#6d5c67;font-size:9.5px">${escapeHtml(r.note)}</span>` : ""}</td>
+      <td>${escapeHtml(gelirGiderKategoriEtiket(r.type, r.category))}</td>
+      <td>${r.payment_method ? escapeHtml(r.payment_method) : "-"}</td>
+      <td style="text-align:right">${r.type === "gelir" ? "+" : "-"}${fmt(Number(r.amount))}</td>
+    </tr>`).join("");
+
+  const subtitle = month ? `${AY_ADLARI[month - 1]} ${year}` : `${year} — Yıllık Özet`;
+
+  const body = `
+<div class="summary">
+  <div class="card"><div class="val">${fmt(totalGelir)}</div><div class="lbl">Toplam Gelir</div></div>
+  <div class="card"><div class="val">${fmt(totalGider)}</div><div class="lbl">Toplam Gider</div></div>
+  <div class="card"><div class="val">${fmt(netKar)}</div><div class="lbl">Net Kâr/Zarar</div></div>
+  ${kdvEnabled ? `<div class="card"><div class="val">${fmt(kdvTutari)}</div><div class="lbl">Tahmini KDV (%${kdvRate})</div></div>` : ""}
+</div>
+
+${monthlyRows ? `
+<h2>Aylık Özet — ${year}</h2>
+<table>
+  <thead><tr><th>Ay</th><th style="text-align:right">Gelir</th><th style="text-align:right">Gider</th><th style="text-align:right">Net</th><th style="text-align:right">Kümülatif Net</th></tr></thead>
+  <tbody>${monthlyRows}</tbody>
+</table>` : ""}
+
+<h2>Gelir Dağılımı</h2>
+${gelirGiderKategoriTablosu(gelirCats, "gelir", totalGelir, fmt)}
+
+<h2>Gider Dağılımı</h2>
+${gelirGiderKategoriTablosu(giderCats, "gider", totalGider, fmt)}
+
+<h2>Hareket Dökümü${allRows.length ? ` (${allRows.length} kayıt)` : ""}</h2>
+${allRows.length === 0
+  ? `<p style="color:#6d5c67;padding:8px 0">Bu dönem için kayıt yok</p>`
+  : `<table>
+  <thead><tr><th>Tarih</th><th>Tür</th><th>Açıklama</th><th>Kategori</th><th>Ödeme</th><th style="text-align:right">Tutar</th></tr></thead>
+  <tbody>${detailRows}</tbody>
+</table>`}
+
+<div class="net" style="background:${netKar >= 0 ? "#ecfdf5" : "#fff7ed"};color:${netKar >= 0 ? "#059669" : "#c2410c"}">
+  Net Kâr/Zarar: ${netKar >= 0 ? "+" : ""}${fmt(netKar)}
+</div>`;
+
+  const html = renderReportShell({
+    origin,
+    orgName,
+    salonLogoUrl: orgRow?.logo_url,
+    title: "Gelir-Gider Raporu",
+    subtitle,
     body,
   });
 

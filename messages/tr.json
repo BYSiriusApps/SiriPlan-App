@@ -1520,6 +1520,7 @@
       "applyToMonth": "Uygula",
       "applyActiveRecurring": "({count}) uygula",
       "recurringBills": "Sabit Giderler",
+      "pdfExport": "PDF Rapor",
       "addRecord": "Kayıt Ekle",
       "recurringTemplates": "Sabit Gider Şablonları",
       "recurringDesc": "Her ay tekrarlayan kira, maaş, fatura gibi giderleri tanımlayın. Tek tıkla seçili aya uygulayın.",
