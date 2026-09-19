@@ -4,6 +4,8 @@ export interface BlogPost {
   title: string;
   excerpt: string;
   date: string;
+  /** ISO 8601 (YYYY-MM-DD) — JSON-LD `datePublished` için; `date` görüntü metnidir. */
+  isoDate: string;
   readTime: string;
   author: string;
   content: string;
@@ -16,6 +18,7 @@ export const blogPosts: BlogPost[] = [
     title: "Salonunuzda Randevu Doluluk Oranını %40 Artırmanın 7 Yolu",
     excerpt: "Müşteri hatırlatmaları, online rezervasyon ve akıllı kampanyalarla salonunuzu nasıl dolduracağınızı keşfedin.",
     date: "15 Haziran 2026",
+    isoDate: "2026-06-15",
     readTime: "5 dk",
     author: "SiriPlan Ekibi",
     content: `
@@ -77,6 +80,7 @@ Bu 7 yöntemi birlikte uyguladığınızda doluluk oranınızın 4-8 haftada bel
     title: "WhatsApp AI Asistanı ile Mesai Saatleri Dışında Randevu Alma",
     excerpt: "7/24 çalışan yapay zeka asistanınız müşteri sorularını yanıtlar, randevu alır ve ön ödeme toplar.",
     date: "8 Haziran 2026",
+    isoDate: "2026-06-08",
     readTime: "4 dk",
     author: "SiriPlan Ekibi",
     content: `
@@ -136,6 +140,7 @@ AI asistanı, yeni bir "personel" gibi düşünün — uyku uyumaz, asla hata ya
     title: "Sadakat Programı ile Müşteri Kaybını Nasıl Önlersiniz?",
     excerpt: "Puanlama sistemi, doğum günü kampanyaları ve kişiselleştirilmiş tekliflerle müşteri bağlılığını artırın.",
     date: "1 Haziran 2026",
+    isoDate: "2026-06-01",
     readTime: "6 dk",
     author: "SiriPlan Ekibi",
     content: `
@@ -211,6 +216,7 @@ Sadakat programı aktif kullanan SiriPlan müşterilerinden elde edilen ortalama
     title: "Güzellik Salonları İçin KVKK Uyum Rehberi 2026",
     excerpt: "Müşteri verilerini nasıl toplamalı, saklayıp işlemeli ve pazarlama mesajları için nasıl onay almalısınız?",
     date: "22 Mayıs 2026",
+    isoDate: "2026-05-22",
     readTime: "8 dk",
     author: "SiriPlan Ekibi",
     content: `
@@ -272,6 +278,7 @@ SiriPlan, KVKK uyumunu otomatize eder:
     title: "Instagram'dan Otomatik Randevu: Tam Kurulum Rehberi",
     excerpt: "Instagram DM'lerinizi otomatik yanıtlayın, randevu alın ve satışlarınızı artırın. Adım adım kurulum.",
     date: "14 Mayıs 2026",
+    isoDate: "2026-05-14",
     readTime: "7 dk",
     author: "SiriPlan Ekibi",
     content: `
@@ -344,6 +351,7 @@ Entegrasyonu aktif kullanan salonlarda:
     title: "Salonunuzda KDV ve Komisyon Raporlamasını Otomatikleştirin",
     excerpt: "Personel bazlı komisyon takibi, KDV beyanı için hazır raporlar ve tek tıkla PDF export.",
     date: "5 Mayıs 2026",
+    isoDate: "2026-05-05",
     readTime: "4 dk",
     author: "SiriPlan Ekibi",
     content: `
@@ -407,6 +415,64 @@ Net kar = Ciro - Giderler. SiriPlan bunu otomatik hesaplar.
 El hesabı ve Excel yerine SiriPlan'ın otomatik raporlama sistemi ile her ay 3-4 saat tasarruf edin. Muhasebeci maliyetinizi düşürün.
 
 **14 gün ücretsiz deneyin.**
+    `,
+  },
+  {
+    slug: "randevu-no-show-azaltma",
+    category: "İpuçları",
+    title: "Randevuya Gelmeme (No-Show) Oranını Azaltmanın 6 Yolu",
+    excerpt: "Hatırlatma, ön ödeme, onay akışı ve bekleme listesiyle boş geçen randevu saatlerini nasıl önlersiniz?",
+    date: "19 Eylül 2026",
+    isoDate: "2026-09-19",
+    readTime: "5 dk",
+    author: "SiriPlan Ekibi",
+    content: `
+Randevu almış ama gelmeyen müşteri, salonunuz için doğrudan kayıp demek: o saat başka bir müşteriye satılabilirdi. Sektör ortalamasına göre randevu sistemi kullanmayan salonlarda no-show oranı **%15-20**'ye kadar çıkabiliyor. İyi haber: bu oranı sistematik olarak düşürmek mümkün.
+
+## 1. Otomatik WhatsApp Hatırlatmaları Kurun
+
+Randevudan 24 saat ve 2 saat önce gönderilen otomatik hatırlatma, unutmadan kaynaklı no-show'ların büyük kısmını ortadan kaldırır.
+
+**Örnek mesaj:**
+> "Merhaba Ayşe Hanım! Yarın saat 14:00'te Elegans Kuaför'deki randevunuzu hatırlatmak istedik. Değişiklik için: [link]"
+
+SiriPlan'da bu hatırlatmalar kurulum sonrası tamamen otomatik çalışır, her randevu için ayrı ayrı ayarlamanız gerekmez.
+
+## 2. Onay Gerektiren Randevu Akışı Kullanın
+
+Randevu linkinden gelen her talebi otomatik onaylamak yerine, salon sahibinin veya personelin "Onayla", "Yeni Saat Öner" ya da "İptal Et" seçeneklerinden birini seçtiği bir akış kullanmak, hem çakışmaları önler hem de müşteriyle son bir teyit noktası yaratır. Müsait olmayan bir saate düşen talebi "Yeni Saat Öner" ile düzeltmek, müşteriyi kaybetmek yerine doğru saate taşımanızı sağlar.
+
+## 3. Ön Ödeme (Kaparo) Talep Edin
+
+Özellikle yoğun saatlerde veya daha önce gelmemiş müşterilerde küçük bir kaparo istemek, randevuyu "bedelsiz" olmaktan çıkarır. Kaparo veren müşterinin gelme oranı belirgin şekilde yükselir.
+
+## 4. Müşteri Skoruyla Riskli Müşterileri Önceden Belirleyin
+
+SiriPlan'ın müşteri skoru, ziyaret sıklığı ve geçmiş davranışa göre her müşteriye 0-100 arası puan verir:
+
+| Puan | Segment | Öneri |
+|------|---------|---------|
+| 80-100 | VIP | Standart akış yeterli |
+| 40-59 | Orta | Ekstra hatırlatma gönderin |
+| 0-39 | Riskli | Kaparo isteyin veya telefonla teyit alın |
+
+Riskli segmentteki müşteriye özel bir teyit adımı eklemek, boş kalma riskini en baştan azaltır.
+
+## 5. Bekleme Listesi Tutun
+
+Bir randevu iptal olduğunda o saat boş kalmak zorunda değil. Bekleme listesindeki müşteriyi anında bilgilendirip saati doldurabilirsiniz — hem no-show'un maliyetini sıfırlar hem de bekleyen müşteriyi memnun eder.
+
+## 6. İptal Politikanızı Net ve Kolay Erişilebilir Yapın
+
+Müşterinin randevusunu değiştirmesi zorsa, hiç haber vermeden gelmemeyi tercih edebilir. Randevu onay mesajınıza tek tıkla iptal/değişiklik linki eklemek, "gelemeyeceğim ama nasıl haber vereceğimi bilmiyorum" durumunu ortadan kaldırır.
+
+---
+
+## Sonuç
+
+Bu 6 yöntem tek başına da fark yaratır, birlikte uygulandığında no-show oranınızı belirgin şekilde düşürür. SiriPlan, hatırlatmadan onay akışına, müşteri skorundan bekleme listesine kadar bu adımların tamamını tek panelden otomatikleştirir.
+
+**14 gün ücretsiz deneyin, farkı kendiniz görün.**
     `,
   },
 ];
