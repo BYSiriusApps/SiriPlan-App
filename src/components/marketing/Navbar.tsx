@@ -2,7 +2,7 @@
 
 import NextLink from "next/link";
 import { useState, useTransition } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemePicker } from "@/components/layout/ThemePicker";
 import { useTranslations, useLocale } from "next-intl";
@@ -26,10 +26,12 @@ const LOCALES = [
 export function Navbar() {
   const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const activeLocale = useLocale();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const pathname = usePathname();
+  const currentLocaleMeta = LOCALES.find((l) => l.code === activeLocale) ?? LOCALES[0];
 
   // `/auth/*` gibi [locale] dışındaki bir sayfadan pazarlama sitesine geri
   // dönmeden dil değiştirilemez — ama Navbar zaten yalnızca pazarlama
@@ -50,7 +52,10 @@ export function Navbar() {
   // cam görünüm aynen korunuyor.
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 md:bg-background/80 md:backdrop-blur-xl md:supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      {/* flex-wrap sadece güvenlik ağı: normal şartlarda tek satıra sığar,
+          ama örn. Rusça gibi uzun buton metinlerinde çok dar bir telefonda
+          taşma/üst üste binme yerine ikinci satıra düzgünce kayar. */}
+      <div className="container mx-auto px-4 py-2.5 md:h-16 md:py-0 flex flex-wrap items-center justify-between gap-y-2 md:flex-nowrap">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <img
@@ -88,8 +93,8 @@ export function Navbar() {
         </nav>
 
         {/* Right side */}
-        <div className="flex items-center gap-2">
-          {/* Locale switcher */}
+        <div className="flex items-center gap-1 md:gap-2">
+          {/* Locale switcher — masaüstü: tüm diller yan yana */}
           <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-1">
             {LOCALES.map((l) => (
               <button
@@ -109,24 +114,71 @@ export function Navbar() {
             ))}
           </div>
 
-          <ThemePicker />
+          {/* Locale switcher — mobil: tek bayraklı açılır menü, üç çizgiye
+              gerek kalmadan her zaman görünür. */}
+          <div className="relative md:hidden">
+            <button
+              onClick={() => setLangOpen((v) => !v)}
+              disabled={isPending}
+              aria-label={t("language")}
+              className="flex items-center gap-0.5 px-1.5 py-1.5 text-xs font-medium rounded-lg bg-muted text-foreground"
+            >
+              <span className="text-sm leading-none">{currentLocaleMeta.flag}</span>
+              <ChevronDown className="w-3 h-3 text-muted-foreground" />
+            </button>
+            {langOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
+                <div className="absolute right-0 top-full mt-2 z-50 min-w-[120px] rounded-lg border border-border bg-background p-1 shadow-lg">
+                  {LOCALES.map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => { switchLocale(l.code); setLangOpen(false); }}
+                      className={`flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                        activeLocale === l.code
+                          ? "bg-muted text-foreground"
+                          : "text-muted-foreground hover:bg-muted/60"
+                      }`}
+                    >
+                      <span className="text-sm leading-none">{l.flag}</span>
+                      <span>{l.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="hidden md:block">
+            <ThemePicker />
+          </div>
 
           {/* /auth/* [locale] segmentinin DIŞINDA (bkz. proxy.ts'teki
               LOCALE_ROUTING_EXCLUDED_PREFIXES) — kasıtlı olarak sıradan
               next/link, locale-aware Link DEĞİL; aksi halde /en/auth/giris
-              gibi var olmayan bir yola giderdi. */}
-          <NextLink href="/auth/giris" className="hidden md:block">
-            <Button variant="ghost" size="sm">
+              gibi var olmayan bir yola giderdi. Mobilde de her zaman
+              görünür (üç çizgiye basmaya gerek yok), sadece metin uzun
+              çevirilerde (örn. Rusça) sarabilsin diye kompakt boyutlu. */}
+          <NextLink href="/auth/giris">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="whitespace-normal px-2 text-center text-xs leading-tight md:whitespace-nowrap md:px-3 md:text-[0.8rem]"
+            >
               {t("login")}
             </Button>
           </NextLink>
-          <NextLink href="/auth/kayit" className="hidden md:block">
-            <Button size="sm" className="bg-primary hover:bg-primary/90 shadow-sm">
+          <NextLink href="/auth/kayit">
+            <Button
+              size="sm"
+              className="max-w-[100px] whitespace-normal bg-primary px-2.5 text-center text-xs leading-tight shadow-sm hover:bg-primary/90 md:max-w-none md:whitespace-nowrap md:px-4 md:text-[0.8rem]"
+            >
               {t("startFree")}
             </Button>
           </NextLink>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu button — artık yalnızca sayfa bağlantıları (özellikler,
+              fiyatlar, vb.) ve tema seçici için; giriş/kayıt/dil zaten yukarıda. */}
           <button
             className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
             onClick={() => setOpen(!open)}
@@ -154,37 +206,9 @@ export function Navbar() {
               {t(l.key)}
             </Link>
           ))}
-          {/* Mobile locale switcher */}
-          <div className="pt-2 pb-1">
-            <p className="text-[10px] text-muted-foreground mb-2 uppercase tracking-wide">{t("language")}</p>
-            <div className="flex gap-1.5">
-              {LOCALES.map((l) => (
-                <button
-                  key={l.code}
-                  onClick={() => { switchLocale(l.code); setOpen(false); }}
-                  className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border transition-all ${
-                    activeLocale === l.code
-                      ? "border-primary text-primary bg-primary/5"
-                      : "border-border text-muted-foreground hover:border-primary/40"
-                  }`}
-                >
-                  <span className="text-sm leading-none">{l.flag}</span>
-                  <span>{l.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="pt-3 flex gap-2">
-            <NextLink href="/auth/giris" className="flex-1">
-              <Button variant="outline" size="sm" className="w-full">
-                {t("login")}
-              </Button>
-            </NextLink>
-            <NextLink href="/auth/kayit" className="flex-1">
-              <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
-                {t("startFree")}
-              </Button>
-            </NextLink>
+          <div className="pt-2 border-t border-border/60 flex items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">SiriPlan</span>
+            <ThemePicker />
           </div>
         </div>
       )}
