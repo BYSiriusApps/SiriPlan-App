@@ -25,6 +25,8 @@ interface AppointmentRequest {
   source: string;
   staff: { full_name: string } | null;
   service: { name: string } | null;
+  proposed_status?: "none" | "pending" | "accepted" | "rejected";
+  proposed_appointment_at?: string | null;
 }
 
 const SOURCE_META: Record<string, { label: string; icon: typeof MessageCircle; className: string }> = {
@@ -101,7 +103,7 @@ export function BekleyenIsteklerClient({
     setEditValue(toLocalInputValue(r.appointment_at));
   }
 
-  async function handleReschedule(id: string) {
+  async function handlePropose(id: string) {
     if (!editValue) return;
     const iso = new Date(editValue).toISOString();
     setBusyId(id);
@@ -112,12 +114,14 @@ export function BekleyenIsteklerClient({
     });
     setBusyId(null);
     if (res.ok) {
-      setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, appointment_at: iso } : r)));
+      setRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, proposed_status: "pending", proposed_appointment_at: iso } : r))
+      );
       setEditingId(null);
-      toast.success("Randevu talebi yeni saate taşındı");
+      toast.success("Yeni saat önerildi, müşteri cevabı bekleniyor");
     } else {
       const d = await res.json().catch(() => ({}));
-      toast.error(d.error || "Saat değiştirilemedi");
+      toast.error(d.error || "Öneri gönderilemedi");
     }
   }
 
@@ -342,6 +346,16 @@ export function BekleyenIsteklerClient({
                         {r.price !== null && <span className="text-muted-foreground"> · {formatServicePrice(r.price, undefined, locale)}</span>}
                       </p>
                       {r.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{r.note}&quot;</p>}
+                      {r.proposed_status === "pending" && r.proposed_appointment_at && (
+                        <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50">
+                          Öneri gönderildi — müşteri cevabı bekleniyor ({format(new Date(r.proposed_appointment_at), "d MMM HH:mm", { locale: tr })})
+                        </Badge>
+                      )}
+                      {r.proposed_status === "rejected" && (
+                        <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50">
+                          Müşteri önerilen saati reddetti — tekrar öneri ya da iptal edin
+                        </Badge>
+                      )}
                     </div>
                     {editingId === r.id ? (
                       <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto sm:shrink-0">
@@ -351,9 +365,9 @@ export function BekleyenIsteklerClient({
                           onChange={(e) => setEditValue(e.target.value)}
                           className="text-xs border rounded-lg px-2 py-1.5 bg-background w-full sm:w-auto"
                         />
-                        <Button size="sm" className="gap-1.5" disabled={busy} onClick={() => handleReschedule(r.id)}>
+                        <Button size="sm" className="gap-1.5" disabled={busy} onClick={() => handlePropose(r.id)}>
                           {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                          Kaydet
+                          Öner
                         </Button>
                         <Button size="sm" variant="outline" disabled={busy} onClick={() => setEditingId(null)}>
                           Vazgeç
@@ -362,22 +376,26 @@ export function BekleyenIsteklerClient({
                     ) : (
                       <div className="flex gap-2 flex-wrap w-full sm:w-auto sm:shrink-0">
                         <Button
-                          variant="outline" size="sm" className="gap-1.5"
-                          disabled={busy} onClick={() => startEditing(r)}
+                          size="sm" className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                          disabled={busy} onClick={() => handleAction(r.id, "approve")}
+                        >
+                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                          Onayla
+                        </Button>
+                        <Button
+                          variant="outline" size="sm"
+                          className="gap-1.5 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30"
+                          disabled={busy || r.proposed_status === "pending"} onClick={() => startEditing(r)}
                         >
                           <Pencil className="h-3.5 w-3.5" />
-                          Düzenle
+                          Yeni Saat Öner
                         </Button>
                         <Button
                           variant="outline" size="sm" className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
                           disabled={busy} onClick={() => handleAction(r.id, "reject")}
                         >
                           {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
-                          Reddet
-                        </Button>
-                        <Button size="sm" className="gap-1.5" disabled={busy} onClick={() => handleAction(r.id, "approve")}>
-                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                          Onayla
+                          İptal Et
                         </Button>
                       </div>
                     )}

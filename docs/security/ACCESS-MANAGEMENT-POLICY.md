@@ -32,8 +32,8 @@ sürece verilir; gerekliliği bitince iptal edilir.
 | `STRIPE_SECRET_KEY` | Vercel env | Yıllık / olayda | — |
 | `STRIPE_WEBHOOK_SECRET` | Vercel env | Endpoint değişiminde | — |
 | `RESEND_API_KEY` | Vercel env | Yıllık | — |
-| `META_APP_SECRET` | Vercel env | **BEKLEYEN — SEC-01** | — |
-| `sms_password` (kiracı bazlı) | Supabase `organizations` | **1 kayıt rotasyon bekliyor — SEC-01** | — |
+| `META_APP_SECRET` | Vercel env | Olayda | 2026-09-18 |
+| `sms_password` (kiracı bazlı) | Supabase `organizations` | N/A — hiçbir kiracıda dolu değil, SMS entegrasyonu kullanılmıyor | — |
 | `CRON_SECRET` | Vercel env | Yıllık | — |
 | `TURNSTILE_SECRET_KEY` | Vercel env | Anahtar alınınca | Bekliyor |
 

@@ -11,10 +11,16 @@ GitHub Dependabot/Secret/Push protection açıldı. Kalan maddelerin tam listesi
 öncelik sırası: **`docs/security/TEKNIK-GUVENLIK-CHECKLIST.md` → "⏳ KALAN İŞLER"**.
 
 Öne çıkan (ücretsiz, kod-dışı):
-- `META_APP_SECRET` + 1 kiracı `sms_password` rotasyonu (en riskli açık, aylardır bekliyor).
+- ~~`META_APP_SECRET` + kiracı `sms_password` rotasyonu~~ **TAMAMLANDI (18 Eyl 2026)**:
+  `META_APP_SECRET` Vercel + local env'e eklendi (ilk kurulum, önceden hiç yoktu — WA webhook
+  işleme artık aktif olmalı, uçtan uca test bekliyor); `sms_password` hiçbir kiracıda kullanılmadığı
+  için N/A.
 - Cloudflare Turnstile anahtarları (ücretsiz) → Vercel env.
 - Supabase günlük yedek kontrolü.
-- CI workflow dosyası (`.github/workflows/security.yml`) + Actions secret/variable.
+- ~~CI workflow dosyası + Actions secret/variable + main branch ruleset~~ **TAMAMLANDI
+  (18 Eyl 2026)**: `.github/workflows/security.yml` main'de (commit `6f8abd6`), Secrets
+  (`NEXT_PUBLIC_SUPABASE_URL`/`ANON_KEY`) + Variable (`SECURITY_TESTS_ENABLED=1`) eklendi,
+  `main` ruleset'i Active + `static` check zorunlu.
 
 **11 Eyl 2026:** Dependabot açıklarının tamamı (next kritik RCE, xlsx prototype pollution vb.)
 temizlendi + panel görsel yüklemesi sunucu API + sharp yeniden kodlamaya taşındı. **Kalan tek
@@ -123,6 +129,32 @@ gerçekleşti — bkz. [[password-reset-email-flow]]). Aynı oturumda çözüm d
 **Kalan (kod dışı):** dal main'e merge edilmeli; sonrasında GSC'de yeni sitemap
 gönderilip birkaç hafta "duplicate/canonical" uyarısı geri gelmiyor mu izlenmeli.
 
+---
+
+## 3. Web push bildirimleri (gerçek tarayıcı/telefon push'u)
+
+**Durum (18 Eyl 2026):** Planlandı, henüz başlanmadı — [[yeni-saat-oner]] özelliği
+sırasında kullanıcı "web push'u da sonra kuracağız" dedi, bu turun kapsamı dışında
+tutuldu (bkz. o özelliğin kararı: bu turda sadece mevcut Telegram+WhatsApp kanalları).
+
+**Mevcut durum:** `public/sw.js` sadece PWA kurulabilirlik kriteri için var, `push`
+event listener'ı yok. VAPID/`web-push` paketi, `Notification`/`PushManager` kullanımı
+hiçbir yerde yok. Native tarafta da (Android TWA, PWABuilder ile üretiliyor — bu
+repoda `android/` kaynak kodu yok) FCM entegrasyonu yok.
+
+**Neden işe yarar:** Android TWA gerçek Chrome sekmesi çalıştırdığı için Web Push API
+(VAPID) teorik olarak native uygulamada da (Chrome'un kendi bildirim sistemi
+üzerinden) çalışır — ayrı bir Firebase/FCM kurulumuna gerek kalmadan.
+
+**Kapsam (kurulacaklarsa):**
+- VAPID anahtar çifti üretimi + `web-push` (veya eşdeğeri) paketinin eklenmesi.
+- `public/sw.js`'e `push` + `notificationclick` event listener'ı.
+- İzin isteme UI'ı (panelde "Bildirimlere izin ver" — muhtemelen Ayarlar sayfası).
+- `push_subscriptions` tablosu (kullanıcı/org bazlı, çoklu cihaz desteği).
+- `src/lib/notify.ts`'e üçüncü bir `dispatch` kanalı (Telegram + WhatsApp'ın yanına).
+- Test: gerçek bir cihazda (Android TWA + masaüstü Chrome) bildirim gelip
+  tıklanınca doğru sayfaya (`/dashboard/bekleyen-istekler` vb.) gittiğini doğrulamak.
+
 **Asıl kaldıraç (kod dışı, değişmedi):** AI motorları çoğunlukla üçüncü taraf atıflara
 güveniyor. Yazılım dizin siteleri (Capterra, GetApp), Google Business Profile, müşteri
 referansları (AggregateRating JSON-LD için girdi), sektörel forum/topluluk mention'ları,
@@ -131,3 +163,27 @@ karşılaştırma içerikli blog yazıları öncelikli.
 **İlgili dosya:** [GEO görünürlük planı (doküman)](https://claude.ai/artifact/EZ3rskRP1B2t3ArKWXA6c3),
 `src/proxy.ts`, `src/i18n/request.ts`, `src/i18n/routing.ts`, `src/i18n/navigation.ts`,
 `src/lib/i18n/resolve-locale.ts`, `src/lib/seo/alternates.ts`, `src/app/sitemap.ts`.
+
+---
+
+## 4. "Yeni Saat Öner" özelliğinin devreye alınması
+
+**Durum (18 Eyl 2026):** Kod tamamlandı, `feat/randevu-yeni-saat-oneri` dalında
+(origin'e push edildi). `main`'e MERGE EDİLMEDİ — henüz Meta şablon onayı yok.
+
+**Kalan adımlar (sırayla):**
+1. Meta Business Manager'da `randevu_yeni_saat_onerisi_1` şablonu onaylanmalı
+   (Türkçe, 4 gövde param + dinamik URL buton — submit edildi, onay bekleniyor;
+   ilk deneme `randevu_yeni_saat_onerisi` adıyla yanlışlıkla İngilizce gönderilip
+   silinemediği için `_1` suffix'iyle tekrar gönderildi).
+2. `supabase/migrations/20260918_appointment_reschedule_proposal.sql` Supabase SQL
+   Editor'e yapıştırılıp çalıştırılmalı (bkz. [[migration-apply-state]]).
+3. Meta onayı + migration tamamlanınca `feat/randevu-yeni-saat-oneri` dalı `main`'e
+   merge edilmeli.
+4. Gerçek bir test randevusuyla uçtan uca doğrulama: panel → Yeni Saat Öner →
+   WhatsApp mesajı → müşteri `/oneri/[token]` linki → Kabul Et/Reddet → panelde
+   doğru sonuç + Telegram/WA bildirimi.
+
+**İlgili dosya:** [[yeni-saat-oner-reschedule-proposal-sept18]] (memory),
+`src/lib/wa-templates/registry.ts`, `src/lib/appointment-requests/approve.ts`,
+`src/app/api/public/appointment-proposal/route.ts`, `src/app/oneri/[token]/page.tsx`.
