@@ -2026,6 +2026,10 @@
     "statusOnaylandi": "Подтверждено",
     "statusTamamlandi": "Завершено",
     "statusIptal": "Отменено",
+    "proposeNewTime": "Предложить новое время",
+    "proposeSubmit": "Предложить",
+    "proposalPendingBadge": "Предложение отправлено — ожидается ответ клиента ({datetime})",
+    "proposalRejectedBadge": "Клиент отклонил предложенное время — предложите снова или отмените",
     "homePage": {
       "yourBusiness": "Ваш бизнес",
       "greeting": "Здравствуйте, {name}.",

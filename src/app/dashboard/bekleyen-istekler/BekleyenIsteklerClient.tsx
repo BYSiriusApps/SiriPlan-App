@@ -351,56 +351,56 @@ export function BekleyenIsteklerClient({
                       {r.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{r.note}&quot;</p>}
                       {r.proposed_status === "pending" && r.proposed_appointment_at && (
                         <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50">
-                          Öneri gönderildi — müşteri cevabı bekleniyor ({format(new Date(r.proposed_appointment_at), "d MMM HH:mm", { locale: tr })})
+                          {t("proposalPendingBadge", { datetime: format(new Date(r.proposed_appointment_at), "d MMM HH:mm", { locale: tr }) })}
                         </Badge>
                       )}
                       {r.proposed_status === "rejected" && (
                         <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50">
-                          Müşteri önerilen saati reddetti — tekrar öneri ya da iptal edin
+                          {t("proposalRejectedBadge")}
                         </Badge>
                       )}
                     </div>
                     {editingId === r.id ? (
-                      <div className="flex flex-col gap-2.5 w-full sm:w-72 sm:shrink-0 rounded-xl border bg-muted/30 p-3">
+                      <div className="flex flex-col gap-2.5 w-full sm:w-80 sm:shrink-0 rounded-xl border bg-muted/30 p-3">
                         <DateTimeSlotPicker
                           value={editValue}
                           onChange={setEditValue}
                           minDate={new Date().toISOString().slice(0, 10)}
                           slotMinutes={bookingSlotMinutes}
                         />
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" className="gap-1.5 flex-1" disabled={busy} onClick={() => handlePropose(r.id)}>
-                            {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                            Öner
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                          <Button size="lg" className="gap-1.5 w-full h-12 text-base justify-center sm:h-9 sm:text-xs sm:flex-1" disabled={busy} onClick={() => handlePropose(r.id)}>
+                            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                            {t("proposeSubmit")}
                           </Button>
-                          <Button size="sm" variant="outline" disabled={busy} onClick={() => setEditingId(null)}>
-                            Vazgeç
+                          <Button size="lg" variant="outline" className="w-full h-12 text-base justify-center sm:w-auto sm:h-9 sm:text-xs" disabled={busy} onClick={() => setEditingId(null)}>
+                            {t("rescheduleCancelButton")}
                           </Button>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex gap-2 flex-wrap w-full sm:w-auto sm:shrink-0">
+                      <div className="flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:w-auto sm:shrink-0">
                         <Button
-                          size="sm" className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                          size="lg" className="gap-1.5 w-full h-12 text-base justify-center bg-emerald-600 hover:bg-emerald-700 text-white sm:w-auto sm:h-9 sm:text-xs"
                           disabled={busy} onClick={() => handleAction(r.id, "approve")}
                         >
-                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                          Onayla
+                          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                          {t("approve")}
                         </Button>
                         <Button
-                          variant="outline" size="sm"
-                          className="gap-1.5 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30"
+                          variant="outline" size="lg"
+                          className="gap-1.5 w-full h-12 text-base justify-center border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 sm:w-auto sm:h-9 sm:text-xs"
                           disabled={busy || r.proposed_status === "pending"} onClick={() => startEditing(r)}
                         >
-                          <Pencil className="h-3.5 w-3.5" />
-                          Yeni Saat Öner
+                          <Pencil className="h-4 w-4" />
+                          {t("proposeNewTime")}
                         </Button>
                         <Button
-                          variant="outline" size="sm" className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
+                          variant="outline" size="lg" className="gap-1.5 w-full h-12 text-base justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 sm:w-auto sm:h-9 sm:text-xs"
                           disabled={busy} onClick={() => handleAction(r.id, "reject")}
                         >
-                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
-                          İptal Et
+                          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                          {t("cancelAction")}
                         </Button>
                       </div>
                     )}
