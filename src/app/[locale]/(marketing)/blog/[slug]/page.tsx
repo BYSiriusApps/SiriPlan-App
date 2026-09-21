@@ -3,12 +3,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Clock, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { blogPosts, getBlogPost } from "@/lib/blog-posts";
 import { buildAlternates, localizedUrl, SITE_BASE_URL } from "@/lib/seo/alternates";
-import type { Locale } from "@/lib/i18n/resolve-locale";
+import { LOCALES, type Locale } from "@/lib/i18n/resolve-locale";
 
-type Params = { slug: string };
+type Params = { locale: string; slug: string };
 
 /** Kategoriye göre gövde sonrası önerilen iç linkler — topical silo kurmak için. */
 const CATEGORY_INTERNAL_LINKS: Record<string, { href: string; label: string }[]> = {
@@ -38,12 +38,21 @@ const CATEGORY_INTERNAL_LINKS: Record<string, { href: string; label: string }[]>
   ],
 };
 
+/**
+ * `[locale]` katmanının kendi `generateStaticParams`'ı yok — yalnızca
+ * `{slug}` döndürmek Next.js'e locale×slug kombinasyonunu build-time'da tam
+ * statik ürettiremiyor, ilk istekte next-intl'in dynamic API kullanımıyla
+ * çakışan bir "fallback" render'a düşürüp DYNAMIC_SERVER_USAGE ile
+ * çöküyordu (prod'da tüm blog yazıları 500 veriyordu). Tam çapraz çarpım
+ * (`{locale, slug}`) vermek bunu build-time'da tamamen statik hale getirir.
+ */
 export async function generateStaticParams() {
-  return blogPosts.map((p) => ({ slug: p.slug }));
+  return LOCALES.flatMap((locale) => blogPosts.map((p) => ({ locale, slug: p.slug })));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  setRequestLocale(locale);
   const post = getBlogPost(slug);
   if (!post) return {};
   return {
@@ -93,11 +102,12 @@ function markdownToHtml(content: string): string {
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<Params> }) {
-  const { slug } = await params;
+  const { slug, locale: localeParam } = await params;
+  setRequestLocale(localeParam);
   const post = getBlogPost(slug);
   if (!post) notFound();
   const t = await getTranslations("blogPage");
-  const locale = (await getLocale()) as Locale;
+  const locale = localeParam as Locale;
 
   const others = blogPosts.filter((p) => p.slug !== slug);
   const sameCategory = others.filter((p) => p.category === post.category);
