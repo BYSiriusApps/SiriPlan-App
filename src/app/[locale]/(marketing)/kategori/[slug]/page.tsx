@@ -5,10 +5,11 @@ import { ArrowRight, Check, Star, Calendar, Bot, Users, BarChart3, Shield } from
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { buildAlternates } from "@/lib/seo/alternates";
+import { LOCALES } from "@/lib/i18n/resolve-locale";
 
-type Params = { slug: string };
+type Params = { locale: string; slug: string };
 
 // Çeviriye taşınmayan, dilden bağımsız kalan alanlar (emoji + gerçek müşteri adı/salon-şehir).
 const SECTOR_META: Record<string, { emoji: string; testimonial?: { name: string; role: string } }> = {
@@ -37,12 +38,21 @@ const PLATFORM_FEATURE_ICONS = [
   { key: "uptime", icon: Check },
 ] as const;
 
+/**
+ * `[locale]` katmanının kendi `generateStaticParams`'ı yok — bkz.
+ * blog/[slug]/page.tsx'teki aynı notta anlatılan DYNAMIC_SERVER_USAGE
+ * çökmesi (prod'da tüm sektör sayfaları 500 veriyordu). Tam çapraz çarpım
+ * bunu build-time'da statik hale getirir.
+ */
 export async function generateStaticParams() {
-  return Object.keys(SECTOR_META).map((slug) => ({ slug }));
+  return LOCALES.flatMap((locale) =>
+    Object.keys(SECTOR_META).map((slug) => ({ locale, slug }))
+  );
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  setRequestLocale(locale);
   if (!SECTOR_META[slug]) return {};
   const t = await getTranslations("categoryPage");
   const title = t(`sectors.${slug}.title`);
@@ -57,7 +67,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 }
 
 export default async function KategoriPage({ params }: { params: Promise<Params> }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  setRequestLocale(locale);
   const meta = SECTOR_META[slug];
   if (!meta) notFound();
   const t = await getTranslations("categoryPage");
