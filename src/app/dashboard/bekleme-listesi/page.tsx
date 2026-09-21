@@ -296,7 +296,7 @@ export default function BeklemeListesiPage() {
                   key={a.id}
                   className="relative flex flex-col gap-2 px-3 py-3 rounded-lg data-row transition-colors"
                 >
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <Link
                       href={`/dashboard/randevular/${a.id}`}
                       className="min-w-0 flex-1 before:absolute before:inset-0 before:content-['']"
@@ -310,68 +310,68 @@ export default function BeklemeListesiPage() {
                       </p>
                     </Link>
                     {editingApptId === a.id ? (
-                      <div className="relative z-10 flex items-center gap-2 flex-wrap shrink-0">
+                      <div className="relative z-10 flex flex-col gap-2 w-full sm:flex-row sm:items-center sm:flex-wrap sm:w-auto sm:shrink-0">
                         <input
                           type="datetime-local"
                           value={editApptValue}
                           onChange={(e) => setEditApptValue(e.target.value)}
-                          className="text-xs border rounded-lg px-2 py-1.5 bg-background"
+                          className="text-sm border rounded-lg px-3 py-2.5 bg-background w-full sm:w-auto sm:text-xs sm:py-1.5"
                         />
                         <Button
-                          size="sm" className="gap-1.5 text-xs h-8"
+                          size="lg" className="gap-1.5 w-full h-12 text-base justify-center sm:w-auto sm:h-8 sm:text-xs"
                           disabled={proposingId === a.id}
                           onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); proposeAppt(a.id); }}
                         >
-                          {proposingId === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                          Öner
+                          {proposingId === a.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                          {t("proposeSubmit")}
                         </Button>
                         <Button
-                          size="sm" variant="outline" className="text-xs h-8"
+                          size="lg" variant="outline" className="w-full h-12 text-base justify-center sm:w-auto sm:h-8 sm:text-xs"
                           onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); setEditingApptId(null); }}
                         >
-                          Vazgeç
+                          {t("rescheduleCancelButton")}
                         </Button>
                       </div>
                     ) : (
-                      <div className="relative z-10 flex gap-1.5 flex-wrap shrink-0">
+                      <div className="relative z-10 flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:w-auto sm:shrink-0">
                         <Button
-                          size="sm"
-                          className="gap-1.5 text-xs h-8 bg-emerald-600 hover:bg-emerald-700 text-white"
+                          size="lg"
+                          className="gap-1.5 w-full h-12 text-base justify-center bg-emerald-600 hover:bg-emerald-700 text-white sm:w-auto sm:h-8 sm:text-xs"
                           disabled={approvingId === a.id}
                           onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); approveAppt(a.id); }}
                         >
-                          {approvingId === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                          {approvingId === a.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                           {t("approve")}
                         </Button>
                         <Button
-                          size="sm" variant="outline"
-                          className="gap-1.5 text-xs h-8 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30"
+                          size="lg" variant="outline"
+                          className="gap-1.5 w-full h-12 text-base justify-center border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 sm:w-auto sm:h-8 sm:text-xs"
                           disabled={a.proposed_status === "pending"}
                           onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); startProposing(a); }}
                         >
-                          <Pencil className="h-3.5 w-3.5" />
-                          Yeni Saat Öner
+                          <Pencil className="h-4 w-4" />
+                          {t("proposeNewTime")}
                         </Button>
                         <Button
-                          size="sm" variant="outline"
-                          className="gap-1.5 text-xs h-8 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
+                          size="lg" variant="outline"
+                          className="gap-1.5 w-full h-12 text-base justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 sm:w-auto sm:h-8 sm:text-xs"
                           disabled={cancelingId === a.id}
                           onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); cancelAppt(a.id); }}
                         >
-                          {cancelingId === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
-                          İptal Et
+                          {cancelingId === a.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                          {t("cancelAction")}
                         </Button>
                       </div>
                     )}
                   </div>
                   {a.proposed_status === "pending" && a.proposed_appointment_at && (
                     <Badge variant="outline" className="relative z-10 w-fit text-[10px] gap-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50">
-                      Öneri gönderildi — müşteri cevabı bekleniyor ({new Date(a.proposed_appointment_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })})
+                      {t("proposalPendingBadge", { datetime: new Date(a.proposed_appointment_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) })}
                     </Badge>
                   )}
                   {a.proposed_status === "rejected" && (
                     <Badge variant="outline" className="relative z-10 w-fit text-[10px] gap-1 bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50">
-                      Müşteri önerilen saati reddetti — tekrar öneri ya da iptal edin
+                      {t("proposalRejectedBadge")}
                     </Badge>
                   )}
                 </div>

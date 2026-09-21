@@ -2026,6 +2026,10 @@
     "statusOnaylandi": "Confirmed",
     "statusTamamlandi": "Completed",
     "statusIptal": "Cancelled",
+    "proposeNewTime": "Suggest New Time",
+    "proposeSubmit": "Propose",
+    "proposalPendingBadge": "Proposal sent — waiting for customer response ({datetime})",
+    "proposalRejectedBadge": "Customer declined the proposed time — propose again or cancel",
     "homePage": {
       "yourBusiness": "Your Business",
       "greeting": "Hello {name}.",
