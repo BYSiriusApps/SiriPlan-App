@@ -3,11 +3,40 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Clock, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { blogPosts, getBlogPost } from "@/lib/blog-posts";
-import { buildAlternates } from "@/lib/seo/alternates";
+import { buildAlternates, localizedUrl, SITE_BASE_URL } from "@/lib/seo/alternates";
+import type { Locale } from "@/lib/i18n/resolve-locale";
 
 type Params = { slug: string };
+
+/** Kategoriye göre gövde sonrası önerilen iç linkler — topical silo kurmak için. */
+const CATEGORY_INTERNAL_LINKS: Record<string, { href: string; label: string }[]> = {
+  "İpuçları": [
+    { href: "/ozellikler", label: "Tüm SiriPlan özellikleri" },
+    { href: "/kategori/kuafor", label: "Kuaförler için SiriPlan" },
+  ],
+  "AI & Teknoloji": [
+    { href: "/entegrasyonlar", label: "WhatsApp & Instagram entegrasyonları" },
+    { href: "/ozellikler", label: "AI asistan özellikleri" },
+  ],
+  "Müşteri Yönetimi": [
+    { href: "/ozellikler", label: "Sadakat ve müşteri skoru özellikleri" },
+    { href: "/kategori/guzellik", label: "Güzellik salonları için SiriPlan" },
+  ],
+  "KVKK & Hukuk": [
+    { href: "/kvkk", label: "KVKK aydınlatma metnimiz" },
+    { href: "/guvenlik", label: "Güvenlik önlemlerimiz" },
+  ],
+  "Büyüme": [
+    { href: "/entegrasyonlar", label: "Instagram entegrasyonu" },
+    { href: "/kategori/nail", label: "Nail stüdyoları için SiriPlan" },
+  ],
+  "Ciro": [
+    { href: "/fiyatlar", label: "Planları ve fiyatları inceleyin" },
+    { href: "/ozellikler", label: "Raporlama özellikleri" },
+  ],
+};
 
 export async function generateStaticParams() {
   return blogPosts.map((p) => ({ slug: p.slug }));
@@ -25,7 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       title: post.title,
       description: post.excerpt,
       type: "article",
-      publishedTime: post.date,
+      publishedTime: post.isoDate,
     },
   };
 }
@@ -68,11 +97,48 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
   const post = getBlogPost(slug);
   if (!post) notFound();
   const t = await getTranslations("blogPage");
+  const locale = (await getLocale()) as Locale;
 
-  const relatedPosts = blogPosts.filter((p) => p.slug !== slug).slice(0, 2);
+  const others = blogPosts.filter((p) => p.slug !== slug);
+  const sameCategory = others.filter((p) => p.category === post.category);
+  const rest = others.filter((p) => p.category !== post.category);
+  const relatedPosts = [...sameCategory, ...rest].slice(0, 2);
+  const internalLinks = CATEGORY_INTERNAL_LINKS[post.category] ?? [];
+
+  const postUrl = localizedUrl(`/blog/${slug}`, locale);
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${postUrl}#article`,
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.isoDate,
+    dateModified: post.isoDate,
+    inLanguage: locale,
+    mainEntityOfPage: postUrl,
+    articleSection: post.category,
+    author: {
+      "@type": "Organization",
+      "@id": "https://siriplan.com/#organization",
+      name: post.author,
+    },
+    publisher: {
+      "@type": "Organization",
+      "@id": "https://siriplan.com/#organization",
+      name: "SiriPlan",
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_BASE_URL}/icons/icon-192x192.png`,
+      },
+    },
+  };
 
   return (
     <div className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       {/* Header */}
       <section className="py-12 md:py-16 border-b border-border bg-muted/20">
         <div className="container mx-auto px-4 max-w-3xl">
@@ -117,6 +183,19 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
               __html: markdownToHtml(post.content),
             }}
           />
+          {internalLinks.length > 0 && (
+            <div className="mt-8 pt-6 border-t border-border flex flex-wrap gap-3">
+              {internalLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm font-medium text-primary hover:underline underline-offset-4"
+                >
+                  {link.label} →
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
