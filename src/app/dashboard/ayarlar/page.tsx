@@ -952,9 +952,10 @@ export default function AyarlarPage() {
         description={t("settingsPage.onlineBookingDesc")}
         dataTour="online-booking"
       >
-        {/* Otomatik onay tüm planlarda; varsayılan işaretli
-            (has_auto_booking DB varsayılanı true). Kapatılınca randevular
-            "talep" kuyruğuna düşer ve salona bildirim gider. */}
+        {/* Otomatik onay tüm planlarda kullanılabilir; ilk kayıtta kapalı gelir
+            (has_auto_booking DB varsayılanı false), kullanıcı isterse açar.
+            Kapatıldığında/kapalıyken randevular "talep" kuyruğuna düşer ve
+            salona bildirim gider. */}
         <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
           <Checkbox
             id="has_auto_booking"

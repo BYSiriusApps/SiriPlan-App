@@ -227,6 +227,9 @@ export async function POST(req: NextRequest) {
     ...TRIAL_PLAN_LIMITS,
     locale: safeLocale,
     timezone: orgTimezone,
+    // Çoğu işletme sahibi internet/sosyal medyadan gelen randevuların otomatik
+    // onaylanmasını istemiyor — ilk kayıtta kapalı, dileyen ayarlardan açar.
+    has_auto_booking: false,
   };
 
   // signup_ip ve tax_number kolonları henüz uygulanmamış olabilir (migration

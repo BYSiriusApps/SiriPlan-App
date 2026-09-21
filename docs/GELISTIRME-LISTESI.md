@@ -32,6 +32,32 @@ açıldığında birlikte yapılır.
 **Migration durumu:** `20260911_upload_hardening_storage.sql` uygulandı (kullanıcı beyanı 11
 Eyl, canlı sorguyla 17 Eyl doğrulandı — bkz. migration-apply-state). Bekleyen migration yok.
 
+**17 Eyl 2026:** `next-intl` 3.26.5 → 4.14.5 yükseltildi (edfebf0), 2 moderate advisory kapandı.
+Yukarıdaki "next-intl 4.x kırıcı geçiş" maddesi artık geçersiz.
+
+**18 Eyl 2026:** `META_APP_SECRET` eklendi (ilk kurulum, rotasyon değil — daha önce hiç
+tanımlı değildi, bu yüzden gelen WhatsApp webhook'ları fail-closed sessizce işlenmiyordu).
+`sms_password` rotasyonu **N/A**: hiçbir kiracıda dolu değil. Bu değişiklik şu an
+`feat/randevu-yeni-saat-oneri` dalında — main'e o dal merge olunca checklist'e yansıyacak
+(bkz. aşağıdaki madde 4). `.github/workflows/security.yml` de main'de zaten var (6f8abd6/
+e2fe467); GitHub Secrets/Variables + branch koruma kuralının fiilen kurulu olup olmadığı
+`gh` yetkisi olmadan bu oturumdan doğrulanamadı.
+
+**18 Eyl 2026 — Dependabot toplu güncelleme (PR #24, main'e merge edildi):** 5 açık PR'dan 3'ü
+alındı — `next` 16.3.5, `react`/`react-dom` 19.3, `date-fns` 3→4, `resend` 4→6, `radix-ui`/
+`@base-ui/react`/`@supabase/ssr`/`@supabase/supabase-js`/`playwright`/`eslint-config-next`
+bumps. `npm install` + `tsc --noEmit` + `npm run lint` (0 error) + `npm run build` temiz.
+
+2 tanesi **DIŞARIDA BIRAKILDI** (ayrı kod işi gerektiriyor):
+- `lucide-react` 0.460→1.x: v1 marka ikonlarını (Instagram/Facebook/Linkedin) tamamen
+  kaldırmış. 3 canlı dosyada kırıyor: `src/app/dashboard/ayarlar/page.tsx`,
+  `src/app/dashboard/bekleyen-istekler/BekleyenIsteklerClient.tsx`, müşteriye dönük
+  `src/app/r/[slug]/SalonBits.tsx`. Önce bu 3 ikon için alternatif (inline SVG veya başka
+  paket) bulunmalı, sonra sürüm yükseltilebilir.
+- `eslint` 9→10: `eslint-config-next`'in bağladığı `eslint-plugin-react` ile kırılıyor
+  (`context.getFilename is not a function`) — `npm run lint` tamamen çöküyor. Tetikleyici:
+  `eslint-config-next` bu API'yi destekleyen bir sürüm yayınlayınca tekrar denenmeli.
+
 ---
 
 ## 1. Supabase Auth e-postaları çok dilli olsun
