@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { usePlan } from "@/components/dashboard/PlanContext";
 import { toast } from "sonner";
 import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Lock, Pencil, X } from "lucide-react";
@@ -191,6 +192,8 @@ export default function BeklemeListesiPage() {
 
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhone = role !== "staff" || staffPhoneAccess;
+  const rawSlotMinutes = Number(settings.booking_slot_minutes);
+  const bookingSlotMinutes = [15, 30, 60].includes(rawSlotMinutes) ? rawSlotMinutes : 15;
 
   const visible = entries.filter((e) => filterStatus === "all" || (e.status === "waiting" || e.status === "notified"));
 
@@ -310,27 +313,32 @@ export default function BeklemeListesiPage() {
                       </p>
                     </Link>
                     {editingApptId === a.id ? (
-                      <div className="relative z-10 flex items-center gap-2 flex-wrap shrink-0">
-                        <input
-                          type="datetime-local"
+                      <div
+                        className="relative z-10 flex flex-col gap-2.5 w-full sm:w-72 shrink-0 rounded-xl border bg-muted/30 p-3"
+                        onClick={(ev) => ev.stopPropagation()}
+                      >
+                        <DateTimeSlotPicker
                           value={editApptValue}
-                          onChange={(e) => setEditApptValue(e.target.value)}
-                          className="text-xs border rounded-lg px-2 py-1.5 bg-background"
+                          onChange={setEditApptValue}
+                          minDate={new Date().toISOString().slice(0, 10)}
+                          slotMinutes={bookingSlotMinutes}
                         />
-                        <Button
-                          size="sm" className="gap-1.5 text-xs h-8"
-                          disabled={proposingId === a.id}
-                          onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); proposeAppt(a.id); }}
-                        >
-                          {proposingId === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                          Öner
-                        </Button>
-                        <Button
-                          size="sm" variant="outline" className="text-xs h-8"
-                          onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); setEditingApptId(null); }}
-                        >
-                          Vazgeç
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm" className="gap-1.5 text-xs h-8 flex-1"
+                            disabled={proposingId === a.id}
+                            onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); proposeAppt(a.id); }}
+                          >
+                            {proposingId === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                            Öner
+                          </Button>
+                          <Button
+                            size="sm" variant="outline" className="text-xs h-8"
+                            onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); setEditingApptId(null); }}
+                          >
+                            Vazgeç
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <div className="relative z-10 flex gap-1.5 flex-wrap shrink-0">

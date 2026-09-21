@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { formatServicePrice } from "@/lib/currency";
 import { maskPhone } from "@/lib/phone";
 import Link from "next/link";
@@ -56,11 +57,13 @@ interface OverdueAppointment {
 export function BekleyenIsteklerClient({
   initialRequests,
   showPhone = true,
+  bookingSlotMinutes = 15,
   criticalStock = [],
   overdueAppointments = [],
 }: {
   initialRequests: AppointmentRequest[];
   showPhone?: boolean;
+  bookingSlotMinutes?: number;
   criticalStock?: CriticalStockItem[];
   overdueAppointments?: OverdueAppointment[];
 }) {
@@ -358,20 +361,22 @@ export function BekleyenIsteklerClient({
                       )}
                     </div>
                     {editingId === r.id ? (
-                      <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto sm:shrink-0">
-                        <input
-                          type="datetime-local"
+                      <div className="flex flex-col gap-2.5 w-full sm:w-72 sm:shrink-0 rounded-xl border bg-muted/30 p-3">
+                        <DateTimeSlotPicker
                           value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          className="text-xs border rounded-lg px-2 py-1.5 bg-background w-full sm:w-auto"
+                          onChange={setEditValue}
+                          minDate={new Date().toISOString().slice(0, 10)}
+                          slotMinutes={bookingSlotMinutes}
                         />
-                        <Button size="sm" className="gap-1.5" disabled={busy} onClick={() => handlePropose(r.id)}>
-                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                          Öner
-                        </Button>
-                        <Button size="sm" variant="outline" disabled={busy} onClick={() => setEditingId(null)}>
-                          Vazgeç
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" className="gap-1.5 flex-1" disabled={busy} onClick={() => handlePropose(r.id)}>
+                            {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                            Öner
+                          </Button>
+                          <Button size="sm" variant="outline" disabled={busy} onClick={() => setEditingId(null)}>
+                            Vazgeç
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex gap-2 flex-wrap w-full sm:w-auto sm:shrink-0">

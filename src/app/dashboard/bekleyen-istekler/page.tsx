@@ -59,11 +59,14 @@ export default async function BekleyenIsteklerPage() {
   const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhone = m.role !== "staff" || staffPhoneAccess;
+  const rawSlotMinutes = Number(settings.booking_slot_minutes);
+  const bookingSlotMinutes = [15, 30, 60].includes(rawSlotMinutes) ? rawSlotMinutes : 15;
 
   return (
     <BekleyenIsteklerClient
       initialRequests={requests || []}
       showPhone={showPhone}
+      bookingSlotMinutes={bookingSlotMinutes}
       criticalStock={criticalStock}
       overdueAppointments={overdueAppointments.map((a) => ({
         id: a.id,
