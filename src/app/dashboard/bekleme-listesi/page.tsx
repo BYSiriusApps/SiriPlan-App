@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { usePlan } from "@/components/dashboard/PlanContext";
 import { toast } from "sonner";
 import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Lock, Pencil, X } from "lucide-react";
@@ -191,6 +192,8 @@ export default function BeklemeListesiPage() {
 
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhone = role !== "staff" || staffPhoneAccess;
+  const rawSlotMinutes = Number(settings.booking_slot_minutes);
+  const bookingSlotMinutes = [15, 30, 60].includes(rawSlotMinutes) ? rawSlotMinutes : 15;
 
   const visible = entries.filter((e) => filterStatus === "all" || (e.status === "waiting" || e.status === "notified"));
 
@@ -310,27 +313,32 @@ export default function BeklemeListesiPage() {
                       </p>
                     </Link>
                     {editingApptId === a.id ? (
-                      <div className="relative z-10 flex flex-col gap-2 w-full sm:flex-row sm:items-center sm:flex-wrap sm:w-auto sm:shrink-0">
-                        <input
-                          type="datetime-local"
+                      <div
+                        className="relative z-10 flex flex-col gap-2.5 w-full sm:w-80 shrink-0 rounded-xl border bg-muted/30 p-3"
+                        onClick={(ev) => ev.stopPropagation()}
+                      >
+                        <DateTimeSlotPicker
                           value={editApptValue}
-                          onChange={(e) => setEditApptValue(e.target.value)}
-                          className="text-sm border rounded-lg px-3 py-2.5 bg-background w-full sm:w-auto sm:text-xs sm:py-1.5"
+                          onChange={setEditApptValue}
+                          minDate={new Date().toISOString().slice(0, 10)}
+                          slotMinutes={bookingSlotMinutes}
                         />
-                        <Button
-                          size="lg" className="gap-1.5 w-full h-12 text-base justify-center sm:w-auto sm:h-8 sm:text-xs"
-                          disabled={proposingId === a.id}
-                          onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); proposeAppt(a.id); }}
-                        >
-                          {proposingId === a.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                          {t("proposeSubmit")}
-                        </Button>
-                        <Button
-                          size="lg" variant="outline" className="w-full h-12 text-base justify-center sm:w-auto sm:h-8 sm:text-xs"
-                          onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); setEditingApptId(null); }}
-                        >
-                          {t("rescheduleCancelButton")}
-                        </Button>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                          <Button
+                            size="lg" className="gap-1.5 w-full h-12 text-base justify-center sm:h-9 sm:text-xs sm:flex-1"
+                            disabled={proposingId === a.id}
+                            onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); proposeAppt(a.id); }}
+                          >
+                            {proposingId === a.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                            {t("proposeSubmit")}
+                          </Button>
+                          <Button
+                            size="lg" variant="outline" className="w-full h-12 text-base justify-center sm:w-auto sm:h-9 sm:text-xs"
+                            onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); setEditingApptId(null); }}
+                          >
+                            {t("rescheduleCancelButton")}
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <div className="relative z-10 flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:w-auto sm:shrink-0">
