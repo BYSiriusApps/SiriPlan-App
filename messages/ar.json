@@ -2026,6 +2026,10 @@
     "statusOnaylandi": "مؤكد",
     "statusTamamlandi": "مكتمل",
     "statusIptal": "ملغى",
+    "proposeNewTime": "اقتراح موعد جديد",
+    "proposeSubmit": "اقتراح",
+    "proposalPendingBadge": "تم إرسال الاقتراح — بانتظار رد العميل ({datetime})",
+    "proposalRejectedBadge": "رفض العميل الموعد المقترح — اقترح موعدًا آخر أو ألغِ الطلب",
     "homePage": {
       "yourBusiness": "منشأتك",
       "greeting": "مرحباً {name}.",

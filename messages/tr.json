@@ -2026,6 +2026,10 @@
     "statusOnaylandi": "Onaylandı",
     "statusTamamlandi": "Tamamlandı",
     "statusIptal": "İptal",
+    "proposeNewTime": "Yeni Saat Öner",
+    "proposeSubmit": "Öner",
+    "proposalPendingBadge": "Öneri gönderildi — müşteri cevabı bekleniyor ({datetime})",
+    "proposalRejectedBadge": "Müşteri önerilen saati reddetti — tekrar öneri ya da iptal edin",
     "homePage": {
       "yourBusiness": "İşletmeniz",
       "greeting": "Merhaba {name}.",
