@@ -66,15 +66,15 @@
 
   /* Warm white background */
   --background: oklch(0.985 0.005 80);
-  --foreground: oklch(0.18 0.02 290);
+  --foreground: oklch(0.16 0.035 290);
 
   /* Soft warm cards */
   --card: oklch(0.99 0.003 70);
-  --card-foreground: oklch(0.18 0.02 290);
+  --card-foreground: oklch(0.16 0.035 290);
 
   /* Popover */
   --popover: oklch(0.99 0.003 70);
-  --popover-foreground: oklch(0.18 0.02 290);
+  --popover-foreground: oklch(0.16 0.035 290);
 
   /* Soft lavender secondary */
   --secondary: oklch(0.93 0.02 290);
@@ -83,9 +83,9 @@
   /* Muted warm */
   --muted: oklch(0.95 0.01 70);
   /* İkincil metin (text-muted-foreground) panelde her yerde: etiketler, tablo
-     alt satırları, ipuçları. L=0.50'de açık zeminde soluk kalıyordu; L=0.44 ile
-     kontrast belirgin artar — ana renk/yapı değişmez, yalnızca yazı okunaklı. */
-  --muted-foreground: oklch(0.44 0.028 290);
+     alt satırları, ipuçları. L=0.44'te hâlâ soluk hissettiriyordu; L=0.40 +
+     biraz daha chroma ile kontrast ve canlılık artar — ana renk/yapı değişmez. */
+  --muted-foreground: oklch(0.40 0.045 290);
 
   /* Champagne gold accent */
   --accent: oklch(0.80 0.09 70);
@@ -110,7 +110,7 @@
 
   /* Sidebar — warm off-white */
   --sidebar: oklch(0.975 0.006 70);
-  --sidebar-foreground: oklch(0.18 0.02 290);
+  --sidebar-foreground: oklch(0.16 0.035 290);
   --sidebar-primary: oklch(0.52 0.16 345);
   --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.94 0.02 345);
@@ -210,28 +210,79 @@
   }
 }
 
+/* ─── Blue Theme — Kurumsal, Danışmanlık, Koçluk ───────────────────── */
+.blue {
+  --primary: oklch(0.55 0.22 263);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --background: oklch(0.985 0.01 260);
+  --foreground: oklch(0.16 0.035 265);
+
+  --card: oklch(0.995 0.006 260);
+  --card-foreground: oklch(0.16 0.035 265);
+
+  --popover: oklch(0.995 0.006 260);
+  --popover-foreground: oklch(0.16 0.035 265);
+
+  --secondary: oklch(0.93 0.035 265);
+  --secondary-foreground: oklch(0.30 0.08 265);
+
+  --muted: oklch(0.95 0.015 260);
+  --muted-foreground: oklch(0.40 0.05 265);
+
+  --accent: oklch(0.91 0.045 258);
+  --accent-foreground: oklch(0.16 0.035 265);
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: oklch(0.87 0.025 262);
+  --input: oklch(0.85 0.028 262);
+  --ring: oklch(0.55 0.22 263);
+
+  --chart-1: oklch(0.55 0.22 263);
+  --chart-2: oklch(0.70 0.15 55);
+  --chart-3: oklch(0.62 0.16 230);
+  --chart-4: oklch(0.65 0.14 300);
+  --chart-5: oklch(0.60 0.12 200);
+
+  --radius: 0.75rem;
+
+  --sidebar: oklch(0.975 0.012 260);
+  --sidebar-foreground: oklch(0.16 0.035 265);
+  --sidebar-primary: oklch(0.55 0.22 263);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.91 0.045 258);
+  --sidebar-accent-foreground: oklch(0.55 0.22 263);
+  --sidebar-border: oklch(0.89 0.022 262);
+  --sidebar-ring: oklch(0.55 0.22 263);
+
+  --brand-rose: oklch(0.55 0.22 263);
+  --brand-gold: oklch(0.70 0.15 55);
+  --brand-plum: oklch(0.26 0.06 265);
+}
+
 /* ─── Ocean Theme — Klinik, Diş, Diyetisyen ────────────────────────── */
 .ocean {
   --primary: oklch(0.44 0.13 195);
   --primary-foreground: oklch(0.99 0 0);
 
   --background: oklch(0.99 0.005 210);
-  --foreground: oklch(0.14 0.025 215);
+  --foreground: oklch(0.13 0.045 215);
 
   --card: oklch(0.995 0.003 210);
-  --card-foreground: oklch(0.14 0.025 215);
+  --card-foreground: oklch(0.13 0.045 215);
 
   --popover: oklch(0.995 0.003 210);
-  --popover-foreground: oklch(0.14 0.025 215);
+  --popover-foreground: oklch(0.13 0.045 215);
 
   --secondary: oklch(0.93 0.025 210);
   --secondary-foreground: oklch(0.24 0.05 215);
 
   --muted: oklch(0.95 0.015 210);
-  --muted-foreground: oklch(0.42 0.035 210);
+  --muted-foreground: oklch(0.38 0.05 210);
 
   --accent: oklch(0.91 0.04 200);
-  --accent-foreground: oklch(0.14 0.025 215);
+  --accent-foreground: oklch(0.13 0.045 215);
 
   --destructive: oklch(0.577 0.245 27.325);
 
@@ -248,7 +299,7 @@
   --radius: 0.75rem;
 
   --sidebar: oklch(0.975 0.007 210);
-  --sidebar-foreground: oklch(0.14 0.025 215);
+  --sidebar-foreground: oklch(0.13 0.045 215);
   --sidebar-primary: oklch(0.44 0.13 195);
   --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.91 0.04 200);
@@ -267,22 +318,22 @@
   --primary-foreground: oklch(0.99 0 0);
 
   --background: oklch(0.985 0.008 140);
-  --foreground: oklch(0.15 0.025 150);
+  --foreground: oklch(0.13 0.045 150);
 
   --card: oklch(0.99 0.005 140);
-  --card-foreground: oklch(0.15 0.025 150);
+  --card-foreground: oklch(0.13 0.045 150);
 
   --popover: oklch(0.99 0.005 140);
-  --popover-foreground: oklch(0.15 0.025 150);
+  --popover-foreground: oklch(0.13 0.045 150);
 
   --secondary: oklch(0.93 0.025 145);
   --secondary-foreground: oklch(0.25 0.05 150);
 
   --muted: oklch(0.95 0.012 140);
-  --muted-foreground: oklch(0.44 0.035 145);
+  --muted-foreground: oklch(0.40 0.05 145);
 
   --accent: oklch(0.91 0.035 140);
-  --accent-foreground: oklch(0.15 0.025 150);
+  --accent-foreground: oklch(0.13 0.045 150);
 
   --destructive: oklch(0.577 0.245 27.325);
 
@@ -299,7 +350,7 @@
   --radius: 0.75rem;
 
   --sidebar: oklch(0.975 0.007 140);
-  --sidebar-foreground: oklch(0.15 0.025 150);
+  --sidebar-foreground: oklch(0.13 0.045 150);
   --sidebar-primary: oklch(0.43 0.115 150);
   --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.91 0.035 140);
@@ -318,22 +369,22 @@
   --primary-foreground: oklch(0.99 0 0);
 
   --background: oklch(0.985 0.008 60);
-  --foreground: oklch(0.15 0.025 40);
+  --foreground: oklch(0.13 0.045 40);
 
   --card: oklch(0.995 0.005 60);
-  --card-foreground: oklch(0.15 0.025 40);
+  --card-foreground: oklch(0.13 0.045 40);
 
   --popover: oklch(0.995 0.005 60);
-  --popover-foreground: oklch(0.15 0.025 40);
+  --popover-foreground: oklch(0.13 0.045 40);
 
   --secondary: oklch(0.93 0.025 55);
   --secondary-foreground: oklch(0.25 0.05 45);
 
   --muted: oklch(0.95 0.015 60);
-  --muted-foreground: oklch(0.44 0.035 45);
+  --muted-foreground: oklch(0.40 0.05 45);
 
   --accent: oklch(0.88 0.06 60);
-  --accent-foreground: oklch(0.15 0.025 40);
+  --accent-foreground: oklch(0.13 0.045 40);
 
   --destructive: oklch(0.577 0.245 27.325);
 
@@ -350,7 +401,7 @@
   --radius: 0.75rem;
 
   --sidebar: oklch(0.975 0.008 60);
-  --sidebar-foreground: oklch(0.15 0.025 40);
+  --sidebar-foreground: oklch(0.13 0.045 40);
   --sidebar-primary: oklch(0.58 0.18 40);
   --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.88 0.06 60);
