@@ -118,15 +118,18 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
   // EDİLMELİ ve onaylanmadan burada aktif olmaz. Onaylanana kadar
   // sendPurposeTemplate Meta'dan "template not found" alıp sessizce skip eder
   // (send.ts) — panel akışını kırmaz, sadece müşteriye WA gitmez.
-  // NOT: ilk deneme yanlışlıkla İngilizce dille submit edilmişti; silindi ama
-  // Meta'nın isim serbest bırakma gecikmesi yüzünden aynı isimle (Türkçe)
-  // hemen yeniden gönderilemedi — "_1" suffix'iyle gönderildi (18 Eyl). Orijinal
-  // isim saatler sonra serbest kalırsa ayrıca geri alınabilir.
+  // 22 Eyl: metaName burada "randevu_yeni_saat_onerisi_1" yazıyordu ama Meta
+  // Business Manager'daki GERÇEK API adı sonunda fazladan bir alt çizgi daha
+  // taşıyor: "randevu_yeni_saat_onerisi_1_" (Şablon istatistikleri sayfasının
+  // başlığından doğrulandı, canlı API testiyle de teyit edildi — eski adla
+  // Meta #132001 "does not exist" veriyordu, bu adla "accepted" döndü). Bu
+  // yüzden panelden "Yeni Saat Öner" tıklanınca müşteriye hiç WA gitmiyordu
+  // (Onayla/İptal Et etkilenmedi, onlar farklı şablon kullanıyor).
   oneri_sicak: {
     key: "oneri_sicak",
     purpose: "oneri",
     style: "sicak",
-    metaName: "randevu_yeni_saat_onerisi_1",
+    metaName: "randevu_yeni_saat_onerisi_1_",
     bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
     hasUrlButton: true,
   },
