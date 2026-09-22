@@ -14,6 +14,7 @@ import { AiAssistantProvider } from "@/components/dashboard/AiAssistantContext";
 import { SubscriptionLockBanner } from "@/components/dashboard/SubscriptionLockBanner";
 import { RouteTransition } from "@/components/dashboard/RouteTransition";
 import { Toaster } from "@/components/ui/sonner";
+import { LiveNotifications } from "@/components/dashboard/LiveNotifications";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 
@@ -155,6 +156,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
 
           <Toaster position="top-right" richColors />
+          <LiveNotifications orgId={org.id} />
         </div>
       </AiAssistantProvider>
      </PlanProvider>

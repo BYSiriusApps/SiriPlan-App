@@ -131,11 +131,18 @@ gönderilip birkaç hafta "duplicate/canonical" uyarısı geri gelmiyor mu izlen
 
 ---
 
-## 3. Web push bildirimleri (gerçek tarayıcı/telefon push'u)
+## 3. Web push bildirimleri (gerçek tarayıcı/telefon push'u — panel KAPALIYKEN de gelir)
 
-**Durum (18 Eyl 2026):** Planlandı, henüz başlanmadı — [[yeni-saat-oner]] özelliği
-sırasında kullanıcı "web push'u da sonra kuracağız" dedi, bu turun kapsamı dışında
-tutuldu (bkz. o özelliğin kararı: bu turda sadece mevcut Telegram+WhatsApp kanalları).
+**Durum (22 Eyl 2026):** Hâlâ başlanmadı. Bunun YERİNE aynı gün, panel AÇIKKEN
+sesli+canlı uyarı kısmı ayrı bir iş olarak TAMAMLANDI: `LiveNotifications`
+bileşeni (Supabase realtime ile `appointments`/`appointment_requests` INSERT
+dinler → `notification-sound.ts` ile iki tonlu ses çalar + `sonner` toast
+gösterir + sekme arka plandaysa `Notification` API ile OS bildirimi de dener +
+`router.refresh()` ile üstteki şeritleri/rozetleri canlı günceller). Sidebar/
+mobil menüde ses aç-kapa zil ikonu (`NotificationSoundToggle`) eklendi.
+Bu, kullanıcı panel/sekme AÇIKKEN sesi kaçırma sorununu çözer; panel tamamen
+KAPALIYKEN (uygulama arka planda/kapalı) bildirim almak hâlâ aşağıdaki gerçek
+Web Push kurulumunu gerektiriyor — bu madde o yüzden hâlâ açık.
 
 **Mevcut durum:** `public/sw.js` sadece PWA kurulabilirlik kriteri için var, `push`
 event listener'ı yok. VAPID/`web-push` paketi, `Notification`/`PushManager` kullanımı
@@ -155,14 +162,11 @@ repoda `android/` kaynak kodu yok) FCM entegrasyonu yok.
 - Test: gerçek bir cihazda (Android TWA + masaüstü Chrome) bildirim gelip
   tıklanınca doğru sayfaya (`/dashboard/bekleyen-istekler` vb.) gittiğini doğrulamak.
 
-**Asıl kaldıraç (kod dışı, değişmedi):** AI motorları çoğunlukla üçüncü taraf atıflara
-güveniyor. Yazılım dizin siteleri (Capterra, GetApp), Google Business Profile, müşteri
-referansları (AggregateRating JSON-LD için girdi), sektörel forum/topluluk mention'ları,
-karşılaştırma içerikli blog yazıları öncelikli.
-
-**İlgili dosya:** [GEO görünürlük planı (doküman)](https://claude.ai/artifact/EZ3rskRP1B2t3ArKWXA6c3),
-`src/proxy.ts`, `src/i18n/request.ts`, `src/i18n/routing.ts`, `src/i18n/navigation.ts`,
-`src/lib/i18n/resolve-locale.ts`, `src/lib/seo/alternates.ts`, `src/app/sitemap.ts`.
+**İlgili dosya (bugün tamamlanan ses/canlı kısım):** `src/components/dashboard/LiveNotifications.tsx`,
+`src/components/dashboard/NotificationSoundToggle.tsx`, `src/lib/notification-sound.ts`,
+`src/app/dashboard/layout.tsx`, `src/components/dashboard/Sidebar.tsx`,
+`src/components/dashboard/MobileSideMenu.tsx`. Gerçek Web Push kurulacağında
+`public/sw.js`, `public/manifest.json`, `src/lib/notify.ts` de buna eklenecek.
 
 ---
 
@@ -187,3 +191,78 @@ karşılaştırma içerikli blog yazıları öncelikli.
 **İlgili dosya:** [[yeni-saat-oner-reschedule-proposal-sept18]] (memory),
 `src/lib/wa-templates/registry.ts`, `src/lib/appointment-requests/approve.ts`,
 `src/app/api/public/appointment-proposal/route.ts`, `src/app/oneri/[token]/page.tsx`.
+
+---
+
+## 5. Personel/sahip WhatsApp bildirimi — güvenilir hale getirme (Meta şablon onayı bekleniyor)
+
+**Durum (22 Eyl 2026):** Kod tamam, `main`'de. Meta Business Manager'da yeni bir
+şablon submit edilip ONAYLANANA kadar devreye girmez — o ana kadar sistem eski
+davranışıyla (serbest metin, yalnızca son 24 saatte yazışılmışsa teslim olur)
+çalışmaya devam eder, hiçbir şey KIRILMADI.
+
+**Neden gerekliydi:** `notify.ts` zaten personele/sahibe (org.whatsapp_number /
+staff.whatsapp_number doluysa) WhatsApp bildirimi göndermeyi DENİYORDU ama
+`sendWhatsAppMessage` (whatsapp-notify.ts) serbest metin API'si kullanıyordu —
+Meta kuralı gereği bu yalnızca alıcı işletmenin WhatsApp numarasına SON 24 SAAT
+içinde yazmışsa teslim olur. Personel/sahip genelde kendi numarasına yazmaz,
+bu yüzden bildirim büyük ihtimalle SESSİZCE hiç gitmiyordu — müşteri şablonları
+(onay/iptal/hatırlatma, wa-templates/registry.ts) gibi 24 saat kısıtına takılmayan
+bir ŞABLON yolu yoktu.
+
+**Yapılanlar:**
+- `src/lib/wa-templates/internal-registry.ts`: personel bildirimleri için ayrı,
+  müşteri şablon sisteminden (Ayarlar sayfasındaki stil seçicilerden) bağımsız
+  bir kayıt defteri — `yeni_randevu`, `yeni_talep`, `kritik_stok` amaçları.
+  `metaName` alanları şimdilik `null` (Meta'da henüz onaylı şablon yok).
+- `src/lib/wa-templates/internal-send.ts`: `sendInternalTemplate()` — `metaName`
+  doluysa Meta'ya şablon mesajı gönderir, boşsa/başarısız olursa `false` döner.
+- `src/lib/notify.ts`: `dispatch()`/`dispatchWhatsApp()` artık önce şablonu
+  dener, o başarısız olursa (onaysız/yanıt reddi) otomatik olarak eski serbest
+  metne düşer — hiçbir çağıran taraf değişmedi, davranış yalnızca ŞABLON
+  onaylanınca iyileşir.
+- Ayarlar → Genel ve Personel detay sayfalarındaki WhatsApp numarası alanlarına
+  "yalnızca son 24 saatte yazışılmışsa teslim olur, Telegram'ı da bağlayın"
+  uyarısı eklendi (4 dilde) — kullanıcı artık neden bazen bildirim gelmediğini
+  anlayabiliyor.
+- **(22 Eyl, ikinci tur) Kanal aç-kapa kutucukları:** Kullanıcı artık her kanalı
+  (Telegram/WhatsApp) ayrı ayrı, kimliği SİLMEDEN geçici kapatabiliyor —
+  "numarayı sildirmeden bildirimi durdur" ihtiyacı. `staff.notify_channels_json`
+  (yeni migration `20260922_notify_channel_prefs.sql`, varsayılan `{}` = hepsi
+  açık) + org tarafında YENİ KOLON gerekmedi, mevcut `settings_json`'a
+  `notify_channel_telegram`/`notify_channel_whatsapp` anahtarları eklendi (aynı
+  `wa_notify_onay` deseni: anahtar yoksa/true ise açık, yalnızca `false` kapatır).
+  `notify.ts` her recipient için bu tercihi okuyup `dispatch()`'te filtreliyor.
+  UI: Personel detay sayfasında Telegram/WhatsApp inputlarının altında kutucuk;
+  Ayarlar → Entegrasyonlar'da aynısı + "Uygulama İçi Bildirim" (bu cihazın ses
+  tercihi, `lib/notification-sound.ts`) + "Telefon Bildirimi — Yakında" (devre
+  dışı, Faz 3 Web Push gelince aktifleşecek) satırları.
+
+**Kalan tek adım — Meta Business Manager'da şablon submit etmek:**
+Aşağıdaki 3 şablonu (Türkçe, "Utility" kategorisi) submit edip onaylanmasını
+beklemek, sonra `internal-registry.ts`'deki ilgili `metaName`'i doldurmak yeterli
+(başka kod değişikliği gerekmez):
+
+1. **`personel_yeni_randevu`** — {{1}} işletme adı, {{2}} müşteri adı, {{3}} hizmet,
+   {{4}} personel, {{5}} tarih, {{6}} saat:
+   > ✅ {{1}} — Yeni randevu onaylandı.
+   > Müşteri: {{2}} · Hizmet: {{3}} · Personel: {{4}}
+   > {{5}} {{6}}
+
+2. **`personel_yeni_talep`** — aynı 6 parametre:
+   > 📋 {{1}} — Yeni randevu talebi geldi, onayınızı bekliyor.
+   > Müşteri: {{2}} · Hizmet: {{3}} · Personel: {{4}}
+   > {{5}} {{6}}
+
+3. **`personel_kritik_stok`** — {{1}} işletme adı, {{2}} ürün adı, {{3}} kalan
+   miktar, {{4}} birim:
+   > ⚠️ {{1}} — Kritik stok uyarısı.
+   > {{2}}: kalan {{3}} {{4}}. Stok girişi yapmayı unutmayın.
+
+Not: Meta boş parametreyi ve satır başına 4+ ardışık boşluğu reddeder (bkz.
+`wa-templates/send.ts` içindeki (#131009) notu) — gövde metinleri submit
+edilirken bu haliyle (tek satır aralıklı) kullanılmalı.
+
+**İlgili dosya:** `src/lib/notify.ts`, `src/lib/wa-templates/internal-registry.ts`,
+`src/lib/wa-templates/internal-send.ts`, `src/app/dashboard/ayarlar/page.tsx`,
+`src/app/dashboard/personel/[id]/page.tsx`.

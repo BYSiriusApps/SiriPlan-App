@@ -1739,6 +1739,18 @@
     "waitlist": "Waitlist",
     "waitlistAndApprovals": "Waitlist / Pending Approvals",
     "pendingRequests": "Pending Requests",
+    "liveNotify": {
+      "newRequestTitle": "New Appointment Request",
+      "newRequestBodyNamed": "New appointment request from {name}.",
+      "newRequestBodyGeneric": "A new appointment request has arrived.",
+      "newPendingBodyNamed": "An appointment awaiting approval for {name}.",
+      "newPendingBodyGeneric": "A new appointment is awaiting approval."
+    },
+    "notifSound": {
+      "on": "Notification sound on",
+      "off": "Notification sound off",
+      "toggleAria": "Toggle new appointment notification sound"
+    },
     "customers": "Customers",
     "staff": "Staff",
     "services": "Services",
@@ -1760,7 +1772,7 @@
         "adisyon": "7. Adisyon & Receipt Print",
         "vitrin": "8. Web Showcase (/r/[slug])",
         "whatsapp": "9. Notification Settings",
-        "telegram": "10. Telegram Bot",
+        "telegram": "10. Notification Channels",
         "kampanya": "11. Bulk Campaigns",
         "abonelik": "12. Subscription & Plan",
         "sadakat": "13. Loyalty Points",
@@ -1792,7 +1804,8 @@
           "items": [
             { "label": "Drag & Drop Widgets:", "desc": "Click \"Personalize\" at the top right to drag and rearrange widget cards." },
             { "label": "Show / Hide Cards:", "desc": "Hide cards you don't need by clicking the eye icon, and pin your favorites." },
-            { "label": "User-Specific Memory:", "desc": "View preferences are saved for each user individually (hiding a card for staff doesn't affect admin)." }
+            { "label": "User-Specific Memory:", "desc": "View preferences are saved for each user individually (hiding a card for staff doesn't affect admin)." },
+            { "label": "Colour Theme:", "desc": "Pick a colour theme that fits your business from the palette icon at the bottom of the sidebar — Rose Pink, Classic Blue, Ocean Blue, Nature Green, Night Mode, Sunset Orange, and Midnight Purple. Your choice is remembered on this device." }
           ]
         },
         "hizmetler": {
@@ -1852,12 +1865,15 @@
           ]
         },
         "telegram": {
-          "title": "10. Telegram Notification Bot Setup (@siriplan_bot)",
-          "intro": "Receive instant free notifications on your phone for new appointment requests:",
+          "title": "10. Staff Notification Channels (Telegram, WhatsApp, In-App)",
+          "intro": "When a new appointment or request comes in, you and your staff can be notified through several channels at once:",
           "steps": [
             "Search @siriplan_bot in Telegram, open the bot, and click \"Start\".",
             "Copy the numeric Chat ID provided by the bot.",
-            "Paste it in the \"Telegram Chat ID\" field in Settings → Notifications on your SiriPlan panel."
+            "Paste it in the \"Telegram Chat ID\" field in Settings → Notifications on your SiriPlan panel.",
+            "For WhatsApp notifications, fill in the \"WhatsApp Number\" field in Settings (business-wide) or Staff → [name]. Note: per Meta's rules it only delivers if this number has messaged your business within the last 24 hours — connect Telegram too so you never miss one.",
+            "While the panel is open (desktop or phone), a sound and notification fire automatically for new appointments/requests; toggle the sound from the bell icon in the sidebar/menu.",
+            "Choose which channels you want to be notified on using the checkboxes in Settings → Integrations or the Staff detail page — every channel starts on, turn off any you don't want."
           ]
         },
         "kampanya": {
@@ -2249,6 +2265,8 @@
       "ends": "End",
       "notifTitle": "Notification Channels",
       "notifDesc": "Automated booking notifications are sent through each filled channel.",
+      "notifWaHint": "Per Meta's rules, WhatsApp notifications only deliver if this number has messaged your business within the last 24 hours. Fill in the Telegram Chat ID too for notifications that always arrive.",
+      "notifChannelActive": "Receive notifications on this channel",
       "workDays": "Working Days",
       "save": "Save",
       "servicesTitle": "Services Offered",
@@ -2587,6 +2605,7 @@
       "socialHandlePlaceholder": "yoursalon",
       "socialIconHint": "If website mode is on, it appears as an icon on your booking page.",
       "whatsappNumberLabel": "WhatsApp Number (shown to customers)",
+      "whatsappNumberNotifyHint": "New appointment notifications are also sent to this number. Per Meta's rules, WhatsApp notifications only deliver if this number has messaged your business within the last 24 hours — connect Telegram too (Settings → Notifications) so you never miss one.",
       "whatsappBusinessLabel": "WhatsApp Business",
       "whatsappBusinessHintPre": "For integration, contact the",
       "supportTeamLink": "support team",
@@ -2597,6 +2616,11 @@
       "telegramStep1": "Search @siriplan_bot in the Telegram app, open the bot and press 'Start'.",
       "telegramStep2": "The bot will send you a Chat ID number.",
       "telegramStep3": "Paste that number above and save — you'll now get a notification for every appointment.",
+      "notifyChannelActive": "Receive notifications on this channel",
+      "otherChannelsTitle": "Other Notification Channels",
+      "otherChannelsDesc": "All channels start on; turn off any you don't want.",
+      "inAppChannelLabel": "In-App Notification (sound, this device)",
+      "webPushChannelLabel": "Phone Notification — Coming soon",
       "autoMessageDesc": "These are the texts you send manually from your own WhatsApp when the 'Send WhatsApp message to customer' box is checked on the appointment screens (New Appointment / Quick Appointment) and via the 'Send Manual Message' button in appointment details. Date and time are filled in automatically for each appointment.",
       "autoMessageWarning": "This channel is NOT connected to Meta — the message opens in the WhatsApp on your own phone and you send it, so you can edit the text however you like. It is a different channel from the Meta automatic messages in the \"WhatsApp Notification Settings\" section below — if both are on, the customer may receive the same information twice, so keeping one off is recommended. If you turn Meta automatic messages off entirely, this manual channel becomes your only notification method.",
       "tabOnay": "Appointment Confirmation",
