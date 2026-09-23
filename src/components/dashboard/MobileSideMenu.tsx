@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { LanguagePicker } from "@/components/layout/LanguagePicker";
 import { ThemePicker } from "@/components/layout/ThemePicker";
 import { LogoutButtonMobile } from "@/components/dashboard/LogoutButton";
+import { NotificationSoundToggle } from "@/components/dashboard/NotificationSoundToggle";
 import { useAiAssistant } from "@/components/dashboard/AiAssistantContext";
 import { cn } from "@/lib/utils";
 import {
@@ -171,6 +172,7 @@ export function MobileSideMenu({ role, orgSlug, plan, pendingWorkCount = 0 }: Pr
           {/* Dil / tema / çıkış */}
           <div className="flex items-center justify-between pt-3 border-t border-border">
             <LanguagePicker variant="muted" />
+            <NotificationSoundToggle />
             <ThemePicker />
             <LogoutButtonMobile />
           </div>

@@ -108,6 +108,8 @@ export interface Staff {
   commission_rate: number;
   base_salary: number;
   display_order: number;
+  /** { telegram?: boolean; whatsapp?: boolean } — anahtar yoksa (veya obje boşsa) kanal AÇIK sayılır. */
+  notify_channels_json?: Record<string, boolean> | null;
   created_at: string;
 }
 
@@ -175,8 +177,18 @@ export interface Customer {
   marketing_consent_at: string | null;
   online_booking_blocked: boolean;
   preferred_language: string | null;
+  custom_fields: Record<string, string | number>;
   created_at: string;
   updated_at: string;
+}
+
+export interface CustomerMetric {
+  id: string;
+  metric_key: string;
+  value: number;
+  note: string | null;
+  recorded_at: string;
+  created_at: string;
 }
 
 export interface Appointment {

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell, ShieldCheck, Activity, CalendarX, Trash2 } from "lucide-react";
 import type { StaffTimeOff } from "@/types/database";
@@ -43,6 +44,7 @@ interface StaffData {
   avatar_url?: string | null;
   telegram_chat_id?: string | null;
   whatsapp_number?: string | null;
+  notify_channels_json?: { telegram?: boolean; whatsapp?: boolean } | null;
   preferred_language?: string | null;
   color?: string | null;
   staff_services?: StaffService[];
@@ -191,6 +193,8 @@ export default function PersonelDetayPage() {
     working_days: [] as number[],
     telegram_chat_id: "",
     whatsapp_number: "",
+    notify_telegram: true,
+    notify_whatsapp: true,
     preferred_language: "",
     color: "",
   });
@@ -213,6 +217,8 @@ export default function PersonelDetayPage() {
           working_days: s.working_days || [],
           telegram_chat_id: s.telegram_chat_id || "",
           whatsapp_number: s.whatsapp_number || "",
+          notify_telegram: s.notify_channels_json?.telegram !== false,
+          notify_whatsapp: s.notify_channels_json?.whatsapp !== false,
           preferred_language: s.preferred_language || "",
           color: s.color || "",
         });
@@ -243,6 +249,7 @@ export default function PersonelDetayPage() {
         base_salary: parseFloat(form.base_salary) || 0,
         telegram_chat_id: form.telegram_chat_id || null,
         whatsapp_number: form.whatsapp_number || null,
+        notify_channels_json: { telegram: form.notify_telegram, whatsapp: form.notify_whatsapp },
         preferred_language: form.preferred_language || null,
         color: form.color || null,
       }),
@@ -452,6 +459,15 @@ export default function PersonelDetayPage() {
                     onChange={(e) => setForm((f) => ({ ...f, telegram_chat_id: e.target.value }))}
                     placeholder="123456789"
                   />
+                  {form.telegram_chat_id ? (
+                    <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer pt-0.5">
+                      <Checkbox
+                        checked={form.notify_telegram}
+                        onCheckedChange={(c) => setForm((f) => ({ ...f, notify_telegram: !!c }))}
+                      />
+                      {tStr("notifChannelActive")}
+                    </label>
+                  ) : null}
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs text-muted-foreground">WhatsApp Numarası</Label>
@@ -461,8 +477,20 @@ export default function PersonelDetayPage() {
                     onChange={(e) => setForm((f) => ({ ...f, whatsapp_number: e.target.value }))}
                     placeholder="905xxxxxxxxx"
                   />
+                  {form.whatsapp_number ? (
+                    <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer pt-0.5">
+                      <Checkbox
+                        checked={form.notify_whatsapp}
+                        onCheckedChange={(c) => setForm((f) => ({ ...f, notify_whatsapp: !!c }))}
+                      />
+                      {tStr("notifChannelActive")}
+                    </label>
+                  ) : null}
                 </div>
               </div>
+              {form.whatsapp_number ? (
+                <p className="text-[11px] text-muted-foreground">{tStr("notifWaHint")}</p>
+              ) : null}
             </div>
 
             <div className="space-y-2">

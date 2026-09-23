@@ -1739,6 +1739,18 @@
     "waitlist": "Bekleme Listesi",
     "waitlistAndApprovals": "Bekleme Listesi / Onay Bekleyenler",
     "pendingRequests": "Bekleyen İstekler",
+    "liveNotify": {
+      "newRequestTitle": "Yeni Randevu Talebi",
+      "newRequestBodyNamed": "{name} adlı müşteriden yeni bir randevu talebi geldi.",
+      "newRequestBodyGeneric": "Yeni bir randevu talebi geldi.",
+      "newPendingBodyNamed": "{name} için onay bekleyen bir randevu var.",
+      "newPendingBodyGeneric": "Onay bekleyen yeni bir randevu var."
+    },
+    "notifSound": {
+      "on": "Bildirim sesi açık",
+      "off": "Bildirim sesi kapalı",
+      "toggleAria": "Yeni randevu bildirim sesini aç/kapat"
+    },
     "customers": "Müşteriler",
     "staff": "Personel",
     "services": "Hizmetler",
@@ -1760,7 +1772,7 @@
         "adisyon": "7. Adisyon & Fiş Yazma",
         "vitrin": "8. Web Vitrini (/r/[slug])",
         "whatsapp": "9. Bildirim Ayarları",
-        "telegram": "10. Telegram Botu",
+        "telegram": "10. Bildirim Kanalları",
         "kampanya": "11. Toplu Kampanyalar",
         "abonelik": "12. Abonelik & Plan",
         "sadakat": "13. Sadakat Puanları",
@@ -1792,7 +1804,8 @@
           "items": [
             { "label": "Widget'ları Sürükle-Bırak:", "desc": "Sağ üstteki \"Kişiselleştir\" butonuna basarak widget kartlarının yerlerini sürükleyip değiştirebilirsiniz." },
             { "label": "Kartları Göster / Gizle:", "desc": "İhtiyacınız olmayan kartları göz ikonuna basarak gizleyebilir, sık kullandıklarınızı ön plana çıkarabilirsiniz." },
-            { "label": "Kişiye Özel Hafıza:", "desc": "Yapılan görünüm tercihleri her kullanıcının kendi hesabına özel kaydedilir (bir uzmanın gizlediği kart yöneticinin ekranını etkilemez)." }
+            { "label": "Kişiye Özel Hafıza:", "desc": "Yapılan görünüm tercihleri her kullanıcının kendi hesabına özel kaydedilir (bir uzmanın gizlediği kart yöneticinin ekranını etkilemez)." },
+            { "label": "Renk Teması Seçimi:", "desc": "Sidebar'ın alt kısmındaki palet ikonundan işletmenize uygun bir renk teması seçin — Pembe Rose, Klasik Mavi, Okyanus Mavisi, Doğa Yeşili, Gece Modu, Turuncu Gün Batımı ve Gece Yarısı Mor arasından. Tercihiniz bu cihazda hatırlanır." }
           ]
         },
         "hizmetler": {
@@ -1852,12 +1865,15 @@
           ]
         },
         "telegram": {
-          "title": "10. Telegram Bildirim Botu (@siriplan_bot Kurulumu)",
-          "intro": "Yeni randevu taleplerinde telefonunuza anında ücretsiz bildirim almak için:",
+          "title": "10. Personel Bildirim Kanalları (Telegram, WhatsApp, Uygulama İçi)",
+          "intro": "Yeni randevu/talep geldiğinde siz ve personeliniz birden fazla kanaldan aynı anda haberdar olabilir:",
           "steps": [
             "Telegram uygulamasında arama kısmına @siriplan_bot yazın, botu açıp \"Başlat / Start\" butonuna basın.",
             "Botun size verdiği sayısal Chat ID numarasını kopyalayın.",
-            "SiriPlan panelinde Ayarlar → Bildirimler alanındaki \"Telegram Chat ID\" kutusuna yapıştırıp kaydedin."
+            "SiriPlan panelinde Ayarlar → Bildirimler alanındaki \"Telegram Chat ID\" kutusuna yapıştırıp kaydedin.",
+            "WhatsApp bildirimi için Ayarlar (salon geneli) veya Personel → [isim] sayfasındaki \"WhatsApp Numarası\" alanını doldurun. Not: Meta kuralı gereği yalnızca bu numaradan işletmenize son 24 saat içinde yazılmışsa iletilir — hiç kaçırmamak için Telegram'ı da bağlayın.",
+            "Panel açıkken (bilgisayar veya telefon fark etmez) yeni randevu/talep geldiğinde otomatik sesli uyarı ve bildirim çalar; sesi Sidebar/menüdeki zil ikonundan açıp kapatabilirsiniz.",
+            "Hangi kanaldan bildirim almak istediğinizi Ayarlar → Entegrasyonlar veya Personel detay sayfasındaki kutucuklarla seçin — hepsi başta açık gelir, istemediğinizi kapatabilirsiniz."
           ]
         },
         "kampanya": {
@@ -2249,6 +2265,8 @@
       "ends": "Bitiş",
       "notifTitle": "Bildirim Kanalları",
       "notifDesc": "Doldurulan her kanaldan otomatik randevu bildirimi gönderilir.",
+      "notifWaHint": "WhatsApp bildirimi, Meta kuralı gereği yalnızca bu numaradan işletmenize son 24 saat içinde yazılmışsa teslim olur. Her zaman ulaşan bildirim için Telegram Chat ID'yi de doldurun.",
+      "notifChannelActive": "Bu kanaldan bildirim al",
       "workDays": "Çalışma Günleri",
       "save": "Kaydet",
       "servicesTitle": "Sunulan Hizmetler",
@@ -2587,6 +2605,7 @@
       "socialHandlePlaceholder": "salonadınız",
       "socialIconHint": "Website modu açıksa randevu sayfanızda ikon olarak gösterilir.",
       "whatsappNumberLabel": "WhatsApp Numarası (Müşterilere gösterilecek)",
+      "whatsappNumberNotifyHint": "Bu numara yeni randevu bildirimlerinin de gönderileceği hedeftir. Meta kuralı gereği WhatsApp bildirimi yalnızca bu numaradan işletmenize son 24 saat içinde yazılmışsa teslim olur — hiç kaçırmamak için Telegram'ı da bağlayın (Ayarlar → Bildirimler).",
       "whatsappBusinessLabel": "WhatsApp Business",
       "whatsappBusinessHintPre": "Entegrasyon için",
       "supportTeamLink": "destek ekibi",
@@ -2597,6 +2616,11 @@
       "telegramStep1": "Telegram uygulamasında aramaya @siriplan_bot yazın, botu açıp 'Başlat / Start' düğmesine basın.",
       "telegramStep2": "Bot size bir Chat ID numarası gönderecek.",
       "telegramStep3": "Bu numarayı yukarıya yapıştırıp kaydedin — artık her randevuda bildirim alırsınız.",
+      "notifyChannelActive": "Bu kanaldan bildirim al",
+      "otherChannelsTitle": "Diğer Bildirim Kanalları",
+      "otherChannelsDesc": "Hepsi başta açık gelir; istemediğiniz kanalı kapatabilirsiniz.",
+      "inAppChannelLabel": "Uygulama İçi Bildirim (sesli, bu cihazda)",
+      "webPushChannelLabel": "Telefon Bildirimi — Yakında",
       "autoMessageDesc": "Randevu ekranlarındaki (Yeni Randevu / Hızlı Randevu) 'Müşteriye WhatsApp mesajı gönder' kutusu işaretlendiğinde ve randevu detayındaki 'Manuel Mesaj Gönder' butonunda kendi WhatsApp'ınızdan elle gönderdiğiniz metinler bunlardır. Tarih ve saat her randevuda otomatik doldurulur.",
       "autoMessageWarning": "Bu kanal Meta'ya bağlı DEĞİLDİR — mesaj kendi telefonunuzdaki WhatsApp'tan açılır, siz gönderirsiniz; bu yüzden metni dilediğiniz gibi düzenleyebilirsiniz. Aşağıdaki \"WhatsApp Bildirim Ayarları\" bölümündeki Meta otomatik mesajlardan farklı bir kanaldır — ikisi birlikte açıksa müşteri aynı bilgiyi iki kez alabilir, birini kapalı tutmanız önerilir. Meta otomatik mesajlarını tamamen kapatırsanız, bu manuel kanal devreye alacağınız tek bildirim yolu olur.",
       "tabOnay": "Randevu Onay",

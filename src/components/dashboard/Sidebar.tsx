@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { ThemePicker } from "@/components/layout/ThemePicker";
 import { LanguagePicker } from "@/components/layout/LanguagePicker";
 import { LogoutButton } from "@/components/dashboard/LogoutButton";
+import { NotificationSoundToggle } from "@/components/dashboard/NotificationSoundToggle";
 import { GlobalSearch } from "@/components/dashboard/GlobalSearch";
 import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
 import { hasPermission } from "@/lib/permissions";
@@ -221,6 +222,7 @@ export function Sidebar({
                     "قانوني وحقوق النشر"}</span>
           </button>
           <div className="flex items-center gap-1">
+            <NotificationSoundToggle />
             <LanguagePicker />
             <ThemePicker />
           </div>
