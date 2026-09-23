@@ -9,7 +9,7 @@ import { detectBot, BOT_REJECTION_MESSAGE } from "@/lib/bot-guard";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR } from "@/lib/tax-number";
 
 const VALID_BUSINESS_TYPES = new Set([
-  "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik",
+  "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik","pet_kuafor",
 ]);
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
