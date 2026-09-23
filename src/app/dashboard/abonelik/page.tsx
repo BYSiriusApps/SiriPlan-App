@@ -10,6 +10,7 @@ import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, Calend
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { ManageBillingButton } from "@/components/dashboard/ManageBillingButton";
 import { CancelSubscriptionButton } from "@/components/dashboard/CancelSubscriptionButton";
+import { UpgradeToProButton } from "@/components/dashboard/UpgradeToProButton";
 import Link from "next/link";
 
 const SUPPORT_EMAIL = "info@bysirius.com";
@@ -173,7 +174,13 @@ export default async function AbonelikPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {org.plan === "trial" || org.plan === "starter" ? (
+          {org.plan === "starter" && org.stripe_subscription_id ? (
+            // Zaten ödeyen bir abone: /auth/plan-sec'e (yeni Checkout Session
+            // açar) DEĞİL, mevcut aboneliği güncelleyen change-plan akışına
+            // gider — aksi halde yıllık ödeyen biri ikinci bir abonelik daha
+            // satın alıp çift ücretlendirilirdi (bkz. change-plan/route.ts).
+            <UpgradeToProButton label={t("dashboard.subscriptionPage.upgradeToPro")} />
+          ) : org.plan === "trial" || org.plan === "starter" ? (
             <Link
               href="/auth/plan-sec"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"

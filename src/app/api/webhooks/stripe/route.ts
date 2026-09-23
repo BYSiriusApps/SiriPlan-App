@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStripe, PLANS, type PlanKey } from "@/lib/stripe/config";
+import { getStripe, type PlanKey } from "@/lib/stripe/config";
+import { applyPlanToOrg, planFromPriceId } from "@/lib/stripe/apply-plan";
 
 export const dynamic = "force-dynamic";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -20,22 +21,6 @@ async function writeAuditLog(orgId: string, action: string, meta: Record<string,
     // audit log failure must not block the main flow
     console.error("[audit] Failed to write audit log:", action, orgId);
   }
-}
-
-async function applyPlanToOrg(orgId: string, plan: PlanKey | "trial") {
-  const supabase = await createAdminClient();
-  if (plan === "trial") {
-    await supabase.from("organizations").update({ plan: "trial", subscription_status: "active" }).eq("id", orgId);
-    return;
-  }
-  const planConfig = PLANS[plan];
-  await supabase.from("organizations").update({
-    plan,
-    subscription_status: "active",
-    max_staff: planConfig.max_staff,
-    max_appointments_monthly: planConfig.max_appointments_monthly,
-    ...planConfig.features,
-  }).eq("id", orgId);
 }
 
 export async function POST(req: NextRequest) {
@@ -77,11 +62,20 @@ export async function POST(req: NextRequest) {
         .eq("stripe_customer_id", sub.customer as string)
         .single();
       if (org) {
-        const plan = sub.metadata?.plan as PlanKey;
-        if (plan) await applyPlanToOrg(org.id, plan);
-        await supabase.from("organizations").update({
-          subscription_status: sub.status,
-        }).eq("id", org.id);
+        // metadata.plan öncelikli (biz kendi endpoint'lerimizde her zaman
+        // yazıyoruz); bulunamazsa fiyat ID'sinden tespit edilir — Stripe
+        // Müşteri Portalı'ndan yapılan bir plan değişikliği bizim custom
+        // metadata alanımızı yazmaz, bu yedek olmadan DB Stripe'tan sessizce
+        // sapardı.
+        const priceId = sub.items?.data?.[0]?.price?.id;
+        const plan = (sub.metadata?.plan as PlanKey | undefined) || planFromPriceId(priceId);
+        if (plan) {
+          await applyPlanToOrg(org.id, plan, sub.status);
+        } else {
+          await supabase.from("organizations").update({
+            subscription_status: sub.status,
+          }).eq("id", org.id);
+        }
         await writeAuditLog(org.id, "subscription.updated", { plan, status: sub.status, event: event.id });
       }
       break;

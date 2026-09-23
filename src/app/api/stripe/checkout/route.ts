@@ -44,8 +44,30 @@ export async function POST(req: NextRequest) {
 
   if (!member) return NextResponse.json({ error: "No organization" }, { status: 404 });
 
-  type OrgJoin = { stripe_customer_id?: string; name: string; email?: string; trial_ends_at?: string | null };
+  type OrgJoin = {
+    stripe_customer_id?: string;
+    name: string;
+    email?: string;
+    trial_ends_at?: string | null;
+    stripe_subscription_id?: string | null;
+    subscription_status?: string;
+  };
   const org = (member as unknown as { org_id: string; organizations: OrgJoin }).organizations;
+
+  // Zaten aktif (iptal edilmemiş) bir aboneliği olan bir org burada YENİ bir
+  // Checkout Session/subscription açarsa, eski abonelik Stripe'ta arka planda
+  // çalışmaya devam eder ve kullanıcı iki kez ücretlendirilir. Mevcut abone
+  // plan değiştirmek için /api/stripe/change-plan'ı kullanmalı (aynı
+  // aboneliğin fiyat kalemini günceller, ikinci bir ödeme açmaz).
+  if (org.stripe_subscription_id && org.subscription_status !== "canceled") {
+    return NextResponse.json(
+      {
+        error: "Zaten aktif bir aboneliğiniz var. Plan değiştirmek için abonelik sayfasını kullanın.",
+        code: "ALREADY_SUBSCRIBED",
+      },
+      { status: 409 }
+    );
+  }
 
   // Deneme süresi yalnızca bir defa verilir: org kayıt sırasında zaten kendi
   // ücretsiz denemesini almıştır (trial_ends_at dolu). Stripe'ta ikinci bir

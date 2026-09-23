@@ -266,3 +266,86 @@ edilirken bu haliyle (tek satır aralıklı) kullanılmalı.
 **İlgili dosya:** `src/lib/notify.ts`, `src/lib/wa-templates/internal-registry.ts`,
 `src/lib/wa-templates/internal-send.ts`, `src/app/dashboard/ayarlar/page.tsx`,
 `src/app/dashboard/personel/[id]/page.tsx`.
+
+---
+
+## 6. Yasal metinler / künye — gözden geçirilecek kalan kalemler
+
+**Durum (23 Eyl 2026):** `feat/legal-hardening-site-audit` **main'e merge + deploy edildi**
+(merge commit `1f8f04b`, 8 Eyl 2026 — bkz. [[legal-compliance-posture]]). PR'ın kendi GitHub
+linkleri (`pull/new/...`, `compare/main...feat/...`) artık boş görünür çünkü dal main'in
+ATASI durumunda — bu normal, "merge edilmemiş" anlamına gelmez.
+
+Merge ile eklenenler: Kullanım Koşulları'na garanti reddi/üçüncü taraf/AI/mücbir sebep/
+tazminat/iade maddeleri, gizlilik+KVKK'da alt-işleyen kategorileri + yurt dışı aktarım
+açıklaması, footer künyesi (Companies House No. 17142392 + 🇬🇧), "Çerez ayarları" linki,
+`/guvenlik` + `/.well-known/security.txt`, sadeleştirilmiş `public/llms.txt`.
+
+**Bilinçli eklenmeyip AÇIK bırakılanlar** (danışman + entity kararı gerektirdiği için):
+
+1. **Kayıtlı tam sokak adresi** — footer'da yalnızca "İngiltere ve Galler'de kayıtlı ·
+   Companies House No. 17142392" var, açık adres yok (kullanıcıda da yoktu).
+2. **`/iletisim` sayfası hâlâ "Türkiye" diyor**, footer ise UK diyor — tutarsızlık sürüyor.
+   Şirketin fiilen Türkiye'den yönetilmesinden doğan vergi ikameti/entity kararı (bkz.
+   uyum listesi "ST" bölümü) netleşmeden bilinçli olarak dokunulmadı.
+3. **bysirius.com (ayrı repo)** — çerez rıza bandı ve Çerez Politikası sayfası hâlâ yok.
+   Bu repodaki PR kapsamı dışında, o kod tabanında elle yapılmalı.
+4. **Müşteri DPA (Veri İşleme Sözleşmesi) linki** — işletme müşterilerine sunulacak ayrı
+   sözleşme hâlâ eklenmedi.
+5. **AB Erişilebilirlik beyanı** sayfası hâlâ yok.
+6. **Tam GDPR/UK GDPR hak bölümleri, CCPA, AB temsilcisi (Art. 27) beyanı** — hukuk
+   danışmanı olmadan bilinçli eklenmedi (yanlış/eksik metin yeni yükümlülük doğurabilir).
+7. **Kullanıcı eklenen garanti reddi / tazminat maddelerini fiilen okuyup onaylamadı** —
+   danışmansız yayınlandığı için ilk fırsatta gözden geçirilmeli.
+
+**Takip listesi (canlı, işaretlenebilir):**
+https://claude.ai/code/artifact/9ca22e6c-44d4-4d44-8f5d-ea73b1baebbd — yukarıdaki kalemler
+bölüm 11 (Web Sitesi Uyum Denetimi) ve ST bölümünde "Yapılacak" olarak duruyor.
+
+---
+
+## 7. Plan yükseltme (mevcut abone) — Stripe TEST MODU'nda uçtan uca doğrulama bekliyor
+
+**Durum (23 Eyl 2026): kod yazıldı, `tsc --noEmit` temiz, ama Stripe'a karşı hiç
+çalıştırılmadı.** Yıllık Starter ödeyen bir kullanıcı Pro'ya "Yükselt" derse eskiden
+ikinci bir Checkout Session açılıp **çift ücretlendirme** oluyordu (kullanıcı bunu fark
+edip sordu). Düzeltme: mevcut aboneliği `stripe.subscriptions.update(...)` ile
+prorasyonla güncelleyen yeni bir uç eklendi.
+
+**Değişen/eklenen dosyalar:**
+- `src/app/api/stripe/change-plan/route.ts` (yeni) — mevcut aboneliğin fiyat kalemini
+  günceller, `proration_behavior: "always_invoice"` + `payment_behavior:
+  "error_if_incomplete"` (ödeme başarısızsa plan değişmez).
+- `src/app/api/stripe/checkout/route.ts` — zaten aktif aboneliği olan org için 409
+  (çift abonelik açılmasının API seviyesinde önlenmesi).
+- `src/app/api/webhooks/stripe/route.ts` — plan tespiti artık `metadata.plan`
+  bulunamazsa Stripe fiyat ID'sinden de yapılabiliyor (`planFromPriceId`).
+- `src/lib/stripe/apply-plan.ts` (yeni, webhook + change-plan ortak mantığı).
+- `src/components/dashboard/UpgradeToProButton.tsx` (yeni) + `abonelik/page.tsx`.
+
+**⚠️ Kritik ön koşul — test ASLA canlı Stripe'a karşı yapılmamalı:**
+Yerel `.env.local` şu an **`sk_live_...` (canlı) Stripe anahtarı ve canlı Price ID'lerle**
+yapılandırılmış, ayrıca `NEXT_PUBLIC_SUPABASE_URL` de gerçek/canlı Supabase projesine
+işaret ediyor (ayrı bir staging ortamı yok — proje zaten "demo test hesapları" ile canlı
+DB üzerinde test ediyor, bkz. [[demo-test-accounts]]). Bu yüzden change-plan akışı
+**olduğu gibi** yerelde denenirse gerçek bir abonelik güncellenir/faturalanır.
+
+**Güvenli test adımları (henüz yapılmadı):**
+1. Stripe Dashboard'da "Test mode"a geç → Developers → API keys'den `sk_test_...`
+   anahtarını al.
+2. Test modunda Starter/Pro/Business için aylık+yıllık Price'ları oluştur (test modu
+   Price ID'leri canlıdakilerden tamamen farklı ve izole — test modunda oluşturulan
+   hiçbir kayıt canlı veriye dokunmaz).
+3. Yerelde **yalnızca** `STRIPE_SECRET_KEY` + 6 `STRIPE_PRICE_*` değişkenini geçici
+   olarak test değerleriyle değiştir (Vercel'deki canlı env'e dokunulmaz, tamamen ayrı).
+4. `stripe listen --forward-to localhost:3000/api/webhooks/stripe` çalıştır → verdiği
+   test `whsec_...`'i de geçici olarak `STRIPE_WEBHOOK_SECRET`'e yaz.
+5. "Sirius Demo Salon" test org'unu (bkz. [[demo-test-accounts]]) kullanarak: önce
+   `/auth/plan-sec`'ten test kartıyla (4242 4242 4242 4242) yıllık Starter satın al,
+   sonra `/dashboard/abonelik`'ten "Pro'ya Yükselt"e bas → Stripe test panelinde TEK
+   aboneliğin güncellendiğini, prorasyon faturasının doğru tutarda kesildiğini, DB'de
+   `organizations.plan`'ın "pro" olduğunu doğrula.
+6. Test bitince `.env.local`'i canlı değerlere geri al (git'e hiçbiri zaten girmiyor).
+
+**Tetikleyici:** kullanıcı test modu anahtarlarını oluşturduğunda / test için uygun
+zaman bulduğunda devam edilecek.
