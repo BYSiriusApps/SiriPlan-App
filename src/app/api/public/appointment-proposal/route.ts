@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
     const result = await approveAppointmentRequest(supabase, row.org_id, fullReq as AppointmentRequestRow, {
       appointmentAtOverride: row.proposed_appointment_at,
     });
-    if ("error" in result) return NextResponse.json({ error: result.error }, { status: 500 });
+    if ("error" in result) return NextResponse.json({ error: result.error }, { status: result.status ?? 500 });
 
     notifyProposalResponse({
       org_id: row.org_id,

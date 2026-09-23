@@ -28,7 +28,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Randevu durumu butonları:\n" +
       "• Bekliyor — online'dan talep edildi veya yeni oluşturuldu, henüz onaylanmadı.\n" +
       "• Onayla / Onaylandı — randevu kesinleşti, takvime düştü.\n" +
-      "• Tamamlandı — hizmet verildi; bu adımda ödeme yöntemi/bahşiş girilir ve Gelir-Gider'e otomatik işlenir.\n" +
+      "• Tamamlandı — hizmet verildi; bu adımda ödeme yöntemi/bahşiş girilir ve Gelir-Gider'e otomatik işlenir. Bir randevu Tamamlandı olarak işaretlenmediği sürece Gelir-Gider hesaplamalarına hiç dahil edilmez.\n" +
       "• Gelmedi — müşteri randevusuna gelmedi (no-show), müşteri skorunu düşürür.\n" +
       "• İptal Et — randevu iptal edilir, ayarlarınıza göre müşteriye otomatik iptal bildirimi gider.\n" +
       "Durumu, randevu detay sayfasındaki veya liste görünümündeki hızlı işlem butonlarından değiştirebilirsiniz.",
@@ -224,7 +224,8 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["gider", "gelir", "kasa"],
     answer:
-      "Gelir-Gider sayfasından randevu gelirlerinin yanı sıra kira, malzeme, fatura gibi manuel kalemleri işleyerek kasa durumunuzu takip edebilirsiniz.",
+      "Gelir-Gider sayfasından randevu gelirlerinin yanı sıra kira, malzeme, fatura gibi manuel kalemleri işleyerek kasa durumunuzu takip edebilirsiniz. " +
+      "Önemli: bir randevunun geliri kasaya yalnızca \"Tamamlandı\" olarak işaretlendiğinde yansır — Bekliyor/Onaylandı durumundaki randevular Gelir-Gider hesaplamalarında yer almaz.",
   },
   {
     keywords: ["excel", "csv", "içe aktar", "dışa aktar", "veri göçü", "import", "export"],

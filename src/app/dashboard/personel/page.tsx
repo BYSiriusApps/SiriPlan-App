@@ -93,10 +93,10 @@ export default async function PersonelPage() {
           </p>
         </div>
         {(m.role === "owner" || !!member.permissions_json?.manage_staff) && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-stretch gap-2">
             <Link
               href="/dashboard/personel/maas-hesaplama"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-accent transition-colors"
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-accent transition-colors"
             >
               <Wallet className="h-4 w-4" />
               {t("staffPage.salaryCalc")}
@@ -108,7 +108,7 @@ export default async function PersonelPage() {
             {m.role === "owner" && (staff?.length || 0) < maxStaff && (
               <Link
                 href="/dashboard/personel/yeni"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
               >
                 {t("staffPage.addStaff")}
               </Link>

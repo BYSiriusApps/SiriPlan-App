@@ -89,7 +89,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   // müşterinin /oneri/[token] üzerinden kabul etmesiyle AYNI mantığı kullanır)
   const result = await approveAppointmentRequest(supabase, member.org_id, reqRow);
   if ("error" in result) {
-    return NextResponse.json({ error: result.error }, { status: 500 });
+    return NextResponse.json({ error: result.error }, { status: result.status ?? 500 });
   }
 
   return NextResponse.json({ status: "approved", appointment: result.appointment }, { status: 201 });
