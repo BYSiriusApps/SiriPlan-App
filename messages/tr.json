@@ -33,6 +33,7 @@
   "hero": {
     "badge": "10+ Sektörde Güvenilen Randevu Platformu",
     "title": "İşletmenizi <highlight>Akıllıca</highlight> Yönetin",
+    "intro": "SiriPlan; kuaför, berber, güzellik salonu, spa ve klinik gibi hizmet işletmeleri için randevu, personel, müşteri ve ödeme süreçlerini tek panelden yöneten AI destekli randevu ve işletme yönetim yazılımıdır.",
     "subtitle": "Randevu, personel, müşteri ve ciro yönetimini tek platformda birleştirin. AI asistanı ile WhatsApp/Instagram'dan otomatik yanıt verin.",
     "subtitleHighlight": "Her sektöre özel — sınırsız randevu, sıfır karmaşa.",
     "cta": "14 Gün Ücretsiz Deneyin",
@@ -1054,6 +1055,7 @@
     "ipCopyright": "Fikri Mülkiyet & AI Telif Hakları"
   },
   "home": {
+    "breadcrumbLabel": "Ana Sayfa",
     "trust": {
       "ssl": "SSL Şifreli",
       "uptime": "%99.9 Uptime Garantisi",

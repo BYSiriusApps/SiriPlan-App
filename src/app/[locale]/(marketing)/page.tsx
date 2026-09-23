@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import {
@@ -9,9 +9,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getVisitorPricing } from "@/lib/pricing";
-import { buildAlternates } from "@/lib/seo/alternates";
+import { buildAlternates, localizedUrl } from "@/lib/seo/alternates";
+import type { Locale } from "@/lib/i18n/resolve-locale";
 import { AppStoreBadges } from "@/components/marketing/AppStoreBadges";
 import { PricingCards } from "@/components/marketing/PricingCards";
 import { AddonsSection } from "@/components/marketing/AddonsSection";
@@ -21,8 +22,23 @@ const DEMO_ENABLED = false;
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { alternates: await buildAlternates("/") };
+export async function generateMetadata(
+  _props: unknown,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const alternates = await buildAlternates("/");
+  // root layout'taki openGraph tüm alanları (title/description/image) taşır;
+  // sayfa seviyesinde openGraph set etmek Next.js'te TÜMÜNÜ replace eder
+  // (bkz. node_modules/next/dist/docs/.../generate-metadata.md#merging), bu
+  // yüzden sadece url'i canonical ile eşleştirip gerisini parent'tan devralıyoruz.
+  const parentOpenGraph = (await parent).openGraph;
+  return {
+    alternates,
+    openGraph: {
+      ...parentOpenGraph,
+      url: alternates.canonical,
+    },
+  };
 }
 
 const FEATURE_META = [
@@ -76,7 +92,21 @@ const testimonials = [
 
 export default async function HomePage() {
   const t = await getTranslations();
+  const locale = (await getLocale()) as Locale;
   const pricing = getVisitorPricing(await headers());
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: t("home.breadcrumbLabel"),
+        item: localizedUrl("/", locale),
+      },
+    ],
+  };
 
   const stats = [
     { value: "100+",   label: t("stats.businesses")  },
@@ -96,6 +126,10 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
 
       {/* Hero */}
       <section className="relative overflow-hidden py-20 md:py-32">
@@ -113,6 +147,10 @@ export default async function HomePage() {
               ),
             })}
           </h1>
+
+          <p className="text-lg md:text-xl text-muted-foreground mb-3 max-w-2xl mx-auto leading-relaxed">
+            {t("hero.intro")}
+          </p>
 
           <p className="text-lg md:text-xl text-muted-foreground mb-3 max-w-2xl mx-auto leading-relaxed">
             {t("hero.subtitle")}
