@@ -415,6 +415,36 @@ const SECTORS = [
     },
   },
   {
+    // Aynı Pet Kuaför paneli, farklı kapak fotoğrafı (kedi + köpek birlikte) —
+    // sadece Instagram post (1080x1080) üretilir, bkz. onlyPost + TARGETS filtresi.
+    slug: "petkuafor-kedikopek",
+    theme: "sage",
+    onlyPost: true,
+    photo: "petkuafor-kedikopek",
+    post: {
+      eyebrow: "EVCİL DOST CRM",
+      headline: ["Dostunu Tanı,", "Bakımını Kolaylaştır."],
+      subtitle: "Tür, cins, aşı ve tüy hassasiyetiyle her dostuna özel bakım sun.",
+      screenType: "crm",
+      screenTitle: "Evcil Dostlar",
+      screenSubtitle: "34 kayıt · 12 aktif bakım",
+      customers: [
+        {
+          initial: "L", name: "Luna", phone: "0533 210 44 87",
+          cols: [{ label: "Tür", value: "Köpek" }, { label: "Cins", value: "Golden Retriever" }, { label: "Kilo", value: "28 kg" }],
+          footer: "Son Aşı: 12 Ağu 2026 · Sahibi: Zeynep Kaya",
+          badge: { label: "Sadık Müşteri", color: "green" },
+        },
+        {
+          initial: "Z", name: "Zorro", phone: "0544 902 17 35",
+          cols: [{ label: "Tür", value: "Köpek" }, { label: "Cins", value: "Poodle" }, { label: "Kilo", value: "6 kg" }],
+          footer: "Not: Hassas cilt, nazik şampuan · Sahibi: Mert Doğan",
+          badge: { label: "Hassas Tüy/Cilt", color: "amber" },
+        },
+      ],
+    },
+  },
+  {
     slug: "disklinigi",
     theme: "ocean",
     salonName: "Sirius Demo\nDiş Kliniği",
@@ -833,7 +863,8 @@ for (const sector of SECTORS) {
   OUT_DIR = path.join(DOCS_ROOT, `sektorler-${sector.theme}`);
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  for (const t of TARGETS) {
+  const targets = sector.onlyPost ? TARGETS.filter((t) => t.variant === "post") : TARGETS;
+  for (const t of targets) {
     const page = await browser.newPage({ viewport: { width: t.w, height: t.h } });
     await page.setContent(pageHTML(t.variant, sector), { waitUntil: "networkidle" });
     await page.evaluate(() => document.fonts.ready).catch(() => {});
