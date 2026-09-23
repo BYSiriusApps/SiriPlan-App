@@ -780,6 +780,31 @@ export default function YeniRandevuPage() {
                 <div className="space-y-2">
                   <Label>Hizmetler *</Label>
 
+                  {/* Hızlı hizmet butonları: en sık kullanılan (favori) veya ilk
+                      birkaç hizmete tek dokunuşla ekleme — arama kutusunu hiç
+                      açmadan. Yalnızca henüz hizmet seçilmemişken görünür,
+                      seçildikten sonra normal arama akışına geçilir. Mobilde
+                      metinlerin üst üste binmemesi için yatay kaydırmalı satır. */}
+                  {selectedServices.length === 0 && sortedServices.length > 0 && (
+                    <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-0.5 px-0.5">
+                      {sortedServices.slice(0, 4).map((svc) => {
+                        const isFav = favorites.includes(svc.id);
+                        return (
+                          <button
+                            key={svc.id}
+                            type="button"
+                            onClick={() => selectService(svc)}
+                            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-input bg-background hover:bg-accent text-xs whitespace-nowrap transition-colors"
+                          >
+                            {isFav && <Star className="h-3 w-3 text-amber-500 fill-amber-500 shrink-0" />}
+                            <span className="font-medium">{svc.name}</span>
+                            <span className="text-muted-foreground">₺{Number(svc.price).toLocaleString("tr-TR")}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   {/* Selected services */}
                   {selectedServices.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 p-2 bg-muted/50 rounded-lg">
