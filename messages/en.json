@@ -33,6 +33,7 @@
   "hero": {
     "badge": "Trusted by 10+ Sectors",
     "title": "Manage Your Business <highlight>Smartly</highlight>",
+    "intro": "SiriPlan is an AI-powered appointment and business management software that lets service businesses — hairdressers, barbers, beauty salons, spas and clinics — manage bookings, staff, customers and payments from a single dashboard.",
     "subtitle": "Combine appointment, staff, customer and revenue management in one platform. Auto-reply via WhatsApp/Instagram with AI assistant.",
     "subtitleHighlight": "Tailored for every sector — unlimited appointments, zero complexity.",
     "cta": "Try Free for 14 Days",
@@ -1054,6 +1055,7 @@
     "ipCopyright": "Intellectual Property & AI Copyright"
   },
   "home": {
+    "breadcrumbLabel": "Home",
     "trust": {
       "ssl": "SSL Encrypted",
       "uptime": "99.9% Uptime Guarantee",
