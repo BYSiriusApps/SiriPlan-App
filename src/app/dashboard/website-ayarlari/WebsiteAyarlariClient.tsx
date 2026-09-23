@@ -28,6 +28,18 @@ import type { Organization, Service, ServiceCategory } from "@/types/database";
 import { formatServicePrice } from "@/lib/currency";
 
 const NO_CATEGORY = "__none__";
+
+// Görsel-sonuç-odaklı sektörlerde hizmet kategorisi galerisi için sektöre
+// özel bir yönlendirme metni — özellik zaten her sektörde çalışıyor, burada
+// yalnızca doğru sektörlerde fark edilir kılınıyor (uydurma yeni bir özellik
+// DEĞİL, mevcut category-gallery altyapısının sektöre göre vurgulanması).
+const GALLERY_HINT_BY_SECTOR: Record<string, string> = {
+  tattoo: "Dövme Galerisi: Her hizmet kategorisine (örn. \"Realistic\", \"Minimal\") en iyi işlerinizin fotoğrafını ekleyin — müşteriler randevu almadan önce tarzınızı görsün.",
+  makyaj: "Çalışmalarınızın fotoğraflarını ilgili hizmet kategorisine ekleyin — gelin/davetli makyajı örnekleriniz randevu sayfanızda görünsün.",
+  estetik: "Uygulama örneklerinizi hizmet kategorisine fotoğraf olarak ekleyebilirsiniz (müşteri onayı olmadan tanınabilir yüz fotoğrafı eklemeyin).",
+  nail: "Tırnak tasarımlarınızın fotoğraflarını ilgili hizmet kategorisine ekleyin — vitrin niyetine kullanılabilir.",
+  guzellik: "Salon çalışmalarınızın fotoğraflarını ilgili hizmet kategorisine ekleyerek müşterilere önizleme sunabilirsiniz.",
+};
 const MAX_CATEGORY_PHOTOS = 20;
 
 function SectionCard({
@@ -714,6 +726,13 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
                 </div>
               );
             })}
+
+            {org.type && GALLERY_HINT_BY_SECTOR[org.type] && (
+              <div className="p-2.5 rounded-lg border border-primary/20 bg-primary/5 text-xs text-foreground/80 flex items-start gap-2">
+                <Images className="h-3.5 w-3.5 shrink-0 mt-0.5 text-primary" />
+                <span>{GALLERY_HINT_BY_SECTOR[org.type]}</span>
+              </div>
+            )}
 
             {sortedCategories.map((cat) => {
               const photos = [...(cat.service_category_photos ?? [])].sort((a, b) => a.display_order - b.display_order);

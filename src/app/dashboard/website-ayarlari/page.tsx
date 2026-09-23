@@ -23,7 +23,7 @@ export default async function WebsiteAyarlariPage() {
   // eksik kolon isteyen select tüm satırı düşürür ve ayar sayfası boş açılırdı.
   // Yeni kolonlar ayrı denenir, yoksa sessizce eski liste ile devam edilir.
   const ORG_COLUMNS =
-    "id, slug, feature_website, website_enabled, website_palette, google_review_url, website_tagline, address, location_url, logo_url, cover_url";
+    "id, slug, type, feature_website, website_enabled, website_palette, google_review_url, website_tagline, address, location_url, logo_url, cover_url";
 
   let { data: org } = await supabase
     .from("organizations")
