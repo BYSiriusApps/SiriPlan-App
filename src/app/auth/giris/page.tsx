@@ -15,12 +15,13 @@ import { useIsMobileApp } from "@/lib/use-mobile-app";
 const DEMO_ENABLED = false;
 
 export default function GirisPage() {
-  // Native uygulamada (App Store/Play Store) kayıt akışı UYGULAMA İÇİNDE
-  // yoktur: /auth/kayit proxy.ts'teki route kilidiyle engelli, çünkü kayıt
-  // akışının sonu plan seçimi/ödemedir (App Store 3.1.1). Bu yüzden aşağıda
-  // isMobileApp ise normal <Link> yerine target="_blank" ile harici tarayıcı
-  // sekmesine yönlendiren bir bağlantı gösterilir — salon sahibi hesabını
-  // tarayıcıda açar, uygulamayı mevcut hesabıyla kullanır.
+  // Native uygulamada (App Store/Play Store) yalnızca "giriş ekranı" olmalı:
+  // kayıt akışı UYGULAMA İÇİNDE yoktur (/auth/kayit proxy.ts'teki route
+  // kilidiyle zaten engelli, çünkü kayıt akışının sonu plan seçimi/ödemedir —
+  // App Store 3.1.1). Önceden Android'de harici tarayıcıya açılan bir "kayıt
+  // ol" bağlantısı gösteriliyordu; mağaza incelemesinde risk teşkil ettiği
+  // için hem Android hem iOS'ta bağlantı TAMAMEN kaldırıldı — mobil uygulamada
+  // kayıt/ödeme akışına giden hiçbir buton veya link bulunmuyor.
   const isMobileApp = useIsMobileApp();
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
@@ -180,26 +181,7 @@ export default function GirisPage() {
           </Button>
         </form>
 
-        {isMobileApp ? (
-          // /auth/kayit proxy.ts'teki MOBILE_APP_ALLOWED_PREFIXES dışında (bkz.
-          // yukarıdaki not) — TWA/WKWebView içinde açılırsa /dashboard'a geri
-          // atılır. target="_blank" ile TWA'nın desteklemediği yeni sekme
-          // isteği tetiklenip gezinme gerçek Chrome sekmesine/harici tarayıcıya
-          // devrediliyor; ?sp_app=0 ile o sekmede çerez kavanozundan sızmış
-          // olabilecek sp_app cookie'si temizlenip sayfanın normal web gibi
-          // yüklenmesi sağlanıyor (bkz. mobile-app-shared.ts'teki kaçış kapısı).
-          <p className="text-center text-sm text-muted-foreground">
-            Hesabınız yok mu?{" "}
-            <a
-              href="https://siriplan.com/auth/kayit?sp_app=0"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary font-medium hover:underline"
-            >
-              Tarayıcıda ücretsiz kayıt olun
-            </a>
-          </p>
-        ) : (
+        {isMobileApp ? null : (
           <p className="text-center text-sm text-muted-foreground">
             Hesabınız yok mu?{" "}
             <Link href="/auth/kayit" className="text-primary font-medium hover:underline">

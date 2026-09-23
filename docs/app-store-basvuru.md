@@ -129,10 +129,12 @@ Bu adımların çoğu kendi Apple/GitHub/Codemagic hesaplarınla ilgili olduğu 
 (Codemagic kullanılıyorsa bu adım otomatik; cloud Mac/ödünç Mac ile manuel yapılıyorsa:)
 
 1. PWABuilder zip'ini aç, `.xcodeproj` dosyasını Xcode ile aç.
-2. **Signing & Capabilities** sekmesinde Apple ID ile giriş yap, Team seç, **"Automatically manage signing"** işaretle (Xcode sertifika + provisioning profili kendisi oluşturur, manuel işlem gerekmez).
-3. Üstteki cihaz seçiciden **"Any iOS Device (arm64)"** seç.
-4. **Product → Archive**.
-5. Archive tamamlanınca açılan **Organizer** penceresinde **Distribute App → App Store Connect → Upload**.
+2. **⚠️ ZORUNLU — User-Agent işaretçisi:** WKWebView'ın `customUserAgent` / `applicationNameForUserAgent` değerine **`SiriPlanApp`** ekle (bkz. `src/lib/mobile-app-shared.ts` → `MOBILE_APP_UA_MARKER`). Bu atlanırsa `proxy.ts`'teki `isMobileAppRequest()` iOS'ta "native uygulama içindeyim" sinyalini hiç alamaz (Android'deki `android-app://` referer'ının iOS karşılığı yok) — kayıt/ödeme/pazarlama sayfalarının native'de engellenmesi (route kilidi) ve panel bileşenlerindeki mobil-özel gizlemeler (bkz. `useIsMobileApp()`) tamamen devre dışı kalır. PWABuilder'ın iOS şablonunda bu genelde `AppDelegate.swift` veya `WebViewController.swift` içindeki WKWebView kurulum kodunda tek satırlık bir ekleme.
+3. **Signing & Capabilities** sekmesinde Apple ID ile giriş yap, Team seç, **"Automatically manage signing"** işaretle (Xcode sertifika + provisioning profili kendisi oluşturur, manuel işlem gerekmez).
+4. Üstteki cihaz seçiciden **"Any iOS Device (arm64)"** seç.
+5. **Product → Archive**.
+6. Archive tamamlanınca açılan **Organizer** penceresinde **Distribute App → App Store Connect → Upload**.
+7. Yüklemeden sonra TestFlight'ta gerçek cihazda doğrula: **Giriş ekranında "Hesabınız yok mu?" satırı hiç görünmemeli** — bu artık hem Android hem iOS için geçerli (aşağıdaki not).
 
 ---
 
@@ -156,6 +158,16 @@ Play Store metinleri doğrudan taban alınabilir (`docs/play-store-basvuru.md` �
 - **Ekran görüntüleri — HAZIR:** `docs/app-store/screenshots/` altında 10 adet, **1320×2868** (Apple'ın 2026'da zorunlu tuttuğu tek boyut: 6.9" iPhone — App Store Connect bu tek boyuttan diğer tüm cihazlara otomatik ölçekliyor, ayrı boyut seti gerekmiyor). Kaynak: `docs/sosyal-medya/2026-09-app-tanitim-gorselleri/playstore/` (1080×1920 Play Store promosyon görselleri) → `scripts/app-store-screenshots.mjs` (sharp) ile genişlik 1320'ye orantılı ölçeklenip yükseklik kenar-renk pad'iyle 2868'e tamamlandı (dikişsiz, fotoğraf/metin bozulmadı). Yeniden üretmek gerekirse: `node scripts/app-store-screenshots.mjs`.
 - **İkon:** `public/icons/icon-store-1024x1024.png` (mevcut, hazır).
 - Not: App Store'un Play Store'daki "feature graphic" (1024×500) karşılığı yok — bu görsel Apple tarafında kullanılmıyor, atlanabilir.
+
+---
+
+### ⚠️ 2026-09-22 — Bulunan risk / 2026-09-23 kesin çözüm: giriş ekranındaki "Kayıt Ol" bağlantısı
+
+Android sürümünde giriş ekranına (`src/app/auth/giris/page.tsx`) sonradan eklenen "Tarayıcıda ücretsiz kayıt olun" bağlantısı, tıklanınca `target="_blank"` ile harici tarayıcıda `siriplan.com/auth/kayit`'i açıyordu — o akış plan seçimi/ödemeyle bitiyor. Bu, Google Play'de tek başına sorun değildi (Android TWA harici tarayıcıya çıkmayı destekliyor, Play bu tür B2B harici bağlantılara Apple kadar katı değil), **ama Apple'da sorun**: Guideline 3.1.1 yalnızca uygulama içi satın alma akışını değil, satın almaya yönlendiren **"external links"i de** kapsıyor. İlk müdahalede (2026-09-22) yalnızca iOS'ta gizleyen bir `useIsIOSApp()` ayrımı eklenmişti.
+
+**2026-09-23 — kapsam genişletildi:** Native uygulama yalnızca "giriş + panel" olmalı kararı netleşince bu ayrım kaldırıldı; bağlantı artık `useIsMobileApp()` ile **hem Android hem iOS'ta** tamamen gizli — mobil uygulamada kayıt/ödemeye giden hiçbir buton veya link yok. `useIsIOSApp()` fonksiyonu bu tek kullanım yeri kalktığı için `use-mobile-app.ts`'ten silindi.
+
+**Not:** Adım 4, madde 2'deki `SiriPlanApp` User-Agent işaretçisi bu spesifik bağlantıdan bağımsız olarak hâlâ zorunlu — `proxy.ts`'in iOS'ta "native uygulama içindeyim" sinyalini alabilmesinin TEK yolu bu (bkz. yukarıdaki not).
 
 ---
 
@@ -238,7 +250,7 @@ App Store Connect'te build seçilip tüm alanlar (metadata, gizlilik, yaş derec
 
 - [ ] Adım 0 — Apple ID / iCloud şifresi kurtarıldı
 - [x] Adım 1 — Developer Program başvurusu onaylandı (2026-09-18) — kalan: yıllık ücret ($99) ödemesi
-- [ ] Adım 2 — PWABuilder iOS paketi indirildi
+- [x] Adım 2 — PWABuilder iOS paketi indirildi (2026-09-23)
 - [ ] Adım 3 — Codemagic kurulumu (repo + App Store Connect API Key + workflow) — bkz. "Codemagic — sırada ne var"
 - [ ] Adım 4 — Codemagic ilk build + App Store Connect'e (TestFlight) yükleme
 - [ ] Adım 5 — App Store Connect'te uygulama kaydı açıldı

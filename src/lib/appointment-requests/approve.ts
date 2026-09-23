@@ -35,7 +35,7 @@ export async function approveAppointmentRequest(
   orgId: string,
   reqRow: AppointmentRequestRow,
   opts?: { appointmentAtOverride?: string }
-): Promise<{ appointment: Record<string, unknown> } | { error: string }> {
+): Promise<{ appointment: Record<string, unknown> } | { error: string; status?: number }> {
   const effectiveAt = opts?.appointmentAtOverride ?? reqRow.appointment_at;
 
   const { data: service } = await supabase
@@ -97,7 +97,13 @@ export async function approveAppointmentRequest(
     .select("*")
     .single();
 
-  if (apptErr) return { error: apptErr.message };
+  if (apptErr) {
+    const pgErr = apptErr as { code?: string; message?: string };
+    if (pgErr.code === "23P01") {
+      return { error: "Bu saatte personelin başka bir randevusu var. Lütfen farklı bir saat seçin veya çakışan randevuyu düzenleyin.", status: 409 };
+    }
+    return { error: apptErr.message, status: 500 };
+  }
 
   await supabase
     .from("appointment_requests")

@@ -57,6 +57,7 @@ Standart widget'lar: Active Appointments, Daily Calendar, WhatsApp Assistant, Ca
   - **Tarih Bazında**: Günü (`day`), Haftayı (`week`), Ayı (`month`) seçerek görünüm ayarlanabilir.
   - **Personel Bazında**: Personel filtresi veya "Personel Görünümü" (`staff`) ile uzmanlar yan yana sütunlar halinde kıyaslanabilir. Personel rolündeki kullanıcılar yalnızca kendi takvimini görebilir.
 - **Randevu Durumları**: Bekliyor, Onaylandı, Tamamlandı, İptal, Gelmedi (No-Show).
+- **Önemli**: Bir randevunun geliri Gelir-Gider tablosuna yalnızca "Tamamlandı" olarak işaretlendiğinde yansır; Bekliyor/Onaylandı durumundaki randevular Gelir-Gider hesaplamalarında yer almaz.
 
 ## 5. Adisyon Oluşturma & Fiş Dökümü
 
@@ -104,6 +105,7 @@ Günlük/dönemsel ciro, gider, randevu sayısı ve personel/hizmet bazlı perfo
 ## 13. Gelir-Gider & Maaş Hesaplama
 
 - Manuel gelir ve gider kayıtları tutulur.
+- Randevu gelirleri kasaya yalnızca randevu "Tamamlandı" olarak işaretlendiğinde yansır — hizmet verilip "Tamamlandı" işaretlenmeyen randevular Gelir-Gider hesaplamalarına hiç dahil edilmez.
 - **Maaş Hesapla**: Taban Maaş + (Ciro × Komisyon %) + Bahşiş formülü ile tek tıkla gider olarak kaydedilir.
 - **KDV Hesaplama**: Ayarlar → KDV Hesaplama'dan oranınızı girip özelliği açabilirsiniz (yeni işletmelerde varsayılan olarak açıktır). Yasal oran değiştiğinde aynı ekrandan güncellenir — sabit kodlanmış bir oran kullanılmaz. Açıkken "Tahmini KDV" kartı hem bu sayfada hem de Raporlar'da, o ayki gelirin KDV dahil olduğu varsayılarak hesaplanır.
 

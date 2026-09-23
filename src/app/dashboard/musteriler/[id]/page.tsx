@@ -21,6 +21,7 @@ import { hasProTools } from "@/lib/entitlements";
 import CustomerPackages from "./CustomerPackages";
 import CustomerCustomFields from "./CustomerCustomFields";
 import CustomerMetrics from "./CustomerMetrics";
+import CustomerBeforeAfterPhotos from "./CustomerBeforeAfterPhotos";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800";
@@ -276,6 +277,7 @@ export default async function MusteriDetailPage({
         customFields={c.custom_fields ?? {}}
       />
       <CustomerMetrics customerId={c.id} businessType={businessType} />
+      <CustomerBeforeAfterPhotos customerId={c.id} businessType={businessType} />
 
       {/* Paketler / seans takibi */}
       <CustomerPackages
