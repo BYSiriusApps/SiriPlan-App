@@ -25,26 +25,31 @@ export const runtime = "nodejs";
  * gönderdiği yol asla kullanılmaz (çapraz-kiracı yazım engeli).
  */
 
-type Kind = "logo" | "cover" | "category" | "category-gallery" | "service";
+type Kind = "logo" | "cover" | "category" | "category-gallery" | "service" | "customer-photo";
 
-const KIND_CONFIG: Record<Kind, { bucket: string; maxDim: number; needsId: boolean }> = {
+const KIND_CONFIG: Record<Kind, { bucket: string; maxDim: number; needsId: boolean; private?: boolean }> = {
   logo: { bucket: "org-logos", maxDim: 1024, needsId: false },
   cover: { bucket: "org-logos", maxDim: 1920, needsId: false },
   category: { bucket: "service-photos", maxDim: 1024, needsId: true },
   "category-gallery": { bucket: "service-photos", maxDim: 1600, needsId: true },
   service: { bucket: "service-photos", maxDim: 1024, needsId: true },
+  // Müşteri önce/sonra fotoğrafları — KVKK kapsamında hassas veri, bucket
+  // herkese açık DEĞİL (bkz. 20260923_customer_before_after_photos.sql).
+  // needsId=customer id, photoId=çift kimliği, slot=before|after.
+  "customer-photo": { bucket: "customer-photos", maxDim: 1600, needsId: true, private: true },
 };
 
 const MAX_INPUT_BYTES = 15 * 1024 * 1024;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function buildPath(kind: Kind, orgId: string, id: string | null, photoId: string | null): string {
+function buildPath(kind: Kind, orgId: string, id: string | null, photoId: string | null, slot: string | null): string {
   switch (kind) {
     case "logo": return `${orgId}/logo.webp`;
     case "cover": return `${orgId}/cover.webp`;
     case "category": return `${orgId}/categories/${id}.webp`;
     case "category-gallery": return `${orgId}/categories/${id}/${photoId}.webp`;
     case "service": return `${orgId}/services/${id}.webp`;
+    case "customer-photo": return `${orgId}/customers/${id}/${photoId}-${slot}.webp`;
   }
 }
 
@@ -74,11 +79,15 @@ export async function POST(req: NextRequest) {
 
   const id = form.get("id") ? String(form.get("id")) : null;
   const photoId = form.get("photoId") ? String(form.get("photoId")) : null;
+  const slot = form.get("slot") ? String(form.get("slot")) : null;
 
   if (config.needsId && (!id || !UUID_RE.test(id))) {
     return NextResponse.json({ error: "Geçersiz kayıt kimliği" }, { status: 400 });
   }
   if (kind === "category-gallery" && (!photoId || !UUID_RE.test(photoId))) {
+    return NextResponse.json({ error: "Geçersiz fotoğraf kimliği" }, { status: 400 });
+  }
+  if (kind === "customer-photo" && (!photoId || !UUID_RE.test(photoId) || (slot !== "before" && slot !== "after"))) {
     return NextResponse.json({ error: "Geçersiz fotoğraf kimliği" }, { status: 400 });
   }
 
@@ -121,7 +130,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 3) Yazım: service_role ile, yol oturumdaki org'a sabitlenmiş.
-  const path = buildPath(kind, member.org_id, id, photoId);
+  const path = buildPath(kind, member.org_id, id, photoId, slot);
   const admin = await createAdminClient();
   const { error: upErr } = await admin.storage
     .from(config.bucket)
@@ -129,6 +138,12 @@ export async function POST(req: NextRequest) {
 
   if (upErr) {
     return NextResponse.json({ error: "Yükleme başarısız: " + upErr.message }, { status: 502 });
+  }
+
+  // Private bucket'larda (müşteri fotoğrafları) herkese açık URL yok — DB'ye
+  // kalıcı `path` yazılır, görüntüleme anında kısa ömürlü imzalı URL üretilir.
+  if (config.private) {
+    return NextResponse.json({ path });
   }
 
   const { data: pub } = admin.storage.from(config.bucket).getPublicUrl(path);

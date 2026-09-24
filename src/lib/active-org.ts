@@ -10,6 +10,7 @@ export interface ActiveOrgInfo {
   id: string;
   name: string;
   slug?: string;
+  type?: string | null;
   plan: string;
   subscription_status: string;
   trial_ends_at?: string | null;
@@ -24,6 +25,10 @@ export interface ActiveOrgInfo {
   timezone?: string | null;
   settings_json?: Record<string, unknown> | null;
   onboarding_tour_completed_at?: string | null;
+  kdv_enabled?: boolean | null;
+  kdv_rate?: number | null;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
 }
 
 export interface ActiveMember {
@@ -44,7 +49,7 @@ const MEMBER_SELECT =
   // `timezone` ve `settings_json` burada seçiliyor ki takvim/randevular/ana sayfa aynı bilgi için
   // ayrıca `organizations.select("timezone, settings_json")` sorgusu atmasın — o sorgu, veriye
   // ihtiyaç duyan her sayfada zincire fazladan bir seri gidiş-dönüş ekliyordu.
-  "org_id, role, staff_id, permissions_json, organizations(id, name, slug, plan, subscription_status, trial_ends_at, max_staff, max_appointments_monthly, feature_ai, feature_campaigns, feature_gamification, feature_api, feature_whitelabel, feature_website, timezone, settings_json)";
+  "org_id, role, staff_id, permissions_json, organizations(id, name, slug, type, plan, subscription_status, trial_ends_at, max_staff, max_appointments_monthly, feature_ai, feature_campaigns, feature_gamification, feature_api, feature_whitelabel, feature_website, timezone, settings_json, kdv_enabled, kdv_rate, stripe_customer_id, stripe_subscription_id)";
 
 /**
  * Kullanıcının org_members satırları — İSTEK BAŞINA TEK SORGU.

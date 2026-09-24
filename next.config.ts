@@ -25,16 +25,17 @@ const securityHeaders = [
 // Permissions-Policy yola göre değişir, bu yüzden securityHeaders'tan ayrı:
 //  - Varsayılan (pazarlama, /r/[slug] müşteri sayfaları, API): mikrofon TAMAMEN
 //    kapalı. Bu yüzeylerin hiçbiri getUserMedia çağırmıyor.
-//  - Yalnızca /dashboard/*: mikrofon=(self) — sesli randevu (Web Speech API /
-//    getUserMedia) sadece kendi origin'imizde çalışabilsin. Cross-origin iframe'ler
+//  - Yalnızca /dashboard/*: mikrofon=(self) + kamera=(self) — sesli randevu
+//    (Web Speech API / getUserMedia) ve barkodla stok satışı (kamera + barkod
+//    tarama) sadece kendi origin'imizde çalışabilsin. Cross-origin iframe'ler
 //    yine erişemez ve tarayıcı izin penceresi yine kullanıcıya sorar.
-// NOT: `microphone=()` genel değerken tarayıcı getUserMedia'yı sessizce
-// reddediyor, izin penceresi HİÇ açılmıyor ve site Chrome mikrofon ayarları
-// listesinde bile görünmüyordu (bkz. 28 Ağu düzeltmesi).
+// NOT: `microphone=()` / `camera=()` genel değerken tarayıcı getUserMedia'yı
+// sessizce reddediyor, izin penceresi HİÇ açılmıyor ve site Chrome ayarları
+// listesinde bile görünmüyordu (bkz. 28 Ağu mikrofon düzeltmesi — kamera aynı).
 const PERMISSIONS_POLICY_DEFAULT =
   "camera=(), microphone=(), geolocation=(), interest-cohort=()";
 const PERMISSIONS_POLICY_DASHBOARD =
-  "camera=(), microphone=(self), geolocation=(), interest-cohort=()";
+  "camera=(self), microphone=(self), geolocation=(), interest-cohort=()";
 
 const nextConfig: NextConfig = {
   typescript: {
@@ -64,6 +65,20 @@ const nextConfig: NextConfig = {
   // pakete dahil ediyoruz.
   outputFileTracingIncludes: {
     "/api/docs/presentation": ["./docs/kullanim-kilavuzu-sunum.html"],
+  },
+  // www.siriplan.com apex'e yönlendirilmeden aynı içeriği 200 ile sunuyordu —
+  // canonical etiketi de hiçbir sayfada yoktu, yani Google iki barındırılan
+  // kopya arasında hangisinin asıl olduğuna dair sinyal alamıyordu (GSC
+  // indeksleme sorununun kök nedeni). apex'i tek gerçek köken yapıyoruz.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.siriplan.com" }],
+        destination: "https://siriplan.com/:path*",
+        permanent: true,
+      },
+    ];
   },
   async headers() {
     return [

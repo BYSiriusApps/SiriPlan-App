@@ -10,11 +10,13 @@ import { Button } from "@/components/ui/button";
 import { LanguagePicker } from "@/components/layout/LanguagePicker";
 import { ThemePicker } from "@/components/layout/ThemePicker";
 import { LogoutButtonMobile } from "@/components/dashboard/LogoutButton";
+import { NotificationSoundToggle } from "@/components/dashboard/NotificationSoundToggle";
 import { useAiAssistant } from "@/components/dashboard/AiAssistantContext";
 import { cn } from "@/lib/utils";
+import { hasPermission } from "@/lib/permissions";
 import {
   Menu, Bot, Link2, Copy, Check, MessageCircle,
-  UserCog, Scissors, ListPlus, Megaphone, Globe, BarChart3, Wallet, Import, CreditCard, Inbox, Package,
+  UserCog, Scissors, ListPlus, Megaphone, Globe, BarChart3, Wallet, Import, CreditCard, Inbox, Package, Ticket,
   Calendar, BookOpen, Users, HelpCircle, CircleUser,
 } from "lucide-react";
 
@@ -24,13 +26,14 @@ const SECONDARY_NAV = [
   { href: "/dashboard/takvim", icon: Calendar, tKey: "calendar", minRole: "staff" },
   { href: "/dashboard/randevular", icon: BookOpen, tKey: "appointments", minRole: "staff" },
   { href: "/dashboard/musteriler", icon: Users, tKey: "customers", minRole: "staff" },
-  { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff", planRequired: "business" },
+  { href: "/dashboard/paketler", icon: Ticket, tKey: "packages", minRole: "staff" },
+  { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff" },
   { href: "/dashboard/personel", icon: UserCog, tKey: "staff", minRole: "manager" },
   { href: "/dashboard/hizmetler", icon: Scissors, tKey: "services", minRole: "staff" },
   { href: "/dashboard/bekleme-listesi", icon: ListPlus, tKey: "waitlistAndApprovals", minRole: "staff" },
-  { href: "/dashboard/kampanyalar", icon: Megaphone, tKey: "campaigns", minRole: "manager" },
+  { href: "/dashboard/kampanyalar", icon: Megaphone, tKey: "campaigns", minRole: "staff" },
   { href: "/dashboard/website-ayarlari", icon: Globe, tKey: "websiteSettings", minRole: "manager" },
-  { href: "/dashboard/raporlar", icon: BarChart3, tKey: "reports", minRole: "manager" },
+  { href: "/dashboard/raporlar", icon: BarChart3, tKey: "reports", minRole: "staff" },
   { href: "/dashboard/gelir-gider", icon: Wallet, tKey: "income", minRole: "manager" },
   { href: "/dashboard/stok", icon: Package, tKey: "stock", minRole: "staff" },
   { href: "/dashboard/veri-gocu", icon: Import, tKey: "dataMigration", minRole: "manager" },
@@ -41,11 +44,13 @@ const SECONDARY_NAV = [
 
 interface Props {
   role: string;
+  permissionsJson?: Record<string, boolean> | null;
   orgSlug?: string;
   plan?: string;
+  pendingWorkCount?: number;
 }
 
-export function MobileSideMenu({ role, orgSlug, plan }: Props) {
+export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan, pendingWorkCount = 0 }: Props) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
   const { setOpen: setAssistantOpen } = useAiAssistant();
@@ -53,9 +58,12 @@ export function MobileSideMenu({ role, orgSlug, plan }: Props) {
   const [copied, setCopied] = useState(false);
 
   const userRank = ROLE_RANK[role] ?? 0;
-  const visibleItems = SECONDARY_NAV.filter((item) =>
-    userRank >= (ROLE_RANK[item.minRole] ?? 0) && (!("planRequired" in item) || item.planRequired === plan)
-  );
+  const visibleItems = SECONDARY_NAV.filter((item) => {
+    if (item.href === "/dashboard/gelir-gider") {
+      return hasPermission({ role, permissions_json: permissionsJson }, "view_financials");
+    }
+    return userRank >= (ROLE_RANK[item.minRole] ?? 0) && (!("planRequired" in item) || item.planRequired === plan);
+  });
 
   const bookingLink = orgSlug
     ? `${process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com"}/r/${orgSlug}`
@@ -87,7 +95,14 @@ export function MobileSideMenu({ role, orgSlug, plan }: Props) {
           aria-label="Menü"
         />
       }>
-        <Menu className="h-5 w-5" />
+        <span className="relative">
+          <Menu className="h-5 w-5" />
+          {pendingWorkCount > 0 && (
+            <span className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] px-0.5 flex items-center justify-center rounded-full text-[9px] font-bold bg-rose-500 text-white">
+              {pendingWorkCount > 99 ? "99+" : pendingWorkCount}
+            </span>
+          )}
+        </span>
         <span>Menü</span>
       </SheetTrigger>
 
@@ -148,7 +163,12 @@ export function MobileSideMenu({ role, orgSlug, plan }: Props) {
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  {t(item.tKey)}
+                  <span className="flex-1 truncate">{t(item.tKey)}</span>
+                  {item.href === "/dashboard/bekleyen-istekler" && pendingWorkCount > 0 && (
+                    <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-rose-500 text-white shrink-0">
+                      {pendingWorkCount > 99 ? "99+" : pendingWorkCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -157,6 +177,7 @@ export function MobileSideMenu({ role, orgSlug, plan }: Props) {
           {/* Dil / tema / çıkış */}
           <div className="flex items-center justify-between pt-3 border-t border-border">
             <LanguagePicker variant="muted" />
+            <NotificationSoundToggle />
             <ThemePicker />
             <LogoutButtonMobile />
           </div>

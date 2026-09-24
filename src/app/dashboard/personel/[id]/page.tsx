@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Scissors, AlertTriangle, Bell, ShieldCheck, Activity, CalendarX, Trash2 } from "lucide-react";
 import type { StaffTimeOff } from "@/types/database";
@@ -43,6 +44,7 @@ interface StaffData {
   avatar_url?: string | null;
   telegram_chat_id?: string | null;
   whatsapp_number?: string | null;
+  notify_channels_json?: { telegram?: boolean; whatsapp?: boolean } | null;
   preferred_language?: string | null;
   color?: string | null;
   staff_services?: StaffService[];
@@ -57,6 +59,8 @@ const CALENDAR_COLORS = [
 export default function PersonelDetayPage() {
   const t = useTranslations("dashboard.staffPermissions");
   const tp = useTranslations("dashboard.permissions");
+  const td = useTranslations("dashboard.staffDetailPage");
+  const locale = useLocale();
   const params = useParams();
   const id = params.id as string;
   const router = useRouter();
@@ -189,6 +193,8 @@ export default function PersonelDetayPage() {
     working_days: [] as number[],
     telegram_chat_id: "",
     whatsapp_number: "",
+    notify_telegram: true,
+    notify_whatsapp: true,
     preferred_language: "",
     color: "",
   });
@@ -211,6 +217,8 @@ export default function PersonelDetayPage() {
           working_days: s.working_days || [],
           telegram_chat_id: s.telegram_chat_id || "",
           whatsapp_number: s.whatsapp_number || "",
+          notify_telegram: s.notify_channels_json?.telegram !== false,
+          notify_whatsapp: s.notify_channels_json?.whatsapp !== false,
           preferred_language: s.preferred_language || "",
           color: s.color || "",
         });
@@ -241,6 +249,7 @@ export default function PersonelDetayPage() {
         base_salary: parseFloat(form.base_salary) || 0,
         telegram_chat_id: form.telegram_chat_id || null,
         whatsapp_number: form.whatsapp_number || null,
+        notify_channels_json: { telegram: form.notify_telegram, whatsapp: form.notify_whatsapp },
         preferred_language: form.preferred_language || null,
         color: form.color || null,
       }),
@@ -280,48 +289,8 @@ export default function PersonelDetayPage() {
 
   if (!staff) return null;
 
-  const isTr = typeof window !== "undefined" && !window.location.pathname.startsWith("/en") && !window.location.pathname.startsWith("/ru") && !window.location.pathname.startsWith("/ar"); // Fallback check or active settings
-  const path = typeof window !== "undefined" ? window.location.pathname : "";
-  const isEn = path.startsWith("/en");
-  const isRu = path.startsWith("/ru");
-  const isAr = path.startsWith("/ar");
-  const isTrLocale = !isEn && !isRu && !isAr;
-
-  const tStr = (key: string) => {
-    if (key === "titleInfo") return isTrLocale ? "Personel Bilgileri" : isEn ? "Staff Details" : isRu ? "Информация о сотруднике" : "معلومات الموظف";
-    if (key === "nameLabel") return isTrLocale ? "Ad Soyad *" : isEn ? "Full Name *" : isRu ? "ФИО *" : "الاسم الكامل *";
-    if (key === "namePlaceholder") return isTrLocale ? "Personel adı" : isEn ? "Staff name" : isRu ? "Имя сотрудника" : "اسم الموظف";
-    if (key === "roleLabel") return isTrLocale ? "Unvan / Rol" : isEn ? "Job Title / Role" : isRu ? "Должность / Роль" : "المسمى الوظيفي / الدور";
-    if (key === "rolePlaceholder") return isTrLocale ? "Uzman, Asistan..." : isEn ? "Specialist, Assistant..." : isRu ? "Специалист, ассистент..." : "متخصص، مساعد...";
-    if (key === "commission") return isTrLocale ? "Komisyon (%)" : isEn ? "Commission (%)" : isRu ? "Комиссия (%)" : "العمولة (%)";
-    if (key === "salary") return isTrLocale ? "Sabit Taban Maaş" : isEn ? "Base Salary" : isRu ? "Базовый оклад" : "الراتب الأساسي الثابت";
-    if (key === "phone") return isTrLocale ? "Telefon" : isEn ? "Phone" : isRu ? "Телефон" : "الهاتف";
-    if (key === "email") return isTrLocale ? "E-posta" : isEn ? "Email" : isRu ? "E-mail" : "البريد الإلكتروني";
-    if (key === "language") return isTrLocale ? "Tercih Edilen Dil" : isEn ? "Preferred Language" : isRu ? "Предпочтительный язык" : "اللغة المفضلة";
-    if (key === "langUnspecified") return isTrLocale ? "Belirtilmedi" : isEn ? "Unspecified" : isRu ? "Не указан" : "غير محدد";
-    if (key === "langDesc") return isTrLocale ? "Personel giriş yaptığında panel bu dilde açılır." : isEn ? "The panel opens in this language when the staff logs in." : isRu ? "Панель откроется на этом языке при входе сотрудника." : "تفتح لوحة التحكم بهذه اللغة عندما يقوم الموظف بتسجيل الدخول.";
-    if (key === "colorTitle") return isTrLocale ? "Takvim Rengi" : isEn ? "Calendar Color" : isRu ? "Цвет в календаре" : "لون التقويم";
-    if (key === "colorDesc") return isTrLocale ? "Bu personelin randevuları takvimde bu renkle gösterilir." : isEn ? "This staff's appointments will be shown in this color on the calendar." : isRu ? "Приемы этого сотрудника будут отображаться этим цветом в календаре." : "ستظهر مواعيد هذا الموظف بهذا اللون في التقويم.";
-    if (key === "colorAuto") return isTrLocale ? "Otomatik (sıraya göre)" : isEn ? "Automatic (by order)" : isRu ? "Автоматически (по порядку)" : "تلقائي (حسب الترتيب)";
-    if (key === "hoursTitle") return isTrLocale ? "Çalışma Saatleri" : isEn ? "Working Hours" : isRu ? "Рабочее время" : "ساعات العمل";
-    if (key === "starts") return isTrLocale ? "Başlangıç" : isEn ? "Start" : isRu ? "Начало" : "البداية";
-    if (key === "ends") return isTrLocale ? "Bitiş" : isEn ? "End" : isRu ? "Конец" : "النهاية";
-    if (key === "notifTitle") return isTrLocale ? "Bildirim Kanalları" : isEn ? "Notification Channels" : isRu ? "Каналы уведомлений" : "قنوات الإشعارات";
-    if (key === "notifDesc") return isTrLocale ? "Doldurulan her kanaldan otomatik randevu bildirimi gönderilir." : isEn ? "Automated booking notifications are sent through each filled channel." : isRu ? "Автоматические уведомления о записи отправляются по каждому заполненному каналу." : "يتم إرسال إشعارات الحجز التلقائية من خلال كل قناة ممتلئة.";
-    if (key === "workDays") return isTrLocale ? "Çalışma Günleri" : isEn ? "Working Days" : isRu ? "Рабочие дни" : "أيام العمل";
-    if (key === "save") return isTrLocale ? "Kaydet" : isEn ? "Save" : isRu ? "Сохранить" : "حفظ";
-    if (key === "servicesTitle") return isTrLocale ? "Sunulan Hizmetler" : isEn ? "Services Offered" : isRu ? "Оказываемые услуги" : "الخدمات المقدمة";
-    if (key === "servicesDesc") return isTrLocale ? "Hizmet atamalarını değiştirmek için Hizmetler sayfasını kullanın." : isEn ? "Use the Services page to change service assignments." : isRu ? "Используйте страницу услуг для изменения назначений услуг." : "استخدم صفحة الخدمات لتغيير تعيينات الخدمات.";
-    if (key === "timeOffTitle") return isTrLocale ? "İzinler" : isEn ? "Leaves / Time Off" : isRu ? "Отпуска / Выходные" : "الإجازات / أوقات الراحة";
-    if (key === "timeOffDesc") return isTrLocale ? "Bu tarih aralıklarında personel için online randevu ve panelden randevu oluşturma engellenir." : isEn ? "Online booking and panel appointment creation are blocked during these date ranges." : isRu ? "Онлайн-запись и создание приемов в панели заблокированы в эти даты." : "يتم حظر الحجز عبر الإنترنت وإنشاء المواعيد من لوحة التحكم خلال هذه الفترات الزمنية.";
-    if (key === "timeOffBtn") return isTrLocale ? "İzin Ekle" : isEn ? "Add Time Off" : isRu ? "Добавить отпуск" : "إضافة إجازة";
-    if (key === "activityTitle") return isTrLocale ? "Personel Aktiviteleri" : isEn ? "Staff Activities" : isRu ? "Активность сотрудника" : "أنشطة الموظف";
-    if (key === "auditLogTitle") return isTrLocale ? "Durum Değişikliği Geçmişi" : isEn ? "Status Change History" : isRu ? "История изменений статуса" : "سجل تغيير الحالة";
-    if (key === "dangerTitle") return isTrLocale ? "Tehlikeli Alan" : isEn ? "Danger Zone" : isRu ? "Опасная зона" : "منطقة الخطر";
-    if (key === "dangerDesc") return isTrLocale ? "Personeli pasife almak onun yeni randevulara atanmasını engeller. Mevcut randevular etkilenmez." : isEn ? "Deactivating staff prevents them from being assigned to new appointments. Existing appointments are not affected." : isRu ? "Деактивация сотрудника предотвращает его назначение на новые приемы. Существующие приемы не изменятся." : "تعطيل الموظف يمنعه من التعيين في مواعيد جديدة. لا تتأثر المواعيد الحالية.";
-    if (key === "deactivateBtn") return isTrLocale ? "Pasife Al" : isEn ? "Deactivate" : isRu ? "Деактивировать" : "تعطيل";
-    return "";
-  };
+  const dateFnsLocale = locale === "tr" ? tr : undefined;
+  const tStr = td;
 
   return (
     <div className="p-6 max-w-xl mx-auto space-y-4">
@@ -340,7 +309,7 @@ export default function PersonelDetayPage() {
         </div>
         {!staff.is_active && (
           <Badge variant="outline" className="text-amber-600 border-amber-300 shrink-0">
-            {isTrLocale ? "Pasif" : isEn ? "Inactive" : isRu ? "Неактивен" : "غير نشط"}
+            {td("inactiveBadge")}
           </Badge>
         )}
       </div>
@@ -490,6 +459,15 @@ export default function PersonelDetayPage() {
                     onChange={(e) => setForm((f) => ({ ...f, telegram_chat_id: e.target.value }))}
                     placeholder="123456789"
                   />
+                  {form.telegram_chat_id ? (
+                    <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer pt-0.5">
+                      <Checkbox
+                        checked={form.notify_telegram}
+                        onCheckedChange={(c) => setForm((f) => ({ ...f, notify_telegram: !!c }))}
+                      />
+                      {tStr("notifChannelActive")}
+                    </label>
+                  ) : null}
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs text-muted-foreground">WhatsApp Numarası</Label>
@@ -499,8 +477,20 @@ export default function PersonelDetayPage() {
                     onChange={(e) => setForm((f) => ({ ...f, whatsapp_number: e.target.value }))}
                     placeholder="905xxxxxxxxx"
                   />
+                  {form.whatsapp_number ? (
+                    <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer pt-0.5">
+                      <Checkbox
+                        checked={form.notify_whatsapp}
+                        onCheckedChange={(c) => setForm((f) => ({ ...f, notify_whatsapp: !!c }))}
+                      />
+                      {tStr("notifChannelActive")}
+                    </label>
+                  ) : null}
                 </div>
               </div>
+              {form.whatsapp_number ? (
+                <p className="text-[11px] text-muted-foreground">{tStr("notifWaHint")}</p>
+              ) : null}
             </div>
 
             <div className="space-y-2">
@@ -670,8 +660,8 @@ export default function PersonelDetayPage() {
                 <div key={t.id} className="flex items-center justify-between gap-2 text-sm py-1.5 px-2.5 rounded-lg bg-muted/30">
                   <div className="min-w-0">
                     <p className="font-medium">
-                      {format(new Date(t.starts_on + "T12:00:00"), "d MMM yyyy", { locale: isTrLocale ? tr : undefined })}
-                      {t.ends_on !== t.starts_on && ` – ${format(new Date(t.ends_on + "T12:00:00"), "d MMM yyyy", { locale: isTrLocale ? tr : undefined })}`}
+                      {format(new Date(t.starts_on + "T12:00:00"), "d MMM yyyy", { locale: dateFnsLocale })}
+                      {t.ends_on !== t.starts_on && ` – ${format(new Date(t.ends_on + "T12:00:00"), "d MMM yyyy", { locale: dateFnsLocale })}`}
                     </p>
                     {t.reason && <p className="text-xs text-muted-foreground truncate">{t.reason}</p>}
                   </div>
@@ -705,11 +695,11 @@ export default function PersonelDetayPage() {
               />
             </div>
             <div className="col-span-2 space-y-1">
-              <Label className="text-xs text-muted-foreground">{tStr("note")}</Label>
+              <Label className="text-xs text-muted-foreground">{td("noteLabel")}</Label>
               <Input
                 value={timeOffForm.reason}
                 onChange={(e) => setTimeOffForm((f) => ({ ...f, reason: e.target.value }))}
-                placeholder={isTrLocale ? "Yıllık izin, rapor..." : isEn ? "Annual leave, report..." : isRu ? "Годовой отпуск..." : "إجازة سنوية..."}
+                placeholder={td("reasonPlaceholder")}
               />
             </div>
             <Button type="submit" size="sm" className="col-span-2" disabled={addingTimeOff}>
@@ -759,7 +749,7 @@ export default function PersonelDetayPage() {
                         </span>
                         <span className="text-muted-foreground shrink-0">
                           {h.new_data?.actor_name ? `${h.new_data.actor_name} · ` : ""}
-                          {format(new Date(h.created_at), "d MMM HH:mm", { locale: isTrLocale ? tr : undefined })}
+                          {format(new Date(h.created_at), "d MMM HH:mm", { locale: dateFnsLocale })}
                         </span>
                       </div>
                     );

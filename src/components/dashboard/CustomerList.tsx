@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, MessageCircle, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2 } from "lucide-react";
+import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, ShieldCheck, ShieldOff, MessageCircle, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
 
@@ -25,6 +25,7 @@ import {
 import type { Customer } from "@/types/database";
 import { maskPhone } from "@/lib/phone";
 import { usePlan } from "@/components/dashboard/PlanContext";
+import { getFieldCatalog, BADGE_COLOR_CLASS } from "@/lib/customer-fields/catalog";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
@@ -61,14 +62,19 @@ interface Props {
   initialKampanya?: boolean;
   /** Silme butonu — yalnızca sahip / `delete_customers` izni olan üyeler için. */
   canDelete?: boolean;
+  businessType?: string | null;
 }
 
 /**
  * Müşteri listesi — arama kutusuna yazdıkça (akıllı klavye gibi) anında
  * filtreler; sunucuya gitmez. Filtre temizleme (X) butonu vardır.
  */
-export function CustomerList({ customers, showPhoneButtons, initialKampanya = false, canDelete = false }: Props) {
+export function CustomerList({ customers, showPhoneButtons, initialKampanya = false, canDelete = false, businessType = null }: Props) {
   const t = useTranslations("dashboard");
+  const statusFieldDef = useMemo(
+    () => getFieldCatalog(businessType).find((f) => f.key === "status" && f.type === "select"),
+    [businessType]
+  );
   const activeLocale = useLocale();
   const dateFnsLocale = DATE_FNS_LOCALES[activeLocale as keyof typeof DATE_FNS_LOCALES] ?? tr;
   const router = useRouter();
@@ -172,13 +178,13 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
             </button>
           )}
         </div>
-        <div className="flex gap-1 flex-wrap items-center">
+        <div className="flex gap-1.5 items-center overflow-x-auto pb-1 sm:flex-wrap">
           {sorts.map((s) => (
             <button
               key={s.value}
               onClick={() => changeSort(s.value)}
               className={cn(
-                "px-3 py-2 rounded-lg text-xs font-medium border transition-colors",
+                "px-3 py-2 rounded-lg text-xs font-medium border transition-colors shrink-0 whitespace-nowrap",
                 sortBy === s.value
                   ? "bg-primary text-primary-foreground border-primary"
                   : "border-border hover:bg-accent"
@@ -190,7 +196,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
           <button
             onClick={() => setAsc((v) => !v)}
             title={t("customerList.toggleSort")}
-            className="px-3 py-2 rounded-lg text-xs font-medium border border-border hover:bg-accent transition-colors flex items-center gap-1.5"
+            className="px-3 py-2 rounded-lg text-xs font-medium border border-border hover:bg-accent transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap"
           >
             {asc ? <ArrowUpNarrowWide className="h-3.5 w-3.5" /> : <ArrowDownWideNarrow className="h-3.5 w-3.5" />}
             {directionLabel(t, sortBy, asc)}
@@ -199,7 +205,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
             onClick={() => setKampanyaOnly((v) => !v)}
             title={t("customerList.marketingOnly")}
             className={cn(
-              "px-3 py-2 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5",
+              "px-3 py-2 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap",
               kampanyaOnly ? "bg-green-600 text-white border-green-600" : "border-border hover:bg-accent"
             )}
           >
@@ -209,7 +215,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
           {hasFilter && (
             <button
               onClick={() => { setQ(""); setKampanyaOnly(false); }}
-              className="px-3 py-2 rounded-lg text-xs font-medium border border-red-200 dark:border-red-900 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex items-center gap-1"
+              className="px-3 py-2 rounded-lg text-xs font-medium border border-red-200 dark:border-red-900 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex items-center gap-1 shrink-0 whitespace-nowrap"
             >
               <X className="h-3.5 w-3.5" />
               {t("customerList.clearFilters")}
@@ -300,6 +306,15 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                         </div>
                       )}
                       <div className="flex items-center gap-1">
+                        {cust.kvkk_consent ? (
+                          <span title={t("customerList.kvkkAcceptedTitle")}>
+                            <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
+                          </span>
+                        ) : (
+                          <span title={t("customerList.kvkkMissingTitle")}>
+                            <ShieldOff className="h-3.5 w-3.5 text-muted-foreground/40" />
+                          </span>
+                        )}
                         {cust.marketing_consent ? (
                           <span title={t("customerList.marketingAcceptedTitle")}>
                             <Megaphone className="h-3.5 w-3.5 text-green-500" />
@@ -315,6 +330,18 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                           </Badge>
                         )}
                       </div>
+                      {statusFieldDef && (() => {
+                        const statusValue = cust.custom_fields?.status;
+                        const opt = statusFieldDef.options?.find((o) => o.value === statusValue);
+                        return opt ? (
+                          <Badge
+                            variant="outline"
+                            className={cn("text-[10px]", opt.color ? BADGE_COLOR_CLASS[opt.color] : undefined)}
+                          >
+                            {statusFieldDef.icon} {opt.label}
+                          </Badge>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
 

@@ -497,6 +497,37 @@ const TATTOO: CatalogCategory[] = [
   },
 ];
 
+const PET_KUAFOR: CatalogCategory[] = [
+  {
+    label: "Yıkama & Bakım", icon: "🐾",
+    services: [
+      { name: "Köpek Yıkama (Küçük Irk)", duration: 45, price: 350, category: "genel" },
+      { name: "Köpek Yıkama (Büyük Irk)", duration: 75, price: 600, category: "genel" },
+      { name: "Kedi Yıkama", duration: 40, price: 400, category: "genel" },
+      { name: "Kulak Temizliği", duration: 15, price: 150, category: "genel" },
+      { name: "Tırnak Kesimi", duration: 15, price: 150, category: "genel" },
+      { name: "Diş Temizliği", duration: 20, price: 250, category: "genel" },
+    ],
+  },
+  {
+    label: "Tıraş & Şekillendirme", icon: "✂️",
+    services: [
+      { name: "Irk Standardı Tıraş", duration: 90, price: 800, category: "genel" },
+      { name: "Makas Kesimi", duration: 60, price: 600, category: "genel" },
+      { name: "Tüy Açma (Deshedding)", duration: 45, price: 450, category: "genel" },
+      { name: "Kedi Tıraşı", duration: 45, price: 500, category: "genel" },
+    ],
+  },
+  {
+    label: "Sağlık & Ekstra", icon: "💉",
+    services: [
+      { name: "Pire/Kene Bakımı", duration: 20, price: 300, category: "genel" },
+      { name: "Parfüm & Kolonya", duration: 10, price: 100, category: "genel" },
+      { name: "Kaplumbağa/Küçük Hayvan Bakımı", duration: 30, price: 300, category: "genel" },
+    ],
+  },
+];
+
 export const SERVICE_CATALOG: Record<string, CatalogCategory[]> = {
   kuafor: KUAFOR,
   berber: BERBER,
@@ -508,6 +539,7 @@ export const SERVICE_CATALOG: Record<string, CatalogCategory[]> = {
   makyaj: MAKYAJ,
   diyetisyen: DIYETISYEN,
   tattoo: TATTOO,
+  pet_kuafor: PET_KUAFOR,
 };
 
 /**

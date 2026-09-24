@@ -11,9 +11,29 @@
     "language": "Dil",
     "faq": "SSS"
   },
+  "chatWidget": {
+    "ariaLabel": "AI Asistan",
+    "title": "SiriPlan AI",
+    "online": "Çevrimiçi",
+    "minimize": "Küçült",
+    "close": "Kapat",
+    "send": "Gönder",
+    "footer": "SiriPlan AI · Powered by BY Sirius",
+    "placeholder": "Mesajınızı yazın...",
+    "greeting": "Merhaba! 👋 Ben SiriPlan AI asistanıyım.\n\nFiyatlar, özellikler, kayıt veya destek hakkında size yardımcı olabilirim. Ne sormak istersiniz?",
+    "errorResponse": "Şu an yanıt veremiyorum. Lütfen tekrar deneyin.",
+    "connectionError": "Bağlantı hatası. info@bysirius.com adresinden bize ulaşabilirsiniz.",
+    "quickQuestions": {
+      "pricing": "Fiyatlar ne kadar?",
+      "freeTrial": "Ücretsiz deneme var mı?",
+      "sectors": "Hangi sektörlere uygun?",
+      "howToStart": "Nasıl başlayabilirim?"
+    }
+  },
   "hero": {
     "badge": "10+ Sektörde Güvenilen Randevu Platformu",
     "title": "İşletmenizi <highlight>Akıllıca</highlight> Yönetin",
+    "intro": "SiriPlan; kuaför, berber, güzellik salonu, spa ve klinik gibi hizmet işletmeleri için randevu, personel, müşteri ve ödeme süreçlerini tek panelden yöneten AI destekli randevu ve işletme yönetim yazılımıdır.",
     "subtitle": "Randevu, personel, müşteri ve ciro yönetimini tek platformda birleştirin. AI asistanı ile WhatsApp/Instagram'dan otomatik yanıt verin.",
     "subtitleHighlight": "Her sektöre özel — sınırsız randevu, sıfır karmaşa.",
     "cta": "14 Gün Ücretsiz Deneyin",
@@ -77,11 +97,13 @@
     "mostPopular": "En Çok Tercih Edilen",
     "startTrial": "Ücretsiz Dene",
     "buyNow": "Hemen Satın Al",
+    "buyNowWithPrice": "{price} – Hemen Satın Al",
     "contactUs": "Teklif Al / İletişime Geç",
     "contactForPrice": "Özel Teklif Alın",
     "contactUsSub": "İşletmenize özel paket ve fiyatlandırma",
     "bottomNote": "Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
     "annualLabel": "veya {annual}/ay · {total}/yıl ({save})",
+    "annualBilledNote": "{total} olarak yıllık tek seferde tahsil edilir · aylık ödemede {monthly}/ay",
     "starter": {
       "name": "Starter",
       "desc": "Küçük salonlar için mükemmel başlangıç",
@@ -89,7 +111,8 @@
         "1 şube, 8 personel",
         "Sınırsız randevu",
         "Kişisel randevu linki (siriplan.com/r/salon-adin)",
-        "Stok yönetimi (mal/ürün takibi)",
+        "Stok yönetimi (mal/ürün takibi, barkodla satış)",
+        "Paket / seans takibi",
         "Gelir - gider raporları & KDV hesaplama",
         "WhatsApp hatırlatmaları",
         "Sadakat kartı sistemi",
@@ -151,10 +174,24 @@
       "name": "Ek Şube Paketi",
       "desc": "Starter/Pro'ya ek şube ekleyin",
       "price": "$29/şube/ay"
+    },
+    "request": {
+      "cta": "Bilgi Al",
+      "title": "{name} için bilgi talebi",
+      "subtitle": "Formu doldurun, ekibimiz size dönüş yapsın.",
+      "nameLabel": "Ad Soyad",
+      "emailLabel": "E-posta",
+      "phoneLabel": "Telefon",
+      "messageLabel": "Notunuz",
+      "optional": "(isteğe bağlı)",
+      "submit": "Talep Gönder",
+      "submitLoading": "Gönderiliyor...",
+      "successToast": "Talebiniz alındı, en kısa sürede dönüş yapacağız.",
+      "errorToast": "Talep gönderilemedi. Lütfen tekrar deneyin."
     }
   },
   "pricingPage": {
-    "metaDescription": "Siriplan fiyatlandırma — Starter ₺1.314/ay, Pro ₺1.963/ay, Business ₺4.752/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
+    "metaDescription": "SiriPlan fiyatlandırma — Starter ₺1.314/ay, Pro ₺1.963/ay, Business ₺4.752/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
     "heroBadge": "14 Gün Ücretsiz — Kredi Kartı Gerekmez",
     "heroTitle": "Şeffaf Fiyatlandırma,",
     "heroTitleHighlight": "Sürpriz Yok",
@@ -178,7 +215,7 @@
     "ctaSecondary": "Demo Talep Edin"
   },
   "featuresPage": {
-    "metaDescription": "Siriplan'ın tüm özellikleri — AI randevu, müşteri yönetimi, kampanya modülü, ciro analitik ve çok daha fazlası.",
+    "metaDescription": "SiriPlan'ın tüm özellikleri — AI randevu, müşteri yönetimi, kampanya modülü, ciro analitik ve çok daha fazlası.",
     "heroBadge": "30+ Özellik — Tek Platform",
     "heroTitle": "Salonunuzu Büyütecek",
     "heroTitleHighlight": "Her Araç Burada",
@@ -207,6 +244,10 @@
           "inventory": {
             "title": "Stok Yönetimi",
             "desc": "Mal/ürün stoğunuzu, kritik stok uyarılarını ve stok hareketlerini takip edin. Kuaför, berber, güzellik ve diş klinikleri için hazır şablonlar."
+          },
+          "barcodeSale": {
+            "title": "Barkodla Perakende Satış",
+            "desc": "Ürünü kamerayla barkodundan okutun, satış saniyeler içinde tamamlansın, stok otomatik düşsün."
           },
           "qr": {
             "title": "QR Kod Randevu",
@@ -249,6 +290,10 @@
           "loyalty": {
             "title": "Sadakat Kartı",
             "desc": "10 randevu = 1 bedava hizmet gibi özelleştirilebilir ödül sistemi. Müşteri bağlılığını artırır."
+          },
+          "packages": {
+            "title": "Paket / Seans Takibi",
+            "desc": "Peşin satılan seans paketlerini müşteri bazında takip edin; her randevu tamamlandığında kalan seans otomatik düşer."
           },
           "campaigns": {
             "title": "Kampanya Modülü",
@@ -323,7 +368,7 @@
     }
   },
   "integrationsPage": {
-    "metaDescription": "Siriplan entegrasyonları — WhatsApp, Instagram, Google Calendar, Stripe ve daha fazlası.",
+    "metaDescription": "SiriPlan entegrasyonları — WhatsApp, Instagram, Google Calendar, Stripe ve daha fazlası.",
     "heroEyebrow": "Entegrasyonlar",
     "heroTitle": "Tüm Araçlarınız",
     "heroTitleHighlight": "Tek Platformda",
@@ -385,13 +430,13 @@
     "ctaButton": "Ücretsiz Başlayın"
   },
   "aboutPage": {
-    "metaDescription": "BY Sirius Group Ai & Technology Co Ltd. ve Siriplan hakkında bilgi edinin.",
+    "metaDescription": "BY Sirius Group Ai & Technology Co Ltd. ve SiriPlan hakkında bilgi edinin.",
     "heroTitle": "Teknolojiyle İşletmenizi",
     "heroTitleHighlight": "Geleceğe Taşıyoruz",
-    "heroSubtitle": "Siriplan, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> çatısı altında geliştirilen, 10'dan fazla sektöre hizmet sunan yapay zeka destekli randevu ve işletme yönetim platformudur.",
+    "heroSubtitle": "SiriPlan, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> çatısı altında geliştirilen, 10'dan fazla sektöre hizmet sunan yapay zeka destekli randevu ve işletme yönetim platformudur.",
     "aboutTitle": "BY Sirius Group Kimdir?",
     "aboutP1": "<strong>BY Sirius Group Ai & Technology Co Ltd.</strong>, yapay zeka, SaaS çözümleri ve dijital dönüşüm alanlarında faaliyet gösteren teknoloji şirketidir. Kuruluşumuzdan bu yana işletmelerin dijitalleşme yolculuğunu kolaylaştırmak için yenilikçi ürünler geliştirmekteyiz.",
-    "aboutP2": "Siriplan, BY Sirius Group Ai & Technology Co Ltd.'un amiral gemisi ürünü olarak kuaförden kliniklere, berbelerden spa merkezlerine kadar geniş bir sektör yelpazesine randevu yönetimi ve operasyonel verimlilik sağlar.",
+    "aboutP2": "SiriPlan, BY Sirius Group Ai & Technology Co Ltd.'un amiral gemisi ürünü olarak kuaförden kliniklere, berbelerden spa merkezlerine kadar geniş bir sektör yelpazesine randevu yönetimi ve operasyonel verimlilik sağlar.",
     "websiteButton": "bysirius.com",
     "stats": {
       "sectors": "Desteklenen Sektör",
@@ -423,7 +468,7 @@
     "ctaContact": "İletişime Geçin"
   },
   "contactPage": {
-    "metaDescription": "Siriplan ekibiyle iletişime geçin. Sorularınızı yanıtlayalım, size en uygun çözümü birlikte bulalım.",
+    "metaDescription": "SiriPlan ekibiyle iletişime geçin. Sorularınızı yanıtlayalım, size en uygun çözümü birlikte bulalım.",
     "heroEyebrow": "İletişim",
     "heroTitle": "Size Nasıl",
     "heroTitleHighlight": "Yardımcı Olabiliriz?",
@@ -438,7 +483,7 @@
       },
       "address": {
         "label": "Adres",
-        "value": "BY Sirius Group Ai & Technology Co Ltd., Türkiye"
+        "value": "İngiltere (Kayıtlı Merkez)\nTürkiye (Operasyon Ofisi)"
       },
       "hours": {
         "label": "Çalışma Saatleri",
@@ -471,7 +516,7 @@
     "bySirius": "BY Sirius Group"
   },
   "faqPage": {
-    "metaDescription": "Siriplan hakkında merak edilen tüm sorular ve cevapları. Randevu, fiyatlandırma, teknik destek ve daha fazlası.",
+    "metaDescription": "SiriPlan hakkında merak edilen tüm sorular ve cevapları. Randevu, fiyatlandırma, teknik destek ve daha fazlası.",
     "heroEyebrow": "SSS",
     "heroTitle": "Sıkça Sorulan",
     "heroTitleHighlight": "Sorular",
@@ -481,8 +526,8 @@
         "title": "Genel",
         "items": {
           "q1": {
-            "q": "Siriplan nedir?",
-            "a": "Siriplan, kuaför, berber, güzellik salonu, SPA, klinik ve daha fazlası için geliştirilmiş yapay zeka destekli randevu ve işletme yönetim platformudur. BY Sirius Group Ai & Technology Co Ltd. tarafından geliştirilmiştir."
+            "q": "SiriPlan nedir?",
+            "a": "SiriPlan, kuaför, berber, güzellik salonu, SPA, klinik ve daha fazlası için geliştirilmiş yapay zeka destekli randevu ve işletme yönetim platformudur. BY Sirius Group Ai & Technology Co Ltd. tarafından geliştirilmiştir."
           },
           "q2": {
             "q": "Hangi sektörlere hitap ediyor?",
@@ -645,12 +690,12 @@
     "applicationP2": "Başvurularınız kimlik doğrulama yapıldıktan sonra en geç 30 gün içinde sonuçlandırılır."
   },
   "privacyPage": {
-    "metaDescription": "Siriplan gizlilik politikası — kişisel verilerinizi nasıl işlediğimizi öğrenin.",
+    "metaDescription": "SiriPlan gizlilik politikası — kişisel verilerinizi nasıl işlediğimizi öğrenin.",
     "pageTitle": "Gizlilik Politikası",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Veri Sorumlusu",
-    "s1P1": "Bu gizlilik politikası, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Şirket\", \"biz\", \"bize\") tarafından işletilen <strong>Siriplan</strong> platformu için geçerlidir. Şirket, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında veri sorumlusu sıfatını taşımaktadır.",
+    "s1P1": "Bu gizlilik politikası, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Şirket\", \"biz\", \"bize\") tarafından işletilen <strong>SiriPlan</strong> platformu için geçerlidir. Şirket, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında veri sorumlusu sıfatını taşımaktadır.",
     "s1P2": "<strong>Web sitesi:</strong> bysirius.com | <strong>E-posta:</strong> privacy@bysirius.com",
     "s2Title": "2. Toplanan Kişisel Veriler",
     "s2Intro": "Platform kullanımı sırasında aşağıdaki veriler işlenebilir:",
@@ -689,14 +734,14 @@
     "s9Title": "8. Politika Değişiklikleri",
     "s9P": "Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir.",
     "s10Title": "9. Yurt Dışı Kullanıcılar ve Uygulanacak Hükümler",
-    "s10P": "Siriplan, BY Sirius Group Ai & Technology Co Ltd. tarafından işletilmektedir. Türkiye dışından erişen kullanıcıların kişisel verileri de bu politikada açıklanan amaç ve yöntemlerle işlenir. Bulunduğunuz ülkenin veri koruma mevzuatı size ek haklar tanıyorsa, bu hakları kullanmak için privacy@bysirius.com adresine başvurabilirsiniz; talepler yürürlükteki mevzuatın öngördüğü süre ve kapsamda değerlendirilir."
+    "s10P": "SiriPlan, BY Sirius Group Ai & Technology Co Ltd. tarafından işletilmektedir. Türkiye dışından erişen kullanıcıların kişisel verileri de bu politikada açıklanan amaç ve yöntemlerle işlenir. Bulunduğunuz ülkenin veri koruma mevzuatı size ek haklar tanıyorsa, bu hakları kullanmak için privacy@bysirius.com adresine başvurabilirsiniz; talepler yürürlükteki mevzuatın öngördüğü süre ve kapsamda değerlendirilir."
   },
   "accountDeletionPage": {
-    "metaDescription": "Siriplan hesabınızı ve kişisel verilerinizi nasıl sildireceğinizi öğrenin.",
+    "metaDescription": "SiriPlan hesabınızı ve kişisel verilerinizi nasıl sildireceğinizi öğrenin.",
     "pageTitle": "Hesap ve Veri Silme Talebi",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
-    "appInfo": "<strong>Uygulama:</strong> Siriplan (com.siriplan.app) — <strong>Geliştirici:</strong> BY Sirius Group Ai & Technology Co Ltd.",
-    "intro": "Bu sayfada Siriplan hesabınızı ve hesabınıza bağlı kişisel verilerinizi nasıl kalıcı olarak sildirebileceğiniz açıklanır. Bu sayfayı görüntülemek veya talep göndermek için giriş yapmanız gerekmez.",
+    "appInfo": "<strong>Uygulama:</strong> SiriPlan (com.siriplan.app) — <strong>Geliştirici:</strong> BY Sirius Group Ai & Technology Co Ltd.",
+    "intro": "Bu sayfada SiriPlan hesabınızı ve hesabınıza bağlı kişisel verilerinizi nasıl kalıcı olarak sildirebileceğiniz açıklanır. Bu sayfayı görüntülemek veya talep göndermek için giriş yapmanız gerekmez.",
     "inAppTitle": "Yöntem 1 — Uygulama içinden (anında)",
     "inAppP": "İşletme sahibi hesabınızla giriş yapın:",
     "inAppSteps": [
@@ -723,14 +768,14 @@
     "contactNote": "Sorularınız için: <strong>privacy@bysirius.com</strong>"
   },
   "termsPage": {
-    "metaDescription": "Siriplan kullanım koşulları ve hizmet şartları.",
+    "metaDescription": "SiriPlan kullanım koşulları ve hizmet şartları.",
     "pageTitle": "Kullanım Koşulları",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Taraflar ve Kapsam",
-    "s1P": "Bu Kullanım Koşulları, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Siriplan\", \"biz\") ile platformu kullanan bireyler ve işletmeler (\"Kullanıcı\") arasındaki hukuki ilişkiyi düzenler. Platformu kullanarak bu koşulları kabul etmiş sayılırsınız.",
+    "s1P": "Bu Kullanım Koşulları, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"SiriPlan\", \"biz\") ile platformu kullanan bireyler ve işletmeler (\"Kullanıcı\") arasındaki hukuki ilişkiyi düzenler. Platformu kullanarak bu koşulları kabul etmiş sayılırsınız.",
     "s2Title": "2. Hizmet Tanımı",
-    "s2P": "Siriplan; randevu yönetimi, müşteri takibi, personel yönetimi, kampanya modülü ve ciro raporlaması gibi işletme yönetim araçları sunan SaaS (Hizmet Olarak Yazılım) platformudur. Platform erişimi seçilen abonelik planı kapsamında sağlanır.",
+    "s2P": "SiriPlan; randevu yönetimi, müşteri takibi, personel yönetimi, kampanya modülü ve ciro raporlaması gibi işletme yönetim araçları sunan SaaS (Hizmet Olarak Yazılım) platformudur. Platform erişimi seçilen abonelik planı kapsamında sağlanır.",
     "s3Title": "3. Kullanıcı Yükümlülükleri",
     "s3Items": [
       "Platforma yalnızca yetkili kişilerin erişim sağlamasından siz sorumlusunuz.",
@@ -759,12 +804,12 @@
     "s11P": "Platformdaki yapay zekâ destekli özellikler (asistan, metin ve öneri üretimi vb.) otomatik olarak üretilir; doğru, eksiksiz veya güncel olacağı garanti edilmez ve kullanılmadan önce tarafınızca kontrol edilmelidir. Bu çıktılara dayanılarak alınan kararlardan Şirket sorumlu değildir. Verilerinizin düzenli olarak dışa aktarılması ve kendi yedeğinizin alınması sizin sorumluluğunuzdadır. Şirketin makul kontrolü dışındaki olaylar (altyapı sağlayıcı arızaları, siber saldırı, mevzuat değişikliği, doğal afet, elektrik veya iletişim kesintileri dâhil mücbir sebepler) nedeniyle oluşan gecikme veya ifa edememeden Şirket sorumlu tutulamaz."
   },
   "cookiesPage": {
-    "metaDescription": "Siriplan çerez politikası — çerezlerin nasıl kullanıldığını öğrenin.",
+    "metaDescription": "SiriPlan çerez politikası — çerezlerin nasıl kullanıldığını öğrenin.",
     "pageTitle": "Çerez Politikası",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Çerez Nedir?",
-    "s1P": "Çerezler (cookies), web siteleri tarafından tarayıcınıza yerleştirilen küçük metin dosyalarıdır. Siriplan platformu, daha iyi bir kullanıcı deneyimi sunmak ve hizmet kalitesini artırmak amacıyla çerezlerden faydalanır.",
+    "s1P": "Çerezler (cookies), web siteleri tarafından tarayıcınıza yerleştirilen küçük metin dosyalarıdır. SiriPlan platformu, daha iyi bir kullanıcı deneyimi sunmak ve hizmet kalitesini artırmak amacıyla çerezlerden faydalanır.",
     "s2Title": "2. Kullandığımız Çerez Türleri",
     "s2Necessary": {
       "title": "Zorunlu Çerezler",
@@ -792,9 +837,9 @@
     "bannerNote": "Platformu ilk ziyaretinizde analitik çerezler için onayınızı isteriz; analitik çerezler yalnızca onay verdiğinizde yüklenir. Bu tercihinizi, sayfa alt bilgisindeki \"Çerez ayarları\" bağlantısından dilediğiniz zaman değiştirebilirsiniz."
   },
   "demoPage": {
-    "metaDescription": "Siriplan'ın tüm özelliklerini canlı demo ile keşfedin.",
+    "metaDescription": "SiriPlan'ın tüm özelliklerini canlı demo ile keşfedin.",
     "heroBadge": "Canlı Demo",
-    "heroTitle": "Siriplan'ı Keşfedin",
+    "heroTitle": "SiriPlan'ı Keşfedin",
     "heroSubtitle": "14 gün ücretsiz deneme ile tüm özellikleri kendi salonunuzda test edin. Kredi kartı gerekmez.",
     "videoTitle": "Demo Video",
     "videoComingSoon": "Yakında yayında",
@@ -843,6 +888,133 @@
     "eyebrow": "Kaş & Kirpik",
     "petGrooming": "Pet Kuaför"
   },
+  "blogPage": {
+    "metaTitle": "Blog",
+    "metaDescription": "SiriPlan blog — salon yönetimi, dijital dönüşüm ve sektör haberleri.",
+    "badge": "SiriPlan Blog",
+    "heroTitleLine": "Salon Yönetiminde",
+    "heroTitleHighlight": "Uzman Tavsiyeleri",
+    "heroSubtitle": "Dijital dönüşüm, müşteri yönetimi, ciro artırma taktikleri ve sektörden haberler.",
+    "readMore": "Oku",
+    "readTimeSuffix": "okuma",
+    "newsletterText": "Daha fazla içerik için bültenimize abone olun.",
+    "ctaButton": "Ücretsiz Deneyin — 14 Gün",
+    "backToBlog": "Blog'a Dön",
+    "postCtaTitle": "14 Gün Ücretsiz Deneyin",
+    "postCtaSubtitle": "Kredi kartı gerekmez. Verileriniz güvende.",
+    "postCtaButton": "Ücretsiz Başlayın",
+    "relatedPostsTitle": "İlgili Yazılar"
+  },
+  "categoryPage": {
+    "solutionBadge": "{title} Çözümü",
+    "featuresTitle": "{title} İşletmeleri İçin Özel Özellikler",
+    "platformAdvantagesTitle": "Platform Avantajları",
+    "platformFeatures": {
+      "channels": { "title": "Çok Kanallı Randevu", "desc": "Web, WA, IG, QR" },
+      "ai": { "title": "AI Asistanı", "desc": "7/24 otomatik yanıt" },
+      "customerScore": { "title": "Müşteri Skoru", "desc": "Sadakat programı" },
+      "revenue": { "title": "Ciro Analitik", "desc": "Gerçek zamanlı rapor" },
+      "gamification": { "title": "Gamification", "desc": "Haftanın Elemanı" },
+      "kvkk": { "title": "KVKK Uyumlu", "desc": "Güvenli veri saklama" },
+      "migration": { "title": "Kolay Göç", "desc": "Mevcut verilerinizi taşıyın" },
+      "uptime": { "title": "%99.9 Uptime", "desc": "Kesintisiz çalışma" }
+    },
+    "tryFree": "14 Gün Ücretsiz Dene",
+    "watchDemo": "Demo İzle",
+    "ctaTitle": "{title} İşletmenizi Büyütmeye Hazır mısınız?",
+    "ctaSubtitle": "14 gün ücretsiz deneyin. Kredi kartı gerekmez.",
+    "ctaButton": "Ücretsiz Hesap Oluştur",
+    "metaTitleSuffix": "Randevu Sistemi",
+    "sectors": {
+      "kuafor": {
+        "title": "Kuaför",
+        "headline": "Kuaför Salonunuz İçin Akıllı Randevu Sistemi",
+        "desc": "Saç kesimi, boyama, bakım ve şekillendirme randevularını tek ekrandan yönetin. WhatsApp ile otomatik hatırlatma, müşteri sadakat programı ve ciro takibi.",
+        "features": ["Çok personelli randevu takibi", "Hizmet bazlı süre yönetimi", "WhatsApp & Instagram otomasyonu", "Sadakat puanı sistemi", "Personel komisyon raporları", "Ön ödeme toplama"],
+        "testimonialText": "SiriPlan'a geçtikten sonra no-show oranımız %70 düştü. WhatsApp hatırlatmaları sayesinde her randevumuz dolup taşıyor.",
+        "keywords": ["kuaför randevu sistemi", "kuaför programı", "online kuaför randevu"]
+      },
+      "berber": {
+        "title": "Berber",
+        "headline": "Berber Dükkanı İçin Randevu & Yönetim Yazılımı",
+        "desc": "Saç kesimi, sakal düzeltme ve bakım randevularını kolayca yönetin. Müşteri geçmişi, kişisel tercihler ve hızlı checkout sistemi.",
+        "features": ["Hızlı randevu oluşturma", "Müşteri tercih notları", "QR kod ile self servis randevu", "Günlük ciro özeti", "SMS & WhatsApp hatırlatma", "Personel çalışma saati takibi"],
+        "testimonialText": "Haftanın Elemanı sistemi personelimi çok motive etti. Ciro takibi ve personel komisyon raporu artık çok kolay.",
+        "keywords": ["berber randevu sistemi", "berber programı", "online berber randevu"]
+      },
+      "guzellik": {
+        "title": "Güzellik Salonu",
+        "headline": "Güzellik Salonu Yönetiminde Yeni Standart",
+        "desc": "Cilt bakımı, makyaj, lazer ve epilasyon hizmetlerini tek platformda yönetin. Müşteri kartı, ürün takibi ve kampanya modülü.",
+        "features": ["Hizmet & paket satışı", "Ürün stok takibi", "Müşteri geçmişi ve notları", "Instagram DM otomasyonu", "Toplu kampanya gönderimi", "KDV'li ciro raporları"],
+        "keywords": ["güzellik salonu randevu sistemi", "güzellik salonu programı"]
+      },
+      "spa": {
+        "title": "SPA & Masaj",
+        "headline": "SPA Merkezi İçin Profesyonel Randevu Yönetimi",
+        "desc": "Masaj, sauna, hamam, duş ve paket programlarını yönetin. Çift yönlü kabin takibi, personel uygunluk ve ön ödeme sistemi.",
+        "features": ["Kabin & oda bazlı rezervasyon", "Paket program satışı", "Otomatik hatırlatma", "Müşteri memnuniyet skoru", "Bekleme listesi", "Gelir & doluluk raporları"],
+        "testimonialText": "3 şube yönetimi artık tek ekrandan. Doluluk oranımız %40 arttı.",
+        "keywords": ["spa randevu sistemi", "masaj salonu programı"]
+      },
+      "nail": {
+        "title": "Nail Salon",
+        "headline": "Nail Salon İçin Akıllı Randevu Sistemi",
+        "desc": "Manikür, pedikür, jel, akrilik ve protez tırnak randevularını yönetin. Uzun süreli hizmetler için blok rezervasyon ve tekrar eden müşteri takibi.",
+        "features": ["Hizmet süresi bazlı blok rezervasyon", "Tekrar eden müşteri hatırlatma", "Before/after fotoğraf notları", "Sadakat kartı sistemi", "Online ön ödeme", "Kapasiteli slot yönetimi"],
+        "keywords": ["nail salon randevu sistemi", "tırnak salonu programı"]
+      },
+      "estetik": {
+        "title": "Estetik Klinik",
+        "headline": "Estetik & Güzellik Kliniği Randevu Yönetimi",
+        "desc": "Botoks, dolgu, lazer epilasyon, mezoterapi ve cilt bakımı randevularını KVKK uyumlu şekilde yönetin.",
+        "features": ["Hasta kartı & tedavi geçmişi", "KVKK uyumlu veri saklama", "Online onay formu", "Hekim uygunluk takvimi", "Takip randevusu hatırlatma", "Ön ödeme & taksit"],
+        "keywords": ["estetik klinik randevu sistemi", "klinik yönetim yazılımı"]
+      },
+      "makyaj": {
+        "title": "Makyaj Stüdyosu",
+        "headline": "Makyaj Stüdyosu İçin Randevu & Müşteri Yönetimi",
+        "desc": "Gelin makyajı, fotoğraf çekimi, özel gün ve günlük makyaj randevularını kolayca planlayın.",
+        "features": ["Etkinlik bazlı randevu", "Müşteri tercih profili", "Kaparo & ön ödeme sistemi", "Gelin randevu paketi", "Instagram entegrasyonu", "Fotoğraf notları"],
+        "keywords": ["makyaj stüdyosu randevu sistemi", "makyajcı randevu programı"]
+      },
+      "tattoo": {
+        "title": "Tattoo Studio",
+        "headline": "Tattoo Studio İçin Profesyonel Randevu Sistemi",
+        "desc": "Dövme, piercing ve lazer seans randevularını yönetin. Tasarım onay süreci, kaparo ve çok seanslı proje takibi.",
+        "features": ["Proje bazlı çok seanslı randevu", "Kaparo & bakiye takibi", "Tasarım notları & fotoğraflar", "Müşteri onam belgesi", "Tattoo sanatçısı takvimi", "WA ile seans hatırlatma"],
+        "keywords": ["tattoo studio randevu sistemi", "dövmeci randevu programı"]
+      },
+      "diyetisyen": {
+        "title": "Diyetisyen",
+        "headline": "Diyetisyen Kliniği İçin Randevu & Danışan Yönetimi",
+        "desc": "Beslenme danışmanlığı, takip seansları ve online konsültasyon randevularını yönetin. Danışan kartı ve ilerleme takibi.",
+        "features": ["Online & yüz yüze seans", "Danışan takip profili", "Tekrar eden haftalık randevu", "E-posta & WA hatırlatma", "Ödeme & paket yönetimi", "Randevu geçmişi"],
+        "keywords": ["diyetisyen randevu sistemi", "beslenme danışmanı programı"]
+      },
+      "kas": {
+        "title": "Kaş & Kirpik",
+        "headline": "Kaş & Kirpik Stüdyosu İçin Randevu Sistemi",
+        "desc": "Kaş tasarımı, microblading, kirpik uzatma ve laminasyon randevularını yönetin. Seans süresi ve doluluk optimizasyonu.",
+        "features": ["Seans süresi bazlı rezervasyon", "Tekrar eden müşteri hatırlatma", "Renk ve stil notları", "Müşteri fotoğraf galerisi", "Online ön ödeme", "Sadakat programı"],
+        "keywords": ["kaş kirpik randevu sistemi", "kirpik stüdyo programı"]
+      },
+      "dis-klinigi": {
+        "title": "Diş Kliniği",
+        "headline": "Diş Kliniğiniz İçin Akıllı Randevu Yönetimi",
+        "desc": "Muayene, kontrol ve tedavi randevularını tek sistemden yönetin. Hasta hatırlatmaları, doktor bazlı takvim ve bekleme listesiyle klinik akışınızı hızlandırın.",
+        "features": ["Doktor bazlı randevu takvimi", "Hasta hatırlatma (SMS/WhatsApp)", "Tedavi/kontrol randevusu ayrımı", "Bekleme listesi", "Hasta geçmişi ve notlar", "Çok şubeli klinik desteği"],
+        "keywords": ["diş kliniği randevu sistemi", "diş hekimi randevu programı"]
+      },
+      "petkuafor": {
+        "title": "Pet Kuaför",
+        "headline": "Pet Kuaförünüz İçin Kolay Randevu Sistemi",
+        "desc": "Tüy kesimi, banyo ve bakım randevularını tek takvimden yönetin. Hayvan sahiplerine otomatik hatırlatma gönderin, personel bazlı doluluk takip edin.",
+        "features": ["Hizmet bazlı randevu takvimi (tüy kesimi, banyo, tırnak bakımı)", "Otomatik hatırlatma (SMS/WhatsApp)", "Personel bazlı doluluk takibi", "Müşteri & evcil hayvan kayıtları", "Bekleme listesi", "Sadakat programı"],
+        "keywords": ["pet kuaför randevu sistemi", "evcil hayvan bakım randevusu"]
+      }
+    }
+  },
   "testimonials": {
     "title": "İşletmeler Ne Diyor?",
     "subtitle": "Türkiye ve dünyadan salon sahiplerinin deneyimleri"
@@ -879,9 +1051,11 @@
     "whatsappSupport": "WhatsApp Destek",
     "security": "Güvenlik",
     "cookieSettings": "Çerez ayarları",
-    "companyReg": "İngiltere ve Galler'de kayıtlı şirket · Companies House No. 17142392"
+    "companyReg": "İngiltere ve Galler'de kayıtlı şirket · Companies House No. 17142392",
+    "ipCopyright": "Fikri Mülkiyet & AI Telif Hakları"
   },
   "home": {
+    "breadcrumbLabel": "Ana Sayfa",
     "trust": {
       "ssl": "SSL Şifreli",
       "uptime": "%99.9 Uptime Garantisi",
@@ -929,7 +1103,70 @@
     "businessType": "İşletme Türü",
     "selectPlan": "Plan Seçin",
     "createAccount": "Hesap Oluştur",
-    "trialNote": "14 gün ücretsiz, kredi kartı gerekmez"
+    "trialNote": "14 gün ücretsiz, kredi kartı gerekmez",
+    "registerPage": {
+      "title": "14 Gün Ücretsiz Deneyin",
+      "subtitle": "Kredi kartı gerekmez • Anında başlayın",
+      "businessTypeLabel": "İşletme Türü",
+      "businessTypes": {
+        "kuafor": "💇 Kuaför / Saç Salonu",
+        "berber": "✂️ Berber",
+        "guzellik": "💄 Güzellik Merkezi",
+        "spa": "🧖 Spa & Masaj",
+        "nail": "💅 Nail Salon / Tırnak",
+        "estetik": "✨ Estetik Klinik",
+        "makyaj": "🎨 Makyaj Stüdyosu",
+        "tattoo": "🖋️ Tattoo Stüdyosu",
+        "diyetisyen": "🥗 Diyetisyen",
+        "kas_kirpik": "👁️ Kaş & Kirpik Stüdyosu",
+        "pet_kuafor": "🐾 Pet Kuaför / Evcil Hayvan Bakımı"
+      },
+      "salonNameLabel": "Salon / İşletme Adı",
+      "salonNamePlaceholder": "Salon Adınız",
+      "taxNumberLabel": "VKN / TC Kimlik No",
+      "optional": "(isteğe bağlı)",
+      "taxNumberPlaceholder": "Vergi No (10 hane) veya TCKN (11 hane)",
+      "taxNumberHelp": "Faturalandırma için kullanılır, sonradan Ayarlar'dan da girebilirsiniz.",
+      "taxNumberError": "VKN 10 haneli, TC Kimlik No 11 haneli olmalıdır.",
+      "fullNameLabel": "Adınız Soyadınız",
+      "fullNamePlaceholder": "Ad Soyad",
+      "emailLabel": "E-posta",
+      "emailPlaceholder": "ad@ornek.com",
+      "emailError": "Geçerli bir e-posta adresi girin (örn: ad@ornek.com)",
+      "phoneLabel": "Telefon",
+      "countryCodeTitle": "Ülke kodu",
+      "phonePlaceholder": "5xx xxx xx xx",
+      "phoneErrorRequired": "Telefon numarası zorunludur.",
+      "phoneErrorInvalidTr": "Geçerli bir cep telefonu numarası girin (örn: 532 123 45 67)",
+      "phoneErrorInvalid": "Geçerli bir telefon numarası girin.",
+      "timezoneLabel": "Saat Dilimi",
+      "timezoneHelp": "Randevularınız bu saat dilimine göre hesaplanır, dilediğiniz zaman Ayarlar'dan değiştirebilirsiniz.",
+      "passwordLabel": "Şifre",
+      "passwordPlaceholder": "En az 8 karakter",
+      "passwordTooShort": "Şifre en az 8 karakter olmalı.",
+      "salonNameRequired": "İşletme adı zorunludur.",
+      "kvkkLabel": "<link>KVKK Aydınlatma Metni</link>'ni okudum, kişisel verilerimin işlenmesini kabul ediyorum.",
+      "privacyLabel": "<privacyLink>Gizlilik Politikası</privacyLink>'nı ve <termsLink>Kullanım Koşulları</termsLink>'nı okudum ve kabul ediyorum.",
+      "marketingLabel": "SiriPlan'ın kampanya, duyuru ve özel tekliflerinden e-posta / SMS ile haberdar olmak istiyorum.",
+      "consentRequired": "Devam etmek için zorunlu onayları işaretleyin.",
+      "consentRequiredToast": "Devam etmek için zorunlu onayları işaretlemeniz gerekmektedir.",
+      "submitLoading": "Hesap oluşturuluyor...",
+      "submit": "Ücretsiz Hesap Oluştur",
+      "hasAccount": "Zaten hesabınız var mı?",
+      "loginLink": "Giriş yapın",
+      "loginLinkCta": "Giriş Yap",
+      "registrationFailed": "Kayıt başarısız. Lütfen tekrar deneyin.",
+      "signInFailed": "Hesap oluşturuldu ancak giriş yapılamadı: {message}",
+      "genericError": "Bir hata oluştu. Lütfen tekrar deneyin.",
+      "successToast": "Hesabınız oluşturuldu!",
+      "successTitle": "Hesabınız oluşturuldu!",
+      "successDesc": "Panele girmeden önce SiriPlan'ı ana ekranınıza ekleyebilirsiniz — uygulama gibi tek dokunuşla açılır.",
+      "goToPanel": "Panele Git",
+      "titlePurchase": "Hesap Oluşturun ve Ödemeye Geçin",
+      "subtitlePurchase": "Kayıt sonrası güvenli ödeme sayfasına yönlendirileceksiniz",
+      "submitPurchase": "Devam Et ve Öde",
+      "checkoutFailed": "Ödeme sayfası açılamadı. Panelinizden tekrar deneyebilirsiniz."
+    }
   },
   "dashboard": {
     "tour": {
@@ -986,7 +1223,30 @@
     "dataMigrationPage": {
       "eyebrow": "Veri Yönetimi",
       "title": "Veri Göçü",
-      "subtitle": "Verilerinizi aktarın veya güvenle indirin"
+      "subtitle": "Verilerinizi aktarın veya güvenle indirin",
+      "downloadTitle": "Verilerimi İndir",
+      "downloadDesc": "Tüm verileriniz size aittir. İstediğiniz zaman indirin.",
+      "excelInfo": "Excel: müşteriler, hizmetler, personel ve randevuları ayrı sayfalarda içerir. PDF: tarayıcı yazdırma ile kaydedin.",
+      "importTitle": "Veri Aktar",
+      "importDesc": "Başka bir uygulamadan müşteri ve randevu verilerinizi aktarın",
+      "selectSource": "Kaynak seçin:",
+      "dragDrop": "CSV, Excel veya JSON dosyası seçin",
+      "dragDropSub": "veya sürükle-bırak",
+      "importing": "İçe aktarılıyor...",
+      "migrateTitle": "Rakip uygulamadan geçiş yapmak mı istiyorsunuz?",
+      "step1": "Yukarıdan kaynak seçin",
+      "step2": "CSV, Excel veya JSON dosyanızı yükleyin",
+      "step3": "Verileriniz otomatik aktarılır",
+      "step4": "Ziyaret ve harcama geçmişi korunur",
+      "jsonFullData": "Tam Veri",
+      "csvCustomers": "Müşteriler",
+      "pdfPrint": "Yazdır",
+      "sourceBookingApp": "Randevu Programı",
+      "sourceOtherSoftware": "Diğer Yazılım",
+      "noteLabel": "Not",
+      "noteSalonappy": "Randevu programınızdan CSV olarak veri dışa aktarın: Ayarlar → Veri Dışa Aktar",
+      "noteArvengo": "Mevcut yazılımınızdan dışa aktarın: Panel → Raporlar → Excel veya CSV İndir",
+      "noteExcel": "Sütun başlıkları: Ad Soyad, Telefon (zorunlu) · E-posta, Doğum Tarihi, Notlar, Toplam Ziyaret, Toplam Harcama, Son Ziyaret (opsiyonel). CSV, Excel ve JSON desteklenir."
     },
     "subscriptionPage": {
       "eyebrow": "Plan & Fatura",
@@ -1001,6 +1261,8 @@
       "statusPastDue": "Ödeme Bekliyor",
       "statusCancelled": "İptal Edildi",
       "planSuffix": "{planName} Planı",
+      "trialPlanName": "Deneme",
+      "proFeaturesActiveBadge": "Pro özellikleri açık",
       "trialEnds": "Deneme {date} tarihinde bitiyor",
       "staffLabel": "Personel",
       "appointmentsLabel": "Randevu (bu ay)",
@@ -1009,8 +1271,21 @@
       "appStoreNote": "Hesabınızın planı ve kullanım limitleri yukarıda görünür.",
       "compareAndStart": "Planları Karşılaştır & Aboneliği Başlat",
       "upgradeToPro": "Pro'ya Yükselt",
+      "changeToPlan": "{plan} Planına Geç",
       "manageBilling": "Fatura & Ödeme Yöntemini Yönet",
-      "trialBottomNote": "Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez. Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz."
+      "trialBottomNote": "Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez. Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz.",
+      "cancelSubscription": "Aboneliği İptal Et",
+      "cancelConfirmTitle": "Aboneliği iptal etmek istediğinize emin misiniz?",
+      "cancelConfirmDescription": "Aboneliğiniz mevcut ödeme döneminizin sonuna kadar aktif kalır, kartınızdan tekrar ücret çekilmez. Dönem bitince hesabınız Deneme planına düşer.",
+      "cancelConfirmButton": "Evet, İptal Et",
+      "cancelDismissButton": "Vazgeç",
+      "cancelLoading": "İptal ediliyor...",
+      "cancelSuccessToast": "Aboneliğiniz iptal edildi.",
+      "cancelErrorToast": "İptal işlemi başarısız oldu. Lütfen tekrar deneyin veya destek ile iletişime geçin.",
+      "cancelScheduledNote": "Aboneliğiniz {date} tarihine kadar aktif kalacak, sonrasında yenilenmeyecek.",
+      "cancelUndo": "İptali Geri Al",
+      "cancelUndoLoading": "Geri alınıyor...",
+      "cancelUndoSuccessToast": "İptal geri alındı, aboneliğiniz normal şekilde devam edecek."
     },
     "reportsPage": {
       "eyebrow": "Analizler",
@@ -1034,7 +1309,8 @@
       "topStaff": "Bu Ay En Yüksek Ciro (Personel)",
       "monthlyRevenue": "Bu Ay Ciro",
       "noShowRate": "No-Show Oranı",
-      "totalTransactions": "Toplam İşlem"
+      "totalTransactions": "Toplam İşlem",
+      "estimatedVat": "Tahmini KDV"
     },
     "websiteSettingsPage": {
       "eyebrow": "Website",
@@ -1201,6 +1477,8 @@
       "deleteCustomerAria": "{name} kaydını sil",
       "marketingAcceptedTitle": "Kampanya bildirimi onaylı",
       "marketingMissingTitle": "Kampanya bildirimi onayı yok",
+      "kvkkAcceptedTitle": "KVKK onayı verildi",
+      "kvkkMissingTitle": "KVKK onayı yok",
       "visit": "Ziyaret",
       "spend": "Harcama",
       "score": "Puan",
@@ -1214,6 +1492,15 @@
     "pendingRequestsPage": {
       "sourceLabel": "WhatsApp / Instagram",
       "subtitle": "WhatsApp veya Instagram üzerinden gelen ve manuel onayınızı bekleyen randevu talepleri."
+    },
+    "overdueAppointments": {
+      "title": "Sonuçlandırılmamış Randevular",
+      "subtitle": "Randevu saati geçtiği hâlde hâlâ \"Onaylandı\" durumunda kalan randevular. Kontrol edip tamamlandı, gelmedi veya iptal olarak işaretleyin.",
+      "markAllBtn": "Tümünü Tamamlandı İşaretle",
+      "markAllConfirm": "{count} randevu tamamlandı olarak işaretlenecek (paketi varsa seanstan düşülür, yoksa ücreti nakit sayılır). Onaylıyor musunuz?",
+      "markAllDone": "{done}/{total} randevu tamamlandı olarak işaretlendi",
+      "markAllFailed": "Bazı randevular işaretlenemedi, lütfen tekrar deneyin",
+      "notAssigned": "Size atanmadı"
     },
     "waitlistPage": {
       "eyebrow": "Randevu",
@@ -1235,12 +1522,150 @@
       "incomeDistribution": "Gelir Dağılımı",
       "expenseDistribution": "Gider Dağılımı",
       "applyToMonth": "Uygula",
-      "applyActiveRecurring": "({count}) uygula"
+      "applyActiveRecurring": "({count}) uygula",
+      "recurringBills": "Sabit Giderler",
+      "pdfExport": "PDF Rapor",
+      "addRecord": "Kayıt Ekle",
+      "recurringTemplates": "Sabit Gider Şablonları",
+      "recurringDesc": "Her ay tekrarlayan kira, maaş, fatura gibi giderleri tanımlayın. Tek tıkla seçili aya uygulayın.",
+      "addTemplate": "Şablon Ekle",
+      "applyMonthButton": "{month}'e Uygula",
+      "noTemplatesYet": "Henüz sabit gider şablonu yok",
+      "noTemplatesHint": "Kira, maaş, fatura gibi aylık tekrarlayan giderleri ekleyin",
+      "addFirstTemplate": "İlk Şablonu Ekle",
+      "labelDescription": "Açıklama",
+      "labelCategory": "Kategori",
+      "labelPayment": "Ödeme",
+      "labelAmount": "Tutar",
+      "labelDate": "Tarih",
+      "activeTemplatesTotal": "aktif şablon · toplam",
+      "monthlyFixedExpense": "aylık sabit gider",
+      "totalIncome": "Toplam Gelir",
+      "totalExpense": "Toplam Gider",
+      "netProfitLoss": "Net Kâr / Zarar",
+      "estimatedVat": "Tahmini KDV",
+      "vatAssumptionNote": "Gelir tutarının KDV dahil olduğu varsayılır",
+      "apptRevenueNote": "Bu dönemin toplam gelirine, tamamlanan randevulardan otomatik {amount} dahildir. Bekleyen randevular \"Tamamlandı\" işaretlenince buraya yansır.",
+      "changeAnalysis": "Değişim Analizi",
+      "metric": "Metrik",
+      "change": "Değişim",
+      "bestProfitMonth": "En Yüksek Net Kârlı Ay",
+      "worstProfitMonth": "En Düşük Net Kârlı Ay",
+      "records": "Kayıtlar",
+      "filterAll": "Tümü",
+      "filterIncome": "Gelir",
+      "filterExpense": "Gider",
+      "noRecordsPeriod": "Bu dönem için kayıt yok",
+      "addManually": "Manuel Ekle",
+      "applyRecurringBtn": "Sabit Giderleri Uygula",
+      "autoFromAppointment": "Randevudan otomatik",
+      "editRecord": "Kaydı Düzenle",
+      "newRecord": "Yeni Kayıt",
+      "incomeType": "💰 Gelir",
+      "expenseType": "💸 Gider",
+      "descriptionPlaceholder": "Açıklama yazın...",
+      "paymentMethodLabel": "Ödeme Yöntemi",
+      "paymentCash": "Nakit",
+      "paymentCard": "Kart",
+      "paymentTransfer": "Havale / EFT",
+      "paymentCheque": "Çek",
+      "noteOptional": "Not (isteğe bağlı)",
+      "cancel": "İptal",
+      "update": "Güncelle",
+      "save": "Kaydet",
+      "editTemplate": "Şablonu Düzenle",
+      "newTemplate": "Yeni Sabit Gider Şablonu",
+      "templateApplyHint": "Bu şablon her ay tek tıkla seçili döneme uygulanabilir.",
+      "templateDescPlaceholder": "Aylık Kira, Elektrik...",
+      "saveTemplate": "Şablon Kaydet"
     },
     "stockPage": {
       "eyebrow": "Ön Muhasebe & Stok",
       "title": "Stok Yönetimi",
-      "subtitle": "Ürün stoğu, kritik stok uyarıları ve mal giriş/çıkış takibi"
+      "subtitle": "Ürün stoğu, kritik stok uyarıları ve mal giriş/çıkış takibi",
+      "unitPcs": "adet",
+      "unitBottle": "şişe",
+      "unitBox": "kutu",
+      "unitTube": "tüp",
+      "unitGram": "gram",
+      "txTypeIn": "Stok Girişi (Mal Alımı)",
+      "txTypeOut": "Stok Çıkışı (Kullanım / Satış)",
+      "txTypeAdjust": "Stok Düzeltme (Sayım)",
+      "loadTemplate": "Örnek Katalog Yükle",
+      "newProduct": "Yeni Ürün Ekle",
+      "totalProducts": "Toplam Ürün Çeşidi",
+      "criticalStock": "Kritik Stok Uyarısı",
+      "totalStockValue": "Toplam Stok Değeri (Maliyet)",
+      "searchPlaceholder": "Ürün adı ara...",
+      "allCategories": "Tüm Kategoriler",
+      "noProductsYet": "Henüz stok ürünü bulunmuyor",
+      "addProduct": "Ürün Ekle",
+      "productName": "Ürün Adı",
+      "categoryLabel": "Kategori",
+      "stockStatus": "Stok Durumu",
+      "costPrice": "Maliyet Fiyatı",
+      "salePrice": "Satış Fiyatı",
+      "actions": "İşlemler",
+      "unitShort": "Birim",
+      "generalCategory": "Genel",
+      "criticalLimit": "Kritik Sınır",
+      "stockInOut": "Stok Giriş/Çıkış",
+      "stockInOutShort": "Giriş/Çıkış",
+      "editBtn": "Düzenle",
+      "editProduct": "Ürün Düzenle",
+      "productNamePlaceholder": "Örn: Şampuan 1000ml",
+      "categoryPlaceholder": "Örn: Saç Bakımı",
+      "unitOfMeasure": "Ölçü Birimi",
+      "currentStock": "Mevcut Stok",
+      "cancel": "İptal",
+      "update": "Güncelle",
+      "save": "Kaydet",
+      "stockTransactionTitle": "Stok Hareketi",
+      "transactionType": "İşlem Türü",
+      "newStockLevel": "Yeni Stok Miktarı",
+      "quantity": "Miktar",
+      "unitPrice": "Birim Fiyat",
+      "defaultPriceNoteCost": "Boş bırakılırsa ürünün varsayılan maliyet fiyatı ({price}) kullanılır.",
+      "defaultPriceNoteSale": "Boş bırakılırsa ürünün varsayılan satış fiyatı ({price}) kullanılır.",
+      "descNoteLabel": "Açıklama / Not (opsiyonel)",
+      "descNotePlaceholder": "Örn: Fatura No, Kullanılan Hizmet vb.",
+      "saveTransaction": "İşlemi Kaydet",
+      "barcode": {
+        "scanSell": "Barkodla Sat",
+        "scanTitle": "Barkodla Satış",
+        "scanHint": "Barkodu çerçeveye getirin",
+        "scanned": "Barkod okundu: {code}",
+        "scan": "Tara",
+        "field": "Barkod",
+        "fieldPlaceholder": "Ürün barkodu (EAN / UPC)",
+        "fieldHint": "Kutunun üzerindeki barkodu yazın/tarayın ya da barkodu yoksa kod üretin.",
+        "generate": "Kod üret",
+        "generated": "Barkod üretildi",
+        "generateFailed": "Barkod üretilemedi",
+        "nameFirst": "Önce ürün adını girin",
+        "printLabel": "QR etiketi yazdır",
+        "printFailed": "Etiket oluşturulamadı",
+        "lookupFailed": "Barkod sorgulanamadı",
+        "looking": "Ürün aranıyor…",
+        "notLinked": "Bu barkod bir ürüne bağlı değil",
+        "linkToProduct": "Yeni ürün ekle & bağla",
+        "remaining": "Kalan",
+        "qtyLabel": "Adet",
+        "priceLabel": "Birim fiyat",
+        "sell": "Sat",
+        "sold": "{qty} × {name} satıldı",
+        "nowLow": "{name} kritik stok seviyesinde",
+        "sellFailed": "Satış kaydedilemedi",
+        "invalidQty": "Geçerli bir adet girin",
+        "saleNote": "Barkodla perakende satış",
+        "scanAnother": "Başka barkod tara",
+        "manualPlaceholder": "Barkodu elle girin",
+        "manualSubmit": "Bul",
+        "manualInvalid": "Geçersiz barkod",
+        "enterManually": "Elle gir",
+        "retryCamera": "Kamerayı tekrar dene",
+        "cameraFallback": "Kamera açılamadı — barkodu elle girebilirsiniz."
+      }
     },
     "months": [
       "Ocak",
@@ -1264,6 +1689,10 @@
       {
         "value": "urun",
         "label": "Ürün Satışı"
+      },
+      {
+        "value": "paket",
+        "label": "Paket / Seans Satışı"
       },
       {
         "value": "komisyon",
@@ -1314,6 +1743,18 @@
     "waitlist": "Bekleme Listesi",
     "waitlistAndApprovals": "Bekleme Listesi / Onay Bekleyenler",
     "pendingRequests": "Bekleyen İstekler",
+    "liveNotify": {
+      "newRequestTitle": "Yeni Randevu Talebi",
+      "newRequestBodyNamed": "{name} adlı müşteriden yeni bir randevu talebi geldi.",
+      "newRequestBodyGeneric": "Yeni bir randevu talebi geldi.",
+      "newPendingBodyNamed": "{name} için onay bekleyen bir randevu var.",
+      "newPendingBodyGeneric": "Onay bekleyen yeni bir randevu var."
+    },
+    "notifSound": {
+      "on": "Bildirim sesi açık",
+      "off": "Bildirim sesi kapalı",
+      "toggleAria": "Yeni randevu bildirim sesini aç/kapat"
+    },
     "customers": "Müşteriler",
     "staff": "Personel",
     "services": "Hizmetler",
@@ -1322,6 +1763,182 @@
     "reports": "Raporlar",
     "dataMigration": "Veri Göçü",
     "guide": "Kullanım Kılavuzu",
+    "guidePage": {
+      "supportEducation": "DESTEK & EĞİTİM",
+      "copyProtected": "Kopyalamaya Karşı Korumalı",
+      "menu": {
+        "baslangic": "1. Hızlı Başlangıç",
+        "giris": "2. Giriş Akışı & Rolleri",
+        "panel": "3. Panel Kişiselleştirme",
+        "hizmetler": "4. Hizmet Tanımlama",
+        "personel": "5. Personel & Yetkiler",
+        "takvim": "6. Takvim & Randevu",
+        "adisyon": "7. Adisyon & Fiş Yazma",
+        "vitrin": "8. Web Vitrini (/r/[slug])",
+        "whatsapp": "9. Bildirim Ayarları",
+        "telegram": "10. Bildirim Kanalları",
+        "kampanya": "11. Toplu Kampanyalar",
+        "abonelik": "12. Abonelik & Plan",
+        "sadakat": "13. Sadakat Puanları",
+        "maas": "14. Gelir-Gider & Maaş",
+        "raporlar": "15. Raporlar & Veri Göçü",
+        "sss": "16. Sık Sorulan Sorular",
+        "sunum": "🎬 İnteraktif Sunum (19 Slayt)"
+      },
+      "sections": {
+        "baslangic": {
+          "title": "1. Hızlı Başlangıç & Hesap Kurulumu",
+          "intro": "SiriPlan Randevu & İşletme Yönetim Sistemi ile salonunuzu 5 dakikada dijitalleştirin. Kağıt-kalem karmaşasına, unutulan randevulara ve boş koltuklara son verin!",
+          "steps": [
+            { "title": "Ücretsiz Kayıt Olun", "desc": "Kayıt ekranından işletme adınız, e-postanız ve telefon numaranızla 14 gün ücretsiz hesabınızı açın. Kredi kartı gerekmez." },
+            { "title": "İşletme Bilgilerini Doldurun", "desc": "Ayarlar → Genel sekmesine gidin. Sektörünüzü seçin (Kuaför, Güzellik Salonu, Nail Art, Spa vb.), çalışma gün ve saatlerinizi belirleyin, logonuzu ve kapak görselinizi yükleyin." }
+          ]
+        },
+        "giris": {
+          "title": "2. Giriş Akışı: Yönetici ve Personel Girişi",
+          "intro": "SiriPlan çoklu kullanıcı ve rol mimarisini destekler:",
+          "items": [
+            { "label": "İşletme Sahibi / Yönetici Girişi:", "desc": "Kayıtlı E-posta veya Telefon numarası + şifre ile sisteme giriş yapar. İşletmenin tüm finansal verilerine, ayarlarına ve raporlarına tam erişime sahiptir." },
+            { "label": "Personel Girişi:", "desc": "Yönetici, Personel → Davet Et butonu ile personeline bir davet bağlantisi gönderir. Personel kendi e-postası veya telefonu ile sisteme girerek bağlı olduğu işletmenin paneline yönlendirilir. Personeller yalnızca kendi randevularını ve müşteri takvimini görür; işletme cirosu ve finansal ayarları göremezler." }
+          ]
+        },
+        "panel": {
+          "title": "3. Panel Açılışını (Dashboard) Kişiselleştirme",
+          "intro": "Panele giriş yaptığınızda karşınıza çıkan Ana Sayfa (Dashboard) widget tabanlı esnek bir yapıya sahiptir:",
+          "items": [
+            { "label": "Widget'ları Sürükle-Bırak:", "desc": "Sağ üstteki \"Kişiselleştir\" butonuna basarak widget kartlarının yerlerini sürükleyip değiştirebilirsiniz." },
+            { "label": "Kartları Göster / Gizle:", "desc": "İhtiyacınız olmayan kartları göz ikonuna basarak gizleyebilir, sık kullandıklarınızı ön plana çıkarabilirsiniz." },
+            { "label": "Kişiye Özel Hafıza:", "desc": "Yapılan görünüm tercihleri her kullanıcının kendi hesabına özel kaydedilir (bir uzmanın gizlediği kart yöneticinin ekranını etkilemez)." },
+            { "label": "Renk Teması Seçimi:", "desc": "Sidebar'ın alt kısmındaki palet ikonundan işletmenize uygun bir renk teması seçin — Pembe Rose, Klasik Mavi, Okyanus Mavisi, Doğa Yeşili, Gece Modu, Turuncu Gün Batımı ve Gece Yarısı Mor arasından. Tercihiniz bu cihazda hatırlanır." }
+          ]
+        },
+        "hizmetler": {
+          "title": "4. Hizmetlerinizi Tanımlayın",
+          "intro": "İşletmenizde sunduğunuz tüm işlemleri sisteme yükleyin:",
+          "steps": [
+            "Sol menüden Hizmetler sekmesine girin.",
+            "+ Yeni Hizmet butonuna tıklayın.",
+            "Bilgileri doldurun: Hizmet adı, kategorisi, süresi (takvimde işlem süresini kilitler) ve fiyatı girin.",
+            "Kaydet butonuna basın."
+          ]
+        },
+        "personel": {
+          "title": "5. Personellerinizi ve Yetkileri Ekleyin",
+          "intro": "Ekibinizdeki her uzman için ayrı takvim ve yetki tanımlayabilirsiniz:",
+          "steps": [
+            "Sol menüden Personel sekmesine girin.",
+            "+ Personel Ekle / Davet Et butonuna tıklayın.",
+            "Personelin adını, telefonunu, çalışma günlerini ve takvimde görünecek rengini seçin.",
+            "Yetki Rolü Belirleyin: Yönetici (Tüm yetkiler) veya Personel (Yalnızca kendi randevularını görebilme) rollerini atayın.",
+            "Maaş & Komisyon Tanımı: Personel detay sayfasından Taban Maaş ve % Komisyon Oranı belirleyin."
+          ]
+        },
+        "takvim": {
+          "title": "6. Takvim & Randevu Yönetimi",
+          "blocks": [
+            { "heading": "Tıklayarak Anında Randevu Oluşturma:", "text": "Takvim ekranında boş bir saat dilimine veya bir uzmanın sütununa tıkladığınızda, seçtiğiniz Tarih, Saat ve Personel otomatik doldurulmuş olarak Yeni Randevu modalı açılır." },
+            { "heading": "Takvimi Özelleştirme ve Filtreleme:", "text": "Takviminizi Gün, Hafta veya Ay bazında görüntüleyebilirsiniz. Personel filtresini kullanarak tüm uzmanları yan yana sütunlar halinde kıyaslayabilir veya tek bir personelin programına odaklanabilirsiniz." }
+          ]
+        },
+        "adisyon": {
+          "title": "7. Adisyon Oluşturma & Fiş Çıkarma",
+          "intro": "SiriPlan panelinde tamamlanan randevular için profesyonel adisyon ve fiş dökümü mevcuttur:",
+          "steps": [
+            "Randevunun üzerine tıklayıp detay sayfasında bulunan \"Adisyon\" butonuna tıklayın.",
+            "Adisyon içeriğinde: İşletme Logosu, İşletme Adı, Adres, Telefon, Hizmet(ler), Bahşiş ve Toplam Tutar ile Ödeme Yöntemi görünür.",
+            "Sağ üstteki \"Yazdır\" butonu ile adisyonu doğrudan termal yazıcıya gönderebilir veya PDF olarak kaydedebilirsiniz.",
+            "Detay sayfasına girmeden de 3 kısayoldan ulaşabilirsiniz: bir randevuyu \"Tamamlandı\" işaretlediğinizde çıkan bildirimden, Randevular listesindeki tamamlanmış randevu kartının altındaki \"Adisyon\" düğmesinden veya müşteri detay sayfasındaki geçmiş randevu satırının yanındaki fiş ikonundan."
+          ]
+        },
+        "vitrin": {
+          "title": "8. İşletme Web Sitesi & Vitrin Görünümü (/r/[slug])",
+          "intro": "Müşterilerinizin 7/24 online randevu alabileceği ve salonunuzu inceleyebileceği özel bir web vitrini sunulur:",
+          "items": [
+            { "label": "Özel Web Adresi:", "desc": "Her işletmeye özel siriplan.com/r/isletme-adiniz şeklinde şık bir bağlantı tanımlanır." },
+            { "label": "Resim & Görsel Yükleme:", "desc": "Ayarlar → Genel sayfasından salonunuzun Logosunu, Kapak Görselini ve Salon Galeri Fotoğraflarını yükleyebilirsiniz. Fotoğraflar vitrin sayfasında estetik şekilde listelenir." },
+            { "label": "Online Randevu Sihirbazı:", "desc": "Müşterileriniz profilinize girerek sırasıyla Hizmet → Personel → Tarih ve Saat seçip saniyeler içinde randevu oluşturabilirler." }
+          ]
+        },
+        "whatsapp": {
+          "title": "9. Otomatik WhatsApp / SMS Bildirimleri",
+          "intro": "Müşterilerinizin randevuyu unutmasını engellemenin en pratik yolu!",
+          "items": [
+            { "label": "Ayarlar → Bildirimler:", "desc": "bölümüne gidip WhatsApp, SMS veya Telegram entegrasyonunu aktif edin." },
+            { "label": "Otomatik Mesaj Türleri:", "desc": "Randevu Oluşturuldu, Hatırlatma (randevudan 2 saat veya 1 gün önce) ve İptal/Değişiklik bildirimleri otomatik olarak gider." },
+            { "label": "Mesaj Tonu:", "desc": "Sıcak, Resmi veya Kısa stillerden salon konseptinize uygun olanı seçin." }
+          ]
+        },
+        "telegram": {
+          "title": "10. Personel Bildirim Kanalları (Telegram, WhatsApp, Uygulama İçi)",
+          "intro": "Yeni randevu/talep geldiğinde siz ve personeliniz birden fazla kanaldan aynı anda haberdar olabilir:",
+          "steps": [
+            "Telegram uygulamasında arama kısmına @siriplan_bot yazın, botu açıp \"Başlat / Start\" butonuna basın.",
+            "Botun size verdiği sayısal Chat ID numarasını kopyalayın.",
+            "SiriPlan panelinde Ayarlar → Bildirimler alanındaki \"Telegram Chat ID\" kutusuna yapıştırıp kaydedin.",
+            "WhatsApp bildirimi için Ayarlar (salon geneli) veya Personel → [isim] sayfasındaki \"WhatsApp Numarası\" alanını doldurun. Not: Meta kuralı gereği yalnızca bu numaradan işletmenize son 24 saat içinde yazılmışsa iletilir — hiç kaçırmamak için Telegram'ı da bağlayın.",
+            "Panel açıkken (bilgisayar veya telefon fark etmez) yeni randevu/talep geldiğinde otomatik sesli uyarı ve bildirim çalar; sesi Sidebar/menüdeki zil ikonundan açıp kapatabilirsiniz.",
+            "Hangi kanaldan bildirim almak istediğinizi Ayarlar → Entegrasyonlar veya Personel detay sayfasındaki kutucuklarla seçin — hepsi başta açık gelir, istemediğinizi kapatabilirsiniz."
+          ]
+        },
+        "kampanya": {
+          "title": "11. Toplu WhatsApp Kampanyaları",
+          "intro": "Boş günleri doldurmak veya özel kampanyalar yapmak için müşterilerinize toplu mesaj gönderin:",
+          "steps": [
+            "Kampanyalar sekmesine tıklayın ve + Yeni Kampanya butonuna basın.",
+            "Mesaj metnini yazın ve dinamik değişkenleri kullanın: Merhaba {{musteri_adi}}, {{salon_adi}}...",
+            "İstediğiniz müşteri grubunu filtreleyin (Örn: Son 30 gündür gelmeyenler) ve gönderimi başlatın."
+          ]
+        },
+        "abonelik": {
+          "title": "12. Abonelik & Plan Yönetimi",
+          "paragraphs": [
+            "Planlar: Starter, Pro ve Business planlarının tamamı sabit ve şeffaf yapıdadır; teklif alma / temsilci bekleme adımı yoktur. Her yeni hesap 14 gün ücretsiz deneme ile başlar.",
+            "Plan bilgileriniz: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.",
+            "Aboneliğiniz SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir. Plan yükseltme, yenileme veya faturalandırmayla ilgili sorularınız için destek ekibimizle iletişime geçin: info@bysirius.com · WhatsApp +90 535 503 26 34."
+          ]
+        },
+        "sadakat": {
+          "title": "13. Müşteri Yönetimi & Sadakat Puanları",
+          "intro": "Müşterilerinizin bağlılığını artırmak için sadakat puanı altyapısını kullanın:",
+          "items": [
+            { "label": "Müşteri Geçmişi:", "desc": "Müşteri detay sayfasından geçmiş tüm işlemlerini ve özel notlarını inceleyin." },
+            { "label": "Sadakat Puanı:", "desc": "Her tamamlanan randevuda müşterilerinize otomatik puan kazandırabilirsiniz. Hangi hizmetlerin sadakat kartı kazandıracağını Hizmetler sekmesinden ayarlayabilirsiniz." }
+          ]
+        },
+        "maas": {
+          "title": "14. Gelir-Gider Takibi & Personel Maaş Hesaplama",
+          "items": [
+            { "label": "Kasa Yönetimi:", "desc": "Kira, malzeme alımı, çay-faturalar gibi tüm harcamaları Gelir-Gider sekmesinden kaydederek net kârınızı izleyin." },
+            { "label": "Personel Maaş & Komisyon:", "desc": "Personel → Maaş Hesapla sayfasından o ayki toplam ödemeyi tek tıkla hesaplayın: Taban Maaş + (Yapılan Ciro × Komisyon %) + Bahşişler. Ödeme tamamlandığında tek tıkla gider olarak kasaya işleyin." },
+            { "label": "KDV Hesaplama:", "desc": "Ayarlar → KDV Hesaplama'dan oranınızı girip özelliği açabilirsiniz (yeni işletmelerde varsayılan olarak açıktır). Yasal oran değiştiğinde aynı ekrandan güncellersiniz — sabit kodlanmış bir oran kullanılmaz. Açıkken \"Tahmini KDV\" kartı hem bu sayfada hem de Raporlar'da, o ayki gelirin KDV dahil olduğu varsayılarak hesaplanır." }
+          ]
+        },
+        "raporlar": {
+          "title": "15. Raporlar ve Veri Göçü (Excel)",
+          "items": [
+            { "label": "Detaylı Raporlar:", "desc": "Günlük/haftalık randevu sayıları, ciro grafikleri, en çok tercih edilen hizmetler ve personel performanslarını analiz edin." },
+            { "label": "Excel/CSV Aktarımı:", "desc": "Eski müşteri listenizi Veri Göçü sayfasından Excel dosyasıyla tek tıkla yükleyin veya tüm verilerinizi yedeklemek için JSON/CSV olarak dışarı aktarın." }
+          ]
+        },
+        "sss": {
+          "title": "16. Sık Sorulan Sorular (SSS)",
+          "faqs": [
+            { "q": "Telegram randevu bildirimlerini nasıl açabilirim?", "a": "Telegram'da @siriplan_bot botuna mesaj atıp /start butonuna basın. Size verilen Chat ID numarasını Ayarlar sekmesindeki Telegram alanına yapıştırın." },
+            { "q": "Business planı için teklif mi istemeliyim?", "a": "Hayır, Business dahil tüm planlar sabit ve şeffaf yapıdadır; teklif alma adımı yoktur." },
+            { "q": "Planımı nereden görebilirim?", "a": "Ayarlar → Abonelik sayfasından mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi görüntüleyebilirsiniz. Plan ve faturalandırma sorularınız için: info@bysirius.com" }
+          ]
+        },
+        "sunum": {
+          "title": "🎬 SiriPlan İnteraktif Sunum",
+          "subtitle": "Kullanım kılavuzunu 19 slaytlık görsel slayt gösterisi olarak inceleyin.",
+          "fullscreenBtn": "Tam Ekran Modu",
+          "fullscreenTitle": "SiriPlan İnteraktif Sunum",
+          "closeEsc": "Kapat (ESC)",
+          "ipTitle": "Fikri Mülkiyet Koruması:",
+          "ipText": "Bu interaktif sunum dosyası oturum doğrulamalı güvenli API üzerinden çekilmektedir. Harici platformlarda paylaşılamaz veya kopyalanamaz."
+        }
+      }
+    },
     "settings": "Ayarlar",
     "myAccount": "Hesabım",
     "subscription": "Abonelik",
@@ -1370,6 +1987,7 @@
     "topStaff": "En İyi Performans",
     "income": "Gelir & Gider",
     "stock": "Stok Yönetimi",
+    "packages": "Paketler / Seans",
     "staffView": "👤 Personel Görünümü",
     "preferredLanguage": "Tercih Edilen Dil",
     "noLanguage": "Belirtilmedi",
@@ -1406,12 +2024,14 @@
     "liveNow": "Devam ediyor",
     "apptCountLabel": "{count} randevu",
     "moreCount": "+{count} daha",
+    "monthDayEmpty": "Bu günde randevu yok",
     "quickUpdate": "Hızlı Güncelle",
     "cannotChangeStatus": "Bu randevu size atanmadığı için durum değiştiremezsiniz.",
     "approve": "Onayla",
     "markCompleted": "Tamamlandı",
     "cancelAction": "İptal Et",
     "viewDetail": "Detaya Git",
+    "adisyonLink": "Adisyon",
     "minutesShort": "dk",
     "statusUpdatedToast": "Durum: {status}",
     "updateFailed": "Güncellenemedi",
@@ -1426,6 +2046,10 @@
     "statusOnaylandi": "Onaylandı",
     "statusTamamlandi": "Tamamlandı",
     "statusIptal": "İptal",
+    "proposeNewTime": "Yeni Saat Öner",
+    "proposeSubmit": "Öner",
+    "proposalPendingBadge": "Öneri gönderildi — müşteri cevabı bekleniyor ({datetime})",
+    "proposalRejectedBadge": "Müşteri önerilen saati reddetti — tekrar öneri ya da iptal edin",
     "homePage": {
       "yourBusiness": "İşletmeniz",
       "greeting": "Merhaba {name}.",
@@ -1451,6 +2075,9 @@
       "weeklyStarLabel": "Haftanın Yıldızı: {name}",
       "staffStatsLabel": "{count} randevu · ₺{revenue}",
       "newApptButton": "Randevu",
+      "performanceReportTitle": "Performans Raporum",
+      "monthlyEarningsLabel": "Bu Ay Kazandırdığım Toplam Tutar",
+      "completedApptsCountLabel": "{count} Tamamlanan Randevu",
       "campStatus": {
         "draft": "Hazır",
         "scheduled": "Planlandı",
@@ -1476,7 +2103,10 @@
       "workingTodayLabel": "Bugün Çalışıyor",
       "noStaffToday": "Bugün planlı personel yok",
       "servicesTitle": "Hizmetler",
-      "activeServicesCountLabel": "{count} aktif hizmet"
+      "activeServicesCountLabel": "{count} aktif hizmet",
+      "criticalStockTitle": "Kritik Stok",
+      "criticalStockOk": "Tüm stoklar yeterli seviyede",
+      "criticalStockCount": "{count} ürün kritik stok seviyesinde"
     },
     "noStaffAdded": "Personel eklenmemiş.",
     "addStaffCta": "Personel ekle",
@@ -1579,7 +2209,6 @@
       "dragTitle": "Sürükle"
     },
     "permissions": {
-      "view_customers": "Müşterileri görsün",
       "edit_customers": "Müşterileri düzenleyebilsin",
       "delete_customers": "Müşteri silebilsin",
       "view_reports": "Raporları görsün",
@@ -1618,6 +2247,45 @@
       "selfEditText": "Kendi yetkilerinizi değiştiremezsiniz. Değişiklik için işletme sahibine başvurun.",
       "saveFailedToast": "Yetkiler güncellenemedi"
     },
+    "staffDetailPage": {
+      "titleInfo": "Personel Bilgileri",
+      "nameLabel": "Ad Soyad *",
+      "namePlaceholder": "Personel adı",
+      "roleLabel": "Unvan / Rol",
+      "rolePlaceholder": "Uzman, Asistan...",
+      "commission": "Komisyon (%)",
+      "salary": "Sabit Taban Maaş",
+      "phone": "Telefon",
+      "email": "E-posta",
+      "language": "Tercih Edilen Dil",
+      "langUnspecified": "Belirtilmedi",
+      "langDesc": "Personel giriş yaptığında panel bu dilde açılır.",
+      "colorTitle": "Takvim Rengi",
+      "colorDesc": "Bu personelin randevuları takvimde bu renkle gösterilir.",
+      "colorAuto": "Otomatik (sıraya göre)",
+      "hoursTitle": "Çalışma Saatleri",
+      "starts": "Başlangıç",
+      "ends": "Bitiş",
+      "notifTitle": "Bildirim Kanalları",
+      "notifDesc": "Doldurulan her kanaldan otomatik randevu bildirimi gönderilir.",
+      "notifWaHint": "WhatsApp bildirimi, Meta kuralı gereği yalnızca bu numaradan işletmenize son 24 saat içinde yazılmışsa teslim olur. Her zaman ulaşan bildirim için Telegram Chat ID'yi de doldurun.",
+      "notifChannelActive": "Bu kanaldan bildirim al",
+      "workDays": "Çalışma Günleri",
+      "save": "Kaydet",
+      "servicesTitle": "Sunulan Hizmetler",
+      "servicesDesc": "Hizmet atamalarını değiştirmek için Hizmetler sayfasını kullanın.",
+      "timeOffTitle": "İzinler",
+      "timeOffDesc": "Bu tarih aralıklarında personel için online randevu ve panelden randevu oluşturma engellenir.",
+      "timeOffBtn": "İzin Ekle",
+      "activityTitle": "Personel Aktiviteleri",
+      "auditLogTitle": "Durum Değişikliği Geçmişi",
+      "dangerTitle": "Tehlikeli Alan",
+      "dangerDesc": "Personeli pasife almak onun yeni randevulara atanmasını engeller. Mevcut randevular etkilenmez.",
+      "deactivateBtn": "Pasife Al",
+      "noteLabel": "Not",
+      "reasonPlaceholder": "Yıllık izin, rapor...",
+      "inactiveBadge": "Pasif"
+    },
     "staffInvite": {
       "inviteButton": "Personel Davet Et",
       "dialogTitle": "Personel Davet Et",
@@ -1628,7 +2296,7 @@
       "copyLink": "Bağlantıyı kopyala",
       "linkCopied": "Bağlantı kopyalandı",
       "shareWhatsapp": "WhatsApp'ta Paylaş",
-      "shareText": "Sizi Siriplan'a personel olarak davet ediyorum. Katılmak için: {url}",
+      "shareText": "Sizi SiriPlan'a personel olarak davet ediyorum. Katılmak için: {url}",
       "deliveryEmailSent": "E-posta gönderildi",
       "deliveryEmailFailed": "E-posta gönderilemedi — bağlantıyı elle iletin",
       "deliveryWhatsappSent": "WhatsApp mesajı gönderildi",
@@ -1678,7 +2346,7 @@
       "blockedBody": "Tarayıcınız bu site için mikrofonu engelliyor. Aşağıdaki adımlarla açıp tekrar deneyebilirsiniz.",
       "steps": {
         "nativeApp": [
-          "Telefon Ayarları → Uygulamalar → Siriplan → İzinler → Mikrofon → İzin Ver.",
+          "Telefon Ayarları → Uygulamalar → SiriPlan → İzinler → Mikrofon → İzin Ver.",
           "Listede \"Mikrofon\" yoksa uygulamanın bu sürümü ses kaydını desteklemiyordur — sesli randevuyu tarayıcıdan (Chrome/Safari) siriplan.com üzerinde kullanın.",
           "İzni verdikten sonra uygulamaya dönüp \"Tekrar Dene\"ye dokunun."
         ],
@@ -1733,7 +2401,16 @@
       "confirmEdit": "Düzenle / İptal",
       "phoneOptional": "sonra eklenebilir",
       "phoneAutofilled": "{name} kayıtlı — telefon numarası forma eklendi",
-      "holdForVoice": "Sesli randevu için basılı tutun"
+      "holdForVoice": "Sesli randevu için basılı tutun",
+      "voiceCmdListening": "🎤 \"Onayla\" veya \"Düzelt\" deyin",
+      "voiceCmdConfirmed": "Onaylandı — randevu kaydediliyor",
+      "voiceCmdCancelled": "İptal edildi — formu elle düzenleyebilirsiniz",
+      "voiceCmdCompleting": "Eksik alanlar için tekrar dinliyorum",
+      "voiceCmdNotUnderstood": "Komut anlaşılamadı — \"onayla\" ya da \"düzelt\" deyin",
+      "voiceCmdStop": "Sesli komutu kapat",
+      "stockHint": "Mikrofona basıp söyleyin: \"Şampuandan 3 adet çıkış\"",
+      "stockListening": "🎤 Stok komutunu söyleyin — örn: \"Şampuandan 3 adet çıkış\"",
+      "stockLow": "⚠️ Bir ürün kritik stok seviyesine düştü"
     },
     "randevularPage": {
       "sortDefault": "Sıralama: Varsayılan",
@@ -1931,6 +2608,7 @@
       "socialHandlePlaceholder": "salonadınız",
       "socialIconHint": "Website modu açıksa randevu sayfanızda ikon olarak gösterilir.",
       "whatsappNumberLabel": "WhatsApp Numarası (Müşterilere gösterilecek)",
+      "whatsappNumberNotifyHint": "Bu numara yeni randevu bildirimlerinin de gönderileceği hedeftir. Meta kuralı gereği WhatsApp bildirimi yalnızca bu numaradan işletmenize son 24 saat içinde yazılmışsa teslim olur — hiç kaçırmamak için Telegram'ı da bağlayın (Ayarlar → Bildirimler).",
       "whatsappBusinessLabel": "WhatsApp Business",
       "whatsappBusinessHintPre": "Entegrasyon için",
       "supportTeamLink": "destek ekibi",
@@ -1941,6 +2619,11 @@
       "telegramStep1": "Telegram uygulamasında aramaya @siriplan_bot yazın, botu açıp 'Başlat / Start' düğmesine basın.",
       "telegramStep2": "Bot size bir Chat ID numarası gönderecek.",
       "telegramStep3": "Bu numarayı yukarıya yapıştırıp kaydedin — artık her randevuda bildirim alırsınız.",
+      "notifyChannelActive": "Bu kanaldan bildirim al",
+      "otherChannelsTitle": "Diğer Bildirim Kanalları",
+      "otherChannelsDesc": "Hepsi başta açık gelir; istemediğiniz kanalı kapatabilirsiniz.",
+      "inAppChannelLabel": "Uygulama İçi Bildirim (sesli, bu cihazda)",
+      "webPushChannelLabel": "Telefon Bildirimi — Yakında",
       "autoMessageDesc": "Randevu ekranlarındaki (Yeni Randevu / Hızlı Randevu) 'Müşteriye WhatsApp mesajı gönder' kutusu işaretlendiğinde ve randevu detayındaki 'Manuel Mesaj Gönder' butonunda kendi WhatsApp'ınızdan elle gönderdiğiniz metinler bunlardır. Tarih ve saat her randevuda otomatik doldurulur.",
       "autoMessageWarning": "Bu kanal Meta'ya bağlı DEĞİLDİR — mesaj kendi telefonunuzdaki WhatsApp'tan açılır, siz gönderirsiniz; bu yüzden metni dilediğiniz gibi düzenleyebilirsiniz. Aşağıdaki \"WhatsApp Bildirim Ayarları\" bölümündeki Meta otomatik mesajlardan farklı bir kanaldır — ikisi birlikte açıksa müşteri aynı bilgiyi iki kez alabilir, birini kapalı tutmanız önerilir. Meta otomatik mesajlarını tamamen kapatırsanız, bu manuel kanal devreye alacağınız tek bildirim yolu olur.",
       "tabOnay": "Randevu Onay",
@@ -1961,7 +2644,7 @@
       "presetHizmetliText": "Merhaba {musteri}, {hizmet} hizmeti için {tarih} {saat} randevunuz {personel} ile {salon}'da oluşturuldu. Bekliyoruz!",
       "onlineBookingDesc": "Randevu linkinizden (/r/...) gelen randevular varsayılan olarak otomatik onaylanır, takvime düşer ve müşteriye onay mesajı gider.",
       "autoConfirmLabel": "Online randevuları otomatik onayla",
-      "autoConfirmDesc": "Varsayılan olarak açıktır (tüm planlar): randevu linkinizden gelen randevular beklemeden onaylanır, takvime düşer ve müşteriye WhatsApp onay mesajı gider. Kapatırsanız randevular siz onaylayana kadar \"bekliyor\" kuyruğunda tutulur ve her yeni talepte size bildirim gelir.",
+      "autoConfirmDesc": "Tüm planlarda kullanılabilir, varsayılan olarak kapalıdır: randevu linkinizden gelen randevular siz onaylayana kadar \"bekliyor\" kuyruğunda tutulur ve her yeni talepte size bildirim gelir. Açarsanız randevular beklemeden onaylanır, takvime düşer ve müşteriye WhatsApp onay mesajı gider.",
       "autoConfirmFreeText": "Randevu linkinizden gelen randevular otomatik onaylanıp takvime düşer.",
       "slotIntervalLabel": "Randevu Dilimi Aralığı",
       "slotIntervalDesc": "Ziyaretçilerin randevu seçerken göreceği saat aralıkları (15 dakika, 30 dakika veya saat başı).",
@@ -2010,16 +2693,23 @@
       "smsCostTitle": "Maliyet hakkında",
       "smsCostText": "SMS başına yaklaşık 0,08–0,20 TL arası (paket boyutuna göre) — sağlayıcı sitesinden kredi paketi satın almanız gerekir, aylık sabit ücret yoktur.",
       "waBusinessConnTitle": "WhatsApp Business Bağlantısı",
-      "waBusinessConnDesc": "Randevu onay/hatırlatma/iptal mesajları Siriplan'ın kendi WhatsApp hattından otomatik gider, bunun için bir şey yapmanıza gerek yok. Aşağıdaki bağlantı yalnızca Kampanyalar modülünden gönderdiğiniz pazarlama mesajlarının ve gelen mesajlara otomatik yanıtın kendi WhatsApp Business numaranızdan gitmesi içindir.",
+      "waBusinessConnDesc": "Randevu onay/hatırlatma/iptal mesajları SiriPlan'ın kendi WhatsApp hattından otomatik gider, bunun için bir şey yapmanıza gerek yok. Aşağıdaki bağlantı yalnızca Kampanyalar modülünden gönderdiğiniz pazarlama mesajlarının ve gelen mesajlara otomatik yanıtın kendi WhatsApp Business numaranızdan gitmesi içindir.",
       "waAccessTokenLabel": "Kalıcı Erişim Belirteci (Access Token)",
       "waPhoneNumberIdLabel": "Telefon Numarası Kimliği (Phone Number ID)",
       "waPhoneNumberIdPlaceholder": "örn. 109876543210987",
       "waHowToTitle": "Nasıl alınır?",
       "waHowToText": "Meta Business Suite üzerinden bir WhatsApp Business hesabı bağlayıp Meta for Developers > uygulamanız > WhatsApp > API Setup sayfasından kalıcı erişim belirtecini ve telefon numarası kimliğini kopyalayın. Bu alanlar boşken kampanyalarınız WhatsApp kanalında gönderilemez (SMS kanalını kullanabilirsiniz).",
+      "metaBusinessConnTitle": "Instagram & Facebook Messenger Bağlantısı",
+      "metaBusinessConnDesc": "Instagram ve Facebook sayfanıza gelen mesajlara otomatik AI yanıtı verebilmek için Sayfanızın erişim belirtecini ve kimliğini aşağıya girin. Instagram hesabınız Facebook Sayfanıza bağlıysa tek bağlantı iki kanalı da kapsar. Bu alanlar boşken gelen DM'lere otomatik yanıt verilmez.",
+      "igAccessTokenLabel": "Sayfa Erişim Belirteci (Page Access Token)",
+      "igPageIdLabel": "Facebook Sayfa Kimliği (Page ID)",
+      "igPageIdPlaceholder": "örn. 987654321098765",
+      "metaHowToTitle": "Nasıl alınır?",
+      "metaHowToText": "Meta for Developers (developers.facebook.com) üzerinde \"Business\" tipinde bir uygulama oluşturun, Messenger ve Instagram ürünlerini ekleyin. Facebook Sayfanızı bağlayıp Sayfa Erişim Belirteci'ni ve Sayfa Kimliği'ni (Sayfa Ayarları > Sayfa Bilgileri altında) kopyalayıp buraya yapıştırın. Instagram hesabınız aynı Sayfaya bağlıysa ayrıca bir işlem gerekmez.",
       "kdvTitle": "KDV Hesaplama",
-      "kdvDesc": "Gelir & Gider raporlarında tahmini KDV tutarını görmek için oranınızı girin. Girdiğiniz gelir tutarlarının KDV dahil olduğu varsayılır.",
+      "kdvDesc": "Gelir & Gider ve Raporlar sayfalarında tahmini KDV tutarını görmek için oranınızı girin — yasal oran değiştiğinde buradan güncelleyebilirsiniz. Girdiğiniz gelir tutarlarının KDV dahil olduğu varsayılır.",
       "kdvEnabledLabel": "KDV hesaplaması açık",
-      "kdvEnabledDesc": "Açıkken Gelir & Gider sayfasında tahmini KDV tutarı gösterilir.",
+      "kdvEnabledDesc": "Açıkken Gelir & Gider ve Raporlar sayfalarında tahmini KDV tutarı gösterilir. Yeni işletmelerde varsayılan olarak açıktır.",
       "kdvRateLabel": "KDV Oranı (%)",
       "kdvRateHint": "Türkiye'de genel oran %20'dir.",
       "kvkkDesc": "Müşterilerinize randevu alırken gösterilecek KVKK aydınlatma metni. Boş bırakırsanız platform varsayılan metni kullanılır.",
@@ -2043,7 +2733,7 @@
       "bizTattoo": "Tattoo Stüdyosu",
       "bizDiyetisyen": "Diyetisyen",
       "bizKasKirpik": "Kaş & Kirpik",
-      "legalBody": "Siriplan platformunun tüm kaynak kodları, tasarımları ve akışları FSEK ve Bern Sözleşmesi kapsamında koruma altındadır. Mağaza (App Store / Play Store) politikaları ve KVKK/GDPR veri gizliliği ile tam uyumlu altyapı sunulmaktadır.",
+      "legalBody": "SiriPlan platformunun tüm kaynak kodları, tasarımları ve akışları FSEK ve Bern Sözleşmesi kapsamında koruma altındadır. Mağaza (App Store / Play Store) politikaları ve KVKK/GDPR veri gizliliği ile tam uyumlu altyapı sunulmaktadır.",
       "dangerZoneTitle": "Tehlikeli Bölge",
       "dangerZoneBody": "Hesabınızı sildiğinizde giriş bilgileriniz ve işletmenizin tüm personel erişimleri kalıcı olarak kapatılır, aboneliğiniz iptal edilir. Müşteri kayıtlarınız silinmez, kişisel tanımlayıcı bilgileri (isim, telefon, e-posta) anonimleştirilir; randevu/ciro geçmişi yasal muhasebe saklama süresi boyunca istatistiksel olarak tutulmaya devam eder. Bu işlem geri alınamaz.",
       "deleteAccountButton": "Hesabımı Sil",
@@ -2200,7 +2890,7 @@
     }
   },
   "securityPage": {
-    "metaDescription": "Siriplan güvenlik açığı bildirimi ve sorumlu ifşa politikası.",
+    "metaDescription": "SiriPlan güvenlik açığı bildirimi ve sorumlu ifşa politikası.",
     "pageTitle": "Güvenlik ve Açık Bildirimi",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "intro": "Kullanıcılarımızın verisinin güvenliğini ciddiye alıyoruz. Bir güvenlik açığı tespit ettiyseniz, aşağıdaki kurallara uyarak bize bildirmenizi rica ederiz.",

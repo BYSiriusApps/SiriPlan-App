@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,8 +16,12 @@ import {
   TrendingUp, TrendingDown, Wallet, Plus, Trash2, Loader2,
   DollarSign, ArrowUpCircle, ArrowDownCircle, RefreshCw, Pencil,
   ToggleLeft, ToggleRight, RepeatIcon, ChevronDown, ChevronUp, Percent,
+  Activity, CalendarClock, Download,
 } from "lucide-react";
 import { formatMoney, CURRENCY_SYMBOL } from "@/lib/currency";
+import { TrendChart } from "@/components/dashboard/TrendChart";
+import { compareValue, buildMonthlySeries } from "@/lib/report-trends";
+import { usePlan } from "@/components/dashboard/PlanContext";
 
 type Expense = {
   id: string;
@@ -29,6 +33,8 @@ type Expense = {
   date: string;
   payment_method: string;
   created_at: string;
+  /** Tamamlanan randevudan türetilmiş salt-okunur satır (expenses tablosunda yok). */
+  auto?: boolean;
 };
 
 type RecurringExpense = {
@@ -63,12 +69,17 @@ const EMPTY_RECURRING = {
 
 export default function GelirGiderPage() {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const router = useRouter();
+  const { proTools } = usePlan();
   const [role, setRole] = useState<string | null>(null);
+  const [forbidden, setForbidden] = useState(false);
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [entries, setEntries] = useState<Expense[]>([]);
+  const [apptRevenue, setApptRevenue] = useState<Expense[]>([]);
+  const [trendRows, setTrendRows] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -91,7 +102,7 @@ export default function GelirGiderPage() {
   const [kdvEnabled, setKdvEnabled] = useState(false);
   const [kdvRate, setKdvRate] = useState(20);
   const [currency, setCurrency] = useState("TRY");
-  const fmt = useCallback((n: number) => formatMoney(n, currency), [currency]);
+  const fmt = useCallback((n: number) => formatMoney(n, currency, locale), [currency, locale]);
 
   // Get categories and months from translations
   const categoriesGelir = useMemo(() => t.raw("incomeCategories") as Array<{ value: string; label: string }>, [t]);
@@ -117,15 +128,45 @@ export default function GelirGiderPage() {
     }
   }, [role, router]);
 
+  useEffect(() => {
+    if (forbidden) router.push("/dashboard");
+  }, [forbidden, router]);
+
+  // 012 trigger canlıysa oluşan "Otomatik — Randevu #…" gelir satırlarını dışla;
+  // randevu cirosu her zaman /api/appointments/revenue'dan (appointments tablosu) gelir.
+  const isAutoApptRow = (e: Expense) =>
+    e.type === "gelir" && e.category === "randevu" && (e.note ?? "").startsWith("Otomatik — Randevu");
+
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const url = viewMode === "yillik"
-      ? `/api/expenses?year=${year}`
-      : `/api/expenses?year=${year}&month=${month}`;
-    const res = await fetch(url);
-    if (res.ok) setEntries(await res.json());
+    const qs = viewMode === "yillik" ? `year=${year}` : `year=${year}&month=${month}`;
+    const [expRes, revRes] = await Promise.all([
+      fetch(`/api/expenses?${qs}`),
+      fetch(`/api/appointments/revenue?${qs}`),
+    ]);
+    if (expRes.status === 403 || revRes.status === 403) {
+      setForbidden(true);
+      setLoading(false);
+      return;
+    }
+    if (expRes.ok) {
+      const rows = (await expRes.json()) as Expense[];
+      setEntries(rows.filter((e) => !isAutoApptRow(e)));
+    }
+    if (revRes.ok) setApptRevenue(((await revRes.json()) as Expense[]).map((e) => ({ ...e, auto: true, created_at: e.date })));
     setLoading(false);
   }, [year, month, viewMode]);
+
+  // Trend kartı: seçili görünümden bağımsız, seçili yılın tamamı (12 ay).
+  const fetchTrend = useCallback(async () => {
+    const [expRes, revRes] = await Promise.all([
+      fetch(`/api/expenses?year=${year}`),
+      fetch(`/api/appointments/revenue?year=${year}`),
+    ]);
+    const exp = expRes.ok ? ((await expRes.json()) as Expense[]).filter((e) => !isAutoApptRow(e)) : [];
+    const rev = revRes.ok ? ((await revRes.json()) as Expense[]).map((e) => ({ ...e, auto: true, created_at: e.date })) : [];
+    setTrendRows([...exp, ...rev]);
+  }, [year]);
 
   const fetchRecurring = useCallback(async () => {
     setRecurringLoading(true);
@@ -135,15 +176,60 @@ export default function GelirGiderPage() {
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchTrend(); }, [fetchTrend]);
   useEffect(() => { fetchRecurring(); }, [fetchRecurring]);
 
-  const totalGelir = entries.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
-  const totalGider = entries.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
+  // Elle girilen kayıtlar + tamamlanan randevu cirosu (salt-okunur) birleşik.
+  const allEntries = useMemo(
+    () => [...entries, ...apptRevenue].sort((a, b) => (a.date < b.date ? 1 : -1)),
+    [entries, apptRevenue],
+  );
+
+  const totalGelir = allEntries.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
+  const totalGider = allEntries.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
   const netKar = totalGelir - totalGider;
+  const apptRevenueTotal = apptRevenue.reduce((s, e) => s + Number(e.amount), 0);
   // Girilen gelir tutarlarının KDV dahil olduğu varsayılır — brüt tutardan KDV payı ayrıştırılır.
   const kdvTutari = kdvEnabled ? totalGelir * (kdvRate / (100 + kdvRate)) : 0;
 
-  const visible = entries.filter((e) => filterType === "all" || e.type === filterType);
+  const visible = allEntries.filter((e) => filterType === "all" || e.type === filterType);
+
+  // ── Değişim analizi: seçili yılın 12 ayı için net seyir + dönem karşılaştırması ──
+  const trendSeries = useMemo(() => {
+    const gelir = Array(12).fill(0) as number[];
+    const gider = Array(12).fill(0) as number[];
+    for (const e of trendRows) {
+      const m = new Date(e.date).getMonth();
+      if (e.type === "gelir") gelir[m] += Number(e.amount);
+      else gider[m] += Number(e.amount);
+    }
+    const nowM = new Date().getFullYear() === year ? new Date().getMonth() : 11;
+    const pts = buildMonthlySeries(months.map((m) => m.slice(0, 3)), gelir, gider).slice(0, nowM + 1);
+    return { pts, gelir, gider, nowM };
+  }, [trendRows, months, year]);
+
+  // En yüksek / en düşük net kârlı ay (yıl içinde, veri girilmiş aylar arasında).
+  const monthExtremes = useMemo(() => {
+    const withData = trendSeries.pts.filter((p) => p.gelir > 0 || p.gider > 0);
+    if (withData.length < 1) return null;
+    const sorted = [...withData].sort((a, b) => b.net - a.net);
+    const best = sorted[0];
+    const worst = sorted.length > 1 ? sorted[sorted.length - 1] : null;
+    return { best, worst };
+  }, [trendSeries]);
+
+  const periodCompare = useMemo(() => {
+    const { gelir, gider, nowM } = trendSeries;
+    if (viewMode === "yillik" || nowM < 1) return null;
+    const idx = Math.min(month - 1, nowM);
+    const prevIdx = idx - 1;
+    if (prevIdx < 0) return null;
+    return [
+      { label: "Gelir", ...compareValue(gelir[idx], gelir[prevIdx]), invert: false },
+      { label: "Gider", ...compareValue(gider[idx], gider[prevIdx]), invert: true },
+      { label: "Net Kâr", ...compareValue(gelir[idx] - gider[idx], gelir[prevIdx] - gider[prevIdx]), invert: false },
+    ];
+  }, [trendSeries, month, viewMode]);
 
   // Yıllık kümülatif özet — seçili yılın 12 ayı için aylık ve birikimli toplamlar
   const monthlyBreakdown = useMemo(() => {
@@ -152,14 +238,14 @@ export default function GelirGiderPage() {
     let cumGider = 0;
     return Array.from({ length: 12 }, (_, i) => {
       const m = i + 1;
-      const monthEntries = entries.filter((e) => new Date(e.date).getMonth() + 1 === m);
+      const monthEntries = allEntries.filter((e) => new Date(e.date).getMonth() + 1 === m);
       const gelir = monthEntries.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
       const gider = monthEntries.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
       cumGelir += gelir;
       cumGider += gider;
       return { month: m, gelir, gider, net: gelir - gider, cumGelir, cumGider, cumNet: cumGelir - cumGider };
     });
-  }, [entries, viewMode]);
+  }, [allEntries, viewMode]);
 
   async function handleSave() {
     if (!form.amount || !form.description || !form.date) {
@@ -303,19 +389,7 @@ export default function GelirGiderPage() {
 
   const activeTemplates = recurring.filter((r) => r.is_active);
 
-  const isTr = t("guide").includes("Kılavuzu");
-  const isEn = t("guide").includes("User Guide");
-  const isRu = t("guide").includes("Руководство");
-
-  const getIncomeText = (key: string) => {
-    if (key === "recurringBills") return isTr ? "Sabit Giderler" : isEn ? "Recurring Bills" : isRu ? "Постоянные расходы" : "المصاريف الثابتة";
-    if (key === "addRecord") return isTr ? "Kayıt Ekle" : isEn ? "Add Record" : isRu ? "Добавить запись" : "إضافة سجل";
-    if (key === "recurringTemplates") return isTr ? "Sabit Gider Şablonları" : isEn ? "Recurring Expense Templates" : isRu ? "Шаблоны постоянных расходов" : "قوالب المصاريف الثابتة";
-    if (key === "recurringDesc") return isTr ? "Her ay tekrarlayan kira, maaş, fatura gibi giderleri tanımlayın. Tek tıkla seçili aya uygulayın." : isEn ? "Define monthly recurring expenses like rent, salary, bills. Apply to selected month with one click." : isRu ? "Определите ежемесячные постоянные расходы, такие как аренда, зарплата, счета. Примените к выбранному месяцу в один клик." : "حدد النفقات المتكررة الشهرية مثل الإيجار والرواتب والفواتير. قم بتطبقها على الشهر المحدد بنقرة واحدة.";
-    if (key === "addTemplate") return isTr ? "Şablon Ekle" : isEn ? "Add Template" : isRu ? "Добавить шаблон" : "إضافة قالب";
-    if (key === "applyToMonth") return isTr ? "Uygula" : isEn ? "Apply" : isRu ? "Применить" : "تطبيق";
-    return "";
-  };
+  const getIncomeText = (key: string) => t(`expensesPage.${key}`);
 
   return (
     <div className="p-4 md:p-6 space-y-5 max-w-5xl">
@@ -341,6 +415,17 @@ export default function GelirGiderPage() {
             )}
             {showRecurring ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
           </Button>
+          {proTools && (
+            <a
+              href={`/api/export?format=pdf&scope=gelir-gider&year=${year}${viewMode === "aylik" ? `&month=${month}` : ""}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium shrink-0 hover:bg-accent transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              {getIncomeText("pdfExport")}
+            </a>
+          )}
           <Button onClick={() => setShowForm(true)} className="gap-2 shrink-0">
             <Plus className="h-4 w-4" />
             {getIncomeText("addRecord")}
@@ -387,7 +472,7 @@ export default function GelirGiderPage() {
                       ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       : <RefreshCw className="h-3.5 w-3.5" />
                     }
-                    {isTr ? `${months[month - 1]}'e Uygula` : isEn ? `Apply to ${months[month - 1]}` : isRu ? `Применить к ${months[month - 1]}` : `تطبيق على ${months[month - 1]}`} ({activeTemplates.length})
+                    {t("expensesPage.applyMonthButton", { month: months[month - 1] })} ({activeTemplates.length})
                   </Button>
                 )}
               </div>
@@ -401,8 +486,8 @@ export default function GelirGiderPage() {
             ) : recurring.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <RepeatIcon className="h-7 w-7 mx-auto mb-2 opacity-30" />
-                <p className="text-sm">{isTr ? "Henüz sabit gider şablonu yok" : isEn ? "No recurring expense templates yet" : isRu ? "Шаблонов постоянных расходов пока нет" : "لا توجد قوالب للمصاريف الثابتة بعد"}</p>
-                <p className="text-xs mt-1">{isTr ? "Kira, maaş, fatura gibi aylık tekrarlayan giderleri ekleyin" : isEn ? "Add monthly recurring expenses like rent, salary, bills" : isRu ? "Добавьте ежемесячные постоянные расходы, такие как аренда, зарплата, счета" : "أضف المصاريف الشهرية المتكررة مثل الإيجار، الرواتب، الفواتير"}</p>
+                <p className="text-sm">{t("expensesPage.noTemplatesYet")}</p>
+                <p className="text-xs mt-1">{t("expensesPage.noTemplatesHint")}</p>
                 <Button
                   variant="outline"
                   size="sm"
@@ -413,16 +498,16 @@ export default function GelirGiderPage() {
                     setShowRecurringForm(true);
                   }}
                 >
-                  {isTr ? "İlk Şablonu Ekle" : isEn ? "Add First Template" : isRu ? "Добавить первый шаблон" : "إضافة القالب الأول"}
+                  {t("expensesPage.addFirstTemplate")}
                 </Button>
               </div>
             ) : (
               <div className="space-y-1">
                 <div className="hidden md:grid grid-cols-[1fr_140px_120px_80px_80px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
-                  <span>{isTr ? "Açıklama" : isEn ? "Description" : isRu ? "Описание" : "الوصف"}</span>
-                  <span>{isTr ? "Kategori" : isEn ? "Category" : isRu ? "Category" : "الفئة"}</span>
-                  <span>{isTr ? "Ödeme" : isEn ? "Payment" : isRu ? "Оплата" : "الدفع"}</span>
-                  <span className="text-right">{isTr ? "Tutar" : isEn ? "Amount" : isRu ? "Сумма" : "المبلغ"}</span>
+                  <span>{t("expensesPage.labelDescription")}</span>
+                  <span>{t("expensesPage.labelCategory")}</span>
+                  <span>{t("expensesPage.labelPayment")}</span>
+                  <span className="text-right">{t("expensesPage.labelAmount")}</span>
                   <span />
                 </div>
                 {recurring.map((r) => (
@@ -489,11 +574,11 @@ export default function GelirGiderPage() {
                 {activeTemplates.length > 0 && (
                   <div className="pt-3 border-t mt-2 flex items-center justify-between text-xs text-muted-foreground">
                     <span>
-                      {activeTemplates.length} {isTr ? "aktif şablon · toplam" : isEn ? "active templates · total" : isRu ? "активных шаблонов · всего" : "القوالب النشطة · إجمالي"}{" "}
+                      {activeTemplates.length} {t("expensesPage.activeTemplatesTotal")}{" "}
                       <span className="font-semibold text-foreground">
                         {fmt(activeTemplates.filter(r => r.type === "gider").reduce((s, r) => s + Number(r.amount), 0))}
                       </span>{" "}
-                      {isTr ? "aylık sabit gider" : isEn ? "monthly fixed expense" : isRu ? "ежемесячный постоянный расход" : "المصروفات الثابتة الشهرية"}
+                      {t("expensesPage.monthlyFixedExpense")}
                     </span>
                     <Button
                       size="sm"
@@ -505,7 +590,7 @@ export default function GelirGiderPage() {
                         ? <Loader2 className="h-3 w-3 animate-spin" />
                         : <RefreshCw className="h-3 w-3" />
                       }
-                      {isTr ? `${months[month - 1]}'e Uygula` : isEn ? `Apply to ${months[month - 1]}` : isRu ? `Применить к ${months[month - 1]}` : `تطبيق على ${months[month - 1]}`}
+                      {t("expensesPage.applyMonthButton", { month: months[month - 1] })}
                     </Button>
                   </div>
                 )}
@@ -552,7 +637,7 @@ export default function GelirGiderPage() {
                   : "text-muted-foreground hover:bg-background/60"
               }`}
             >
-              {v === "aylik" ? (isTr ? "Aylık" : isEn ? "Monthly" : isRu ? "Ежемесячно" : "شهري") : (isTr ? "Yıllık (Kümülatif)" : isEn ? "Yearly (Cumulative)" : isRu ? "Ежегодно (кумулятивно)" : "سنوي (تراكمي)")}
+              {v === "aylik" ? t("expensesPage.monthlyView") : t("expensesPage.yearlyView")}
             </button>
           ))}
         </div>
@@ -565,7 +650,7 @@ export default function GelirGiderPage() {
             <ArrowUpCircle className="h-5 w-5 text-emerald-600" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">{isTr ? "Toplam Gelir" : isEn ? "Total Income" : isRu ? "Общий доход" : "إجمالي الإيرادات"}</p>
+            <p className="text-xs text-muted-foreground">{t("expensesPage.totalIncome")}</p>
             <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 tabular-nums tracking-tight">{fmt(totalGelir)}</p>
           </div>
         </div>
@@ -575,7 +660,7 @@ export default function GelirGiderPage() {
             <ArrowDownCircle className="h-5 w-5 text-red-600" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">{isTr ? "Toplam Gider" : isEn ? "Total Expense" : isRu ? "Общий расход" : "إجمالي المصروفات"}</p>
+            <p className="text-xs text-muted-foreground">{t("expensesPage.totalExpense")}</p>
             <p className="text-2xl font-bold text-red-700 dark:text-red-400 tabular-nums tracking-tight">{fmt(totalGider)}</p>
           </div>
         </div>
@@ -588,7 +673,7 @@ export default function GelirGiderPage() {
             }
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">{isTr ? "Net Kâr / Zarar" : isEn ? "Net Profit / Loss" : isRu ? "Чистая прибыль / убыток" : "صافي الربح / الخسارة"}</p>
+            <p className="text-xs text-muted-foreground">{t("expensesPage.netProfitLoss")}</p>
             <p className={`text-2xl font-bold tabular-nums tracking-tight ${netKar >= 0 ? "text-blue-700 dark:text-blue-400" : "text-orange-700 dark:text-orange-400"}`}>
               {netKar >= 0 ? "+" : ""}{fmt(netKar)}
             </p>
@@ -601,13 +686,84 @@ export default function GelirGiderPage() {
               <Percent className="h-5 w-5 text-amber-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">{isTr ? "Tahmini KDV" : isEn ? "Estimated VAT" : isRu ? "Оценочный НДС" : "ضريبة القيمة المضافة"} (%{kdvRate})</p>
+              <p className="text-xs text-muted-foreground">{t("expensesPage.estimatedVat")} (%{kdvRate})</p>
               <p className="text-2xl font-bold text-amber-700 dark:text-amber-400 tabular-nums tracking-tight">{fmt(kdvTutari)}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{isTr ? "Gelir tutarının KDV dahil olduğu varsayılır" : isEn ? "Income amount is assumed to include VAT" : isRu ? "Предполагается, что сумма дохода включает НДС" : "يفترض أن قيمة الدخل تشمل الضريبة"}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{t("expensesPage.vatAssumptionNote")}</p>
             </div>
           </div>
         )}
       </div>
+
+      {/* Randevu cirosu bilgi notu */}
+      {apptRevenueTotal > 0 && (
+        <p className="text-xs text-muted-foreground flex items-center gap-1.5 -mt-1">
+          <CalendarClock className="h-3.5 w-3.5 text-primary shrink-0" />
+          {t("expensesPage.apptRevenueNote", { amount: fmt(apptRevenueTotal) })}
+        </p>
+      )}
+
+      {/* ── Değişim Analizi ── */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Activity className="h-4 w-4 text-primary" />
+            {t("expensesPage.changeAnalysis")}
+            <span className="text-sm font-normal text-muted-foreground">— {year}</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <TrendChart
+            series={trendSeries.pts.map((p) => ({ label: p.label, value: p.net }))}
+            variant="bar"
+            format={(v) => fmt(v)}
+            height={140}
+          />
+          {periodCompare && (
+            <div className="space-y-1">
+              <div className="hidden sm:grid grid-cols-[1fr_130px_130px_110px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+                <span>{t("expensesPage.metric")}</span>
+                <span className="text-right">{months[Math.max(0, Math.min(month - 2, 11))]}</span>
+                <span className="text-right">{months[month - 1]}</span>
+                <span className="text-right">{t("expensesPage.change")}</span>
+              </div>
+              {periodCompare.map((c) => {
+                const good = c.dir === "flat" ? "flat" : c.invert ? (c.dir === "down" ? "up" : "down") : c.dir;
+                const cls = good === "up" ? "text-emerald-600" : good === "down" ? "text-red-600" : "text-muted-foreground";
+                return (
+                  <div key={c.label} className="data-row grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_130px_130px_110px] items-center gap-3 px-3 py-2.5 rounded-lg text-sm">
+                    <span className="font-medium">{c.label}</span>
+                    <span className="hidden sm:block text-right text-muted-foreground tabular-nums">{fmt(c.previous)}</span>
+                    <span className="hidden sm:block text-right font-semibold tabular-nums">{fmt(c.current)}</span>
+                    <span className={`text-right font-semibold tabular-nums ${cls}`}>
+                      {c.dir === "up" ? "▲" : c.dir === "down" ? "▼" : "▬"} {c.text}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {monthExtremes && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              <div className="rounded-lg border border-border p-2.5 flex items-center justify-between gap-2 text-sm">
+                <span className="flex items-center gap-1.5 min-w-0 text-muted-foreground">
+                  <span>🏆</span>
+                  <span className="truncate">{t("expensesPage.bestProfitMonth")} — {monthExtremes.best.label}</span>
+                </span>
+                <span className="font-semibold tabular-nums text-emerald-600 shrink-0">{fmt(monthExtremes.best.net)}</span>
+              </div>
+              {monthExtremes.worst && (
+                <div className="rounded-lg border border-border p-2.5 flex items-center justify-between gap-2 text-sm">
+                  <span className="flex items-center gap-1.5 min-w-0 text-muted-foreground">
+                    <span>📉</span>
+                    <span className="truncate">{t("expensesPage.worstProfitMonth")} — {monthExtremes.worst.label}</span>
+                  </span>
+                  <span className={`font-semibold tabular-nums shrink-0 ${monthExtremes.worst.net >= 0 ? "text-emerald-600" : "text-red-600"}`}>{fmt(monthExtremes.worst.net)}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Yıllık kümülatif tablo */}
       {viewMode === "yillik" && (
@@ -669,7 +825,7 @@ export default function GelirGiderPage() {
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <CardTitle className="text-base flex items-center gap-2">
               <Wallet className="h-4 w-4 text-primary" />
-              {months[month - 1]} {year} — {isTr ? "Kayıtlar" : isEn ? "Records" : isRu ? "Записи" : "السجلات"}
+              {months[month - 1]} {year} — {t("expensesPage.records")}
             </CardTitle>
             <div className="flex gap-1">
               {(["all", "gelir", "gider"] as const).map((kind) => (
@@ -682,7 +838,7 @@ export default function GelirGiderPage() {
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
-                  {kind === "all" ? (isTr ? "Tümü" : isEn ? "All" : isRu ? "Все" : "الكل") : kind === "gelir" ? (isTr ? "Gelir" : isEn ? "Income" : isRu ? "Доход" : "الإيرادات") : (isTr ? "Gider" : isEn ? "Expense" : isRu ? "Расход" : "المصروفات")}
+                  {kind === "all" ? t("expensesPage.filterAll") : kind === "gelir" ? t("expensesPage.filterIncome") : t("expensesPage.filterExpense")}
                 </button>
               ))}
             </div>
@@ -696,15 +852,15 @@ export default function GelirGiderPage() {
           ) : visible.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
               <DollarSign className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">{isTr ? "Bu dönem için kayıt yok" : isEn ? "No records for this period" : isRu ? "Нет записей за этот период" : "لا توجد سجلات لهذه الفترة"}</p>
+              <p className="text-sm">{t("expensesPage.noRecordsPeriod")}</p>
               <div className="flex gap-2 justify-center mt-3 flex-wrap">
                 <Button variant="outline" size="sm" onClick={() => setShowForm(true)}>
-                  {isTr ? "Manuel Ekle" : isEn ? "Add Manually" : isRu ? "Добавить вручную" : "إضافة يدوياً"}
+                  {t("expensesPage.addManually")}
                 </Button>
                 {activeTemplates.length > 0 && (
                   <Button size="sm" className="gap-1.5" onClick={handleApplyTemplates} disabled={applyingTemplates}>
                     {applyingTemplates ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
-                    {isTr ? "Sabit Giderleri Uygula" : isEn ? "Apply Recurring Expenses" : isRu ? "Применить постоянные расходы" : "تطبيق المصاريف الثابتة"}
+                    {t("expensesPage.applyRecurringBtn")}
                   </Button>
                 )}
               </div>
@@ -712,25 +868,33 @@ export default function GelirGiderPage() {
           ) : (
             <div className="space-y-1">
               <div className="hidden md:grid grid-cols-[100px_1fr_140px_120px_100px_40px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
-                <span>{isTr ? "Tarih" : isEn ? "Date" : isRu ? "Дата" : "التاريخ"}</span>
-                <span>{isTr ? "Açıklama" : isEn ? "Description" : isRu ? "Описание" : "الوصف"}</span>
-                <span>{isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"}</span>
-                <span>{isTr ? "Ödeme" : isEn ? "Payment" : isRu ? "Оплата" : "الدفع"}</span>
-                <span className="text-right">{isTr ? "Tutar" : isEn ? "Amount" : isRu ? "Сумма" : "المبلغ"}</span>
+                <span>{t("expensesPage.labelDate")}</span>
+                <span>{t("expensesPage.labelDescription")}</span>
+                <span>{t("expensesPage.labelCategory")}</span>
+                <span>{t("expensesPage.labelPayment")}</span>
+                <span className="text-right">{t("expensesPage.labelAmount")}</span>
                 <span />
               </div>
 
               {visible.map((e) => (
                 <div
                   key={e.id}
-                  className="data-row grid grid-cols-[1fr_auto] md:grid-cols-[100px_1fr_140px_120px_100px_40px] items-center gap-3 px-3 py-3 rounded-lg transition-colors group"
+                  className={`data-row grid grid-cols-[1fr_auto] md:grid-cols-[100px_1fr_140px_120px_100px_40px] items-center gap-3 px-3 py-3 rounded-lg transition-colors group ${e.auto ? "bg-muted/40" : ""}`}
                 >
                   <div className="md:contents">
                     <span className="hidden md:block text-xs text-muted-foreground">
                       {new Date(e.date).toLocaleDateString("tr-TR")}
                     </span>
                     <div>
-                      <p className="text-sm font-medium leading-tight">{e.description}</p>
+                      <p className="text-sm font-medium leading-tight">
+                        {e.description}
+                        {e.auto && (
+                          <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium align-middle">
+                            <CalendarClock className="h-2.5 w-2.5" />
+                            {t("expensesPage.autoFromAppointment")}
+                          </span>
+                        )}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-0.5 md:hidden">
                         {new Date(e.date).toLocaleDateString("tr-TR")} · {categoryLabel(e.type, e.category)}
                       </p>
@@ -753,21 +917,25 @@ export default function GelirGiderPage() {
                     <span className={`text-sm font-semibold md:hidden ${e.type === "gelir" ? "text-emerald-600" : "text-red-600"}`}>
                       {e.type === "gelir" ? "+" : "-"}{fmt(Number(e.amount))}
                     </span>
-                    {/* Mobilde her zaman görünür; masaüstünde hover'da belirir */}
-                    <button
-                      title="Düzenle"
-                      onClick={() => openEditEntry(e)}
-                      className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      title="Sil"
-                      onClick={() => handleDelete(e.id)}
-                      className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    {/* Otomatik randevu satırları düzenlenemez/silinemez — kaynağı randevu kaydı */}
+                    {!e.auto && (
+                      <>
+                        <button
+                          title="Düzenle"
+                          onClick={() => openEditEntry(e)}
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          title="Sil"
+                          onClick={() => handleDelete(e.id)}
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
@@ -778,13 +946,13 @@ export default function GelirGiderPage() {
       )}
 
       {/* Category breakdown */}
-      {entries.length > 0 && (
+      {allEntries.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { label: "Gelir Dağılımı", type: "gelir", cats: categoriesGelir, color: "bg-emerald-500" },
-            { label: "Gider Dağılımı", type: "gider", cats: categoriesGider, color: "bg-red-500" },
-          ].map(({ label, type, cats, color }) => {
-            const typeEntries = entries.filter((e) => e.type === type);
+            { type: "gelir", cats: categoriesGelir, color: "bg-emerald-500" },
+            { type: "gider", cats: categoriesGider, color: "bg-red-500" },
+          ].map(({ type, cats, color }) => {
+            const typeEntries = allEntries.filter((e) => e.type === type);
             const total = typeEntries.reduce((s, e) => s + Number(e.amount), 0);
             if (total === 0) return null;
             const byCategory = cats.map((c) => ({
@@ -795,7 +963,7 @@ export default function GelirGiderPage() {
             return (
               <Card key={type} className="border-0 shadow-sm">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">{isTr ? (type === "gelir" ? "Gelir Dağılımı" : "Gider Dağılımı") : isEn ? (type === "gelir" ? "Income Distribution" : "Expense Distribution") : isRu ? (type === "gelir" ? "Распределение доходов" : "Распределение расходов") : (type === "gelir" ? "توزيع الإيرادات" : "توزيع المصروفات")}</CardTitle>
+                  <CardTitle className="text-sm">{type === "gelir" ? t("expensesPage.incomeDistribution") : t("expensesPage.expenseDistribution")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {byCategory.map((c) => (
@@ -827,9 +995,9 @@ export default function GelirGiderPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingEntry 
-                ? (isTr ? "Kaydı Düzenle" : isEn ? "Edit Record" : isRu ? "Редактировать запись" : "تعديل السجل")
-                : (isTr ? "Yeni Kayıt" : isEn ? "New Record" : isRu ? "Новая запись" : "سجل جديد")}
+              {editingEntry
+                ? t("expensesPage.editRecord")
+                : t("expensesPage.newRecord")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
@@ -846,15 +1014,15 @@ export default function GelirGiderPage() {
                       : "border-border text-muted-foreground"
                   }`}
                 >
-                  {kind === "gelir" 
-                    ? (isTr ? "💰 Gelir" : isEn ? "💰 Income" : isRu ? "💰 Доход" : "💰 إيراد") 
-                    : (isTr ? "💸 Gider" : isEn ? "💸 Expense" : isRu ? "💸 Расход" : "💸 مصروف")}
+                  {kind === "gelir"
+                    ? t("expensesPage.incomeType")
+                    : t("expensesPage.expenseType")}
                 </button>
               ))}
             </div>
 
             <div>
-              <Label>{isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"}</Label>
+              <Label>{t("expensesPage.labelCategory")}</Label>
               <Select
                 value={form.category}
                 onValueChange={(v) => setForm((f) => ({ ...f, category: v ?? f.category }))}
@@ -872,7 +1040,7 @@ export default function GelirGiderPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>{isTr ? "Tutar" : isEn ? "Amount" : isRu ? "Сумма" : "المبلغ"} ({CURRENCY_SYMBOL[currency] ?? "₺"}) *</Label>
+                <Label>{t("expensesPage.labelAmount")} ({CURRENCY_SYMBOL[currency] ?? "₺"}) *</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -884,7 +1052,7 @@ export default function GelirGiderPage() {
                 />
               </div>
               <div>
-                <Label>{isTr ? "Tarih" : isEn ? "Date" : isRu ? "Дата" : "التاريخ"} *</Label>
+                <Label>{t("expensesPage.labelDate")} *</Label>
                 <Input
                   className="mt-1"
                   type="date"
@@ -895,17 +1063,17 @@ export default function GelirGiderPage() {
             </div>
 
             <div>
-              <Label>{isTr ? "Açıklama" : isEn ? "Description" : isRu ? "Описание" : "الوصف"} *</Label>
+              <Label>{t("expensesPage.labelDescription")} *</Label>
               <Input
                 className="mt-1"
-                placeholder={isTr ? "Açıklama yazın..." : isEn ? "Write description..." : isRu ? "Введите описание..." : "اكتب الوصف..."}
+                placeholder={t("expensesPage.descriptionPlaceholder")}
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               />
             </div>
 
             <div>
-              <Label>{isTr ? "Ödeme Yöntemi" : isEn ? "Payment Method" : isRu ? "Способ оплаты" : "طريقة الدفع"}</Label>
+              <Label>{t("expensesPage.paymentMethodLabel")}</Label>
               <Select
                 value={form.payment_method}
                 onValueChange={(v) => setForm((f) => ({ ...f, payment_method: v ?? f.payment_method }))}
@@ -914,16 +1082,16 @@ export default function GelirGiderPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="nakit">{isTr ? "Nakit" : isEn ? "Cash" : isRu ? "Наличные" : "نقداً"}</SelectItem>
-                  <SelectItem value="kart">{isTr ? "Kart" : isEn ? "Card" : isRu ? "Карта" : "بطاقة"}</SelectItem>
-                  <SelectItem value="havale">{isTr ? "Havale / EFT" : isEn ? "Bank Transfer" : isRu ? "Перевод" : "تحويل بنكي"}</SelectItem>
-                  <SelectItem value="çek">{isTr ? "Çek" : isEn ? "Cheque" : isRu ? "Чек" : "شيك"}</SelectItem>
+                  <SelectItem value="nakit">{t("expensesPage.paymentCash")}</SelectItem>
+                  <SelectItem value="kart">{t("expensesPage.paymentCard")}</SelectItem>
+                  <SelectItem value="havale">{t("expensesPage.paymentTransfer")}</SelectItem>
+                  <SelectItem value="çek">{t("expensesPage.paymentCheque")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label>{isTr ? "Not (isteğe bağlı)" : isEn ? "Note (optional)" : isRu ? "Примечание (опционально)" : "ملاحظة (اختياري)"}</Label>
+              <Label>{t("expensesPage.noteOptional")}</Label>
               <Input
                 className="mt-1"
                 placeholder="..."
@@ -934,13 +1102,13 @@ export default function GelirGiderPage() {
 
             <div className="flex gap-2 pt-2">
               <Button variant="outline" className="flex-1" onClick={() => setShowForm(false)}>
-                {isTr ? "İptal" : isEn ? "Cancel" : isRu ? "Отмена" : "إلغاء"}
+                {t("expensesPage.cancel")}
               </Button>
               <Button className="flex-1 gap-2" onClick={handleSave} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {editingEntry 
-                  ? (isTr ? "Güncelle" : isEn ? "Update" : isRu ? "Обновить" : "تحديث") 
-                  : (isTr ? "Kaydet" : isEn ? "Save" : isRu ? "Сохранить" : "حفظ")}
+                {editingEntry
+                  ? t("expensesPage.update")
+                  : t("expensesPage.save")}
               </Button>
             </div>
           </div>
@@ -955,14 +1123,14 @@ export default function GelirGiderPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingRecurring 
-                ? (isTr ? "Şablonu Düzenle" : isEn ? "Edit Template" : isRu ? "Редактировать шаблон" : "تعديل القالب")
-                : (isTr ? "Yeni Sabit Gider Şablonu" : isEn ? "New Recurring Expense Template" : isRu ? "Новый шаблон постоянного расхода" : "قالب جديد للمصروفات الثابتة")}
+              {editingRecurring
+                ? t("expensesPage.editTemplate")
+                : t("expensesPage.newTemplate")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <p className="text-xs text-muted-foreground -mt-1">
-              {isTr ? "Bu şablon her ay tek tıkla seçili döneme uygulanabilir." : isEn ? "This template can be applied to the selected period with a single click every month." : isRu ? "Этот шаблон можно применить к выбранному периоду в один клик каждый месяц." : "يمكن تطبيق هذا القالب على الفترة المحددة بنقرة واحدة كل شهر."}
+              {t("expensesPage.templateApplyHint")}
             </p>
 
             <div className="grid grid-cols-2 gap-2">
@@ -978,15 +1146,15 @@ export default function GelirGiderPage() {
                       : "border-border text-muted-foreground"
                   }`}
                 >
-                  {kind === "gelir" 
-                    ? (isTr ? "💰 Gelir" : isEn ? "💰 Income" : isRu ? "💰 Доход" : "💰 إيراد") 
-                    : (isTr ? "💸 Gider" : isEn ? "💸 Expense" : isRu ? "💸 Расход" : "💸 مصروف")}
+                  {kind === "gelir"
+                    ? t("expensesPage.incomeType")
+                    : t("expensesPage.expenseType")}
                 </button>
               ))}
             </div>
 
             <div>
-              <Label>{isTr ? "Kategori" : isEn ? "Category" : isRu ? "Категория" : "الفئة"}</Label>
+              <Label>{t("expensesPage.labelCategory")}</Label>
               <Select
                 value={recurringForm.category}
                 onValueChange={(v) => setRecurringForm((f) => ({ ...f, category: v ?? f.category }))}
@@ -1004,7 +1172,7 @@ export default function GelirGiderPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>{isTr ? "Tutar" : isEn ? "Amount" : isRu ? "Сумма" : "المبلغ"} ({CURRENCY_SYMBOL[currency] ?? "₺"}) *</Label>
+                <Label>{t("expensesPage.labelAmount")} ({CURRENCY_SYMBOL[currency] ?? "₺"}) *</Label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -1016,7 +1184,7 @@ export default function GelirGiderPage() {
                 />
               </div>
               <div>
-                <Label>{isTr ? "Ödeme Yöntemi" : isEn ? "Payment Method" : isRu ? "Способ оплаты" : "طريقة الدفع"}</Label>
+                <Label>{t("expensesPage.paymentMethodLabel")}</Label>
                 <Select
                   value={recurringForm.payment_method}
                   onValueChange={(v) => setRecurringForm((f) => ({ ...f, payment_method: v ?? f.payment_method }))}
@@ -1025,27 +1193,27 @@ export default function GelirGiderPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="nakit">{isTr ? "Nakit" : isEn ? "Cash" : isRu ? "Наличные" : "نقداً"}</SelectItem>
-                    <SelectItem value="kart">{isTr ? "Kart" : isEn ? "Card" : isRu ? "Карта" : "بطاقة"}</SelectItem>
-                    <SelectItem value="havale">{isTr ? "Havale / EFT" : isEn ? "Bank Transfer" : isRu ? "Перевод" : "تحويل بنكي"}</SelectItem>
-                    <SelectItem value="çek">{isTr ? "Çek" : isEn ? "Cheque" : isRu ? "Чек" : "شيك"}</SelectItem>
+                    <SelectItem value="nakit">{t("expensesPage.paymentCash")}</SelectItem>
+                    <SelectItem value="kart">{t("expensesPage.paymentCard")}</SelectItem>
+                    <SelectItem value="havale">{t("expensesPage.paymentTransfer")}</SelectItem>
+                    <SelectItem value="çek">{t("expensesPage.paymentCheque")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div>
-              <Label>{isTr ? "Açıklama" : isEn ? "Description" : isRu ? "Описание" : "الوصف"} *</Label>
+              <Label>{t("expensesPage.labelDescription")} *</Label>
               <Input
                 className="mt-1"
-                placeholder={isTr ? "Aylık Kira, Elektrik..." : isEn ? "Monthly Rent, Electricity..." : isRu ? "Аренда, электричество..." : "الإيجار الشهري، الكهرباء..."}
+                placeholder={t("expensesPage.templateDescPlaceholder")}
                 value={recurringForm.description}
                 onChange={(e) => setRecurringForm((f) => ({ ...f, description: e.target.value }))}
               />
             </div>
 
             <div>
-              <Label>{isTr ? "Not (isteğe bağlı)" : isEn ? "Note (optional)" : isRu ? "Примечание (опционально)" : "ملاحظة (اختياري)"}</Label>
+              <Label>{t("expensesPage.noteOptional")}</Label>
               <Input
                 className="mt-1"
                 placeholder="..."
@@ -1060,13 +1228,13 @@ export default function GelirGiderPage() {
                 className="flex-1"
                 onClick={() => { setShowRecurringForm(false); setEditingRecurring(null); setRecurringForm(EMPTY_RECURRING); }}
               >
-                {isTr ? "İptal" : isEn ? "Cancel" : isRu ? "Отмена" : "إلغاء"}
+                {t("expensesPage.cancel")}
               </Button>
               <Button className="flex-1 gap-2" onClick={handleSaveRecurring} disabled={savingRecurring}>
                 {savingRecurring && <Loader2 className="h-4 w-4 animate-spin" />}
-                {editingRecurring 
-                  ? (isTr ? "Güncelle" : isEn ? "Update" : isRu ? "Обновить" : "تحديث") 
-                  : (isTr ? "Şablon Kaydet" : isEn ? "Save Template" : isRu ? "Сохранить шаблон" : "حفظ القالب")}
+                {editingRecurring
+                  ? t("expensesPage.update")
+                  : t("expensesPage.saveTemplate")}
               </Button>
             </div>
           </div>

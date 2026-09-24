@@ -1,15 +1,17 @@
 import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { startOfMonth, endOfMonth, format, subMonths, startOfDay, endOfDay, addDays } from "date-fns";
-import { tr } from "date-fns/locale";
-import { TrendingUp, Users, Star, Download, CalendarCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { TrendingUp, Users, Star, Download, CalendarCheck, ChevronLeft, ChevronRight, Activity, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { formatMoney } from "@/lib/currency";
 import { hasProTools } from "@/lib/entitlements";
+import { hasPermission } from "@/lib/permissions";
+import { TrendChart } from "@/components/dashboard/TrendChart";
+import { compareValue } from "@/lib/report-trends";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +21,7 @@ export default async function RaporlarPage({
   searchParams: Promise<{ gun?: string }>;
 }) {
   const t = await getTranslations("dashboard");
+  const locale = await getLocale();
   const sp = await searchParams;
   const supabase = await createClient();
   const user = await getSessionUser();
@@ -26,7 +29,6 @@ export default async function RaporlarPage({
 
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
-  if (member.role === "staff") redirect("/dashboard");
 
   const orgId = member.org_id;
   const now = new Date();
@@ -39,6 +41,135 @@ export default async function RaporlarPage({
   const reportDay = new Date(dayParam + "T12:00:00");
   const dayStart = startOfDay(reportDay).toISOString();
   const dayEnd = endOfDay(reportDay).toISOString();
+  const prevDay = format(addDays(reportDay, -1), "yyyy-MM-dd");
+  const nextDay = format(addDays(reportDay, 1), "yyyy-MM-dd");
+  const isToday = dayParam === format(now, "yyyy-MM-dd");
+
+  const INTL_LOCALE: Record<string, string> = { tr: "tr-TR", en: "en-US", ru: "ru-RU", ar: "ar-EG" };
+  const intlLocale = INTL_LOCALE[locale] ?? "tr-TR";
+  const getFormattedDate = (date: Date) =>
+    date.toLocaleDateString(intlLocale, { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+
+  // Personelin işletmenin tüm cirosunu/giderini görmesi gerekmez — sahip
+  // view_reports iznini açmadığı sürece personel yalnızca KENDİ günlük
+  // işlerini görür (owner/manager her zaman tam raporu görür).
+  const isStaffLimited = member.role === "staff" && !hasPermission(member, "view_reports");
+
+  if (isStaffLimited) {
+    const { data: myAppts } = await supabase
+      .from("appointments")
+      .select("id, customer_name, appointment_at, status, price, tip, service:services(name)")
+      .eq("org_id", orgId)
+      .eq("staff_id", member.staff_id ?? "00000000-0000-0000-0000-000000000000")
+      .gte("appointment_at", dayStart)
+      .lte("appointment_at", dayEnd)
+      .order("appointment_at");
+
+    type MyAppt = {
+      id: string; customer_name: string; appointment_at: string; status: string;
+      price: number; tip: number | null; service?: { name: string } | null;
+    };
+    const mAppts = (myAppts ?? []) as unknown as MyAppt[];
+    const mDone = mAppts.filter((a) => a.status === "tamamlandi");
+    const myEarnings = mDone.reduce((s, a) => s + Number(a.price) + Number(a.tip ?? 0), 0);
+    const STATUS_TR: Record<string, { label: string; cls: string }> = {
+      talep: { label: "Bekliyor", cls: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" },
+      onaylandi: { label: "Onaylı", cls: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
+      tamamlandi: { label: "Tamamlandı", cls: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
+      iptal: { label: "İptal", cls: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
+      gelmedi: { label: "Gelmedi", cls: "bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400" },
+    };
+
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Günlük Özet</span>
+              <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Bugünkü İşlerim</h1>
+              <p className="text-muted-foreground text-sm">Yalnızca kendi randevularınız ve tamamladığınız işler görüntülenir.</p>
+            </div>
+            <HomeButton />
+          </div>
+        </div>
+
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <CalendarCheck className="h-4 w-4 text-primary" />
+                Günlük İşler
+                <span className="text-sm font-normal text-muted-foreground capitalize">
+                  — {getFormattedDate(reportDay)}{isToday ? " (bugün)" : ""}
+                </span>
+              </CardTitle>
+              <div className="flex items-center gap-1.5">
+                <Link href={`/dashboard/raporlar?gun=${prevDay}`} className="p-2 rounded-lg border hover:bg-accent transition-colors" aria-label="Önceki gün">
+                  <ChevronLeft className="h-4 w-4" />
+                </Link>
+                <form method="GET" action="/dashboard/raporlar">
+                  <input key={dayParam} type="date" name="gun" defaultValue={dayParam} max={format(now, "yyyy-MM-dd")}
+                    className="px-2 py-1.5 rounded-lg border border-border bg-background text-sm" />
+                  <button type="submit" className="ml-1.5 px-3 py-1.5 rounded-lg border text-sm hover:bg-accent transition-colors">Getir</button>
+                </form>
+                <Link href={`/dashboard/raporlar?gun=${nextDay}`} className="p-2 rounded-lg border hover:bg-accent transition-colors" aria-label="Sonraki gün">
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Randevu", value: String(mAppts.length) },
+                { label: "Tamamlanan", value: String(mDone.length) },
+                { label: "Bugünkü Kazancınız", value: formatMoney(myEarnings, currency, locale) },
+              ].map((kpi) => (
+                <div key={kpi.label} className="kpi-tile p-3 text-center">
+                  <p className="text-xs text-muted-foreground">{kpi.label}</p>
+                  <p className="text-xl font-bold mt-0.5 tabular-nums tracking-tight">{kpi.value}</p>
+                </div>
+              ))}
+            </div>
+
+            {mAppts.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-3">Bu günde randevu kaydı yok</p>
+            ) : (
+              <div className="space-y-1">
+                <div className="hidden md:grid grid-cols-[64px_1fr_1fr_120px_90px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+                  <span>Saat</span><span>Müşteri</span><span>Hizmet</span><span>Durum</span><span className="text-right">Tutar</span>
+                </div>
+                {mAppts.map((a) => {
+                  const st = STATUS_TR[a.status] ?? { label: a.status, cls: "bg-muted text-muted-foreground" };
+                  return (
+                    <Link key={a.id} href={`/dashboard/randevular/${a.id}`}
+                      className="data-row grid grid-cols-[1fr_auto] md:grid-cols-[64px_1fr_1fr_120px_90px] items-center gap-3 px-3 py-2.5 rounded-lg transition-colors">
+                      <div className="md:contents">
+                        <span className="hidden md:block text-sm font-semibold tabular-nums">{format(new Date(a.appointment_at), "HH:mm")}</span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            <span className="md:hidden font-semibold tabular-nums mr-1.5">{format(new Date(a.appointment_at), "HH:mm")}</span>
+                            {a.customer_name}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate md:hidden">{a.service?.name}</p>
+                        </div>
+                        <span className="hidden md:block text-xs text-muted-foreground truncate">{a.service?.name}</span>
+                        <span className={`hidden md:inline-flex w-fit px-2 py-0.5 rounded-full text-[11px] font-medium ${st.cls}`}>{st.label}</span>
+                      </div>
+                      <div className="flex items-center gap-2 justify-end">
+                        <span className={`md:hidden px-2 py-0.5 rounded-full text-[10px] font-medium ${st.cls}`}>{st.label}</span>
+                        <span className="text-sm font-semibold text-right tabular-nums">{formatMoney(Number(a.price), currency, locale)}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const [{ data: dayAppts }, { data: dayExpenses }, { count: dayNewCust }] = await Promise.all([
     supabase
@@ -50,9 +181,10 @@ export default async function RaporlarPage({
       .order("appointment_at"),
     supabase
       .from("expenses")
-      .select("type, amount")
+      .select("id, type, amount, category, description, note")
       .eq("org_id", orgId)
-      .eq("date", dayParam),
+      .eq("date", dayParam)
+      .order("created_at"),
     supabase
       .from("customers")
       .select("id", { count: "exact", head: true })
@@ -71,25 +203,6 @@ export default async function RaporlarPage({
   const dayRevenue = dDone.reduce((s, a) => s + Number(a.price) + Number(a.tip ?? 0), 0);
   const dayGider = (dayExpenses ?? []).filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
   const dayManuelGelir = (dayExpenses ?? []).filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
-  const prevDay = format(addDays(reportDay, -1), "yyyy-MM-dd");
-  const nextDay = format(addDays(reportDay, 1), "yyyy-MM-dd");
-  const isToday = dayParam === format(now, "yyyy-MM-dd");
-
-  const isTr = t("guide").includes("Kılavuzu");
-  const isEn = t("guide").includes("User Guide");
-  const isRu = t("guide").includes("Руководство");
-
-  const getRepText = (key: string) => {
-    if (key === "submit") return isTr ? "Getir" : isEn ? "Fetch" : isRu ? "Получить" : "عرض";
-    if (key === "todayBadge") return isTr ? " (bugün)" : isEn ? " (today)" : isRu ? " (сегодня)" : " (اليوم)";
-    if (key === "emptyDay") return isTr ? "Bu günde randevu kaydı yok" : isEn ? "No appointment records for this day" : isRu ? "Нет записей о приемах на этот день" : "لا توجد سجلات مواعيد لهذا اليوم";
-    return "";
-  };
-
-  const getFormattedDate = (date: Date) => {
-    const localeStr = isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG";
-    return date.toLocaleDateString(localeStr, { day: "numeric", month: "long", year: "numeric", weekday: "long" });
-  };
 
   // Last 6 months stats
   const monthlyStats = await Promise.all(
@@ -97,8 +210,7 @@ export default async function RaporlarPage({
       const d = subMonths(now, i);
       const start = startOfMonth(d).toISOString();
       const end = endOfMonth(d).toISOString();
-      const localeStr = isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG";
-      const monthLabel = d.toLocaleDateString(localeStr, { month: "short", year: "numeric" });
+      const monthLabel = d.toLocaleDateString(intlLocale, { month: "short", year: "numeric" });
       return supabase
         .from("appointments")
         .select("price, tip, status")
@@ -111,14 +223,31 @@ export default async function RaporlarPage({
           revenue: (data || []).filter((a) => a.status === "tamamlandi").reduce((s, a) => s + Number(a.price) + Number(a.tip || 0), 0),
           total: (data || []).length,
           completed: (data || []).filter((a) => a.status === "tamamlandi").length,
+          noshow: (data || []).filter((a) => a.status === "gelmedi").length,
         }));
     })
   );
 
+  // ── Değişim analizi: bu ay vs geçen ay yeni müşteri sayısı ──
+  const [{ count: newCustThisMonth }, { count: newCustPrevMonth }] = await Promise.all([
+    supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .gte("created_at", startOfMonth(now).toISOString())
+      .lte("created_at", endOfMonth(now).toISOString()),
+    supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .gte("created_at", startOfMonth(subMonths(now, 1)).toISOString())
+      .lte("created_at", endOfMonth(subMonths(now, 1)).toISOString()),
+  ]);
+
   const [{ data: topServices }, { data: topStaff }, { data: noShowData }] = await Promise.all([
     supabase
       .from("appointments")
-      .select("service_id, services(name), price, status")
+      .select("service_id, services(name), price, status, appointment_at")
       .eq("org_id", orgId)
       .eq("status", "tamamlandi")
       .gte("appointment_at", startOfMonth(now).toISOString()),
@@ -146,7 +275,8 @@ export default async function RaporlarPage({
     serviceMap[sid].revenue += Number(a.price);
     serviceMap[sid].count++;
   });
-  const topServicesArr = Object.values(serviceMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+  const allServicesArr = Object.values(serviceMap).sort((a, b) => b.revenue - a.revenue);
+  const topServicesArr = allServicesArr.slice(0, 5);
 
   // Aggregate top staff
   const staffMap: Record<string, { name: string; revenue: number; count: number }> = {};
@@ -157,7 +287,17 @@ export default async function RaporlarPage({
     staffMap[sid].revenue += Number(a.price);
     staffMap[sid].count++;
   });
-  const topStaffArr = Object.values(staffMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+  const allStaffArr = Object.values(staffMap).sort((a, b) => b.revenue - a.revenue);
+  const topStaffArr = allStaffArr.slice(0, 5);
+
+  // Gün bazlı ciro (bu ay, tamamlanan randevular) — en yüksek/en düşük cirolu gün için
+  const dayMap: Record<string, number> = {};
+  (topServices || []).forEach((a) => {
+    const day = (a as unknown as { appointment_at?: string }).appointment_at?.slice(0, 10);
+    if (!day) return;
+    dayMap[day] = (dayMap[day] ?? 0) + Number(a.price);
+  });
+  const dayEntriesArr = Object.entries(dayMap).sort((a, b) => b[1] - a[1]);
 
   // No-show rate
   const total = (noShowData || []).length;
@@ -165,6 +305,42 @@ export default async function RaporlarPage({
   const noShowRate = total > 0 ? ((noshows / total) * 100).toFixed(1) : "0";
 
   const currentMonthRevenue = monthlyStats[0].revenue;
+  // KDV oranı organizasyon bazında ayarlanabilir (Ayarlar → KDV Hesaplama) —
+  // yasal oran değiştiğinde her işletme kendi oranını orada günceller, burada sabit kodlanmaz.
+  const kdvEnabled = !!member.organizations?.kdv_enabled;
+  const kdvRate = Number(member.organizations?.kdv_rate ?? 20);
+  const kdvTutari = kdvEnabled ? currentMonthRevenue * (kdvRate / (100 + kdvRate)) : 0;
+
+  // ── İstatistikler: en yüksek/en düşük — ay / gün / hizmet / personel ──
+  const monthsSorted = [...monthlyStats].sort((a, b) => b.revenue - a.revenue);
+  const bestMonth = monthsSorted[0];
+  const worstMonth = monthsSorted[monthsSorted.length - 1];
+  const bestDay = dayEntriesArr[0];
+  const worstDay = dayEntriesArr.length > 1 ? dayEntriesArr[dayEntriesArr.length - 1] : null;
+  const bestService = allServicesArr[0];
+  const worstService = allServicesArr.length > 1 ? allServicesArr[allServicesArr.length - 1] : null;
+  const bestStaffStat = allStaffArr[0];
+  const worstStaffStat = allStaffArr.length > 1 ? allStaffArr[allStaffArr.length - 1] : null;
+  const formatDayLabel = (isoDay: string) =>
+    new Date(isoDay + "T12:00:00").toLocaleDateString(intlLocale, { day: "numeric", month: "short" });
+
+  // ── Gün sonu: bekleyen randevular + gün içi manuel gelir/gider dökümü ──
+  type DayExpense = { id: string; type: string; amount: number; category: string | null; description: string | null; note: string | null };
+  const dExpenses = (dayExpenses ?? []) as DayExpense[];
+  const dPending = dAppts.filter((a) => a.status === "talep" || a.status === "onaylandi");
+
+  // ── Değişim analizi: eski → yeni sıralı 6 aylık ciro serisi + bu ay/geçen ay karşılaştırması ──
+  const chrono = [...monthlyStats].reverse();
+  const revenueSeries = chrono.map((m) => ({ label: m.month, value: m.revenue }));
+  const cur = monthlyStats[0];
+  const prev = monthlyStats[1] ?? { revenue: 0, completed: 0, total: 0, noshow: 0 };
+  const rate = (n: number, d: number) => (d > 0 ? (n / d) * 100 : 0);
+  const comparison = [
+    { label: "Ciro", ...compareValue(cur.revenue, prev.revenue), fmt: (v: number) => formatMoney(v, currency, locale), invert: false },
+    { label: "Tamamlanan Randevu", ...compareValue(cur.completed, prev.completed), fmt: (v: number) => String(Math.round(v)), invert: false },
+    { label: "No-show Oranı", ...compareValue(rate(cur.noshow, cur.total), rate(prev.noshow, prev.total)), fmt: (v: number) => `%${v.toFixed(1)}`, invert: true },
+    { label: "Yeni Müşteri", ...compareValue(newCustThisMonth ?? 0, newCustPrevMonth ?? 0), fmt: (v: number) => String(Math.round(v)), invert: false },
+  ];
 
   return (
     <div className="p-6 space-y-6">
@@ -198,7 +374,7 @@ export default async function RaporlarPage({
               <CalendarCheck className="h-4 w-4 text-primary" />
               {t("reportsPage.daySummary")}
               <span className="text-sm font-normal text-muted-foreground capitalize">
-                — {getFormattedDate(reportDay)}{isToday ? getRepText("todayBadge") : ""}
+                — {getFormattedDate(reportDay)}{isToday ? ` (${t("today")})` : ""}
               </span>
             </CardTitle>
             <div className="flex items-center gap-1.5">
@@ -234,13 +410,38 @@ export default async function RaporlarPage({
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Bekleyen randevu uyarısı — ciroya/gelir-gidere yansıması için "Tamamlandı" gerekir */}
+          {dPending.length > 0 && (
+            <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-3">
+              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="text-sm text-amber-800 dark:text-amber-300 space-y-1.5">
+                <p>
+                  <span className="font-semibold">{dPending.length} randevu hâlâ bekliyor.</span>{" "}
+                  Gün cirosuna ve Gelir-Gider ekranına yansıması için gerçekleşenleri randevu detayından
+                  <span className="font-medium"> “Tamamlandı”</span> olarak işaretleyin.
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {dPending.map((a) => (
+                    <Link
+                      key={a.id}
+                      href={`/dashboard/randevular/${a.id}`}
+                      className="inline-flex items-center gap-1 rounded-md bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 text-xs font-medium hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors"
+                    >
+                      {format(new Date(a.appointment_at), "HH:mm")} · {a.customer_name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Günlük KPI'lar */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
             {[
               { label: "Randevu", value: String(dAppts.length) },
               { label: "Tamamlanan", value: String(dDone.length) },
-              { label: t("reportsPage.dayRevenue"), value: formatMoney(dayRevenue + dayManuelGelir, currency) },
-              { label: "Gün Gideri", value: formatMoney(dayGider, currency) },
+              { label: t("reportsPage.dayRevenue"), value: formatMoney(dayRevenue + dayManuelGelir, currency, locale) },
+              { label: "Gün Gideri", value: formatMoney(dayGider, currency, locale) },
               { label: "Yeni Müşteri", value: String(dayNewCust ?? 0) },
             ].map((kpi) => (
               <div key={kpi.label} className="kpi-tile p-3 text-center">
@@ -252,7 +453,7 @@ export default async function RaporlarPage({
 
           {/* Günün randevu dökümü */}
           {dAppts.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-3">Bu günde randevu kaydı yok</p>
+            <p className="text-sm text-muted-foreground text-center py-3">{t("reportsPage.noAppointments")}</p>
           ) : (
             <div className="space-y-1">
               <div className="hidden md:grid grid-cols-[64px_1fr_1fr_120px_90px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
@@ -300,7 +501,7 @@ export default async function RaporlarPage({
                     <div className="flex items-center gap-2 justify-end">
                       <span className={`md:hidden px-2 py-0.5 rounded-full text-[10px] font-medium ${st.cls}`}>{st.label}</span>
                       <span className="text-sm font-semibold text-right tabular-nums">
-                        {formatMoney(Number(a.price), currency)}
+                        {formatMoney(Number(a.price), currency, locale)}
                       </span>
                     </div>
                   </Link>
@@ -308,6 +509,143 @@ export default async function RaporlarPage({
               })}
             </div>
           )}
+
+          {/* Gün içi gelir/gider kayıtları — elle girilen + otomatik randevu satırları */}
+          {dExpenses.length > 0 && (
+            <div className="space-y-1 pt-2 border-t">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-1.5">
+                Gün İçi Gelir / Gider Kayıtları
+              </p>
+              <div className="hidden md:grid grid-cols-[90px_1fr_140px_90px] gap-3 px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <span>Tür</span>
+                <span>Açıklama</span>
+                <span>Kategori</span>
+                <span className="text-right">Tutar</span>
+              </div>
+              {dExpenses.map((e) => {
+                const isGelir = e.type === "gelir";
+                const auto = (e.note ?? "").startsWith("Otomatik");
+                return (
+                  <div key={e.id} className="data-row grid grid-cols-[1fr_auto] md:grid-cols-[90px_1fr_140px_90px] items-center gap-3 px-3 py-2 rounded-lg text-sm">
+                    <span className={`hidden md:inline-flex w-fit px-2 py-0.5 rounded-full text-[11px] font-medium ${isGelir ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
+                      {isGelir ? "Gelir" : "Gider"}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate">{e.description ?? "—"}</p>
+                      {auto && <span className="text-[10px] text-muted-foreground">Randevudan otomatik</span>}
+                    </div>
+                    <span className="hidden md:block text-xs text-muted-foreground truncate">{e.category ?? "—"}</span>
+                    <span className={`text-right font-semibold tabular-nums ${isGelir ? "text-emerald-600" : "text-red-600"}`}>
+                      {isGelir ? "+" : "−"}{formatMoney(Number(e.amount), currency, locale)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Değişim Analizi — dönemsel trend + bu ay / geçen ay karşılaştırması ── */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Activity className="h-4 w-4 text-primary" />
+            Değişim Analizi
+            <span className="text-sm font-normal text-muted-foreground">— son 6 ay</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <TrendChart
+            series={revenueSeries}
+            variant="line"
+            format={(v) => formatMoney(v, currency, locale)}
+            height={140}
+          />
+          <div className="space-y-1">
+            <div className="hidden sm:grid grid-cols-[1fr_120px_120px_110px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+              <span>Metrik</span>
+              <span className="text-right">Geçen Ay</span>
+              <span className="text-right">Bu Ay</span>
+              <span className="text-right">Değişim</span>
+            </div>
+            {comparison.map((c) => {
+              // invert: no-show gibi metriklerde "düşüş" iyidir
+              const good = c.dir === "flat" ? "flat" : c.invert ? (c.dir === "down" ? "up" : "down") : c.dir;
+              const cls = good === "up" ? "text-emerald-600" : good === "down" ? "text-red-600" : "text-muted-foreground";
+              return (
+                <div key={c.label} className="data-row grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_120px_120px_110px] items-center gap-3 px-3 py-2.5 rounded-lg text-sm">
+                  <span className="font-medium">{c.label}</span>
+                  <span className="hidden sm:block text-right text-muted-foreground tabular-nums">{c.fmt(c.previous)}</span>
+                  <span className="hidden sm:block text-right font-semibold tabular-nums">{c.fmt(c.current)}</span>
+                  <span className={`text-right font-semibold tabular-nums ${cls}`}>
+                    {c.dir === "up" ? "▲" : c.dir === "down" ? "▼" : "▬"} {c.text}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── İstatistikler — en yüksek / en düşük (ay, gün, hizmet, personel) ── */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Star className="h-4 w-4 text-amber-500" />
+            İstatistikler
+            <span className="text-sm font-normal text-muted-foreground">— en yüksek / en düşük</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {[
+              {
+                title: "Ay (son 6 ay)",
+                best: bestMonth ? { label: bestMonth.month, value: formatMoney(bestMonth.revenue, currency, locale) } : null,
+                worst: worstMonth && worstMonth !== bestMonth ? { label: worstMonth.month, value: formatMoney(worstMonth.revenue, currency, locale) } : null,
+              },
+              {
+                title: "Gün (bu ay)",
+                best: bestDay ? { label: formatDayLabel(bestDay[0]), value: formatMoney(bestDay[1], currency, locale) } : null,
+                worst: worstDay ? { label: formatDayLabel(worstDay[0]), value: formatMoney(worstDay[1], currency, locale) } : null,
+              },
+              {
+                title: "Hizmet (bu ay)",
+                best: bestService ? { label: bestService.name, value: formatMoney(bestService.revenue, currency, locale) } : null,
+                worst: worstService ? { label: worstService.name, value: formatMoney(worstService.revenue, currency, locale) } : null,
+              },
+              {
+                title: "Personel (bu ay)",
+                best: bestStaffStat ? { label: bestStaffStat.name, value: formatMoney(bestStaffStat.revenue, currency, locale) } : null,
+                worst: worstStaffStat ? { label: worstStaffStat.name, value: formatMoney(worstStaffStat.revenue, currency, locale) } : null,
+              },
+            ].map((group) => (
+              <div key={group.title} className="rounded-lg border border-border p-3 space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{group.title}</p>
+                {group.best ? (
+                  <div className="flex items-center justify-between gap-2 text-sm">
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <span>🏆</span>
+                      <span className="truncate">{group.best.label}</span>
+                    </span>
+                    <span className="font-semibold tabular-nums text-emerald-600 shrink-0">{group.best.value}</span>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Veri yok</p>
+                )}
+                {group.worst && (
+                  <div className="flex items-center justify-between gap-2 text-sm">
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <span>📉</span>
+                      <span className="truncate">{group.worst.label}</span>
+                    </span>
+                    <span className="font-semibold tabular-nums text-red-600 shrink-0">{group.worst.value}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
@@ -337,7 +675,7 @@ export default async function RaporlarPage({
                       }}
                     />
                   </div>
-                  <span className="w-28 text-xs font-semibold text-right tabular-nums">{formatMoney(m.revenue, currency)}</span>
+                  <span className="w-28 text-xs font-semibold text-right tabular-nums">{formatMoney(m.revenue, currency, locale)}</span>
                   <span className="w-16 text-xs text-muted-foreground text-right tabular-nums">{m.completed}/{m.total}</span>
                 </div>
               );
@@ -375,7 +713,7 @@ export default async function RaporlarPage({
                       <p className="text-sm font-medium truncate">{s.name}</p>
                       <p className="text-xs text-muted-foreground">{s.count} randevu</p>
                     </div>
-                    <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency)}</p>
+                    <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency, locale)}</p>
                   </div>
                 ))}
               </div>
@@ -405,7 +743,7 @@ export default async function RaporlarPage({
                       <p className="text-sm font-medium truncate">{s.name}</p>
                       <p className="text-xs text-muted-foreground">{s.count} tamamlanan randevu</p>
                     </div>
-                    <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency)}</p>
+                    <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency, locale)}</p>
                   </div>
                 ))}
               </div>
@@ -415,12 +753,18 @@ export default async function RaporlarPage({
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={`grid grid-cols-2 ${kdvEnabled ? "lg:grid-cols-5" : "lg:grid-cols-4"} gap-4`}>
         {[
-          { label: "Bu Ay Ciro", value: formatMoney(currentMonthRevenue, currency) },
+          { label: "Bu Ay Ciro", value: formatMoney(currentMonthRevenue, currency, locale) },
           { label: t("reportsPage.noShowRate"), value: `%${noShowRate}` },
           { label: "Tamamlanma Oranı", value: total > 0 ? `%${((monthlyStats[0].completed / total) * 100).toFixed(0)}` : "-" },
           { label: "Toplam İşlem", value: String(total) },
+          ...(kdvEnabled
+            ? [{
+                label: t("reportsPage.estimatedVat") + ` (%${kdvRate})`,
+                value: formatMoney(kdvTutari, currency, locale),
+              }]
+            : []),
         ].map((kpi) => (
           <div key={kpi.label} className="kpi-tile p-4 text-center">
             <p className="text-xs text-muted-foreground">{kpi.label}</p>

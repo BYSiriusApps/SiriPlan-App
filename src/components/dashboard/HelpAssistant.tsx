@@ -95,6 +95,9 @@ export function HelpAssistant() {
           }
           const qs = qp.toString();
           router.push(`/dashboard/randevular/yeni${qs ? `?${qs}` : ""}`);
+        } else if (data.actionTaken === "inventory_updated") {
+          toast.success(data.response || "Stok güncellendi");
+          router.refresh();
         } else if (data.actionTaken === "navigate_stok") {
           router.push("/dashboard/stok");
         }
@@ -170,10 +173,10 @@ export function HelpAssistant() {
 
       {open && (
         <div
-          className={`fixed z-40 left-4 md:left-6 transition-all duration-300 shadow-2xl shadow-black/20 rounded-2xl border border-border overflow-hidden flex flex-col bg-background ${
+          className={`fixed z-50 left-4 md:left-6 transition-all duration-300 shadow-2xl shadow-black/20 rounded-2xl border border-border overflow-hidden flex flex-col bg-background ${
             minimized
-              ? "bottom-20 md:bottom-6 w-72 h-14"
-              : "bottom-20 md:bottom-6 w-[calc(100vw-2rem)] sm:w-[360px] h-[70vh] max-h-[520px]"
+              ? "bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 w-72 h-14"
+              : "bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 w-[calc(100vw-2rem)] sm:w-[360px] h-[70dvh] max-h-[520px]"
           }`}
         >
           <div className="flex items-center justify-between px-4 py-3 bg-primary text-white shrink-0">

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
 import { sendStaffInviteEmail } from "@/lib/email/send";
-import { DEFAULT_PERMS, OWNER_ONLY_PERMS, sanitizePermissions } from "@/lib/permissions";
+import { DEFAULT_PERMS, OWNER_ONLY_PERMS, sanitizePermissions, canManageStaff } from "@/lib/permissions";
 
 const InviteSchema = z.object({
   staff_id: z.string().uuid().optional(),
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   const member = await getActiveMember(supabase);
 
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role !== "owner" && !member.permissions_json?.manage_staff) {
+  if (!canManageStaff(member)) {
     return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
   }
   // Yönetici rolünü yalnızca sahip devredebilir; aksi halde manage_staff
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
   const inviteUrl = `${appUrl}/auth/davet/${invite.token}`;
   const orgName = (org as { name: string }).name;
   const message =
-    `🎉 ${orgName} sizi Siriplan'a personel olarak davet etti!\n\n` +
+    `🎉 ${orgName} sizi SiriPlan'a personel olarak davet etti!\n\n` +
     `Katılmak için aşağıdaki bağlantıyı kullanın:\n${inviteUrl}\n\n` +
     `Bağlantı 24 saat geçerlidir ve yalnızca bir kez kullanılabilir.`;
 
@@ -190,7 +190,7 @@ export async function GET(_req: NextRequest) {
   const member = await getActiveMember(supabase);
 
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role !== "owner" && !member.permissions_json?.manage_staff) {
+  if (!canManageStaff(member)) {
     return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
   }
 

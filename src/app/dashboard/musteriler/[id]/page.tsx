@@ -7,7 +7,7 @@ import { tr } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle, Ban, Globe } from "lucide-react";
+import { ArrowLeft, Phone, Mail, Star, Calendar, Gift, Megaphone, MegaphoneOff, ShieldCheck, MessageCircle, Ban, Globe, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { maskPhone } from "@/lib/phone";
 import type { Customer, Appointment } from "@/types/database";
@@ -18,6 +18,10 @@ import CustomerBirthDateEdit from "./CustomerBirthDateEdit";
 import { STATUS_LABEL_KEYS } from "@/lib/appointment-status";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { hasProTools } from "@/lib/entitlements";
+import CustomerPackages from "./CustomerPackages";
+import CustomerCustomFields from "./CustomerCustomFields";
+import CustomerMetrics from "./CustomerMetrics";
+import CustomerBeforeAfterPhotos from "./CustomerBeforeAfterPhotos";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800";
@@ -39,7 +43,7 @@ export default async function MusteriDetailPage({
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  const [{ data: customer }, { data: appointments }] = await Promise.all([
+  const [{ data: customer }, { data: appointments }, { data: serviceRows }] = await Promise.all([
     supabase
       .from("customers")
       .select("*")
@@ -53,18 +57,27 @@ export default async function MusteriDetailPage({
       .eq("customer_id", id)
       .order("appointment_at", { ascending: false })
       .limit(30),
+    supabase
+      .from("services")
+      .select("id, name")
+      .eq("org_id", member.org_id)
+      .eq("is_active", true)
+      .order("display_order"),
   ]);
 
   if (!customer) notFound();
   const c = customer as Customer;
 
-  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null; plan?: string | null; trial_ends_at?: string | null } | null };
+  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null; plan?: string | null; trial_ends_at?: string | null; type?: string | null } | null };
   const m = member as unknown as MemberWithOrg;
   const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
   // Müşteri skoru Pro+ özelliği — Starter'da skor rozeti gizlenir.
   const showScore = hasProTools(m.organizations);
+  const currency = (settings.currency as string) || "TRY";
+  const serviceOpts = (serviceRows ?? []) as { id: string; name: string }[];
+  const businessType = m.organizations?.type ?? null;
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
@@ -257,6 +270,23 @@ export default async function MusteriDetailPage({
         </CardContent>
       </Card>
 
+      {/* Sektöre özel alanlar (durum rozeti, kilo/muayene vb.) */}
+      <CustomerCustomFields
+        customerId={c.id}
+        businessType={businessType}
+        customFields={c.custom_fields ?? {}}
+      />
+      <CustomerMetrics customerId={c.id} businessType={businessType} />
+      <CustomerBeforeAfterPhotos customerId={c.id} businessType={businessType} />
+
+      {/* Paketler / seans takibi */}
+      <CustomerPackages
+        customerId={c.id}
+        customerName={c.full_name}
+        services={serviceOpts}
+        currency={currency}
+      />
+
       {/* Appointment history */}
       <div>
         <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
@@ -267,8 +297,8 @@ export default async function MusteriDetailPage({
             <p className="text-muted-foreground text-sm text-center py-6">{t("customerDetail.noAppointments")}</p>
           ) : (
             (appointments as (Appointment & { staff?: { full_name: string }; service?: { name: string } })[]).map((appt) => (
-              <Link key={appt.id} href={`/dashboard/randevular/${appt.id}`}>
-                <div className="data-row flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors">
+              <div key={appt.id} className="data-row flex items-center gap-1 px-3 py-2.5 rounded-lg transition-colors">
+                <Link href={`/dashboard/randevular/${appt.id}`} className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="text-center w-14 shrink-0">
                       <p className="text-xs text-muted-foreground">
                         {format(new Date(appt.appointment_at), "d MMM yyyy", { locale: tr })}
@@ -287,8 +317,18 @@ export default async function MusteriDetailPage({
                         {t(STATUS_LABEL_KEYS[appt.status] ?? "statusTalep")}
                       </Badge>
                     </div>
-                </div>
-              </Link>
+                </Link>
+                {appt.status === "tamamlandi" && (
+                  <Link
+                    href={`/dashboard/randevular/${appt.id}/adisyon`}
+                    className="shrink-0 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                    aria-label={t("adisyonLink")}
+                    title={t("adisyonLink")}
+                  >
+                    <Receipt className="h-4 w-4" />
+                  </Link>
+                )}
+              </div>
             ))
           )}
         </div>

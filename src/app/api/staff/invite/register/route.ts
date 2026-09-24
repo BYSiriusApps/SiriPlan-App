@@ -118,6 +118,14 @@ export async function POST(req: NextRequest) {
 
   // Davet zaten yukarıda atomik olarak "accepted" yapıldı.
 
+  // `staff.email` hiçbir yerde otomatik doldurulmuyordu (bkz. account/profile
+  // route.ts'teki aynı düzeltme) — bu satır boşsa telefonla giriş bu personeli
+  // hiç bulamıyordu. Yalnızca boşsa yazılır, elle girilmiş farklı bir iletişim
+  // e-postasının üzerine yazılmaz.
+  if (invite.staff_id) {
+    await admin.from("staff").update({ email: invite.email }).eq("id", invite.staff_id).is("email", null);
+  }
+
   // Oturumu kur — /api/auth/login'deki aynı cookie-aware client deseni.
   const supabase = await createClient();
   const { error: signInErr } = await supabase.auth.signInWithPassword({ email: invite.email, password });

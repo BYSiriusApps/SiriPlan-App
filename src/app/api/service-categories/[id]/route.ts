@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { hasPermission } from "@/lib/permissions";
 
 export async function PATCH(
   req: NextRequest,
@@ -15,7 +16,7 @@ export async function PATCH(
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+  if (!hasPermission(member, "edit_services")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const allowed = ["name", "color", "photo_url"];
   const updates: Record<string, unknown> = {};
@@ -50,7 +51,7 @@ export async function DELETE(
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+  if (!hasPermission(member, "edit_services")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   // Bu kategoriye bağlı hizmetler kategorisiz kalır (ON DELETE SET NULL), silinmez.
   const { error } = await supabase

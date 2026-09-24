@@ -113,6 +113,8 @@ Ekibinizdeki her uzman için ayrı takvim ve yetki tanımlayabilirsiniz:
 | İptal | Randevu iptal edildi. |
 | Gelmedi (No-Show) | Müşteri randevu saatinde salona gelmedi. |
 
+> **Önemli**: Bir randevunun geliri Gelir-Gider tablosuna yalnızca "Tamamlandı" olarak işaretlendiğinde yansır. Bekliyor/Onaylandı durumunda kalan randevular Gelir-Gider hesaplamalarına dahil edilmez.
+
 ---
 
 ## 7. Adisyon Oluşturma & Fiş Çıkarma
@@ -128,6 +130,7 @@ SiriPlan panelinde tamamlanan randevular için profesyonel adisyon ve fiş dök�
    - Alınan Hizmet(ler), Hizmet Tutarı, Eklenen Bahşiş ve Toplam Tutar
    - Ödeme Yöntemi (*Nakit, Kredi Kartı, Havale/EFT, Diğer*)
 4. **Yazdır veya PDF Kaydet**: Sağ üstteki **"Yazdır"** butonu ile adisyonu doğrudan termal yazıcıya/standart yazıcıya gönderebilir veya bilgisayarınıza/telefonunuza PDF olarak indirebilirsiniz.
+5. **Diğer Erişim Yolları**: Detay sayfasına girmeden de adisyona ulaşabilirsiniz — bir randevuyu "Tamamlandı" işaretlediğinizde çıkan bildirimdeki kısayoldan, Randevular listesindeki tamamlanmış randevu kartının altındaki "Adisyon" düğmesinden veya müşteri detay sayfasındaki geçmiş randevu satırının yanındaki fiş ikonundan.
 
 ---
 
@@ -202,10 +205,12 @@ SiriPlan aboneliği ve faturalandırması SiriPlan hesabınıza bağlıdır ve u
 ## 14. Gelir-Gider Takibi & Personel Maaş Hesaplama
 
 - **Gelir-Gider Kasa Takibi**: **Gelir-Gider** sekmesinden kira, malzeme alımı, çay-kahve masrafları ve faturaları kaydederek günlük net karınızı görün.
+- **Randevu geliri ne zaman kasaya yansır**: Bir randevunun geliri Gelir-Gider tablosuna yalnızca "Tamamlandı" olarak işaretlendiğinde işlenir; hizmet verilse bile randevu "Tamamlandı" yapılmadığı sürece Gelir-Gider hesaplamalarında yer almaz.
 - **Personel Maaş & Komisyon Hesaplama**:
   - **Personel → Maaş Hesapla** sayfasına gidin.
   - Ay ve personel seçin. Sistem otomatik olarak **Taban Maaş + (Yapılan Ciro × Komisyon %) + Bahşişler** formülüyle toplam ödemeyi çıkarır.
   - **"Gider Olarak Kaydet"** butonuna basarak tek tıkla işletme kasasından düşürün.
+- **KDV Hesaplama**: **Ayarlar → KDV Hesaplama**'dan oranınızı girip özelliği açık/kapalı tutabilirsiniz (yeni işletmelerde varsayılan olarak açıktır). Yasal oran değiştiğinde aynı ekrandan güncellersiniz — sabit kodlanmış bir oran kullanılmaz. Açıkken "Tahmini KDV" kartı hem Gelir-Gider hem de Raporlar sayfasında, o ayki gelirin KDV dahil olduğu varsayılarak hesaplanır.
 
 ---
 

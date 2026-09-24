@@ -6,6 +6,7 @@ import {
   type WaStyle,
 } from "@/lib/wa-templates/registry";
 import { googleMapsLink } from "@/lib/wa-template";
+import { normalizePhone as toStoredPhoneFormat } from "@/lib/phone";
 
 /**
  * Meta onaylı WhatsApp şablon mesajı gönderiminin tek gerçek uygulaması.
@@ -99,7 +100,18 @@ export async function sendPurposeTemplate({
     return { skipped: true, reason: "template_not_found" };
   }
 
-  const templateName = def.metaName;
+  // Müşterinin panel/rehber üzerinde kayıtlı dil tercihi "en" ise İngilizce
+  // şablon önce denenir; şablon henüz Meta'da onaylı değilse (submit edilmiş
+  // ama PENDING) ya da tanımlı değilse aşağıdaki attempt() otomatik olarak
+  // Türkçe'ye (zaten onaylı, güvenilir) düşer — mevcut davranış hiçbir zaman
+  // BOZULMAZ, yalnızca İngilizce onaylanınca iyileşir.
+  const { data: customerRow } = await supabase
+    .from("customers")
+    .select("preferred_language")
+    .eq("org_id", orgId)
+    .eq("phone", toStoredPhoneFormat(toPhone))
+    .maybeSingle();
+  const preferEnglish = customerRow?.preferred_language === "en" && !!def.metaNameEn;
 
   // Salonun kendi randevu vitrini — konum/telefon boşsa bile daima geçerli bir
   // bağlantı. Meta, gövde parametrelerinden herhangi biri BOŞ olursa şablon
@@ -147,7 +159,7 @@ export async function sendPurposeTemplate({
   });
   if (emptyParams.length) {
     console.error(
-      `[wa-templates] boş parametre "-" ile dolduruldu — purpose=${purpose} template=${templateName} orgId=${orgId} params=${emptyParams.join(",")}`
+      `[wa-templates] boş parametre "-" ile dolduruldu — purpose=${purpose} template=${def.metaName} orgId=${orgId} params=${emptyParams.join(",")}`
     );
   }
 
@@ -191,33 +203,44 @@ export async function sendPurposeTemplate({
 
   const to = normalizePhone(toPhone);
 
-  const res = await fetch(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      to,
-      type: "template",
-      template: {
-        name: templateName,
-        language: { code: "tr" },
-        components,
+  async function attempt(templateName: string, languageCode: string): Promise<SendPurposeTemplateResult> {
+    const res = await fetch(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-    }),
-  });
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to,
+        type: "template",
+        template: {
+          name: templateName,
+          language: { code: languageCode },
+          components,
+        },
+      }),
+    });
 
-  if (!res.ok) {
-    const errText = await res.text().catch(() => "");
-    console.error(
-      `[wa-templates] Meta API hatası — purpose=${purpose} template=${templateName} orgId=${orgId} status=${res.status} detail=${errText}`
-    );
-    return { error: "Meta API hatası", detail: errText };
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      console.error(
+        `[wa-templates] Meta API hatası — purpose=${purpose} template=${templateName} orgId=${orgId} status=${res.status} detail=${errText}`
+      );
+      return { error: "Meta API hatası", detail: errText };
+    }
+
+    return { sent: true, template: templateName };
   }
 
-  return { sent: true, template: templateName };
+  // İngilizce onaylı değilse/reddedilirse Türkçe'ye (zaten onaylı) düş —
+  // müşteri hiçbir mesaj almadan kalmasın.
+  if (preferEnglish) {
+    const enResult = await attempt(def.metaNameEn!, "en");
+    if ("sent" in enResult) return enResult;
+  }
+
+  return attempt(def.metaName, "tr");
 }
 
 /** Randevu tarihinden {{date}}/{{time}} param çiftini üretir. timeZone verilmezse

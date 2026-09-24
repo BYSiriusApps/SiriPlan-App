@@ -41,7 +41,7 @@ export interface ParsedBooking {
 }
 
 /** Türkçe küçük harf + aksan/özel karakter sadeleştirme (fuzzy eşleştirme için). */
-function deburr(s: string): string {
+export function deburr(s: string): string {
   return s
     .toLocaleLowerCase("tr-TR")
     .replace(/İ/g, "i")
@@ -61,7 +61,7 @@ function deburr(s: string): string {
  * tolere etmek için önek eşleşmesi ("kesim" ↔ "kesimi", "ahmet" ↔ "ahmete").
  * Kısa kelimelerde (<4) yanlış eşleşmeyi önlemek için yalnızca birebir kabul.
  */
-function tokenSimilar(a: string, b: string): boolean {
+export function tokenSimilar(a: string, b: string): boolean {
   if (a === b) return true;
   if (Math.min(a.length, b.length) < 4) return false;
   return a.startsWith(b) || b.startsWith(a);
@@ -80,21 +80,37 @@ const MONTHS: Record<string, number> = {
 };
 
 /** "üç", "on beş" gibi yazı ile sayıları 0-50 aralığında çözer (saat için). */
-const NUM_WORDS: Record<string, number> = {
+export const NUM_WORDS: Record<string, number> = {
   sifir: 0, bir: 1, iki: 2, uc: 3, dort: 4, bes: 5, alti: 6, yedi: 7, sekiz: 8,
   dokuz: 9, on: 10, yirmi: 20, otuz: 30, kirk: 40, elli: 50,
 };
 
-function wordsToNumber(tokens: string[]): number | null {
+/**
+ * Türkçe hâl eki ("-te/-ta/-de/-da") kelimeye bitişik gelir — "üç" + "te" =
+ * "üçte", "beş" + "te" = "beşte". `NUM_WORDS` yalnızca ek almamış köke sahip
+ * olduğundan, eki temizleyip tekrar dener ("ucte" -> "uc" -> 3).
+ */
+function stripTimeSuffix(tok: string): string {
+  return tok.replace(/(te|ta|de|da)$/, "");
+}
+
+export function wordsToNumber(tokens: string[]): number | null {
   let total = 0;
   let matched = false;
   for (const tok of tokens) {
     if (tok in NUM_WORDS) {
       total += NUM_WORDS[tok];
       matched = true;
-    } else {
+      continue;
+    }
+    const stripped = stripTimeSuffix(tok);
+    if (stripped !== tok && stripped in NUM_WORDS) {
+      total += NUM_WORDS[stripped];
+      matched = true;
+      // Hâl eki alan kelime sayı ifadesinin sonudur ("on beşte" = 15, ötesi okunmaz).
       break;
     }
+    break;
   }
   return matched ? total : null;
 }
@@ -124,7 +140,7 @@ function parseTime(norm: string): TimeResult | null {
   m = norm.match(/\b([01]?\d|2[0-3])\s*(?:te|ta|de|da)\b/);
   if (m) return { hour: Number(m[1]), minute: 0 };
 
-  // yazı ile: "saat üç", "üçte", "üç buçuk"
+  // yazı ile: "saat üç", "saat üçte", "saat on beşte", "üç buçuk"
   const tokens = norm.split(" ");
   for (let i = 0; i < tokens.length; i++) {
     if (tokens[i] === "saat" && tokens[i + 1]) {
@@ -133,6 +149,19 @@ function parseTime(norm: string): TimeResult | null {
         const half = tokens.slice(i + 1, i + 4).includes("bucuk");
         return { hour: n, minute: half ? 30 : 0 };
       }
+    }
+  }
+
+  // "saat" sözü hiç geçmeden, doğrudan hâl ekiyle söylenen saat: "üçte",
+  // "on beşte" (bir önceki kelime de bir sayı kelimesiyse ona eklenir).
+  for (let i = 0; i < tokens.length; i++) {
+    const stripped = stripTimeSuffix(tokens[i]);
+    if (stripped === tokens[i] || !(stripped in NUM_WORDS)) continue;
+    let hour = NUM_WORDS[stripped];
+    if (i > 0 && tokens[i - 1] in NUM_WORDS) hour += NUM_WORDS[tokens[i - 1]];
+    if (hour <= 23) {
+      const half = tokens[i + 1] === "bucuk";
+      return { hour, minute: half ? 30 : 0 };
     }
   }
 
@@ -433,17 +462,20 @@ export function parseVoiceBooking(
   const staffMatch = matchStaff(norm, staff, nameNorms);
 
   let appointment_at = "";
-  if (date) {
-    const t = time ?? { hour: 10, minute: 0 };
+  if (date && time) {
     try {
       appointment_at = zonedWallTimeToUtc(
         date.dateStr,
-        `${String(t.hour).padStart(2, "0")}:${String(t.minute).padStart(2, "0")}`,
+        `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`,
         tz,
       ).toISOString();
     } catch {
       appointment_at = "";
     }
+  } else if (date && !time) {
+    // Sadece tarih söylendi, saat yok — sessizce 10:00 gibi rastgele bir saat
+    // dayatmak yerine "datetime" eksik sayılır (aşağıda), kullanıcı saati
+    // kendisi tamamlar. Yanlış bir saatle "dolu" görünen randevudan daha iyi.
   } else if (time) {
     // Sadece saat söylendi → bugün
     const todayStr = istanbulDateStr(now, tz);

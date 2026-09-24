@@ -18,6 +18,7 @@ import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { CustomerSearchField } from "@/components/dashboard/CustomerSearchField";
 import { renderWaTemplate, waMessageLink } from "@/lib/wa-template";
 import { useMicAccess } from "@/components/dashboard/useMicAccess";
+import { useVoiceConfirmCommand } from "@/components/dashboard/useVoiceConfirmCommand";
 import { lookupCustomerBySpokenName } from "@/lib/voice-customer-lookup";
 import { usePlan } from "@/components/dashboard/PlanContext";
 
@@ -139,6 +140,14 @@ export default function YeniRandevuPage() {
         // Takvimde saat dilimine tıklandığında gelir — kullanıcı saati tekrar seçmesin.
         appointment_at: prefillDate ? `${prefillDate}T${prefillTime || "09:00"}` : f.appointment_at,
       }));
+    }
+    // İsim geldi ama telefon gelmediyse (ör. Yardım Asistanı'nın yönlendirdiği
+    // "eksikleri tamamla" linki): kayıtlı müşteriden numarayı otomatik getir.
+    if (prefillName && !prefillPhone) {
+      lookupCustomerBySpokenName(prefillName).then((pick) => {
+        if (!pick) return;
+        setForm((f) => (f.customer_phone ? f : { ...f, customer_phone: pick.phone, customer_email: f.customer_email || pick.email || "" }));
+      });
     }
 
     Promise.all([
@@ -454,6 +463,41 @@ export default function YeniRandevuPage() {
     recognition.start();
   }, [proTools, requestMic, speechLang, tm, applyVoiceParsed]);
 
+  // ── Sesli onay komutları — "onayla" / "düzelt" / "eksikleri ekle" ──
+  // Düz fonksiyon: her render taze `saveAppointment` kapanışını yakalar
+  // (hook bunları ref'te tutup en güncelini çağırır).
+  const cancelVoiceConfirm = () => {
+    setIsConfirmingVoice(false);
+    setVoiceSummary(null);
+    setVoiceMissing([]);
+  };
+  const confirmAndSave = () => {
+    setIsConfirmingVoice(false);
+    setVoiceSummary(null);
+    setVoiceMissing([]);
+    saveAppointment();
+  };
+  const completeMissingByVoice = () => {
+    startVoiceBooking();
+  };
+
+  const { cmdListening, stopCmd } = useVoiceConfirmCommand({
+    active: proTools && isConfirmingVoice,
+    hasMissing: voiceMissing.length > 0,
+    speechLang,
+    onConfirm: confirmAndSave,
+    onEdit: cancelVoiceConfirm,
+    onCompleteMissing: completeMissingByVoice,
+    toasts: {
+      listening: tm("voiceCmdListening"),
+      confirmed: tm("voiceCmdConfirmed"),
+      editing: tm("voiceCmdCancelled"),
+      completing: tm("voiceCmdCompleting"),
+      notUnderstood: tm("voiceCmdNotUnderstood"),
+    },
+    onToast: (m) => toast(m, { icon: "🎙️", duration: 4000 }),
+  });
+
   // Auto-start voice booking if requested via URL params (yalnızca Pro+)
   useEffect(() => {
     if (proTools && !dataLoading && !voiceTriggeredRef.current && typeof window !== "undefined") {
@@ -653,13 +697,25 @@ export default function YeniRandevuPage() {
                       {tm("missingHint")}
                     </p>
                   )}
+                  {/* Eller serbest: özet açılınca "onayla / düzelt / eksikleri ekle" komutlarını dinler */}
+                  {cmdListening && (
+                    <div className="flex items-center justify-between gap-2 text-[11px] rounded-lg bg-red-500/10 border border-red-500/20 px-2.5 py-2 text-red-600">
+                      <span className="flex items-center gap-1.5">
+                        <Mic className="h-3.5 w-3.5 animate-pulse" />
+                        {tm("voiceCmdListening")}
+                      </span>
+                      <button type="button" onClick={stopCmd} className="underline shrink-0">
+                        {tm("voiceCmdStop")}
+                      </button>
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-2 pt-1">
                     {voiceMissing.length > 0 && (
                       <Button
                         size="sm"
                         type="button"
                         variant="secondary"
-                        onClick={startVoiceBooking}
+                        onClick={completeMissingByVoice}
                         className="flex-1 min-w-[140px] gap-1.5"
                       >
                         <Mic className="h-3.5 w-3.5" />
@@ -669,12 +725,7 @@ export default function YeniRandevuPage() {
                     <Button
                       size="sm"
                       type="button"
-                      onClick={() => {
-                        setIsConfirmingVoice(false);
-                        setVoiceSummary(null);
-                        setVoiceMissing([]);
-                        saveAppointment();
-                      }}
+                      onClick={confirmAndSave}
                       className="flex-1 min-w-[120px]"
                     >
                       {tm("confirmSave")}
@@ -683,11 +734,7 @@ export default function YeniRandevuPage() {
                       size="sm"
                       type="button"
                       variant="outline"
-                      onClick={() => {
-                        setIsConfirmingVoice(false);
-                        setVoiceSummary(null);
-                        setVoiceMissing([]);
-                      }}
+                      onClick={cancelVoiceConfirm}
                       className="flex-1 min-w-[100px]"
                     >
                       {tm("confirmEdit")}
@@ -732,6 +779,31 @@ export default function YeniRandevuPage() {
                 {/* Multi-service picker */}
                 <div className="space-y-2">
                   <Label>Hizmetler *</Label>
+
+                  {/* Hızlı hizmet butonları: en sık kullanılan (favori) veya ilk
+                      birkaç hizmete tek dokunuşla ekleme — arama kutusunu hiç
+                      açmadan. Yalnızca henüz hizmet seçilmemişken görünür,
+                      seçildikten sonra normal arama akışına geçilir. Mobilde
+                      metinlerin üst üste binmemesi için yatay kaydırmalı satır. */}
+                  {selectedServices.length === 0 && sortedServices.length > 0 && (
+                    <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-0.5 px-0.5">
+                      {sortedServices.slice(0, 4).map((svc) => {
+                        const isFav = favorites.includes(svc.id);
+                        return (
+                          <button
+                            key={svc.id}
+                            type="button"
+                            onClick={() => selectService(svc)}
+                            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-input bg-background hover:bg-accent text-xs whitespace-nowrap transition-colors"
+                          >
+                            {isFav && <Star className="h-3 w-3 text-amber-500 fill-amber-500 shrink-0" />}
+                            <span className="font-medium">{svc.name}</span>
+                            <span className="text-muted-foreground">₺{Number(svc.price).toLocaleString("tr-TR")}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   {/* Selected services */}
                   {selectedServices.length > 0 && (

@@ -15,12 +15,13 @@ import { useIsMobileApp } from "@/lib/use-mobile-app";
 const DEMO_ENABLED = false;
 
 export default function GirisPage() {
-  // Native uygulamada (App Store/Play Store) kayıt akışı yoktur: /auth/kayit
-  // proxy.ts'teki route kilidiyle engelli olduğu için buradaki bağlantı
-  // kullanıcıyı /dashboard → /auth/giris döngüsüne sokuyordu. Ölü bağlantı
-  // App Store 2.1 (bozuk işlevsellik) kapsamına girer; ayrıca kayıt akışının
-  // sonu plan seçimidir. Uygulamada hesap açma yok — salon sahibi hesabını
-  // web'de açar, uygulamayı mevcut hesabıyla kullanır.
+  // Native uygulamada (App Store/Play Store) yalnızca "giriş ekranı" olmalı:
+  // kayıt akışı UYGULAMA İÇİNDE yoktur (/auth/kayit proxy.ts'teki route
+  // kilidiyle zaten engelli, çünkü kayıt akışının sonu plan seçimi/ödemedir —
+  // App Store 3.1.1). Önceden Android'de harici tarayıcıya açılan bir "kayıt
+  // ol" bağlantısı gösteriliyordu; mağaza incelemesinde risk teşkil ettiği
+  // için hem Android hem iOS'ta bağlantı TAMAMEN kaldırıldı — mobil uygulamada
+  // kayıt/ödeme akışına giden hiçbir buton veya link bulunmuyor.
   const isMobileApp = useIsMobileApp();
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
@@ -180,7 +181,7 @@ export default function GirisPage() {
           </Button>
         </form>
 
-        {!isMobileApp && (
+        {isMobileApp ? null : (
           <p className="text-center text-sm text-muted-foreground">
             Hesabınız yok mu?{" "}
             <Link href="/auth/kayit" className="text-primary font-medium hover:underline">

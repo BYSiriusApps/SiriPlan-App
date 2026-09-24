@@ -124,8 +124,12 @@ export function StaffInviteDialog({ staffList, preselectedStaffId, viewerIsOwner
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="gap-1.5">
-        <UserPlus className="h-3.5 w-3.5" />
+      <Button
+        variant="outline"
+        onClick={() => setOpen(true)}
+        className="h-9 px-4 gap-2 rounded-lg text-sm font-medium"
+      >
+        <UserPlus className="h-4 w-4" />
         {t("inviteButton")}
       </Button>
 

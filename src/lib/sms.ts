@@ -117,7 +117,7 @@ export async function sendSms({ toPhone, orgId, message }: SendSmsParams): Promi
 }
 
 /**
- * Platform seviyesinde (Siriplan'ın kendi hesabından) SMS gönderimi —
+ * Platform seviyesinde (SiriPlan'ın kendi hesabından) SMS gönderimi —
  * org'ların kendi müşteri SMS ayarlarından bağımsız. Deneme süresi bitimi
  * gibi platform bildirimleri için kullanılır; org'un sms_* alanları yerine
  * PLATFORM_SMS_* env değişkenlerini kullanır.

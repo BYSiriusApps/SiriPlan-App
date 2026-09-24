@@ -57,6 +57,7 @@ Standart widget'lar: Active Appointments, Daily Calendar, WhatsApp Assistant, Ca
   - **Tarih Bazında**: Günü (`day`), Haftayı (`week`), Ayı (`month`) seçerek görünüm ayarlanabilir.
   - **Personel Bazında**: Personel filtresi veya "Personel Görünümü" (`staff`) ile uzmanlar yan yana sütunlar halinde kıyaslanabilir. Personel rolündeki kullanıcılar yalnızca kendi takvimini görebilir.
 - **Randevu Durumları**: Bekliyor, Onaylandı, Tamamlandı, İptal, Gelmedi (No-Show).
+- **Önemli**: Bir randevunun geliri Gelir-Gider tablosuna yalnızca "Tamamlandı" olarak işaretlendiğinde yansır; Bekliyor/Onaylandı durumundaki randevular Gelir-Gider hesaplamalarında yer almaz.
 
 ## 5. Adisyon Oluşturma & Fiş Dökümü
 
@@ -65,6 +66,7 @@ Randevu detay sayfasındaki (`/dashboard/randevular/[id]`) **"Adisyon"** butonun
 - Randevu tarihi, müşteri ve personel bilgileri,
 - Hizmet(ler), hizmet fiyatı, bahşiş tutarı, toplam ücret ve ödeme yöntemi (*Nakit, Kredi/Banka Kartı, Havale/EFT, Diğer*) görüntülenir.
 - **Yazdır / PDF**: Tek tıkla yazıcıya gönderilebilir veya PDF olarak indirilebilir.
+- **Erişim kısayolları**: Adisyona randevu detayı dışında da ulaşılabilir — bir randevuyu "Tamamlandı" işaretlediğinizde çıkan bildirimden, Randevular listesindeki tamamlanmış randevu kartının altındaki "Adisyon" düğmesinden veya müşteri detay sayfasındaki geçmiş randevu satırının yanındaki fiş ikonundan.
 
 ## 6. İşletme Web Sitesi & Vitrin Görünümü (`/r/[slug]`)
 
@@ -103,11 +105,15 @@ Günlük/dönemsel ciro, gider, randevu sayısı ve personel/hizmet bazlı perfo
 ## 13. Gelir-Gider & Maaş Hesaplama
 
 - Manuel gelir ve gider kayıtları tutulur.
+- Randevu gelirleri kasaya yalnızca randevu "Tamamlandı" olarak işaretlendiğinde yansır — hizmet verilip "Tamamlandı" işaretlenmeyen randevular Gelir-Gider hesaplamalarına hiç dahil edilmez.
 - **Maaş Hesapla**: Taban Maaş + (Ciro × Komisyon %) + Bahşiş formülü ile tek tıkla gider olarak kaydedilir.
+- **KDV Hesaplama**: Ayarlar → KDV Hesaplama'dan oranınızı girip özelliği açabilirsiniz (yeni işletmelerde varsayılan olarak açıktır). Yasal oran değiştiğinde aynı ekrandan güncellenir — sabit kodlanmış bir oran kullanılmaz. Açıkken "Tahmini KDV" kartı hem bu sayfada hem de Raporlar'da, o ayki gelirin KDV dahil olduğu varsayılarak hesaplanır.
 
 ## 14. Ayarlar
 
 Genel bilgiler, logo/banner yükleme, WhatsApp/SMS/Telegram bildirim şablonları, yetkilendirme ve abonelik yönetimi.
+
+- **Instagram & Facebook Messenger Bağlantısı**: Sayfa Erişim Belirteci ve Sayfa Kimliği girilince Instagram DM ve Facebook Messenger'a gelen mesajlara AI otomatik yanıt verir (WhatsApp'takiyle aynı `feature_ai` mantığı). Salon sahibinin Meta tarafında yapması gereken adımlar için bkz. [`docs/sosyal-medya/meta-otomasyon-kilavuzu.md`](sosyal-medya/meta-otomasyon-kilavuzu.md). TikTok'ta otomasyon desteklenmez, yalnızca profil linki gösterilir.
 
 ## 15. Veri Göçü (İçe/Dışa Aktarma)
 

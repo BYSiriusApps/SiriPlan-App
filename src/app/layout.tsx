@@ -53,8 +53,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Siriplan — Her Sektöre Özel Akıllı Randevu Yönetimi",
-    template: "%s | Siriplan",
+    default: "SiriPlan — Her Sektöre Özel Akıllı Randevu Yönetimi",
+    template: "%s | SiriPlan",
   },
   description:
     "Kuaför, berber, güzellik salonu, spa, klinik ve daha fazlası için AI destekli randevu, müşteri ve ciro yönetim platformu. BY Sirius Group Ai & Technology Co Ltd. tarafından geliştirildi.",
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Siriplan",
+    title: "SiriPlan",
     startupImage: [
       { url: "/icons/apple-touch-icon.png" },
     ],
@@ -84,8 +84,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "tr_TR",
-    siteName: "Siriplan",
-    title: "Siriplan — Akıllı Randevu Yönetimi",
+    siteName: "SiriPlan",
+    title: "SiriPlan — Akıllı Randevu Yönetimi",
     description: "Kuaför, berber, güzellik salonu ve spa için AI destekli randevu platformu",
     url: "https://siriplan.com",
     images: [
@@ -93,13 +93,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Siriplan",
+        alt: "SiriPlan",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Siriplan — Akıllı Randevu Yönetimi",
+    title: "SiriPlan — Akıllı Randevu Yönetimi",
     description: "Kuaför, berber, güzellik salonu ve spa için AI destekli randevu platformu",
     images: ["/og-image.png"],
   },
@@ -145,14 +145,14 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      dir="ltr"
+      dir={locale === "ar" ? "rtl" : "ltr"}
       suppressHydrationWarning
       className={`${geistSans.variable} ${playfairDisplay.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
       <head>
         {/* PWA + Mobile */}
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="application-name" content="Siriplan" />
+        <meta name="application-name" content="SiriPlan" />
         <meta name="msapplication-TileColor" content="#e11d48" />
         <meta name="msapplication-tap-highlight" content="no" />
         <link rel="mask-icon" href="/icons/icon.svg" color="#e11d48" />
@@ -167,7 +167,7 @@ export default async function RootLayout({
                 {
                   "@type": "Organization",
                   "@id": "https://siriplan.com/#organization",
-                  name: "Siriplan",
+                  name: "SiriPlan",
                   url: "https://siriplan.com",
                   logo: "https://siriplan.com/icons/icon-192x192.png",
                   sameAs: ["https://bysirius.com"],
@@ -181,7 +181,7 @@ export default async function RootLayout({
                 {
                   "@type": "SoftwareApplication",
                   "@id": "https://siriplan.com/#software",
-                  name: "Siriplan",
+                  name: "SiriPlan",
                   applicationCategory: "BusinessApplication",
                   operatingSystem: "Web, iOS, Android",
                   ...(mobileApp
@@ -201,7 +201,7 @@ export default async function RootLayout({
                   "@type": "WebSite",
                   "@id": "https://siriplan.com/#website",
                   url: "https://siriplan.com",
-                  name: "Siriplan",
+                  name: "SiriPlan",
                   inLanguage: ["tr", "en"],
                   potentialAction: {
                     "@type": "SearchAction",

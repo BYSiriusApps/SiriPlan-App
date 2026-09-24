@@ -1,7 +1,7 @@
 {
   "id": "/dashboard",
-  "name": "Siriplan — Akıllı Randevu Yönetimi",
-  "short_name": "Siriplan",
+  "name": "SiriPlan — Akıllı Randevu Yönetimi",
+  "short_name": "SiriPlan",
   "description": "Kuaför, berber, güzellik salonu ve spa için AI destekli randevu yönetim platformu",
   "start_url": "/dashboard",
   "display": "standalone",
@@ -84,7 +84,7 @@
       "sizes": "430x932",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Siriplan ana sayfa — mobil görünüm"
+      "label": "SiriPlan ana sayfa — mobil görünüm"
     },
     {
       "src": "/screenshots/booking-narrow.png",
@@ -98,7 +98,7 @@
       "sizes": "1440x900",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Siriplan ana sayfa — masaüstü görünüm"
+      "label": "SiriPlan ana sayfa — masaüstü görünüm"
     },
     {
       "src": "/screenshots/booking-wide.png",

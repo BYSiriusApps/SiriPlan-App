@@ -1,0 +1,91 @@
+<title>Siriplan Tanıtım Görselleri</title>
+<style>
+:root{--bg:#fbf3ea;--fg:#241a12;--muted:#8a7a6a;--card:#fff;--border:#ecdfd0;}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#1c1712;--fg:#f3ece2;--muted:#b6a894;--card:#26201a;--border:#3a3025;}
+}
+:root[data-theme="dark"]{--bg:#1c1712;--fg:#f3ece2;--muted:#b6a894;--card:#26201a;--border:#3a3025;}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--fg);font-family:Inter,system-ui,sans-serif;padding:32px 20px 60px;}
+h1{font-size:22px;margin-bottom:4px;}
+p.sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:34px 0 14px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.card img{width:100%;display:block;background:#eee;}
+.card .cap{padding:10px 12px;font-size:12px;color:var(--muted);}
+.wide img{max-height:220px;object-fit:cover;object-position:top;}
+</style>
+<h1>Siriplan — App Tanıtım &amp; Sosyal Medya Görselleri</h1>
+<p class="sub">Gerçek uygulama ekranlarının marka renkleriyle yeniden oluşturulmuş temiz mockup hali. Dosyalar: docs/sosyal-medya/2026-09-app-tanitim-gorselleri/</p>
+
+<h2>Play Store / App Tanıtım</h2>
+<div class="grid">
+  <div class="card wide"><img src="play-store-feature-graphic-1024x500.png"><div class="cap">Feature graphic — 1024×500</div></div>
+  <div class="card"><img src="play-store-promo-01-anasayfa-1080x1920.png"><div class="cap">Promo ekran görüntüsü 1 — Genel yönetim</div></div>
+  <div class="card"><img src="play-store-promo-02-stok-1080x1920.png"><div class="cap">Promo ekran görüntüsü 2 — Kritik stok</div></div>
+  <div class="card"><img src="play-store-promo-03-gelirgider-1080x1920.png"><div class="cap">Promo ekran görüntüsü 3 — Gelir &amp; Gider</div></div>
+  <div class="card"><img src="play-store-promo-04-takvim-1080x1920.png"><div class="cap">Promo ekran görüntüsü 4 — Takvim</div></div>
+  <div class="card"><img src="play-store-promo-05-kampanya-1080x1920.png"><div class="cap">Promo ekran görüntüsü 5 — Kampanyalar</div></div>
+  <div class="card"><img src="play-store-promo-06-takvimay-1080x1920.png"><div class="cap">Promo ekran görüntüsü 6 — Takvim (Ay Görünümü)</div></div>
+  <div class="card"><img src="play-store-promo-07-whatsapp-1080x1920.png"><div class="cap">Promo ekran görüntüsü 7 — WhatsApp Hatırlatma Örneği</div></div>
+  <div class="card"><img src="play-store-promo-08-randevu-durumu-1080x1920.png"><div class="cap">Promo ekran görüntüsü 8 — Randevu Durumu (Tamamlandı/Gelmedi/İptal)</div></div>
+  <div class="card"><img src="play-store-promo-09-sesli-randevu-1080x1920.png"><div class="cap">Promo ekran görüntüsü 9 — Sesli Asistanla Randevu Oluşturma</div></div>
+  <div class="card"><img src="play-store-promo-10-musteri-crm-1080x1920.png"><div class="cap">Promo ekran görüntüsü 10 — Müşteri CRM (Skor/Harcama/Puan)</div></div>
+</div>
+
+<h2>Instagram Feed (1080×1080)</h2>
+<div class="grid">
+  <div class="card"><img src="instagram-feed-01-genel-1080x1080.png"><div class="cap">Genel — Salonun Cebinde</div></div>
+  <div class="card"><img src="instagram-feed-02-kritikstok-1080x1080.png"><div class="cap">Kritik stok uyarısı</div></div>
+  <div class="card"><img src="instagram-feed-03-bekleyen-1080x1080.png"><div class="cap">Bekleyen istekler</div></div>
+  <div class="card"><img src="instagram-feed-04-musteri-1080x1080.png"><div class="cap">Müşteri CRM</div></div>
+</div>
+
+<h2>Instagram / TikTok Story &amp; Reels Kapağı (1080×1920)</h2>
+<div class="grid">
+  <div class="card"><img src="instagram-tiktok-story-reels-1080x1920.png"><div class="cap">Story / Reels kapak görseli</div></div>
+</div>
+
+<h2>Facebook Gönderisi (1200×630)</h2>
+<div class="grid">
+  <div class="card wide"><img src="facebook-post-01-1200x630.png"><div class="cap">Facebook post — Takvim</div></div>
+</div>
+
+<h2>Sektörel Görseller — gerçek fotoğraf + gerçek panel ekranları + gerçek tema renkleri</h2>
+<p class="sub">Her sektör panelin GERÇEK renk temasıyla (ThemePicker) ve o sektörün panelde gerçekten sahip olduğu farklı bir ekranla (Takvim / Hizmetler / Randevular / Paket-Seans / Müşteri CRM) üretilir — hepsi aynı mavi/turuncu ikiliyle veya aynı CRM ekranıyla tekrar etmez.</p>
+<div class="grid" id="sektor-tum"></div>
+
+<script>
+  // [slug, sektör adı, tema, tema etiketi, panel ekranı]
+  const SEKTORLER = [
+    ["berber", "Berber", "sage", "Doğa Yeşili", "Takvim"],
+    ["spa", "Spa & Masaj", "sage", "Doğa Yeşili", "Misafir CRM"],
+    ["guzellik", "Güzellik Salonu", "rose", "Pembe Rose", "Hizmetler"],
+    ["estetik", "Estetik Kliniği", "rose", "Pembe Rose", "Danışan CRM"],
+    ["makyaj", "Makyaj Stüdyosu", "sunset", "Turuncu Gün Batımı", "Randevular"],
+    ["tattoo", "Dövme Stüdyosu", "sunset", "Turuncu Gün Batımı", "Paket & Seans"],
+    ["diyetisyen", "Diyetisyen", "ocean", "Okyanus Mavisi", "Danışan CRM"],
+    ["petkuafor", "Pet Kuaför", "sage", "Doğa Yeşili", "Evcil Dost CRM"],
+    ["disklinigi", "Diş Kliniği", "ocean", "Okyanus Mavisi", "Takvim"],
+  ];
+  const VARYANTLAR = [
+    ["01-anasayfa-1080x1920", "Genel yönetim"],
+    ["02-musteri-post-1080x1080", "Instagram post"],
+    ["03-musteri-hikaye-1080x1920", "Instagram hikaye"],
+  ];
+  const el = document.getElementById("sektor-tum");
+  for (const [slug, ad, tema, temaEtiket, ekran] of SEKTORLER) {
+    for (const [suffix, varyantEtiket] of VARYANTLAR) {
+      el.insertAdjacentHTML("beforeend", `<div class="card"><img src="sektorler-${tema}/${slug}-${suffix}.png"><div class="cap">${ad} — ${temaEtiket} — ${ekran} (${varyantEtiket})</div></div>`);
+    }
+  }
+  // Pet Kuaför için alternatif kapak fotoğrafı (kedi + köpek birlikte) — sadece post formatı
+  el.insertAdjacentHTML("beforeend", `<div class="card"><img src="sektorler-sage/petkuafor-kedikopek-02-musteri-post-1080x1080.png"><div class="cap">Pet Kuaför (alternatif foto: kedi + köpek) — Doğa Yeşili — Evcil Dost CRM (Instagram post)</div></div>`);
+</script>
+
+<h2>Eski / tamamlanmamış sektörler (gerçek fotoğraf yok — ikon panelli, gözden geçirilmeyi bekliyor)</h2>
+<div class="grid">
+  <div class="card"><img src="sektorler-mavi/klinik-02-musteri-post-1080x1080.png"><div class="cap">Klinik (eski, "estetik" ile değiştirildi)</div></div>
+  <div class="card"><img src="sektorler-mavi/nail-02-musteri-post-1080x1080.png"><div class="cap">Nail — gerçek fotoğraf bekliyor</div></div>
+</div>

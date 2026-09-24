@@ -11,7 +11,7 @@ import {
 import { tr, enUS, ru, ar } from "date-fns/locale";
 import {
   Calendar, MessageCircle, Megaphone, Star, ChevronRight, Plus,
-  Clock, BarChart3, Wallet, Users, Scissors,
+  Clock, BarChart3, Wallet, Users, Scissors, Package, AlertTriangle,
 } from "lucide-react";
 import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
 import { istanbulTimeStr, istanbulDateStr, DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
@@ -26,6 +26,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { ApproveButton } from "@/components/dashboard/ApproveButton";
 import { NewAppointmentFab } from "@/components/dashboard/NewAppointmentFab";
 import { OnboardingWelcome, OnboardingTour, STAFF_STEPS } from "@/components/dashboard/OnboardingTour";
+import { numberLocaleOf } from "@/lib/currency";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
@@ -73,6 +74,7 @@ export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
   const locale = await getLocale();
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
+  const numLocale = numberLocaleOf(locale);
 
   const supabase = await createClient();
   const user = await getSessionUser();
@@ -187,6 +189,7 @@ export default async function DashboardPage() {
     { data: monthAppts },
     { data: monthExpenses },
     { data: recentCustomers },
+    { data: inventoryItems },
   ] = await Promise.all([
     todayQuery,
     nextQuery,
@@ -262,6 +265,12 @@ export default async function DashboardPage() {
       .eq("org_id", orgId)
       .order("created_at", { ascending: false })
       .limit(4),
+
+    supabase
+      .from("inventory_items")
+      .select("id, name, current_stock, min_stock_alert, unit")
+      .eq("org_id", orgId)
+      .eq("is_active", true),
   ]);
 
   type FullAppt = Appointment & {
@@ -344,6 +353,12 @@ export default async function DashboardPage() {
 
   /* Son eklenen müşteriler (Yeni Müşteri kutucuğu) */
   const recentCustList = (recentCustomers ?? []) as { id: string; full_name: string; phone: string; created_at: string }[];
+
+  /* Kritik stok (Kritik Stok kutucuğu) — mevcut min_stock_alert verisinden türetilir */
+  type InvRow = { id: string; name: string; current_stock: number; min_stock_alert: number; unit: string };
+  const criticalStock = ((inventoryItems ?? []) as InvRow[])
+    .filter((i) => Number(i.min_stock_alert) > 0 && Number(i.current_stock) <= Number(i.min_stock_alert))
+    .sort((a, b) => Number(a.current_stock) - Number(b.current_stock));
 
   const firstName =
     (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] ??
@@ -611,7 +626,7 @@ export default async function DashboardPage() {
                     {t("homePage.weeklyStarLabel", { name: champ.staff.full_name })}
                   </p>
                   <p className="text-[11px] opacity-75">
-                    {t("homePage.staffStatsLabel", { count: champ.appointments_done, revenue: Number(champ.total_revenue).toLocaleString("tr-TR") })}
+                    {t("homePage.staffStatsLabel", { count: champ.appointments_done, revenue: Number(champ.total_revenue).toLocaleString(numLocale) })}
                   </p>
                 </div>
               </div>
@@ -686,7 +701,7 @@ export default async function DashboardPage() {
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-lg font-bold text-foreground truncate">
-                ₺{monthRevenue.toLocaleString("tr-TR")}
+                ₺{monthRevenue.toLocaleString(numLocale)}
               </p>
               <p className="text-[11px] text-muted-foreground">{t("homePage.monthRevenueLabel")}</p>
             </div>
@@ -721,17 +736,17 @@ export default async function DashboardPage() {
                 <Wallet className="h-5 w-5 text-primary" />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-lg font-bold text-foreground truncate">₺{netTotal.toLocaleString("tr-TR")}</p>
+                <p className="text-lg font-bold text-foreground truncate">₺{netTotal.toLocaleString(numLocale)}</p>
                 <p className="text-[11px] text-muted-foreground">{t("homePage.netLabel")}</p>
               </div>
             </div>
             <div className="flex items-center justify-between text-[13px] py-1">
               <span className="text-muted-foreground">{t("homePage.extraIncomeLabel")}</span>
-              <span className="font-semibold" style={{ color: "var(--chart-2)" }}>+₺{extraIncomeTotal.toLocaleString("tr-TR")}</span>
+              <span className="font-semibold" style={{ color: "var(--chart-2)" }}>+₺{extraIncomeTotal.toLocaleString(numLocale)}</span>
             </div>
             <div className="flex items-center justify-between text-[13px] py-1">
               <span className="text-muted-foreground">{t("homePage.expenseLabel")}</span>
-              <span className="font-semibold" style={{ color: "var(--destructive)" }}>-₺{expenseTotal.toLocaleString("tr-TR")}</span>
+              <span className="font-semibold" style={{ color: "var(--destructive)" }}>-₺{expenseTotal.toLocaleString(numLocale)}</span>
             </div>
           </div>
         </GlassCard3D>
@@ -741,7 +756,7 @@ export default async function DashboardPage() {
       key: "quick_actions",
       label: "Hızlı İşlemler",
       colSpanClass: "lg:col-span-4",
-      node: <QuickActionsPanel key="quick_actions" initialShortcuts={userShortcuts} orgId={orgId} role={member.role} />,
+      node: <QuickActionsPanel key="quick_actions" initialShortcuts={userShortcuts} orgId={orgId} role={member.role} permissionsJson={member.permissions_json} />,
     },
     {
       key: "revenue_summary",
@@ -814,6 +829,50 @@ export default async function DashboardPage() {
       ),
     },
     {
+      key: "critical_stock",
+      label: "Kritik Stok",
+      colSpanClass: "lg:col-span-6",
+      node: (
+        <GlassCard3D key="critical_stock" className="glass-card h-full" glow intensity={4}>
+          <CardTitle
+            right={
+              <Link href="/dashboard/stok" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+                {t("all")} <ChevronRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            {t("homePage.criticalStockTitle")}
+          </CardTitle>
+          <div className="px-4 py-3.5 space-y-2">
+            {criticalStock.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-2">{t("homePage.criticalStockOk")}</p>
+            ) : (
+              <>
+                <p className="text-[12px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  {t("homePage.criticalStockCount", { count: criticalStock.length })}
+                </p>
+                {criticalStock.slice(0, 5).map((i) => (
+                  <Link
+                    key={i.id}
+                    href="/dashboard/stok"
+                    className="flex items-center justify-between gap-2 text-[13px] leading-snug hover:opacity-80 transition-opacity"
+                  >
+                    <span className="flex items-center gap-2 truncate text-foreground">
+                      <Package className="h-3.5 w-3.5 text-amber-500 shrink-0" /> {i.name}
+                    </span>
+                    <span className="tabular-nums shrink-0 text-amber-600 dark:text-amber-400 text-[11px] font-semibold">
+                      {i.current_stock} {i.unit}
+                    </span>
+                  </Link>
+                ))}
+              </>
+            )}
+          </div>
+        </GlassCard3D>
+      ),
+    },
+    {
       key: "services_summary",
       label: "Hizmetler",
       colSpanClass: "lg:col-span-6",
@@ -842,7 +901,7 @@ export default async function DashboardPage() {
                   <Scissors className="h-3.5 w-3.5 text-primary shrink-0" /> {s.name}
                 </span>
                 <span className="tabular-nums shrink-0 text-muted-foreground text-[11px]">
-                  ₺{Number(s.price).toLocaleString("tr-TR")} · {s.duration_minutes}{t("minutesShort")}
+                  ₺{Number(s.price).toLocaleString(numLocale)} · {s.duration_minutes}{t("minutesShort")}
                 </span>
               </Link>
             ))}
@@ -864,7 +923,7 @@ export default async function DashboardPage() {
       node: (
         <GlassCard3D key="staff_personal_report" className="glass-card" glow intensity={4}>
           <CardTitle>
-            Performans Raporum
+            {t("homePage.performanceReportTitle")}
           </CardTitle>
           <div className="px-4 py-4 flex items-center gap-3">
             <span
@@ -875,12 +934,12 @@ export default async function DashboardPage() {
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-lg font-bold text-foreground truncate">
-                ₺{monthRevenue.toLocaleString("tr-TR")}
+                ₺{monthRevenue.toLocaleString(numLocale)}
               </p>
-              <p className="text-[11px] text-muted-foreground">Bu Ay Kazandırdığım Toplam Tutar</p>
+              <p className="text-[11px] text-muted-foreground">{t("homePage.monthlyEarningsLabel")}</p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-sm font-semibold text-foreground">{monthApptsCount} Tamamlanan Randevu</p>
+              <p className="text-sm font-semibold text-foreground">{t("homePage.completedApptsCountLabel", { count: monthApptsCount })}</p>
             </div>
           </div>
         </GlassCard3D>

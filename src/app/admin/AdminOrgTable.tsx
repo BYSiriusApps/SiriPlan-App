@@ -16,7 +16,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Pencil, Search } from "lucide-react";
+import { Loader2, Pencil, Search, ShieldCheck, ShieldOff, Megaphone, MegaphoneOff } from "lucide-react";
 import { toast } from "sonner";
 
 export interface AdminOrgRow {
@@ -36,6 +36,11 @@ export interface AdminOrgRow {
   member_count: number;
   staff_count: number;
   month_appointments: number;
+  /** İşletme sahibinin kayıt sırasında verdiği izin — kampanya e-posta/SMS göndermeden önce buna bakılmalı. */
+  owner_kvkk_consent: boolean;
+  owner_kvkk_consent_at: string | null;
+  owner_marketing_consent: boolean;
+  owner_marketing_consent_at: string | null;
 }
 
 const PLAN_BADGES: Record<string, string> = {
@@ -132,6 +137,7 @@ export function AdminOrgTable({ orgs }: { orgs: AdminOrgRow[] }) {
               <TableHead>Salon</TableHead>
               <TableHead>Plan</TableHead>
               <TableHead>Durum</TableHead>
+              <TableHead>İzinler</TableHead>
               <TableHead className="text-right">Kullanıcı</TableHead>
               <TableHead className="text-right">Personel (kota)</TableHead>
               <TableHead className="text-right">Bu Ay Randevu (kota)</TableHead>
@@ -157,6 +163,28 @@ export function AdminOrgTable({ orgs }: { orgs: AdminOrgRow[] }) {
                     </p>
                   )}
                 </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    {o.owner_kvkk_consent ? (
+                      <span title={`KVKK onayı verildi${o.owner_kvkk_consent_at ? ` (${format(new Date(o.owner_kvkk_consent_at), "d MMM yyyy", { locale: tr })})` : ""}`}>
+                        <ShieldCheck className="h-4 w-4 text-green-500" />
+                      </span>
+                    ) : (
+                      <span title="KVKK onayı yok">
+                        <ShieldOff className="h-4 w-4 text-muted-foreground/40" />
+                      </span>
+                    )}
+                    {o.owner_marketing_consent ? (
+                      <span title={`Kampanya e-posta/SMS izni var${o.owner_marketing_consent_at ? ` (${format(new Date(o.owner_marketing_consent_at), "d MMM yyyy", { locale: tr })})` : ""}`}>
+                        <Megaphone className="h-4 w-4 text-green-500" />
+                      </span>
+                    ) : (
+                      <span title="Kampanya e-posta/SMS izni yok">
+                        <MegaphoneOff className="h-4 w-4 text-muted-foreground/40" />
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell className="text-right">{o.member_count}</TableCell>
                 <TableCell className="text-right">
                   {o.staff_count} <span className="text-muted-foreground">/ {o.max_staff ?? "∞"}</span>
@@ -177,7 +205,7 @@ export function AdminOrgTable({ orgs }: { orgs: AdminOrgRow[] }) {
             ))}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                   Salon bulunamadı
                 </TableCell>
               </TableRow>

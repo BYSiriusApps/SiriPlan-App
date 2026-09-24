@@ -15,7 +15,7 @@ export function ThemeProvider({ children, nonce }: { children: ReactNode; nonce?
     <NextThemesProvider
       attribute="class"
       defaultTheme="light"
-      themes={["light", "dark", "ocean", "sage", "sunset", "midnight"]}
+      themes={["light", "dark", "ocean", "sage", "sunset", "midnight", "blue"]}
       enableSystem={false}
       disableTransitionOnChange={false}
       nonce={nonce}
