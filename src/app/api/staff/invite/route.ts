@@ -12,7 +12,7 @@ const InviteSchema = z.object({
   email: z.string().email().optional(),
   phone: z.string().optional(),
   role: z.enum(["staff", "manager"]).default("staff"),
-  permissions_json: z.record(z.boolean()).optional().default({}),
+  permissions_json: z.record(z.string(), z.boolean()).optional().default({}),
   // Bildirim kanalı tercihi (varsayılan: ikisi de dolu ise her ikisi)
   notify_via: z.enum(["email", "whatsapp", "telegram", "all"]).default("all"),
 });
