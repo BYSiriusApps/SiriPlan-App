@@ -40,16 +40,27 @@ export async function POST(req: NextRequest) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-      // metadata is stored on the subscription; read from client_reference_id or metadata
-      const meta = (session as unknown as { subscription_data?: { metadata?: Record<string, string> } }).subscription_data?.metadata;
-      const orgId = meta?.org_id || (session.metadata?.org_id);
-      const plan = (meta?.plan || session.metadata?.plan) as PlanKey | undefined;
-      if (orgId && plan) {
-        await applyPlanToOrg(orgId, plan);
-        await supabase.from("organizations").update({
-          stripe_subscription_id: session.subscription as string,
-        }).eq("id", orgId);
-        await writeAuditLog(orgId, "subscription.activated", { plan, event: event.id });
+      // Checkout'u BİZ oluştururken `subscription_data.metadata` bir istek
+      // parametresidir — webhook'a gelen Session nesnesinde bu alan hiç
+      // bulunmaz (yalnızca oluşturulan Subscription'ın kendi metadata'sında
+      // yaşar). Bu yüzden org, session.customer üzerinden bulunur — /api/
+      // stripe/checkout zaten Session oluşturulmadan ÖNCE stripe_customer_id'yi
+      // org'a yazmıştı, o eşleşme burada kullanılıyor (customer.subscription.*
+      // handler'larındaki desenle aynı).
+      const customerId = session.customer as string | null;
+      const subscriptionId = session.subscription as string | null;
+      if (customerId && subscriptionId) {
+        const { data: org } = await supabase
+          .from("organizations")
+          .select("id")
+          .eq("stripe_customer_id", customerId)
+          .single();
+        if (org) {
+          await supabase.from("organizations").update({
+            stripe_subscription_id: subscriptionId,
+          }).eq("id", org.id);
+          await writeAuditLog(org.id, "subscription.activated", { event: event.id });
+        }
       }
       break;
     }
