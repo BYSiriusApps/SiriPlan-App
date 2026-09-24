@@ -12,13 +12,20 @@ const META_API = "https://graph.facebook.com/v19.0";
  * şablon yoksa (metaName boş) veya gönderim reddedilirse `false` döner;
  * çağıran taraf bu durumda serbest-metin yoluna düşmelidir.
  */
+/**
+ * `locale` "en" ise ve İngilizce şablon onaylıysa önce o denenir; onaysız/
+ * reddedilirse (Meta henüz onaylamadıysa) otomatik olarak Türkçe şablona
+ * düşülür — bu da başarısız olursa çağıran taraf (notify.ts → dispatchWhatsApp)
+ * serbest metne düşer. Yani üç kademeli, hiçbir aşama diğerini KIRMAZ: EN
+ * şablon → TR şablon → serbest metin.
+ */
 export async function sendInternalTemplate(
   toNumber: string,
   purpose: WaInternalPurpose,
-  params: Record<string, string>
+  params: Record<string, string>,
+  locale: string = "tr"
 ): Promise<boolean> {
   const def = WA_INTERNAL_TEMPLATES[purpose];
-  if (!def.metaName) return false;
 
   const token = process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_META_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -30,31 +37,39 @@ export async function sendInternalTemplate(
     return { type: "text", text: cleaned || "-" };
   });
 
-  try {
-    const res = await fetch(`${META_API}/${phoneId}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to,
-        type: "template",
-        template: {
-          name: def.metaName,
-          language: { code: "tr" },
-          components: [{ type: "body", parameters: bodyParameters }],
-        },
-      }),
-    });
-    if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      console.error(
-        `[wa-templates/internal] Meta API hatası — purpose=${purpose} template=${def.metaName} to=${to} status=${res.status} detail=${errText}`
-      );
+  async function attempt(name: string, languageCode: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${META_API}/${phoneId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to,
+          type: "template",
+          template: {
+            name,
+            language: { code: languageCode },
+            components: [{ type: "body", parameters: bodyParameters }],
+          },
+        }),
+      });
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        console.error(
+          `[wa-templates/internal] Meta API hatası — purpose=${purpose} template=${name} to=${to} status=${res.status} detail=${errText}`
+        );
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error(`[wa-templates/internal] ağ hatası — purpose=${purpose} to=${to}`, e);
       return false;
     }
-    return true;
-  } catch (e) {
-    console.error(`[wa-templates/internal] ağ hatası — purpose=${purpose} to=${to}`, e);
-    return false;
   }
+
+  if (locale === "en" && def.metaNameEn) {
+    if (await attempt(def.metaNameEn, "en")) return true;
+  }
+  if (!def.metaName) return false;
+  return attempt(def.metaName, "tr");
 }

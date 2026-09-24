@@ -73,6 +73,7 @@ export default function GelirGiderPage() {
   const router = useRouter();
   const { proTools } = usePlan();
   const [role, setRole] = useState<string | null>(null);
+  const [forbidden, setForbidden] = useState(false);
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -127,6 +128,10 @@ export default function GelirGiderPage() {
     }
   }, [role, router]);
 
+  useEffect(() => {
+    if (forbidden) router.push("/dashboard");
+  }, [forbidden, router]);
+
   // 012 trigger canlıysa oluşan "Otomatik — Randevu #…" gelir satırlarını dışla;
   // randevu cirosu her zaman /api/appointments/revenue'dan (appointments tablosu) gelir.
   const isAutoApptRow = (e: Expense) =>
@@ -139,6 +144,11 @@ export default function GelirGiderPage() {
       fetch(`/api/expenses?${qs}`),
       fetch(`/api/appointments/revenue?${qs}`),
     ]);
+    if (expRes.status === 403 || revRes.status === 403) {
+      setForbidden(true);
+      setLoading(false);
+      return;
+    }
     if (expRes.ok) {
       const rows = (await expRes.json()) as Expense[];
       setEntries(rows.filter((e) => !isAutoApptRow(e)));

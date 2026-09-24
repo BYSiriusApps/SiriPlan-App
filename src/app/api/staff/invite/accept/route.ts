@@ -100,6 +100,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: memberErr.message }, { status: 500 });
   }
 
+  // `staff.email` hiçbir yerde otomatik doldurulmuyordu (bkz. account/profile
+  // route.ts'teki aynı düzeltme) — bu satır boşsa telefonla giriş bu personeli
+  // hiç bulamıyordu. Kabul eden kullanıcının GERÇEK oturum e-postası yazılır
+  // (invite.email değil — davet başka bir adrese gönderilmiş olabilir ama
+  // giriş her zaman bu hesabın kendi e-postasıyla yapılacaktır); yalnızca
+  // boşsa yazılır, elle girilmiş farklı bir iletişim e-postasının üzerine
+  // yazılmaz.
+  if (invite.staff_id && user.email) {
+    await admin.from("staff").update({ email: user.email }).eq("id", invite.staff_id).is("email", null);
+  }
+
   return NextResponse.json({ success: true, org_id: invite.org_id });
 }
 

@@ -7,6 +7,7 @@ import { tr } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { formatServicePrice } from "@/lib/currency";
@@ -24,10 +25,16 @@ interface AppointmentRequest {
   price: number | null;
   note: string | null;
   source: string;
+  staff_id: string | null;
   staff: { full_name: string } | null;
   service: { name: string } | null;
   proposed_status?: "none" | "pending" | "accepted" | "rejected";
   proposed_appointment_at?: string | null;
+}
+
+interface StaffOption {
+  id: string;
+  full_name: string;
 }
 
 const SOURCE_META: Record<string, { label: string; icon: typeof MessageCircle; className: string }> = {
@@ -60,12 +67,16 @@ export function BekleyenIsteklerClient({
   bookingSlotMinutes = 15,
   criticalStock = [],
   overdueAppointments = [],
+  staffOptions = [],
+  canReassignStaff = false,
 }: {
   initialRequests: AppointmentRequest[];
   showPhone?: boolean;
   bookingSlotMinutes?: number;
   criticalStock?: CriticalStockItem[];
   overdueAppointments?: OverdueAppointment[];
+  staffOptions?: StaffOption[];
+  canReassignStaff?: boolean;
 }) {
   const t = useTranslations("dashboard");
   const to = useTranslations("dashboard.overdueAppointments");
@@ -92,6 +103,26 @@ export function BekleyenIsteklerClient({
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || "İşlem gerçekleştirilemedi");
+    }
+  }
+
+  async function handleReassign(id: string, staffId: string) {
+    setBusyId(id);
+    const res = await fetch(`/api/appointment-requests/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reassign_staff", staff_id: staffId }),
+    });
+    setBusyId(null);
+    if (res.ok) {
+      const staffName = staffOptions.find((s) => s.id === staffId)?.full_name ?? "";
+      setRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, staff_id: staffId, staff: { full_name: staffName } } : r))
+      );
+      toast.success("Personel değiştirildi");
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || "Personel değiştirilemedi");
     }
   }
 
@@ -343,9 +374,31 @@ export function BekleyenIsteklerClient({
                           {format(new Date(r.appointment_at), "HH:mm")}
                         </span>
                       </div>
-                      <p className="text-sm mt-1.5">
+                      <p className="text-sm mt-1.5 flex items-center gap-1.5 flex-wrap">
                         <span className="font-medium">{r.service?.name ?? "—"}</span>
-                        {r.staff?.full_name && <span className="text-muted-foreground"> · {r.staff.full_name}</span>}
+                        {canReassignStaff && staffOptions.length > 0 ? (
+                          <>
+                            <span className="text-muted-foreground">·</span>
+                            <Select
+                              value={r.staff_id ?? undefined}
+                              onValueChange={(v) => v && v !== r.staff_id && handleReassign(r.id, v)}
+                              disabled={busyId === r.id}
+                            >
+                              <SelectTrigger size="sm" className="h-6 text-xs px-2 py-0 w-auto min-w-[7rem] border-none bg-transparent shadow-none hover:bg-muted/60">
+                                <SelectValue placeholder="Personel seç" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {staffOptions.map((s) => (
+                                  <SelectItem key={s.id} value={s.id}>
+                                    {s.full_name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </>
+                        ) : (
+                          r.staff?.full_name && <span className="text-muted-foreground"> · {r.staff.full_name}</span>
+                        )}
                         {r.price !== null && <span className="text-muted-foreground"> · {formatServicePrice(r.price, undefined, locale)}</span>}
                       </p>
                       {r.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{r.note}&quot;</p>}

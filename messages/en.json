@@ -1271,6 +1271,7 @@
       "appStoreNote": "Your account plan and usage limits are shown above.",
       "compareAndStart": "Compare Plans & Start Subscription",
       "upgradeToPro": "Upgrade to Pro",
+      "changeToPlan": "Switch to {plan}",
       "manageBilling": "Manage Billing & Payment Method",
       "trialBottomNote": "All Pro features are free during the trial period — no credit card required. You can compare Starter and Pro before the trial ends and continue with the plan that suits you.",
       "cancelSubscription": "Cancel Subscription",
@@ -2208,7 +2209,6 @@
       "dragTitle": "Drag"
     },
     "permissions": {
-      "view_customers": "Can view customers",
       "edit_customers": "Can edit customers",
       "delete_customers": "Can delete customers",
       "view_reports": "Can view reports",

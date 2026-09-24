@@ -756,7 +756,7 @@ export default async function DashboardPage() {
       key: "quick_actions",
       label: "Hızlı İşlemler",
       colSpanClass: "lg:col-span-4",
-      node: <QuickActionsPanel key="quick_actions" initialShortcuts={userShortcuts} orgId={orgId} role={member.role} />,
+      node: <QuickActionsPanel key="quick_actions" initialShortcuts={userShortcuts} orgId={orgId} role={member.role} permissionsJson={member.permissions_json} />,
     },
     {
       key: "revenue_summary",

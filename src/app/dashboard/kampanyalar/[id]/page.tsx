@@ -3,6 +3,7 @@ import { getActiveMember } from "@/lib/active-org";
 import { redirect, notFound } from "next/navigation";
 import type { Campaign } from "@/types/database";
 import { resolveCampaignRecipients } from "@/lib/campaign-segment";
+import { hasPermission } from "@/lib/permissions";
 import KampanyaDetayClient, { type CampaignLogRow } from "./KampanyaDetayClient";
 
 export default async function KampanyaDetayPage({
@@ -58,7 +59,7 @@ export default async function KampanyaDetayPage({
       campaign={campaign as Campaign}
       logs={(logs ?? []) as unknown as CampaignLogRow[]}
       previewCount={previewCount}
-      canSend={member.role !== "staff"}
+      canSend={hasPermission(member, "manage_campaigns")}
       showPhone={showPhone}
     />
   );

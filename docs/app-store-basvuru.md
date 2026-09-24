@@ -251,13 +251,15 @@ App Store Connect'te build seçilip tüm alanlar (metadata, gizlilik, yaş derec
 - [ ] Adım 0 — Apple ID / iCloud şifresi kurtarıldı
 - [x] Adım 1 — Developer Program başvurusu onaylandı (2026-09-18) — kalan: yıllık ücret ($99) ödemesi
 - [x] Adım 2 — PWABuilder iOS paketi indirildi (2026-09-23)
-- [ ] Adım 3 — Codemagic kurulumu (repo + App Store Connect API Key + workflow) — bkz. "Codemagic — sırada ne var"
-- [ ] Adım 4 — Codemagic ilk build + App Store Connect'e (TestFlight) yükleme
-- [ ] Adım 5 — App Store Connect'te uygulama kaydı açıldı
+- [x] Adım 3 — Codemagic kurulumu tamamlandı (2026-09-23) — repo `BYSiriusApps/siriplan-ios`, App Store Connect API Key (Admin rolü), UI-managed Code Signing Identities (sertifika + provisioning profile), `codemagic.yaml` (fetch-signing-files scripti kaldırılmış final versiyon)
+- [x] Adım 4 — Codemagic build başarılı, App Store Connect'e (TestFlight) yüklendi (2026-09-23, build #7, 2.93 MB)
+- [x] Adım 5 — App Store Connect'te uygulama kaydı açıldı (Apple ID 6815322807, SKU siriplan-ios-001)
 - [x] Adım 6a — Ekran görüntüleri iOS boyutuna (1320×2868) dönüştürüldü (2026-09-18) — `docs/app-store/screenshots/`
-- [ ] Adım 6b — Mağaza metinleri (isim/alt başlık/açıklama/keywords) yazılıp App Store Connect'e girildi
-- [ ] Adım 7 — App Privacy formu dolduruldu
-- [ ] Adım 8 — Yaş derecelendirmesi anketi tamamlandı
-- [ ] Adım 9 — Reviewer notları + demo giriş girildi
-- [ ] Adım 10 — TestFlight ile cihazda test edildi (opsiyonel)
-- [ ] Adım 11 — İncelemeye gönderildi
+- [x] Adım 6a-2 — iPad ekran görüntüleri (2064×2752, "13" Display") üretildi ve yüklendi (2026-09-23) — `docs/app-store/screenshots-ipad/`, `scripts/app-store-screenshots-ipad.mjs`
+- [x] Adım 6b — Mağaza metinleri (isim/alt başlık/açıklama/keywords/support+marketing URL) girildi (2026-09-23)
+- [x] Adım 7 — App Privacy formu dolduruldu ve yayınlandı (2026-09-23) — 9 veri türü, hepsi "App Functionality" amaçlı, tracking yok
+- [x] Adım 8 — Yaş derecelendirmesi anketi tamamlandı (2026-09-23) — sonuç 4+
+- [x] Adım 9 — Reviewer notları + demo giriş girildi (2026-09-23)
+- [x] Adım 10 — TestFlight ile cihazda test edildi (2026-09-23) — giriş çalıştı, "Hesabınız yok mu?" satırı iOS'ta doğrulanan şekilde gizli
+- [x] Adım 11 — İncelemeye gönderildi (2026-09-23 21:53, Submission ID 1676ea41-1e67-4673-b5b6-f078637267a3) — durum: **Waiting for Review**
+- [ ] Adım 12 — TAKİP: İnceleme sonucu bekleniyor (2026-09-24). WA/SMS/Instagram-Messenger ayar alanları demo hesapta boş — Reviewer Notes'ta yalnızca WhatsApp+SMS opsiyonel entegrasyon olarak açıklanmış, Instagram/Messenger ayrıca belirtilmemiş. Hâlâ "Waiting for Review" ise App Review Information notuna Instagram/Messenger'ı da ekle (build gerektirmez); reddedilirse Resolution Center'dan aynı açıklamayla yanıtla (bkz. memory)

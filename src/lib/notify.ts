@@ -34,6 +34,8 @@ interface Recipient {
   telegram_enabled?: boolean;
   whatsapp_number?: string | null;
   whatsapp_enabled?: boolean;
+  /** Personelin panel dil tercihi ("en" ise WA şablonu önce İngilizce denenir, bkz. internal-send.ts). */
+  locale?: string | null;
   label: string;
 }
 
@@ -121,14 +123,15 @@ function buildMessage(
 async function dispatchWhatsApp(
   whatsappNumber: string,
   plainMessage: string,
-  template?: { purpose: WaInternalPurpose; params: Record<string, string> }
+  template?: { purpose: WaInternalPurpose; params: Record<string, string> },
+  locale: string = "tr"
 ): Promise<void> {
   // Meta onaylı şablon varsa ÖNCE o denenir — 24 saatlik "müşteri hizmetleri
   // penceresi" kısıtına takılmaz, bu yüzden asıl güvenilir yol budur.
   // Onaylı şablon yoksa (henüz Meta'da submit edilmediyse) ya da gönderim
   // reddedilirse serbest metne düşülür (yalnızca pencere içindeyse teslim olur).
   if (template) {
-    const sent = await sendInternalTemplate(whatsappNumber, template.purpose, template.params);
+    const sent = await sendInternalTemplate(whatsappNumber, template.purpose, template.params, locale);
     if (sent) return;
   }
   await sendWhatsAppMessage(whatsappNumber, plainMessage);
@@ -146,7 +149,7 @@ async function dispatch(
   if (recipient.whatsapp_number && recipient.whatsapp_enabled !== false) {
     // WhatsApp doesn't support HTML — strip tags for WA copy
     const plain = message.replace(/<[^>]+>/g, "");
-    tasks.push(dispatchWhatsApp(recipient.whatsapp_number, plain, template));
+    tasks.push(dispatchWhatsApp(recipient.whatsapp_number, plain, template, recipient.locale ?? "tr"));
   }
   await Promise.allSettled(tasks);
 }
@@ -163,7 +166,7 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
         ? supabase.from("services").select("name").eq("id", appt.service_id).single()
         : Promise.resolve({ data: null }),
       staffTargetId
-        ? supabase.from("staff").select("full_name, telegram_chat_id, whatsapp_number, notify_channels_json").eq("id", staffTargetId).single()
+        ? supabase.from("staff").select("full_name, telegram_chat_id, whatsapp_number, notify_channels_json, preferred_language").eq("id", staffTargetId).single()
         : Promise.resolve({ data: null }),
       supabase.from("organizations").select("name, telegram_chat_id, whatsapp_number, address, location_url, timezone, settings_json").eq("id", appt.org_id).single(),
     ]);
@@ -176,11 +179,11 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
       .eq("role", "owner")
       .single();
 
-    let ownerStaff: { telegram_chat_id?: string | null; whatsapp_number?: string | null; notify_channels_json?: Record<string, unknown> | null } | null = null;
+    let ownerStaff: { telegram_chat_id?: string | null; whatsapp_number?: string | null; notify_channels_json?: Record<string, unknown> | null; preferred_language?: string | null } | null = null;
     if (ownerMember?.staff_id) {
       const { data } = await supabase
         .from("staff")
-        .select("telegram_chat_id, whatsapp_number, notify_channels_json")
+        .select("telegram_chat_id, whatsapp_number, notify_channels_json, preferred_language")
         .eq("id", ownerMember.staff_id)
         .single();
       ownerStaff = data;
@@ -225,6 +228,7 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
         telegram_enabled: ch.telegram,
         whatsapp_number: ownerStaff.whatsapp_number,
         whatsapp_enabled: ch.whatsapp,
+        locale: ownerStaff.preferred_language,
         label: "owner-staff",
       });
     }
@@ -241,6 +245,7 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
         telegram_enabled: ch.telegram,
         whatsapp_number: (staffRow as { whatsapp_number?: string | null }).whatsapp_number,
         whatsapp_enabled: ch.whatsapp,
+        locale: (staffRow as { preferred_language?: string | null }).preferred_language,
         label: "assigned-staff",
       });
     }
@@ -251,7 +256,7 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
     const tasks: Promise<void>[] = [];
 
     for (const r of recipients) {
-      const rCopy: Recipient = { label: r.label };
+      const rCopy: Recipient = { label: r.label, locale: r.locale };
       if (r.telegram_chat_id && !seenTg.has(r.telegram_chat_id)) {
         rCopy.telegram_chat_id = r.telegram_chat_id;
         rCopy.telegram_enabled = r.telegram_enabled;
@@ -344,7 +349,7 @@ export async function notifyProposalResponse(p: ProposalResponseForNotify): Prom
         .eq("id", p.org_id)
         .single(),
       staffTargetId
-        ? supabase.from("staff").select("telegram_chat_id, whatsapp_number, notify_channels_json").eq("id", staffTargetId).single()
+        ? supabase.from("staff").select("telegram_chat_id, whatsapp_number, notify_channels_json, preferred_language").eq("id", staffTargetId).single()
         : Promise.resolve({ data: null }),
     ]);
 
@@ -355,11 +360,11 @@ export async function notifyProposalResponse(p: ProposalResponseForNotify): Prom
       .eq("role", "owner")
       .single();
 
-    let ownerStaff: { telegram_chat_id?: string | null; whatsapp_number?: string | null; notify_channels_json?: Record<string, unknown> | null } | null = null;
+    let ownerStaff: { telegram_chat_id?: string | null; whatsapp_number?: string | null; notify_channels_json?: Record<string, unknown> | null; preferred_language?: string | null } | null = null;
     if (ownerMember?.staff_id) {
       const { data } = await supabase
         .from("staff")
-        .select("telegram_chat_id, whatsapp_number, notify_channels_json")
+        .select("telegram_chat_id, whatsapp_number, notify_channels_json, preferred_language")
         .eq("id", ownerMember.staff_id)
         .single();
       ownerStaff = data;
@@ -394,6 +399,7 @@ export async function notifyProposalResponse(p: ProposalResponseForNotify): Prom
         telegram_enabled: ch.telegram,
         whatsapp_number: ownerStaff.whatsapp_number,
         whatsapp_enabled: ch.whatsapp,
+        locale: ownerStaff.preferred_language,
         label: "owner-staff",
       });
     }
@@ -404,6 +410,7 @@ export async function notifyProposalResponse(p: ProposalResponseForNotify): Prom
         telegram_enabled: ch.telegram,
         whatsapp_number: (staffRow as { whatsapp_number?: string | null }).whatsapp_number,
         whatsapp_enabled: ch.whatsapp,
+        locale: (staffRow as { preferred_language?: string | null }).preferred_language,
         label: "assigned-staff",
       });
     }
@@ -412,7 +419,7 @@ export async function notifyProposalResponse(p: ProposalResponseForNotify): Prom
     const seenWa = new Set<string>();
     const tasks: Promise<void>[] = [];
     for (const r of recipients) {
-      const rCopy: Recipient = { label: r.label };
+      const rCopy: Recipient = { label: r.label, locale: r.locale };
       if (r.telegram_chat_id && !seenTg.has(r.telegram_chat_id)) {
         rCopy.telegram_chat_id = r.telegram_chat_id;
         rCopy.telegram_enabled = r.telegram_enabled;
@@ -433,7 +440,7 @@ export async function notifyProposalResponse(p: ProposalResponseForNotify): Prom
   }
 }
 
-/** Notify salon owner about a new pending appointment request */
+/** Notify salon owner + assigned staff about a new pending appointment request */
 export async function notifyAppointmentRequest(
   req: AppointmentForNotify & { serviceName?: string; staffName?: string }
 ): Promise<void> {
@@ -453,10 +460,29 @@ export async function notifyAppointmentRequest(
       !req.serviceName && req.service_id
         ? supabase.from("services").select("name").eq("id", req.service_id).single()
         : Promise.resolve({ data: null }),
-      !req.staffName && staffTargetId
-        ? supabase.from("staff").select("full_name").eq("id", staffTargetId).single()
+      staffTargetId
+        ? supabase.from("staff").select("full_name, telegram_chat_id, whatsapp_number, notify_channels_json, preferred_language").eq("id", staffTargetId).single()
         : Promise.resolve({ data: null }),
     ]);
+
+    // Sahibin kendi personel kaydı (aynı öteki bildirim fonksiyonlarındaki desen) —
+    // atanan personel sahibin kendisiyse tekrar mesaj gitmesin diye ayrı tutuluyor.
+    const { data: ownerMember } = await supabase
+      .from("org_members")
+      .select("staff_id")
+      .eq("org_id", req.org_id)
+      .eq("role", "owner")
+      .single();
+
+    let ownerStaff: { telegram_chat_id?: string | null; whatsapp_number?: string | null; notify_channels_json?: Record<string, unknown> | null; preferred_language?: string | null } | null = null;
+    if (ownerMember?.staff_id) {
+      const { data } = await supabase
+        .from("staff")
+        .select("telegram_chat_id, whatsapp_number, notify_channels_json, preferred_language")
+        .eq("id", ownerMember.staff_id)
+        .single();
+      ownerStaff = data;
+    }
 
     const serviceName = req.serviceName ?? (svcRow as { name?: string } | null)?.name ?? "Hizmet";
     const staffName = req.staffName ?? (stfRow as { full_name?: string } | null)?.full_name ?? "Personel";
@@ -465,32 +491,73 @@ export async function notifyAppointmentRequest(
       orgForLocation?.location_url?.trim() ||
       (orgForLocation?.address?.trim() ? googleMapsLink(orgForLocation.address.trim()) : "");
     const message = buildMessage(req, serviceName, staffName, true, locationLink, orgForLocation?.timezone || "Europe/Istanbul");
+    const { date: waDate, time: waTime } = formatApptDateTime(req.appointment_at, orgForLocation?.timezone || "Europe/Istanbul");
+    const waTemplateParams = {
+      business_name: (orgRow as { name?: string } | null)?.name ?? "",
+      customer_name: req.customer_name,
+      service_name: serviceName,
+      staff_name: staffName,
+      date: waDate,
+      time: waTime,
+    };
+
+    const recipients: Recipient[] = [];
+    const orgCh = orgChannels(orgRow as { settings_json?: Record<string, unknown> | null } | null);
 
     if (orgRow) {
-      const orgCh = orgChannels(orgRow as { settings_json?: Record<string, unknown> | null });
-      const { date: waDate, time: waTime } = formatApptDateTime(req.appointment_at, orgForLocation?.timezone || "Europe/Istanbul");
-      await dispatch(
-        {
-          telegram_chat_id: (orgRow as { telegram_chat_id?: string | null }).telegram_chat_id,
-          telegram_enabled: orgCh.telegram,
-          whatsapp_number: (orgRow as { whatsapp_number?: string | null }).whatsapp_number,
-          whatsapp_enabled: orgCh.whatsapp,
-          label: "salon",
-        },
-        message,
-        {
-          purpose: "yeni_talep",
-          params: {
-            business_name: (orgRow as { name?: string }).name ?? "",
-            customer_name: req.customer_name,
-            service_name: serviceName,
-            staff_name: staffName,
-            date: waDate,
-            time: waTime,
-          },
-        }
-      );
+      recipients.push({
+        telegram_chat_id: (orgRow as { telegram_chat_id?: string | null }).telegram_chat_id,
+        telegram_enabled: orgCh.telegram,
+        whatsapp_number: (orgRow as { whatsapp_number?: string | null }).whatsapp_number,
+        whatsapp_enabled: orgCh.whatsapp,
+        label: "salon",
+      });
     }
+
+    if (ownerStaff) {
+      const ch = staffChannels(ownerStaff);
+      recipients.push({
+        telegram_chat_id: ownerStaff.telegram_chat_id,
+        telegram_enabled: ch.telegram,
+        whatsapp_number: ownerStaff.whatsapp_number,
+        whatsapp_enabled: ch.whatsapp,
+        locale: ownerStaff.preferred_language,
+        label: "owner-staff",
+      });
+    }
+
+    if (stfRow && staffTargetId && staffTargetId !== ownerMember?.staff_id) {
+      const ch = staffChannels(stfRow as { notify_channels_json?: Record<string, unknown> | null });
+      recipients.push({
+        telegram_chat_id: (stfRow as { telegram_chat_id?: string | null }).telegram_chat_id,
+        telegram_enabled: ch.telegram,
+        whatsapp_number: (stfRow as { whatsapp_number?: string | null }).whatsapp_number,
+        whatsapp_enabled: ch.whatsapp,
+        locale: (stfRow as { preferred_language?: string | null }).preferred_language,
+        label: "assigned-staff",
+      });
+    }
+
+    const seenTg = new Set<string>();
+    const seenWa = new Set<string>();
+    const tasks: Promise<void>[] = [];
+    for (const r of recipients) {
+      const rCopy: Recipient = { label: r.label, locale: r.locale };
+      if (r.telegram_chat_id && !seenTg.has(r.telegram_chat_id)) {
+        rCopy.telegram_chat_id = r.telegram_chat_id;
+        rCopy.telegram_enabled = r.telegram_enabled;
+        seenTg.add(r.telegram_chat_id);
+      }
+      if (r.whatsapp_number && !seenWa.has(r.whatsapp_number)) {
+        rCopy.whatsapp_number = r.whatsapp_number;
+        rCopy.whatsapp_enabled = r.whatsapp_enabled;
+        seenWa.add(r.whatsapp_number);
+      }
+      if (rCopy.telegram_chat_id || rCopy.whatsapp_number) {
+        tasks.push(dispatch(rCopy, message, { purpose: "yeni_talep", params: waTemplateParams }));
+      }
+    }
+    await Promise.allSettled(tasks);
   } catch {
     // Bildirim hatası akışı engellememeli
   }

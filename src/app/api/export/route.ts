@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { hasProTools } from "@/lib/entitlements";
+import { hasPermission } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import * as XLSX from "xlsx";
 import { startOfDay, endOfDay, format as formatDate } from "date-fns";
@@ -160,6 +161,9 @@ export async function GET(req: NextRequest) {
   }
 
   if (format === "pdf" && scope === "gelir-gider") {
+    if (!hasPermission(member, "view_financials")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     const year = searchParams.get("year") ?? new Date().getFullYear().toString();
     const month = searchParams.get("month");
     await logAudit({

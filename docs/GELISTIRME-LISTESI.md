@@ -276,6 +276,63 @@ kelime/değişken oranını reddeder (bkz. `wa-templates/send.ts` içindeki
 `src/lib/wa-templates/internal-send.ts`, `src/app/dashboard/ayarlar/page.tsx`,
 `src/app/dashboard/personel/[id]/page.tsx`.
 
+### ⏳ YAPILACAK — Meta şablon onay kontrolü
+
+Yukarıdaki 3 Türkçe + aşağıdaki 10 İngilizce şablon (toplam 13) hâlâ **PENDING**.
+Meta genelde birkaç dakika–birkaç saat içinde karar veriyor. Kontrol için:
+Meta Business Manager → WhatsApp Yöneticisi → Mesaj Şablonları (WABA
+`1295808672630869`) — durum REJECTED çıkarsa ret sebebini oku, gövdeyi
+düzeltip yeniden submit et (yukarıdaki #131009/#132000/2388293/2388299 notlarına
+bak). Kod tarafında BAŞKA HİÇBİR ŞEY YAPMAYA GEREK YOK: `metaName`/`metaNameEn`
+alanları zaten dolduruldu, onaylanan şablon bir sonraki gönderimde otomatik
+devreye girer (yeniden deploy gerekmez, `dispatch()`/`sendPurposeTemplate()`
+Meta'dan başarılı yanıt aldığı an o şablonu kullanmaya başlar).
+
+**Durum (24 Eyl 2026, 2. tur) — İngilizce (global) şablonlar + dil bazlı seçim:**
+Türkçe dışındaki müşteri/personel/sahip bildirimleri için 10 İngilizce şablon
+daha aynı WABA'ya submit edildi, hepsi **PENDING**:
+
+Müşteriye giden (7):
+- `appointment_confirmation_1` (id `1062687706615795`) — `onay_sicak` EN karşılığı
+- `appointment_confirmation_2` (id `1874471050216442`) — `onay_v2` EN karşılığı
+- `appointment_cancelled` (id `3538845326275252`) — `iptal_sicak` EN karşılığı
+- `appointment_rescheduled` (id `1121391944178693`) — `revize_sicak` EN karşılığı
+  (TR'deki statik URL butonunun gerçek hedefi bilinmediği için BUTONSUZ submit
+  edildi, gövde/parametreler birebir aynı)
+- `appointment_reminder_1` (id `4490847197911305`) — `hatirlatma_sicak`/`hatirlatma_v1` EN karşılığı
+- `appointment_reminder_2` (id `1528315672436824`) — `hatirlatma_v2` EN karşılığı
+- `new_time_proposal` (id `2491180671391819`) — `oneri_sicak` EN karşılığı, TR'deki
+  ile birebir aynı dinamik URL butonu (`https://siriplan.com/oneri/{{1}}`)
+
+Personel/sahibe giden (3 — yukarıdaki maddenin İngilizcesi):
+- `staff_new_appointment` (id `1717573342682155`) — `personel_yeni_randevu` EN
+- `staff_new_request` (id `1494018265912278`) — `personel_yeni_talep` EN
+- `staff_low_stock_alert` (id `1134593909213895`) — `personel_kritik_stok` EN
+
+**Dil seçimi nasıl çalışıyor:**
+- Müşteri tarafı (`wa-templates/send.ts`): gönderim anında `customers` tablosundan
+  `org_id` + telefonla `preferred_language` okunur (bkz. müşteri detay sayfasındaki
+  dil seçici / `/api/public/customer-language`). `"en"` ise ve `metaNameEn` doluysa
+  önce İngilizce denenir; Meta reddeder/onaysızsa (PENDING) **otomatik olarak
+  Türkçe'ye düşülür** — hiçbir müşteri mesajsız kalmaz, davranış hiçbir zaman kırılmaz.
+- Personel/sahip tarafı (`notify.ts` → `internal-send.ts`): kişinin kendi
+  `staff.preferred_language`'ı (Hesabım sayfasından seçtiği panel dili) okunur,
+  aynı EN → TR → serbest metin (3 kademeli) düşüş sırası uygulanır.
+- Yalnızca `tr`/`en` destekleniyor; `ru`/`ar` panel dili seçili kullanıcılar/
+  müşteriler şimdilik Türkçe şablon alır (WA şablonu yok, yalnızca bu iki dil
+  için Meta'ya submit edildi).
+
+**Doğrulama notu:** Bu oturumda ortamda `node_modules` beklenmedik şekilde boşaldı
+(muhtemelen bulut senkron istemcisi node_modules'ü "dehydrate" etti — bkz. proje
+notlarındaki "yavaş dosya sistemi" sorunuyla aynı kök neden) — `tsc`/`eslint`
+çalıştırılamadı, yalnızca dikkatli elle kod incelemesiyle doğrulandı. `npm install`
+sonrası (veya bulut senkronu tamamlanınca) `npx tsc --noEmit` + `npm run lint`
+ile bir kez daha doğrulanmalı.
+
+**İlgili dosya (2. tur):** `src/lib/wa-templates/registry.ts`,
+`src/lib/wa-templates/send.ts`, `src/lib/wa-templates/internal-registry.ts`,
+`src/lib/wa-templates/internal-send.ts`, `src/lib/notify.ts`.
+
 ---
 
 ## 6. Yasal metinler / künye — gözden geçirilecek kalan kalemler
