@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle, Mail, Phone, ArrowLeft, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
 import { formatPrice, type PricingCurrency } from "@/lib/pricing";
 
@@ -22,10 +23,14 @@ const PLANS = [
     description: "Küçük işletmeler için ideal başlangıç",
     features: [
       "8 personel",
-      "500 randevu/ay",
+      "Sınırsız randevu",
       "Online randevu sayfası",
       "WhatsApp hatırlatma",
       "Müşteri yönetimi",
+      "Stok yönetimi (barkodla satış)",
+      "Paket / seans takibi",
+      "Gelir-gider raporları & KDV hesaplama",
+      "Sadakat kartı sistemi",
       "Temel raporlar",
     ],
   },
@@ -40,13 +45,14 @@ const PLANS = [
       "Sınırsız personel",
       "Sınırsız randevu",
       "Tüm Starter özellikleri",
+      "Sesli asistan (randevu & stok komutları)",
+      "Website modu (özelleştirilebilir randevu sayfası)",
+      "Bekleme listesi",
+      "PDF rapor export",
       "Kampanya modülü",
       "Müşteri skorlama",
       "Gamification (Haftanın Elemanı)",
-      "Bekleme listesi",
-      "KDV hesaplama",
       "Veri göçü (mevcut sistemden)",
-      "Website modu (özelleştirilebilir randevu sayfası)",
     ],
     proDeltaFrom: 3,
   },
@@ -179,13 +185,13 @@ export default function PlanSecPage() {
     const trialEnded = expired || trialActive === false;
     return (
       <div className="relative min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30">
-        <a
+        <Link
           href="/dashboard"
           className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Panele Dön
-        </a>
+        </Link>
         <div className="w-full max-w-sm text-center space-y-5">
           <h1 className="text-xl font-bold">
             {trialEnded ? "Deneme Süreniz Sona Erdi" : "14 Gün Ücretsiz Deneme"}
@@ -231,13 +237,13 @@ export default function PlanSecPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        <a
+        <Link
           href="/dashboard"
           className="inline-flex items-center gap-1.5 mb-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Panele Dön
-        </a>
+        </Link>
         <div className="text-center mb-10">
           {(expired || trialActive === false) && (
             <div className="max-w-lg mx-auto mb-6 flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 px-4 py-3 text-left">
@@ -287,7 +293,7 @@ export default function PlanSecPage() {
             return (
               <Card
                 key={plan.key}
-                className={`relative flex flex-col overflow-visible ${plan.color} transition-all hover:shadow-xl ${plan.highlight ? "md:scale-[1.04] shadow-lg" : ""}`}
+                className={`relative flex flex-col overflow-visible ${plan.color} transition-shadow hover:shadow-xl ${plan.highlight ? "md:-translate-y-2 shadow-lg" : ""}`}
               >
                 {plan.highlight && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
@@ -354,11 +360,19 @@ export default function PlanSecPage() {
           })}
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground mb-8">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground mb-3">
           <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Güvenli ödeme (Stripe)</span>
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Anında etkinleşir</span>
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> İstediğiniz zaman iptal</span>
         </div>
+        {currency === "TRY" && (
+          <p className="text-center text-[11px] text-muted-foreground/80 mb-8 max-w-lg mx-auto">
+            Ödeme yurt dışında kurulu üye işyerimiz üzerinden tahsil edilir; kartınızın bankası bu nedenle
+            işlem tutarına genellikle %1-3 arası bir yurt dışı işlem komisyonu ekleyebilir. Fiyatlarımız
+            bu komisyon göz önünde bulundurularak belirlenmiştir — komisyon bankanıza aittir, SiriPlan
+            tarafından eklenmez.
+          </p>
+        )}
 
         {trialActive !== false && (
           <div className="text-center">

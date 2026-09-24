@@ -10,7 +10,7 @@
  * buraya eklenebilir.
  */
 
-export type WaPurpose = "onay" | "iptal" | "revize" | "hatirlatma";
+export type WaPurpose = "onay" | "iptal" | "revize" | "hatirlatma" | "oneri";
 export type WaStyle = "sicak" | "v1" | "v2";
 
 export type WaParamSource =
@@ -28,11 +28,13 @@ export interface WaTemplateDef {
   key: string;
   purpose: WaPurpose;
   style: WaStyle;
-  /** Meta'da kayıtlı gerçek şablon adı. */
+  /** Meta'da kayıtlı gerçek şablon adı (Türkçe, dil kodu "tr"). */
   metaName: string;
+  /** İngilizce (dil kodu "en") karşılığı — Meta onayı bekleniyorsa null. */
+  metaNameEn?: string | null;
   /** {{1}}..{{n}} sırasıyla gövde parametrelerinin kaynağı. */
   bodyParamOrder: WaParamSource[];
-  /** Şablonun altında dinamik URL butonu var mı? */
+  /** Şablonun altında dinamik URL butonu var mı? (TR/EN aynı davranışı paylaşır.) */
   hasUrlButton?: boolean;
 }
 
@@ -42,6 +44,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     purpose: "onay",
     style: "sicak",
     metaName: "randevu_onayi_1",
+    metaNameEn: "appointment_confirmation_1",
     bodyParamOrder: ["customer_name", "business_name", "date", "time", "business_phone", "location_link"],
     // Meta'da onaylı "randevu_onayi_1" şablonunun BUTON bileşeni YOK. Buraya
     // dinamik URL butonu parametresi eklemek Meta'yı (#132018) hatasıyla
@@ -53,6 +56,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     purpose: "onay",
     style: "v2",
     metaName: "randevu_onayi_2",
+    metaNameEn: "appointment_confirmation_2",
     bodyParamOrder: ["customer_name", "business_name", "date", "time", "business_phone", "location_link"],
     // "randevu_onayi_2" şablonunun da butonu yok — bkz. onay_sicak notu.
   },
@@ -61,31 +65,33 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     purpose: "iptal",
     style: "sicak",
     metaName: "randevu_iptali",
+    metaNameEn: "appointment_cancelled",
     bodyParamOrder: ["customer_name", "business_name", "date", "time"],
   },
-  iptal_v1: {
-    key: "iptal_v1",
-    purpose: "iptal",
-    style: "v1",
-    metaName: "randevu_iptali_1",
-    bodyParamOrder: ["customer_name", "business_name", "date", "time"],
-  },
-  iptal_v2: {
-    key: "iptal_v2",
-    purpose: "iptal",
-    style: "v2",
-    metaName: "randevu_iptali_2",
-    bodyParamOrder: ["customer_name", "business_name", "date", "time"],
-  },
+  // iptal_v1/iptal_v2 KALDIRILDI (14 Eyl): Meta'daki onaylı "randevu_iptali_1"
+  // 5, "randevu_iptali_2" 6 gövde parametresi bekliyor ama buradaki tanım hâlâ
+  // "randevu_iptali"nin 4 param'ını kopyalamıştı — hiç doğrulanmamış. Sonuç:
+  // (#132000) ile Meta reddediyor, iptal stili v1/v2 seçili herhangi bir salon
+  // için müşteriye iptal mesajı SESSİZCE hiç gitmiyordu (canlıda bysirius-admin
+  // orgu etkilenmiş durumda yakalandı). resolveTemplate() artık bu iki anahtar
+  // bulunamayınca "iptal_sicak"a düşüyor — DB'de hâlâ style="v1"/"v2" yazan
+  // eski org'lar da otomatik iyileşiyor. Gerçek 5/6 param sırası WhatsApp
+  // Yöneticisi'nden görülüp eklenirse geri açılabilir (bkz. hatırlatmanın 27
+  // Ağustos'ta aynı yöntemle düzeltilmesi).
   revize_sicak: {
     key: "revize_sicak",
     purpose: "revize",
     style: "sicak",
     metaName: "randevu_revize",
+    metaNameEn: "appointment_rescheduled",
     bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
     // "randevu_revize" şablonunda statik URL butonu var ama parametre KABUL
     // ETMİYOR ("does not require parameters"). Buton parametresi göndermek
     // Meta'yı (#132018) ile reddettiriyordu → revize mesajları hiç gitmiyordu.
+    // (`hasUrlButton` bu yüzden burada da hiç set edilmiyor — kod tarafında
+    // zaten bir buton bileşeni oluşturulmuyor.) İngilizce karşılığı, TR'deki
+    // statik butonun gerçek URL'i bilinmediği için BUTONSUZ submit edildi —
+    // gövde/parametreler birebir aynı (bkz. GELISTIRME-LISTESI.md madde 5).
   },
   // Meta'daki "randevu_hatirlatma_1" ve "randevu_hatirlatma_2" şablonlarının
   // gövdesi 7 parametre bekliyor (WhatsApp Yöneticisi'nden doğrulandı, 27 Ağu):
@@ -100,6 +106,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     purpose: "hatirlatma",
     style: "sicak",
     metaName: "randevu_hatirlatma_1",
+    metaNameEn: "appointment_reminder_1",
     bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
   hatirlatma_v1: {
@@ -107,6 +114,7 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     purpose: "hatirlatma",
     style: "v1",
     metaName: "randevu_hatirlatma_1",
+    metaNameEn: "appointment_reminder_1",
     bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
   hatirlatma_v2: {
@@ -114,16 +122,40 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     purpose: "hatirlatma",
     style: "v2",
     metaName: "randevu_hatirlatma_2",
+    metaNameEn: "appointment_reminder_2",
     bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
+  },
+  // "Yeni Saat Öner" akışı (18 Eyl) — Meta Business Manager'da BU İSİMLE, 4
+  // gövde parametresi + dinamik URL butonuyla (statik kısım
+  // https://siriplan.com/oneri/, suffix = proposed_response_token) SUBMIT
+  // EDİLMELİ ve onaylanmadan burada aktif olmaz. Onaylanana kadar
+  // sendPurposeTemplate Meta'dan "template not found" alıp sessizce skip eder
+  // (send.ts) — panel akışını kırmaz, sadece müşteriye WA gitmez.
+  // 22 Eyl: metaName burada "randevu_yeni_saat_onerisi_1" yazıyordu ama Meta
+  // Business Manager'daki GERÇEK API adı sonunda fazladan bir alt çizgi daha
+  // taşıyor: "randevu_yeni_saat_onerisi_1_" (Şablon istatistikleri sayfasının
+  // başlığından doğrulandı, canlı API testiyle de teyit edildi — eski adla
+  // Meta #132001 "does not exist" veriyordu, bu adla "accepted" döndü). Bu
+  // yüzden panelden "Yeni Saat Öner" tıklanınca müşteriye hiç WA gitmiyordu
+  // (Onayla/İptal Et etkilenmedi, onlar farklı şablon kullanıyor).
+  oneri_sicak: {
+    key: "oneri_sicak",
+    purpose: "oneri",
+    style: "sicak",
+    metaName: "randevu_yeni_saat_onerisi_1_",
+    metaNameEn: "new_time_proposal",
+    bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
+    hasUrlButton: true,
   },
 };
 
 /** Bir amaç için hangi stiller mevcut — Ayarlar sayfasındaki dropdown'ları besler. */
 export const STYLES_BY_PURPOSE: Record<WaPurpose, WaStyle[]> = {
   onay: ["sicak", "v2"],
-  iptal: ["sicak", "v1", "v2"],
+  iptal: ["sicak"],
   revize: ["sicak"],
   hatirlatma: ["sicak", "v1", "v2"],
+  oneri: ["sicak"],
 };
 
 export function resolveTemplate(purpose: WaPurpose, style: WaStyle): WaTemplateDef | undefined {
@@ -135,6 +167,7 @@ export const DEFAULT_WA_TEMPLATE_STYLES: Record<WaPurpose, WaStyle> = {
   iptal: "sicak",
   revize: "sicak",
   hatirlatma: "sicak",
+  oneri: "sicak",
 };
 
 export const WA_REMINDER_OFFSET_PRESETS = [1, 2, 3, 6, 24] as const;

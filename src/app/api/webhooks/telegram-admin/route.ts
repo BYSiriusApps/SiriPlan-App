@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     if (text.startsWith("/start")) {
       await sendAdminBotReply(
         String(chatId),
-        `👋 Merhaba! Bu bot yeni Siriplan kayıtlarını bildirir.\n\nChat ID'niz:\n\n<code>${chatId}</code>\n\nBu numarayı TELEGRAM_ADMIN_CHAT_ID ortam değişkeni olarak ayarlayın.`
+        `👋 Merhaba! Bu bot yeni SiriPlan kayıtlarını bildirir.\n\nChat ID'niz:\n\n<code>${chatId}</code>\n\nBu numarayı TELEGRAM_ADMIN_CHAT_ID ortam değişkeni olarak ayarlayın.`
       );
     }
 

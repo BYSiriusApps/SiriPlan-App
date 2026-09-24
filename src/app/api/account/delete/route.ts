@@ -107,8 +107,25 @@ export async function POST(req: NextRequest) {
   // Bu işletmenin tüm üyeliklerini kaldır (owner/manager/staff girişleri kapanır)
   await admin.from("org_members").delete().eq("org_id", orgId);
 
-  // Hesap sahibinin giriş bilgilerini tamamen sil
-  await admin.auth.admin.deleteUser(user.id);
+  // Hesap silme işlemi İŞLETME ÖZELİNDE olmalı: aynı auth kullanıcısı başka bir
+  // işletmede personel/owner olarak da üye olabilir (bkz. org_members — user_id
+  // birden fazla org_id ile eşleşebilir). Global auth.users kaydı TÜM
+  // üyeliklerin ortak anahtarı olduğu için buradaki deleteUser() aynı zamanda
+  // kullanıcının diğer işletmelerdeki org_members satırlarını da (FK cascade
+  // ile) siler — sahibi olduğu işletmeyi silen biri, hiç ilgisi olmayan başka
+  // bir işletmedeki personel kaydını kaybetmiş olurdu. Bu yüzden global hesap
+  // yalnızca kullanıcının BAŞKA HİÇBİR işletmede üyeliği kalmadıysa silinir;
+  // aksi halde yalnızca bu işletmedeki üyelik/veri temizlenir, kullanıcı diğer
+  // işletmesine normal şekilde giriş yapmaya devam eder.
+  const { data: remainingMemberships } = await admin
+    .from("org_members")
+    .select("org_id")
+    .eq("user_id", user.id)
+    .limit(1);
+
+  if (!remainingMemberships || remainingMemberships.length === 0) {
+    await admin.auth.admin.deleteUser(user.id);
+  }
 
   return NextResponse.json({ ok: true });
 }

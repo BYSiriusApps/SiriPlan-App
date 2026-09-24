@@ -146,3 +146,38 @@ oradan gidiyor), ek DNS kaydı gerekmez.
   bağlantı iste" ekranı gösteriyor, artık sessizce ana sayfaya düşmüyor.
 - `src/app/auth/sifre-sifirla/page.tsx` `redirectTo` artık `/auth/callback` yerine
   doğrudan `/auth/yeni-sifre`.
+
+---
+
+## Seçenek B: 4 dilde otomatik gönderim (Send Email Hook) — 17 Eyl 2026
+
+Yukarıdaki 3 adım (Dashboard şablonu + Custom SMTP) tek bir **sabit Türkçe**
+şablon kurar — kullanıcının dil tercihi ne olursa olsun. Bunu test ederek
+doğruladık: `user_metadata.locale="en"` kullanıcıya bile Türkçe "Şifre sıfırlama
+bağlantınız" e-postası gitti (Supabase şablonu dil bazlı ayrım yapmıyor).
+
+Çözüm kodu hazır (`src/app/api/auth/email-hook/route.ts` +
+`src/lib/email/auth-i18n.ts`) — Supabase kendi göndermek yerine bu route'u
+çağırıyor, route da kullanıcının `user_metadata.locale`'ine göre tr/en/ru/ar
+şablonlarından birini seçip Resend'den gönderiyor. Yukarıdaki 1-2-3 adımlarına
+**ek olarak**, bunları da yapman gerekiyor:
+
+1. **Dashboard → Authentication → Hooks** → "Send Email" hook → **Enable**.
+   - Hook type: HTTPS
+   - URL: `https://siriplan.com/api/auth/email-hook`
+   - "Generate secret" butonuna bas — çıkan `v1,whsec_...` değerini kopyala.
+2. **Vercel → Project Settings → Environment Variables** →
+   `SUPABASE_AUTH_HOOK_SECRET` = (yukarıdaki değer) → Production'a ekle, redeploy.
+3. Hook aktifken **1-2-3 adımındaki Dashboard "Reset Password" şablonu artık
+   kullanılmıyor** (Supabase, hook varsa göndermeyi tamamen ona devrediyor) —
+   şablonu silmene gerek yok, sadece devre dışı kalıyor.
+
+**Secret eklenmeden route hiçbir isteği işlemez (503 döner)** — yani bu adımları
+atlarsan mevcut TR-only akış (Seçenek A) aynen çalışmaya devam eder, hiçbir şey
+bozulmaz.
+
+**Kapsam:** Şu an uygulamada Supabase'in gerçekten e-posta gönderdiği TEK akış
+şifre sıfırlama (`recovery`) — kayıt `email_confirm:true` ile anında onaylandığı
+için "Confirm signup" e-postası hiç tetiklenmiyor. Route yine de `signup`/
+`invite`/`email_change` action tiplerini de destekliyor (ileride bu akışlar
+Supabase'in kendi mekanizmasıyla açılırsa otomatik çok dilli olur).

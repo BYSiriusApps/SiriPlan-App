@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { getLocale } from "next-intl/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getStripe, PLANS, type PlanKey } from "@/lib/stripe/config";
 import { createClient } from "@/lib/supabase/server";
@@ -7,6 +8,17 @@ import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
+
+// Stripe Checkout'un desteklediği diller. Arapça Stripe'ta yok — 'auto'ya
+// bırakılırsa tarayıcı diline göre karar verir (genelde İngilizce'ye düşer).
+// Bizim NEXT_LOCALE çerezimiz kullanıcının sitede seçtiği dili yansıttığı
+// için tarayıcı dilinden daha güvenilir; o yüzden burada açıkça eşleniyor.
+const STRIPE_LOCALE: Record<string, Stripe.Checkout.SessionCreateParams.Locale> = {
+  tr: "tr",
+  en: "en",
+  ru: "ru",
+  ar: "en",
+};
 
 export async function POST(req: NextRequest) {
   // Mağaza kurallarına uyum: native uygulama (App Store/Play Store) içinden
@@ -32,8 +44,30 @@ export async function POST(req: NextRequest) {
 
   if (!member) return NextResponse.json({ error: "No organization" }, { status: 404 });
 
-  type OrgJoin = { stripe_customer_id?: string; name: string; email?: string; trial_ends_at?: string | null };
+  type OrgJoin = {
+    stripe_customer_id?: string;
+    name: string;
+    email?: string;
+    trial_ends_at?: string | null;
+    stripe_subscription_id?: string | null;
+    subscription_status?: string;
+  };
   const org = (member as unknown as { org_id: string; organizations: OrgJoin }).organizations;
+
+  // Zaten aktif (iptal edilmemiş) bir aboneliği olan bir org burada YENİ bir
+  // Checkout Session/subscription açarsa, eski abonelik Stripe'ta arka planda
+  // çalışmaya devam eder ve kullanıcı iki kez ücretlendirilir. Mevcut abone
+  // plan değiştirmek için /api/stripe/change-plan'ı kullanmalı (aynı
+  // aboneliğin fiyat kalemini günceller, ikinci bir ödeme açmaz).
+  if (org.stripe_subscription_id && org.subscription_status !== "canceled") {
+    return NextResponse.json(
+      {
+        error: "Zaten aktif bir aboneliğiniz var. Plan değiştirmek için abonelik sayfasını kullanın.",
+        code: "ALREADY_SUBSCRIBED",
+      },
+      { status: 409 }
+    );
+  }
 
   // Deneme süresi yalnızca bir defa verilir: org kayıt sırasında zaten kendi
   // ücretsiz denemesini almıştır (trial_ends_at dolu). Stripe'ta ikinci bir
@@ -62,6 +96,7 @@ export async function POST(req: NextRequest) {
   // çerezi → IP ülkesi; bkz. lib/pricing.ts). Ödeme ekranında başka bir para
   // birimiyle karşılaşmaması için aynı kaynaktan okunuyor.
   const visitorCurrency = getPricingCurrencyFromHeaders(req.headers).toLowerCase();
+  const locale = await getLocale();
 
   const params: Stripe.Checkout.SessionCreateParams = {
     customer: customerId,
@@ -75,6 +110,7 @@ export async function POST(req: NextRequest) {
       metadata: { org_id: member.org_id, plan },
     },
     allow_promotion_codes: true,
+    locale: STRIPE_LOCALE[locale] ?? "auto",
   };
 
   // Stripe, çok para birimli fiyatlarda `currency` GEÇİLMEDİKÇE Price'ın

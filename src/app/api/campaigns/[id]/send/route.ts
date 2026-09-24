@@ -3,6 +3,7 @@ import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { sendCampaignNow } from "@/lib/campaign-send";
 import { logAudit } from "@/lib/audit";
+import { hasPermission } from "@/lib/permissions";
 
 export async function POST(
   req: NextRequest,
@@ -15,7 +16,7 @@ export async function POST(
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+  if (!hasPermission(member, "manage_campaigns")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   // Kampanyanın gerçekten bu org'a ait olduğunu doğrula (auth sınırı burada çizilir,
   // sendCampaignNow admin çağrılarında da kullanıldığı için kendi içinde org kontrolü yapmaz)

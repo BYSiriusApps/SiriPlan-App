@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { ArrowLeft, Wallet, Loader2, CheckCircle2, Info } from "lucide-react";
 import { formatMoney } from "@/lib/currency";
 
@@ -29,6 +29,7 @@ const MONTHS = [
 
 export default function MaasHesaplamaPage() {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -37,7 +38,7 @@ export default function MaasHesaplamaPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [currency, setCurrency] = useState("TRY");
-  const fmt = useCallback((n: number) => formatMoney(n, currency), [currency]);
+  const fmt = useCallback((n: number) => formatMoney(n, currency, locale), [currency, locale]);
 
   useEffect(() => {
     fetch("/api/org")

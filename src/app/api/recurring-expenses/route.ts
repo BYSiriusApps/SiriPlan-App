@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
+import { hasPermission } from "@/lib/permissions";
 
 async function getOrgId(supabase: Awaited<ReturnType<typeof createClient>>, _userId: string) {
   const member = await getActiveMember(supabase);
-  // Gelir-gider yönetici/işletme sahibi yetkisindedir
-  if (!member || member.role === "staff") return null;
+  // Gelir-gider yalnızca view_financials izni olanlara (varsayılan: owner) açıktır
+  if (!member || !hasPermission(member, "view_financials")) return null;
   return member.org_id;
 }
 

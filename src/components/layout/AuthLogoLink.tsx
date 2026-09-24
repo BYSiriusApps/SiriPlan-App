@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 
 /**
- * /auth/* sayfalarının üstündeki Siriplan logosu normalde pazarlama
+ * /auth/* sayfalarının üstündeki SiriPlan logosu normalde pazarlama
  * anasayfasına ("/") döner. İstisnalar:
  *  - plan-sec: yalnızca giriş yapmış, org'u olan kullanıcılara gösterilir
  *    (deneme bitti/ödeme/e-posta linki) — panele dönmek daha doğru.
@@ -20,10 +20,10 @@ export function AuthLogoLink() {
     <>
       <img
         src="/icons/icon-mark.png"
-        alt="Siriplan"
+        alt="SiriPlan"
         className="w-10 h-10 rounded-xl shadow-lg group-hover:scale-105 transition-transform"
       />
-      <span className="text-2xl font-bold text-foreground">Siriplan</span>
+      <span className="text-2xl font-bold text-foreground">SiriPlan</span>
     </>
   );
 

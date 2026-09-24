@@ -1,0 +1,284 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@page { size: 148mm 210mm; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; color: #2b1420; }
+
+:root {
+  --maroon: #5c1533;
+  --maroon-dark: #3d0e22;
+  --cream: #fdf4f3;
+  --line: #f0d9dc;
+  --gold: #b9862f;
+  --gold-bg: #fbf3e2;
+  --green: #1e7e42;
+  --green-bg: #e9f7ee;
+  --red: #c23b3b;
+  --red-bg: #fbebea;
+  --blue: #2e6fa8;
+  --ink: #4a3a41;
+  --orange: #c2701f;
+  --pink: #c23a72;
+}
+
+.page {
+  width: 148mm; height: 210mm;
+  background: var(--cream);
+  padding: 6mm 6mm 5mm;
+  position: relative;
+  page-break-after: always;
+  display: flex;
+  flex-direction: column;
+  gap: 3mm;
+}
+
+.topbar { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+.brand { display: flex; align-items: center; gap: 2.6mm; }
+.logo {
+  width: 10mm; height: 10mm; border-radius: 2.4mm;
+  background: linear-gradient(135deg, var(--maroon), var(--maroon-dark));
+  color: #fff; font-weight: 800; font-size: 5.4mm; font-family: Georgia, serif;
+  display: flex; align-items: center; justify-content: center;
+}
+.brandname { font-size: 5.4mm; font-weight: 800; color: var(--maroon); line-height: 1; }
+.brandsub { font-size: 1.9mm; font-weight: 700; letter-spacing: .3px; color: #8a6672; margin-top: .8mm; }
+.pill { padding: 1.6mm 3.4mm; border-radius: 20px; font-size: 2mm; font-weight: 800; letter-spacing: .3px; white-space: nowrap; }
+.pill-dark { background: var(--maroon-dark); color: #fff; }
+
+.hpattern { position: absolute; top: -5mm; right: -5mm; width: 26mm; height: 26mm; z-index: 0; pointer-events: none; }
+
+.boxline {
+  border: 1px solid var(--line); border-radius: 3mm; padding: 3mm 3mm 3.4mm; background: #fffdfc;
+}
+.boxline-title { text-align: center; font-size: 2.5mm; font-weight: 800; color: var(--maroon); letter-spacing: .3px; margin-bottom: 2.4mm; }
+.sector-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2mm; }
+.sector { display: flex; align-items: flex-start; gap: 1.6mm; border: 1px solid var(--line); border-radius: 2.2mm; padding: 1.8mm; background: #fff; }
+.sector-title { font-size: 2.3mm; font-weight: 800; color: #2b1420; line-height: 1.2; }
+.sector-sub { font-size: 1.9mm; color: #7a5b63; margin-top: .4mm; }
+.dot { width: 3mm; height: 3mm; border-radius: 50%; margin-top: .6mm; flex-shrink: 0; }
+.dot-red { background: #c23b3b; } .dot-ink { background: #3a3a3a; } .dot-blue { background: #2e6fa8; }
+.dot-pink { background: #c23a72; } .dot-orange { background: #c2701f; } .dot-green { background: #2e8b57; }
+
+.ic { display: inline-flex; align-items: center; justify-content: center; width: 5.4mm; height: 5.4mm; border-radius: 50%; flex-shrink: 0; }
+.ic svg { width: 3.2mm; height: 3.2mm; }
+.ic-red { background: var(--red-bg); color: var(--red); }
+.ic-ink { background: #ece7e8; color: #3a3a3a; }
+.ic-blue { background: #e6f0f8; color: var(--blue); }
+.ic-pink { background: #fbe8f1; color: var(--pink); }
+.ic-orange { background: #fbedde; color: var(--orange); }
+.ic-green { background: var(--green-bg); color: var(--green); }
+.ic-maroon { background: var(--line); color: var(--maroon); }
+.ic-gold { background: var(--gold-bg); color: var(--gold); }
+
+.quote {
+  background: linear-gradient(160deg, var(--maroon), var(--maroon-dark));
+  color: #fbeef2; border-radius: 3mm; padding: 3.4mm 3.6mm; position: relative;
+}
+.quote p { margin: 0 0 2.6mm; font-size: 2.15mm; line-height: 1.55; font-style: italic; }
+.ticks { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6mm 3mm; border-top: 1px solid rgba(255,255,255,.25); padding-top: 2.2mm; }
+.tick { font-size: 2mm; line-height: 1.4; }
+.tick b { color: #ffd9e6; }
+
+.feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm; }
+.feat { border: 1px solid var(--line); border-radius: 2.4mm; padding: 2.2mm 2.4mm; background: #fff; }
+.feat-hl { border-color: var(--gold); box-shadow: 0 0 0 .5px var(--gold); background: #fffdf7; }
+.feat-head { display: flex; align-items: center; gap: 1.4mm; margin-bottom: 1.2mm; }
+.feat-dot { width: 2mm; height: 2mm; border-radius: 50%; background: var(--maroon); flex-shrink: 0; }
+.feat-title { font-size: 2.25mm; font-weight: 800; color: #2b1420; }
+.feat-desc { font-size: 1.95mm; line-height: 1.42; color: #63494f; margin: 0 0 1.6mm; }
+.tags { display: flex; flex-wrap: wrap; gap: 1mm; }
+.tag { font-size: 1.75mm; font-weight: 700; background: var(--line); color: var(--maroon); border-radius: 20px; padding: .8mm 2mm; }
+.feat-hl .tag { background: var(--gold-bg); color: var(--gold); }
+
+.sectionbar { font-size: 2.6mm; font-weight: 800; color: var(--maroon); border-left: 1.2mm solid var(--maroon); padding-left: 2mm; }
+
+.compare { width: 100%; border-collapse: collapse; border: 1px solid var(--line); border-radius: 2mm; overflow: hidden; font-size: 1.95mm; }
+.compare th { text-align: left; padding: 1.8mm 2.4mm; font-size: 1.9mm; font-weight: 800; }
+.compare th.bad { background: var(--red-bg); color: var(--red); }
+.compare th.good { background: var(--green-bg); color: var(--green); }
+.compare td { padding: 1.8mm 2.4mm; border-top: 1px solid var(--line); vertical-align: top; line-height: 1.4; }
+.compare td:first-child { color: #5a4750; width: 50%; }
+.compare td:last-child { color: var(--green); font-weight: 700; width: 50%; }
+.compare tr:nth-child(even) td { background: #fffaf9; }
+
+.feat-grid-2 { grid-template-columns: 1fr 1fr; }
+
+.cta {
+  margin-top: auto;
+  background: linear-gradient(160deg, var(--maroon-dark), var(--maroon));
+  border-radius: 3mm; padding: 3.4mm; display: flex; align-items: center; gap: 3mm; color: #fff; position: relative; overflow: hidden;
+}
+.cta-text { flex: 1; }
+.cta-title { font-size: 2.9mm; font-weight: 800; margin-bottom: 1mm; }
+.cta-sub { font-size: 1.95mm; color: #f2d8e1; margin-bottom: 1.8mm; line-height: 1.4; }
+.cta-line { font-size: 1.95mm; color: #fbeef2; margin-bottom: .6mm; }
+.qrbox { width: 22mm; height: 22mm; background: #fff; border-radius: 2mm; padding: 1.2mm; flex-shrink: 0; z-index: 1; }
+.qrbox img { width: 100%; height: 100%; object-fit: contain; }
+.cta-doodle { position: absolute; right: 20mm; top: -6mm; width: 40mm; opacity: .9; }
+.cta-doodle svg { width: 100%; }
+</style></head>
+  <body>
+<section class="page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">S</div>
+      <div class="brandtext">
+        <div class="brandname">SiriPlan</div>
+        <div class="brandsub">AKILLI RANDEVU VE İŞLETME YÖNETİM SİSTEMİ</div>
+      </div>
+    </div>
+    <div class="pill pill-dark">14 GÜN ÜCRETSİZ DENE</div>
+  </header>
+  
+
+  <div class="boxline">
+    <div class="boxline-title">HER SEKTÖRE ÖZEL YENİ NESİL DİJİTAL YÖNETİM</div>
+    <div class="sector-grid">
+      <div class="sector">
+    <span class="dot dot-red"></span>
+    <div><div class="sector-title">Güzellik Merkezleri</div><div class="sector-sub">Seans & Paket Takibi</div></div>
+  </div>
+      <div class="sector">
+    <span class="dot dot-ink"></span>
+    <div><div class="sector-title">Berber & Erkek Bakım</div><div class="sector-sub">Hızlı Sıra & Randevu</div></div>
+  </div>
+      <div class="sector">
+    <span class="dot dot-blue"></span>
+    <div><div class="sector-title">Klinik & Diyetisyen</div><div class="sector-sub">Hasta Dosyası & Takip</div></div>
+  </div>
+      <div class="sector">
+    <span class="dot dot-pink"></span>
+    <div><div class="sector-title">Kuaför Salonları</div><div class="sector-sub">Adisyon & Koltuk Yönetimi</div></div>
+  </div>
+      <div class="sector">
+    <span class="dot dot-orange"></span>
+    <div><div class="sector-title">Nail Art & Tırnak</div><div class="sector-sub">Uzman & Masa Planlama</div></div>
+  </div>
+      <div class="sector">
+    <span class="dot dot-green"></span>
+    <div><div class="sector-title">Spa & Masaj Merkezleri</div><div class="sector-sub">Oda & Terapist Kontrolü</div></div>
+  </div>
+    </div>
+  </div>
+
+  <div class="quote">
+    <p>&ldquo;SiriPlan ile işletmenizin kapısı 7/24 kesintisiz açık! WhatsApp ve webden gelen tüm randevuları
+    otomatik toplayarak dijital görünürlüğünüzü zirveye taşıyın; müşteri portföyünüzü genişletirken satış
+    hacminizi ve kârlılığınızı katlayın. Kasanızı, personelinizi ve iş süreçlerinizi sıfır hata ve kurumsal
+    bir profesyonellikle tek ekrandan yönetin.&rdquo;</p>
+    <div class="ticks">
+      <div class="tick"><b>Müşteri kaçmaz:</b> Gece saatlerinde bile randevular anında panele işlenir.</div>
+      <div class="tick"><b>Gelişmiş CRM:</b> Müşteri geçmişi, sadakat puanı ve otomatik teyit mesajları.</div>
+      <div class="tick"><b>Kasa şaşmaz:</b> Gelir, gider, stok ve primler kuruşu kuruşuna elinizde.</div>
+      <div class="tick"><b>Sıfır Donanım Bağımlılığı:</b> Telefondan, tabletten veya bilgisayardan 7/24 kontrol.</div>
+    </div>
+  </div>
+
+  <div class="feat-grid">
+    <div class="feat ">
+    <div class="feat-head"><span class="feat-dot"></span><span class="feat-title">Kurumsal Randevu Vitrini</span></div>
+    <p class="feat-desc">İşletmenize özel web sayfasıyla müşterileriniz telefon aramadan 7/24 randevu alsın, hizmet görsellerinizi ve portföyünüzü incelesin.</p>
+    <div class="tags"><span class="tag">/r/isletme-adiniz</span><span class="tag">Google Harita</span><span class="tag">Hizmet Görselleri</span></div>
+  </div>
+    <div class="feat feat-hl">
+    <div class="feat-head"><span class="feat-dot"></span><span class="feat-title">Müşteriyi Koruyun & CRM</span></div>
+    <p class="feat-desc">Kimin kaç kez geldiğini, ne harcadığını ve sadakat puanını görün. Gelmeyeni otomatik geri kazanın!</p>
+    <div class="tags"><span class="tag">Müşteri Geçmişi</span><span class="tag">Geri Kazanım</span></div>
+  </div>
+    <div class="feat ">
+    <div class="feat-head"><span class="feat-dot"></span><span class="feat-title">Esnek Randevu Onayı</span></div>
+    <p class="feat-desc">İster gelen randevular anında otomatik onaylansın, ister önce onay ekranınıza düşsün.</p>
+    <div class="tags"><span class="tag">Otomatik Onay</span><span class="tag">Onaya Düşsün</span></div>
+  </div>
+    <div class="feat ">
+    <div class="feat-head"><span class="feat-dot"></span><span class="feat-title">Sesli Randevu Asistanı</span></div>
+    <p class="feat-desc">Ekrana dokunmadan konuşarak saniyeler içinde randevu oluşturun ve stok komutu verin.</p>
+    <div class="tags"><span class="tag">Sesli Komut</span><span class="tag">Hızlı Kayıt</span></div>
+  </div>
+    <div class="feat ">
+    <div class="feat-head"><span class="feat-dot"></span><span class="feat-title">WhatsApp & SMS Bildirimi</span></div>
+    <p class="feat-desc">Randevu hatırlatma ve teyit mesajları otomatik gitsin; gelmeyen müşteri kaybı bitsin.</p>
+    <div class="tags"><span class="tag">WhatsApp API</span><span class="tag">Telegram Bot</span></div>
+  </div>
+    <div class="feat ">
+    <div class="feat-head"><span class="feat-dot"></span><span class="feat-title">Kasa, Prim & Ön Muhasebe</span></div>
+    <p class="feat-desc">Günün cirosu, personel komisyonları, kâr/zarar ve dönemsel değişim raporları görsel grafiklerle anında elinizde.</p>
+    <div class="tags"><span class="tag">Net Kâr/Zarar</span><span class="tag">PDF Gün Sonu</span><span class="tag">Değişim Raporları & Grafik</span></div>
+  </div>
+  </div>
+
+  <div class="cta">
+    <div class="cta-text">
+      <div class="cta-title">Barkodu Okutun, 14 Gün Ücretsiz Deneyin!</div>
+      <div class="cta-sub">Kredi kartı gerekmez. Temsilci beklemeden hemen başlayın, direkt kayıt ekranı açılır.</div>
+      <div class="cta-line"><b>siriplan.com</b></div>
+      <div class="cta-line">Instagram: @siriplan &nbsp;|&nbsp; WhatsApp Destek: +90 535 503 26 34</div>
+    </div>
+    
+    <div class="qrbox"><img src="data:image/png;base64,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" alt="QR"/></div>
+  </div>
+</section>
+<section class="page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">S</div>
+      <div class="brandtext">
+        <div class="brandname">SiriPlan</div>
+        <div class="brandsub">NEDEN SİRİPLAN? FARKI KEŞFEDİN</div>
+      </div>
+    </div>
+    <div class="pill pill-dark">0 VERİ KAYBI İLE GEÇİŞ</div>
+  </header>
+  
+
+  <div class="sectionbar">Eski Yöntemler ve Hantal Programlar vs. SiriPlan Akıllı Sistemi</div>
+
+  <table class="compare">
+    <thead>
+      <tr><th class="bad">✕ KLASİK YÖNTEMLER &amp; ESKİ ALIŞKANLIKLAR</th><th class="good">✓ SİRİPLAN AKILLI SİSTEMİ</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Akşam DM ve WhatsApp'a geç dönüldüğü için başka yere giden müşteriler.</td><td>7/24 kesintisiz otomatik cevap veren ve randevu linki ileten akıllı asistan.</td></tr>
+      <tr><td>Son dakika gelmeyen randevular yüzünden boş kalan koltuklar ve günlük ciro kaybı.</td><td>Otomatik onay ve teyit mesajları ile %80 azalan randevu iptalleri.</td></tr>
+      <tr><td>Amatör DM yazışmaları, dağınık listeler ve güven vermeyen merdiven altı algısı.</td><td>İşletmenize özel estetik, kurumsal ve profesyonel web randevu vitrini.</td></tr>
+      <tr><td>Yoğun saatte donan, kilitlenen, çöken hantal masaüstü sistemleri ve veri kaybı stresi.</td><td>Asla takılmayan, çökmeyen, %99.9 kesintisiz bulut altyapısı ve akıcı kullanım.</td></tr>
+      <tr><td>&ldquo;Sistem değiştirirsem müşteri kayıtlarım silinir&rdquo; korkusu ve zor geçiş süreçleri.</td><td>Tek tıkla Excel, CSV aktarımı; tüm müşteri geçmişi ve CRM anında taşınır.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sectionbar">İşletmenizi Büyüten Uçtan Uca Çözümler</div>
+
+  <div class="feat-grid feat-grid-2">
+    <div class="feat ">
+    <div class="feat-head"><span class="feat-dot"></span><span class="feat-title">Müşteri Sadakat & Skor (CRM)</span></div>
+    <p class="feat-desc">Ziyaret sıklığı, harcama geçmişi, puanlar ve otomatik doğum günü kutlama mesajları.</p>
+    <div class="tags"><span class="tag">Puan Takibi</span><span class="tag">Doğum Günü Kutlaması</span></div>
+  </div>
+    <div class="feat ">
+    <div class="feat-head"><span class="feat-dot"></span><span class="feat-title">Akıllı Stok & Sarf Malzeme</span></div>
+    <p class="feat-desc">Giriş-çıkış takibi, alış-satış marjları ve kritik limit uyarıları ile tam depo kontrolü.</p>
+    <div class="tags"><span class="tag">Kritik Stok Uyarısı</span><span class="tag">Birim Maliyet</span></div>
+  </div>
+    <div class="feat ">
+    <div class="feat-head"><span class="feat-dot"></span><span class="feat-title">Personel Prim & Maaş</span></div>
+    <p class="feat-desc">Her uzmanın prim oranı (%40-%50) otomatik hesaplanır; hak ediş hesaplama derdi biter.</p>
+    <div class="tags"><span class="tag">Haftanın Elemanı</span><span class="tag">Şeffaf Komisyon</span></div>
+  </div>
+    <div class="feat ">
+    <div class="feat-head"><span class="feat-dot"></span><span class="feat-title">%100 Bulut & Güvenli Yedek</span></div>
+    <p class="feat-desc">Cihazınız bozulsa da verileriniz güvende. Dilediğiniz zaman Excel/PDF olarak indirin.</p>
+    <div class="tags"><span class="tag">Tek Tık İndir</span><span class="tag">7/24 Erişim</span></div>
+  </div>
+  </div>
+
+  <div class="cta">
+    <div class="cta-text">
+      <div class="cta-title">Fuara Özel Fırsat: Hemen Başlayın!</div>
+      <div class="cta-sub">Kameranızı barkoda yaklaştırın, 14 gün boyunca tüm Pro özellikleri ücretsiz deneyin — direkt kayıt ekranı açılır.</div>
+      <div class="cta-line"><b>siriplan.com</b></div>
+      <div class="cta-line">Instagram: @siriplan &nbsp;|&nbsp; WhatsApp Destek: +90 535 503 26 34</div>
+    </div>
+    
+    <div class="qrbox"><img src="data:image/png;base64,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" alt="QR"/></div>
+  </div>
+</section></body></html>

@@ -66,6 +66,20 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/docs/presentation": ["./docs/kullanim-kilavuzu-sunum.html"],
   },
+  // www.siriplan.com apex'e yönlendirilmeden aynı içeriği 200 ile sunuyordu —
+  // canonical etiketi de hiçbir sayfada yoktu, yani Google iki barındırılan
+  // kopya arasında hangisinin asıl olduğuna dair sinyal alamıyordu (GSC
+  // indeksleme sorununun kök nedeni). apex'i tek gerçek köken yapıyoruz.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.siriplan.com" }],
+        destination: "https://siriplan.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

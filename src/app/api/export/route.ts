@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { hasProTools } from "@/lib/entitlements";
+import { hasPermission } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import * as XLSX from "xlsx";
 import { startOfDay, endOfDay, format as formatDate } from "date-fns";
 import { tr } from "date-fns/locale";
+import { safeCell } from "@/lib/spreadsheet-safety";
+import { formatMoney } from "@/lib/currency";
 
 // PDF/Gün Sonu raporları müşteri adı/telefon gibi herkese açık randevu
 // formundan gelen alanları ham HTML'e gömüyor — bu alanlar escape edilmezse
@@ -16,10 +19,118 @@ function escapeHtml(value: unknown): string {
   ));
 }
 
+// Ortak PDF/print iskeleti — logolu başlık, tutarlı tipografi, SiriPlan altbilgisi.
+// origin mutlak URL: hem <a target=_blank> hem window.open("about:blank") yollarında
+// logolar çözülsün (img-src 'self' data: https://*.supabase.co CSP'sine uyumlu).
+function renderReportShell(opts: {
+  origin: string;
+  orgName: string;
+  salonLogoUrl?: string | null;
+  title: string;
+  subtitle: string;
+  body: string;
+}): string {
+  const { origin, orgName, salonLogoUrl, title, subtitle, body } = opts;
+  const headerLogo = salonLogoUrl
+    ? `<img class="logo" src="${escapeHtml(salonLogoUrl)}" alt="${escapeHtml(orgName)}">`
+    : `<img class="logo" src="${origin}/brand/logo-full.png" alt="SiriPlan">`;
+  const today = new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
+
+  return `<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>${escapeHtml(orgName)} — ${escapeHtml(title)}</title>
+<style>
+  :root { --rose: #e11d48; --rose-deep: #a10e38; --ink: #241722; --muted: #6d5c67; --line: #ece1db; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+         font-size: 12px; color: var(--ink); padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 28px 26px 60px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px;
+           border-bottom: 2px solid var(--rose); padding-bottom: 14px; margin-bottom: 20px; }
+  header .logo { height: 38px; width: auto; object-fit: contain; }
+  header .doc { text-align: right; }
+  header .doc h1 { font-size: 17px; color: var(--rose-deep); font-weight: 700; }
+  header .doc .org { font-size: 12px; color: var(--ink); font-weight: 600; margin-top: 1px; }
+  header .doc .sub { font-size: 10.5px; color: var(--muted); margin-top: 2px; text-transform: capitalize; }
+  .summary { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; }
+  .card { flex: 1; min-width: 108px; border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; text-align: center; }
+  .card .val { font-size: 17px; font-weight: 700; color: var(--rose-deep); }
+  .card .lbl { font-size: 9.5px; color: var(--muted); margin-top: 3px; letter-spacing: .02em; text-transform: uppercase; }
+  h2 { font-size: 13px; font-weight: 700; margin: 22px 0 8px; color: var(--ink);
+       border-bottom: 1px solid var(--line); padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  thead { display: table-header-group; }
+  th { background: var(--rose); color: #fff; padding: 6px 9px; text-align: left; font-weight: 600; }
+  td { padding: 6px 9px; border-bottom: 1px solid #f3ecef; }
+  tr { break-inside: avoid; }
+  tbody tr:nth-child(even) td { background: #fdf3f6; }
+  .warn { display: flex; gap: 8px; align-items: flex-start; border: 1px solid #f0c674;
+          background: #fff8e6; border-radius: 9px; padding: 10px 12px; margin: 4px 0 18px; font-size: 11px; color: #7a5c12; }
+  .warn strong { color: #7a5c12; }
+  .net { margin-top: 18px; padding: 12px 14px; border-radius: 10px; text-align: right; font-size: 14px; font-weight: 700; }
+  .pill { display: inline-block; font-size: 9px; font-weight: 600; padding: 1px 6px; border-radius: 999px;
+          background: #f1e3e9; color: var(--rose-deep); margin-left: 6px; text-transform: uppercase; letter-spacing: .03em; }
+  .spark { margin: 10px 0 4px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center;
+           gap: 6px; padding: 8px; font-size: 9.5px; color: var(--muted); border-top: 1px solid var(--line); background: #fff; }
+  footer img { height: 13px; width: auto; }
+  @media print { .wrap { padding-top: 10px; } @page { size: A4; margin: 14mm 12mm 18mm; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    ${headerLogo}
+    <div class="doc">
+      <h1>${escapeHtml(title)}</h1>
+      <div class="org">${escapeHtml(orgName)}</div>
+      <div class="sub">${escapeHtml(subtitle)}</div>
+    </div>
+  </header>
+  ${body}
+</div>
+<footer>
+  <img src="${origin}/icons/icon-mark.png" alt="SiriPlan"> SiriPlan · siriplan.com — otomatik oluşturuldu · ${today}
+</footer>
+<script>window.onload = () => window.print();</script>
+</body>
+</html>`;
+}
+
+// İnline-SVG sparkline (PDF içi — bağımlılıksız). Her noktanın tarihi altta,
+// tutarı üstte sabit yazı olarak basılır — PDF'te hover olmadığı için
+// değerler <title> tooltip'ine bırakılamaz, doğrudan görünür olmalı.
+function sparklineSvg(points: { date: string; value: number }[], fmtValue: (v: number) => string): string {
+  if (points.length < 2) return "";
+  const W = 520, chartH = 56, topPad = 18, bottomPad = 20, padX = 14;
+  const H = topPad + chartH + bottomPad;
+  const values = points.map((p) => p.value);
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const span = max - min || 1;
+  const x = (i: number) => padX + (i / (points.length - 1)) * (W - padX * 2);
+  const y = (v: number) => topPad + (1 - (v - min) / span) * chartH;
+  const pts = points.map((p, i) => `${x(i)},${y(p.value)}`).join(" ");
+  const dots = points.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.value)}" r="3" fill="#e11d48"/>`).join("");
+  const valueLabels = points
+    .map((p, i) => `<text x="${x(i)}" y="${Math.max(10, y(p.value) - 8)}" font-size="9" text-anchor="middle" fill="#a10e38" font-weight="600">${escapeHtml(fmtValue(p.value))}</text>`)
+    .join("");
+  const dateLabels = points
+    .map((p, i) => `<text x="${x(i)}" y="${H - 4}" font-size="9" text-anchor="middle" fill="#6d5c67">${escapeHtml(p.date)}</text>`)
+    .join("");
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
+    <polyline points="${pts}" fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}${valueLabels}${dateLabels}
+  </svg>`;
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format") || "json"; // json | csv | excel | pdf
   const gun = searchParams.get("gun"); // yyyy-MM-dd — verilirse gün sonu özeti PDF'i üretilir
+  const scope = searchParams.get("scope"); // "gelir-gider" — verilirse dönemsel gelir-gider PDF'i üretilir
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -46,7 +157,26 @@ export async function GET(req: NextRequest) {
       orgId, userId: user.id, action: "data_export", tableName: "appointments",
       details: { format: "pdf", scope: "gun_sonu", gun, role: member.role }, req,
     });
-    return buildGunSonuPdf(supabase, orgId, gun);
+    return buildGunSonuPdf(supabase, orgId, gun, new URL(req.url).origin);
+  }
+
+  // Gelir-Gider ekranının "PDF İndir" düğmesi — seçili ay veya yıl için özet.
+  if (format === "pdf" && scope === "gelir-gider") {
+    if (!hasPermission(member, "view_financials")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    const yearParam = searchParams.get("year") ?? new Date().getFullYear().toString();
+    if (!/^\d{4}$/.test(yearParam)) return NextResponse.json({ error: "Invalid year" }, { status: 400 });
+    const monthParam = searchParams.get("month");
+    if (monthParam && !/^(0?[1-9]|1[0-2])$/.test(monthParam)) {
+      return NextResponse.json({ error: "Invalid month" }, { status: 400 });
+    }
+    const view = searchParams.get("view") === "yillik" ? "yillik" : "aylik";
+    await logAudit({
+      orgId, userId: user.id, action: "data_export", tableName: "expenses",
+      details: { format: "pdf", scope: "gelir_gider", year: yearParam, month: monthParam, view, role: member.role }, req,
+    });
+    return buildGelirGiderPdf(supabase, orgId, yearParam, view === "aylik" ? monthParam : null, new URL(req.url).origin);
   }
 
   const [
@@ -62,8 +192,10 @@ export async function GET(req: NextRequest) {
     supabase.from("staff").select("*").eq("org_id", orgId),
     supabase.from("services").select("*").eq("org_id", orgId),
     supabase.from("campaigns").select("*").eq("org_id", orgId),
-    supabase.from("organizations").select("name, slug, email, phone, address, city").eq("id", orgId).single(),
+    supabase.from("organizations").select("name, slug, email, phone, address, city, logo_url").eq("id", orgId).single(),
   ]);
+
+  const origin = new URL(req.url).origin;
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -102,7 +234,7 @@ export async function GET(req: NextRequest) {
   if (format === "csv") {
     const headers = ["Ad Soyad", "Telefon", "E-posta", "Doğum Tarihi", "Toplam Harcama", "Ziyaret Sayısı", "Son Ziyaret", "Skor", "Kayıt Tarihi"];
     const rows = (customers || []).map((c) => [
-      c.full_name, c.phone, c.email || "", c.birth_date || "",
+      safeCell(c.full_name), c.phone, safeCell(c.email || ""), c.birth_date || "",
       c.total_spend, c.visit_count, c.last_visit_at || "", c.score, c.created_at,
     ]);
     const csv = [headers, ...rows]
@@ -122,7 +254,7 @@ export async function GET(req: NextRequest) {
     // Customers sheet
     const custHeaders = ["Ad Soyad", "Telefon", "E-posta", "Doğum Tarihi", "Cinsiyet", "Toplam Harcama (₺)", "Ziyaret Sayısı", "Son Ziyaret", "Skor", "Sadakat Puanı", "Kayıt Tarihi"];
     const custRows = (customers || []).map((c) => [
-      c.full_name, c.phone, c.email || "", c.birth_date || "", c.gender || "",
+      safeCell(c.full_name), c.phone, safeCell(c.email || ""), c.birth_date || "", safeCell(c.gender || ""),
       Number(c.total_spend), c.visit_count,
       c.last_visit_at ? new Date(c.last_visit_at).toLocaleDateString("tr-TR") : "",
       c.score, c.loyalty_punches,
@@ -135,7 +267,7 @@ export async function GET(req: NextRequest) {
     // Services sheet
     const svcHeaders = ["Hizmet Adı", "Kategori", "Süre (dk)", "Fiyat (₺)", "Durum"];
     const svcRows = (services || []).map((s) => [
-      s.name, s.category_tag, s.duration_minutes, Number(s.price),
+      safeCell(s.name), safeCell(s.category_tag), s.duration_minutes, Number(s.price),
       s.is_active ? "Aktif" : "Pasif",
     ]);
     const wsSvc = XLSX.utils.aoa_to_sheet([svcHeaders, ...svcRows]);
@@ -145,7 +277,7 @@ export async function GET(req: NextRequest) {
     // Staff sheet
     const staffHeaders = ["Ad Soyad", "Unvan", "Telefon", "E-posta", "Komisyon (%)", "Durum"];
     const staffRows = (staff || []).map((s) => [
-      s.full_name, s.role, s.phone || "", s.email || "",
+      safeCell(s.full_name), safeCell(s.role), s.phone || "", safeCell(s.email || ""),
       Math.round((Number(s.commission_rate) || 0) * 100),
       s.is_active ? "Aktif" : "Pasif",
     ]);
@@ -157,9 +289,9 @@ export async function GET(req: NextRequest) {
     const apptHeaders = ["Tarih", "Müşteri", "Telefon", "Personel", "Hizmet", "Tutar (₺)", "Durum", "Kaynak"];
     const apptRows = (appointments || []).map((a) => [
       new Date(a.appointment_at).toLocaleString("tr-TR"),
-      a.customer_name, a.customer_phone,
-      (a.staff as { full_name?: string })?.full_name || "",
-      (a.service as { name?: string })?.name || "",
+      safeCell(a.customer_name), a.customer_phone,
+      safeCell((a.staff as { full_name?: string })?.full_name || ""),
+      safeCell((a.service as { name?: string })?.name || ""),
       Number(a.price),
       a.status, a.source,
     ]);
@@ -177,7 +309,8 @@ export async function GET(req: NextRequest) {
   }
 
   if (format === "pdf") {
-    const orgName = (org as { name?: string })?.name || "Salon";
+    const orgRow = org as { name?: string; logo_url?: string | null } | null;
+    const orgName = orgRow?.name || "Salon";
     const custCount = customers?.length || 0;
     const apptCount = appointments?.length || 0;
     const totalRevenue = (appointments || [])
@@ -203,36 +336,7 @@ export async function GET(req: NextRequest) {
         <td>${s.is_active ? "Aktif" : "Pasif"}</td>
       </tr>`).join("");
 
-    const html = `<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<title>${escapeHtml(orgName)} — Siriplan Raporu</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; font-size: 12px; color: #333; padding: 24px; }
-  h1 { font-size: 22px; color: #ec4899; margin-bottom: 4px; }
-  .meta { color: #666; font-size: 11px; margin-bottom: 20px; }
-  .summary { display: flex; gap: 16px; margin-bottom: 24px; }
-  .card { flex: 1; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center; }
-  .card .val { font-size: 20px; font-weight: bold; color: #ec4899; }
-  .card .lbl { font-size: 10px; color: #666; margin-top: 2px; }
-  h2 { font-size: 14px; font-weight: bold; margin: 20px 0 8px; color: #111; border-bottom: 2px solid #ec4899; padding-bottom: 4px; }
-  table { width: 100%; border-collapse: collapse; font-size: 11px; }
-  th { background: #ec4899; color: white; padding: 6px 8px; text-align: left; }
-  td { padding: 5px 8px; border-bottom: 1px solid #f3f4f6; }
-  tr:nth-child(even) td { background: #fdf2f8; }
-  .footer { margin-top: 32px; text-align: center; font-size: 10px; color: #999; }
-  @media print {
-    body { padding: 16px; }
-    @page { margin: 1cm; }
-  }
-</style>
-</head>
-<body>
-<h1>${escapeHtml(orgName)}</h1>
-<p class="meta">Siriplan tarafından oluşturuldu — ${new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" })}</p>
-
+    const body = `
 <div class="summary">
   <div class="card"><div class="val">${custCount}</div><div class="lbl">Toplam Müşteri</div></div>
   <div class="card"><div class="val">${apptCount}</div><div class="lbl">Toplam Randevu</div></div>
@@ -250,12 +354,16 @@ export async function GET(req: NextRequest) {
 <table>
   <thead><tr><th>Hizmet Adı</th><th>Kategori</th><th>Süre</th><th>Fiyat</th><th>Durum</th></tr></thead>
   <tbody>${svcRows}</tbody>
-</table>
+</table>`;
 
-<div class="footer">Bu rapor Siriplan (siriplan.com) tarafından otomatik oluşturulmuştur.</div>
-<script>window.onload = () => window.print();</script>
-</body>
-</html>`;
+    const html = renderReportShell({
+      origin,
+      orgName,
+      salonLogoUrl: orgRow?.logo_url,
+      title: "Genel Rapor",
+      subtitle: new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" }),
+      body,
+    });
 
     return new NextResponse(html, {
       headers: {
@@ -279,13 +387,15 @@ async function buildGunSonuPdf(
   supabase: Awaited<ReturnType<typeof createClient>>,
   orgId: string,
   gun: string,
+  origin: string,
 ) {
   const reportDay = new Date(gun + "T12:00:00");
   const dayStart = startOfDay(reportDay).toISOString();
   const dayEnd = endOfDay(reportDay).toISOString();
+  const weekAgoStart = startOfDay(new Date(reportDay.getTime() - 6 * 86400000)).toISOString();
 
-  const [{ data: org }, { data: dayAppts }, { data: dayExpenses }, { count: dayNewCust }] = await Promise.all([
-    supabase.from("organizations").select("name").eq("id", orgId).single(),
+  const [{ data: org }, { data: dayAppts }, { data: dayExpenses }, { count: dayNewCust }, { data: weekAppts }] = await Promise.all([
+    supabase.from("organizations").select("name, logo_url").eq("id", orgId).single(),
     supabase
       .from("appointments")
       .select("id, customer_name, appointment_at, status, price, tip, staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
@@ -295,7 +405,7 @@ async function buildGunSonuPdf(
       .order("appointment_at"),
     supabase
       .from("expenses")
-      .select("type, amount, category, description")
+      .select("type, amount, category, description, note")
       .eq("org_id", orgId)
       .eq("date", gun),
     supabase
@@ -304,6 +414,14 @@ async function buildGunSonuPdf(
       .eq("org_id", orgId)
       .gte("created_at", dayStart)
       .lte("created_at", dayEnd),
+    // Son 7 gün — üstteki ciro sparkline'ı için
+    supabase
+      .from("appointments")
+      .select("appointment_at, price, tip, status")
+      .eq("org_id", orgId)
+      .eq("status", "tamamlandi")
+      .gte("appointment_at", weekAgoStart)
+      .lte("appointment_at", dayEnd),
   ]);
 
   type DayAppt = {
@@ -313,12 +431,29 @@ async function buildGunSonuPdf(
   };
   const dAppts = (dayAppts ?? []) as unknown as DayAppt[];
   const dDone = dAppts.filter((a) => a.status === "tamamlandi");
+  const dPending = dAppts.filter((a) => a.status === "talep" || a.status === "onaylandi");
   const dayRevenue = dDone.reduce((s, a) => s + Number(a.price) + Number(a.tip ?? 0), 0);
   const dayGider = (dayExpenses ?? []).filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
   const dayManuelGelir = (dayExpenses ?? []).filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
   const dayCiro = dayRevenue + dayManuelGelir;
   const dayNet = dayCiro - dayGider;
-  const orgName = (org as { name?: string })?.name || "Salon";
+  const orgRow = org as { name?: string; logo_url?: string | null } | null;
+  const orgName = orgRow?.name || "Salon";
+
+  // Son 7 gün — gün bazlı ciro toplamı (sparkline verisi: tarih etiketi + tutar)
+  const weekByDay: Record<string, number> = {};
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(reportDay.getTime() - (6 - i) * 86400000);
+    weekByDay[formatDate(d, "yyyy-MM-dd")] = 0;
+  }
+  ((weekAppts ?? []) as { appointment_at: string; price: number; tip: number | null }[]).forEach((a) => {
+    const key = a.appointment_at.slice(0, 10);
+    if (key in weekByDay) weekByDay[key] += Number(a.price) + Number(a.tip ?? 0);
+  });
+  const weekPoints = Object.keys(weekByDay).map((key) => ({
+    date: formatDate(new Date(key + "T12:00:00"), "d MMM", { locale: tr }),
+    value: weekByDay[key],
+  }));
 
   const apptRows = dAppts.map((a) => `
     <tr>
@@ -329,45 +464,28 @@ async function buildGunSonuPdf(
       <td style="text-align:right">${Number(a.price).toLocaleString("tr-TR")} ₺</td>
     </tr>`).join("");
 
-  const expenseRows = (dayExpenses ?? []).map((e) => `
+  const expenseRows = (dayExpenses ?? []).map((e) => {
+    const auto = (e.note ?? "").startsWith("Otomatik");
+    return `
     <tr>
-      <td>${e.type === "gelir" ? "Gelir" : "Gider"}</td>
+      <td>${e.type === "gelir" ? "Gelir" : "Gider"}${auto ? ` <span class="pill">Otomatik · Randevu</span>` : ""}</td>
       <td>${escapeHtml(e.category ?? "-")}</td>
-      <td>${escapeHtml(e.description ?? "-")}</td>
+      <td>${escapeHtml(e.description ?? "-")}${!auto ? ` <span class="pill" style="background:#eef1f4;color:#4b5563">Elle giriş</span>` : ""}</td>
       <td style="text-align:right">${e.type === "gelir" ? "+" : "-"}${Number(e.amount).toLocaleString("tr-TR")} ₺</td>
-    </tr>`).join("");
+    </tr>`;
+  }).join("");
 
-  const html = `<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<title>${escapeHtml(orgName)} — Gün Sonu Özeti</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; font-size: 12px; color: #333; padding: 24px; }
-  h1 { font-size: 22px; color: #ec4899; margin-bottom: 4px; }
-  .meta { color: #666; font-size: 11px; margin-bottom: 20px; text-transform: capitalize; }
-  .summary { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-  .card { flex: 1; min-width: 110px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center; }
-  .card .val { font-size: 18px; font-weight: bold; color: #ec4899; }
-  .card .lbl { font-size: 10px; color: #666; margin-top: 2px; }
-  h2 { font-size: 14px; font-weight: bold; margin: 20px 0 8px; color: #111; border-bottom: 2px solid #ec4899; padding-bottom: 4px; }
-  table { width: 100%; border-collapse: collapse; font-size: 11px; }
-  th { background: #ec4899; color: white; padding: 6px 8px; text-align: left; }
-  td { padding: 5px 8px; border-bottom: 1px solid #f3f4f6; }
-  tr:nth-child(even) td { background: #fdf2f8; }
-  .net { margin-top: 16px; padding: 12px; border-radius: 8px; background: ${dayNet >= 0 ? "#ecfdf5" : "#fff7ed"}; text-align: right; font-size: 14px; font-weight: bold; color: ${dayNet >= 0 ? "#059669" : "#c2410c"}; }
-  .footer { margin-top: 32px; text-align: center; font-size: 10px; color: #999; }
-  @media print {
-    body { padding: 16px; }
-    @page { margin: 1cm; }
-  }
-</style>
-</head>
-<body>
-<h1>${escapeHtml(orgName)}</h1>
-<p class="meta">Gün Sonu Özeti — ${formatDate(reportDay, "d MMMM yyyy, EEEE", { locale: tr })}</p>
+  const pendingWarning = dPending.length > 0 ? `
+<div class="warn">
+  <span>⚠️</span>
+  <span>
+    <strong>${dPending.length} randevu hâlâ bekliyor</strong> (onaylı/beklemede) — gün cirosuna ve Gelir-Gider ekranına
+    yansıması için gerçekleşenleri panelden <strong>“Tamamlandı”</strong> olarak işaretleyin.
+  </span>
+</div>` : "";
 
+  const body = `
+${pendingWarning}
 <div class="summary">
   <div class="card"><div class="val">${dAppts.length}</div><div class="lbl">Randevu</div></div>
   <div class="card"><div class="val">${dDone.length}</div><div class="lbl">Tamamlanan</div></div>
@@ -376,27 +494,260 @@ async function buildGunSonuPdf(
   <div class="card"><div class="val">${dayNewCust ?? 0}</div><div class="lbl">Yeni Müşteri</div></div>
 </div>
 
-<h2>Randevular</h2>
+<h2>Son 7 Gün — Ciro Seyri</h2>
+${sparklineSvg(weekPoints, (v) => `${v.toLocaleString("tr-TR")} ₺`)}
+
+<h2>Gün İçi Randevu Dökümü</h2>
 ${dAppts.length === 0
-  ? `<p style="color:#666;padding:8px 0">Bu günde randevu kaydı yok</p>`
+  ? `<p style="color:#6d5c67;padding:8px 0">Bu günde randevu kaydı yok</p>`
   : `<table>
   <thead><tr><th>Saat</th><th>Müşteri</th><th>Hizmet · Personel</th><th>Durum</th><th style="text-align:right">Tutar</th></tr></thead>
   <tbody>${apptRows}</tbody>
 </table>`}
 
 ${(dayExpenses ?? []).length > 0 ? `
-<h2>Gelir & Gider Kayıtları</h2>
+<h2>Gün İçi Gelir &amp; Gider Kayıtları</h2>
 <table>
   <thead><tr><th>Tür</th><th>Kategori</th><th>Açıklama</th><th style="text-align:right">Tutar</th></tr></thead>
   <tbody>${expenseRows}</tbody>
 </table>` : ""}
 
-<div class="net">Net Gün Sonu: ${dayNet >= 0 ? "+" : ""}${dayNet.toLocaleString("tr-TR")} ₺</div>
+<div class="net" style="background:${dayNet >= 0 ? "#ecfdf5" : "#fff7ed"};color:${dayNet >= 0 ? "#059669" : "#c2410c"}">
+  Net Gün Sonu: ${dayNet >= 0 ? "+" : ""}${dayNet.toLocaleString("tr-TR")} ₺
+</div>`;
 
-<div class="footer">Bu rapor Siriplan (siriplan.com) tarafından otomatik oluşturulmuştur.</div>
-<script>window.onload = () => window.print();</script>
-</body>
-</html>`;
+  const html = renderReportShell({
+    origin,
+    orgName,
+    salonLogoUrl: orgRow?.logo_url,
+    title: "Gün Sonu Özeti",
+    subtitle: formatDate(reportDay, "d MMMM yyyy, EEEE", { locale: tr }),
+    body,
+  });
+
+  return new NextResponse(html, {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+    },
+  });
+}
+
+const GELIR_GIDER_MONTHS_TR = [
+  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+];
+
+// Panel çeviri sözlüğündeki incomeCategories/expenseCategories ile birebir
+// (messages/tr.json) — bu PDF, diğer raporlar gibi her zaman Türkçe basılır.
+const CATEGORY_LABELS_TR: Record<"gelir" | "gider", Record<string, string>> = {
+  gelir: {
+    randevu: "Randevu Geliri", urun: "Ürün Satışı", paket: "Paket / Seans Satışı",
+    komisyon: "Komisyon", diger: "Diğer Gelir",
+  },
+  gider: {
+    kira: "Kira", personel: "Personel Maaşı", malzeme: "Malzeme / Stok",
+    fatura: "Fatura (Su/Elektrik/İnternet)", pazarlama: "Pazarlama & Reklam",
+    bakim: "Bakım & Tamir", vergi: "Vergi & Muhasebe", diger: "Diğer Gider",
+  },
+};
+
+const PAYMENT_METHOD_TR: Record<string, string> = {
+  nakit: "Nakit", kart: "Kart", havale: "Havale / EFT", "çek": "Çek",
+};
+
+type GelirGiderEntry = {
+  date: string; type: "gelir" | "gider"; category: string; description: string;
+  amount: number; payment_method: string; auto: boolean;
+};
+
+async function buildGelirGiderPdf(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orgId: string,
+  year: string,
+  month: string | null,
+  origin: string,
+) {
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("name, logo_url, kdv_enabled, kdv_rate, settings_json")
+    .eq("id", orgId)
+    .single();
+
+  const orgRow = org as {
+    name?: string; logo_url?: string | null; kdv_enabled?: boolean | null;
+    kdv_rate?: number | null; settings_json?: Record<string, unknown> | null;
+  } | null;
+  const orgName = orgRow?.name || "Salon";
+  const kdvEnabled = !!orgRow?.kdv_enabled;
+  const kdvRate = Number(orgRow?.kdv_rate ?? 20);
+  const currency = (orgRow?.settings_json?.currency as string) || "TRY";
+  const fmtVal = (n: number) => formatMoney(n, currency, "tr");
+
+  let startDate: string;
+  let endDate: string;
+  if (month) {
+    const m = month.padStart(2, "0");
+    const lastDay = new Date(parseInt(year), parseInt(month), 0).getDate();
+    startDate = `${year}-${m}-01`;
+    endDate = `${year}-${m}-${String(lastDay).padStart(2, "0")}`;
+  } else {
+    startDate = `${year}-01-01`;
+    endDate = `${year}-12-31`;
+  }
+
+  const [{ data: expenseRows }, { data: apptRows }] = await Promise.all([
+    supabase
+      .from("expenses")
+      .select("date, type, category, description, note, amount, payment_method")
+      .eq("org_id", orgId)
+      .gte("date", startDate)
+      .lte("date", endDate),
+    supabase
+      .from("appointments")
+      .select("appointment_at, price, tip, customer_name, service:services(name)")
+      .eq("org_id", orgId)
+      .eq("status", "tamamlandi")
+      .gte("appointment_at", `${startDate}T00:00:00`)
+      .lte("appointment_at", `${endDate}T23:59:59.999`),
+  ]);
+
+  // 012 trigger canlıysa oluşan "Otomatik — Randevu #…" gelir satırlarını dışla;
+  // randevu cirosu her zaman appointments tablosundan ayrıca hesaplanır (bkz. renderReportShell üstü not).
+  const isAutoApptRow = (e: { type: string; category: string; note: string | null }) =>
+    e.type === "gelir" && e.category === "randevu" && (e.note ?? "").startsWith("Otomatik — Randevu");
+
+  const manual: GelirGiderEntry[] = (expenseRows ?? [])
+    .filter((e) => !isAutoApptRow(e))
+    .map((e) => ({
+      date: e.date, type: e.type as "gelir" | "gider", category: e.category,
+      description: e.description, amount: Number(e.amount),
+      payment_method: e.payment_method ?? "nakit", auto: false,
+    }));
+
+  const apptRevenue: GelirGiderEntry[] = ((apptRows ?? []) as unknown as {
+    appointment_at: string; price: number | null; tip: number | null;
+    customer_name: string; service?: { name?: string } | null;
+  }[]).map((a) => ({
+    date: a.appointment_at.slice(0, 10),
+    type: "gelir" as const,
+    category: "randevu",
+    description: `${a.service?.name ?? "Randevu"} — ${a.customer_name}`,
+    amount: Number(a.price ?? 0) + Number(a.tip ?? 0),
+    payment_method: "-",
+    auto: true,
+  }));
+
+  const allEntries = [...manual, ...apptRevenue].sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  const totalGelir = allEntries.filter((e) => e.type === "gelir").reduce((s, e) => s + e.amount, 0);
+  const totalGider = allEntries.filter((e) => e.type === "gider").reduce((s, e) => s + e.amount, 0);
+  const netKar = totalGelir - totalGider;
+  const apptRevenueTotal = apptRevenue.reduce((s, e) => s + e.amount, 0);
+  const kdvTutari = kdvEnabled ? totalGelir * (kdvRate / (100 + kdvRate)) : 0;
+
+  function categoryBreakdown(type: "gelir" | "gider") {
+    const entries = allEntries.filter((e) => e.type === type);
+    const total = entries.reduce((s, e) => s + e.amount, 0);
+    const byCat = new Map<string, number>();
+    for (const e of entries) byCat.set(e.category, (byCat.get(e.category) ?? 0) + e.amount);
+    const rows = [...byCat.entries()]
+      .map(([cat, value]) => ({ label: CATEGORY_LABELS_TR[type][cat] ?? cat, value }))
+      .sort((a, b) => b.value - a.value);
+    return { total, rows };
+  }
+
+  function breakdownTable(type: "gelir" | "gider", title: string) {
+    const { total, rows } = categoryBreakdown(type);
+    if (total === 0) return "";
+    const trs = rows.map((r) => `
+      <tr>
+        <td>${escapeHtml(r.label)}</td>
+        <td style="text-align:right">${fmtVal(r.value)}</td>
+        <td style="text-align:right">%${((r.value / total) * 100).toFixed(1)}</td>
+      </tr>`).join("");
+    return `
+<h2>${title}</h2>
+<table>
+  <thead><tr><th>Kategori</th><th style="text-align:right">Tutar</th><th style="text-align:right">Pay</th></tr></thead>
+  <tbody>${trs}</tbody>
+</table>`;
+  }
+
+  const periodLabel = month ? `${GELIR_GIDER_MONTHS_TR[parseInt(month) - 1]} ${year}` : `${year} — Yıllık`;
+
+  let recordsSection: string;
+  if (month) {
+    const rows = allEntries.map((e) => `
+      <tr>
+        <td>${formatDate(new Date(e.date + "T12:00:00"), "d MMM", { locale: tr })}</td>
+        <td>${escapeHtml(e.description)}${e.auto ? ` <span class="pill">Randevudan otomatik</span>` : ""}</td>
+        <td>${escapeHtml(CATEGORY_LABELS_TR[e.type][e.category] ?? e.category)}</td>
+        <td>${escapeHtml(PAYMENT_METHOD_TR[e.payment_method] ?? e.payment_method)}</td>
+        <td style="text-align:right">${e.type === "gelir" ? "+" : "-"}${fmtVal(e.amount)}</td>
+      </tr>`).join("");
+    recordsSection = `
+<h2>${periodLabel} — Kayıtlar</h2>
+${allEntries.length === 0
+  ? `<p style="color:#6d5c67;padding:8px 0">Bu dönem için kayıt yok</p>`
+  : `<table>
+  <thead><tr><th>Tarih</th><th>Açıklama</th><th>Kategori</th><th>Ödeme</th><th style="text-align:right">Tutar</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>`}`;
+  } else {
+    let cumGelir = 0;
+    let cumGider = 0;
+    const monthlyRows = Array.from({ length: 12 }, (_, i) => {
+      const m = i + 1;
+      const monthEntries = allEntries.filter((e) => new Date(e.date).getMonth() + 1 === m);
+      const gelir = monthEntries.filter((e) => e.type === "gelir").reduce((s, e) => s + e.amount, 0);
+      const gider = monthEntries.filter((e) => e.type === "gider").reduce((s, e) => s + e.amount, 0);
+      cumGelir += gelir;
+      cumGider += gider;
+      return { month: m, gelir, gider, net: gelir - gider, cumNet: cumGelir - cumGider };
+    });
+    const rows = monthlyRows.map((m) => `
+      <tr>
+        <td>${GELIR_GIDER_MONTHS_TR[m.month - 1]}</td>
+        <td style="text-align:right">${fmtVal(m.gelir)}</td>
+        <td style="text-align:right">${fmtVal(m.gider)}</td>
+        <td style="text-align:right">${fmtVal(m.net)}</td>
+        <td style="text-align:right">${fmtVal(m.cumNet)}</td>
+      </tr>`).join("");
+    recordsSection = `
+<h2>${periodLabel} — Aylık &amp; Kümülatif Özet</h2>
+<table>
+  <thead><tr><th>Ay</th><th style="text-align:right">Gelir</th><th style="text-align:right">Gider</th><th style="text-align:right">Net</th><th style="text-align:right">Küm. Net</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>`;
+  }
+
+  const apptNote = apptRevenueTotal > 0
+    ? `<p style="color:#6d5c67;font-size:10.5px;margin:-10px 0 16px">Toplam gelire, tamamlanan randevulardan otomatik ${fmtVal(apptRevenueTotal)} dahildir.</p>`
+    : "";
+
+  const body = `
+<div class="summary">
+  <div class="card"><div class="val">${fmtVal(totalGelir)}</div><div class="lbl">Toplam Gelir</div></div>
+  <div class="card"><div class="val">${fmtVal(totalGider)}</div><div class="lbl">Toplam Gider</div></div>
+  <div class="card"><div class="val">${netKar >= 0 ? "+" : ""}${fmtVal(netKar)}</div><div class="lbl">Net Kâr / Zarar</div></div>
+  ${kdvEnabled ? `<div class="card"><div class="val">${fmtVal(kdvTutari)}</div><div class="lbl">Tahmini KDV (%${kdvRate})</div></div>` : ""}
+</div>
+${apptNote}
+${recordsSection}
+${breakdownTable("gelir", "Gelir Dağılımı")}
+${breakdownTable("gider", "Gider Dağılımı")}
+<div class="net" style="background:${netKar >= 0 ? "#ecfdf5" : "#fff7ed"};color:${netKar >= 0 ? "#059669" : "#c2410c"}">
+  Net Kâr / Zarar: ${netKar >= 0 ? "+" : ""}${fmtVal(netKar)}
+</div>`;
+
+  const html = renderReportShell({
+    origin,
+    orgName,
+    salonLogoUrl: orgRow?.logo_url,
+    title: "Gelir - Gider Raporu",
+    subtitle: periodLabel,
+    body,
+  });
 
   return new NextResponse(html, {
     headers: {

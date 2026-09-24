@@ -3,6 +3,7 @@ import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import type { Service, ServiceCategory } from "@/types/database";
 import { HizmetlerClient } from "./HizmetlerClient";
+import { hasPermission } from "@/lib/permissions";
 
 export default async function HizmetlerPage() {
   const supabase = await createClient();
@@ -21,7 +22,7 @@ export default async function HizmetlerPage() {
     <HizmetlerClient
       initialServices={(services || []) as Service[]}
       initialCategories={(categories || []) as ServiceCategory[]}
-      canEdit={true}
+      canEdit={hasPermission(member, "edit_services")}
       orgId={member.org_id}
     />
   );

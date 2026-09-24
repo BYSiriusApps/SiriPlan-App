@@ -128,12 +128,17 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
     setLoading(null);
     if (res.ok) {
       const body = await res.json().catch(() => ({}));
+      const receiptAction = {
+        label: t("adisyonLink"),
+        onClick: () => router.push(`/dashboard/randevular/${appt.id}/adisyon`),
+      };
       if (body?.usedPackage && body?.package) {
         toast.success(
-          `Paketten düşüldü — ${body.package.name} · kalan ${body.package.remaining} seans`
+          `Paketten düşüldü — ${body.package.name} · kalan ${body.package.remaining} seans`,
+          { action: receiptAction }
         );
       } else {
-        toast.success(ta("toastCompleted"));
+        toast.success(ta("toastCompleted"), { action: receiptAction });
       }
       router.refresh();
     } else {

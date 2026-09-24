@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { ThemePicker } from "@/components/layout/ThemePicker";
 import { LanguagePicker } from "@/components/layout/LanguagePicker";
 import { LogoutButton } from "@/components/dashboard/LogoutButton";
+import { NotificationSoundToggle } from "@/components/dashboard/NotificationSoundToggle";
 import { GlobalSearch } from "@/components/dashboard/GlobalSearch";
 import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
 import { hasPermission } from "@/lib/permissions";
@@ -27,14 +28,14 @@ const NAV_ITEMS = [
   { href: "/dashboard/takvim",        icon: Calendar,        tKey: "calendar",       minRole: "staff"   },
   { href: "/dashboard/randevular",    icon: BookOpen,        tKey: "appointments",   minRole: "staff"   },
   { href: "/dashboard/bekleme-listesi", icon: ListPlus,      tKey: "waitlistAndApprovals", minRole: "staff"   },
-  { href: "/dashboard/bekleyen-istekler", icon: Inbox,       tKey: "pendingRequests", minRole: "staff", planRequired: "business" },
+  { href: "/dashboard/bekleyen-istekler", icon: Inbox,       tKey: "pendingRequests", minRole: "staff" },
   { href: "/dashboard/musteriler",    icon: Users,           tKey: "customers",      minRole: "staff"   },
   { href: "/dashboard/paketler",      icon: Ticket,          tKey: "packages",       minRole: "staff"   },
-  { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "manager" },
+  { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "staff"   },
   { href: "/dashboard/personel",      icon: UserCog,         tKey: "staff",          minRole: "manager" },
-  { href: "/dashboard/kampanyalar",   icon: Megaphone,       tKey: "campaigns",      badge: "Pro", minRole: "manager" },
+  { href: "/dashboard/kampanyalar",   icon: Megaphone,       tKey: "campaigns",      badge: "Pro", minRole: "staff" },
   { href: "/dashboard/website-ayarlari", icon: Globe,        tKey: "websiteSettings", badge: "Pro", minRole: "manager" },
-  { href: "/dashboard/raporlar",      icon: BarChart3,       tKey: "reports",        minRole: "manager" },
+  { href: "/dashboard/raporlar",      icon: BarChart3,       tKey: "reports",        minRole: "staff"   },
   { href: "/dashboard/gelir-gider",   icon: Wallet,          tKey: "income",         minRole: "manager" },
   { href: "/dashboard/stok",          icon: Package,         tKey: "stock",         minRole: "staff"   },
   { href: "/dashboard/veri-gocu",     icon: Import,          tKey: "dataMigration",  minRole: "manager" },
@@ -71,6 +72,7 @@ interface SidebarProps {
   activeOrgId?: string;
   memberships?: { org_id: string; role: string; org_name: string }[];
   isPlatformAdmin?: boolean;
+  pendingWorkCount?: number;
 }
 
 export function Sidebar({
@@ -82,6 +84,7 @@ export function Sidebar({
   activeOrgId,
   memberships = [],
   isPlatformAdmin = false,
+  pendingWorkCount = 0,
 }: SidebarProps) {
   const pathname = usePathname();
   const t = useTranslations("dashboard");
@@ -101,6 +104,9 @@ export function Sidebar({
     if (item.href === "/dashboard/ayarlar") {
       return hasPermission({ role, permissions_json: permissionsJson }, "manage_settings");
     }
+    if (item.href === "/dashboard/gelir-gider") {
+      return hasPermission({ role, permissions_json: permissionsJson }, "view_financials");
+    }
     return canSee(role, item.minRole) && (!("planRequired" in item) || item.planRequired === plan);
   });
 
@@ -109,15 +115,15 @@ export function Sidebar({
       {/* Logo + org name */}
       <div className="px-5 py-5 border-b border-sidebar-border">
         <Link href="/dashboard" className="flex items-center gap-3 group">
-          {/* Siriplan logo */}
+          {/* SiriPlan logo */}
           <img
             src="/icons/icon-mark.png"
-            alt="Siriplan"
+            alt="SiriPlan"
             className="w-9 h-9 rounded-xl shrink-0 group-hover:scale-105 transition-transform"
             style={{ boxShadow: "0 0 20px color-mix(in oklch, var(--sidebar-primary) 40%, transparent)" }}
           />
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold text-sidebar-foreground/45 uppercase tracking-[0.2em] leading-none mb-1.5">Siriplan</p>
+            <p className="text-[10px] font-semibold text-sidebar-foreground/45 uppercase tracking-[0.2em] leading-none mb-1.5">SiriPlan</p>
             <p className="font-heading text-[15px] font-semibold text-sidebar-foreground truncate leading-none">{orgName}</p>
           </div>
         </Link>
@@ -181,7 +187,11 @@ export function Sidebar({
                 style={{ color: isActive ? "var(--sidebar-primary)" : "inherit" }}
               />
               <span className="flex-1 truncate">{("label" in item && typeof item.label === "string" ? item.label : t(item.tKey))}</span>
-              {item.badge && (
+              {item.href === "/dashboard/bekleyen-istekler" && pendingWorkCount > 0 ? (
+                <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-rose-500 text-white shrink-0">
+                  {pendingWorkCount > 99 ? "99+" : pendingWorkCount}
+                </span>
+              ) : item.badge ? (
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded-md font-semibold"
                   style={{
@@ -192,7 +202,7 @@ export function Sidebar({
                 >
                   {item.badge}
                 </span>
-              )}
+              ) : null}
               {isActive && (
                 <ChevronRight className="h-3 w-3 shrink-0" style={{ color: "var(--sidebar-primary)" }} />
               )}
@@ -215,6 +225,7 @@ export function Sidebar({
                     "قانوني وحقوق النشر"}</span>
           </button>
           <div className="flex items-center gap-1">
+            <NotificationSoundToggle />
             <LanguagePicker />
             <ThemePicker />
           </div>

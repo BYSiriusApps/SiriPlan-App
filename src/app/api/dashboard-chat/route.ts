@@ -28,7 +28,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Randevu durumu butonları:\n" +
       "• Bekliyor — online'dan talep edildi veya yeni oluşturuldu, henüz onaylanmadı.\n" +
       "• Onayla / Onaylandı — randevu kesinleşti, takvime düştü.\n" +
-      "• Tamamlandı — hizmet verildi; bu adımda ödeme yöntemi/bahşiş girilir ve Gelir-Gider'e otomatik işlenir.\n" +
+      "• Tamamlandı — hizmet verildi; bu adımda ödeme yöntemi/bahşiş girilir ve Gelir-Gider'e otomatik işlenir. Bir randevu Tamamlandı olarak işaretlenmediği sürece Gelir-Gider hesaplamalarına hiç dahil edilmez.\n" +
       "• Gelmedi — müşteri randevusuna gelmedi (no-show), müşteri skorunu düşürür.\n" +
       "• İptal Et — randevu iptal edilir, ayarlarınıza göre müşteriye otomatik iptal bildirimi gider.\n" +
       "Durumu, randevu detay sayfasındaki veya liste görünümündeki hızlı işlem butonlarından değiştirebilirsiniz.",
@@ -51,6 +51,15 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Ayarlar → Salon Bilgileri → \"Konum (Google Maps Linki)\" alanına ekleyebilirsiniz. İki yol var:\n" +
       "1. \"Konumumu Kullan\" butonuna basıp tarayıcı konum izni verin — link otomatik doldurulur.\n" +
       "2. Google Maps'te işletmenizi bulup \"Paylaş\" ile linki kopyalayıp buraya yapıştırın.",
+  },
+  {
+    keywords: ["instagram bağlan", "facebook messenger", "meta bağlantı", "instagram otomasyon", "dm otomatik yanıt", "instagram dm"],
+    answer:
+      "Instagram DM ve Facebook Messenger'a gelen mesajlara otomatik AI yanıtı vermek için:\n" +
+      "1. Meta for Developers'ta (developers.facebook.com) \"Business\" tipinde bir uygulama oluşturun, Messenger ve Instagram ürünlerini ekleyin.\n" +
+      "2. Facebook Sayfanızı bağlayın — Instagram hesabınız aynı Sayfaya bağlıysa iki kanal da tek bağlantıyla çalışır.\n" +
+      "3. Sayfa Erişim Belirteci'ni (Page Access Token) ve Sayfa Kimliği'ni (Page ID) kopyalayıp Ayarlar → \"Instagram & Facebook Messenger Bağlantısı\" bölümüne yapıştırın ve kaydedin.\n" +
+      "Bu alanlar boşken gelen DM'lere otomatik yanıt verilmez. Detaylı adımlar için docs/sosyal-medya/meta-otomasyon-kilavuzu.md dosyasına bakabilirsiniz.",
   },
   {
     keywords: ["telegram", "bot", "@siriplan_bot"],
@@ -148,12 +157,19 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["adisyon", "hesap fişi", "fiş yazdır", "fiş bas", "yazdır"],
     answer:
-      "Randevu detay sayfasındaki 'Adisyon' butonuyla, randevuya ait detayları (hizmet, fiyat, bahşiş, toplam tutar ve ödeme yöntemi) gösteren yazdırılabilir fiş açılır. Sağ üstteki 'Yazdır' butonuyla doğrudan termal yazıcıya gönderebilir veya PDF kaydedebilirsiniz.",
+      "Randevu detay sayfasındaki 'Adisyon' butonuyla, randevuya ait detayları (hizmet, fiyat, bahşiş, toplam tutar ve ödeme yöntemi) gösteren yazdırılabilir fiş açılır. Sağ üstteki 'Yazdır' butonuyla doğrudan termal yazıcıya gönderebilir veya PDF kaydedebilirsiniz.\n" +
+      "Adisyona 3 yerden ulaşabilirsiniz: (1) Bir randevuyu 'Tamamlandı' işaretlediğinizde çıkan bildirimdeki 'Adisyon' kısayolundan, (2) Randevular listesindeki tamamlanmış randevu kartının altındaki 'Adisyon' düğmesinden, (3) Müşteri detay sayfasındaki geçmiş randevu satırının yanındaki fiş ikonundan.",
   },
   {
     keywords: ["maaş hesap", "maaş öde", "personel maaş", "komisyon hesap", "taban maaş", "prim hesap", "maaş"],
     answer:
       "Personel → 'Maaş Hesapla' sayfasından seçtiğiniz ay için personelin toplam hak edişini (Taban Maaş + [Yapılan Ciro × Komisyon %] + Bahşişler) görebilirsiniz. 'Gider Olarak Kaydet' butonuyla tek tıkla Gelir-Gider kasasından düşürebilirsiniz.",
+  },
+  {
+    keywords: ["kdv", "vergi oran", "vergi hesap", "katma değer"],
+    answer:
+      "Ayarlar → 'KDV Hesaplama' bölümünden oranınızı girip özelliği açabilirsiniz (yeni işletmelerde artık varsayılan olarak açık gelir). Yasal KDV oranı değiştiğinde aynı ekrandan güncelleyebilirsiniz — sabit bir oran kodda tutulmaz, her işletme kendi oranını kullanır. " +
+      "Açıkken 'Tahmini KDV' kartı hem Gelir-Gider hem de Raporlar sayfasında, o ayki toplam gelirin KDV dahil olduğu varsayılarak hesaplanır ve görüntülenir.",
   },
   {
     keywords: ["kılavuz", "rehber", "kullanım kılavuzu", "nasıl kullanılır", "nasıl yapılır", "video", "sunum"],
@@ -208,7 +224,8 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["gider", "gelir", "kasa"],
     answer:
-      "Gelir-Gider sayfasından randevu gelirlerinin yanı sıra kira, malzeme, fatura gibi manuel kalemleri işleyerek kasa durumunuzu takip edebilirsiniz.",
+      "Gelir-Gider sayfasından randevu gelirlerinin yanı sıra kira, malzeme, fatura gibi manuel kalemleri işleyerek kasa durumunuzu takip edebilirsiniz. " +
+      "Önemli: bir randevunun geliri kasaya yalnızca \"Tamamlandı\" olarak işaretlendiğinde yansır — Bekliyor/Onaylandı durumundaki randevular Gelir-Gider hesaplamalarında yer almaz.",
   },
   {
     keywords: ["excel", "csv", "içe aktar", "dışa aktar", "veri göçü", "import", "export"],

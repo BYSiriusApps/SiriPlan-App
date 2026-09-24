@@ -51,6 +51,7 @@ interface Appointment {
   id: string;
   status: string;
   customer_name: string;
+  customer_id?: string | null;
   appointment_at: string;
   duration_minutes: number;
   staff_id: string;
@@ -106,19 +107,32 @@ interface Positioned {
   appt: Appointment;
   lane: number;
   lanes: number;
+  // Aynı şeritteki bir sonraki randevunun (kenetlenmiş) başlangıç dakikası —
+  // minimum kutu yüksekliği bunun üstüne taşıp görsel olarak çakışıyormuş gibi
+  // görünmesin diye.
+  capMinutes: number | null;
 }
 
-// Aynı gün içinde çakışan randevuları yan yana şeritlere yerleştirir
-function layoutDay(appts: Appointment[]): Positioned[] {
-  const sorted = [...appts].sort(
-    (a, b) => new Date(a.appointment_at).getTime() - new Date(b.appointment_at).getTime()
-  );
+// Aynı gün içinde çakışan randevuları yan yana şeritlere yerleştirir.
+// Şerit ataması gerçek randevu saatleri yerine EKRANDA GÖRÜNEN (grid saatlerine
+// kenetlenmiş, en az minVisualMin yükseklikte) aralığa göre yapılır — aksi halde
+// grid dışında kalan (ör. hatalı/gece yarısı verisi) veya çok kısa randevular
+// aynı pikselde üst üste yığılıp okunaksız hale gelir, halbuki lanes hesabı
+// bunları "çakışmıyor" sanıp tek şeride koyabilirdi.
+function layoutDay(appts: Appointment[], gridStartMin: number, gridEndMin: number, minVisualMin: number): Positioned[] {
+  const minOfDay = (iso: string) => {
+    const d = new Date(iso);
+    return d.getHours() * 60 + d.getMinutes();
+  };
+  const sorted = [...appts].sort((a, b) => minOfDay(a.appointment_at) - minOfDay(b.appointment_at));
   const laneEnds: number[] = [];
   const placed: { appt: Appointment; lane: number; start: number; end: number }[] = [];
 
   for (const appt of sorted) {
-    const start = new Date(appt.appointment_at).getTime();
-    const end = start + appt.duration_minutes * 60_000;
+    const rawStart = minOfDay(appt.appointment_at);
+    const rawEnd = rawStart + appt.duration_minutes;
+    const start = Math.max(rawStart, gridStartMin);
+    const end = Math.max(start + minVisualMin, Math.min(rawEnd, gridEndMin));
     let lane = laneEnds.findIndex((e) => e <= start);
     if (lane === -1) {
       lane = laneEnds.length;
@@ -133,7 +147,10 @@ function layoutDay(appts: Appointment[]): Positioned[] {
   return placed.map((p) => {
     const overlapping = placed.filter((q) => q.start < p.end && q.end > p.start);
     const lanes = Math.max(...overlapping.map((q) => q.lane)) + 1;
-    return { appt: p.appt, lane: p.lane, lanes };
+    const nextInLane = placed
+      .filter((q) => q.lane === p.lane && q.start > p.start)
+      .sort((a, b) => a.start - b.start)[0];
+    return { appt: p.appt, lane: p.lane, lanes, capMinutes: nextInLane ? nextInLane.start : null };
   });
 }
 
@@ -341,14 +358,40 @@ export function UnifiedCalendar({
     return map;
   }, [visibleAppointments]);
 
+  // Ay görünümünde seçili gün — hücreler artık randevu metnini değil sadece
+  // renkli nokta göstergesi taşır; seçilen günün randevuları takvimin ALTINDA
+  // ayrı bir listede gösterilir (mobil uygulama tasarımıyla aynı desen).
+  // Ay değiştirildiğinde (gridDays farklı bir ay olur) seçim, görünürdeyse
+  // bugüne, değilse ayın görünen ilk gününe düşer.
+  const gridDaysKey = gridDays.join(",");
+  const [selectedMonthDay, setSelectedMonthDay] = useState<string>(() =>
+    gridDays.includes(today) ? today : (gridDays[0] ?? today)
+  );
+  useEffect(() => {
+    setSelectedMonthDay((prev) =>
+      gridDays.includes(prev) ? prev : gridDays.includes(today) ? today : (gridDays[0] ?? today)
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridDaysKey]);
+
   async function updateStatus(apptId: string, newStatus: string) {
     setUpdatingId(apptId);
     try {
-      const res = await fetch(`/api/appointments/${apptId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      // "Tamamlandı" için /complete uç noktası kullanılır — düz PATCH yalnızca
+      // status kolonunu değiştirir; müşteri istatistikleri (ziyaret/ciro),
+      // sadakat damgası ve paket seansı düşümü atlanmış olurdu.
+      const res =
+        newStatus === "tamamlandi"
+          ? await fetch(`/api/appointments/${apptId}/complete`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            })
+          : await fetch(`/api/appointments/${apptId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ status: newStatus }),
+            });
       if (res.ok) {
         toast.success(t("statusUpdatedToast", { status: statusLabel(newStatus) }));
         setPopover(null);
@@ -396,6 +439,11 @@ export function UnifiedCalendar({
   }
 
   const gridHeight = hours.length * HOUR_PX;
+  // layoutDay için: grid'in görünen saat aralığı + minimum kutu yüksekliğinin
+  // dakika karşılığı (bkz. apptBlockStyle'daki aynı minimum).
+  const gridStartMin = hours[0] * 60;
+  const gridEndMin = (hours[hours.length - 1] + 1) * 60;
+  const minVisualMin = ((view === "day" ? 32 : 24) / HOUR_PX) * 60;
 
   // ── Sürükle-bırak: randevuyu farklı bir saate (hafta/gün görünümü) veya
   // farklı bir güne (yalnızca hafta görünümü) taşımak için. Personel/lane
@@ -419,9 +467,13 @@ export function UnifiedCalendar({
   // diye burada yakalanır; API'ye ancak kullanıcı onaylayınca istek gider
   // (aksi halde her yanlış sürüklemede WhatsApp mesajı da gidiyordu).
   const [rescheduleConfirm, setRescheduleConfirm] = useState<{ appt: Appointment; origAt: string; newDate: Date } | null>(null);
-  const rescheduleDisplayRef = useRef<{ appt: Appointment; origAt: string; newDate: Date } | null>(null);
-  if (rescheduleConfirm) rescheduleDisplayRef.current = rescheduleConfirm;
-  const rescheduleDisplay = rescheduleConfirm ?? rescheduleDisplayRef.current;
+  // Kapanış animasyonu sırasında da içerik görünsün diye son değer state'te
+  // tutulur — render sırasında koşullu setState, React'in "adjust state
+  // while rendering" deseni (bkz. react.dev/learn/you-might-not-need-an-effect).
+  const [rescheduleDisplay, setRescheduleDisplay] = useState<{ appt: Appointment; origAt: string; newDate: Date } | null>(null);
+  if (rescheduleConfirm && rescheduleConfirm !== rescheduleDisplay) {
+    setRescheduleDisplay(rescheduleConfirm);
+  }
   // Pointer move her piksel hareketinde tetiklenir; setState'i rAF'a
   // sıkıştırmadan tüm takvim ağacı saniyede onlarca kez yeniden render
   // edilip donma hissi yaratıyordu.
@@ -581,22 +633,31 @@ export function UnifiedCalendar({
     </div>
   ) : null;
 
-  function apptBlockStyle(appt: Appointment) {
+  function apptBlockStyle(appt: Appointment, capMinutes?: number | null) {
     const d = new Date(appt.appointment_at);
     const startMin = d.getHours() * 60 + d.getMinutes();
     const rawTop = ((startMin - hours[0] * 60) / 60) * HOUR_PX;
     // Not: yüksekliği gerçek süreden fazla şişirmiyoruz — art arda kısa randevular
     // birbirinin üzerine taşar. Bunun yerine kısa kutularda 2. satır (hizmet) gizlenir.
-    const height = Math.max(view === "day" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
+    let height = Math.max(view === "day" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
+    // Aynı şeritteki bir sonraki randevu bu minimumdan önce başlıyorsa (ör. art arda
+    // 15dk'lık randevular ya da grid dışı/hatalı saatli bir randevu), kutuyu onun
+    // üstüne taşırmayacak şekilde kırp — aksi halde aslında çakışmayan randevular
+    // görsel olarak üst üste binmiş gibi görünür. capMinutes, layoutDay'de zaten
+    // grid saatlerine kenetlenmiş olarak hesaplanır.
+    if (capMinutes != null) {
+      const capPx = ((capMinutes - hours[0] * 60) / 60) * HOUR_PX - rawTop;
+      if (capPx > 0) height = Math.min(height, Math.max(14, capPx - 2));
+    }
     // Grid dışına taşan randevular gizlenmesin — kenara kenetle
     const top = Math.min(Math.max(rawTop, 0), gridHeight - 24);
     return { top, height: Math.min(height, gridHeight - top) };
   }
 
   function renderApptBlock(p: Positioned, opts?: { showStaff?: boolean; dayIndex?: number }) {
-    const { appt, lane, lanes } = p;
+    const { appt, lane, lanes, capMinutes } = p;
     const c = colorOf(appt.staff_id);
-    const { top, height } = apptBlockStyle(appt);
+    const { top, height } = apptBlockStyle(appt, capMinutes);
     const width = 100 / lanes;
     const done = appt.status === "tamamlandi";
     const noShow = appt.status === "gelmedi";
@@ -823,7 +884,7 @@ export function UnifiedCalendar({
               {hourRail}
               {gridDays.map((dayStr, dayIndex) => {
                 const dayAppts = byDay[dayStr] || [];
-                const positioned = layoutDay(dayAppts);
+                const positioned = layoutDay(dayAppts, gridStartMin, gridEndMin, minVisualMin);
                 const isToday = dayStr === today;
                 const closed = orgClosedOn(dayStr);
                 const offNames = offStaffNamesOn(dayStr);
@@ -914,7 +975,7 @@ export function UnifiedCalendar({
                 const c = colorOf(s.id);
                 const dayStr = gridDays[0] || today;
                 const staffAppts = (byDay[dayStr] || []).filter((a) => a.staff_id === s.id);
-                const positioned = layoutDay(staffAppts);
+                const positioned = layoutDay(staffAppts, gridStartMin, gridEndMin, minVisualMin);
                 const isToday = dayStr === today;
                 const offNames = offStaffNamesOn(dayStr);
                 const isOff = offNames.includes(s.full_name);
@@ -968,7 +1029,7 @@ export function UnifiedCalendar({
             {(() => {
               const dayStr = gridDays[0];
               const dayAppts = byDay[dayStr] || [];
-              const positioned = layoutDay(dayAppts);
+              const positioned = layoutDay(dayAppts, gridStartMin, gridEndMin, minVisualMin);
               const isToday = dayStr === today;
               const closed = orgClosedOn(dayStr);
               const offNames = offStaffNamesOn(dayStr);
@@ -1023,7 +1084,13 @@ export function UnifiedCalendar({
         </div>
       )}
 
-      {/* ─── AY GÖRÜNÜMÜ ────────────────────────────────────── */}
+      {/* ─── AY GÖRÜNÜMÜ ──────────────────────────────────────
+          Hücreler artık randevu metni taşımaz (küçük hücrelerde saat/isim
+          üst üste biniyordu) — sadece gün numarası + personel renginde
+          nokta göstergesi. Seçili günün randevuları takvimin ALTINDA ayrı
+          bir listede gösterilir (mobil uygulamadaki takvim ekranıyla aynı
+          desen): müşteri adı müşteri kartına, satırın geneli randevu
+          detayına (hizmet/personel/durum) götürür. */}
       {view === "month" && (
         <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
           <div className="grid grid-cols-7 border-b bg-muted/30">
@@ -1035,62 +1102,106 @@ export function UnifiedCalendar({
           </div>
           <div className="grid grid-cols-7">
             {gridDays.map((dayStr) => {
-              const dayAppts = (byDay[dayStr] || []).sort(
-                (a, b) => a.appointment_at.localeCompare(b.appointment_at)
-              );
+              const dayAppts = byDay[dayStr] || [];
               const isToday = dayStr === today;
+              const isSelected = dayStr === selectedMonthDay;
               const inMonth = dayStr.slice(0, 7) === viewDate.slice(0, 7);
-              const shown = dayAppts.slice(0, 3);
-              const more = dayAppts.length - shown.length;
+              const dots: (typeof STAFF_COLORS)[number][] = [];
+              const seenStaff = new Set<string>();
+              for (const a of dayAppts) {
+                if (seenStaff.has(a.staff_id)) continue;
+                seenStaff.add(a.staff_id);
+                dots.push(colorOf(a.staff_id));
+                if (dots.length >= 4) break;
+              }
               return (
-                <div
+                <button
                   key={dayStr}
+                  type="button"
+                  onClick={() => setSelectedMonthDay(dayStr)}
                   className={cn(
-                    "min-h-[104px] border-b border-r last:border-r-0 p-1.5 space-y-1",
-                    !inMonth && "bg-muted/20 opacity-60"
+                    "min-h-[64px] border-b border-r last:border-r-0 p-1.5 flex flex-col items-center gap-1 hover:bg-accent/40 transition-colors",
+                    !inMonth && "bg-muted/20 opacity-50",
+                    isSelected && "bg-primary/10 ring-1 ring-inset ring-primary/40"
                   )}
                 >
-                  <Link
-                    href={`/dashboard/takvim?view=day&date=${dayStr}`}
+                  <span
                     className={cn(
-                      "inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium hover:bg-accent transition-colors",
-                      isToday && "bg-primary text-primary-foreground font-bold"
+                      "inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium",
+                      isToday && "bg-primary text-primary-foreground font-bold",
+                      !isToday && isSelected && "font-bold text-primary"
                     )}
                   >
                     {Number(dayStr.slice(8, 10))}
-                  </Link>
-                  {shown.map((a) => {
-                    const c = colorOf(a.staff_id);
-                    return (
-                      <button
-                        key={a.id}
-                        onClick={(e) => openPopover(e, a)}
-                        className="w-full text-left rounded px-1 py-0.5 text-[10px] leading-tight truncate cursor-pointer hover:shadow transition-shadow"
-                        style={{
-                          background: a.status === "tamamlandi" ? "rgba(16,185,129,0.18)" : a.status === "gelmedi" ? "rgba(245,158,11,0.22)" : c.soft,
-                          borderLeft: `2px solid ${c.solid}`,
-                        }}
-                      >
-                        <span className="font-semibold" style={{ color: c.solid }}>
-                          {a.status === "tamamlandi" && "✓ "}
-                          {a.status === "gelmedi" && "⚠ "}
-                          {format(new Date(a.appointment_at), "HH:mm")}
-                        </span>{" "}
-                        {a.customer_name}
-                      </button>
-                    );
-                  })}
-                  {more > 0 && (
-                    <Link
-                      href={`/dashboard/takvim?view=day&date=${dayStr}`}
-                      className="block text-[10px] text-primary font-medium hover:underline px-1"
-                    >
-                      {t("moreCount", { count: more })}
-                    </Link>
+                  </span>
+                  {dots.length > 0 && (
+                    <span className="flex items-center gap-0.5">
+                      {dots.map((c, i) => (
+                        <span key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: c.solid }} />
+                      ))}
+                    </span>
                   )}
-                </div>
+                </button>
               );
             })}
+          </div>
+
+          {/* Seçili günün randevu listesi */}
+          <div className="border-t bg-muted/10">
+            <p className="px-3 pt-3 pb-1 text-sm font-semibold capitalize">
+              {format(new Date(selectedMonthDay + "T12:00:00"), "d MMMM", { locale: dateFnsLocale })}
+              {" — "}
+              {t("apptCountLabel", { count: (byDay[selectedMonthDay] || []).length })}
+            </p>
+            {(byDay[selectedMonthDay] || []).length === 0 ? (
+              <p className="px-3 pb-4 text-sm text-muted-foreground">{t("monthDayEmpty")}</p>
+            ) : (
+              <div className="pb-2">
+                {(byDay[selectedMonthDay] || [])
+                  .slice()
+                  .sort((a, b) => a.appointment_at.localeCompare(b.appointment_at))
+                  .map((a) => {
+                    const c = colorOf(a.staff_id);
+                    return (
+                      <div
+                        key={a.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => openPopover(e, a)}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openPopover(e as unknown as React.MouseEvent, a); }}
+                        className="flex items-start gap-3 px-3 py-2.5 border-b last:border-b-0 border-border/50 hover:bg-accent/40 transition-colors cursor-pointer"
+                      >
+                        <span className="text-sm font-semibold shrink-0 w-12 pt-0.5" style={{ color: c.solid }}>
+                          {format(new Date(a.appointment_at), "HH:mm")}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          {a.customer_id ? (
+                            <Link
+                              href={`/dashboard/musteriler/${a.customer_id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="font-semibold text-sm truncate block hover:underline"
+                            >
+                              {a.status === "tamamlandi" && <span className="mr-0.5">✓</span>}
+                              {a.status === "gelmedi" && <span className="mr-0.5">⚠</span>}
+                              {a.customer_name}
+                            </Link>
+                          ) : (
+                            <p className="font-semibold text-sm truncate">
+                              {a.status === "tamamlandi" && <span className="mr-0.5">✓</span>}
+                              {a.status === "gelmedi" && <span className="mr-0.5">⚠</span>}
+                              {a.customer_name}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground truncate">
+                            {a.service?.name}
+                            {staffName(a.staff_id) ? ` · ${staffName(a.staff_id)}` : ""}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, Trash2, AlertTriangle, KeyRound, Globe, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, Trash2, AlertTriangle, KeyRound, Globe, Instagram, type LucideIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -30,6 +30,11 @@ import { HomeButton } from "@/components/dashboard/HomeButton";
 import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
 import { OnboardingTour, OnboardingRestartButton } from "@/components/dashboard/OnboardingTour";
 import { TIMEZONE_OPTIONS } from "@/lib/timezones";
+import {
+  isNotificationSoundMuted,
+  setNotificationSoundMuted,
+  onNotificationSoundMuteChange,
+} from "@/lib/notification-sound";
 import {
   DEFAULT_WA_TEMPLATE,
   DEFAULT_WA_CANCEL_TEMPLATE,
@@ -174,6 +179,10 @@ export default function AyarlarPage() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [locating, setLocating] = useState(false);
+  // "Uygulama İçi Bildirim" kutucuğu — bu cihaza özel localStorage tercihi
+  // (bkz. lib/notification-sound.ts), org kaydına yazılmaz.
+  const [inAppSoundMuted, setInAppSoundMuted] = useState(() => (typeof window !== "undefined" ? isNotificationSoundMuted() : false));
+  useEffect(() => onNotificationSoundMuteChange(setInAppSoundMuted), []);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
@@ -292,6 +301,8 @@ export default function AyarlarPage() {
         sms_sender_id: org.sms_sender_id,
         wa_token: org.wa_token,
         wa_phone_number_id: org.wa_phone_number_id,
+        ig_page_access_token: org.ig_page_access_token,
+        ig_page_id: org.ig_page_id,
         kdv_enabled: org.kdv_enabled ?? false,
         kdv_rate: org.kdv_rate ?? 20,
         has_auto_booking: org.has_auto_booking !== false,
@@ -713,6 +724,21 @@ export default function AyarlarPage() {
         <div>
           <Label>{t("settingsPage.whatsappNumberLabel")}</Label>
           <Input className="mt-1" value={org.whatsapp_number || ""} onChange={(e) => setField("whatsapp_number", e.target.value)} placeholder="+90 5xx xxx xxxx" />
+          {org.whatsapp_number ? (
+            <>
+              <p className="text-[11px] text-muted-foreground mt-1">{t("settingsPage.whatsappNumberNotifyHint")}</p>
+              <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer pt-1.5">
+                <Checkbox
+                  checked={(org.settings_json as Record<string, unknown> | null)?.notify_channel_whatsapp !== false}
+                  onCheckedChange={(c) => {
+                    const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                    setField("settings_json", { ...cur, notify_channel_whatsapp: !!c });
+                  }}
+                />
+                {t("settingsPage.notifyChannelActive")}
+              </label>
+            </>
+          ) : null}
         </div>
         <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50 border border-border">
           <div className="min-w-0">
@@ -739,6 +765,18 @@ export default function AyarlarPage() {
           <p className="text-xs text-muted-foreground">
             {t("settingsPage.telegramHint")}
           </p>
+          {org.telegram_chat_id ? (
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
+              <Checkbox
+                checked={(org.settings_json as Record<string, unknown> | null)?.notify_channel_telegram !== false}
+                onCheckedChange={(c) => {
+                  const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                  setField("settings_json", { ...cur, notify_channel_telegram: !!c });
+                }}
+              />
+              {t("settingsPage.notifyChannelActive")}
+            </label>
+          ) : null}
           <details className="group">
             <summary className="text-xs text-primary cursor-pointer select-none w-fit hover:underline">
               {t("settingsPage.telegramHelpSummary")}
@@ -749,6 +787,19 @@ export default function AyarlarPage() {
               <li>{t("settingsPage.telegramStep3")}</li>
             </ol>
           </details>
+        </div>
+
+        <div className="pt-1 space-y-2 border-t border-border">
+          <Label className="pt-2 block">{t("settingsPage.otherChannelsTitle")}</Label>
+          <p className="text-xs text-muted-foreground">{t("settingsPage.otherChannelsDesc")}</p>
+          <label className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-border text-sm cursor-pointer">
+            <span>{t("settingsPage.inAppChannelLabel")}</span>
+            <Checkbox checked={!inAppSoundMuted} onCheckedChange={(c) => setNotificationSoundMuted(!c)} />
+          </label>
+          <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-dashed border-border text-sm text-muted-foreground">
+            <span>{t("settingsPage.webPushChannelLabel")}</span>
+            <Checkbox checked disabled />
+          </div>
         </div>
       </SectionCard>
 
@@ -950,9 +1001,10 @@ export default function AyarlarPage() {
         description={t("settingsPage.onlineBookingDesc")}
         dataTour="online-booking"
       >
-        {/* Otomatik onay tüm planlarda; varsayılan işaretli
-            (has_auto_booking DB varsayılanı true). Kapatılınca randevular
-            "talep" kuyruğuna düşer ve salona bildirim gider. */}
+        {/* Otomatik onay tüm planlarda kullanılabilir; ilk kayıtta kapalı gelir
+            (has_auto_booking DB varsayılanı false), kullanıcı isterse açar.
+            Kapatıldığında/kapalıyken randevular "talep" kuyruğuna düşer ve
+            salona bildirim gider. */}
         <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
           <Checkbox
             id="has_auto_booking"
@@ -1143,8 +1195,6 @@ export default function AyarlarPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="sicak">randevu_iptali ({t("settingsPage.templateStandard")})</SelectItem>
-                    <SelectItem value="v1">randevu_iptali_1 ({t("settingsPage.templateVariant", { n: "1" })})</SelectItem>
-                    <SelectItem value="v2">randevu_iptali_2 ({t("settingsPage.templateVariant", { n: "2" })})</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
@@ -1325,6 +1375,40 @@ export default function AyarlarPage() {
           <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50 text-xs text-muted-foreground space-y-1">
             <p className="font-medium text-green-700 dark:text-green-400">{t("settingsPage.waHowToTitle")}</p>
             <p>{t("settingsPage.waHowToText")}</p>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Instagram & Facebook Messenger Bağlantısı — gelen DM'lere otomatik AI yanıtı için */}
+      <SectionCard
+        icon={Instagram}
+        iconClassName="text-pink-600"
+        title={t("settingsPage.metaBusinessConnTitle")}
+        description={t("settingsPage.metaBusinessConnDesc")}
+      >
+        <div className="space-y-3">
+          <div>
+            <Label>{t("settingsPage.igAccessTokenLabel")}</Label>
+            <Input
+              type="password"
+              className="mt-1"
+              value={org.ig_page_access_token || ""}
+              onChange={(e) => setField("ig_page_access_token", e.target.value || null)}
+              placeholder="Meta for Developers → Messenger/Instagram → Sayfa Erişim Belirteci"
+            />
+          </div>
+          <div>
+            <Label>{t("settingsPage.igPageIdLabel")}</Label>
+            <Input
+              className="mt-1"
+              value={org.ig_page_id || ""}
+              onChange={(e) => setField("ig_page_id", e.target.value || null)}
+              placeholder={t("settingsPage.igPageIdPlaceholder")}
+            />
+          </div>
+          <div className="p-3 rounded-lg bg-pink-50 dark:bg-pink-950/20 border border-pink-200 dark:border-pink-900/50 text-xs text-muted-foreground space-y-1">
+            <p className="font-medium text-pink-700 dark:text-pink-400">{t("settingsPage.metaHowToTitle")}</p>
+            <p>{t("settingsPage.metaHowToText")}</p>
           </div>
         </div>
       </SectionCard>

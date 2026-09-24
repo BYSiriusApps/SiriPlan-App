@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { hasPermission } from "@/lib/permissions";
 
 export async function GET(
   _req: NextRequest,
@@ -44,6 +45,7 @@ export async function PATCH(
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (!hasPermission(member, "edit_services")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const allowed = [
     "name", "price", "currency", "duration_minutes", "description", "category_tag",
@@ -96,6 +98,7 @@ export async function DELETE(
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  if (!hasPermission(member, "edit_services")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { error } = await supabase
     .from("services")

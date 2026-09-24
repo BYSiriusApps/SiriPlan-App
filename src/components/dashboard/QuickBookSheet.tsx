@@ -774,7 +774,7 @@ export function QuickBookSheet({ preselectedStaffId, preselectedDate, orgId, sta
                             {(c.total_visits ?? 0) > 0 && (
                               <span className="ml-1 flex items-center gap-0.5">
                                 <Star className="h-2.5 w-2.5 text-amber-500" />
-                                {t("visitsCount", { count: c.total_visits })}
+                                {t("visitsCount", { count: c.total_visits ?? 0 })}
                               </span>
                             )}
                           </p>

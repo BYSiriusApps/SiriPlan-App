@@ -23,6 +23,13 @@ const THEMES = [
     swatchColor: "#f43f5e",
   },
   {
+    value: "blue",
+    label: "Klasik Mavi",
+    sectors: "Kurumsal · Danışmanlık · Koçluk",
+    swatch: "bg-blue-600",
+    swatchColor: "#2563eb",
+  },
+  {
     value: "ocean",
     label: "Okyanus Mavisi",
     sectors: "Klinik · Diş · Diyetisyen",

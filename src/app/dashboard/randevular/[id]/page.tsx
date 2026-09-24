@@ -81,7 +81,7 @@ export default async function ApptDetailPage({
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         >
           <Receipt className="h-3.5 w-3.5" />
-          Adisyon
+          {t("adisyonLink")}
         </Link>
         {a.status !== "tamamlandi" && a.status !== "iptal" && a.status !== "gelmedi" && (
           <Link

@@ -63,13 +63,13 @@ export function InstallPwaCard() {
       </div>
       <div className="px-4 py-3.5 space-y-3">
         <p className="text-xs text-muted-foreground -mt-1">
-          App Store / Google Play&apos;e kadar Siriplan&apos;ı ana ekranınıza ekleyip
+          App Store / Google Play&apos;e kadar SiriPlan&apos;ı ana ekranınıza ekleyip
           uygulama gibi tam ekran kullanabilirsiniz. Personelinize de önerin.
         </p>
         {installed ? (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 dark:bg-green-950/20 text-sm text-green-700 dark:text-green-400">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
-            Uygulama ana ekrana eklendi — telefonunuzdaki Siriplan simgesinden açabilirsiniz.
+            Uygulama ana ekrana eklendi — telefonunuzdaki SiriPlan simgesinden açabilirsiniz.
           </div>
         ) : deferredPrompt ? (
           <Button className="w-full gap-2" onClick={handleInstall}>

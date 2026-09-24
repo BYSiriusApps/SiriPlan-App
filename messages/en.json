@@ -11,9 +11,29 @@
     "language": "Language",
     "faq": "FAQ"
   },
+  "chatWidget": {
+    "ariaLabel": "AI Assistant",
+    "title": "SiriPlan AI",
+    "online": "Online",
+    "minimize": "Minimize",
+    "close": "Close",
+    "send": "Send",
+    "footer": "SiriPlan AI · Powered by BY Sirius",
+    "placeholder": "Type your message...",
+    "greeting": "Hi! 👋 I'm the SiriPlan AI assistant.\n\nI can help you with pricing, features, sign-up or support. What would you like to ask?",
+    "errorResponse": "I can't respond right now. Please try again.",
+    "connectionError": "Connection error. You can reach us at info@bysirius.com.",
+    "quickQuestions": {
+      "pricing": "How much does it cost?",
+      "freeTrial": "Is there a free trial?",
+      "sectors": "Which industries is it for?",
+      "howToStart": "How do I get started?"
+    }
+  },
   "hero": {
     "badge": "Trusted by 10+ Sectors",
     "title": "Manage Your Business <highlight>Smartly</highlight>",
+    "intro": "SiriPlan is an AI-powered appointment and business management software that lets service businesses — hairdressers, barbers, beauty salons, spas and clinics — manage bookings, staff, customers and payments from a single dashboard.",
     "subtitle": "Combine appointment, staff, customer and revenue management in one platform. Auto-reply via WhatsApp/Instagram with AI assistant.",
     "subtitleHighlight": "Tailored for every sector — unlimited appointments, zero complexity.",
     "cta": "Try Free for 14 Days",
@@ -77,11 +97,14 @@
     "mostPopular": "Most Popular",
     "startTrial": "Start Free Trial",
     "buyNow": "Buy Now",
+    "buyNowWithPrice": "{price} – Buy Now",
     "contactUs": "Get Quote / Contact Us",
     "contactForPrice": "Custom Quote",
     "contactUsSub": "Tailored packages and pricing for your business",
     "bottomNote": "14-day free trial for Starter & Pro · No credit card required · Cancel anytime",
+    "foreignFeeNote": "Payment is processed through our merchant account registered outside Turkey; your bank may add a foreign transaction fee, typically around 1-3% of the charge. Our prices already account for this fee — it goes to your bank, not to SiriPlan.",
     "annualLabel": "or {annual}/mo · {total}/yr ({save})",
+    "annualBilledNote": "Billed as {total} once a year · {monthly}/mo if paid monthly",
     "starter": {
       "name": "Starter",
       "desc": "Perfect starting point for small salons",
@@ -89,7 +112,8 @@
         "1 location, 8 staff",
         "Unlimited appointments",
         "Personal booking link (siriplan.com/r/your-salon)",
-        "Stock & inventory management",
+        "Stock & inventory management (barcode sales)",
+        "Package / session tracking",
         "Income & expense reports & VAT calculation",
         "WhatsApp reminders",
         "Loyalty card system",
@@ -151,10 +175,24 @@
       "name": "Additional Branch Package",
       "desc": "Add extra branches to Starter/Pro",
       "price": "$29/branch/mo"
+    },
+    "request": {
+      "cta": "Get Info",
+      "title": "Request info about {name}",
+      "subtitle": "Fill out the form and our team will get back to you.",
+      "nameLabel": "Full Name",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone",
+      "messageLabel": "Message",
+      "optional": "(optional)",
+      "submit": "Send Request",
+      "submitLoading": "Sending...",
+      "successToast": "Your request has been received — we'll get back to you shortly.",
+      "errorToast": "Couldn't send your request. Please try again."
     }
   },
   "pricingPage": {
-    "metaDescription": "Siriplan pricing — Starter $29/mo, Pro $39/mo, Business $99/mo. 14-day free trial, no credit card required.",
+    "metaDescription": "SiriPlan pricing — Starter $29/mo, Pro $39/mo, Business $99/mo. 14-day free trial, no credit card required.",
     "heroBadge": "14-Day Free Trial — No Credit Card Required",
     "heroTitle": "Transparent Pricing,",
     "heroTitleHighlight": "No Surprises",
@@ -178,7 +216,7 @@
     "ctaSecondary": "Request a Demo"
   },
   "featuresPage": {
-    "metaDescription": "All of Siriplan's features — AI booking, customer management, campaign module, revenue analytics, and much more.",
+    "metaDescription": "All of SiriPlan's features — AI booking, customer management, campaign module, revenue analytics, and much more.",
     "heroBadge": "30+ Features — One Platform",
     "heroTitle": "Everything to Grow",
     "heroTitleHighlight": "Your Salon, Right Here",
@@ -207,6 +245,10 @@
           "inventory": {
             "title": "Inventory Management",
             "desc": "Track product stock, low-stock alerts, and transactions. Ready-made templates for hair, barber, beauty, and dental clinics."
+          },
+          "barcodeSale": {
+            "title": "Barcode Retail Sale",
+            "desc": "Scan a product's barcode with the camera, complete the sale in seconds, and stock updates automatically."
           },
           "qr": {
             "title": "QR Code Booking",
@@ -249,6 +291,10 @@
           "loyalty": {
             "title": "Loyalty Card",
             "desc": "Customizable reward system like 10 appointments = 1 free service. Increases customer retention."
+          },
+          "packages": {
+            "title": "Package / Session Tracking",
+            "desc": "Track prepaid session packages per customer — the remaining session count decreases automatically as each appointment is completed."
           },
           "campaigns": {
             "title": "Campaign Module",
@@ -323,7 +369,7 @@
     }
   },
   "integrationsPage": {
-    "metaDescription": "Siriplan integrations — WhatsApp, Instagram, Google Calendar, Stripe, and more.",
+    "metaDescription": "SiriPlan integrations — WhatsApp, Instagram, Google Calendar, Stripe, and more.",
     "heroEyebrow": "Integrations",
     "heroTitle": "All Your Tools",
     "heroTitleHighlight": "In One Platform",
@@ -385,13 +431,13 @@
     "ctaButton": "Start Free"
   },
   "aboutPage": {
-    "metaDescription": "Learn about BY Sirius Group Ai & Technology Co Ltd. and Siriplan.",
+    "metaDescription": "Learn about BY Sirius Group Ai & Technology Co Ltd. and SiriPlan.",
     "heroTitle": "Taking Your Business",
     "heroTitleHighlight": "Into the Future, with Technology",
-    "heroSubtitle": "Siriplan is an AI-powered appointment and business management platform developed under <strong>BY Sirius Group Ai & Technology Co Ltd.</strong>, serving more than 10 industries.",
+    "heroSubtitle": "SiriPlan is an AI-powered appointment and business management platform developed under <strong>BY Sirius Group Ai & Technology Co Ltd.</strong>, serving more than 10 industries.",
     "aboutTitle": "Who Is BY Sirius Group?",
     "aboutP1": "<strong>BY Sirius Group Ai & Technology Co Ltd.</strong> is a technology company operating in artificial intelligence, SaaS solutions, and digital transformation. Since our founding, we have been building innovative products to make businesses' digitalization journey easier.",
-    "aboutP2": "As BY Sirius Group Ai & Technology Co Ltd.'s flagship product, Siriplan provides appointment management and operational efficiency for a wide range of industries — from hair salons to clinics, barbershops to spas.",
+    "aboutP2": "As BY Sirius Group Ai & Technology Co Ltd.'s flagship product, SiriPlan provides appointment management and operational efficiency for a wide range of industries — from hair salons to clinics, barbershops to spas.",
     "websiteButton": "bysirius.com",
     "stats": {
       "sectors": "Industries Supported",
@@ -423,7 +469,7 @@
     "ctaContact": "Contact Us"
   },
   "contactPage": {
-    "metaDescription": "Get in touch with the Siriplan team. Let us answer your questions and find the best solution for you together.",
+    "metaDescription": "Get in touch with the SiriPlan team. Let us answer your questions and find the best solution for you together.",
     "heroEyebrow": "Contact",
     "heroTitle": "How Can We",
     "heroTitleHighlight": "Help You?",
@@ -438,7 +484,7 @@
       },
       "address": {
         "label": "Address",
-        "value": "BY Sirius Group Ai & Technology Co Ltd., Turkey"
+        "value": "United Kingdom (Registered Office)\nTurkey (Operations Office)"
       },
       "hours": {
         "label": "Business Hours",
@@ -471,7 +517,7 @@
     "bySirius": "BY Sirius Group"
   },
   "faqPage": {
-    "metaDescription": "All the frequently asked questions and answers about Siriplan. Booking, pricing, technical support, and more.",
+    "metaDescription": "All the frequently asked questions and answers about SiriPlan. Booking, pricing, technical support, and more.",
     "heroEyebrow": "FAQ",
     "heroTitle": "Frequently Asked",
     "heroTitleHighlight": "Questions",
@@ -481,8 +527,8 @@
         "title": "General",
         "items": {
           "q1": {
-            "q": "What is Siriplan?",
-            "a": "Siriplan is an AI-powered appointment and business management platform built for hair salons, barbershops, beauty salons, spas, clinics, and more. It's developed by BY Sirius Group Ai & Technology Co Ltd."
+            "q": "What is SiriPlan?",
+            "a": "SiriPlan is an AI-powered appointment and business management platform built for hair salons, barbershops, beauty salons, spas, clinics, and more. It's developed by BY Sirius Group Ai & Technology Co Ltd."
           },
           "q2": {
             "q": "Which industries does it serve?",
@@ -645,12 +691,12 @@
     "applicationP2": "Your requests will be finalized within 30 days at the latest, after identity verification."
   },
   "privacyPage": {
-    "metaDescription": "Siriplan privacy policy — learn how we process your personal data.",
+    "metaDescription": "SiriPlan privacy policy — learn how we process your personal data.",
     "pageTitle": "Privacy Policy",
     "lastUpdated": "Last updated: August 2026",
     "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
     "s1Title": "1. Data Controller",
-    "s1P1": "This privacy policy applies to the <strong>Siriplan</strong> platform operated by <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (the \"Company\", \"we\", \"us\"). The Company acts as the data controller under Law No. 6698 on the Protection of Personal Data (KVKK).",
+    "s1P1": "This privacy policy applies to the <strong>SiriPlan</strong> platform operated by <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (the \"Company\", \"we\", \"us\"). The Company acts as the data controller under Law No. 6698 on the Protection of Personal Data (KVKK).",
     "s1P2": "<strong>Website:</strong> bysirius.com | <strong>Email:</strong> privacy@bysirius.com",
     "s2Title": "2. Personal Data We Collect",
     "s2Intro": "The following data may be processed while using the platform:",
@@ -689,14 +735,14 @@
     "s9Title": "8. Policy Changes",
     "s9P": "Changes to this policy will be announced through the platform. Continuing to use the platform after changes take effect means you accept the updated policy.",
     "s10Title": "9. International Users and Applicable Provisions",
-    "s10P": "Siriplan is operated by BY Sirius Group Ai & Technology Co Ltd. The personal data of users accessing from outside Türkiye is also processed for the purposes and by the methods described in this policy. If the data protection law of your country grants you additional rights, you may exercise them by contacting privacy@bysirius.com; requests are assessed within the time and scope required by applicable law."
+    "s10P": "SiriPlan is operated by BY Sirius Group Ai & Technology Co Ltd. The personal data of users accessing from outside Türkiye is also processed for the purposes and by the methods described in this policy. If the data protection law of your country grants you additional rights, you may exercise them by contacting privacy@bysirius.com; requests are assessed within the time and scope required by applicable law."
   },
   "accountDeletionPage": {
-    "metaDescription": "Learn how to delete your Siriplan account and personal data.",
+    "metaDescription": "Learn how to delete your SiriPlan account and personal data.",
     "pageTitle": "Account & Data Deletion Request",
     "lastUpdated": "Last updated: August 2026",
-    "appInfo": "<strong>App:</strong> Siriplan (com.siriplan.app) — <strong>Developer:</strong> BY Sirius Group Ai & Technology Co Ltd.",
-    "intro": "This page explains how to permanently delete your Siriplan account and the personal data linked to it. You do not need to sign in to view this page or submit a request.",
+    "appInfo": "<strong>App:</strong> SiriPlan (com.siriplan.app) — <strong>Developer:</strong> BY Sirius Group Ai & Technology Co Ltd.",
+    "intro": "This page explains how to permanently delete your SiriPlan account and the personal data linked to it. You do not need to sign in to view this page or submit a request.",
     "inAppTitle": "Option 1 — From within the app (instant)",
     "inAppP": "Sign in with your business owner account:",
     "inAppSteps": [
@@ -723,14 +769,14 @@
     "contactNote": "Questions: <strong>privacy@bysirius.com</strong>"
   },
   "termsPage": {
-    "metaDescription": "Siriplan terms of service and terms of use.",
+    "metaDescription": "SiriPlan terms of service and terms of use.",
     "pageTitle": "Terms of Service",
     "lastUpdated": "Last updated: August 2026",
     "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
     "s1Title": "1. Parties and Scope",
-    "s1P": "These Terms of Service govern the legal relationship between <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Siriplan\", \"we\") and the individuals and businesses using the platform (the \"User\"). By using the platform, you are deemed to have accepted these terms.",
+    "s1P": "These Terms of Service govern the legal relationship between <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"SiriPlan\", \"we\") and the individuals and businesses using the platform (the \"User\"). By using the platform, you are deemed to have accepted these terms.",
     "s2Title": "2. Service Description",
-    "s2P": "Siriplan is a SaaS (Software as a Service) platform offering business management tools such as appointment management, customer tracking, staff management, a campaign module, and revenue reporting. Platform access is provided within the scope of the selected subscription plan.",
+    "s2P": "SiriPlan is a SaaS (Software as a Service) platform offering business management tools such as appointment management, customer tracking, staff management, a campaign module, and revenue reporting. Platform access is provided within the scope of the selected subscription plan.",
     "s3Title": "3. User Obligations",
     "s3Items": [
       "You are responsible for ensuring that only authorized individuals access the platform.",
@@ -759,12 +805,12 @@
     "s11P": "AI-assisted features on the platform (assistant, text and suggestion generation, etc.) are produced automatically; they are not guaranteed to be accurate, complete or current and must be reviewed by you before use. The Company is not responsible for decisions made in reliance on these outputs. Regularly exporting your data and keeping your own backup is your responsibility. The Company is not liable for delay or non-performance caused by events beyond its reasonable control (force majeure, including infrastructure provider failures, cyber-attacks, changes in law, natural disasters, power or communications outages)."
   },
   "cookiesPage": {
-    "metaDescription": "Siriplan cookie policy — learn how cookies are used.",
+    "metaDescription": "SiriPlan cookie policy — learn how cookies are used.",
     "pageTitle": "Cookie Policy",
     "lastUpdated": "Last updated: August 2026",
     "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
     "s1Title": "1. What Is a Cookie?",
-    "s1P": "Cookies are small text files placed on your browser by websites. The Siriplan platform uses cookies to provide a better user experience and improve service quality.",
+    "s1P": "Cookies are small text files placed on your browser by websites. The SiriPlan platform uses cookies to provide a better user experience and improve service quality.",
     "s2Title": "2. Types of Cookies We Use",
     "s2Necessary": {
       "title": "Necessary Cookies",
@@ -792,9 +838,9 @@
     "bannerNote": "On your first visit we ask for your consent for analytics cookies; analytics cookies are loaded only if you consent. You can change this preference at any time via the \"Cookie settings\" link in the page footer."
   },
   "demoPage": {
-    "metaDescription": "Discover all of Siriplan's features with a live demo.",
+    "metaDescription": "Discover all of SiriPlan's features with a live demo.",
     "heroBadge": "Live Demo",
-    "heroTitle": "Discover Siriplan",
+    "heroTitle": "Discover SiriPlan",
     "heroSubtitle": "Test all the features in your own salon with a 14-day free trial. No credit card required.",
     "videoTitle": "Demo Video",
     "videoComingSoon": "Coming soon",
@@ -843,6 +889,133 @@
     "eyebrow": "Brow & Lash",
     "petGrooming": "Pet Grooming"
   },
+  "blogPage": {
+    "metaTitle": "Blog",
+    "metaDescription": "SiriPlan blog — salon management, digital transformation and industry news.",
+    "badge": "SiriPlan Blog",
+    "heroTitleLine": "Expert Advice on",
+    "heroTitleHighlight": "Salon Management",
+    "heroSubtitle": "Digital transformation, customer management, revenue-boosting tactics and industry news.",
+    "readMore": "Read",
+    "readTimeSuffix": "read",
+    "newsletterText": "Subscribe to our newsletter for more content.",
+    "ctaButton": "Try Free — 14 Days",
+    "backToBlog": "Back to Blog",
+    "postCtaTitle": "Try Free for 14 Days",
+    "postCtaSubtitle": "No credit card required. Your data stays safe.",
+    "postCtaButton": "Start Free",
+    "relatedPostsTitle": "Related Posts"
+  },
+  "categoryPage": {
+    "solutionBadge": "{title} Solution",
+    "featuresTitle": "Features Built for {title} Businesses",
+    "platformAdvantagesTitle": "Platform Advantages",
+    "platformFeatures": {
+      "channels": { "title": "Multi-Channel Booking", "desc": "Web, WhatsApp, Instagram, QR" },
+      "ai": { "title": "AI Assistant", "desc": "24/7 automatic replies" },
+      "customerScore": { "title": "Customer Score", "desc": "Loyalty program" },
+      "revenue": { "title": "Revenue Analytics", "desc": "Real-time reports" },
+      "gamification": { "title": "Gamification", "desc": "Employee of the Week" },
+      "kvkk": { "title": "Data Protection Compliant", "desc": "Secure data storage" },
+      "migration": { "title": "Easy Migration", "desc": "Import your existing data" },
+      "uptime": { "title": "99.9% Uptime", "desc": "Uninterrupted operation" }
+    },
+    "tryFree": "Try Free for 14 Days",
+    "watchDemo": "Watch Demo",
+    "ctaTitle": "Ready to Grow Your {title} Business?",
+    "ctaSubtitle": "Try it free for 14 days. No credit card required.",
+    "ctaButton": "Create Free Account",
+    "metaTitleSuffix": "Appointment System",
+    "sectors": {
+      "kuafor": {
+        "title": "Hair Salon",
+        "headline": "Smart Appointment System for Your Hair Salon",
+        "desc": "Manage haircut, coloring, treatment and styling appointments from one screen. Automatic WhatsApp reminders, customer loyalty program and revenue tracking.",
+        "features": ["Multi-staff appointment tracking", "Service-based duration management", "WhatsApp & Instagram automation", "Loyalty points system", "Staff commission reports", "Deposit collection"],
+        "testimonialText": "After switching to SiriPlan, our no-show rate dropped by 70%. Thanks to WhatsApp reminders, every appointment slot is fully booked.",
+        "keywords": ["hair salon booking system", "hair salon software", "online hair salon appointment"]
+      },
+      "berber": {
+        "title": "Barbershop",
+        "headline": "Appointment & Management Software for Your Barbershop",
+        "desc": "Easily manage haircut, beard trim and grooming appointments. Customer history, personal preferences and a fast checkout system.",
+        "features": ["Quick appointment creation", "Customer preference notes", "Self-service booking via QR code", "Daily revenue summary", "SMS & WhatsApp reminders", "Staff work-hour tracking"],
+        "testimonialText": "The Employee of the Week system really motivated my staff. Revenue tracking and staff commission reports are now effortless.",
+        "keywords": ["barbershop booking system", "barbershop software", "online barbershop appointment"]
+      },
+      "guzellik": {
+        "title": "Beauty Salon",
+        "headline": "The New Standard in Beauty Salon Management",
+        "desc": "Manage skincare, makeup, laser and hair removal services on one platform. Customer profiles, product tracking and a campaign module.",
+        "features": ["Service & package sales", "Product inventory tracking", "Customer history and notes", "Instagram DM automation", "Bulk campaign sending", "VAT-inclusive revenue reports"],
+        "keywords": ["beauty salon booking system", "beauty salon software"]
+      },
+      "spa": {
+        "title": "Spa & Massage",
+        "headline": "Professional Appointment Management for Your Spa Center",
+        "desc": "Manage massage, sauna, hammam, shower and package programs. Cabin/room-based scheduling, staff availability and a deposit system.",
+        "features": ["Cabin & room-based booking", "Package program sales", "Automatic reminders", "Customer satisfaction score", "Waiting list", "Revenue & occupancy reports"],
+        "testimonialText": "Managing 3 branches is now possible from a single screen. Our occupancy rate rose by 40%.",
+        "keywords": ["spa booking system", "massage salon software"]
+      },
+      "nail": {
+        "title": "Nail Salon",
+        "headline": "Smart Appointment System for Your Nail Salon",
+        "desc": "Manage manicure, pedicure, gel, acrylic and nail extension appointments. Block booking for long services and returning-customer tracking.",
+        "features": ["Duration-based block booking", "Returning-customer reminders", "Before/after photo notes", "Loyalty card system", "Online deposits", "Capacity-based slot management"],
+        "keywords": ["nail salon booking system", "nail salon software"]
+      },
+      "estetik": {
+        "title": "Aesthetic Clinic",
+        "headline": "Appointment Management for Aesthetic & Beauty Clinics",
+        "desc": "Manage Botox, filler, laser hair removal, mesotherapy and skincare appointments with compliant data handling.",
+        "features": ["Patient card & treatment history", "Compliant data storage", "Online consent form", "Doctor availability calendar", "Follow-up appointment reminders", "Deposit & installment payments"],
+        "keywords": ["aesthetic clinic booking system", "clinic management software"]
+      },
+      "makyaj": {
+        "title": "Makeup Studio",
+        "headline": "Appointment & Customer Management for Your Makeup Studio",
+        "desc": "Easily schedule bridal makeup, photoshoot, special-occasion and everyday makeup appointments.",
+        "features": ["Event-based booking", "Customer preference profile", "Deposit & advance payment system", "Bridal appointment package", "Instagram integration", "Photo notes"],
+        "keywords": ["makeup studio booking system", "makeup artist booking software"]
+      },
+      "tattoo": {
+        "title": "Tattoo Studio",
+        "headline": "Professional Appointment System for Your Tattoo Studio",
+        "desc": "Manage tattoo, piercing and laser removal session appointments. Design approval process, deposits and multi-session project tracking.",
+        "features": ["Multi-session project booking", "Deposit & balance tracking", "Design notes & photos", "Customer consent form", "Tattoo artist calendar", "WhatsApp session reminders"],
+        "keywords": ["tattoo studio booking system", "tattoo artist booking software"]
+      },
+      "diyetisyen": {
+        "title": "Dietitian",
+        "headline": "Appointment & Client Management for Dietitian Clinics",
+        "desc": "Manage nutrition consulting, follow-up sessions and online consultation appointments. Client profiles and progress tracking.",
+        "features": ["Online & in-person sessions", "Client progress profile", "Recurring weekly appointments", "Email & WhatsApp reminders", "Payment & package management", "Appointment history"],
+        "keywords": ["dietitian booking system", "nutrition consultant software"]
+      },
+      "kas": {
+        "title": "Brow & Lash",
+        "headline": "Appointment System for Your Brow & Lash Studio",
+        "desc": "Manage brow design, microblading, lash extension and lamination appointments. Session-duration and occupancy optimization.",
+        "features": ["Duration-based booking", "Returning-customer reminders", "Color & style notes", "Customer photo gallery", "Online deposits", "Loyalty program"],
+        "keywords": ["brow lash booking system", "lash studio software"]
+      },
+      "dis-klinigi": {
+        "title": "Dental Clinic",
+        "headline": "Smart Appointment Management for Your Dental Clinic",
+        "desc": "Manage exams, check-ups and treatment appointments from one system. Speed up your clinic workflow with patient reminders, doctor-based calendars and a waitlist.",
+        "features": ["Doctor-based appointment calendar", "Patient reminders (SMS/WhatsApp)", "Treatment vs. check-up appointment types", "Waitlist", "Patient history and notes", "Multi-branch clinic support"],
+        "keywords": ["dental clinic appointment system", "dentist scheduling software"]
+      },
+      "petkuafor": {
+        "title": "Pet Grooming",
+        "headline": "Easy Appointment System for Your Pet Grooming Salon",
+        "desc": "Manage haircuts, baths and grooming appointments from one calendar. Send automatic reminders to pet owners and track staff availability.",
+        "features": ["Service-based calendar (haircut, bath, nail trimming)", "Automatic reminders (SMS/WhatsApp)", "Staff availability tracking", "Customer & pet records", "Waitlist", "Loyalty program"],
+        "keywords": ["pet grooming appointment system", "pet salon booking software"]
+      }
+    }
+  },
   "testimonials": {
     "title": "What Businesses Say",
     "subtitle": "Experiences from salon owners in Turkey and worldwide"
@@ -879,9 +1052,11 @@
     "whatsappSupport": "WhatsApp Support",
     "security": "Security",
     "cookieSettings": "Cookie settings",
-    "companyReg": "Company registered in England and Wales · Companies House No. 17142392"
+    "companyReg": "Company registered in England and Wales · Companies House No. 17142392",
+    "ipCopyright": "Intellectual Property & AI Copyright"
   },
   "home": {
+    "breadcrumbLabel": "Home",
     "trust": {
       "ssl": "SSL Encrypted",
       "uptime": "99.9% Uptime Guarantee",
@@ -929,7 +1104,70 @@
     "businessType": "Business Type",
     "selectPlan": "Select Plan",
     "createAccount": "Create Account",
-    "trialNote": "14 days free, no credit card required"
+    "trialNote": "14 days free, no credit card required",
+    "registerPage": {
+      "title": "Start Your 14-Day Free Trial",
+      "subtitle": "No credit card required • Start instantly",
+      "businessTypeLabel": "Business Type",
+      "businessTypes": {
+        "kuafor": "💇 Hair Salon",
+        "berber": "✂️ Barbershop",
+        "guzellik": "💄 Beauty Center",
+        "spa": "🧖 Spa & Massage",
+        "nail": "💅 Nail Salon",
+        "estetik": "✨ Aesthetic Clinic",
+        "makyaj": "🎨 Makeup Studio",
+        "tattoo": "🖋️ Tattoo Studio",
+        "diyetisyen": "🥗 Dietitian",
+        "kas_kirpik": "👁️ Brow & Lash Studio",
+        "pet_kuafor": "🐾 Pet Grooming"
+      },
+      "salonNameLabel": "Salon / Business Name",
+      "salonNamePlaceholder": "Your Salon Name",
+      "taxNumberLabel": "Tax ID / National ID",
+      "optional": "(optional)",
+      "taxNumberPlaceholder": "Tax No (10 digits) or National ID (11 digits)",
+      "taxNumberHelp": "Used for invoicing — you can also add it later from Settings.",
+      "taxNumberError": "Tax ID must be 10 digits, National ID must be 11 digits.",
+      "fullNameLabel": "Your Full Name",
+      "fullNamePlaceholder": "Full Name",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "emailError": "Enter a valid email address (e.g. you@example.com)",
+      "phoneLabel": "Phone",
+      "countryCodeTitle": "Country code",
+      "phonePlaceholder": "5xx xxx xx xx",
+      "phoneErrorRequired": "Phone number is required.",
+      "phoneErrorInvalidTr": "Enter a valid mobile number (e.g. 532 123 45 67)",
+      "phoneErrorInvalid": "Enter a valid phone number.",
+      "timezoneLabel": "Time Zone",
+      "timezoneHelp": "Your appointments are calculated based on this time zone — you can change it anytime from Settings.",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "salonNameRequired": "Business name is required.",
+      "kvkkLabel": "I have read and accept the <link>KVKK Data Protection Notice</link> regarding the processing of my personal data.",
+      "privacyLabel": "I have read and accept the <privacyLink>Privacy Policy</privacyLink> and <termsLink>Terms of Service</termsLink>.",
+      "marketingLabel": "I want to receive campaign, announcement and special offer updates from SiriPlan via email / SMS.",
+      "consentRequired": "You must check the required consents to continue.",
+      "consentRequiredToast": "You must check the required consents to continue.",
+      "submitLoading": "Creating your account...",
+      "submit": "Create Free Account",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "loginLinkCta": "Log In",
+      "registrationFailed": "Registration failed. Please try again.",
+      "signInFailed": "Account created but sign-in failed: {message}",
+      "genericError": "Something went wrong. Please try again.",
+      "successToast": "Your account has been created!",
+      "successTitle": "Your account has been created!",
+      "successDesc": "Before going to your dashboard, you can add SiriPlan to your home screen — it opens like an app with a single tap.",
+      "goToPanel": "Go to Dashboard",
+      "titlePurchase": "Create Your Account to Checkout",
+      "subtitlePurchase": "You'll be redirected to secure payment after signup",
+      "submitPurchase": "Continue to Payment",
+      "checkoutFailed": "Couldn't open the payment page. You can try again from your dashboard."
+    }
   },
   "dashboard": {
     "tour": {
@@ -986,7 +1224,30 @@
     "dataMigrationPage": {
       "eyebrow": "Data Management",
       "title": "Data Migration",
-      "subtitle": "Import your data or download it securely"
+      "subtitle": "Import your data or download it securely",
+      "downloadTitle": "Download My Data",
+      "downloadDesc": "All your data belongs to you. Download it anytime.",
+      "excelInfo": "Excel: includes customers, services, staff and appointments on separate sheets. PDF: save via browser printing.",
+      "importTitle": "Import Data",
+      "importDesc": "Transfer your customer and appointment data from another application",
+      "selectSource": "Select source:",
+      "dragDrop": "Select CSV, Excel or JSON file",
+      "dragDropSub": "or drag and drop",
+      "importing": "Importing...",
+      "migrateTitle": "Do you want to switch from a competitor app?",
+      "step1": "Select source above",
+      "step2": "Upload your CSV, Excel or JSON file",
+      "step3": "Your data is imported automatically",
+      "step4": "Visit and spending history is preserved",
+      "jsonFullData": "Full Data",
+      "csvCustomers": "Customers",
+      "pdfPrint": "Print",
+      "sourceBookingApp": "Booking App",
+      "sourceOtherSoftware": "Other Software",
+      "noteLabel": "Note",
+      "noteSalonappy": "Export data as CSV from your booking program: Settings → Export Data",
+      "noteArvengo": "Export from your current software: Panel → Reports → Download Excel or CSV",
+      "noteExcel": "Column headers: Full Name, Phone (required) · Email, Birth Date, Notes, Total Visits, Total Spend, Last Visit (optional). CSV, Excel, and JSON are supported."
     },
     "subscriptionPage": {
       "eyebrow": "Plan & Billing",
@@ -1001,6 +1262,8 @@
       "statusPastDue": "Payment Pending",
       "statusCancelled": "Cancelled",
       "planSuffix": "{planName} Plan",
+      "trialPlanName": "Trial",
+      "proFeaturesActiveBadge": "Pro features active",
       "trialEnds": "Trial ends on {date}",
       "staffLabel": "Staff",
       "appointmentsLabel": "Appointments (this month)",
@@ -1009,8 +1272,21 @@
       "appStoreNote": "Your account plan and usage limits are shown above.",
       "compareAndStart": "Compare Plans & Start Subscription",
       "upgradeToPro": "Upgrade to Pro",
+      "changeToPlan": "Switch to {plan}",
       "manageBilling": "Manage Billing & Payment Method",
-      "trialBottomNote": "All Pro features are free during the trial period — no credit card required. You can compare Starter and Pro before the trial ends and continue with the plan that suits you."
+      "trialBottomNote": "All Pro features are free during the trial period — no credit card required. You can compare Starter and Pro before the trial ends and continue with the plan that suits you.",
+      "cancelSubscription": "Cancel Subscription",
+      "cancelConfirmTitle": "Are you sure you want to cancel your subscription?",
+      "cancelConfirmDescription": "Your subscription stays active until the end of your current billing period, and your card won't be charged again. Once the period ends, your account moves to the Trial plan.",
+      "cancelConfirmButton": "Yes, Cancel",
+      "cancelDismissButton": "Never Mind",
+      "cancelLoading": "Cancelling...",
+      "cancelSuccessToast": "Your subscription has been cancelled.",
+      "cancelErrorToast": "Cancellation failed. Please try again or contact support.",
+      "cancelScheduledNote": "Your subscription stays active until {date}, then it won't renew.",
+      "cancelUndo": "Undo Cancellation",
+      "cancelUndoLoading": "Undoing...",
+      "cancelUndoSuccessToast": "Cancellation undone — your subscription will continue as normal."
     },
     "reportsPage": {
       "eyebrow": "Analytics",
@@ -1034,7 +1310,8 @@
       "topStaff": "Top Revenue (Staff) This Month",
       "monthlyRevenue": "This Month Revenue",
       "noShowRate": "No-Show Rate",
-      "totalTransactions": "Total Transactions"
+      "totalTransactions": "Total Transactions",
+      "estimatedVat": "Estimated VAT"
     },
     "websiteSettingsPage": {
       "eyebrow": "Website",
@@ -1201,6 +1478,8 @@
       "deleteCustomerAria": "Delete {name}",
       "marketingAcceptedTitle": "Marketing consent given",
       "marketingMissingTitle": "No marketing consent",
+      "kvkkAcceptedTitle": "Data privacy (KVKK) consent given",
+      "kvkkMissingTitle": "No data privacy (KVKK) consent",
       "visit": "Visits",
       "spend": "Spending",
       "score": "Points",
@@ -1214,6 +1493,15 @@
     "pendingRequestsPage": {
       "sourceLabel": "WhatsApp / Instagram",
       "subtitle": "Appointment requests received via WhatsApp or Instagram that are awaiting your manual approval."
+    },
+    "overdueAppointments": {
+      "title": "Unresolved Appointments",
+      "subtitle": "Appointments whose time has passed but are still marked \"Approved\". Review them and mark as completed, no-show, or cancelled.",
+      "markAllBtn": "Mark All as Completed",
+      "markAllConfirm": "{count} appointments will be marked as completed (package sessions are deducted, others are counted as cash). Continue?",
+      "markAllDone": "{done}/{total} appointments marked as completed",
+      "markAllFailed": "Some appointments could not be updated, please try again",
+      "notAssigned": "Not assigned to you"
     },
     "waitlistPage": {
       "eyebrow": "Appointment",
@@ -1235,12 +1523,114 @@
       "incomeDistribution": "Income Distribution",
       "expenseDistribution": "Expense Distribution",
       "applyToMonth": "Apply",
-      "applyActiveRecurring": "Apply ({count})"
+      "applyActiveRecurring": "Apply ({count})",
+      "recurringBills": "Recurring Bills",
+      "pdfExport": "PDF Report",
+      "addRecord": "Add Record",
+      "recurringTemplates": "Recurring Expense Templates",
+      "recurringDesc": "Define monthly recurring expenses like rent, salary, bills. Apply to selected month with one click.",
+      "addTemplate": "Add Template",
+      "applyMonthButton": "Apply to {month}",
+      "noTemplatesYet": "No recurring expense templates yet",
+      "noTemplatesHint": "Add monthly recurring expenses like rent, salary, bills",
+      "addFirstTemplate": "Add First Template",
+      "labelDescription": "Description",
+      "labelCategory": "Category",
+      "labelPayment": "Payment",
+      "labelAmount": "Amount",
+      "labelDate": "Date",
+      "activeTemplatesTotal": "active templates · total",
+      "monthlyFixedExpense": "monthly fixed expense",
+      "totalIncome": "Total Income",
+      "totalExpense": "Total Expense",
+      "netProfitLoss": "Net Profit / Loss",
+      "estimatedVat": "Estimated VAT",
+      "vatAssumptionNote": "Income amount is assumed to include VAT",
+      "apptRevenueNote": "{amount} from completed appointments is included automatically. Pending appointments appear here once marked \"Completed\".",
+      "changeAnalysis": "Change Analysis",
+      "metric": "Metric",
+      "change": "Change",
+      "bestProfitMonth": "Best Net Profit Month",
+      "worstProfitMonth": "Lowest Net Profit Month",
+      "records": "Records",
+      "filterAll": "All",
+      "filterIncome": "Income",
+      "filterExpense": "Expense",
+      "noRecordsPeriod": "No records for this period",
+      "addManually": "Add Manually",
+      "applyRecurringBtn": "Apply Recurring Expenses",
+      "autoFromAppointment": "Auto from appointment",
+      "editRecord": "Edit Record",
+      "newRecord": "New Record",
+      "incomeType": "💰 Income",
+      "expenseType": "💸 Expense",
+      "descriptionPlaceholder": "Write description...",
+      "paymentMethodLabel": "Payment Method",
+      "paymentCash": "Cash",
+      "paymentCard": "Card",
+      "paymentTransfer": "Bank Transfer",
+      "paymentCheque": "Cheque",
+      "noteOptional": "Note (optional)",
+      "cancel": "Cancel",
+      "update": "Update",
+      "save": "Save",
+      "editTemplate": "Edit Template",
+      "newTemplate": "New Recurring Expense Template",
+      "templateApplyHint": "This template can be applied to the selected period with a single click every month.",
+      "templateDescPlaceholder": "Monthly Rent, Electricity...",
+      "saveTemplate": "Save Template"
     },
     "stockPage": {
       "eyebrow": "Accounting & Stock",
       "title": "Stock Management",
       "subtitle": "Track product stock, critical stock alerts, and incoming/outgoing goods",
+      "unitPcs": "pcs",
+      "unitBottle": "bottle",
+      "unitBox": "box",
+      "unitTube": "tube",
+      "unitGram": "gram",
+      "txTypeIn": "Stock In (Purchase)",
+      "txTypeOut": "Stock Out (Usage / Sale)",
+      "txTypeAdjust": "Stock Adjustment (Count)",
+      "loadTemplate": "Load Sample Catalog",
+      "newProduct": "Add New Product",
+      "totalProducts": "Total Product Types",
+      "criticalStock": "Critical Stock Alert",
+      "totalStockValue": "Total Stock Value (Cost)",
+      "searchPlaceholder": "Search product name...",
+      "allCategories": "All Categories",
+      "noProductsYet": "No stock products found yet",
+      "addProduct": "Add Product",
+      "productName": "Product Name",
+      "categoryLabel": "Category",
+      "stockStatus": "Stock Status",
+      "costPrice": "Cost Price",
+      "salePrice": "Sale Price",
+      "actions": "Actions",
+      "unitShort": "Unit",
+      "generalCategory": "General",
+      "criticalLimit": "Critical Limit",
+      "stockInOut": "Stock In/Out",
+      "stockInOutShort": "In/Out",
+      "editBtn": "Edit",
+      "editProduct": "Edit Product",
+      "productNamePlaceholder": "E.g. Shampoo 1000ml",
+      "categoryPlaceholder": "E.g. Hair Care",
+      "unitOfMeasure": "Unit of Measure",
+      "currentStock": "Current Stock",
+      "cancel": "Cancel",
+      "update": "Update",
+      "save": "Save",
+      "stockTransactionTitle": "Stock Transaction",
+      "transactionType": "Transaction Type",
+      "newStockLevel": "New Stock Level",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "defaultPriceNoteCost": "If left blank, the default cost price ({price}) will be used.",
+      "defaultPriceNoteSale": "If left blank, the default sale price ({price}) will be used.",
+      "descNoteLabel": "Description / Note (optional)",
+      "descNotePlaceholder": "E.g. Invoice No, Used Service etc.",
+      "saveTransaction": "Save Transaction",
       "barcode": {
         "scanSell": "Sell by Barcode",
         "scanTitle": "Barcode Sale",
@@ -1354,6 +1744,18 @@
     "waitlist": "Waitlist",
     "waitlistAndApprovals": "Waitlist / Pending Approvals",
     "pendingRequests": "Pending Requests",
+    "liveNotify": {
+      "newRequestTitle": "New Appointment Request",
+      "newRequestBodyNamed": "New appointment request from {name}.",
+      "newRequestBodyGeneric": "A new appointment request has arrived.",
+      "newPendingBodyNamed": "An appointment awaiting approval for {name}.",
+      "newPendingBodyGeneric": "A new appointment is awaiting approval."
+    },
+    "notifSound": {
+      "on": "Notification sound on",
+      "off": "Notification sound off",
+      "toggleAria": "Toggle new appointment notification sound"
+    },
     "customers": "Customers",
     "staff": "Staff",
     "services": "Services",
@@ -1362,6 +1764,182 @@
     "reports": "Reports",
     "dataMigration": "Data Migration",
     "guide": "User Guide",
+    "guidePage": {
+      "supportEducation": "SUPPORT & EDUCATION",
+      "copyProtected": "Copy Protected",
+      "menu": {
+        "baslangic": "1. Quick Start",
+        "giris": "2. Login Flow & Roles",
+        "panel": "3. Dashboard Personalization",
+        "hizmetler": "4. Service Catalog Setup",
+        "personel": "5. Staff & Permissions",
+        "takvim": "6. Calendar & Appointment",
+        "adisyon": "7. Adisyon & Receipt Print",
+        "vitrin": "8. Web Showcase (/r/[slug])",
+        "whatsapp": "9. Notification Settings",
+        "telegram": "10. Notification Channels",
+        "kampanya": "11. Bulk Campaigns",
+        "abonelik": "12. Subscription & Plan",
+        "sadakat": "13. Loyalty Points",
+        "maas": "14. Income-Expense & Salary",
+        "raporlar": "15. Reports & Data Migration",
+        "sss": "16. Frequently Asked Questions",
+        "sunum": "🎬 Interactive Presentation (19 Slides)"
+      },
+      "sections": {
+        "baslangic": {
+          "title": "1. Quick Start & Account Setup",
+          "intro": "Digitalize your salon in 5 minutes with SiriPlan Appointment & Business Management System. Stop paper-pen chaos, forgotten appointments, and empty chairs!",
+          "steps": [
+            { "title": "Register for Free", "desc": "Open your 14-day free trial account with your business name, email, and phone number. No credit card required." },
+            { "title": "Fill Business Information", "desc": "Go to Settings → General. Select your sector (Hairdresser, Beauty Salon, Nail Art, Spa, etc.), set your working days/hours, and upload your logo and cover photo." }
+          ]
+        },
+        "giris": {
+          "title": "2. Login Flow: Admin and Staff Login",
+          "intro": "SiriPlan supports multi-user and role architecture:",
+          "items": [
+            { "label": "Business Owner / Admin Login:", "desc": "Log in with registered Email or Phone + password. Full access to all financial data, settings, and reports." },
+            { "label": "Staff Login:", "desc": "Admin sends invitation link via Staff → Invite. Staff registers with their email/phone to access dashboard. Staff only see their own appointments and customer calendar, not business turnover or financials." }
+          ]
+        },
+        "panel": {
+          "title": "3. Dashboard Personalization",
+          "intro": "The main dashboard screen has a widget-based flexible structure:",
+          "items": [
+            { "label": "Drag & Drop Widgets:", "desc": "Click \"Personalize\" at the top right to drag and rearrange widget cards." },
+            { "label": "Show / Hide Cards:", "desc": "Hide cards you don't need by clicking the eye icon, and pin your favorites." },
+            { "label": "User-Specific Memory:", "desc": "View preferences are saved for each user individually (hiding a card for staff doesn't affect admin)." },
+            { "label": "Colour Theme:", "desc": "Pick a colour theme that fits your business from the palette icon at the bottom of the sidebar — Rose Pink, Classic Blue, Ocean Blue, Nature Green, Night Mode, Sunset Orange, and Midnight Purple. Your choice is remembered on this device." }
+          ]
+        },
+        "hizmetler": {
+          "title": "4. Define Your Services",
+          "intro": "Upload all treatments and services you offer to the system:",
+          "steps": [
+            "Go to Services on the left menu.",
+            "Click + New Service.",
+            "Fill details: enter service name, category, duration (blocks calendar slot), and price.",
+            "Press Save."
+          ]
+        },
+        "personel": {
+          "title": "5. Add Staff & Permissions",
+          "intro": "Set up calendar and roles for each professional in your team:",
+          "steps": [
+            "Go to Staff on the left menu.",
+            "Click + Add / Invite Staff.",
+            "Select staff name, phone, work days, and calendar display color.",
+            "Assign Role: Admin (Full access) or Staff (Can only see own appointments).",
+            "Salary & Commission: Set Base Salary and % Commission rate from staff details."
+          ]
+        },
+        "takvim": {
+          "title": "6. Calendar & Appointment Management",
+          "blocks": [
+            { "heading": "Click to Book Instantly:", "text": "When you click a vacant slot or staff column on the calendar, the New Appointment dialog opens with Date, Time, and Staff pre-filled." },
+            { "heading": "Customize & Filter Calendar:", "text": "View calendar by Day, Week, or Month. Compare all staff columns side-by-side or focus on a single staff member's schedule." }
+          ]
+        },
+        "adisyon": {
+          "title": "7. Ticket & Receipt Printing",
+          "intro": "Professional receipts and billing are available for completed appointments:",
+          "steps": [
+            "Click on the appointment and press the \"Adisyon\" (Receipt) button.",
+            "Receipt content displays: Business Logo, Name, Address, Phone, Services, Tip, Total Amount, and Payment Method.",
+            "Use \"Print\" in top right to send to a thermal printer directly or save as PDF.",
+            "You can also reach it from 3 shortcuts without opening the detail page: the notification shown when you mark an appointment \"Completed\", the \"Adisyon\" button under a completed appointment card in the Appointments list, or the receipt icon next to a past visit row on the customer detail page."
+          ]
+        },
+        "vitrin": {
+          "title": "8. Business Website & Online Booking (/r/[slug])",
+          "intro": "A dedicated booking page is provided for 24/7 online customer scheduling and salon showcase:",
+          "items": [
+            { "label": "Custom Web Address:", "desc": "A elegant link like siriplan.com/r/your-business-name is assigned to your business." },
+            { "label": "Upload Gallery & Images:", "desc": "Upload Logo, Cover, and Gallery photos from Settings → General to display beautifully on your public page." },
+            { "label": "Online Booking Wizard:", "desc": "Customers browse, select Service → Staff → Date/Time, and book in seconds." }
+          ]
+        },
+        "whatsapp": {
+          "title": "9. Automated WhatsApp / SMS Notifications",
+          "intro": "The most practical way to prevent client no-shows!",
+          "items": [
+            { "label": "Settings → Notifications:", "desc": "Activate WhatsApp, SMS, or Telegram integrations." },
+            { "label": "Auto Message Types:", "desc": "Booking Confirmation, Reminders (2h or 1d before), and Cancellations/Changes send automatically." },
+            { "label": "Message Tone:", "desc": "Choose Warm, Formal, or Short styles depending on your salon's concept." }
+          ]
+        },
+        "telegram": {
+          "title": "10. Staff Notification Channels (Telegram, WhatsApp, In-App)",
+          "intro": "When a new appointment or request comes in, you and your staff can be notified through several channels at once:",
+          "steps": [
+            "Search @siriplan_bot in Telegram, open the bot, and click \"Start\".",
+            "Copy the numeric Chat ID provided by the bot.",
+            "Paste it in the \"Telegram Chat ID\" field in Settings → Notifications on your SiriPlan panel.",
+            "For WhatsApp notifications, fill in the \"WhatsApp Number\" field in Settings (business-wide) or Staff → [name]. Note: per Meta's rules it only delivers if this number has messaged your business within the last 24 hours — connect Telegram too so you never miss one.",
+            "While the panel is open (desktop or phone), a sound and notification fire automatically for new appointments/requests; toggle the sound from the bell icon in the sidebar/menu.",
+            "Choose which channels you want to be notified on using the checkboxes in Settings → Integrations or the Staff detail page — every channel starts on, turn off any you don't want."
+          ]
+        },
+        "kampanya": {
+          "title": "11. Bulk WhatsApp Campaigns",
+          "intro": "Send bulk messages to your clients to fill empty slots or promote campaigns:",
+          "steps": [
+            "Go to Campaigns tab and click + New Campaign.",
+            "Write the text using dynamic variables: Hello {{musteri_adi}}, {{salon_adi}}...",
+            "Filter the desired segment (e.g. inactive for last 30 days) and start sending."
+          ]
+        },
+        "abonelik": {
+          "title": "12. Subscription & Plan Management",
+          "paragraphs": [
+            "Plans: Starter, Pro, and Business plans are fixed and transparent. No requests for quote or waiting for agents. Every account starts with a 14-day free trial.",
+            "Plan Details: View your current plan, limits, and billing history under Settings → Subscription.",
+            "Your subscription is linked to SiriPlan and managed independently of app stores. For questions about upgrades or billing, contact support: info@bysirius.com · WhatsApp +90 535 503 26 34."
+          ]
+        },
+        "sadakat": {
+          "title": "13. CRM & Loyalty Points",
+          "intro": "Increase customer retention by using loyalty points feature:",
+          "items": [
+            { "label": "Customer History:", "desc": "Review past bookings, receipts, and custom notes from the customer details page." },
+            { "label": "Loyalty Points:", "desc": "Award points automatically on completed appointments. Configure which services award points under Services tab." }
+          ]
+        },
+        "maas": {
+          "title": "14. Cash Book & Staff Payroll",
+          "items": [
+            { "label": "Cash Management:", "desc": "Track expenses like rent, products, and utilities in Income/Expense to monitor net profit." },
+            { "label": "Staff Payroll & Commission:", "desc": "Calculate monthly payroll in Staff → Salary page: Base Salary + (Service Volume x Commission %) + Tips. Book as expense in cash book with a single click once paid." },
+            { "label": "VAT Calculation:", "desc": "Enter your rate and turn it on from Settings → VAT Calculation (on by default for new businesses). Update it from the same screen whenever the legal rate changes — no rate is hard-coded. When on, the \"Estimated VAT\" card is calculated on both this page and Reports, assuming that month's income includes VAT." }
+          ]
+        },
+        "raporlar": {
+          "title": "15. Reports & Data Migration",
+          "items": [
+            { "label": "Detailed Reports:", "desc": "Analyze daily/weekly appointments, revenue charts, top services, and staff performance." },
+            { "label": "Excel/CSV Export & Import:", "desc": "Upload your old customer list via Excel on the Data Migration page, or export your database as JSON/CSV." }
+          ]
+        },
+        "sss": {
+          "title": "16. Frequently Asked Questions (FAQ)",
+          "faqs": [
+            { "q": "How can I enable Telegram booking notifications?", "a": "Send a message to @siriplan_bot on Telegram and press /start. Paste the provided Chat ID into the Telegram field under Settings." },
+            { "q": "Should I request a custom quote for the Business plan?", "a": "No, all plans including Business are fixed and transparent. There is no quote request step." },
+            { "q": "Where can I view my active plan?", "a": "You can view your active plan, usage limits, and invoice history under Settings → Subscription. For billing questions: info@bysirius.com" }
+          ]
+        },
+        "sunum": {
+          "title": "🎬 SiriPlan Interactive Presentation",
+          "subtitle": "Review the user guide as a 19-slide visual slideshow.",
+          "fullscreenBtn": "Fullscreen Mode",
+          "fullscreenTitle": "SiriPlan Interactive Presentation",
+          "closeEsc": "Close (ESC)",
+          "ipTitle": "Intellectual Property Protection:",
+          "ipText": "This interactive presentation file is retrieved over a secure session-validated API. It cannot be shared or copied on external platforms."
+        }
+      }
+    },
     "settings": "Settings",
     "myAccount": "My Account",
     "subscription": "Subscription",
@@ -1447,12 +2025,14 @@
     "liveNow": "In progress",
     "apptCountLabel": "{count} appointments",
     "moreCount": "+{count} more",
+    "monthDayEmpty": "No appointments on this day",
     "quickUpdate": "Quick Update",
     "cannotChangeStatus": "You can't change the status of an appointment that isn't assigned to you.",
     "approve": "Approve",
     "markCompleted": "Completed",
     "cancelAction": "Cancel",
     "viewDetail": "View Details",
+    "adisyonLink": "Receipt",
     "minutesShort": "min",
     "statusUpdatedToast": "Status: {status}",
     "updateFailed": "Update failed",
@@ -1467,6 +2047,10 @@
     "statusOnaylandi": "Confirmed",
     "statusTamamlandi": "Completed",
     "statusIptal": "Cancelled",
+    "proposeNewTime": "Suggest New Time",
+    "proposeSubmit": "Propose",
+    "proposalPendingBadge": "Proposal sent — waiting for customer response ({datetime})",
+    "proposalRejectedBadge": "Customer declined the proposed time — propose again or cancel",
     "homePage": {
       "yourBusiness": "Your Business",
       "greeting": "Hello {name}.",
@@ -1492,6 +2076,9 @@
       "weeklyStarLabel": "Star of the Week: {name}",
       "staffStatsLabel": "{count} appointments · ₺{revenue}",
       "newApptButton": "Appointment",
+      "performanceReportTitle": "My Performance Report",
+      "monthlyEarningsLabel": "Total Amount I Earned This Month",
+      "completedApptsCountLabel": "{count} Completed Appointments",
       "campStatus": {
         "draft": "Draft",
         "scheduled": "Scheduled",
@@ -1623,7 +2210,6 @@
       "dragTitle": "Drag"
     },
     "permissions": {
-      "view_customers": "Can view customers",
       "edit_customers": "Can edit customers",
       "delete_customers": "Can delete customers",
       "view_reports": "Can view reports",
@@ -1662,6 +2248,45 @@
       "selfEditText": "You cannot change your own permissions. Ask the business owner for changes.",
       "saveFailedToast": "Couldn't update permissions"
     },
+    "staffDetailPage": {
+      "titleInfo": "Staff Details",
+      "nameLabel": "Full Name *",
+      "namePlaceholder": "Staff name",
+      "roleLabel": "Job Title / Role",
+      "rolePlaceholder": "Specialist, Assistant...",
+      "commission": "Commission (%)",
+      "salary": "Base Salary",
+      "phone": "Phone",
+      "email": "Email",
+      "language": "Preferred Language",
+      "langUnspecified": "Unspecified",
+      "langDesc": "The panel opens in this language when the staff logs in.",
+      "colorTitle": "Calendar Color",
+      "colorDesc": "This staff's appointments will be shown in this color on the calendar.",
+      "colorAuto": "Automatic (by order)",
+      "hoursTitle": "Working Hours",
+      "starts": "Start",
+      "ends": "End",
+      "notifTitle": "Notification Channels",
+      "notifDesc": "Automated booking notifications are sent through each filled channel.",
+      "notifWaHint": "Per Meta's rules, WhatsApp notifications only deliver if this number has messaged your business within the last 24 hours. Fill in the Telegram Chat ID too for notifications that always arrive.",
+      "notifChannelActive": "Receive notifications on this channel",
+      "workDays": "Working Days",
+      "save": "Save",
+      "servicesTitle": "Services Offered",
+      "servicesDesc": "Use the Services page to change service assignments.",
+      "timeOffTitle": "Leaves / Time Off",
+      "timeOffDesc": "Online booking and panel appointment creation are blocked during these date ranges.",
+      "timeOffBtn": "Add Time Off",
+      "activityTitle": "Staff Activities",
+      "auditLogTitle": "Status Change History",
+      "dangerTitle": "Danger Zone",
+      "dangerDesc": "Deactivating staff prevents them from being assigned to new appointments. Existing appointments are not affected.",
+      "deactivateBtn": "Deactivate",
+      "noteLabel": "Note",
+      "reasonPlaceholder": "Annual leave, report...",
+      "inactiveBadge": "Inactive"
+    },
     "staffInvite": {
       "inviteButton": "Invite Staff",
       "dialogTitle": "Invite Staff",
@@ -1672,7 +2297,7 @@
       "copyLink": "Copy link",
       "linkCopied": "Link copied",
       "shareWhatsapp": "Share on WhatsApp",
-      "shareText": "I'm inviting you to Siriplan as a staff member. To join: {url}",
+      "shareText": "I'm inviting you to SiriPlan as a staff member. To join: {url}",
       "deliveryEmailSent": "Email sent",
       "deliveryEmailFailed": "Email could not be sent — share the link manually",
       "deliveryWhatsappSent": "WhatsApp message sent",
@@ -1722,7 +2347,7 @@
       "blockedBody": "Your browser is blocking the microphone for this site. Follow the steps below and try again.",
       "steps": {
         "nativeApp": [
-          "Phone Settings → Apps → Siriplan → Permissions → Microphone → Allow.",
+          "Phone Settings → Apps → SiriPlan → Permissions → Microphone → Allow.",
           "If \"Microphone\" isn't in the list, this build of the app doesn't support audio capture — use voice booking in a browser (Chrome/Safari) on siriplan.com instead.",
           "After granting it, return to the app and tap \"Try again\"."
         ],
@@ -1984,6 +2609,7 @@
       "socialHandlePlaceholder": "yoursalon",
       "socialIconHint": "If website mode is on, it appears as an icon on your booking page.",
       "whatsappNumberLabel": "WhatsApp Number (shown to customers)",
+      "whatsappNumberNotifyHint": "New appointment notifications are also sent to this number. Per Meta's rules, WhatsApp notifications only deliver if this number has messaged your business within the last 24 hours — connect Telegram too (Settings → Notifications) so you never miss one.",
       "whatsappBusinessLabel": "WhatsApp Business",
       "whatsappBusinessHintPre": "For integration, contact the",
       "supportTeamLink": "support team",
@@ -1994,6 +2620,11 @@
       "telegramStep1": "Search @siriplan_bot in the Telegram app, open the bot and press 'Start'.",
       "telegramStep2": "The bot will send you a Chat ID number.",
       "telegramStep3": "Paste that number above and save — you'll now get a notification for every appointment.",
+      "notifyChannelActive": "Receive notifications on this channel",
+      "otherChannelsTitle": "Other Notification Channels",
+      "otherChannelsDesc": "All channels start on; turn off any you don't want.",
+      "inAppChannelLabel": "In-App Notification (sound, this device)",
+      "webPushChannelLabel": "Phone Notification — Coming soon",
       "autoMessageDesc": "These are the texts you send manually from your own WhatsApp when the 'Send WhatsApp message to customer' box is checked on the appointment screens (New Appointment / Quick Appointment) and via the 'Send Manual Message' button in appointment details. Date and time are filled in automatically for each appointment.",
       "autoMessageWarning": "This channel is NOT connected to Meta — the message opens in the WhatsApp on your own phone and you send it, so you can edit the text however you like. It is a different channel from the Meta automatic messages in the \"WhatsApp Notification Settings\" section below — if both are on, the customer may receive the same information twice, so keeping one off is recommended. If you turn Meta automatic messages off entirely, this manual channel becomes your only notification method.",
       "tabOnay": "Appointment Confirmation",
@@ -2014,7 +2645,7 @@
       "presetHizmetliText": "Hi {musteri}, your {hizmet} appointment on {tarih} {saat} with {personel} at {salon} has been created. We're expecting you!",
       "onlineBookingDesc": "Appointments from your booking link (/r/...) are auto-confirmed by default, added to the calendar, and a confirmation message is sent to the customer.",
       "autoConfirmLabel": "Auto-confirm online appointments",
-      "autoConfirmDesc": "On by default (every plan): appointments from your booking link are confirmed immediately, added to the calendar, and the customer gets a WhatsApp confirmation message. Turn it off and appointments are held in a \"pending\" queue until you approve them, and you get a notification for every new request.",
+      "autoConfirmDesc": "Available on every plan, off by default: appointments from your booking link are held in a \"pending\" queue until you approve them, and you get a notification for every new request. Turn it on and appointments are confirmed immediately, added to the calendar, and the customer gets a WhatsApp confirmation message.",
       "autoConfirmFreeText": "Appointments from your booking link are auto-confirmed and added to the calendar.",
       "slotIntervalLabel": "Appointment Slot Interval",
       "slotIntervalDesc": "The time intervals visitors see when choosing an appointment (15 minutes, 30 minutes or hourly).",
@@ -2063,16 +2694,23 @@
       "smsCostTitle": "About cost",
       "smsCostText": "Roughly 0.08–0.20 TRY per SMS (depending on package size) — you need to buy a credit package from the provider's site; there is no fixed monthly fee.",
       "waBusinessConnTitle": "WhatsApp Business Connection",
-      "waBusinessConnDesc": "Appointment confirmation/reminder/cancellation messages are sent automatically from Siriplan's own WhatsApp line — you don't need to do anything for that. The connection below is only so that marketing messages sent from the Campaigns module and automatic replies to incoming messages go from your own WhatsApp Business number.",
+      "waBusinessConnDesc": "Appointment confirmation/reminder/cancellation messages are sent automatically from SiriPlan's own WhatsApp line — you don't need to do anything for that. The connection below is only so that marketing messages sent from the Campaigns module and automatic replies to incoming messages go from your own WhatsApp Business number.",
       "waAccessTokenLabel": "Permanent Access Token",
       "waPhoneNumberIdLabel": "Phone Number ID",
       "waPhoneNumberIdPlaceholder": "e.g. 109876543210987",
       "waHowToTitle": "How to get it?",
       "waHowToText": "Connect a WhatsApp Business account via Meta Business Suite, then copy the permanent access token and phone number ID from Meta for Developers > your app > WhatsApp > API Setup. While these fields are empty, your campaigns can't be sent over the WhatsApp channel (you can use the SMS channel).",
+      "metaBusinessConnTitle": "Instagram & Facebook Messenger Connection",
+      "metaBusinessConnDesc": "To send automatic AI replies to messages on your Instagram and Facebook page, enter your Page's access token and ID below. If your Instagram account is linked to your Facebook Page, one connection covers both channels. While these fields are empty, incoming DMs get no automatic reply.",
+      "igAccessTokenLabel": "Page Access Token",
+      "igPageIdLabel": "Facebook Page ID",
+      "igPageIdPlaceholder": "e.g. 987654321098765",
+      "metaHowToTitle": "How to get it",
+      "metaHowToText": "Create a \"Business\" type app on Meta for Developers (developers.facebook.com), add the Messenger and Instagram products. Connect your Facebook Page, then copy the Page Access Token and Page ID (under Page Settings > Page Info) here. No extra step is needed if your Instagram account is linked to the same Page.",
       "kdvTitle": "VAT Calculation",
-      "kdvDesc": "Enter your rate to see the estimated VAT amount in Income & Expense reports. The income amounts you enter are assumed to include VAT.",
+      "kdvDesc": "Enter your rate to see the estimated VAT amount in Income & Expense and Reports pages — update it here whenever the legal rate changes. The income amounts you enter are assumed to include VAT.",
       "kdvEnabledLabel": "VAT calculation on",
-      "kdvEnabledDesc": "When on, the estimated VAT amount is shown on the Income & Expense page.",
+      "kdvEnabledDesc": "When on, the estimated VAT amount is shown on the Income & Expense and Reports pages. On by default for new businesses.",
       "kdvRateLabel": "VAT Rate (%)",
       "kdvRateHint": "The standard rate in Türkiye is 20%.",
       "kvkkDesc": "The privacy notice shown to your customers when they book. If left blank, the platform's default text is used.",
@@ -2096,7 +2734,7 @@
       "bizTattoo": "Tattoo Studio",
       "bizDiyetisyen": "Dietitian",
       "bizKasKirpik": "Brows & Lashes",
-      "legalBody": "All source code, designs, and flows of the Siriplan platform are protected under FSEK and the Berne Convention. A fully compliant infrastructure with Store (App Store / Play Store) policies and GDPR/KVKK data privacy is provided.",
+      "legalBody": "All source code, designs, and flows of the SiriPlan platform are protected under FSEK and the Berne Convention. A fully compliant infrastructure with Store (App Store / Play Store) policies and GDPR/KVKK data privacy is provided.",
       "dangerZoneTitle": "Danger Zone",
       "dangerZoneBody": "When you delete your account, your login credentials and all staff access of your business will be permanently closed, and your subscription will be cancelled. Your customer records will not be deleted, but personal identifying details (name, phone, email) will be anonymized; appointment and revenue history will continue to be kept statistically for the legal accounting retention period. This action cannot be undone.",
       "deleteAccountButton": "Delete My Account",
@@ -2253,7 +2891,7 @@
     }
   },
   "securityPage": {
-    "metaDescription": "Siriplan vulnerability reporting and responsible disclosure policy.",
+    "metaDescription": "SiriPlan vulnerability reporting and responsible disclosure policy.",
     "pageTitle": "Security and Vulnerability Reporting",
     "lastUpdated": "Last updated: August 2026",
     "intro": "We take the security of our users' data seriously. If you have identified a security vulnerability, we ask you to report it to us following the rules below.",

@@ -20,7 +20,7 @@ function esc(str: string) {
 
 // From başlığındaki görünen ad; başlığı bozabilecek karakterler temizlenir
 function fromName(name: string) {
-  return String(name ?? "").replace(/[<>"\r\n;,]/g, "").trim() || "Siriplan";
+  return String(name ?? "").replace(/[<>"\r\n;,]/g, "").trim() || "SiriPlan";
 }
 
 export interface AppointmentEmailData {
@@ -45,7 +45,7 @@ function baseLayout(content: string, orgName: string, locale?: string | null) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Siriplan</title>
+  <title>SiriPlan</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f5;padding:32px 16px;">
@@ -55,7 +55,7 @@ function baseLayout(content: string, orgName: string, locale?: string | null) {
           <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#e11d48 0%,#a21caf 100%);padding:28px 32px;text-align:center;">
-              <span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Siriplan</span>
+              <span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">SiriPlan</span>
               <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.8);">${esc(orgName)}</p>
             </td>
           </tr>
@@ -165,7 +165,7 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
   const content = `
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Hoş Geldiniz! 🎉</h2>
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
-      Merhaba <strong>${esc(data.ownerName)}</strong>, <strong>${esc(data.salonName)}</strong> adına Siriplan'a hoş geldiniz!
+      Merhaba <strong>${esc(data.ownerName)}</strong>, <strong>${esc(data.salonName)}</strong> adına SiriPlan'a hoş geldiniz!
     </p>
 
     <p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">
@@ -194,10 +194,10 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
   `;
 
   await getResend().emails.send({
-    from: `Siriplan <${FROM}>`,
+    from: `SiriPlan <${FROM}>`,
     to: data.to,
-    subject: `Hoş Geldiniz ${data.salonName}! Siriplan'da 14 günlük ücretsiz denemeniz başladı`,
-    html: baseLayout(content, "Siriplan"),
+    subject: `Hoş Geldiniz ${data.salonName}! SiriPlan'da 14 günlük ücretsiz denemeniz başladı`,
+    html: baseLayout(content, "SiriPlan"),
   });
 }
 
@@ -216,7 +216,7 @@ export async function sendStaffInviteEmail(data: {
   const content = `
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">🎉 İşletmeye Davet Edildiniz</h2>
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
-      <strong>${esc(data.orgName)}</strong> sizi Siriplan üzerinde <strong>${roleLabel.toLowerCase()}</strong> olarak davet etti.
+      <strong>${esc(data.orgName)}</strong> sizi SiriPlan üzerinde <strong>${roleLabel.toLowerCase()}</strong> olarak davet etti.
     </p>
 
     <p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">
@@ -237,7 +237,7 @@ export async function sendStaffInviteEmail(data: {
     const { error } = await getResend().emails.send({
       from: `${fromName(data.orgName)} <${FROM}>`,
       to: data.to,
-      subject: `${data.orgName} sizi Siriplan'a davet etti`,
+      subject: `${data.orgName} sizi SiriPlan'a davet etti`,
       html: baseLayout(content, data.orgName),
     });
     if (error) {
@@ -335,12 +335,12 @@ export async function sendTrialEndingEmail(data: {
   `;
 
   await getResend().emails.send({
-    from: `Siriplan <${FROM}>`,
+    from: `SiriPlan <${FROM}>`,
     to: data.to,
     subject: isToday
       ? `⏳ Deneme Süreniz Bugün Doluyor — ${data.orgName}`
       : `⏳ Deneme Süreniz 2 Gün Sonra Doluyor — ${data.orgName}`,
-    html: baseLayout(content, "Siriplan"),
+    html: baseLayout(content, "SiriPlan"),
   });
 }
 
@@ -484,10 +484,10 @@ export async function sendContactMessageEmail(data: {
   `;
 
   await getResend().emails.send({
-    from: `Siriplan İletişim <${FROM}>`,
+    from: `SiriPlan İletişim <${FROM}>`,
     to,
     replyTo: data.email,
     subject: `[İletişim] ${data.subject} — ${fromName(data.name)}`,
-    html: baseLayout(content, "Siriplan"),
+    html: baseLayout(content, "SiriPlan"),
   });
 }
