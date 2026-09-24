@@ -102,6 +102,7 @@
     "contactForPrice": "Özel Teklif Alın",
     "contactUsSub": "İşletmenize özel paket ve fiyatlandırma",
     "bottomNote": "Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
+    "foreignFeeNote": "Ödeme yurt dışında kurulu üye işyerimiz üzerinden tahsil edilir; kartınızın bankası bu nedenle işlem tutarına genellikle %1-3 arası bir yurt dışı işlem komisyonu ekleyebilir. Fiyatlarımız bu komisyon göz önünde bulundurularak belirlenmiştir — komisyon bankanıza aittir, SiriPlan tarafından eklenmez.",
     "annualLabel": "veya {annual}/ay · {total}/yıl ({save})",
     "annualBilledNote": "{total} olarak yıllık tek seferde tahsil edilir · aylık ödemede {monthly}/ay",
     "starter": {

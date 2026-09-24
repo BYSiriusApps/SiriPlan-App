@@ -659,27 +659,46 @@ export default async function RaporlarPage({
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {[...monthlyStats].reverse().map((m) => {
+            {(() => {
               const maxRevenue = Math.max(...monthlyStats.map((s) => s.revenue));
-              const pct = maxRevenue > 0 ? (m.revenue / maxRevenue) * 100 : 0;
-              return (
-                <div key={m.month} className="flex items-center gap-3">
-                  <span className="w-20 text-xs text-muted-foreground capitalize">{m.month}</span>
-                  <div className="flex-1 h-7 rounded-lg bg-muted/60 overflow-hidden ring-1 ring-border/50">
-                    <div
-                      className="h-full rounded-lg transition-all duration-700 ease-out"
-                      style={{
-                        width: `${pct}%`,
-                        background: "linear-gradient(90deg, var(--primary), color-mix(in oklch, var(--accent) 65%, var(--primary)))",
-                        boxShadow: pct > 0 ? "0 0 14px color-mix(in oklch, var(--primary) 45%, transparent)" : undefined,
-                      }}
-                    />
+              return [...monthlyStats].reverse().map((m) => {
+                const pct = maxRevenue > 0 ? (m.revenue / maxRevenue) * 100 : 0;
+                const isBest = maxRevenue > 0 && m.revenue === maxRevenue;
+                return (
+                  <div key={m.month} className="space-y-1.5 sm:space-y-0 sm:flex sm:items-center sm:gap-3">
+                    <div className="flex items-center justify-between sm:contents">
+                      <span className={`sm:w-20 sm:shrink-0 text-xs capitalize ${isBest ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                        {m.month}
+                        {isBest && <span className="ml-1">🏆</span>}
+                      </span>
+                      <span className={`sm:hidden text-xs tabular-nums ${isBest ? "font-bold text-primary" : "font-semibold"}`}>
+                        {formatMoney(m.revenue, currency, locale)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-7 rounded-lg bg-muted/60 overflow-hidden ring-1 ring-border/50">
+                        <div
+                          className="h-full rounded-lg transition-all duration-700 ease-out"
+                          style={{
+                            width: `${pct}%`,
+                            background: isBest
+                              ? "linear-gradient(90deg, var(--primary), color-mix(in oklch, var(--accent) 65%, var(--primary)))"
+                              : "color-mix(in oklch, var(--muted-foreground) 32%, transparent)",
+                            boxShadow: isBest ? "0 0 14px color-mix(in oklch, var(--primary) 45%, transparent)" : undefined,
+                          }}
+                        />
+                      </div>
+                      <span className={`hidden sm:block w-28 shrink-0 text-xs text-right tabular-nums ${isBest ? "font-bold text-primary" : "font-semibold"}`}>
+                        {formatMoney(m.revenue, currency, locale)}
+                      </span>
+                      <span className="w-14 sm:w-16 shrink-0 text-[11px] sm:text-xs text-muted-foreground text-right tabular-nums">
+                        {m.completed}/{m.total}
+                      </span>
+                    </div>
                   </div>
-                  <span className="w-28 text-xs font-semibold text-right tabular-nums">{formatMoney(m.revenue, currency, locale)}</span>
-                  <span className="w-16 text-xs text-muted-foreground text-right tabular-nums">{m.completed}/{m.total}</span>
-                </div>
-              );
-            })}
+                );
+              });
+            })()}
           </div>
         </CardContent>
       </Card>
