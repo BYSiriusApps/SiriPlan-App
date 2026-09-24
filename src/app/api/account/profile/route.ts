@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { isSupportedLanguage } from "@/lib/languages";
+import { logAudit } from "@/lib/audit";
 
 /**
  * PATCH /api/account/profile — giriş yapmış kullanıcı KENDİ personel profilini
@@ -50,6 +51,12 @@ export async function PATCH(req: NextRequest) {
   let staffId = member.staff_id;
 
   if (staffId) {
+    const { data: before } = await admin
+      .from("staff")
+      .select("full_name, phone, address, preferred_language")
+      .eq("id", staffId)
+      .single();
+
     let { error } = await admin
       .from("staff")
       .update(fields)
@@ -61,6 +68,22 @@ export async function PATCH(req: NextRequest) {
       ({ error } = await admin.from("staff").update(fields).eq("id", staffId).eq("org_id", member.org_id));
     }
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    // KVKK denetim izi — kendi kişisel verisini kim ne zaman değiştirdi.
+    const changedFields = before
+      ? Object.keys(fields).filter((k) => before[k as keyof typeof before] !== fields[k])
+      : Object.keys(fields);
+    if (changedFields.length > 0) {
+      await logAudit({
+        orgId: member.org_id,
+        userId: user.id,
+        action: "account_profile_update",
+        tableName: "staff",
+        recordId: staffId,
+        details: { changed_fields: changedFields, before, after: fields },
+        req,
+      });
+    }
   } else {
     // Bağlantısız üyelik → yeni staff satırı oluştur ve üyeliğe bağla.
     let ins = await admin
@@ -81,6 +104,16 @@ export async function PATCH(req: NextRequest) {
     }
     staffId = ins.data.id;
     await admin.from("org_members").update({ staff_id: staffId }).eq("org_id", member.org_id).eq("user_id", user.id);
+
+    await logAudit({
+      orgId: member.org_id,
+      userId: user.id,
+      action: "account_profile_create",
+      tableName: "staff",
+      recordId: staffId,
+      details: { after: fields },
+      req,
+    });
   }
 
   // Panel dilini hesaba da yaz (giriş bootstrap'ı ve diğer cihazlar için).
