@@ -11,10 +11,10 @@ type Params = { params: Promise<{ id: string }> };
 export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const body = await req.json();
-  const action: "approve" | "reject" | "reschedule" = body.action;
+  const action: "approve" | "reject" | "reschedule" | "reassign_staff" = body.action;
 
-  if (action !== "approve" && action !== "reject" && action !== "reschedule") {
-    return NextResponse.json({ error: "action must be 'approve', 'reject' veya 'reschedule'" }, { status: 400 });
+  if (action !== "approve" && action !== "reject" && action !== "reschedule" && action !== "reassign_staff") {
+    return NextResponse.json({ error: "action must be 'approve', 'reject', 'reschedule' veya 'reassign_staff'" }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -43,6 +43,36 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       .update({ status: "rejected", updated_at: new Date().toISOString() })
       .eq("id", id);
     return NextResponse.json({ status: "rejected" });
+  }
+
+  // "reassign_staff" = talep henüz onaylanmadan, "fark etmez" ile otomatik
+  // atanmış (veya müşterinin seçtiği) personeli işletme değiştiriyor. Sadece
+  // appointment_requests.staff_id güncellenir — onaylandığında bu değer
+  // approveAppointmentRequest() tarafından appointments'e olduğu gibi kopyalanır.
+  if (action === "reassign_staff") {
+    if (member.role === "staff") {
+      return NextResponse.json({ error: "Bu işlem için yetkiniz yok" }, { status: 403 });
+    }
+    const staffId = body.staff_id;
+    if (typeof staffId !== "string" || !staffId) {
+      return NextResponse.json({ error: "staff_id gerekli" }, { status: 400 });
+    }
+    const { data: staffRow } = await supabase
+      .from("staff")
+      .select("id, full_name")
+      .eq("id", staffId)
+      .eq("org_id", member.org_id)
+      .eq("is_active", true)
+      .single();
+    if (!staffRow) {
+      return NextResponse.json({ error: "Personel bulunamadı" }, { status: 404 });
+    }
+    const { error: reassignErr } = await supabase
+      .from("appointment_requests")
+      .update({ staff_id: staffId, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    if (reassignErr) return NextResponse.json({ error: reassignErr.message }, { status: 500 });
+    return NextResponse.json({ status: "reassigned", staff: { id: staffRow.id, full_name: staffRow.full_name } });
   }
 
   // "reschedule" = işletmenin müşteriye yeni bir saat ÖNERMESİ. appointment_at'e

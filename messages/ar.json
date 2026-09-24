@@ -1271,6 +1271,7 @@
       "appStoreNote": "تظهر خطة حسابك وحدود الاستخدام أعلاه.",
       "compareAndStart": "مقارنة الخطط وبدء الاشتراك",
       "upgradeToPro": "ترقية إلى Pro",
+      "changeToPlan": "التبديل إلى {plan}",
       "manageBilling": "إدارة الفواتير وطريقة الدفع",
       "trialBottomNote": "جميع ميزات Pro مجانية خلال فترة التجربة - لا حاجة لبطاقة ائتمان. يمكنك مقارنة خطة Starter و Pro قبل انتهاء التجربة والاستمرار بالخطة التي تناسبك.",
       "cancelSubscription": "إلغاء الاشتراك",
@@ -2208,7 +2209,6 @@
       "dragTitle": "سحب"
     },
     "permissions": {
-      "view_customers": "يمكنه عرض العملاء",
       "edit_customers": "يمكنه تعديل العملاء",
       "delete_customers": "يمكنه حذف العملاء",
       "view_reports": "يمكنه عرض التقارير",

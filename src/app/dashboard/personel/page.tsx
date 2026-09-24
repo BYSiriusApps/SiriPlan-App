@@ -13,6 +13,7 @@ import { StaffInviteDialog } from "@/components/dashboard/StaffInviteDialog";
 import { OrgClosedDaysCard } from "@/components/dashboard/OrgClosedDaysCard";
 import type { Staff } from "@/types/database";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
+import { canManageStaff } from "@/lib/permissions";
 
 const LANG_FLAGS: Record<string, { flag: string; name: string }> = Object.fromEntries(
   SUPPORTED_LANGUAGES.map((l) => [l.code, { flag: l.flag, name: l.name }])
@@ -92,7 +93,7 @@ export default async function PersonelPage() {
             {t("staffCountLabel", { used: staff?.length || 0, max: maxStaff })}
           </p>
         </div>
-        {(m.role === "owner" || !!member.permissions_json?.manage_staff) && (
+        {canManageStaff(member) && (
           <div className="flex items-stretch gap-2">
             <Link
               href="/dashboard/personel/maas-hesaplama"

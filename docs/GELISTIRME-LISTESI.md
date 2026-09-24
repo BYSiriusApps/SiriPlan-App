@@ -54,9 +54,15 @@ bumps. `npm install` + `tsc --noEmit` + `npm run lint` (0 error) + `npm run buil
   `src/app/dashboard/bekleyen-istekler/BekleyenIsteklerClient.tsx`, müşteriye dönük
   `src/app/r/[slug]/SalonBits.tsx`. Önce bu 3 ikon için alternatif (inline SVG veya başka
   paket) bulunmalı, sonra sürüm yükseltilebilir.
-- `eslint` 9→10: `eslint-config-next`'in bağladığı `eslint-plugin-react` ile kırılıyor
-  (`context.getFilename is not a function`) — `npm run lint` tamamen çöküyor. Tetikleyici:
-  `eslint-config-next` bu API'yi destekleyen bir sürüm yayınlayınca tekrar denenmeli.
+- `eslint` 9→10: **YAPILACAK İŞ DEĞİL, sadece hatırlatma notu** — bizim tarafımızda
+  yapacak bir şey yok, aksiyon alınmayacak. `eslint-config-next`'in bağladığı
+  `eslint-plugin-react` eslint 10'un yeni eklenti API'siyle uyumsuz
+  (`context.getFilename is not a function`) — `npm run lint` tamamen çöküyor
+  (`next build`/`tsc` etkilenmiyor, sadece lint aracı). Kök neden bizim kodumuzda
+  değil: **Vercel/Next.js ekibinin `eslint-config-next`'i eslint 10 uyumlu yeni bir
+  sürümle güncellemesi gerekiyor.** O sürüm çıkana kadar Dependabot'un bu PR'ı
+  düzenli açması beklenen davranış — her seferinde reddedilebilir. Bu not sadece
+  "yarın tekrar karşımıza çıkarsa neden olduğunu hatırlayalım" diye tutuluyor.
 
 ---
 
@@ -94,9 +100,9 @@ gerçekleşti — bkz. [[password-reset-email-flow]]). Aynı oturumda çözüm d
 
 ## 2. AI arama motorlarında görünürlük (GEO)
 
-**Durum (18 Eyl 2026):** Mimari karar verildi — (b) locale-prefixli URL'lere geçildi
-(`fix/geo-ai-search-visibility` sonrası bekleyen tek karar buydu). Dal:
-`feat/geo-locale-prefix-urls`, henüz main'e merge/PR edilmedi, kullanıcı onayı bekliyor.
+**Durum: TAMAMLANDI VE MAIN'DE (18 Eyl 2026).** `feat/geo-locale-prefix-urls` merge
+commit `7978c9a` ile main'e geçmiş (`git merge-base --is-ancestor` ile 24 Eyl'de
+teyit edildi). `fix/geo-ai-search-visibility` de aynı şekilde main'in atası.
 
 **Ne yapıldı:**
 - `src/app/(marketing)` → `src/app/[locale]/(marketing)` taşındı; dashboard/admin/api/
@@ -126,8 +132,8 @@ gerçekleşti — bkz. [[password-reset-email-flow]]). Aynı oturumda çözüm d
   gibi davranabilir" uyarısına karşı `[locale]/layout.tsx`'te `notFound()` güvenlik ağı
   eklendi).
 
-**Kalan (kod dışı):** dal main'e merge edilmeli; sonrasında GSC'de yeni sitemap
-gönderilip birkaç hafta "duplicate/canonical" uyarısı geri gelmiyor mu izlenmeli.
+**Kalan (kod dışı):** GSC'de yeni sitemap gönderilip birkaç hafta "duplicate/canonical"
+uyarısı geri gelmiyor mu izlenmeli.
 
 ---
 
@@ -172,21 +178,17 @@ repoda `android/` kaynak kodu yok) FCM entegrasyonu yok.
 
 ## 4. "Yeni Saat Öner" özelliğinin devreye alınması
 
-**Durum (18 Eyl 2026):** Kod tamamlandı, `feat/randevu-yeni-saat-oneri` dalında
-(origin'e push edildi). `main`'e MERGE EDİLMEDİ — henüz Meta şablon onayı yok.
+**Durum: TAMAMLANDI VE CANLIDA AKTİF (22 Eyl 2026).** `feat/randevu-yeni-saat-oneri`
+main'e merge edildi (PR #38), migration canlıda çalıştırıldı, Meta şablonu onaylı.
+Aynı gün bir isim uyuşmazlığı bugı bulunup düzeltildi (PR #44, commit `9ebca3b`):
+`registry.ts`'teki `metaName` `randevu_yeni_saat_onerisi_1` idi, Meta'daki gerçek
+API adı sonunda fazladan alt çizgi taşıyordu (`..._1_`) — tek karakterlik fark
+yüzünden WA müşteriye hiç gitmiyordu (panel kırılmıyordu). Düzeltme merge edildi
+(`fix/yeni-saat-oneri-mobile-i18n`, PR #40), uçtan uca doğrulandı: panelden tıkla →
+müşteriye gerçek WA gider → `/oneri/[token]` linkinden Kabul Et/Reddet → panel
+güncellenir + Telegram/WA bildirimi gider.
 
-**Kalan adımlar (sırayla):**
-1. Meta Business Manager'da `randevu_yeni_saat_onerisi_1` şablonu onaylanmalı
-   (Türkçe, 4 gövde param + dinamik URL buton — submit edildi, onay bekleniyor;
-   ilk deneme `randevu_yeni_saat_onerisi` adıyla yanlışlıkla İngilizce gönderilip
-   silinemediği için `_1` suffix'iyle tekrar gönderildi).
-2. `supabase/migrations/20260918_appointment_reschedule_proposal.sql` Supabase SQL
-   Editor'e yapıştırılıp çalıştırılmalı (bkz. [[migration-apply-state]]).
-3. Meta onayı + migration tamamlanınca `feat/randevu-yeni-saat-oneri` dalı `main`'e
-   merge edilmeli.
-4. Gerçek bir test randevusuyla uçtan uca doğrulama: panel → Yeni Saat Öner →
-   WhatsApp mesajı → müşteri `/oneri/[token]` linki → Kabul Et/Reddet → panelde
-   doğru sonuç + Telegram/WA bildirimi.
+**Kalan:** Yok.
 
 **İlgili dosya:** [[yeni-saat-oner-reschedule-proposal-sept18]] (memory),
 `src/lib/wa-templates/registry.ts`, `src/lib/appointment-requests/approve.ts`,
@@ -238,34 +240,98 @@ bir ŞABLON yolu yoktu.
   tercihi, `lib/notification-sound.ts`) + "Telefon Bildirimi — Yakında" (devre
   dışı, Faz 3 Web Push gelince aktifleşecek) satırları.
 
-**Kalan tek adım — Meta Business Manager'da şablon submit etmek:**
-Aşağıdaki 3 şablonu (Türkçe, "Utility" kategorisi) submit edip onaylanmasını
-beklemek, sonra `internal-registry.ts`'deki ilgili `metaName`'i doldurmak yeterli
-(başka kod değişikliği gerekmez):
+**Durum (24 Eyl 2026):** 3 şablon da Graph API üzerinden WABA'ya (`1295808672630869`)
+submit edildi, üçü de Meta incelemesinde **PENDING**:
+- `personel_yeni_randevu` → template id `1441158747883677`
+- `personel_yeni_talep` → template id `3149481118576768`
+- `personel_kritik_stok` → template id `1857261352301818`
+
+İlk denemede `personel_yeni_randevu` "değişken/kelime oranı" hatasıyla,
+`personel_yeni_talep` ise "değişken başta/sonda olamaz" hatasıyla reddedildi —
+aşağıdaki gövde metinleri bu ikisi düzeltilerek submit edilen NİHAİ halidir.
+Meta onaylayınca `internal-registry.ts`'deki ilgili `metaName`'i doldurmak
+yeterli (başka kod değişikliği gerekmez, parametre SAYISI/SIRASI değişmedi):
 
 1. **`personel_yeni_randevu`** — {{1}} işletme adı, {{2}} müşteri adı, {{3}} hizmet,
    {{4}} personel, {{5}} tarih, {{6}} saat:
-   > ✅ {{1}} — Yeni randevu onaylandı.
+   > ✅ Randevu onaylandı — {{1}}
    > Müşteri: {{2}} · Hizmet: {{3}} · Personel: {{4}}
-   > {{5}} {{6}}
+   > Tarih: {{5}}, saat: {{6}}. Detaylar için panele bakabilirsiniz.
 
 2. **`personel_yeni_talep`** — aynı 6 parametre:
-   > 📋 {{1}} — Yeni randevu talebi geldi, onayınızı bekliyor.
+   > 📋 Yeni talep geldi — {{1}}
    > Müşteri: {{2}} · Hizmet: {{3}} · Personel: {{4}}
-   > {{5}} {{6}}
+   > Tarih: {{5}}, saat: {{6}}. Onayınızı bekliyor, panelden yanıtlayabilirsiniz.
 
 3. **`personel_kritik_stok`** — {{1}} işletme adı, {{2}} ürün adı, {{3}} kalan
-   miktar, {{4}} birim:
+   miktar, {{4}} birim (ilk denemede sorunsuz onaya gitti, değişmedi):
    > ⚠️ {{1}} — Kritik stok uyarısı.
    > {{2}}: kalan {{3}} {{4}}. Stok girişi yapmayı unutmayın.
 
-Not: Meta boş parametreyi ve satır başına 4+ ardışık boşluğu reddeder (bkz.
-`wa-templates/send.ts` içindeki (#131009) notu) — gövde metinleri submit
-edilirken bu haliyle (tek satır aralıklı) kullanılmalı.
+Not: Meta boş parametreyi, satır başına/sonuna değişken konmasını ve düşük
+kelime/değişken oranını reddeder (bkz. `wa-templates/send.ts` içindeki
+(#131009) notu) — gövde metinleri submit edilirken bu haliyle kullanılmalı.
 
 **İlgili dosya:** `src/lib/notify.ts`, `src/lib/wa-templates/internal-registry.ts`,
 `src/lib/wa-templates/internal-send.ts`, `src/app/dashboard/ayarlar/page.tsx`,
 `src/app/dashboard/personel/[id]/page.tsx`.
+
+### ⏳ YAPILACAK — Meta şablon onay kontrolü
+
+Yukarıdaki 3 Türkçe + aşağıdaki 10 İngilizce şablon (toplam 13) hâlâ **PENDING**.
+Meta genelde birkaç dakika–birkaç saat içinde karar veriyor. Kontrol için:
+Meta Business Manager → WhatsApp Yöneticisi → Mesaj Şablonları (WABA
+`1295808672630869`) — durum REJECTED çıkarsa ret sebebini oku, gövdeyi
+düzeltip yeniden submit et (yukarıdaki #131009/#132000/2388293/2388299 notlarına
+bak). Kod tarafında BAŞKA HİÇBİR ŞEY YAPMAYA GEREK YOK: `metaName`/`metaNameEn`
+alanları zaten dolduruldu, onaylanan şablon bir sonraki gönderimde otomatik
+devreye girer (yeniden deploy gerekmez, `dispatch()`/`sendPurposeTemplate()`
+Meta'dan başarılı yanıt aldığı an o şablonu kullanmaya başlar).
+
+**Durum (24 Eyl 2026, 2. tur) — İngilizce (global) şablonlar + dil bazlı seçim:**
+Türkçe dışındaki müşteri/personel/sahip bildirimleri için 10 İngilizce şablon
+daha aynı WABA'ya submit edildi, hepsi **PENDING**:
+
+Müşteriye giden (7):
+- `appointment_confirmation_1` (id `1062687706615795`) — `onay_sicak` EN karşılığı
+- `appointment_confirmation_2` (id `1874471050216442`) — `onay_v2` EN karşılığı
+- `appointment_cancelled` (id `3538845326275252`) — `iptal_sicak` EN karşılığı
+- `appointment_rescheduled` (id `1121391944178693`) — `revize_sicak` EN karşılığı
+  (TR'deki statik URL butonunun gerçek hedefi bilinmediği için BUTONSUZ submit
+  edildi, gövde/parametreler birebir aynı)
+- `appointment_reminder_1` (id `4490847197911305`) — `hatirlatma_sicak`/`hatirlatma_v1` EN karşılığı
+- `appointment_reminder_2` (id `1528315672436824`) — `hatirlatma_v2` EN karşılığı
+- `new_time_proposal` (id `2491180671391819`) — `oneri_sicak` EN karşılığı, TR'deki
+  ile birebir aynı dinamik URL butonu (`https://siriplan.com/oneri/{{1}}`)
+
+Personel/sahibe giden (3 — yukarıdaki maddenin İngilizcesi):
+- `staff_new_appointment` (id `1717573342682155`) — `personel_yeni_randevu` EN
+- `staff_new_request` (id `1494018265912278`) — `personel_yeni_talep` EN
+- `staff_low_stock_alert` (id `1134593909213895`) — `personel_kritik_stok` EN
+
+**Dil seçimi nasıl çalışıyor:**
+- Müşteri tarafı (`wa-templates/send.ts`): gönderim anında `customers` tablosundan
+  `org_id` + telefonla `preferred_language` okunur (bkz. müşteri detay sayfasındaki
+  dil seçici / `/api/public/customer-language`). `"en"` ise ve `metaNameEn` doluysa
+  önce İngilizce denenir; Meta reddeder/onaysızsa (PENDING) **otomatik olarak
+  Türkçe'ye düşülür** — hiçbir müşteri mesajsız kalmaz, davranış hiçbir zaman kırılmaz.
+- Personel/sahip tarafı (`notify.ts` → `internal-send.ts`): kişinin kendi
+  `staff.preferred_language`'ı (Hesabım sayfasından seçtiği panel dili) okunur,
+  aynı EN → TR → serbest metin (3 kademeli) düşüş sırası uygulanır.
+- Yalnızca `tr`/`en` destekleniyor; `ru`/`ar` panel dili seçili kullanıcılar/
+  müşteriler şimdilik Türkçe şablon alır (WA şablonu yok, yalnızca bu iki dil
+  için Meta'ya submit edildi).
+
+**Doğrulama notu:** Bu oturumda ortamda `node_modules` beklenmedik şekilde boşaldı
+(muhtemelen bulut senkron istemcisi node_modules'ü "dehydrate" etti — bkz. proje
+notlarındaki "yavaş dosya sistemi" sorunuyla aynı kök neden) — `tsc`/`eslint`
+çalıştırılamadı, yalnızca dikkatli elle kod incelemesiyle doğrulandı. `npm install`
+sonrası (veya bulut senkronu tamamlanınca) `npx tsc --noEmit` + `npm run lint`
+ile bir kez daha doğrulanmalı.
+
+**İlgili dosya (2. tur):** `src/lib/wa-templates/registry.ts`,
+`src/lib/wa-templates/send.ts`, `src/lib/wa-templates/internal-registry.ts`,
+`src/lib/wa-templates/internal-send.ts`, `src/lib/notify.ts`.
 
 ---
 
@@ -304,13 +370,36 @@ bölüm 11 (Web Sitesi Uyum Denetimi) ve ST bölümünde "Yapılacak" olarak dur
 
 ---
 
-## 7. Plan yükseltme (mevcut abone) — Stripe TEST MODU'nda uçtan uca doğrulama bekliyor
+## 7. Plan yükseltme (mevcut abone) — çift ücretlendirme fix'i
 
-**Durum (23 Eyl 2026): kod yazıldı, `tsc --noEmit` temiz, ama Stripe'a karşı hiç
-çalıştırılmadı.** Yıllık Starter ödeyen bir kullanıcı Pro'ya "Yükselt" derse eskiden
-ikinci bir Checkout Session açılıp **çift ücretlendirme** oluyordu (kullanıcı bunu fark
-edip sordu). Düzeltme: mevcut aboneliği `stripe.subscriptions.update(...)` ile
+**Durum: TAMAMLANDI, Stripe TEST MODU'nda uçtan uca doğrulandı (24 Eyl 2026).**
+Yıllık Starter ödeyen bir kullanıcı Pro'ya "Yükselt" derse eskiden ikinci bir
+Checkout Session açılıp **çift ücretlendirme** oluyordu (kullanıcı bunu fark edip
+sordu). Düzeltme: mevcut aboneliği `stripe.subscriptions.update(...)` ile
 prorasyonla güncelleyen yeni bir uç eklendi.
+
+**24 Eyl — testte bulunan ve DÜZELTİLEN ayrı bir bug (bu fix'ten eski, projenin
+ilk commit'inden beri vardı):** `checkout.session.completed` handler'ı
+`session.subscription_data.metadata` okuyordu — bu alan yalnızca Session
+OLUŞTURULURKEN gönderilen bir istek parametresi, gerçek webhook payload'ında
+hiç yok. Sonuç: `organizations.stripe_subscription_id` hiçbir gerçek müşteri
+için hiç yazılmıyordu. Bu da bugünkü fix'in dayandığı iki şeyi sessizce
+etkisiz bırakıyordu: "Pro'ya Yükselt" butonu (`stripe_subscription_id` şartı)
+ve `/api/stripe/checkout`'taki 409 çift-abonelik koruması. Düzeltme: org artık
+dosyadaki diğer handler'larla aynı desenle `session.customer` üzerinden
+bulunuyor. Commit `fc1bd14`. **Canlıda da aynı sorun olabilir** — mevcut
+Starter abonelerin DB'de `stripe_subscription_id` dolu mu diye kontrol
+edilmesi önerilir (deploy sonrası yeni event'ler doğru yazacak, ama eski
+kayıtlar için `stripe events resend` ile geriye dönük doldurma gerekebilir).
+
+**Test sonucu (Stripe test modu, `sirius-demo-nail-art-studio` org'u):**
+checkout ile test kartıyla (4242...) Starter satın alındı → webhook
+`stripe_subscription_id`'yi doğru yazdı (fix sonrası) → `/api/stripe/change-plan`
+ile Pro'ya yükseltme çağrıldı → Stripe'ta **tek** abonelik güncellendi (yeni
+abonelik AÇILMADI), `billing_reason: "subscription_update"` tek bir prorasyon
+faturası kesildi, DB'de `plan` doğru şekilde "pro" oldu. Test sonunda oluşan
+test-mode abonelikler iptal edildi, org kendi `customer.subscription.deleted`
+webhook akışıyla otomatik "trial"a döndü.
 
 **Değişen/eklenen dosyalar:**
 - `src/app/api/stripe/change-plan/route.ts` (yeni) — mevcut aboneliğin fiyat kalemini
@@ -330,22 +419,11 @@ işaret ediyor (ayrı bir staging ortamı yok — proje zaten "demo test hesapla
 DB üzerinde test ediyor, bkz. [[demo-test-accounts]]). Bu yüzden change-plan akışı
 **olduğu gibi** yerelde denenirse gerçek bir abonelik güncellenir/faturalanır.
 
-**Güvenli test adımları (henüz yapılmadı):**
-1. Stripe Dashboard'da "Test mode"a geç → Developers → API keys'den `sk_test_...`
-   anahtarını al.
-2. Test modunda Starter/Pro/Business için aylık+yıllık Price'ları oluştur (test modu
-   Price ID'leri canlıdakilerden tamamen farklı ve izole — test modunda oluşturulan
-   hiçbir kayıt canlı veriye dokunmaz).
-3. Yerelde **yalnızca** `STRIPE_SECRET_KEY` + 6 `STRIPE_PRICE_*` değişkenini geçici
-   olarak test değerleriyle değiştir (Vercel'deki canlı env'e dokunulmaz, tamamen ayrı).
-4. `stripe listen --forward-to localhost:3000/api/webhooks/stripe` çalıştır → verdiği
-   test `whsec_...`'i de geçici olarak `STRIPE_WEBHOOK_SECRET`'e yaz.
-5. "Sirius Demo Salon" test org'unu (bkz. [[demo-test-accounts]]) kullanarak: önce
-   `/auth/plan-sec`'ten test kartıyla (4242 4242 4242 4242) yıllık Starter satın al,
-   sonra `/dashboard/abonelik`'ten "Pro'ya Yükselt"e bas → Stripe test panelinde TEK
-   aboneliğin güncellendiğini, prorasyon faturasının doğru tutarda kesildiğini, DB'de
-   `organizations.plan`'ın "pro" olduğunu doğrula.
-6. Test bitince `.env.local`'i canlı değerlere geri al (git'e hiçbiri zaten girmiyor).
+**Kullanılan yöntem (canlı .env.local'e hiç dokunulmadı):** `STRIPE_SECRET_KEY`/
+`STRIPE_WEBHOOK_SECRET`/6 `STRIPE_PRICE_*` değişkenleri `.env.local`'in YANINA,
+ayrı bir `.env.development.local` dosyasına yazıldı — Next.js'in yükleme sırasında
+(`.env.development.local` → `.env.local` → ...) bu dosya yalnızca `npm run dev`
+çalışırken canlı değerlerin önüne geçiyor, `.env.local` hiç değişmedi. Test
+bitince dosya silindi.
 
-**Tetikleyici:** kullanıcı test modu anahtarlarını oluşturduğunda / test için uygun
-zaman bulduğunda devam edilecek.
+**Kalan:** Yok — kod main'e push edilmeye hazır.

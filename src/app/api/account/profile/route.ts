@@ -46,6 +46,14 @@ export async function PATCH(req: NextRequest) {
     phone: rawPhone || null,
     address: rawAddress || null,
     preferred_language,
+    // `staff.email` hiçbir akışta (kayıt, davet kabul) otomatik yazılmıyordu —
+    // bu yüzden telefonla giriş (bkz. /api/auth/login) e-postası olmayan bu
+    // satırı asla eşleştiremiyor, kullanıcı burada telefonunu güncellese bile
+    // giriş hâlâ eski/organizasyon numarasına bağlı kalıyordu. Kendi profilini
+    // güncelleyen kullanıcının gerçek giriş e-postasını buraya yazmak telefonla
+    // girişin bu satırı bulabilmesini sağlar; başka birinin verisi değil, her
+    // zaman çağıranın KENDİ doğrulanmış auth e-postası yazılır.
+    email: user.email ?? null,
   };
 
   let staffId = member.staff_id;
@@ -53,7 +61,7 @@ export async function PATCH(req: NextRequest) {
   if (staffId) {
     const { data: before } = await admin
       .from("staff")
-      .select("full_name, phone, address, preferred_language")
+      .select("full_name, phone, address, preferred_language, email")
       .eq("id", staffId)
       .single();
 

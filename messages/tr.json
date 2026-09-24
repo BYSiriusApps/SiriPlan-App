@@ -1271,6 +1271,7 @@
       "appStoreNote": "Hesabınızın planı ve kullanım limitleri yukarıda görünür.",
       "compareAndStart": "Planları Karşılaştır & Aboneliği Başlat",
       "upgradeToPro": "Pro'ya Yükselt",
+      "changeToPlan": "{plan} Planına Geç",
       "manageBilling": "Fatura & Ödeme Yöntemini Yönet",
       "trialBottomNote": "Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez. Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz.",
       "cancelSubscription": "Aboneliği İptal Et",
@@ -2208,7 +2209,6 @@
       "dragTitle": "Sürükle"
     },
     "permissions": {
-      "view_customers": "Müşterileri görsün",
       "edit_customers": "Müşterileri düzenleyebilsin",
       "delete_customers": "Müşteri silebilsin",
       "view_reports": "Raporları görsün",

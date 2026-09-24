@@ -42,17 +42,22 @@ export default function ProposalResponsePage({ params }: { params: Promise<{ tok
 
   async function respond(action: "accept" | "reject") {
     setResponding(true);
-    const res = await fetch("/api/public/appointment-proposal", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, action }),
-    });
-    const d = await res.json().catch(() => ({}));
-    setResponding(false);
-    if (res.ok) {
-      setResult(action === "accept" ? "accepted" : "rejected");
-    } else {
-      setError(d.error || "İşlem gerçekleştirilemedi.");
+    try {
+      const res = await fetch("/api/public/appointment-proposal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, action }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setResult(action === "accept" ? "accepted" : "rejected");
+      } else {
+        setError(d.error || "İşlem gerçekleştirilemedi.");
+      }
+    } catch {
+      setError("Bağlantı sorunu oluştu, lütfen tekrar deneyin.");
+    } finally {
+      setResponding(false);
     }
   }
 

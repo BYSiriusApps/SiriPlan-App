@@ -106,6 +106,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "action must be 'accept' veya 'reject'" }, { status: 400 });
   }
 
+  try {
+    return await handleRespond(token, action);
+  } catch (err) {
+    console.error("[public/appointment-proposal] POST beklenmeyen hata:", err);
+    return NextResponse.json({ error: "İşlem gerçekleştirilemedi, lütfen tekrar deneyin." }, { status: 500 });
+  }
+}
+
+async function handleRespond(token: string, action: "accept" | "reject") {
   const { supabase, source, row } = await findByToken(token);
   if (!row || !source) {
     return NextResponse.json({ error: "Öneri bulunamadı." }, { status: 404 });
