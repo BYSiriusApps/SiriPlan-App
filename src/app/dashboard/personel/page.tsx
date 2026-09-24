@@ -30,27 +30,22 @@ export default async function PersonelPage() {
 
   const orgId = member.org_id;
 
-  const { data: orgData } = await supabase
-    .from("organizations")
-    .select("max_staff, settings_json")
-    .eq("id", orgId)
-    .single();
-
-  const m = { org_id: orgId, role: member.role };
-  const maxStaff = (orgData as { max_staff?: number } | null)?.max_staff || 3;
-  // Native uygulamada mağaza kuralları gereği plan yükseltme çağrısı gösterilmez.
-  const mobileApp = await isMobileApp();
-  const settings = ((orgData as { settings_json?: Record<string, unknown> | null } | null)?.settings_json ?? {}) as Record<string, unknown>;
-  const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
-  const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
-
-  const [{ data: staff }, { data: badges }] = await Promise.all([
+  // Dört sorgu da sadece orgId'ye ihtiyaç duyar — eskiden orgData sıralı
+  // (ayrı ağ turu) çekiliyordu, sayfa açılışına gereksiz bir gidiş-dönüş
+  // ekliyordu. Tek dalgada paralel çalıştırıyoruz.
+  const [{ data: orgData }, mobileApp, { data: staff }, { data: badges }] = await Promise.all([
+    supabase
+      .from("organizations")
+      .select("max_staff, settings_json")
+      .eq("id", orgId)
+      .single(),
+    // Native uygulamada mağaza kuralları gereği plan yükseltme çağrısı gösterilmez.
+    isMobileApp(),
     supabase
       .from("staff")
       .select("*, staff_services(service_id, services(name))")
       .eq("org_id", orgId)
       .order("display_order"),
-
     supabase
       .from("staff_badges")
       .select("*")
@@ -58,6 +53,12 @@ export default async function PersonelPage() {
       .order("awarded_at", { ascending: false })
       .limit(20),
   ]);
+
+  const m = { org_id: orgId, role: member.role };
+  const maxStaff = (orgData as { max_staff?: number } | null)?.max_staff || 3;
+  const settings = ((orgData as { settings_json?: Record<string, unknown> | null } | null)?.settings_json ?? {}) as Record<string, unknown>;
+  const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
+  const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
 
   const badgeMap: Record<string, string[]> = {};
   (badges || []).forEach((b) => {
@@ -94,10 +95,10 @@ export default async function PersonelPage() {
           </p>
         </div>
         {canManageStaff(member) && (
-          <div className="flex items-stretch gap-2">
+          <div className="flex flex-wrap items-stretch gap-2">
             <Link
               href="/dashboard/personel/maas-hesaplama"
-              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-accent transition-colors"
+              className="inline-flex shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg border border-border text-sm font-medium whitespace-nowrap text-foreground hover:bg-accent transition-colors"
             >
               <Wallet className="h-4 w-4" />
               {t("staffPage.salaryCalc")}
@@ -109,7 +110,7 @@ export default async function PersonelPage() {
             {m.role === "owner" && (staff?.length || 0) < maxStaff && (
               <Link
                 href="/dashboard/personel/yeni"
-                className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                className="inline-flex shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium whitespace-nowrap hover:bg-primary/90 transition-colors"
               >
                 {t("staffPage.addStaff")}
               </Link>

@@ -53,6 +53,15 @@ const nextConfig: NextConfig = {
       "next-intl/config": "./src/i18n/request.ts",
     },
   },
+  // Next 16.1+ turned on Turbopack's persistent dev cache by default
+  // (writes/compacts a SQLite db under .next/dev/cache/turbopack on every
+  // run). Proje dizini bulut senkronlu bir sürücüde (D:) olduğu için bu
+  // yazma/compaction trafiği "Slow filesystem detected" uyarısına ve
+  // dakikalarca süren ilk derlemelere yol açıyor — kazandırdığından fazlasına
+  // mal oluyor. Yerel/senkronsuz bir sürücüye taşınana kadar kapalı tutuyoruz.
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+  },
   images: {
     remotePatterns: [
       { hostname: "*.supabase.co" },
