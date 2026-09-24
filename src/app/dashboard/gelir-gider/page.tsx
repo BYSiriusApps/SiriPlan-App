@@ -391,6 +391,8 @@ export default function GelirGiderPage() {
 
   const getIncomeText = (key: string) => t(`expensesPage.${key}`);
 
+  const pdfHref = `/api/export?format=pdf&scope=gelir-gider&year=${year}&view=${viewMode}${viewMode === "aylik" ? `&month=${month}` : ""}`;
+
   return (
     <div className="p-4 md:p-6 space-y-5 max-w-5xl">
       {/* Header */}
@@ -417,10 +419,10 @@ export default function GelirGiderPage() {
           </Button>
           {proTools && (
             <a
-              href={`/api/export?format=pdf&scope=gelir-gider&year=${year}${viewMode === "aylik" ? `&month=${month}` : ""}`}
+              href={pdfHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium shrink-0 hover:bg-accent transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-accent transition-colors shrink-0"
             >
               <Download className="h-4 w-4" />
               {getIncomeText("pdfExport")}
@@ -949,9 +951,9 @@ export default function GelirGiderPage() {
       {allEntries.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { type: "gelir", cats: categoriesGelir, color: "bg-emerald-500" },
-            { type: "gider", cats: categoriesGider, color: "bg-red-500" },
-          ].map(({ type, cats, color }) => {
+            { type: "gelir", cats: categoriesGelir, from: "#10b981", to: "#34d399" },
+            { type: "gider", cats: categoriesGider, from: "#ef4444", to: "#f87171" },
+          ].map(({ type, cats, from, to }) => {
             const typeEntries = allEntries.filter((e) => e.type === type);
             const total = typeEntries.reduce((s, e) => s + Number(e.amount), 0);
             if (total === 0) return null;
@@ -965,21 +967,32 @@ export default function GelirGiderPage() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">{type === "gelir" ? t("expensesPage.incomeDistribution") : t("expensesPage.expenseDistribution")}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  {byCategory.map((c) => (
-                    <div key={c.label}>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-muted-foreground">{c.label}</span>
-                        <span className="font-medium">{fmt(c.value)}</span>
+                <CardContent className="space-y-2.5">
+                  {byCategory.map((c, i) => {
+                    const isTop = i === 0;
+                    const pct = (c.value / total) * 100;
+                    return (
+                      <div key={c.label}>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className={isTop ? "font-semibold text-foreground" : "text-muted-foreground"}>
+                            {c.label}
+                            {isTop && <span className="ml-1">🏆</span>}
+                          </span>
+                          <span className={isTop ? "font-bold" : "font-medium"}>{fmt(c.value)}</span>
+                        </div>
+                        <div className="h-2 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-700 ease-out"
+                            style={{
+                              width: `${pct}%`,
+                              background: isTop ? `linear-gradient(90deg, ${from}, ${to})` : `${from}4d`,
+                              boxShadow: isTop ? `0 0 10px ${from}66` : undefined,
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${color}`}
-                          style={{ width: `${(c.value / total) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </CardContent>
               </Card>
             );

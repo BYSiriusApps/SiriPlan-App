@@ -104,7 +104,7 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
               key={plan.key}
               className={`relative overflow-visible ${isFull ? "flex flex-col" : ""} ${
                 plan.highlight
-                  ? "border-primary shadow-lg shadow-primary/10 scale-[1.02] z-10"
+                  ? "border-primary shadow-lg shadow-primary/10 md:-translate-y-2 z-10"
                   : "border-border"
               }`}
             >
@@ -174,6 +174,11 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
       <p className="text-center text-xs text-muted-foreground mt-6">
         {t("pricing.bottomNote")}
       </p>
+      {currency === "TRY" && (
+        <p className="text-center text-[11px] text-muted-foreground/80 mt-2 max-w-xl mx-auto">
+          {t("pricing.foreignFeeNote")}
+        </p>
+      )}
     </div>
   );
 }
