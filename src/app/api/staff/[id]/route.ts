@@ -12,6 +12,9 @@ async function getMember(supabase: Awaited<ReturnType<typeof createClient>>) {
   return member ?? null;
 }
 
+// bkz. api/staff/route.ts — maaş/prim yalnızca owner/manager'a açık.
+const OWNER_MANAGER_ONLY_STAFF_FIELDS = ["commission_rate", "base_salary"] as const;
+
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id } = await params;
   const supabase = await createClient();
@@ -26,6 +29,11 @@ export async function GET(_req: NextRequest, { params }: Params) {
     .single();
 
   if (error || !data) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
+
+  if (member.role === "staff") {
+    for (const field of OWNER_MANAGER_ONLY_STAFF_FIELDS) delete (data as Record<string, unknown>)[field];
+  }
+
   return NextResponse.json({ staff: data });
 }
 

@@ -13,6 +13,20 @@ function isMissingBaseSalaryColumn(message: string): boolean {
   return message.includes("base_salary");
 }
 
+// Maaş/prim yalnızca owner/manager'a açık — bu uç randevu formu, bekleme
+// listesi, stok gibi 'staff' rolünün de eriştiği sayfalarda çağrılıyor;
+// `select("*")` her personelin meslektaşının maaşını görmesine yol açıyordu.
+const OWNER_MANAGER_ONLY_STAFF_FIELDS = ["commission_rate", "base_salary"] as const;
+
+function stripSalaryIfStaff<T extends Record<string, unknown>>(rows: T[], role: string): T[] {
+  if (role !== "staff") return rows;
+  return rows.map((row) => {
+    const clean = { ...row };
+    for (const field of OWNER_MANAGER_ONLY_STAFF_FIELDS) delete clean[field];
+    return clean;
+  });
+}
+
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -31,7 +45,10 @@ export async function GET(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   // `currentStaffId`: isteği yapan kullanıcının kendi personel kaydı (varsa) —
   // randevu formu personel belirtilmediğinde bunu otomatik seçer.
-  return NextResponse.json({ staff: data, currentStaffId: member.staff_id ?? null });
+  return NextResponse.json({
+    staff: stripSalaryIfStaff(data ?? [], member.role),
+    currentStaffId: member.staff_id ?? null,
+  });
 }
 
 export async function POST(req: NextRequest) {
