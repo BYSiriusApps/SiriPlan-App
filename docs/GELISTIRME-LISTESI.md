@@ -64,6 +64,16 @@ bumps. `npm install` + `tsc --noEmit` + `npm run lint` (0 error) + `npm run buil
   düzenli açması beklenen davranış — her seferinde reddedilebilir. Bu not sadece
   "yarın tekrar karşımıza çıkarsa neden olduğunu hatırlayalım" diye tutuluyor.
 
+**11 Eyl 2026:** Dependabot açıklarının tamamı (next kritik RCE, xlsx prototype pollution vb.)
+temizlendi + panel görsel yüklemesi sunucu API + sharp yeniden kodlamaya taşındı. **Kalan tek
+açık:** `next-intl` 3.26.x → 4.x. İki moderate advisory (open-redirect + `experimental.messages.
+precompile` prototype pollution — precompile projede kullanılmıyor). 4.x **kırıcı geçiş**:
+ayrı PR + tam i18n regresyon testi gerekir. Tetikleyici: acil değil; başka bir next-intl işi
+açıldığında birlikte yapılır.
+
+**Migration bekliyor:** `20260911_upload_hardening_storage.sql` — kod deploy'undan SONRA
+SQL Editor'e (SVG mime kaldırma + Storage doğrudan-yazım politikalarını düşürme).
+
 ---
 
 ## 1. Supabase Auth e-postaları çok dilli olsun
