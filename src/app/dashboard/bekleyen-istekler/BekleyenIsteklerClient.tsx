@@ -7,7 +7,9 @@ import { tr } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { formatServicePrice } from "@/lib/currency";
 import { maskPhone } from "@/lib/phone";
 import Link from "next/link";
@@ -23,8 +25,16 @@ interface AppointmentRequest {
   price: number | null;
   note: string | null;
   source: string;
+  staff_id: string | null;
   staff: { full_name: string } | null;
   service: { name: string } | null;
+  proposed_status?: "none" | "pending" | "accepted" | "rejected";
+  proposed_appointment_at?: string | null;
+}
+
+interface StaffOption {
+  id: string;
+  full_name: string;
 }
 
 const SOURCE_META: Record<string, { label: string; icon: typeof MessageCircle; className: string }> = {
@@ -54,13 +64,19 @@ interface OverdueAppointment {
 export function BekleyenIsteklerClient({
   initialRequests,
   showPhone = true,
+  bookingSlotMinutes = 15,
   criticalStock = [],
   overdueAppointments = [],
+  staffOptions = [],
+  canReassignStaff = false,
 }: {
   initialRequests: AppointmentRequest[];
   showPhone?: boolean;
+  bookingSlotMinutes?: number;
   criticalStock?: CriticalStockItem[];
   overdueAppointments?: OverdueAppointment[];
+  staffOptions?: StaffOption[];
+  canReassignStaff?: boolean;
 }) {
   const t = useTranslations("dashboard");
   const to = useTranslations("dashboard.overdueAppointments");
@@ -90,6 +106,26 @@ export function BekleyenIsteklerClient({
     }
   }
 
+  async function handleReassign(id: string, staffId: string) {
+    setBusyId(id);
+    const res = await fetch(`/api/appointment-requests/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reassign_staff", staff_id: staffId }),
+    });
+    setBusyId(null);
+    if (res.ok) {
+      const staffName = staffOptions.find((s) => s.id === staffId)?.full_name ?? "";
+      setRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, staff_id: staffId, staff: { full_name: staffName } } : r))
+      );
+      toast.success("Personel değiştirildi");
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || "Personel değiştirilemedi");
+    }
+  }
+
   function toLocalInputValue(iso: string) {
     const d = new Date(iso);
     const pad = (n: number) => String(n).padStart(2, "0");
@@ -101,7 +137,7 @@ export function BekleyenIsteklerClient({
     setEditValue(toLocalInputValue(r.appointment_at));
   }
 
-  async function handleReschedule(id: string) {
+  async function handlePropose(id: string) {
     if (!editValue) return;
     const iso = new Date(editValue).toISOString();
     setBusyId(id);
@@ -112,12 +148,14 @@ export function BekleyenIsteklerClient({
     });
     setBusyId(null);
     if (res.ok) {
-      setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, appointment_at: iso } : r)));
+      setRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, proposed_status: "pending", proposed_appointment_at: iso } : r))
+      );
       setEditingId(null);
-      toast.success("Randevu talebi yeni saate taşındı");
+      toast.success("Yeni saat önerildi, müşteri cevabı bekleniyor");
     } else {
       const d = await res.json().catch(() => ({}));
-      toast.error(d.error || "Saat değiştirilemedi");
+      toast.error(d.error || "Öneri gönderilemedi");
     }
   }
 
@@ -336,48 +374,86 @@ export function BekleyenIsteklerClient({
                           {format(new Date(r.appointment_at), "HH:mm")}
                         </span>
                       </div>
-                      <p className="text-sm mt-1.5">
+                      <p className="text-sm mt-1.5 flex items-center gap-1.5 flex-wrap">
                         <span className="font-medium">{r.service?.name ?? "—"}</span>
-                        {r.staff?.full_name && <span className="text-muted-foreground"> · {r.staff.full_name}</span>}
+                        {canReassignStaff && staffOptions.length > 0 ? (
+                          <>
+                            <span className="text-muted-foreground">·</span>
+                            <Select
+                              value={r.staff_id ?? undefined}
+                              onValueChange={(v) => v && v !== r.staff_id && handleReassign(r.id, v)}
+                              disabled={busyId === r.id}
+                            >
+                              <SelectTrigger size="sm" className="h-6 text-xs px-2 py-0 w-auto min-w-[7rem] border-none bg-transparent shadow-none hover:bg-muted/60">
+                                <SelectValue placeholder="Personel seç" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {staffOptions.map((s) => (
+                                  <SelectItem key={s.id} value={s.id}>
+                                    {s.full_name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </>
+                        ) : (
+                          r.staff?.full_name && <span className="text-muted-foreground"> · {r.staff.full_name}</span>
+                        )}
                         {r.price !== null && <span className="text-muted-foreground"> · {formatServicePrice(r.price, undefined, locale)}</span>}
                       </p>
                       {r.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{r.note}&quot;</p>}
+                      {r.proposed_status === "pending" && r.proposed_appointment_at && (
+                        <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50">
+                          {t("proposalPendingBadge", { datetime: format(new Date(r.proposed_appointment_at), "d MMM HH:mm", { locale: tr }) })}
+                        </Badge>
+                      )}
+                      {r.proposed_status === "rejected" && (
+                        <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50">
+                          {t("proposalRejectedBadge")}
+                        </Badge>
+                      )}
                     </div>
                     {editingId === r.id ? (
-                      <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto sm:shrink-0">
-                        <input
-                          type="datetime-local"
+                      <div className="flex flex-col gap-2.5 w-full sm:w-80 sm:shrink-0 rounded-xl border bg-muted/30 p-3">
+                        <DateTimeSlotPicker
                           value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          className="text-xs border rounded-lg px-2 py-1.5 bg-background w-full sm:w-auto"
+                          onChange={setEditValue}
+                          minDate={new Date().toISOString().slice(0, 10)}
+                          slotMinutes={bookingSlotMinutes}
                         />
-                        <Button size="sm" className="gap-1.5" disabled={busy} onClick={() => handleReschedule(r.id)}>
-                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                          Kaydet
-                        </Button>
-                        <Button size="sm" variant="outline" disabled={busy} onClick={() => setEditingId(null)}>
-                          Vazgeç
-                        </Button>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                          <Button size="lg" className="gap-1.5 w-full h-12 text-base justify-center sm:h-9 sm:text-xs sm:flex-1" disabled={busy} onClick={() => handlePropose(r.id)}>
+                            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                            {t("proposeSubmit")}
+                          </Button>
+                          <Button size="lg" variant="outline" className="w-full h-12 text-base justify-center sm:w-auto sm:h-9 sm:text-xs" disabled={busy} onClick={() => setEditingId(null)}>
+                            {t("rescheduleCancelButton")}
+                          </Button>
+                        </div>
                       </div>
                     ) : (
-                      <div className="flex gap-2 flex-wrap w-full sm:w-auto sm:shrink-0">
+                      <div className="flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:w-auto sm:shrink-0">
                         <Button
-                          variant="outline" size="sm" className="gap-1.5"
-                          disabled={busy} onClick={() => startEditing(r)}
+                          size="lg" className="gap-1.5 w-full h-12 text-base justify-center bg-emerald-600 hover:bg-emerald-700 text-white sm:w-auto sm:h-9 sm:text-xs"
+                          disabled={busy} onClick={() => handleAction(r.id, "approve")}
                         >
-                          <Pencil className="h-3.5 w-3.5" />
-                          Düzenle
+                          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                          {t("approve")}
                         </Button>
                         <Button
-                          variant="outline" size="sm" className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
+                          variant="outline" size="lg"
+                          className="gap-1.5 w-full h-12 text-base justify-center border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 sm:w-auto sm:h-9 sm:text-xs"
+                          disabled={busy || r.proposed_status === "pending"} onClick={() => startEditing(r)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                          {t("proposeNewTime")}
+                        </Button>
+                        <Button
+                          variant="outline" size="lg" className="gap-1.5 w-full h-12 text-base justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 sm:w-auto sm:h-9 sm:text-xs"
                           disabled={busy} onClick={() => handleAction(r.id, "reject")}
                         >
-                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
-                          Reddet
-                        </Button>
-                        <Button size="sm" className="gap-1.5" disabled={busy} onClick={() => handleAction(r.id, "approve")}>
-                          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                          Onayla
+                          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                          {t("cancelAction")}
                         </Button>
                       </div>
                     )}

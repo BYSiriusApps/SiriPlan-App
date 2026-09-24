@@ -2,6 +2,7 @@ import { createClient, createAdminClient, getSessionUser } from "@/lib/supabase/
 import { getActiveMember } from "@/lib/active-org";
 import { getEntitlements, isTrialActive } from "@/lib/entitlements";
 import { isMobileApp } from "@/lib/mobile-app";
+import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { redirect } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +11,10 @@ import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, Calend
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { ManageBillingButton } from "@/components/dashboard/ManageBillingButton";
 import { CancelSubscriptionButton } from "@/components/dashboard/CancelSubscriptionButton";
+import { ChangePlanButton } from "@/components/dashboard/ChangePlanButton";
 import Link from "next/link";
+
+const PLAN_ORDER: PlanKey[] = ["starter", "pro", "business"];
 
 const SUPPORT_EMAIL = "info@bysirius.com";
 
@@ -46,7 +50,7 @@ export default async function AbonelikPage() {
   const Icon = planDetail.icon;
 
   const planDisplayName = org.plan === "trial"
-    ? (locale === "tr" ? "Deneme" : locale === "ru" ? "Пробный" : locale === "ar" ? "تجريبي" : "Trial")
+    ? t("dashboard.subscriptionPage.trialPlanName")
     : (org.plan === "starter" ? "Starter" : org.plan === "pro" ? "Pro" : "Business");
 
   const ent = getEntitlements(org);
@@ -112,7 +116,7 @@ export default async function AbonelikPage() {
                 {t("dashboard.subscriptionPage.planSuffix", { planName: planDisplayName })}
                 {trialActive && (
                   <span className="ml-2 align-middle text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                    {locale === "tr" ? "Pro özellikleri açık" : locale === "ru" ? "Возможности Pro активны" : locale === "ar" ? "ميزات Pro مفعلة" : "Pro features active"}
+                    {t("dashboard.subscriptionPage.proFeaturesActiveBadge")}
                   </span>
                 )}
               </p>
@@ -173,7 +177,40 @@ export default async function AbonelikPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {org.plan === "trial" || org.plan === "starter" ? (
+          {PLAN_ORDER.includes(org.plan as PlanKey) && org.stripe_subscription_id ? (
+            // Zaten ödeyen bir abone: /auth/plan-sec'e (yeni Checkout Session
+            // açar) DEĞİL, mevcut aboneliği güncelleyen change-plan akışına
+            // gider — aksi halde yıllık ödeyen biri ikinci bir abonelik daha
+            // satın alıp çift ücretlendirilirdi (bkz. change-plan/route.ts).
+            // Diğer iki plan da gösterilir (yön fark etmez: yükselt/düşür),
+            // fiyatı yüksek olan önce ve vurgulu (primary) render edilir.
+            <div className="space-y-2">
+              {(() => {
+                const currentPrice = PLANS[org.plan as PlanKey].price_monthly;
+                const otherPlans = PLAN_ORDER.filter((p) => p !== org.plan);
+                const nearestUpgrade = otherPlans
+                  .filter((p) => PLANS[p].price_monthly > currentPrice)
+                  .sort((a, b) => PLANS[a].price_monthly - PLANS[b].price_monthly)[0];
+                return [...otherPlans]
+                  .sort((a, b) => {
+                    const aIsUpgrade = PLANS[a].price_monthly > currentPrice ? 0 : 1;
+                    const bIsUpgrade = PLANS[b].price_monthly > currentPrice ? 0 : 1;
+                    return aIsUpgrade !== bIsUpgrade
+                      ? aIsUpgrade - bIsUpgrade
+                      : PLANS[a].price_monthly - PLANS[b].price_monthly;
+                  })
+                  .map((target) => (
+                    <ChangePlanButton
+                      key={target}
+                      targetPlan={target}
+                      planName={PLANS[target].name}
+                      label={t("dashboard.subscriptionPage.changeToPlan", { plan: PLANS[target].name })}
+                      variant={target === nearestUpgrade ? "primary" : "outline"}
+                    />
+                  ));
+              })()}
+            </div>
+          ) : org.plan === "trial" || org.plan === "starter" ? (
             <Link
               href="/auth/plan-sec"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"

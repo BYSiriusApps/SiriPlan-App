@@ -13,7 +13,7 @@ export default async function BekleyenIsteklerPage() {
 
   const nowIso = new Date().toISOString();
 
-  const [{ data: requests }, { data: inventoryItems }, { data: overdueRaw }] = await Promise.all([
+  const [{ data: requests }, { data: inventoryItems }, { data: overdueRaw }, { data: staffRows }] = await Promise.all([
     supabase
       .from("appointment_requests")
       .select("*, staff(full_name), service:services(name)")
@@ -36,6 +36,12 @@ export default async function BekleyenIsteklerPage() {
       .lt("appointment_at", nowIso)
       .order("appointment_at", { ascending: true })
       .limit(200),
+    supabase
+      .from("staff")
+      .select("id, full_name")
+      .eq("org_id", member.org_id)
+      .eq("is_active", true)
+      .order("full_name", { ascending: true }),
   ]);
 
   type InvRow = { id: string; name: string; current_stock: number; min_stock_alert: number; unit: string };
@@ -59,12 +65,17 @@ export default async function BekleyenIsteklerPage() {
   const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhone = m.role !== "staff" || staffPhoneAccess;
+  const rawSlotMinutes = Number(settings.booking_slot_minutes);
+  const bookingSlotMinutes = [15, 30, 60].includes(rawSlotMinutes) ? rawSlotMinutes : 15;
 
   return (
     <BekleyenIsteklerClient
       initialRequests={requests || []}
       showPhone={showPhone}
+      bookingSlotMinutes={bookingSlotMinutes}
       criticalStock={criticalStock}
+      staffOptions={staffRows || []}
+      canReassignStaff={canActOnAll}
       overdueAppointments={overdueAppointments.map((a) => ({
         id: a.id,
         customer_name: a.customer_name,

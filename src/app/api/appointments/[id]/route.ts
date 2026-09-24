@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
@@ -40,6 +41,58 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const ctx = await getAuthContext(supabase);
   if (!ctx) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { user, member } = ctx;
+
+  // "propose" = işletmenin bekleyen (status='talep') bir randevuya yeni saat
+  // ÖNERMESİ. Bilerek generic ALLOWED/update akışının DIŞINDA: appointment_at'e
+  // hiç dokunulmaz (aşağıdaki "revize" tetikleyicisi bu yüzden hiç ateşlenmez,
+  // mevcut davranış bozulmaz), sadece proposed_* alanları dolar ve müşteriye
+  // linkli WhatsApp şablonu gider. Müşteri /oneri/[token] ile kabul/red eder.
+  if (body.action === "propose") {
+    const newAt = body.appointment_at;
+    if (!newAt || Number.isNaN(new Date(newAt).getTime())) {
+      return NextResponse.json({ error: "Geçerli bir tarih/saat gerekli" }, { status: 400 });
+    }
+    const { data: current } = await supabase
+      .from("appointments")
+      .select("status, customer_name, customer_phone")
+      .eq("id", id)
+      .eq("org_id", member.org_id)
+      .single();
+    if (!current) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
+    if (current.status !== "talep") {
+      return NextResponse.json({ error: "Sadece onay bekleyen randevulara yeni saat önerilebilir" }, { status: 409 });
+    }
+
+    const token = crypto.randomBytes(16).toString("hex");
+    const { data: updated, error: proposeErr } = await supabase
+      .from("appointments")
+      .update({
+        proposed_appointment_at: newAt,
+        proposed_response_token: token,
+        proposed_status: "pending",
+        proposed_at: new Date().toISOString(),
+        proposed_by: user.id,
+      })
+      .eq("id", id)
+      .eq("org_id", member.org_id)
+      .select("*")
+      .single();
+    if (proposeErr) return NextResponse.json({ error: proposeErr.message }, { status: 500 });
+
+    if (updated.customer_phone) {
+      const { date, time } = formatApptDateTime(newAt);
+      sendPurposeTemplate({
+        toPhone: updated.customer_phone,
+        orgId: member.org_id,
+        purpose: "oneri",
+        vars: { customer_name: updated.customer_name, new_date: date, new_time: time },
+        appointmentAt: newAt,
+        cancelToken: token,
+      }).catch((err) => console.error("[appointments/[id]] sendPurposeTemplate(oneri) hata:", err));
+    }
+
+    return NextResponse.json({ appointment: updated });
+  }
 
   const ALLOWED = [
     "status", "note", "internal_note", "tip", "payment_method", "cancel_reason",

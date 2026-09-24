@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { hasProTools } from "@/lib/entitlements";
+import { hasPermission } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import * as XLSX from "xlsx";
 import { startOfDay, endOfDay, format as formatDate } from "date-fns";
@@ -129,6 +130,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format") || "json"; // json | csv | excel | pdf
   const gun = searchParams.get("gun"); // yyyy-MM-dd — verilirse gün sonu özeti PDF'i üretilir
+  const scope = searchParams.get("scope"); // "gelir-gider" — verilirse dönemsel gelir-gider PDF'i üretilir
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -159,8 +161,10 @@ export async function GET(req: NextRequest) {
   }
 
   // Gelir-Gider ekranının "PDF İndir" düğmesi — seçili ay veya yıl için özet.
-  const scope = searchParams.get("scope");
   if (format === "pdf" && scope === "gelir-gider") {
+    if (!hasPermission(member, "view_financials")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     const yearParam = searchParams.get("year") ?? new Date().getFullYear().toString();
     if (!/^\d{4}$/.test(yearParam)) return NextResponse.json({ error: "Invalid year" }, { status: 400 });
     const monthParam = searchParams.get("month");

@@ -31,6 +31,11 @@ import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
 import { OnboardingTour, OnboardingRestartButton } from "@/components/dashboard/OnboardingTour";
 import { TIMEZONE_OPTIONS } from "@/lib/timezones";
 import {
+  isNotificationSoundMuted,
+  setNotificationSoundMuted,
+  onNotificationSoundMuteChange,
+} from "@/lib/notification-sound";
+import {
   DEFAULT_WA_TEMPLATE,
   DEFAULT_WA_CANCEL_TEMPLATE,
   DEFAULT_WA_REVIZE_TEMPLATE,
@@ -174,6 +179,10 @@ export default function AyarlarPage() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [locating, setLocating] = useState(false);
+  // "Uygulama İçi Bildirim" kutucuğu — bu cihaza özel localStorage tercihi
+  // (bkz. lib/notification-sound.ts), org kaydına yazılmaz.
+  const [inAppSoundMuted, setInAppSoundMuted] = useState(() => (typeof window !== "undefined" ? isNotificationSoundMuted() : false));
+  useEffect(() => onNotificationSoundMuteChange(setInAppSoundMuted), []);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
@@ -715,6 +724,21 @@ export default function AyarlarPage() {
         <div>
           <Label>{t("settingsPage.whatsappNumberLabel")}</Label>
           <Input className="mt-1" value={org.whatsapp_number || ""} onChange={(e) => setField("whatsapp_number", e.target.value)} placeholder="+90 5xx xxx xxxx" />
+          {org.whatsapp_number ? (
+            <>
+              <p className="text-[11px] text-muted-foreground mt-1">{t("settingsPage.whatsappNumberNotifyHint")}</p>
+              <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer pt-1.5">
+                <Checkbox
+                  checked={(org.settings_json as Record<string, unknown> | null)?.notify_channel_whatsapp !== false}
+                  onCheckedChange={(c) => {
+                    const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                    setField("settings_json", { ...cur, notify_channel_whatsapp: !!c });
+                  }}
+                />
+                {t("settingsPage.notifyChannelActive")}
+              </label>
+            </>
+          ) : null}
         </div>
         <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50 border border-border">
           <div className="min-w-0">
@@ -741,6 +765,18 @@ export default function AyarlarPage() {
           <p className="text-xs text-muted-foreground">
             {t("settingsPage.telegramHint")}
           </p>
+          {org.telegram_chat_id ? (
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
+              <Checkbox
+                checked={(org.settings_json as Record<string, unknown> | null)?.notify_channel_telegram !== false}
+                onCheckedChange={(c) => {
+                  const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                  setField("settings_json", { ...cur, notify_channel_telegram: !!c });
+                }}
+              />
+              {t("settingsPage.notifyChannelActive")}
+            </label>
+          ) : null}
           <details className="group">
             <summary className="text-xs text-primary cursor-pointer select-none w-fit hover:underline">
               {t("settingsPage.telegramHelpSummary")}
@@ -751,6 +787,19 @@ export default function AyarlarPage() {
               <li>{t("settingsPage.telegramStep3")}</li>
             </ol>
           </details>
+        </div>
+
+        <div className="pt-1 space-y-2 border-t border-border">
+          <Label className="pt-2 block">{t("settingsPage.otherChannelsTitle")}</Label>
+          <p className="text-xs text-muted-foreground">{t("settingsPage.otherChannelsDesc")}</p>
+          <label className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-border text-sm cursor-pointer">
+            <span>{t("settingsPage.inAppChannelLabel")}</span>
+            <Checkbox checked={!inAppSoundMuted} onCheckedChange={(c) => setNotificationSoundMuted(!c)} />
+          </label>
+          <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-dashed border-border text-sm text-muted-foreground">
+            <span>{t("settingsPage.webPushChannelLabel")}</span>
+            <Checkbox checked disabled />
+          </div>
         </div>
       </SectionCard>
 
@@ -952,9 +1001,10 @@ export default function AyarlarPage() {
         description={t("settingsPage.onlineBookingDesc")}
         dataTour="online-booking"
       >
-        {/* Otomatik onay tüm planlarda; varsayılan işaretli
-            (has_auto_booking DB varsayılanı true). Kapatılınca randevular
-            "talep" kuyruğuna düşer ve salona bildirim gider. */}
+        {/* Otomatik onay tüm planlarda kullanılabilir; ilk kayıtta kapalı gelir
+            (has_auto_booking DB varsayılanı false), kullanıcı isterse açar.
+            Kapatıldığında/kapalıyken randevular "talep" kuyruğuna düşer ve
+            salona bildirim gider. */}
         <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
           <Checkbox
             id="has_auto_booking"

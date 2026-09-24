@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { ThemePicker } from "@/components/layout/ThemePicker";
 import { LanguagePicker } from "@/components/layout/LanguagePicker";
 import { LogoutButton } from "@/components/dashboard/LogoutButton";
+import { NotificationSoundToggle } from "@/components/dashboard/NotificationSoundToggle";
 import { GlobalSearch } from "@/components/dashboard/GlobalSearch";
 import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
 import { hasPermission } from "@/lib/permissions";
@@ -30,11 +31,11 @@ const NAV_ITEMS = [
   { href: "/dashboard/bekleyen-istekler", icon: Inbox,       tKey: "pendingRequests", minRole: "staff" },
   { href: "/dashboard/musteriler",    icon: Users,           tKey: "customers",      minRole: "staff"   },
   { href: "/dashboard/paketler",      icon: Ticket,          tKey: "packages",       minRole: "staff"   },
-  { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "manager" },
+  { href: "/dashboard/hizmetler",     icon: Scissors,        tKey: "services",       minRole: "staff"   },
   { href: "/dashboard/personel",      icon: UserCog,         tKey: "staff",          minRole: "manager" },
-  { href: "/dashboard/kampanyalar",   icon: Megaphone,       tKey: "campaigns",      badge: "Pro", minRole: "manager" },
+  { href: "/dashboard/kampanyalar",   icon: Megaphone,       tKey: "campaigns",      badge: "Pro", minRole: "staff" },
   { href: "/dashboard/website-ayarlari", icon: Globe,        tKey: "websiteSettings", badge: "Pro", minRole: "manager" },
-  { href: "/dashboard/raporlar",      icon: BarChart3,       tKey: "reports",        minRole: "manager" },
+  { href: "/dashboard/raporlar",      icon: BarChart3,       tKey: "reports",        minRole: "staff"   },
   { href: "/dashboard/gelir-gider",   icon: Wallet,          tKey: "income",         minRole: "manager" },
   { href: "/dashboard/stok",          icon: Package,         tKey: "stock",         minRole: "staff"   },
   { href: "/dashboard/veri-gocu",     icon: Import,          tKey: "dataMigration",  minRole: "manager" },
@@ -102,6 +103,9 @@ export function Sidebar({
   const visibleItems = NAV_ITEMS.filter(item => {
     if (item.href === "/dashboard/ayarlar") {
       return hasPermission({ role, permissions_json: permissionsJson }, "manage_settings");
+    }
+    if (item.href === "/dashboard/gelir-gider") {
+      return hasPermission({ role, permissions_json: permissionsJson }, "view_financials");
     }
     return canSee(role, item.minRole) && (!("planRequired" in item) || item.planRequired === plan);
   });
@@ -221,6 +225,7 @@ export function Sidebar({
                     "قانوني وحقوق النشر"}</span>
           </button>
           <div className="flex items-center gap-1">
+            <NotificationSoundToggle />
             <LanguagePicker />
             <ThemePicker />
           </div>

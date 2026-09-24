@@ -30,6 +30,8 @@ const NAME_FIX = {
   "Mine rey": "Mine Rey", "Lale kul": "Lale Kul", "Cilt Uzmanı": "Derya Şahin",
   "Eylül yıl": "Eylül Yıldız", "Melike Melike Yılmaz": "Melike Yılmaz",
   "Yusuf Yusuf Cin": "Yusuf Cin", "Yusuf guney": "Yusuf Güney", "Yusuf kuzey": "Yusuf Kuzey",
+  "Ffggg": "Buse Kaya", "Fuar test": "Derya Yıldırım", "Test Eylül": "Nazlı Şahin",
+  "Test Sablon Kontrol": "Ceren Polat", "Zeynep": "Zeynep Arslan",
 };
 const hhmm = (m) => `${String((m / 60) | 0).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}:00`;
 // slot-major cell stream: spreads appts across days first, then later times

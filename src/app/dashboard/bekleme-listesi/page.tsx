@@ -11,9 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { usePlan } from "@/components/dashboard/PlanContext";
 import { toast } from "sonner";
-import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Lock } from "lucide-react";
+import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Lock, Pencil, X } from "lucide-react";
 import { maskPhone } from "@/lib/phone";
 import type { Staff, Service } from "@/types/database";
 
@@ -24,6 +25,8 @@ type PendingAppt = {
   appointment_at: string;
   staff: { full_name: string } | null;
   service: { name: string } | null;
+  proposed_status?: "none" | "pending" | "accepted" | "rejected";
+  proposed_appointment_at?: string | null;
 };
 
 type WaitlistEntry = {
@@ -66,6 +69,10 @@ export default function BeklemeListesiPage() {
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [pendingAppts, setPendingAppts] = useState<PendingAppt[]>([]);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [proposingId, setProposingId] = useState<string | null>(null);
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
+  const [editingApptId, setEditingApptId] = useState<string | null>(null);
+  const [editApptValue, setEditApptValue] = useState("");
   const [staff, setStaff] = useState<Staff[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -117,6 +124,56 @@ export default function BeklemeListesiPage() {
     }
   }
 
+  function toLocalInputValue(iso: string) {
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function startProposing(a: PendingAppt) {
+    setEditingApptId(a.id);
+    setEditApptValue(toLocalInputValue(a.appointment_at));
+  }
+
+  async function proposeAppt(id: string) {
+    if (!editApptValue) return;
+    const iso = new Date(editApptValue).toISOString();
+    setProposingId(id);
+    const res = await fetch(`/api/appointments/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "propose", appointment_at: iso }),
+    });
+    setProposingId(null);
+    if (res.ok) {
+      setPendingAppts((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, proposed_status: "pending", proposed_appointment_at: iso } : a))
+      );
+      setEditingApptId(null);
+      toast.success("Yeni saat önerildi, müşteri cevabı bekleniyor");
+    } else {
+      const e = await res.json().catch(() => ({}));
+      toast.error(e.error || "Öneri gönderilemedi");
+    }
+  }
+
+  async function cancelAppt(id: string) {
+    setCancelingId(id);
+    const res = await fetch(`/api/appointments/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "iptal" }),
+    });
+    setCancelingId(null);
+    if (res.ok) {
+      setPendingAppts((prev) => prev.filter((a) => a.id !== id));
+      toast.success("Randevu talebi iptal edildi");
+    } else {
+      const e = await res.json().catch(() => ({}));
+      toast.error(e.error || "İptal edilemedi");
+    }
+  }
+
   useEffect(() => {
     fetchData();
     Promise.all([
@@ -135,6 +192,8 @@ export default function BeklemeListesiPage() {
 
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhone = role !== "staff" || staffPhoneAccess;
+  const rawSlotMinutes = Number(settings.booking_slot_minutes);
+  const bookingSlotMinutes = [15, 30, 60].includes(rawSlotMinutes) ? rawSlotMinutes : 15;
 
   const visible = entries.filter((e) => filterStatus === "all" || (e.status === "waiting" || e.status === "notified"));
 
@@ -238,29 +297,91 @@ export default function BeklemeListesiPage() {
               {pendingAppts.map((a) => (
                 <div
                   key={a.id}
-                  className="relative flex items-center justify-between gap-3 px-3 py-3 rounded-lg data-row transition-colors"
+                  className="relative flex flex-col gap-2 px-3 py-3 rounded-lg data-row transition-colors"
                 >
-                  <Link
-                    href={`/dashboard/randevular/${a.id}`}
-                    className="min-w-0 flex-1 before:absolute before:inset-0 before:content-['']"
-                  >
-                    <p className="text-sm font-medium leading-tight truncate">{a.customer_name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
-                      <Clock className="h-3 w-3 shrink-0" />
-                      {new Date(a.appointment_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
-                      {a.service?.name && ` · ${a.service.name}`}
-                      {a.staff?.full_name && ` · ${a.staff.full_name}`}
-                    </p>
-                  </Link>
-                  <Button
-                    size="sm"
-                    className="relative z-10 gap-1.5 text-xs h-8 shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white"
-                    disabled={approvingId === a.id}
-                    onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); approveAppt(a.id); }}
-                  >
-                    {approvingId === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                    {t("approve")}
-                  </Button>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <Link
+                      href={`/dashboard/randevular/${a.id}`}
+                      className="min-w-0 flex-1 before:absolute before:inset-0 before:content-['']"
+                    >
+                      <p className="text-sm font-medium leading-tight truncate">{a.customer_name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
+                        <Clock className="h-3 w-3 shrink-0" />
+                        {new Date(a.appointment_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                        {a.service?.name && ` · ${a.service.name}`}
+                        {a.staff?.full_name && ` · ${a.staff.full_name}`}
+                      </p>
+                    </Link>
+                    {editingApptId === a.id ? (
+                      <div
+                        className="relative z-10 flex flex-col gap-2.5 w-full sm:w-80 shrink-0 rounded-xl border bg-muted/30 p-3"
+                        onClick={(ev) => ev.stopPropagation()}
+                      >
+                        <DateTimeSlotPicker
+                          value={editApptValue}
+                          onChange={setEditApptValue}
+                          minDate={new Date().toISOString().slice(0, 10)}
+                          slotMinutes={bookingSlotMinutes}
+                        />
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                          <Button
+                            size="lg" className="gap-1.5 w-full h-12 text-base justify-center sm:h-9 sm:text-xs sm:flex-1"
+                            disabled={proposingId === a.id}
+                            onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); proposeAppt(a.id); }}
+                          >
+                            {proposingId === a.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                            {t("proposeSubmit")}
+                          </Button>
+                          <Button
+                            size="lg" variant="outline" className="w-full h-12 text-base justify-center sm:w-auto sm:h-9 sm:text-xs"
+                            onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); setEditingApptId(null); }}
+                          >
+                            {t("rescheduleCancelButton")}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative z-10 flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:w-auto sm:shrink-0">
+                        <Button
+                          size="lg"
+                          className="gap-1.5 w-full h-12 text-base justify-center bg-emerald-600 hover:bg-emerald-700 text-white sm:w-auto sm:h-8 sm:text-xs"
+                          disabled={approvingId === a.id}
+                          onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); approveAppt(a.id); }}
+                        >
+                          {approvingId === a.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                          {t("approve")}
+                        </Button>
+                        <Button
+                          size="lg" variant="outline"
+                          className="gap-1.5 w-full h-12 text-base justify-center border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 sm:w-auto sm:h-8 sm:text-xs"
+                          disabled={a.proposed_status === "pending"}
+                          onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); startProposing(a); }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                          {t("proposeNewTime")}
+                        </Button>
+                        <Button
+                          size="lg" variant="outline"
+                          className="gap-1.5 w-full h-12 text-base justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 sm:w-auto sm:h-8 sm:text-xs"
+                          disabled={cancelingId === a.id}
+                          onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); cancelAppt(a.id); }}
+                        >
+                          {cancelingId === a.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                          {t("cancelAction")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  {a.proposed_status === "pending" && a.proposed_appointment_at && (
+                    <Badge variant="outline" className="relative z-10 w-fit text-[10px] gap-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50">
+                      {t("proposalPendingBadge", { datetime: new Date(a.proposed_appointment_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) })}
+                    </Badge>
+                  )}
+                  {a.proposed_status === "rejected" && (
+                    <Badge variant="outline" className="relative z-10 w-fit text-[10px] gap-1 bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50">
+                      {t("proposalRejectedBadge")}
+                    </Badge>
+                  )}
                 </div>
               ))}
             </div>

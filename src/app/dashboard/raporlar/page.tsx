@@ -4,12 +4,12 @@ import { redirect } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { startOfMonth, endOfMonth, format, subMonths, startOfDay, endOfDay, addDays } from "date-fns";
-import { tr } from "date-fns/locale";
 import { TrendingUp, Users, Star, Download, CalendarCheck, ChevronLeft, ChevronRight, Activity, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { formatMoney } from "@/lib/currency";
 import { hasProTools } from "@/lib/entitlements";
+import { hasPermission } from "@/lib/permissions";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { compareValue } from "@/lib/report-trends";
 
@@ -29,7 +29,6 @@ export default async function RaporlarPage({
 
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
-  if (member.role === "staff") redirect("/dashboard");
 
   const orgId = member.org_id;
   const now = new Date();
@@ -42,6 +41,135 @@ export default async function RaporlarPage({
   const reportDay = new Date(dayParam + "T12:00:00");
   const dayStart = startOfDay(reportDay).toISOString();
   const dayEnd = endOfDay(reportDay).toISOString();
+  const prevDay = format(addDays(reportDay, -1), "yyyy-MM-dd");
+  const nextDay = format(addDays(reportDay, 1), "yyyy-MM-dd");
+  const isToday = dayParam === format(now, "yyyy-MM-dd");
+
+  const INTL_LOCALE: Record<string, string> = { tr: "tr-TR", en: "en-US", ru: "ru-RU", ar: "ar-EG" };
+  const intlLocale = INTL_LOCALE[locale] ?? "tr-TR";
+  const getFormattedDate = (date: Date) =>
+    date.toLocaleDateString(intlLocale, { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+
+  // Personelin işletmenin tüm cirosunu/giderini görmesi gerekmez — sahip
+  // view_reports iznini açmadığı sürece personel yalnızca KENDİ günlük
+  // işlerini görür (owner/manager her zaman tam raporu görür).
+  const isStaffLimited = member.role === "staff" && !hasPermission(member, "view_reports");
+
+  if (isStaffLimited) {
+    const { data: myAppts } = await supabase
+      .from("appointments")
+      .select("id, customer_name, appointment_at, status, price, tip, service:services(name)")
+      .eq("org_id", orgId)
+      .eq("staff_id", member.staff_id ?? "00000000-0000-0000-0000-000000000000")
+      .gte("appointment_at", dayStart)
+      .lte("appointment_at", dayEnd)
+      .order("appointment_at");
+
+    type MyAppt = {
+      id: string; customer_name: string; appointment_at: string; status: string;
+      price: number; tip: number | null; service?: { name: string } | null;
+    };
+    const mAppts = (myAppts ?? []) as unknown as MyAppt[];
+    const mDone = mAppts.filter((a) => a.status === "tamamlandi");
+    const myEarnings = mDone.reduce((s, a) => s + Number(a.price) + Number(a.tip ?? 0), 0);
+    const STATUS_TR: Record<string, { label: string; cls: string }> = {
+      talep: { label: "Bekliyor", cls: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" },
+      onaylandi: { label: "Onaylı", cls: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
+      tamamlandi: { label: "Tamamlandı", cls: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
+      iptal: { label: "İptal", cls: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
+      gelmedi: { label: "Gelmedi", cls: "bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400" },
+    };
+
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">Günlük Özet</span>
+              <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">Bugünkü İşlerim</h1>
+              <p className="text-muted-foreground text-sm">Yalnızca kendi randevularınız ve tamamladığınız işler görüntülenir.</p>
+            </div>
+            <HomeButton />
+          </div>
+        </div>
+
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <CalendarCheck className="h-4 w-4 text-primary" />
+                Günlük İşler
+                <span className="text-sm font-normal text-muted-foreground capitalize">
+                  — {getFormattedDate(reportDay)}{isToday ? " (bugün)" : ""}
+                </span>
+              </CardTitle>
+              <div className="flex items-center gap-1.5">
+                <Link href={`/dashboard/raporlar?gun=${prevDay}`} className="p-2 rounded-lg border hover:bg-accent transition-colors" aria-label="Önceki gün">
+                  <ChevronLeft className="h-4 w-4" />
+                </Link>
+                <form method="GET" action="/dashboard/raporlar">
+                  <input key={dayParam} type="date" name="gun" defaultValue={dayParam} max={format(now, "yyyy-MM-dd")}
+                    className="px-2 py-1.5 rounded-lg border border-border bg-background text-sm" />
+                  <button type="submit" className="ml-1.5 px-3 py-1.5 rounded-lg border text-sm hover:bg-accent transition-colors">Getir</button>
+                </form>
+                <Link href={`/dashboard/raporlar?gun=${nextDay}`} className="p-2 rounded-lg border hover:bg-accent transition-colors" aria-label="Sonraki gün">
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Randevu", value: String(mAppts.length) },
+                { label: "Tamamlanan", value: String(mDone.length) },
+                { label: "Bugünkü Kazancınız", value: formatMoney(myEarnings, currency, locale) },
+              ].map((kpi) => (
+                <div key={kpi.label} className="kpi-tile p-3 text-center">
+                  <p className="text-xs text-muted-foreground">{kpi.label}</p>
+                  <p className="text-xl font-bold mt-0.5 tabular-nums tracking-tight">{kpi.value}</p>
+                </div>
+              ))}
+            </div>
+
+            {mAppts.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-3">Bu günde randevu kaydı yok</p>
+            ) : (
+              <div className="space-y-1">
+                <div className="hidden md:grid grid-cols-[64px_1fr_1fr_120px_90px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+                  <span>Saat</span><span>Müşteri</span><span>Hizmet</span><span>Durum</span><span className="text-right">Tutar</span>
+                </div>
+                {mAppts.map((a) => {
+                  const st = STATUS_TR[a.status] ?? { label: a.status, cls: "bg-muted text-muted-foreground" };
+                  return (
+                    <Link key={a.id} href={`/dashboard/randevular/${a.id}`}
+                      className="data-row grid grid-cols-[1fr_auto] md:grid-cols-[64px_1fr_1fr_120px_90px] items-center gap-3 px-3 py-2.5 rounded-lg transition-colors">
+                      <div className="md:contents">
+                        <span className="hidden md:block text-sm font-semibold tabular-nums">{format(new Date(a.appointment_at), "HH:mm")}</span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            <span className="md:hidden font-semibold tabular-nums mr-1.5">{format(new Date(a.appointment_at), "HH:mm")}</span>
+                            {a.customer_name}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate md:hidden">{a.service?.name}</p>
+                        </div>
+                        <span className="hidden md:block text-xs text-muted-foreground truncate">{a.service?.name}</span>
+                        <span className={`hidden md:inline-flex w-fit px-2 py-0.5 rounded-full text-[11px] font-medium ${st.cls}`}>{st.label}</span>
+                      </div>
+                      <div className="flex items-center gap-2 justify-end">
+                        <span className={`md:hidden px-2 py-0.5 rounded-full text-[10px] font-medium ${st.cls}`}>{st.label}</span>
+                        <span className="text-sm font-semibold text-right tabular-nums">{formatMoney(Number(a.price), currency, locale)}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const [{ data: dayAppts }, { data: dayExpenses }, { count: dayNewCust }] = await Promise.all([
     supabase
@@ -75,25 +203,6 @@ export default async function RaporlarPage({
   const dayRevenue = dDone.reduce((s, a) => s + Number(a.price) + Number(a.tip ?? 0), 0);
   const dayGider = (dayExpenses ?? []).filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
   const dayManuelGelir = (dayExpenses ?? []).filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
-  const prevDay = format(addDays(reportDay, -1), "yyyy-MM-dd");
-  const nextDay = format(addDays(reportDay, 1), "yyyy-MM-dd");
-  const isToday = dayParam === format(now, "yyyy-MM-dd");
-
-  const isTr = t("guide").includes("Kılavuzu");
-  const isEn = t("guide").includes("User Guide");
-  const isRu = t("guide").includes("Руководство");
-
-  const getRepText = (key: string) => {
-    if (key === "submit") return isTr ? "Getir" : isEn ? "Fetch" : isRu ? "Получить" : "عرض";
-    if (key === "todayBadge") return isTr ? " (bugün)" : isEn ? " (today)" : isRu ? " (сегодня)" : " (اليوم)";
-    if (key === "emptyDay") return isTr ? "Bu günde randevu kaydı yok" : isEn ? "No appointment records for this day" : isRu ? "Нет записей о приемах на этот день" : "لا توجد سجلات مواعيد لهذا اليوم";
-    return "";
-  };
-
-  const getFormattedDate = (date: Date) => {
-    const localeStr = isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG";
-    return date.toLocaleDateString(localeStr, { day: "numeric", month: "long", year: "numeric", weekday: "long" });
-  };
 
   // Last 6 months stats
   const monthlyStats = await Promise.all(
@@ -101,8 +210,7 @@ export default async function RaporlarPage({
       const d = subMonths(now, i);
       const start = startOfMonth(d).toISOString();
       const end = endOfMonth(d).toISOString();
-      const localeStr = isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG";
-      const monthLabel = d.toLocaleDateString(localeStr, { month: "short", year: "numeric" });
+      const monthLabel = d.toLocaleDateString(intlLocale, { month: "short", year: "numeric" });
       return supabase
         .from("appointments")
         .select("price, tip, status")
@@ -214,7 +322,7 @@ export default async function RaporlarPage({
   const bestStaffStat = allStaffArr[0];
   const worstStaffStat = allStaffArr.length > 1 ? allStaffArr[allStaffArr.length - 1] : null;
   const formatDayLabel = (isoDay: string) =>
-    new Date(isoDay + "T12:00:00").toLocaleDateString(isTr ? "tr-TR" : isEn ? "en-US" : isRu ? "ru-RU" : "ar-EG", { day: "numeric", month: "short" });
+    new Date(isoDay + "T12:00:00").toLocaleDateString(intlLocale, { day: "numeric", month: "short" });
 
   // ── Gün sonu: bekleyen randevular + gün içi manuel gelir/gider dökümü ──
   type DayExpense = { id: string; type: string; amount: number; category: string | null; description: string | null; note: string | null };
@@ -266,7 +374,7 @@ export default async function RaporlarPage({
               <CalendarCheck className="h-4 w-4 text-primary" />
               {t("reportsPage.daySummary")}
               <span className="text-sm font-normal text-muted-foreground capitalize">
-                — {getFormattedDate(reportDay)}{isToday ? getRepText("todayBadge") : ""}
+                — {getFormattedDate(reportDay)}{isToday ? ` (${t("today")})` : ""}
               </span>
             </CardTitle>
             <div className="flex items-center gap-1.5">
@@ -345,7 +453,7 @@ export default async function RaporlarPage({
 
           {/* Günün randevu dökümü */}
           {dAppts.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-3">Bu günde randevu kaydı yok</p>
+            <p className="text-sm text-muted-foreground text-center py-3">{t("reportsPage.noAppointments")}</p>
           ) : (
             <div className="space-y-1">
               <div className="hidden md:grid grid-cols-[64px_1fr_1fr_120px_90px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
@@ -672,7 +780,7 @@ export default async function RaporlarPage({
           { label: "Toplam İşlem", value: String(total) },
           ...(kdvEnabled
             ? [{
-                label: (isTr ? "Tahmini KDV" : isEn ? "Estimated VAT" : isRu ? "Оценочный НДС" : "ضريبة القيمة المضافة") + ` (%${kdvRate})`,
+                label: t("reportsPage.estimatedVat") + ` (%${kdvRate})`,
                 value: formatMoney(kdvTutari, currency, locale),
               }]
             : []),

@@ -9,7 +9,7 @@ import { detectBot, BOT_REJECTION_MESSAGE } from "@/lib/bot-guard";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR } from "@/lib/tax-number";
 
 const VALID_BUSINESS_TYPES = new Set([
-  "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik",
+  "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik","pet_kuafor",
 ]);
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
@@ -227,6 +227,9 @@ export async function POST(req: NextRequest) {
     ...TRIAL_PLAN_LIMITS,
     locale: safeLocale,
     timezone: orgTimezone,
+    // Çoğu işletme sahibi internet/sosyal medyadan gelen randevuların otomatik
+    // onaylanmasını istemiyor — ilk kayıtta kapalı, dileyen ayarlardan açar.
+    has_auto_booking: false,
   };
 
   // signup_ip ve tax_number kolonları henüz uygulanmamış olabilir (migration

@@ -1,9 +1,9 @@
+import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
-import { notifyAppointment } from "@/lib/notify";
-import { normalizePhone } from "@/lib/phone";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
+import { approveAppointmentRequest } from "@/lib/appointment-requests/approve";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -11,10 +11,10 @@ type Params = { params: Promise<{ id: string }> };
 export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const body = await req.json();
-  const action: "approve" | "reject" | "reschedule" = body.action;
+  const action: "approve" | "reject" | "reschedule" | "reassign_staff" = body.action;
 
-  if (action !== "approve" && action !== "reject" && action !== "reschedule") {
-    return NextResponse.json({ error: "action must be 'approve', 'reject' veya 'reschedule'" }, { status: 400 });
+  if (action !== "approve" && action !== "reject" && action !== "reschedule" && action !== "reassign_staff") {
+    return NextResponse.json({ error: "action must be 'approve', 'reject', 'reschedule' veya 'reassign_staff'" }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -45,120 +45,82 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ status: "rejected" });
   }
 
+  // "reassign_staff" = talep henüz onaylanmadan, "fark etmez" ile otomatik
+  // atanmış (veya müşterinin seçtiği) personeli işletme değiştiriyor. Sadece
+  // appointment_requests.staff_id güncellenir — onaylandığında bu değer
+  // approveAppointmentRequest() tarafından appointments'e olduğu gibi kopyalanır.
+  if (action === "reassign_staff") {
+    if (member.role === "staff") {
+      return NextResponse.json({ error: "Bu işlem için yetkiniz yok" }, { status: 403 });
+    }
+    const staffId = body.staff_id;
+    if (typeof staffId !== "string" || !staffId) {
+      return NextResponse.json({ error: "staff_id gerekli" }, { status: 400 });
+    }
+    const { data: staffRow } = await supabase
+      .from("staff")
+      .select("id, full_name")
+      .eq("id", staffId)
+      .eq("org_id", member.org_id)
+      .eq("is_active", true)
+      .single();
+    if (!staffRow) {
+      return NextResponse.json({ error: "Personel bulunamadı" }, { status: 404 });
+    }
+    const { error: reassignErr } = await supabase
+      .from("appointment_requests")
+      .update({ staff_id: staffId, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    if (reassignErr) return NextResponse.json({ error: reassignErr.message }, { status: 500 });
+    return NextResponse.json({ status: "reassigned", staff: { id: staffRow.id, full_name: staffRow.full_name } });
+  }
+
+  // "reschedule" = işletmenin müşteriye yeni bir saat ÖNERMESİ. appointment_at'e
+  // dokunulmaz (mevcut talep bilgisi korunur) — sadece proposed_* alanları
+  // doldurulur ve müşteriye linkli bir WhatsApp şablonu gider. Müşteri
+  // /oneri/[token] üzerinden kabul/red eder (bkz. api/public/appointment-proposal).
   if (action === "reschedule") {
     const newAt = body.appointment_at;
     if (!newAt || Number.isNaN(new Date(newAt).getTime())) {
       return NextResponse.json({ error: "Geçerli bir tarih/saat gerekli" }, { status: 400 });
     }
+    const token = crypto.randomBytes(16).toString("hex");
     const { data: updated, error: updErr } = await supabase
       .from("appointment_requests")
-      .update({ appointment_at: newAt, updated_at: new Date().toISOString() })
+      .update({
+        proposed_appointment_at: newAt,
+        proposed_response_token: token,
+        proposed_status: "pending",
+        proposed_at: new Date().toISOString(),
+        proposed_by: user.id,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", id)
-      .select("appointment_at")
+      .select("*")
       .single();
     if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 });
-    return NextResponse.json({ status: "rescheduled", appointment_at: updated.appointment_at });
+
+    if (updated.customer_phone) {
+      const { date, time } = formatApptDateTime(newAt);
+      sendPurposeTemplate({
+        toPhone: updated.customer_phone,
+        orgId: member.org_id,
+        purpose: "oneri",
+        vars: { customer_name: updated.customer_name, new_date: date, new_time: time },
+        appointmentAt: newAt,
+        cancelToken: token,
+      }).catch((err) => console.error("[appointment-requests] sendPurposeTemplate(oneri) hata:", err));
+    }
+
+    return NextResponse.json({ status: "proposed", proposed_appointment_at: updated.proposed_appointment_at });
   }
 
-  // action === "approve" → create appointment from request
-  const { data: service } = await supabase
-    .from("services")
-    .select("price, duration_minutes, name")
-    .eq("id", reqRow.service_id)
-    .eq("org_id", member.org_id)
-    .single();
-
-  // Find or create customer
-  const normalizedPhone = normalizePhone(reqRow.customer_phone);
-  let customerId: string | null = null;
-  const { data: existingCustomer } = await supabase
-    .from("customers")
-    .select("id")
-    .eq("org_id", member.org_id)
-    .eq("phone", normalizedPhone)
-    .single();
-
-  if (existingCustomer) {
-    customerId = existingCustomer.id;
-  } else {
-    const { data: newCustomer } = await supabase
-      .from("customers")
-      .insert({
-        org_id: member.org_id,
-        full_name: reqRow.customer_name,
-        phone: normalizedPhone,
-        email: reqRow.customer_email,
-        source: reqRow.source,
-      })
-      .select("id")
-      .single();
-    if (newCustomer) customerId = newCustomer.id;
+  // action === "approve" → create appointment from request (ortak yardımcı,
+  // müşterinin /oneri/[token] üzerinden kabul etmesiyle AYNI mantığı kullanır)
+  const result = await approveAppointmentRequest(supabase, member.org_id, reqRow);
+  if ("error" in result) {
+    return NextResponse.json({ error: result.error }, { status: result.status ?? 500 });
   }
 
-  const svc = service as { price: number; duration_minutes: number; name: string } | null;
-  const finalPrice = reqRow.price ?? svc?.price;
-  const finalDuration = reqRow.duration_minutes ?? svc?.duration_minutes;
-
-  const { data: appt, error: apptErr } = await supabase
-    .from("appointments")
-    .insert({
-      org_id: member.org_id,
-      customer_id: customerId,
-      customer_name: reqRow.customer_name,
-      customer_phone: reqRow.customer_phone,
-      staff_id: reqRow.staff_id,
-      assigned_staff_id: reqRow.staff_id,
-      service_id: reqRow.service_id,
-      extra_services_json: reqRow.extra_services_json,
-      appointment_at: reqRow.appointment_at,
-      duration_minutes: finalDuration,
-      price: finalPrice,
-      source: reqRow.source,
-      note: reqRow.note,
-      status: "onaylandi",
-      is_auto: false,
-    })
-    .select("*")
-    .single();
-
-  if (apptErr) return NextResponse.json({ error: apptErr.message }, { status: 500 });
-
-  // Mark request as approved
-  await supabase
-    .from("appointment_requests")
-    .update({ status: "approved", updated_at: new Date().toISOString() })
-    .eq("id", id);
-
-  // Bildirim (fire-and-forget)
-  notifyAppointment({
-    id: (appt as { id: string }).id,
-    org_id: member.org_id,
-    customer_name: reqRow.customer_name,
-    customer_phone: reqRow.customer_phone,
-    appointment_at: reqRow.appointment_at,
-    service_id: reqRow.service_id,
-    staff_id: reqRow.staff_id,
-    assigned_staff_id: reqRow.staff_id,
-    price: finalPrice,
-    note: reqRow.note,
-    source: reqRow.source,
-  }).catch((err) => console.error("[appointment-requests] notifyAppointment hata:", err));
-
-  // Müşteriye Meta onaylı WhatsApp onay şablonu — panelden manuel onaylanan
-  // taleplerde de otomatik onaylananlarla aynı şekilde müşteri haberdar edilmeli.
-  if (reqRow.customer_phone) {
-    const { date, time } = formatApptDateTime(reqRow.appointment_at);
-    sendPurposeTemplate({
-      toPhone: reqRow.customer_phone,
-      orgId: member.org_id,
-      purpose: "onay",
-      vars: { customer_name: reqRow.customer_name, date, time },
-      appointmentAt: reqRow.appointment_at,
-      cancelToken: (appt as { cancel_token?: string }).cancel_token,
-    })
-      .then((r) => console.log(`[appointment-requests] onay WA sonucu — id=${id}`, JSON.stringify(r)))
-      .catch((err) => console.error("[appointment-requests] sendPurposeTemplate(onay) hata:", err));
-  }
-
-  return NextResponse.json({ status: "approved", appointment: appt }, { status: 201 });
+  return NextResponse.json({ status: "approved", appointment: result.appointment }, { status: 201 });
 }

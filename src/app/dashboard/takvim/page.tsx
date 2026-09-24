@@ -94,7 +94,7 @@ export default async function TakvimPage({
   const [{ data: appointments }, { data: staff }, { data: services }, { data: timeOff }] = await Promise.all([
     supabase
       .from("appointments")
-      .select("id, status, customer_name, customer_phone, appointment_at, duration_minutes, staff_id, service:services(name)")
+      .select("id, status, customer_name, customer_phone, customer_id, appointment_at, duration_minutes, staff_id, service:services(name)")
       .eq("org_id", member.org_id)
       .gte("appointment_at", queryStart.toISOString())
       .lt("appointment_at", queryEnd.toISOString())
@@ -185,6 +185,7 @@ export default async function TakvimPage({
             id: a.id,
             status: a.status,
             customer_name: a.customer_name,
+            customer_id: (a as { customer_id?: string | null }).customer_id ?? null,
             appointment_at: a.appointment_at,
             duration_minutes: a.duration_minutes,
             staff_id: a.staff_id,

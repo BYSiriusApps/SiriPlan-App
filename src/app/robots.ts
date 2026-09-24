@@ -24,6 +24,8 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "Applebot-Extended", allow: "/" },
       // Cohere
       { userAgent: "cohere-ai", allow: "/" },
+      // Common Crawl — birçok AI eğitim/RAG hattının kaynağı
+      { userAgent: "CCBot", allow: "/" },
     ],
     sitemap: "https://siriplan.com/sitemap.xml",
     host: "https://siriplan.com",

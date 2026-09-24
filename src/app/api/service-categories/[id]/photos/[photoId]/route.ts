@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
+import { hasPermission } from "@/lib/permissions";
 
 export async function DELETE(
   _req: NextRequest,
@@ -14,7 +15,7 @@ export async function DELETE(
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
-  if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
+  if (!hasPermission(member, "edit_services")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
   const { error } = await supabase
     .from("service_category_photos")

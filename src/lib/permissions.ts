@@ -1,7 +1,6 @@
 /** Personel izin sistemi — davet dialogu ve personel düzenleme sayfası ortak kullanır. */
 
 export const PERM_LABELS: Record<string, string> = {
-  view_customers:      "Müşterileri görsün",
   edit_customers:      "Müşterileri düzenleyebilsin",
   delete_customers:    "Müşteri silebilsin",
   view_reports:        "Raporları görsün",
@@ -27,15 +26,16 @@ export const OWNER_ONLY_PERMS = new Set(["manage_staff"]);
 
 export const DEFAULT_PERMS: Record<"staff" | "manager", Record<string, boolean>> = {
   staff: {
-    view_customers: true, edit_customers: false, delete_customers: false,
+    edit_customers: false, delete_customers: false,
     view_reports: false, edit_services: false, manage_staff: false,
     view_financials: false, manage_campaigns: false, create_appointments: true,
     edit_appointments: true, cancel_appointments: false, manage_settings: false,
   },
   manager: {
-    view_customers: true, edit_customers: true, delete_customers: true,
-    view_reports: true, edit_services: true, manage_staff: false,
-    view_financials: true, manage_campaigns: true, create_appointments: true,
+    edit_customers: true, delete_customers: true,
+    view_reports: true, edit_services: true, manage_staff: true,
+    // Gelir/gider varsayılan KAPALI: işletme sahibi isterse tek tek yöneticiye açar.
+    view_financials: false, manage_campaigns: true, create_appointments: true,
     edit_appointments: true, cancel_appointments: true, manage_settings: true,
   },
 };
@@ -66,9 +66,20 @@ export function hasPermission(
   return !!defaults?.[key];
 }
 
-/** Personel/yetki yönetimi yapabilir mi? (sahip veya manage_staff verilmiş üye) */
+/**
+ * Personel davet edebilir / yetki yönetebilir mi?
+ *
+ * Yalnızca sahip ve yönetici rolü bu yetkiye sahip olabilir — personel rolü
+ * `manage_staff` bayrağı bir şekilde `true` olsa bile ASLA geçemez. Eskiden
+ * bu kontrol yalnızca bayrağa bakıyordu, yani sahip bir personele yanlışlıkla
+ * `manage_staff` verirse (veya davet API'si bunu doğrudan kontrol etseydi)
+ * o personel de davet gönderip yetki dağıtabilirdi.
+ */
 export function canManageStaff(member: PermissionSubject | null | undefined): boolean {
-  return !!member && (member.role === "owner" || !!member.permissions_json?.manage_staff);
+  if (!member) return false;
+  if (member.role === "owner") return true;
+  if (member.role !== "manager") return false;
+  return hasPermission(member, "manage_staff");
 }
 
 /** Gelen izin nesnesini yalnızca bilinen anahtarlara indirger. */

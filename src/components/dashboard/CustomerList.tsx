@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, MessageCircle, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2 } from "lucide-react";
+import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, ShieldCheck, ShieldOff, MessageCircle, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
 
@@ -25,6 +25,7 @@ import {
 import type { Customer } from "@/types/database";
 import { maskPhone } from "@/lib/phone";
 import { usePlan } from "@/components/dashboard/PlanContext";
+import { getFieldCatalog, BADGE_COLOR_CLASS } from "@/lib/customer-fields/catalog";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
@@ -61,14 +62,19 @@ interface Props {
   initialKampanya?: boolean;
   /** Silme butonu — yalnızca sahip / `delete_customers` izni olan üyeler için. */
   canDelete?: boolean;
+  businessType?: string | null;
 }
 
 /**
  * Müşteri listesi — arama kutusuna yazdıkça (akıllı klavye gibi) anında
  * filtreler; sunucuya gitmez. Filtre temizleme (X) butonu vardır.
  */
-export function CustomerList({ customers, showPhoneButtons, initialKampanya = false, canDelete = false }: Props) {
+export function CustomerList({ customers, showPhoneButtons, initialKampanya = false, canDelete = false, businessType = null }: Props) {
   const t = useTranslations("dashboard");
+  const statusFieldDef = useMemo(
+    () => getFieldCatalog(businessType).find((f) => f.key === "status" && f.type === "select"),
+    [businessType]
+  );
   const activeLocale = useLocale();
   const dateFnsLocale = DATE_FNS_LOCALES[activeLocale as keyof typeof DATE_FNS_LOCALES] ?? tr;
   const router = useRouter();
@@ -300,6 +306,15 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                         </div>
                       )}
                       <div className="flex items-center gap-1">
+                        {cust.kvkk_consent ? (
+                          <span title={t("customerList.kvkkAcceptedTitle")}>
+                            <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
+                          </span>
+                        ) : (
+                          <span title={t("customerList.kvkkMissingTitle")}>
+                            <ShieldOff className="h-3.5 w-3.5 text-muted-foreground/40" />
+                          </span>
+                        )}
                         {cust.marketing_consent ? (
                           <span title={t("customerList.marketingAcceptedTitle")}>
                             <Megaphone className="h-3.5 w-3.5 text-green-500" />
@@ -315,6 +330,18 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                           </Badge>
                         )}
                       </div>
+                      {statusFieldDef && (() => {
+                        const statusValue = cust.custom_fields?.status;
+                        const opt = statusFieldDef.options?.find((o) => o.value === statusValue);
+                        return opt ? (
+                          <Badge
+                            variant="outline"
+                            className={cn("text-[10px]", opt.color ? BADGE_COLOR_CLASS[opt.color] : undefined)}
+                          >
+                            {statusFieldDef.icon} {opt.label}
+                          </Badge>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
 

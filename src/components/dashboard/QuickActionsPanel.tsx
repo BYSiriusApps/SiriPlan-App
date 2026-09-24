@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { saveUserShortcuts, type ShortcutItem } from "@/app/actions/shortcuts";
+import { hasPermission } from "@/lib/permissions";
 
 // href → dashboard çeviri anahtarı. Etiketler DB'ye Türkçe olarak kaydedilir
 // (geriye dönük uyumluluk) ama ekranda her zaman bu eşlemeden, aktif dile
@@ -74,35 +75,46 @@ interface Props {
   initialShortcuts: ShortcutItem[];
   orgId: string;
   role?: string;
+  permissionsJson?: Record<string, boolean> | null;
 }
 
 const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
-function canAccess(href: string, role: string) {
+function canAccess(href: string, role: string, permissionsJson: Record<string, boolean> | null) {
+  // Gelir/gider: sahip her zaman, yönetici yalnızca view_financials izni
+  // açıksa, personel hiçbir zaman (bkz. Sidebar/MobileSideMenu ile aynı kural).
+  if (href.startsWith("/dashboard/gelir-gider")) {
+    return hasPermission({ role, permissions_json: permissionsJson }, "view_financials");
+  }
+  // Raporlar/Hizmetler/Kampanyalar: herkese açık — sayfa kendi içinde
+  // personeli görüntülemeyle sınırlar, düzenleme/oluşturma ayrıca kontrol edilir
+  // (edit_services / manage_campaigns), sahip/yönetici tam erişime sahiptir.
+  if (
+    href.startsWith("/dashboard/raporlar") ||
+    href.startsWith("/dashboard/hizmetler") ||
+    href.startsWith("/dashboard/kampanyalar")
+  ) {
+    return true;
+  }
+
   let minRole = "staff";
   if (href.startsWith("/dashboard/ayarlar") || href.startsWith("/dashboard/abonelik")) {
     minRole = "owner";
-  } else if (
-    href.startsWith("/dashboard/personel") ||
-    href.startsWith("/dashboard/hizmetler") ||
-    href.startsWith("/dashboard/kampanyalar") ||
-    href.startsWith("/dashboard/raporlar") ||
-    href.startsWith("/dashboard/gelir-gider")
-  ) {
+  } else if (href.startsWith("/dashboard/personel")) {
     minRole = "manager";
   }
   return (ROLE_RANK[role] ?? 0) >= (ROLE_RANK[minRole] ?? 0);
 }
 
 /* ── Component ─────────────────────────────────────────────────────────── */
-export function QuickActionsPanel({ initialShortcuts, orgId, role = "staff" }: Props) {
+export function QuickActionsPanel({ initialShortcuts, orgId, role = "staff", permissionsJson = null }: Props) {
   const t = useTranslations("dashboard");
   const labelFor = (item: { href: string; label: string }) => {
     const key = SHORTCUT_LABEL_KEYS[item.href];
     return key ? t(key) : item.label;
   };
 
-  const filteredInitial = initialShortcuts.filter((s) => canAccess(s.href, role));
-  const filteredDefault = DEFAULT_SHORTCUTS.filter((s) => canAccess(s.href, role));
+  const filteredInitial = initialShortcuts.filter((s) => canAccess(s.href, role, permissionsJson));
+  const filteredDefault = DEFAULT_SHORTCUTS.filter((s) => canAccess(s.href, role, permissionsJson));
   const saved = filteredInitial.length > 0 ? filteredInitial : filteredDefault;
   const [shortcuts, setShortcuts] = useState<ShortcutItem[]>(saved);
   const [editMode, setEditMode] = useState(false);
@@ -154,7 +166,7 @@ export function QuickActionsPanel({ initialShortcuts, orgId, role = "staff" }: P
     setEditMode(false);
   };
 
-  const available = ALL_SHORTCUTS.filter((a) => canAccess(a.href, role) && !shortcuts.some((s) => s.href === a.href));
+  const available = ALL_SHORTCUTS.filter((a) => canAccess(a.href, role, permissionsJson) && !shortcuts.some((s) => s.href === a.href));
 
   return (
     <>

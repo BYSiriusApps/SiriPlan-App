@@ -31,7 +31,7 @@ const LOCALES = [
 
 const BUSINESS_TYPE_KEYS = [
   "kuafor", "berber", "guzellik", "spa", "nail",
-  "estetik", "makyaj", "tattoo", "diyetisyen", "kas_kirpik",
+  "estetik", "makyaj", "tattoo", "diyetisyen", "kas_kirpik", "pet_kuafor",
 ] as const;
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;

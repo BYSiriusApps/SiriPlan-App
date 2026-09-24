@@ -22,9 +22,10 @@ export default async function MusterilerPage({
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null } | null };
+  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null; type?: string | null } | null };
   const m = member as unknown as MemberWithOrg;
   const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
+  const businessType = m.organizations?.type ?? null;
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
   const showPhoneButtons = m.role !== "staff" || staffPhoneAccess;
   // Silme butonu yalnızca yetkisi olanlara çizilir; asıl denetim
@@ -65,6 +66,7 @@ export default async function MusterilerPage({
         showPhoneButtons={showPhoneButtons}
         initialKampanya={params.kampanya === "1"}
         canDelete={canDelete}
+        businessType={businessType}
       />
     </div>
   );

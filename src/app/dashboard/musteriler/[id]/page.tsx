@@ -19,6 +19,9 @@ import { STATUS_LABEL_KEYS } from "@/lib/appointment-status";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { hasProTools } from "@/lib/entitlements";
 import CustomerPackages from "./CustomerPackages";
+import CustomerCustomFields from "./CustomerCustomFields";
+import CustomerMetrics from "./CustomerMetrics";
+import CustomerBeforeAfterPhotos from "./CustomerBeforeAfterPhotos";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800";
@@ -65,7 +68,7 @@ export default async function MusteriDetailPage({
   if (!customer) notFound();
   const c = customer as Customer;
 
-  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null; plan?: string | null; trial_ends_at?: string | null } | null };
+  type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null; plan?: string | null; trial_ends_at?: string | null; type?: string | null } | null };
   const m = member as unknown as MemberWithOrg;
   const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
   const staffPhoneAccess = "staff_phone_access" in settings ? !!settings.staff_phone_access : true;
@@ -74,6 +77,7 @@ export default async function MusteriDetailPage({
   const showScore = hasProTools(m.organizations);
   const currency = (settings.currency as string) || "TRY";
   const serviceOpts = (serviceRows ?? []) as { id: string; name: string }[];
+  const businessType = m.organizations?.type ?? null;
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
@@ -265,6 +269,15 @@ export default async function MusteriDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      {/* Sektöre özel alanlar (durum rozeti, kilo/muayene vb.) */}
+      <CustomerCustomFields
+        customerId={c.id}
+        businessType={businessType}
+        customFields={c.custom_fields ?? {}}
+      />
+      <CustomerMetrics customerId={c.id} businessType={businessType} />
+      <CustomerBeforeAfterPhotos customerId={c.id} businessType={businessType} />
 
       {/* Paketler / seans takibi */}
       <CustomerPackages

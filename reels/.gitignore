@@ -1,0 +1,13 @@
+node_modules
+dist
+build
+.DS_Store
+.env
+
+# Ignore the output video from Git but not videos you import into src/.
+out
+
+# Ham çekim dosyaları büyük ve kişisel — repo'ya girmesin, sadece README.md kalsın.
+public/videos/**/*.mp4
+public/videos/**/*.mov
+public/videos/**/*.MOV

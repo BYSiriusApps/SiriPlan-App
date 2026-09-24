@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle, Mail, Phone, ArrowLeft, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
 import { formatPrice, type PricingCurrency } from "@/lib/pricing";
 
@@ -184,13 +185,13 @@ export default function PlanSecPage() {
     const trialEnded = expired || trialActive === false;
     return (
       <div className="relative min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30">
-        <a
+        <Link
           href="/dashboard"
           className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Panele Dön
-        </a>
+        </Link>
         <div className="w-full max-w-sm text-center space-y-5">
           <h1 className="text-xl font-bold">
             {trialEnded ? "Deneme Süreniz Sona Erdi" : "14 Gün Ücretsiz Deneme"}
@@ -236,13 +237,13 @@ export default function PlanSecPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        <a
+        <Link
           href="/dashboard"
           className="inline-flex items-center gap-1.5 mb-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Panele Dön
-        </a>
+        </Link>
         <div className="text-center mb-10">
           {(expired || trialActive === false) && (
             <div className="max-w-lg mx-auto mb-6 flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 px-4 py-3 text-left">

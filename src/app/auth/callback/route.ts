@@ -58,6 +58,9 @@ export async function GET(req: NextRequest) {
           trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
           // Deneme = Pro seviyesi: personel/randevu sınırsız (bkz. lib/entitlements)
           ...TRIAL_PLAN_LIMITS,
+          // Çoğu işletme sahibi internet/sosyal medyadan gelen randevuların otomatik
+          // onaylanmasını istemiyor — ilk kayıtta kapalı, dileyen ayarlardan açar.
+          has_auto_booking: false,
         })
         .select("id")
         .single();
@@ -67,7 +70,7 @@ export async function GET(req: NextRequest) {
         const newSlug = slug + "-" + Math.random().toString(36).slice(2, 4);
         const { data: org2 } = await admin
           .from("organizations")
-          .insert({ slug: newSlug, name: salonName, type, phone: phone || null, email: user.email!, plan: "trial", subscription_status: "active", trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), ...TRIAL_PLAN_LIMITS })
+          .insert({ slug: newSlug, name: salonName, type, phone: phone || null, email: user.email!, plan: "trial", subscription_status: "active", trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), ...TRIAL_PLAN_LIMITS, has_auto_booking: false })
           .select("id").single();
         if (org2) {
           await admin.from("org_members").insert({ org_id: org2.id, user_id: user.id, role: "owner" });

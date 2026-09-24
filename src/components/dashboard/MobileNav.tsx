@@ -54,7 +54,7 @@ export function MobileNav({ role = "staff", permissionsJson = null, orgSlug, pla
         );
       })}
 
-      <MobileSideMenu role={role} orgSlug={orgSlug} plan={plan} pendingWorkCount={pendingWorkCount} />
+      <MobileSideMenu role={role} permissionsJson={permissionsJson} orgSlug={orgSlug} plan={plan} pendingWorkCount={pendingWorkCount} />
     </nav>
   );
 }

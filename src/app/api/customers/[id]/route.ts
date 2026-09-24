@@ -2,10 +2,55 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { hasPermission } from "@/lib/permissions";
+import { getFieldCatalog } from "@/lib/customer-fields/catalog";
 
 type Params = { params: Promise<{ id: string }> };
 
-const ALLOWED = ["online_booking_blocked", "preferred_language", "birth_date"];
+const ALLOWED = ["online_booking_blocked", "preferred_language", "birth_date", "custom_fields"];
+
+/**
+ * custom_fields body'sini org'un iş türü kataloğuna göre doğrular.
+ * Bilinmeyen key, yanlış tip veya geçersiz select değeri sessizce
+ * atılmaz — istek tümüyle reddedilir (kısmi/bozuk veri yazılmasın diye).
+ */
+function validateCustomFields(
+  businessType: string | null | undefined,
+  value: unknown,
+): { ok: true; cleaned: Record<string, string | number> } | { ok: false; error: string } {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return { ok: false, error: "custom_fields bir nesne olmalı" };
+  }
+  const catalog = getFieldCatalog(businessType);
+  const catalogByKey = new Map(catalog.map((f) => [f.key, f]));
+  const cleaned: Record<string, string | number> = {};
+
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    const def = catalogByKey.get(key);
+    if (!def) return { ok: false, error: `Bilinmeyen alan: ${key}` };
+    if (raw === null || raw === "") continue; // boş değer = alanı temizle
+
+    if (def.type === "number") {
+      const num = typeof raw === "number" ? raw : Number(raw);
+      if (!Number.isFinite(num)) return { ok: false, error: `${key} sayısal olmalı` };
+      cleaned[key] = num;
+    } else if (def.type === "select") {
+      if (typeof raw !== "string" || !def.options?.some((o) => o.value === raw)) {
+        return { ok: false, error: `${key} için geçersiz seçenek` };
+      }
+      cleaned[key] = raw;
+    } else if (def.type === "date") {
+      if (typeof raw !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+        return { ok: false, error: `${key} için geçersiz tarih` };
+      }
+      cleaned[key] = raw;
+    } else {
+      if (typeof raw !== "string") return { ok: false, error: `${key} metin olmalı` };
+      cleaned[key] = raw.slice(0, 500);
+    }
+  }
+
+  return { ok: true, cleaned };
+}
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
@@ -37,6 +82,22 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     !/^\d{4}-\d{2}-\d{2}$/.test(updates.birth_date as string)
   ) {
     return NextResponse.json({ error: "Geçersiz doğum tarihi" }, { status: 400 });
+  }
+
+  if ("custom_fields" in updates) {
+    const validated = validateCustomFields(member.organizations?.type, updates.custom_fields);
+    if (!validated.ok) {
+      return NextResponse.json({ error: validated.error }, { status: 400 });
+    }
+    // Kısmi güncelleme: gönderilmeyen anahtarlar mevcut değerinde kalır.
+    const { data: existing } = await supabase
+      .from("customers")
+      .select("custom_fields")
+      .eq("id", id)
+      .eq("org_id", member.org_id)
+      .maybeSingle();
+    const current = (existing?.custom_fields ?? {}) as Record<string, unknown>;
+    updates.custom_fields = { ...current, ...validated.cleaned };
   }
 
   const { data, error } = await supabase
@@ -127,9 +188,12 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
         kvkk_consent: false,
         marketing_consent: false,
         online_booking_blocked: true,
+        custom_fields: {},
       })
       .eq("id", id)
       .eq("org_id", orgId);
+
+    await admin.from("customer_metrics").delete().eq("org_id", orgId).eq("customer_id", id);
 
     // Randevulardaki denormalize isim/telefon da temizlenir (NOT NULL kolonlar)
     await admin

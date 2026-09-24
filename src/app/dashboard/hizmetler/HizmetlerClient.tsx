@@ -307,12 +307,14 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
           </div>
           <p className="text-muted-foreground text-sm mt-1">{t("servicesPage.countLabel", { count: services.length })}</p>
         </div>
-        <Link
-          href="/dashboard/hizmetler/yeni"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          {t("servicesPage.addButton")}
-        </Link>
+        {canEdit && (
+          <Link
+            href="/dashboard/hizmetler/yeni"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            {t("servicesPage.addButton")}
+          </Link>
+        )}
       </div>
 
       {groups.map((group) => (

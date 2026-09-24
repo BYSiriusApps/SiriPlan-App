@@ -19,6 +19,12 @@
  *     Personel rolü reddedilmeli; sahip silebilmeli; randevu geçmişi olan
  *     müşteri SİLİNMEMELİ (anonimleştirilmeli).
  *
+ *   KATMAN 2.5 — Gelir/gider erişimi (view_financials, 24 Eyl Faz 1 eklentisi)
+ *     Personel hiçbir zaman /api/expenses, /api/recurring-expenses,
+ *     /api/appointments/revenue veya gelir-gider PDF export'una erişemez.
+ *     Yönetici varsayılan olarak KAPALI (owner tek tek açar); sahip her
+ *     zaman erişir.
+ *
  * KULLANIM
  *   node scripts/security/permissions-audit.mjs --base=http://localhost:3000
  *   node scripts/security/permissions-audit.mjs --base=https://siriplan.com
@@ -349,6 +355,80 @@ async function main() {
     body: { email: `zz-test-${stamp}@example.com`, role: "manager", permissions_json: { manage_staff: true } },
   });
   record(staffInvite.status === 403, "Personel davet gönderemiyor", `HTTP ${staffInvite.status}`);
+
+  // ── KATMAN 2.5 — view_financials izni (Faz 1, 24 Eyl) ────────
+  // Gelir/gider varsayılan olarak yöneticide KAPALI; yalnızca sahip
+  // isterse belirli bir yöneticiye açar. Personel zaten hiç göremez.
+  layer(`KATMAN 2.5 — Gelir/gider erişimi (view_financials, ${APP_BASE})`);
+
+  const mgrMemberFin = members.find((m) => m.role === "manager" && m.staff_id);
+  const FIN_ENDPOINTS = [
+    { path: "/api/expenses", label: "GET /api/expenses" },
+    { path: "/api/recurring-expenses", label: "GET /api/recurring-expenses" },
+    { path: "/api/appointments/revenue", label: "GET /api/appointments/revenue" },
+  ];
+
+  const staffFinChecks = await Promise.all(
+    FIN_ENDPOINTS.map((e) => api(e.path, { cookie: cookie.staff }))
+  );
+  record(staffFinChecks.every((r) => r.status === 403),
+    "Personel gelir/gider uçlarına hiç erişemiyor",
+    staffFinChecks.map((r, i) => `${FIN_ENDPOINTS[i].label}=${r.status}`).join(", "));
+
+  if (mgrMemberFin) {
+    const finBefore = await api(`/api/staff/${mgrMemberFin.staff_id}/permissions`, { cookie: cookie.owner });
+    const finOriginal = finBefore.json?.permissions_json ?? {};
+    try {
+      // Yöneticinin izni GEÇİCİ olarak kapatılır (varsayılan zaten kapalı olmalı,
+      // ama eski hesaplarda kayıtlı `true` olabilir) — asıl açığı ölçmek için.
+      await api(`/api/staff/${mgrMemberFin.staff_id}/permissions`, {
+        cookie: cookie.owner, method: "PATCH",
+        body: { permissions_json: { ...finOriginal, view_financials: false } },
+      });
+      const freshMgrOff = await appLogin(ACCOUNTS.manager);
+      const mgrOffChecks = await Promise.all(
+        FIN_ENDPOINTS.map((e) => api(e.path, { cookie: freshMgrOff }))
+      );
+      record(mgrOffChecks.every((r) => r.status === 403),
+        "view_financials KAPALI yönetici gelir/gider uçlarına erişemiyor",
+        mgrOffChecks.map((r, i) => `${FIN_ENDPOINTS[i].label}=${r.status}`).join(", "));
+
+      const pdfOff = await api(`/api/export?format=pdf&scope=gelir-gider&year=${new Date().getFullYear()}`, { cookie: freshMgrOff });
+      record(pdfOff.status === 403, "view_financials KAPALI yönetici gelir/gider PDF export'unu çekemiyor",
+        `HTTP ${pdfOff.status}`);
+
+      // Sahip açtığında yönetici erişebilmeli (meşru yol bozulmadı)
+      await api(`/api/staff/${mgrMemberFin.staff_id}/permissions`, {
+        cookie: cookie.owner, method: "PATCH",
+        body: { permissions_json: { ...finOriginal, view_financials: true } },
+      });
+      const freshMgrOn = await appLogin(ACCOUNTS.manager);
+      const mgrOnChecks = await Promise.all(
+        FIN_ENDPOINTS.map((e) => api(e.path, { cookie: freshMgrOn }))
+      );
+      record(mgrOnChecks.every((r) => r.status === 200),
+        "Sahip açtıktan sonra yönetici gelir/gider uçlarına erişebiliyor",
+        mgrOnChecks.map((r, i) => `${FIN_ENDPOINTS[i].label}=${r.status}`).join(", "));
+    } finally {
+      const restoreFin = await api(`/api/staff/${mgrMemberFin.staff_id}/permissions`, {
+        cookie: cookie.owner, method: "PATCH", body: { permissions_json: finOriginal },
+      });
+      const ok = JSON.stringify(restoreFin.json?.permissions_json ?? {}) === JSON.stringify(finOriginal);
+      record(ok, "Yöneticinin view_financials izni eski hâline döndürüldü",
+        ok ? "geri alındı" : "GERİ ALINAMADI — elle kontrol edin!");
+      if (!ok) leftovers.push(`org_members.staff_id=${mgrMemberFin.staff_id} view_financials geri alınamadı`);
+    }
+  } else {
+    record(true, "Demo org'da staff_id eşlemesi olan yönetici yok — view_financials testi atlandı", "");
+  }
+
+  // Sahip her zaman erişebilmeli (owner kısayolu bozulmadı)
+  const ownerFinChecks = await Promise.all(
+    FIN_ENDPOINTS.map((e) => api(e.path, { cookie: cookie.owner }))
+  );
+  record(ownerFinChecks.every((r) => r.status === 200),
+    "Sahip gelir/gider uçlarına her zaman erişebiliyor",
+    ownerFinChecks.map((r, i) => `${FIN_ENDPOINTS[i].label}=${r.status}`).join(", "));
 
   // ── KATMAN 3 — Müşteri silme ucu ────────────────────────────
   layer(`KATMAN 3 — DELETE /api/customers/[id] (${APP_BASE})`);
