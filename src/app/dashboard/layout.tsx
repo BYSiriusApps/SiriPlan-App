@@ -34,26 +34,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // API seviyesinde engellenir. Burada sadece uyarı şeridi gösterilir.
   const subscriptionLock = getSubscriptionLock(org);
 
-  const [memberships, isAdmin, messages, mobileApp] = await Promise.all([
-    getMemberships(),
-    isPlatformAdmin(),
-    getMessages(),
-    isMobileApp(),
-  ]);
-
-  let lowStockCount = 0;
-  // Randevu linkinden gelip onay bekleyen ("talep") randevular. Otomatik onay
-  // artık varsayılan açık — bu sayı yalnızca salon kutuyu KAPATTIYSA > 0 olur.
-  // O durumda her sayfada bir şerit gösterip onay atlanmasını önlüyoruz.
-  let pendingApptCount = 0;
-  // Sidebar/mobil menüde "Bekleyen İşler" yanındaki sayaç — WhatsApp/Instagram/
-  // link üzerinden gelen talepler + kritik stok. Tüm roller görsün diye (staff
-  // dahil) role kısıtı YOK; yalnızca yukarıdaki tam genişlik şeritler owner/
-  // manager'a özel kalıyor.
-  let pendingWorkCount = 0;
-  if (org) {
-    const supabase = await createClient();
-    const [{ data: inventoryItems }, { count: talepCount }, { count: requestCount }] = await Promise.all([
+  // Bu iki grup birbirine bağımlı değil (ikisi de yalnızca org.id'ye ihtiyaç
+  // duyar) — eskiden ayrı ayrı Promise.all() ile sıralı (2 ağ turu) yapılıyordu,
+  // her panel sayfası geçişinde bir tam gidiş-dönüş süresi fazladan bekletiyordu.
+  // Tek dalgada paralel çalıştırıyoruz.
+  const supabase = await createClient();
+  const [memberships, isAdmin, messages, mobileApp, { data: inventoryItems }, { count: talepCount }, { count: requestCount }] =
+    await Promise.all([
+      getMemberships(),
+      isPlatformAdmin(),
+      getMessages(),
+      isMobileApp(),
       supabase
         .from("inventory_items")
         .select("current_stock, min_stock_alert")
@@ -71,16 +62,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
         .eq("status", "pending"),
     ]);
 
-    if (inventoryItems) {
-      lowStockCount = inventoryItems.filter(
-        (item: any) => Number(item.min_stock_alert) > 0 && Number(item.current_stock) <= Number(item.min_stock_alert)
-      ).length;
-    }
-    if (role === "owner" || role === "manager") {
-      pendingApptCount = talepCount ?? 0;
-    }
-    pendingWorkCount = lowStockCount + (requestCount ?? 0);
+  let lowStockCount = 0;
+  if (inventoryItems) {
+    lowStockCount = inventoryItems.filter(
+      (item: any) => Number(item.min_stock_alert) > 0 && Number(item.current_stock) <= Number(item.min_stock_alert)
+    ).length;
   }
+  // Randevu linkinden gelip onay bekleyen ("talep") randevular. Otomatik onay
+  // artık varsayılan açık — bu sayı yalnızca salon kutuyu KAPATTIYSA > 0 olur.
+  // O durumda her sayfada bir şerit gösterip onay atlanmasını önlüyoruz.
+  const pendingApptCount = role === "owner" || role === "manager" ? talepCount ?? 0 : 0;
+  // Sidebar/mobil menüde "Bekleyen İşler" yanındaki sayaç — WhatsApp/Instagram/
+  // link üzerinden gelen talepler + kritik stok. Tüm roller görsün diye (staff
+  // dahil) role kısıtı YOK; yalnızca yukarıdaki tam genişlik şeritler owner/
+  // manager'a özel kalıyor.
+  const pendingWorkCount = lowStockCount + (requestCount ?? 0);
 
   // Deneme süresi dolan / ödemesi başarısız olan işletme, native mobil
   // uygulamada da paneli görüntülemeye devam eder (salt-okunur); yazma
