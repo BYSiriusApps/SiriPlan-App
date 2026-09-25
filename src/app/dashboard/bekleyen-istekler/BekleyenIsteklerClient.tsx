@@ -15,7 +15,7 @@ import { formatServicePrice } from "@/lib/currency";
 import { maskPhone } from "@/lib/phone";
 import { waMessageLink } from "@/lib/wa-template";
 import Link from "next/link";
-import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks, Pencil, Phone } from "lucide-react";
+import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks, Pencil, Phone, CalendarClock, Globe } from "lucide-react";
 import { toast } from "sonner";
 
 interface AppointmentRequest {
@@ -37,6 +37,20 @@ interface AppointmentRequest {
 interface StaffOption {
   id: string;
   full_name: string;
+}
+
+interface TalepAppointment {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  appointment_at: string;
+  duration_minutes: number | null;
+  price: number | null;
+  note: string | null;
+  staff: { full_name: string } | null;
+  service: { name: string } | null;
+  proposed_status?: "none" | "pending" | "accepted" | "rejected";
+  proposed_appointment_at?: string | null;
 }
 
 const SOURCE_META: Record<string, { label: string; icon: typeof MessageCircle; className: string }> = {
@@ -73,6 +87,7 @@ interface MissingPhoneAppointment {
 
 export function BekleyenIsteklerClient({
   initialRequests,
+  initialTalepAppointments = [],
   showPhone = true,
   bookingSlotMinutes = 15,
   criticalStock = [],
@@ -82,6 +97,7 @@ export function BekleyenIsteklerClient({
   canReassignStaff = false,
 }: {
   initialRequests: AppointmentRequest[];
+  initialTalepAppointments?: TalepAppointment[];
   showPhone?: boolean;
   bookingSlotMinutes?: number;
   criticalStock?: CriticalStockItem[];
@@ -104,6 +120,71 @@ export function BekleyenIsteklerClient({
   const [phoneMissing, setPhoneMissing] = useState(missingPhone);
   const [phoneDrafts, setPhoneDrafts] = useState<Record<string, string>>({});
   const [phoneSavingId, setPhoneSavingId] = useState<string | null>(null);
+  const [talepAppts, setTalepAppts] = useState(initialTalepAppointments);
+  const [talepBusyId, setTalepBusyId] = useState<string | null>(null);
+  const [talepEditingId, setTalepEditingId] = useState<string | null>(null);
+  const [talepEditValue, setTalepEditValue] = useState("");
+
+  async function handleTalepApprove(id: string) {
+    setTalepBusyId(id);
+    const res = await fetch(`/api/appointments/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "onaylandi" }),
+    });
+    setTalepBusyId(null);
+    if (res.ok) {
+      setTalepAppts((prev) => prev.filter((a) => a.id !== id));
+      toast.success(t("apptActions.toastApprovedNotifying"));
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || t("apptActions.approveFailed"));
+    }
+  }
+
+  async function handleTalepReject(id: string) {
+    setTalepBusyId(id);
+    const res = await fetch(`/api/appointments/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "iptal" }),
+    });
+    setTalepBusyId(null);
+    if (res.ok) {
+      setTalepAppts((prev) => prev.filter((a) => a.id !== id));
+      toast.success("Randevu talebi iptal edildi");
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || "İptal edilemedi");
+    }
+  }
+
+  function startTalepProposing(a: TalepAppointment) {
+    setTalepEditingId(a.id);
+    setTalepEditValue(toLocalInputValue(a.appointment_at));
+  }
+
+  async function handleTalepPropose(id: string) {
+    if (!talepEditValue) return;
+    const iso = new Date(talepEditValue).toISOString();
+    setTalepBusyId(id);
+    const res = await fetch(`/api/appointments/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "propose", appointment_at: iso }),
+    });
+    setTalepBusyId(null);
+    if (res.ok) {
+      setTalepAppts((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, proposed_status: "pending", proposed_appointment_at: iso } : a))
+      );
+      setTalepEditingId(null);
+      toast.success("Yeni saat önerildi, müşteri cevabı bekleniyor");
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || "Öneri gönderilemedi");
+    }
+  }
 
   async function handleAction(id: string, action: "approve" | "reject") {
     setBusyId(id);
@@ -436,12 +517,136 @@ export function BekleyenIsteklerClient({
         </Card>
       )}
 
-      {requests.length === 0 ? (
+      {talepAppts.length > 0 && (
+        <Card className="border-0 shadow-none bg-rose-50/60 dark:bg-rose-950/20">
+          <CardContent className="p-4 space-y-3">
+            <div>
+              <p className="text-sm font-semibold text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                <CalendarClock className="h-4 w-4 shrink-0" />
+                Randevu Linkinden Gelen Talepler ({talepAppts.length})
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Otomatik onay kapalı olduğu için bu randevular takvimde &quot;bekliyor&quot; görünüyor, onayınızı bekliyor.
+              </p>
+            </div>
+            <div className="space-y-2.5">
+              {talepAppts.map((a) => {
+                const busy = talepBusyId === a.id;
+                return (
+                  <Card key={a.id} className="kpi-tile border-0 shadow-none">
+                    <CardContent className="p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Link
+                              href={`/dashboard/musteriler?q=${encodeURIComponent(a.customer_phone || a.customer_name)}`}
+                              className="font-semibold text-sm hover:text-primary hover:underline transition-colors"
+                            >
+                              {a.customer_name}
+                            </Link>
+                            <Badge variant="outline" className="text-[10px] gap-1 bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400">
+                              <Globe className="h-3 w-3" /> Randevu Linki
+                            </Badge>
+                          </div>
+                          {showPhone ? (
+                            <a
+                              href={waMessageLink(a.customer_phone, "")}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-emerald-600 hover:underline transition-colors mt-1"
+                            >
+                              <MessageCircle className="h-3 w-3" /> {a.customer_phone}
+                            </a>
+                          ) : (
+                            <p className="text-xs text-muted-foreground mt-1">{maskPhone(a.customer_phone)}</p>
+                          )}
+                          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {format(new Date(a.appointment_at), "d MMMM yyyy, EEEE", { locale: tr })}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {format(new Date(a.appointment_at), "HH:mm")}
+                            </span>
+                          </div>
+                          <p className="text-sm mt-1.5 flex items-center gap-1.5 flex-wrap">
+                            <span className="font-medium">{a.service?.name ?? "—"}</span>
+                            {a.staff?.full_name && <span className="text-muted-foreground"> · {a.staff.full_name}</span>}
+                            {a.price !== null && <span className="text-muted-foreground"> · {formatServicePrice(a.price, undefined, locale)}</span>}
+                          </p>
+                          {a.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{a.note}&quot;</p>}
+                          {a.proposed_status === "pending" && a.proposed_appointment_at && (
+                            <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50">
+                              {t("proposalPendingBadge", { datetime: format(new Date(a.proposed_appointment_at), "d MMM HH:mm", { locale: tr }) })}
+                            </Badge>
+                          )}
+                          {a.proposed_status === "rejected" && (
+                            <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50">
+                              {t("proposalRejectedBadge")}
+                            </Badge>
+                          )}
+                        </div>
+                        {talepEditingId === a.id ? (
+                          <div className="flex flex-col gap-2.5 w-full sm:w-80 sm:shrink-0 rounded-xl border bg-muted/30 p-3">
+                            <DateTimeSlotPicker
+                              value={talepEditValue}
+                              onChange={setTalepEditValue}
+                              minDate={new Date().toISOString().slice(0, 10)}
+                              slotMinutes={bookingSlotMinutes}
+                            />
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                              <Button size="lg" className="gap-1.5 w-full h-12 text-base justify-center sm:h-9 sm:text-xs sm:flex-1" disabled={busy} onClick={() => handleTalepPropose(a.id)}>
+                                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                                {t("proposeSubmit")}
+                              </Button>
+                              <Button size="lg" variant="outline" className="w-full h-12 text-base justify-center sm:w-auto sm:h-9 sm:text-xs" disabled={busy} onClick={() => setTalepEditingId(null)}>
+                                {t("rescheduleCancelButton")}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:w-auto sm:shrink-0">
+                            <Button
+                              size="lg" className="gap-1.5 w-full h-12 text-base justify-center bg-emerald-600 hover:bg-emerald-700 text-white sm:w-auto sm:h-9 sm:text-xs"
+                              disabled={busy} onClick={() => handleTalepApprove(a.id)}
+                            >
+                              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                              {t("approve")}
+                            </Button>
+                            <Button
+                              variant="outline" size="lg"
+                              className="gap-1.5 w-full h-12 text-base justify-center border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 sm:w-auto sm:h-9 sm:text-xs"
+                              disabled={busy || a.proposed_status === "pending"} onClick={() => startTalepProposing(a)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                              {t("proposeNewTime")}
+                            </Button>
+                            <Button
+                              variant="outline" size="lg" className="gap-1.5 w-full h-12 text-base justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 sm:w-auto sm:h-9 sm:text-xs"
+                              disabled={busy} onClick={() => handleTalepReject(a.id)}
+                            >
+                              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                              {t("cancelAction")}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {requests.length === 0 && talepAppts.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <Inbox className="h-10 w-10 mx-auto mb-3 opacity-30" />
           <p>Bekleyen istek yok.</p>
         </div>
-      ) : (
+      ) : requests.length === 0 ? null : (
         <div className="space-y-2.5">
           {requests.map((r) => {
             const source = SOURCE_META[r.source] ?? SOURCE_META.whatsapp;
@@ -545,29 +750,53 @@ export function BekleyenIsteklerClient({
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:w-auto sm:shrink-0">
-                        <Button
-                          size="lg" className="gap-1.5 w-full h-12 text-base justify-center bg-emerald-600 hover:bg-emerald-700 text-white sm:w-auto sm:h-9 sm:text-xs"
-                          disabled={busy} onClick={() => handleAction(r.id, "approve")}
-                        >
-                          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                          {t("approve")}
-                        </Button>
-                        <Button
-                          variant="outline" size="lg"
-                          className="gap-1.5 w-full h-12 text-base justify-center border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 sm:w-auto sm:h-9 sm:text-xs"
-                          disabled={busy || r.proposed_status === "pending"} onClick={() => startEditing(r)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                          {t("proposeNewTime")}
-                        </Button>
-                        <Button
-                          variant="outline" size="lg" className="gap-1.5 w-full h-12 text-base justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 sm:w-auto sm:h-9 sm:text-xs"
-                          disabled={busy} onClick={() => handleAction(r.id, "reject")}
-                        >
-                          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
-                          {t("cancelAction")}
-                        </Button>
+                      <div className="flex flex-col gap-2 w-full sm:w-auto sm:shrink-0">
+                        {canReassignStaff && !r.staff_id && staffOptions.length > 0 && (
+                          <div className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 dark:border-amber-900/50 dark:bg-amber-950/30">
+                            <span className="text-xs text-amber-800 dark:text-amber-400 shrink-0">Personel farketmez —</span>
+                            <Select
+                              onValueChange={(v: string | null) => v && handleReassign(r.id, v)}
+                              disabled={busy}
+                            >
+                              <SelectTrigger size="sm" className="h-8 text-xs flex-1 min-w-0 bg-background">
+                                <SelectValue placeholder="Personel ata">
+                                  {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || "Personel ata"}
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {staffOptions.map((s) => (
+                                  <SelectItem key={s.id} value={s.id}>
+                                    {s.full_name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                        <div className="flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap">
+                          <Button
+                            size="lg" className="gap-1.5 w-full h-12 text-base justify-center bg-emerald-600 hover:bg-emerald-700 text-white sm:w-auto sm:h-9 sm:text-xs"
+                            disabled={busy} onClick={() => handleAction(r.id, "approve")}
+                          >
+                            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                            {t("approve")}
+                          </Button>
+                          <Button
+                            variant="outline" size="lg"
+                            className="gap-1.5 w-full h-12 text-base justify-center border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 sm:w-auto sm:h-9 sm:text-xs"
+                            disabled={busy || r.proposed_status === "pending"} onClick={() => startEditing(r)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                            {t("proposeNewTime")}
+                          </Button>
+                          <Button
+                            variant="outline" size="lg" className="gap-1.5 w-full h-12 text-base justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 sm:w-auto sm:h-9 sm:text-xs"
+                            disabled={busy} onClick={() => handleAction(r.id, "reject")}
+                          >
+                            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                            {t("cancelAction")}
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>
