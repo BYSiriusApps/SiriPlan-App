@@ -36,6 +36,13 @@ interface Opts {
   onConfirm: () => void;
   onEdit: () => void;
   onCompleteMissing: () => void;
+  /**
+   * Söylenen şey "onayla"/"düzelt"/"eksik" komutlarından hiçbiriyle eşleşmiyor
+   * ama eksik alan varsa çağrılır — kullanıcı komut kelimesi söylemeden doğrudan
+   * eksik bilgiyi (ör. telefon numarasını) dikte etmiş olabilir. Ham (norm()
+   * uygulanmamış) transcript verilir ki isim/numara aynen ayrıştırılabilsin.
+   */
+  onFreeSpeechMissing?: (transcript: string) => void;
   /** Kısa geri bildirim toast'ları (i18n metinleri çağırandan gelir) */
   toasts?: {
     listening?: string;
@@ -50,16 +57,16 @@ interface Opts {
 const LISTEN_MS = 7000;
 
 export function useVoiceConfirmCommand(opts: Opts): { cmdListening: boolean; stopCmd: () => void } {
-  const { active, hasMissing, speechLang, onConfirm, onEdit, onCompleteMissing, toasts, onToast } = opts;
+  const { active, hasMissing, speechLang, onConfirm, onEdit, onCompleteMissing, onFreeSpeechMissing, toasts, onToast } = opts;
   const [cmdListening, setCmdListening] = useState(false);
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   const recRef = useRef<any>(null);
   const startedForRef = useRef(false);
 
   // Taze callback'lere ref'ten eriş (işleyiciler kurulduğu andakini yakalamasın).
-  const cbRef = useRef({ onConfirm, onEdit, onCompleteMissing, hasMissing, toasts, onToast });
+  const cbRef = useRef({ onConfirm, onEdit, onCompleteMissing, onFreeSpeechMissing, hasMissing, toasts, onToast });
   useEffect(() => {
-    cbRef.current = { onConfirm, onEdit, onCompleteMissing, hasMissing, toasts, onToast };
+    cbRef.current = { onConfirm, onEdit, onCompleteMissing, onFreeSpeechMissing, hasMissing, toasts, onToast };
   });
 
   const stopCmd = useCallback(() => {
@@ -126,7 +133,8 @@ export function useVoiceConfirmCommand(opts: Opts): { cmdListening: boolean; sto
       };
       /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       rec.onresult = (event: any) => {
-        const said = norm(event.results?.[0]?.[0]?.transcript || "");
+        const raw = event.results?.[0]?.[0]?.transcript || "";
+        const said = norm(raw);
         if (!said) return;
         const c = cbRef.current;
         if (c.hasMissing && MISSING_RE.test(said)) {
@@ -138,6 +146,11 @@ export function useVoiceConfirmCommand(opts: Opts): { cmdListening: boolean; sto
         } else if (CONFIRM_RE.test(said)) {
           if (c.toasts?.confirmed && c.onToast) c.onToast(c.toasts.confirmed);
           c.onConfirm();
+        } else if (c.hasMissing && c.onFreeSpeechMissing) {
+          // Komut kelimesi yok ama eksik alan var — söyleneni doğrudan eksik
+          // bilgi olarak işle (ör. "telefon numarası 0555…") ki kullanıcı önce
+          // "eksik" demek zorunda kalmasın.
+          c.onFreeSpeechMissing(raw);
         } else if (c.toasts?.notUnderstood && c.onToast) {
           c.onToast(c.toasts.notUnderstood);
         }

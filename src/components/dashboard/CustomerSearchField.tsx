@@ -136,13 +136,12 @@ export function CustomerSearchField({ name, phone, email, onNameChange, onPhoneC
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <Label>Telefon *</Label>
+          <Label>Telefon <span className="text-muted-foreground font-normal">(opsiyonel)</span></Label>
           <Input
             type="tel"
             value={phone}
             onChange={(e) => onPhoneChange(e.target.value)}
-            placeholder="5xx xxx xx xx"
-            required
+            placeholder="Bilmiyorsanız boş bırakın, sonra tamamlanır"
           />
         </div>
         <div className="space-y-1">

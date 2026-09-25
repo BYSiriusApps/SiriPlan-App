@@ -112,6 +112,67 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Stok mikrofonunda "Onayla" — parseOnly ile daha önce dönen `parsed` nesnesi
+    // aynen geri gelir, transkript tekrar yorumlanmaz (deterministik uygulama).
+    if (body.confirmedInventory) {
+      const c = body.confirmedInventory as {
+        action: "add" | "update_stock" | "update_price";
+        item_id?: string;
+        item_name?: string;
+        category?: string;
+        unit?: string;
+        quantity?: number;
+        price?: number;
+        direction?: InventoryTxType;
+      };
+
+      if (c.action === "add") {
+        if (!c.item_name) return NextResponse.json({ error: "Ürün adı gerekli." }, { status: 400 });
+        const { data: item, error } = await adminSupabase
+          .from("inventory_items")
+          .insert({
+            org_id: orgId,
+            name: c.item_name,
+            category: c.category || "Genel",
+            unit: c.unit || "adet",
+            current_stock: c.quantity ?? 10,
+            sale_price: c.price ?? 0,
+          })
+          .select("*")
+          .single();
+        if (error) return NextResponse.json({ response: `Ürün eklenemedi: ${error.message}` });
+        return NextResponse.json({
+          response: `📦 "${item.name}" ürünü (${item.current_stock} ${item.unit}) stoklara eklendi.`,
+          actionTaken: "inventory_added",
+          item,
+        });
+      }
+
+      if (c.action === "update_price") {
+        if (!c.item_id || c.price == null) return NextResponse.json({ error: "Geçersiz onay verisi." }, { status: 400 });
+        const { data: item, error } = await adminSupabase
+          .from("inventory_items")
+          .update({ sale_price: Number(c.price), updated_at: new Date().toISOString() })
+          .eq("id", c.item_id)
+          .eq("org_id", orgId)
+          .select("*")
+          .single();
+        if (error) return NextResponse.json({ response: `Fiyat güncellenemedi: ${error.message}` });
+        return NextResponse.json({
+          response: `💰 ${c.item_name || item?.name} satış fiyatı ₺${Number(c.price).toLocaleString("tr-TR")} olarak güncellendi.`,
+          actionTaken: "inventory_updated",
+          item,
+        });
+      }
+
+      if (c.action === "update_stock") {
+        if (!c.item_id || !c.direction || !c.quantity) return NextResponse.json({ error: "Geçersiz onay verisi." }, { status: 400 });
+        return runInventoryTx({ item_id: c.item_id, item_name: c.item_name || "", type: c.direction, quantity: c.quantity });
+      }
+
+      return NextResponse.json({ error: "Geçersiz onay verisi." }, { status: 400 });
+    }
+
     const timezone = orgRow?.timezone || DEFAULT_ORG_TIMEZONE;
 
     /** Yerel ayrıştırıcı — Gemini yoksa/başarısızsa ya da eksik alan kaldığında. */
@@ -290,6 +351,22 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
           if (fnCall.name === "manage_inventory") {
             const args = fnCall.args || {};
             if (args.action === "add") {
+              // parseOnly: kaydetmeden önce personel Onayla/Düzelt ile teyit etsin —
+              // yanlış duyulan miktar/fiyat sessizce stoğa yazılmasın.
+              if (body.parseOnly) {
+                return NextResponse.json({
+                  actionTaken: "confirm_inventory",
+                  parsed: {
+                    action: "add",
+                    item_name: args.name || "",
+                    category: args.category || "Genel",
+                    unit: args.unit || "adet",
+                    quantity: args.quantity || 10,
+                    price: args.price || 0,
+                  },
+                  response: `📦 "${args.name}" ürününü (${args.quantity || 10} ${args.unit || "adet"}) eklemek üzereyim — onaylayın.`,
+                });
+              }
               const { data: item } = await adminSupabase
                 .from("inventory_items")
                 .insert({
@@ -328,6 +405,13 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
             const target = invItems.find((i) => i.id === targetId)!;
 
             if (args.action === "update_price" && args.price != null) {
+              if (body.parseOnly) {
+                return NextResponse.json({
+                  actionTaken: "confirm_inventory",
+                  parsed: { action: "update_price", item_id: targetId, item_name: target.name, unit: target.unit, price: Number(args.price) },
+                  response: `💰 ${target.name} satış fiyatını ₺${Number(args.price).toLocaleString("tr-TR")} yapmak üzereyim — onaylayın.`,
+                });
+              }
               await adminSupabase
                 .from("inventory_items")
                 .update({ sale_price: Number(args.price), updated_at: new Date().toISOString() })
@@ -344,6 +428,13 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
                 ? args.direction
                 : localCmd.type;
             const qty = Number(args.quantity) > 0 ? Number(args.quantity) : localCmd.quantity;
+            if (body.parseOnly) {
+              return NextResponse.json({
+                actionTaken: "confirm_inventory",
+                parsed: { action: "update_stock", item_id: targetId, item_name: target.name, unit: target.unit, direction: dir, quantity: qty },
+                response: `📦 ${target.name}: ${qty} ${target.unit} ${dir === "in" ? "girişi" : dir === "out" ? "çıkışı" : "sayımı"} yapmak üzereyim — onaylayın.`,
+              });
+            }
             return runInventoryTx({ item_id: targetId, item_name: target.name, type: dir, quantity: qty });
           }
         }
@@ -370,6 +461,21 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
       const invItems = await loadInventoryItems();
       const cmd = parseVoiceInventory(transcript, invItems);
       if (cmd.matched) {
+        if (body.parseOnly) {
+          const item = invItems.find((i) => i.id === cmd.item_id);
+          return NextResponse.json({
+            actionTaken: "confirm_inventory",
+            parsed: {
+              action: "update_stock",
+              item_id: cmd.item_id,
+              item_name: cmd.item_name,
+              unit: item?.unit || "adet",
+              direction: cmd.type,
+              quantity: cmd.quantity,
+            },
+            response: `📦 ${cmd.item_name}: ${cmd.quantity} ${item?.unit || "adet"} ${cmd.type === "in" ? "girişi" : cmd.type === "out" ? "çıkışı" : "sayımı"} yapmak üzereyim — onaylayın.`,
+          });
+        }
         return runInventoryTx(cmd);
       }
       return NextResponse.json({

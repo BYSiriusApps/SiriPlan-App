@@ -7,13 +7,14 @@ import { tr } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { formatServicePrice } from "@/lib/currency";
 import { maskPhone } from "@/lib/phone";
 import Link from "next/link";
-import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks, Pencil } from "lucide-react";
+import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks, Pencil, Phone } from "lucide-react";
 import { toast } from "sonner";
 
 interface AppointmentRequest {
@@ -61,12 +62,21 @@ interface OverdueAppointment {
   canAct: boolean;
 }
 
+interface MissingPhoneAppointment {
+  id: string;
+  customer_name: string;
+  appointment_at: string;
+  staff_name: string | null;
+  service_name: string | null;
+}
+
 export function BekleyenIsteklerClient({
   initialRequests,
   showPhone = true,
   bookingSlotMinutes = 15,
   criticalStock = [],
   overdueAppointments = [],
+  missingPhone = [],
   staffOptions = [],
   canReassignStaff = false,
 }: {
@@ -75,11 +85,13 @@ export function BekleyenIsteklerClient({
   bookingSlotMinutes?: number;
   criticalStock?: CriticalStockItem[];
   overdueAppointments?: OverdueAppointment[];
+  missingPhone?: MissingPhoneAppointment[];
   staffOptions?: StaffOption[];
   canReassignStaff?: boolean;
 }) {
   const t = useTranslations("dashboard");
   const to = useTranslations("dashboard.overdueAppointments");
+  const tp = useTranslations("dashboard.missingPhone");
   const locale = useLocale();
   const [requests, setRequests] = useState(initialRequests);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -88,6 +100,9 @@ export function BekleyenIsteklerClient({
   const [overdue, setOverdue] = useState(overdueAppointments);
   const [overdueBusyId, setOverdueBusyId] = useState<string | null>(null);
   const [markingAll, setMarkingAll] = useState(false);
+  const [phoneMissing, setPhoneMissing] = useState(missingPhone);
+  const [phoneDrafts, setPhoneDrafts] = useState<Record<string, string>>({});
+  const [phoneSavingId, setPhoneSavingId] = useState<string | null>(null);
 
   async function handleAction(id: string, action: "approve" | "reject") {
     setBusyId(id);
@@ -212,6 +227,30 @@ export function BekleyenIsteklerClient({
     }
   }
 
+  async function handleSavePhone(id: string) {
+    const value = (phoneDrafts[id] ?? "").trim();
+    if (!value) return;
+    setPhoneSavingId(id);
+    const res = await fetch(`/api/appointments/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customer_phone: value }),
+    });
+    setPhoneSavingId(null);
+    if (res.ok) {
+      setPhoneMissing((prev) => prev.filter((a) => a.id !== id));
+      setPhoneDrafts((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      toast.success(tp("savedToast"));
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || tp("saveFailedToast"));
+    }
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-3">
@@ -250,6 +289,61 @@ export function BekleyenIsteklerClient({
                   </span>
                 </Link>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {phoneMissing.length > 0 && (
+        <Card className="border-0 shadow-none bg-sky-50/60 dark:bg-sky-950/20">
+          <CardContent className="p-4 space-y-3">
+            <div>
+              <p className="text-sm font-semibold text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                <Phone className="h-4 w-4 shrink-0" />
+                {tp("title")} ({phoneMissing.length})
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">{tp("subtitle")}</p>
+            </div>
+            <div className="space-y-2">
+              {phoneMissing.map((a) => {
+                const saving = phoneSavingId === a.id;
+                return (
+                  <div
+                    key={a.id}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-background rounded-xl p-3 border border-sky-200/60 dark:border-sky-900/40"
+                  >
+                    <Link href={`/dashboard/randevular/${a.id}`} className="min-w-0 flex-1 hover:opacity-80 transition-opacity">
+                      <p className="font-semibold text-sm truncate">{a.customer_name}</p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {format(new Date(a.appointment_at), "d MMMM yyyy, HH:mm", { locale: tr })}
+                        </span>
+                        {a.service_name && <span>{a.service_name}</span>}
+                        {a.staff_name && <span>· {a.staff_name}</span>}
+                      </div>
+                    </Link>
+                    <div className="flex gap-1.5 w-full sm:w-auto shrink-0">
+                      <Input
+                        type="tel"
+                        value={phoneDrafts[a.id] ?? ""}
+                        onChange={(e) => setPhoneDrafts((prev) => ({ ...prev, [a.id]: e.target.value }))}
+                        placeholder={tp("placeholder")}
+                        className="h-9 text-sm sm:w-40"
+                      />
+                      <Button
+                        size="sm"
+                        disabled={saving || !(phoneDrafts[a.id] ?? "").trim()}
+                        onClick={() => handleSavePhone(a.id)}
+                        className="shrink-0 gap-1"
+                      >
+                        {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                        {tp("saveButton")}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

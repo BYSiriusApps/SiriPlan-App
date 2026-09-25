@@ -15,13 +15,25 @@ import { HomeButton } from "@/components/dashboard/HomeButton";
 import { toast } from "sonner";
 import {
   Package, Plus, Trash2, Pencil, AlertTriangle, ArrowUpRight, ArrowDownRight,
-  RefreshCw, Search, Loader2, Sparkles, TrendingUp, DollarSign, Layers, Mic,
+  RefreshCw, Search, Loader2, Sparkles, TrendingUp, DollarSign, Layers, Mic, Check,
   ScanLine, Barcode as BarcodeIcon, Printer
 } from "lucide-react";
 import { formatMoney, CURRENCY_SYMBOL } from "@/lib/currency";
 import { useMicAccess } from "@/components/dashboard/useMicAccess";
+import { useVoiceConfirmCommand } from "@/components/dashboard/useVoiceConfirmCommand";
 import { usePlan } from "@/components/dashboard/PlanContext";
 import { isInternalBarcode } from "@/lib/barcode";
+
+interface ParsedInventoryCmd {
+  action: "add" | "update_stock" | "update_price";
+  item_id?: string;
+  item_name?: string;
+  category?: string;
+  unit?: string;
+  quantity?: number;
+  price?: number;
+  direction?: "in" | "out" | "adjust";
+}
 
 const BarcodeScanner = dynamic(() => import("@/components/dashboard/BarcodeScanner"), {
   ssr: false,
@@ -118,6 +130,11 @@ export default function StokPage() {
 
   // ── Sesli stok komutu (Pro+) ──
   const [voiceListening, setVoiceListening] = useState(false);
+  const [voiceLiveTranscript, setVoiceLiveTranscript] = useState("");
+  const [voiceParsed, setVoiceParsed] = useState<ParsedInventoryCmd | null>(null);
+  const [isConfirmingInventory, setIsConfirmingInventory] = useState(false);
+  const [voiceConfirmResponse, setVoiceConfirmResponse] = useState("");
+  const [confirmingInventoryBusy, setConfirmingInventoryBusy] = useState(false);
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   const voiceRecRef = useRef<any>(null);
 
@@ -171,7 +188,7 @@ export default function StokPage() {
     const rec = new SR();
     voiceRecRef.current = rec;
     rec.lang = speechLang;
-    rec.interimResults = false;
+    rec.interimResults = true;
     rec.continuous = true;
     rec.maxAlternatives = 1;
 
@@ -181,18 +198,24 @@ export default function StokPage() {
 
     rec.onstart = () => {
       setVoiceListening(true);
+      setIsConfirmingInventory(false);
+      setVoiceLiveTranscript("");
       toast(tm("stockListening"), { id: "voice-stock", icon: "🎤", duration: 10000 });
     };
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     rec.onresult = (e: any) => {
+      let interim = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
         if (e.results[i].isFinal) accum += e.results[i][0].transcript + " ";
+        else interim += e.results[i][0].transcript;
       }
+      setVoiceLiveTranscript((accum + interim).trim());
     };
     rec.onerror = (/* eslint-disable-line @typescript-eslint/no-explicit-any */ ev: any) => {
       if (ev?.error === "no-speech") return;
       clearTimeout(stopTimer);
       setVoiceListening(false);
+      setVoiceLiveTranscript("");
       toast.dismiss("voice-stock");
       if (ev?.error !== "aborted") toast.error(tm("captureFailed"));
     };
@@ -201,6 +224,7 @@ export default function StokPage() {
       done = true;
       clearTimeout(stopTimer);
       setVoiceListening(false);
+      setVoiceLiveTranscript("");
       voiceRecRef.current = null;
       toast.dismiss("voice-stock");
       const transcript = accum.trim();
@@ -210,15 +234,18 @@ export default function StokPage() {
         const res = await fetch("/api/ai/voice-booking", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ transcript, intent: "inventory" }),
+          body: JSON.stringify({ transcript, intent: "inventory", parseOnly: true }),
         });
         const data = await res.json();
         toast.dismiss("voice-stock-p");
         if (!res.ok) { toast.error(data.error || tm("analyzeFailed")); return; }
-        if (data.actionTaken === "inventory_updated" || data.actionTaken === "inventory_added") {
-          toast.success(data.response);
-          if (data.lowStock) toast(tm("stockLow"), { icon: "⚠️", duration: 8000 });
-          fetchData();
+        // "Onayla / Düzelt" ile teyit edilmeden hiçbir stok yazılmaz — yanlış
+        // duyulan miktar/fiyat sessizce stoğa işlenmesin (randevu akışındaki
+        // aynı doğrulama deseni).
+        if (data.actionTaken === "confirm_inventory" && data.parsed) {
+          setVoiceParsed(data.parsed);
+          setVoiceConfirmResponse(data.response || "");
+          setIsConfirmingInventory(true);
         } else if (data.response) {
           toast(data.response, { icon: "📦", duration: 7000 });
         } else {
@@ -231,7 +258,60 @@ export default function StokPage() {
     };
 
     rec.start();
-  }, [proTools, requestMic, speechLang, tm, fetchData]);
+  }, [proTools, requestMic, speechLang, tm]);
+
+  const cancelVoiceInventory = useCallback(() => {
+    setIsConfirmingInventory(false);
+    setVoiceParsed(null);
+    setVoiceConfirmResponse("");
+  }, []);
+
+  const confirmVoiceInventory = useCallback(async () => {
+    if (!voiceParsed) return;
+    setConfirmingInventoryBusy(true);
+    try {
+      const res = await fetch("/api/ai/voice-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ intent: "inventory", confirmedInventory: voiceParsed }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error || tm("analyzeFailed")); return; }
+      if (data.actionTaken === "inventory_updated" || data.actionTaken === "inventory_added") {
+        toast.success(data.response);
+        if (data.lowStock) toast(tm("stockLow"), { icon: "⚠️", duration: 8000 });
+        fetchData();
+      } else {
+        toast.error(data.response || tm("analyzeFailed"));
+      }
+    } catch {
+      toast.error(tm("analyzeFailed"));
+    } finally {
+      setConfirmingInventoryBusy(false);
+      setIsConfirmingInventory(false);
+      setVoiceParsed(null);
+      setVoiceConfirmResponse("");
+    }
+  }, [voiceParsed, tm, fetchData]);
+
+  // Eller serbest: özet açılınca "onayla" veya "düzelt" komutlarını dinler —
+  // randevu oluşturmadaki aynı hook, stok sesli komutunda eksik alan kavramı
+  // olmadığı için tamamlama komutu düzelt ile aynı davranır (yeniden dinler).
+  const { cmdListening: invCmdListening, stopCmd: stopInvCmd } = useVoiceConfirmCommand({
+    active: proTools && isConfirmingInventory,
+    hasMissing: false,
+    speechLang,
+    onConfirm: confirmVoiceInventory,
+    onEdit: cancelVoiceInventory,
+    onCompleteMissing: startVoiceStock,
+    toasts: {
+      listening: tm("voiceCmdListening"),
+      confirmed: tm("voiceCmdConfirmed"),
+      editing: tm("voiceCmdCancelled"),
+      notUnderstood: tm("voiceCmdNotUnderstood"),
+    },
+    onToast: (m) => toast(m, { icon: "🎙️", duration: 4000 }),
+  });
 
   // Categories list
   const categories = useMemo(() => {
@@ -611,6 +691,74 @@ export default function StokPage() {
           </Button>
         </div>
       </div>
+
+      {/* Voice Listening Alert */}
+      {voiceListening && !isConfirmingInventory && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl p-3.5 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-semibold flex items-center gap-2">
+              <Mic className="h-4 w-4 text-red-500 animate-pulse" />
+              {tm("stockListening")}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              type="button"
+              onClick={() => voiceRecRef.current?.stop?.()}
+              className="h-7 px-2 text-xs hover:bg-red-500/20 text-red-600 shrink-0"
+            >
+              {tm("finishListening")}
+            </Button>
+          </div>
+          {voiceLiveTranscript && (
+            <p className="text-[11px] text-foreground/80 bg-background/60 rounded-lg px-2.5 py-1.5">
+              <span className="opacity-60">{tm("heard")}: </span>{voiceLiveTranscript}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Voice Confirmation Box */}
+      {isConfirmingInventory && voiceParsed && (
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-3">
+          <h3 className="text-sm font-semibold flex items-center gap-2 text-primary">
+            <Check className="h-4 w-4" />
+            {tm("confirmTitle")}
+          </h3>
+          <p className="text-sm text-foreground/90">{voiceConfirmResponse}</p>
+          {invCmdListening && (
+            <div className="flex items-center justify-between gap-2 text-[11px] rounded-lg bg-red-500/10 border border-red-500/20 px-2.5 py-2 text-red-600">
+              <span className="flex items-center gap-1.5">
+                <Mic className="h-3.5 w-3.5 animate-pulse" />
+                {tm("voiceCmdListening")}
+              </span>
+              <button type="button" onClick={stopInvCmd} className="underline shrink-0">
+                {tm("voiceCmdStop")}
+              </button>
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Button
+              size="sm"
+              onClick={confirmVoiceInventory}
+              disabled={confirmingInventoryBusy}
+              className="flex-1 min-w-[120px] gap-1.5"
+            >
+              {confirmingInventoryBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+              {tm("confirmSave")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={cancelVoiceInventory}
+              disabled={confirmingInventoryBusy}
+              className="flex-1 min-w-[100px]"
+            >
+              {tm("confirmEdit")}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

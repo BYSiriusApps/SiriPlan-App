@@ -1503,6 +1503,14 @@
       "markAllFailed": "Some appointments could not be updated, please try again",
       "notAssigned": "Not assigned to you"
     },
+    "missingPhone": {
+      "title": "Missing Phone Number",
+      "subtitle": "Created by voice/quick booking without a phone number — the customer did not receive a WhatsApp confirmation. Add it here once you have it.",
+      "placeholder": "5xx xxx xx xx",
+      "saveButton": "Save",
+      "savedToast": "Phone number added",
+      "saveFailedToast": "Could not save the phone number"
+    },
     "waitlistPage": {
       "eyebrow": "Appointment",
       "subtitle": "Add customers to the waitlist for fully booked hours",
@@ -2388,6 +2396,7 @@
       "fillByVoice": "Fill by voice",
       "finishListening": "Done",
       "heard": "Heard",
+      "collectedSoFar": "Collected so far (not lost):",
       "confirmTitle": "Check the appointment details",
       "lblCustomer": "Customer",
       "lblPhone": "Phone",
@@ -2431,7 +2440,8 @@
       "eyebrow": "Appointments",
       "title": "New Appointment",
       "cardTitle": "Appointment Details",
-      "submitButton": "Create Appointment"
+      "submitButton": "Create Appointment",
+      "noPhoneCreatedWarning": "Created without a phone number — the customer did not receive a WhatsApp confirmation. Add it from Pending Tasks once you have it."
     },
     "apptDetail": {
       "title": "Appointment Details",

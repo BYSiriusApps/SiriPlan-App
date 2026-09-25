@@ -13,7 +13,7 @@ export default async function BekleyenIsteklerPage() {
 
   const nowIso = new Date().toISOString();
 
-  const [{ data: requests }, { data: inventoryItems }, { data: overdueRaw }, { data: staffRows }] = await Promise.all([
+  const [{ data: requests }, { data: inventoryItems }, { data: overdueRaw }, { data: staffRows }, { data: missingPhoneRaw }] = await Promise.all([
     supabase
       .from("appointment_requests")
       .select("*, staff(full_name), service:services(name)")
@@ -42,6 +42,16 @@ export default async function BekleyenIsteklerPage() {
       .eq("org_id", member.org_id)
       .eq("is_active", true)
       .order("full_name", { ascending: true }),
+    // Sesli/hızlı randevuda telefon bilinmeden oluşturulmuş kayıtlar (bkz. dashboard
+    // layout'taki aynı sayaç) — burada tek tek listelenip numara tamamlanabiliyor.
+    supabase
+      .from("appointments")
+      .select("id, customer_name, appointment_at, staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+      .eq("org_id", member.org_id)
+      .eq("customer_phone", "")
+      .neq("status", "iptal")
+      .order("appointment_at", { ascending: false })
+      .limit(50),
   ]);
 
   type InvRow = { id: string; name: string; current_stock: number; min_stock_alert: number; unit: string };
@@ -60,6 +70,18 @@ export default async function BekleyenIsteklerPage() {
   );
   const canActOnAll = member.role !== "staff";
 
+  type MissingPhoneRow = {
+    id: string; customer_name: string; appointment_at: string;
+    staff: { full_name: string } | null; service: { name: string } | null;
+  };
+  const missingPhone = ((missingPhoneRaw ?? []) as unknown as MissingPhoneRow[]).map((a) => ({
+    id: a.id,
+    customer_name: a.customer_name,
+    appointment_at: a.appointment_at,
+    staff_name: a.staff?.full_name ?? null,
+    service_name: a.service?.name ?? null,
+  }));
+
   type MemberWithOrg = { org_id: string; role: string; organizations: { settings_json: Record<string, unknown> | null } | null };
   const m = member as unknown as MemberWithOrg;
   const settings = (m.organizations?.settings_json ?? {}) as Record<string, unknown>;
@@ -74,6 +96,7 @@ export default async function BekleyenIsteklerPage() {
       showPhone={showPhone}
       bookingSlotMinutes={bookingSlotMinutes}
       criticalStock={criticalStock}
+      missingPhone={missingPhone}
       staffOptions={staffRows || []}
       canReassignStaff={canActOnAll}
       overdueAppointments={overdueAppointments.map((a) => ({
