@@ -39,7 +39,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // her panel sayfası geçişinde bir tam gidiş-dönüş süresi fazladan bekletiyordu.
   // Tek dalgada paralel çalıştırıyoruz.
   const supabase = await createClient();
-  const [memberships, isAdmin, messages, mobileApp, { data: inventoryItems }, { count: talepCount }, { count: requestCount }, { count: missingPhoneCount }] =
+  const nowIso = new Date().toISOString();
+  const [memberships, isAdmin, messages, mobileApp, { data: inventoryItems }, { count: talepCount }, { count: requestCount }, { count: missingPhoneCount }, { data: overdueRaw }] =
     await Promise.all([
       getMemberships(),
       isPlatformAdmin(),
@@ -68,6 +69,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
         .eq("org_id", org.id)
         .eq("customer_phone", "")
         .neq("status", "iptal"),
+      // Randevu saati (+ süresi) geçmiş ama hâlâ "Onaylandı" kalmış, sonuçlandırılmamış
+      // randevular — Bekleyen İstekler sayfasında ayrı listelenir ama sayaca hiç
+      // dahil edilmiyordu (bkz. bekleyen-istekler/page.tsx overdueAppointments).
+      supabase
+        .from("appointments")
+        .select("appointment_at, duration_minutes")
+        .eq("org_id", org.id)
+        .eq("status", "onaylandi")
+        .lt("appointment_at", nowIso)
+        .limit(500),
     ]);
 
   let lowStockCount = 0;
@@ -76,6 +87,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
       (item: any) => Number(item.min_stock_alert) > 0 && Number(item.current_stock) <= Number(item.min_stock_alert)
     ).length;
   }
+  const nowMs = new Date(nowIso).getTime();
+  const overdueCount = (overdueRaw ?? []).filter(
+    (a: { appointment_at: string; duration_minutes: number | null }) =>
+      new Date(a.appointment_at).getTime() + Number(a.duration_minutes || 0) * 60_000 < nowMs
+  ).length;
   // Onay bekleyen randevular: randevu linkinden gelip otomatik onay kapalıyken
   // "talep" durumuna düşenler (talepCount) + WhatsApp/Instagram/web üzerinden
   // gelen appointment_requests (requestCount). Eskiden yalnızca talepCount
@@ -88,8 +104,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // manager'a özel kalıyor. talepCount (randevu linkinden gelen, otomatik onay
   // kapalıyken oluşan) artık "Bekleyen İstekler" sayfasında da listelendiği
   // için sayaca dahil edildi — önceden yalnızca üstteki kırmızı şeritte
-  // sayılıyordu, sayfada görünmeden sayaç da eksik kalıyordu.
-  const pendingWorkCount = lowStockCount + (requestCount ?? 0) + (missingPhoneCount ?? 0) + (talepCount ?? 0);
+  // sayılıyordu, sayfada görünmeden sayaç da eksik kalıyordu. overdueCount
+  // (randevu saati geçmiş ama hâlâ "Onaylandı" kalmış, sonuçlandırılmamış
+  // randevular) da aynı sebeple eksikti — sayfada listeleniyordu ama sayaca
+  // hiç yansımıyordu (örn. 4 stok + 2 talep + 3 sonuçlandırılmamış = 9 yerine 6).
+  const pendingWorkCount = lowStockCount + (requestCount ?? 0) + (missingPhoneCount ?? 0) + (talepCount ?? 0) + overdueCount;
 
   // Deneme süresi dolan / ödemesi başarısız olan işletme, native mobil
   // uygulamada da paneli görüntülemeye devam eder (salt-okunur); yazma
