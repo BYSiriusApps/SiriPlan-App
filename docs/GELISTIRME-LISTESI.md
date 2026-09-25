@@ -64,6 +64,16 @@ bumps. `npm install` + `tsc --noEmit` + `npm run lint` (0 error) + `npm run buil
   düzenli açması beklenen davranış — her seferinde reddedilebilir. Bu not sadece
   "yarın tekrar karşımıza çıkarsa neden olduğunu hatırlayalım" diye tutuluyor.
 
+**11 Eyl 2026:** Dependabot açıklarının tamamı (next kritik RCE, xlsx prototype pollution vb.)
+temizlendi + panel görsel yüklemesi sunucu API + sharp yeniden kodlamaya taşındı. **Kalan tek
+açık:** `next-intl` 3.26.x → 4.x. İki moderate advisory (open-redirect + `experimental.messages.
+precompile` prototype pollution — precompile projede kullanılmıyor). 4.x **kırıcı geçiş**:
+ayrı PR + tam i18n regresyon testi gerekir. Tetikleyici: acil değil; başka bir next-intl işi
+açıldığında birlikte yapılır.
+
+**Migration bekliyor:** `20260911_upload_hardening_storage.sql` — kod deploy'undan SONRA
+SQL Editor'e (SVG mime kaldırma + Storage doğrudan-yazım politikalarını düşürme).
+
 ---
 
 ## 1. Supabase Auth e-postaları çok dilli olsun
@@ -427,3 +437,26 @@ ayrı bir `.env.development.local` dosyasına yazıldı — Next.js'in yükleme 
 bitince dosya silindi.
 
 **Kalan:** Yok — kod main'e push edilmeye hazır.
+
+---
+
+## 8. ⏳ Barkod: uygulama içi kamera için yeni AAB
+
+**Durum:** Barkodla ürün satışı (11 Eyl 2026) web'de canlı. Kamerayla tarama
+**mobil tarayıcıda** çalışır; kurulu Play Store uygulaması (TWA) içinde `getUserMedia`
+`android.permission.CAMERA` bildirilmediği için reddedilir → tarayıcı otomatik
+**elle barkod girişi** moduna düşer (satış yine çalışır).
+
+**Yapılacak (kamera uygulamada da çalışsın):**
+- PWABuilder / Bubblewrap projesinde CAMERA iznini aç (`"features": { "cameraPermission": true }`
+  veya `bubblewrap update --manifest` sonrası `AndroidManifest`'e `<uses-permission android:name="android.permission.CAMERA"/>`).
+- Yeni **AAB üret** → Play Console → yeni sürüm.
+- Play Console → **Data safety** formu: kamera kullanımı = "yalnızca cihazda, barkod
+  tarama; toplanmaz/paylaşılmaz" gerekçesi.
+- Test cihazında uygulamayı yeniden kur, `/dashboard/stok` → "Barkodla Sat" →
+  kamera izni sorulmalı ve tarama çalışmalı.
+
+**Not:** Bu AAB değişikliği yapılana kadar mağaza sürümü sağlam — özellik elle
+girişle tam kullanılabilir. `assetlinks.json` / imza etkilenmez.
+**İlgili:** `docs/play-store/aab-camera-todo.md`, `next.config.ts`
+(`PERMISSIONS_POLICY_DASHBOARD` = `camera=(self)`), `src/components/dashboard/BarcodeScanner.tsx`.

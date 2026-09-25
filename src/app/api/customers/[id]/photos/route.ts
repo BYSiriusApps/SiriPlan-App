@@ -62,7 +62,7 @@ const CreateSchema = z.object({
   after_path: z.string().trim().min(1).max(500),
   note: z.string().trim().max(300).nullish(),
   consent_confirmed: z.literal(true, {
-    errorMap: () => ({ message: "Fotoğrafı kaydetmeden önce müşteri rızası onayı gerekli" }),
+    error: "Fotoğrafı kaydetmeden önce müşteri rızası onayı gerekli",
   }),
 });
 
