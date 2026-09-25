@@ -473,6 +473,33 @@ Faz 2 (LiveNotifications + UnifiedCalendar çift-refresh düzeltmesi, takvim
 sayfasında debounce + tekilleştirme) uygulandı. Kalan fazlar aşağıda — istenirse
 ayrı bir oturumda ele alınabilir.
 
+**Faz 5.5 — Bekleme Listesi sayfası SSR'a taşındı (25 Eyl 2026, ikinci tur):**
+Kullanıcı "bekleme listesi/bekleyen işler az önce takıldı, 3 sn'den geç açılıyor,
+App Store ret sebebi olabilir" diye bildirdi. Kök neden bulundu:
+`bekleme-listesi/page.tsx` tamamen client component'ti, mount olunca 6 ayrı API
+ucuna (`/api/waitlist`, `/api/appointments`, `/api/appointment-requests`,
+`/api/staff`, `/api/services`, `/api/org`) paralel istek atıyordu — her uç kendi
+`auth.getUser()` (Supabase Auth ağ turu) + `getActiveMember()` (DB turu) çiftini
+AYRI AYRI tekrarlıyordu (6 ayrı serverless çağrısı × 2 round-trip). Veriler boşken
+bile mobilde bu yüzden "takılıyordu". Komşu sayfa `bekleyen-istekler` zaten doğru
+desendeydi (server component + tek `Promise.all`) — aynı desen uygulandı:
+- `bekleme-listesi/page.tsx` → server component'e çevrildi, tüm başlangıç verisi
+  (waitlist/talep/appointment_requests + form dropdown'ları için personel/hizmet)
+  `getSessionUser()`/`getActiveMember()` zaten `cache()`'li olduğundan EK ağ turu
+  olmadan tek `Promise.all` ile çekiliyor.
+- Yeni `bekleme-listesi/BeklemeListesiClient.tsx` — tüm onayla/reddet/öner/sil/
+  kaydet mantığı BİREBİR korunarak (davranış hiç değişmedi) yalnızca başlangıç
+  state'i prop'tan alıyor; aksiyon sonrası tazeleme (`fetchData`) client'ta
+  aynen kaldı (yalnızca kullanıcı aksiyonuyla tetiklenir, ilk açılışı bloklamaz).
+- Personel dropdown'u artık `select("*")` yerine yalnızca `id, full_name`
+  seçiyor — maaş/prim gibi hassas kolonlar (staff rolünün asla görmemesi
+  gereken alanlar) baştan sorguya hiç girmiyor, önceki `stripSalaryIfStaff`
+  filtrelemesinden daha sıkı.
+- `npx tsc --noEmit` + `npm run lint` temiz (0 hata, iki dosyada hiç uyarı yok).
+- **Doğrulanmadı:** Gerçek mobil cihazda açılış süresi ölçümü — bulut senkronlu
+  D: sürücüsü yüzünden `npm run dev` bu oturumda güvenilir çalışmayabiliyordu,
+  kullanıcının kendi cihazında test etmesi önerilir.
+
 **Faz 3 — Sekme arka plandan dönünce yenileme ("geç güncelleme" şikayeti):**
 `src/components/dashboard/LiveNotifications.tsx`'e `visibilitychange`/`focus`
 dinleyicisi eklenip sekme öne dönünce throttle'lı (~5-10sn) `router.refresh()`
