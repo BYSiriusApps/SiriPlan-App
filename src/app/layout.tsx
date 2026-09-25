@@ -40,10 +40,12 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#e11d48" },
-    { media: "(prefers-color-scheme: dark)", color: "#be123c" },
-  ],
+  // Logonun lacivert zeminiyle aynı ton (bkz. manifest.json background_color/
+  // theme_color ve ColdStartSplash). iOS geçiş/açılış anlarında WKWebView'ın
+  // arka planı ve durum çubuğu bu meta theme-color'dan okunur; eski kırmızı
+  // marka rengi (#e11d48/#be123c) Android'de 1457bd8/8c67fdc ile düzeltilmiş
+  // ama burada kalmıştı, iOS'ta hâlâ kırmızı görünmesinin sebebi buydu.
+  themeColor: "#022058",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,

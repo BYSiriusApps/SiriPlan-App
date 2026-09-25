@@ -247,9 +247,9 @@ function parseDate(norm: string, now: Date, tz: string): DateResult | null {
  * boşluk/tire olabilir) yakalar. Metindeki başka rakamlar (saat vb.) numarayı
  * bozmasın diye ham rakam yığınına değil, telefon şekline bakar.
  */
-const PHONE_RE = /(?:\+?90[\s.-]?)?0?\s?(5\d{2})[\s.-]?(\d{3})[\s.-]?(\d{2})[\s.-]?(\d{2})/;
+export const PHONE_RE = /(?:\+?90[\s.-]?)?0?\s?(5\d{2})[\s.-]?(\d{3})[\s.-]?(\d{2})[\s.-]?(\d{2})/;
 
-function parsePhone(raw: string): string {
+export function parsePhone(raw: string): string {
   const m = raw.match(PHONE_RE);
   if (m) return `${m[1]}${m[2]}${m[3]}${m[4]}`;
   // Aksi halde 10-11 haneli bitişik bir dizi

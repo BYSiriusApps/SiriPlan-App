@@ -39,7 +39,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // her panel sayfası geçişinde bir tam gidiş-dönüş süresi fazladan bekletiyordu.
   // Tek dalgada paralel çalıştırıyoruz.
   const supabase = await createClient();
-  const [memberships, isAdmin, messages, mobileApp, { data: inventoryItems }, { count: talepCount }, { count: requestCount }] =
+  const [memberships, isAdmin, messages, mobileApp, { data: inventoryItems }, { count: talepCount }, { count: requestCount }, { count: missingPhoneCount }] =
     await Promise.all([
       getMemberships(),
       isPlatformAdmin(),
@@ -60,6 +60,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
         .select("id", { count: "exact", head: true })
         .eq("org_id", org.id)
         .eq("status", "pending"),
+      // Sesli/hızlı randevuda telefon bilinmeden oluşturulmuş kayıtlar — müşteriye
+      // WhatsApp bilgilendirmesi gitmedi, personel numarayı öğrenince tamamlamalı.
+      supabase
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("org_id", org.id)
+        .eq("customer_phone", "")
+        .neq("status", "iptal"),
     ]);
 
   let lowStockCount = 0;
@@ -76,7 +84,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // link üzerinden gelen talepler + kritik stok. Tüm roller görsün diye (staff
   // dahil) role kısıtı YOK; yalnızca yukarıdaki tam genişlik şeritler owner/
   // manager'a özel kalıyor.
-  const pendingWorkCount = lowStockCount + (requestCount ?? 0);
+  const pendingWorkCount = lowStockCount + (requestCount ?? 0) + (missingPhoneCount ?? 0);
 
   // Deneme süresi dolan / ödemesi başarısız olan işletme, native mobil
   // uygulamada da paneli görüntülemeye devam eder (salt-okunur); yazma

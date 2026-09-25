@@ -68,14 +68,16 @@ export default async function ApptDetailPage({
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/dashboard/randevular" className="text-muted-foreground hover:text-foreground transition-colors">
+      <div className="flex items-center gap-3 flex-wrap">
+        <Link href="/dashboard/randevular" className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold brand-gradient-text">{t("apptDetail.title")}</h1>
-        <Badge variant="outline" className={cn("ml-auto", STATUS_BADGE_CLASSES[a.status])}>
+        <h1 className="text-xl font-bold brand-gradient-text min-w-0 flex-1">{t("apptDetail.title")}</h1>
+        <Badge variant="outline" className={cn("shrink-0", STATUS_BADGE_CLASSES[a.status])}>
           {t(STATUS_LABEL_KEYS[a.status])}
         </Badge>
+      </div>
+      <div className="flex items-center gap-2 flex-wrap">
         <Link
           href={`/dashboard/randevular/${id}/adisyon`}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"

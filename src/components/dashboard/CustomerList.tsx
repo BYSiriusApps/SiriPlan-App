@@ -60,6 +60,7 @@ interface Props {
   customers: Customer[];
   showPhoneButtons: boolean;
   initialKampanya?: boolean;
+  initialQ?: string;
   /** Silme butonu — yalnızca sahip / `delete_customers` izni olan üyeler için. */
   canDelete?: boolean;
   businessType?: string | null;
@@ -69,7 +70,7 @@ interface Props {
  * Müşteri listesi — arama kutusuna yazdıkça (akıllı klavye gibi) anında
  * filtreler; sunucuya gitmez. Filtre temizleme (X) butonu vardır.
  */
-export function CustomerList({ customers, showPhoneButtons, initialKampanya = false, canDelete = false, businessType = null }: Props) {
+export function CustomerList({ customers, showPhoneButtons, initialKampanya = false, initialQ = "", canDelete = false, businessType = null }: Props) {
   const t = useTranslations("dashboard");
   const statusFieldDef = useMemo(
     () => getFieldCatalog(businessType).find((f) => f.key === "status" && f.type === "select"),
@@ -82,7 +83,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
   // gizlenir. Skor cron'u yine herkes için hesaplar (kendi verisi, sızıntı yok).
   const { proTools } = usePlan();
   const sorts = useMemo(() => (proTools ? SORTS : SORTS.filter((s) => s.value !== "score")), [proTools]);
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(initialQ);
   const [sortBy, setSortBy] = useState<SortValue>("last_visit");
   // false = azalan (en yeni/en yüksek üstte) — listenin bugüne kadarki davranışı.
   const [asc, setAsc] = useState(false);

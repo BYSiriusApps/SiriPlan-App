@@ -1503,6 +1503,14 @@
       "markAllFailed": "Bazı randevular işaretlenemedi, lütfen tekrar deneyin",
       "notAssigned": "Size atanmadı"
     },
+    "missingPhone": {
+      "title": "Telefon Numarası Eksik",
+      "subtitle": "Sesli/hızlı randevu ile telefon girilmeden oluşturuldu — müşteriye WhatsApp bilgilendirmesi gitmedi. Numarayı öğrenince buradan ekleyin.",
+      "placeholder": "5xx xxx xx xx",
+      "saveButton": "Kaydet",
+      "savedToast": "Telefon numarası eklendi",
+      "saveFailedToast": "Telefon kaydedilemedi"
+    },
     "waitlistPage": {
       "eyebrow": "Randevu",
       "subtitle": "Dolu saatler için müşterileri bekleme listesine ekleyin",
@@ -2388,6 +2396,7 @@
       "fillByVoice": "Konuşarak Doldur",
       "finishListening": "Bitir",
       "heard": "Duyduğum",
+      "collectedSoFar": "Şimdiye kadar topladıklarım (kaybolmadı):",
       "confirmTitle": "Randevu bilgilerini kontrol edin",
       "lblCustomer": "Müşteri",
       "lblPhone": "Telefon",
@@ -2431,7 +2440,8 @@
       "eyebrow": "Randevular",
       "title": "Yeni Randevu",
       "cardTitle": "Randevu Bilgileri",
-      "submitButton": "Randevu Oluştur"
+      "submitButton": "Randevu Oluştur",
+      "noPhoneCreatedWarning": "Telefon numarası olmadan oluşturuldu — müşteriye WhatsApp bilgilendirmesi gitmedi. Numarayı öğrenince Bekleyen İşler'den ekleyebilirsiniz."
     },
     "apptDetail": {
       "title": "Randevu Detayı",

@@ -347,6 +347,33 @@ export default function YeniRandevuPage() {
     }
   }, [services, staff, myStaffId, tm, voiceLabelFor]);
 
+  /** /api/ai/voice-booking'e gönderir ve dönen kısmi/tam sonucu forma birleştirir — hem
+   * ana 15sn dinlemeden hem de "eksikleri sesle ekle" komutunun serbest konuşmasından çağrılır. */
+  const parseTranscriptAndApply = useCallback(async (transcript: string) => {
+    if (!transcript.trim()) return;
+    toast.loading(tm("processing"), { id: "voice-parsing" });
+    try {
+      const res = await fetch("/api/ai/voice-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transcript, parseOnly: true }),
+      });
+      const data = await res.json();
+      toast.dismiss("voice-parsing");
+
+      if (data.actionTaken === "confirm_appointment" && data.parsed) {
+        applyVoiceParsed(data.parsed);
+      } else if (data.response) {
+        toast(data.response, { icon: "🎙️" });
+      } else {
+        toast.error(tm("notUnderstood"));
+      }
+    } catch {
+      toast.dismiss("voice-parsing");
+      toast.error(tm("analyzeFailed"));
+    }
+  }, [applyVoiceParsed, tm]);
+
   const startVoiceBooking = useCallback(async () => {
     if (!proTools) {
       toast.error(tm("proOnly"));
@@ -392,9 +419,10 @@ export default function YeniRandevuPage() {
 
     recognition.onstart = () => {
       setIsListening(true);
-      setVoiceSummary(null);
+      // voiceSummary/voiceMissing BİLEREK sıfırlanmıyor — "eksikleri sesle ekle"
+      // ile başlayan ikinci bir turda önceden toplanan bilgi ekranda görünmeye
+      // devam etsin (aksi halde kullanıcı verinin kaybolduğunu sanıyordu).
       setIsConfirmingVoice(false);
-      setVoiceMissing([]);
       try { navigator.vibrate?.(60); } catch {}
       toast.dismiss("voice-parsing");
       toast(tm("listening"), { id: "voice-listening", duration: LISTEN_MS, icon: "🎤" });
@@ -436,32 +464,11 @@ export default function YeniRandevuPage() {
 
       const transcript = accum.trim();
       if (!transcript) { toast.error(tm("notUnderstood")); return; }
-
-      toast.loading(tm("processing"), { id: "voice-parsing" });
-      try {
-        const res = await fetch("/api/ai/voice-booking", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ transcript, parseOnly: true }),
-        });
-        const data = await res.json();
-        toast.dismiss("voice-parsing");
-
-        if (data.actionTaken === "confirm_appointment" && data.parsed) {
-          applyVoiceParsed(data.parsed);
-        } else if (data.response) {
-          toast(data.response, { icon: "🎙️" });
-        } else {
-          toast.error(tm("notUnderstood"));
-        }
-      } catch {
-        toast.dismiss("voice-parsing");
-        toast.error(tm("analyzeFailed"));
-      }
+      await parseTranscriptAndApply(transcript);
     };
 
     recognition.start();
-  }, [proTools, requestMic, speechLang, tm, applyVoiceParsed]);
+  }, [proTools, requestMic, speechLang, tm, parseTranscriptAndApply]);
 
   // ── Sesli onay komutları — "onayla" / "düzelt" / "eksikleri ekle" ──
   // Düz fonksiyon: her render taze `saveAppointment` kapanışını yakalar
@@ -488,6 +495,7 @@ export default function YeniRandevuPage() {
     onConfirm: confirmAndSave,
     onEdit: cancelVoiceConfirm,
     onCompleteMissing: completeMissingByVoice,
+    onFreeSpeechMissing: parseTranscriptAndApply,
     toasts: {
       listening: tm("voiceCmdListening"),
       confirmed: tm("voiceCmdConfirmed"),
@@ -558,6 +566,9 @@ export default function YeniRandevuPage() {
 
       if (res.ok) {
         toast.success("Randevu oluşturuldu");
+        if (!form.customer_phone) {
+          toast(t("apptNew.noPhoneCreatedWarning"), { icon: "⚠️", duration: 9000 });
+        }
 
         if (fromWaitlistId) {
           fetch(`/api/waitlist/${fromWaitlistId}`, {
@@ -668,6 +679,21 @@ export default function YeniRandevuPage() {
                     <p className="text-[11px] text-foreground/80 bg-background/60 rounded-lg px-2.5 py-1.5">
                       <span className="opacity-60">{tm("heard")}: </span>{liveTranscript}
                     </p>
+                  )}
+                  {/* Önceki turda toplanan bilgi — "eksikleri sesle ekle" ile yeniden
+                      dinlerken bunun hâlâ orada olduğunu görsün, kaybolmuş sanmasın. */}
+                  {voiceSummary && (
+                    <div className="text-[11px] text-foreground/70 bg-background/60 rounded-lg px-2.5 py-1.5 space-y-0.5">
+                      <p className="opacity-60">{tm("collectedSoFar")}</p>
+                      <VoiceRow label={tm("lblCustomer")} value={voiceSummary.customer_name} emptyLabel={tm("notProvided")} />
+                      <VoiceRow label={tm("lblStaff")} value={voiceSummary.staff_name} emptyLabel={tm("notProvided")} />
+                      <VoiceRow label={tm("lblService")} value={voiceSummary.service_name} emptyLabel={tm("notProvided")} />
+                      <VoiceRow
+                        label={tm("lblDatetime")}
+                        value={voiceSummary.appointment_at ? new Date(voiceSummary.appointment_at).toLocaleString() : ""}
+                        emptyLabel={tm("notProvided")}
+                      />
+                    </div>
                   )}
                 </div>
               )}
