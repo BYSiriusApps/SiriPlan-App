@@ -97,7 +97,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // gelen appointment_requests (requestCount). Eskiden yalnızca talepCount
   // sayılıyordu — WhatsApp/Instagram'dan gelen bir talep varken şerit "1"
   // gösterip gerçekte 2 randevu onay bekliyorsa kullanıcıyı yanıltıyordu.
-  const pendingApptCount = role === "owner" || role === "manager" ? (talepCount ?? 0) + (requestCount ?? 0) : 0;
+  const pendingApprovalsCount = (talepCount ?? 0) + (requestCount ?? 0);
+  const pendingApptCount = role === "owner" || role === "manager" ? pendingApprovalsCount : 0;
   // Sidebar/mobil menüde "Bekleyen İşler" yanındaki sayaç — WhatsApp/Instagram/
   // link üzerinden gelen talepler + kritik stok. Tüm roller görsün diye (staff
   // dahil) role kısıtı YOK; yalnızca yukarıdaki tam genişlik şeritler owner/
@@ -176,7 +177,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
           {/* Mobile bottom navigation */}
           <div className="print:hidden">
-            <MobileNav role={role} permissionsJson={member?.permissions_json} orgSlug={org.slug} plan={org.plan} pendingWorkCount={pendingWorkCount} />
+            <MobileNav role={role} permissionsJson={member?.permissions_json} orgSlug={org.slug} plan={org.plan} pendingWorkCount={pendingWorkCount} pendingApptCount={pendingApprovalsCount} />
           </div>
 
           <div className="print:hidden">

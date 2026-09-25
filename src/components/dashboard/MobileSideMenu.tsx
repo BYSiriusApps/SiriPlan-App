@@ -48,9 +48,10 @@ interface Props {
   orgSlug?: string;
   plan?: string;
   pendingWorkCount?: number;
+  pendingApptCount?: number;
 }
 
-export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan, pendingWorkCount = 0 }: Props) {
+export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan, pendingWorkCount = 0, pendingApptCount = 0 }: Props) {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
   const { setOpen: setAssistantOpen } = useAiAssistant();
@@ -164,9 +165,18 @@ export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan, pe
                 >
                   <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
                   <span className="flex-1 truncate">{t(item.tKey)}</span>
-                  {(item.href === "/dashboard/bekleyen-istekler" || item.href === "/dashboard/bekleme-listesi") && pendingWorkCount > 0 && (
+                  {/* "Bekleyen İşler" (stok+talep+telefon+sonuçlandırılmamış toplamı) ve
+                      "Bekleme Listesi / Onay Bekleyenler" (yalnızca onay bekleyen randevu
+                      sayısı) birbirinden bağımsız sayaçlar — ikisine de aynı toplam
+                      gösteriliyordu, sayfadaki gerçek kayıt sayısıyla uyuşmuyordu. */}
+                  {item.href === "/dashboard/bekleyen-istekler" && pendingWorkCount > 0 && (
                     <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-rose-500 text-white shrink-0">
                       {pendingWorkCount > 99 ? "99+" : pendingWorkCount}
+                    </span>
+                  )}
+                  {item.href === "/dashboard/bekleme-listesi" && pendingApptCount > 0 && (
+                    <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-rose-500 text-white shrink-0">
+                      {pendingApptCount > 99 ? "99+" : pendingApptCount}
                     </span>
                   )}
                 </Link>
