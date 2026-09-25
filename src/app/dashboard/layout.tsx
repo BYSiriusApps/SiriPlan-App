@@ -83,8 +83,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // Sidebar/mobil menüde "Bekleyen İşler" yanındaki sayaç — WhatsApp/Instagram/
   // link üzerinden gelen talepler + kritik stok. Tüm roller görsün diye (staff
   // dahil) role kısıtı YOK; yalnızca yukarıdaki tam genişlik şeritler owner/
-  // manager'a özel kalıyor.
-  const pendingWorkCount = lowStockCount + (requestCount ?? 0) + (missingPhoneCount ?? 0);
+  // manager'a özel kalıyor. talepCount (randevu linkinden gelen, otomatik onay
+  // kapalıyken oluşan) artık "Bekleyen İstekler" sayfasında da listelendiği
+  // için sayaca dahil edildi — önceden yalnızca üstteki kırmızı şeritte
+  // sayılıyordu, sayfada görünmeden sayaç da eksik kalıyordu.
+  const pendingWorkCount = lowStockCount + (requestCount ?? 0) + (missingPhoneCount ?? 0) + (talepCount ?? 0);
 
   // Deneme süresi dolan / ödemesi başarısız olan işletme, native mobil
   // uygulamada da paneli görüntülemeye devam eder (salt-okunur); yazma
@@ -126,7 +129,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   {pendingApptCount} randevu onayınızı bekliyor — randevu linkinden geldi.
                 </span>
                 <Link
-                  href="/dashboard/bekleme-listesi"
+                  href="/dashboard/bekleyen-istekler"
                   className="underline hover:text-rose-100 transition-colors shrink-0 font-bold"
                 >
                   Onayla →

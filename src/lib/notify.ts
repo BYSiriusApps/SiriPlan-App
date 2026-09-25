@@ -11,7 +11,6 @@ import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
 import { sendInternalTemplate } from "@/lib/wa-templates/internal-send";
 import type { WaInternalPurpose } from "@/lib/wa-templates/internal-registry";
 import { formatApptDateTime } from "@/lib/wa-templates/send";
-import { googleMapsLink } from "@/lib/wa-template";
 
 interface AppointmentForNotify {
   id: string;
@@ -83,7 +82,6 @@ function buildMessage(
   serviceName: string,
   staffName: string,
   isRequest = false,
-  locationLink?: string | null,
   timeZone: string = "Europe/Istanbul"
 ): string {
   const date = new Date(appt.appointment_at).toLocaleString("tr-TR", {
@@ -92,8 +90,10 @@ function buildMessage(
     timeZone: timeZone,
   });
   const source = sourceLabel(appt.source);
-  const locationLine = locationLink ? `📍 ${locationLink}\n` : "";
 
+  // Salon sahibi/personele giden bu bildirimde harita/konum linkine gerek yok
+  // (kendi işletmelerinin adresini zaten biliyorlar) — konum yalnızca
+  // müşteriye giden WhatsApp şablonunda (bkz. wa-templates/send.ts) gösterilir.
   if (isRequest) {
     return (
       `📋 <b>Yeni Randevu Talebi</b> — ${source}\n\n` +
@@ -102,7 +102,6 @@ function buildMessage(
       `👩‍💼 ${staffName}\n` +
       `🕐 ${date}\n` +
       (appt.price ? `💰 ₺${Number(appt.price).toLocaleString("tr-TR")}\n` : "") +
-      locationLine +
       (appt.note ? `📝 ${appt.note}\n` : "") +
       `\nOnaylamak için panele girin.`
     );
@@ -115,7 +114,6 @@ function buildMessage(
     `👩‍💼 ${staffName}\n` +
     `🕐 ${date}\n` +
     (appt.price ? `💰 ₺${Number(appt.price).toLocaleString("tr-TR")}\n` : "") +
-    locationLine +
     (appt.note ? `📝 ${appt.note}` : "")
   );
 }
@@ -192,10 +190,7 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
     const serviceName = (service as { name: string } | null)?.name ?? "Hizmet";
     const staffName = (staffRow as { full_name: string } | null)?.full_name ?? "Personel";
     const orgForLocation = orgRow as { address?: string | null; location_url?: string | null; timezone?: string | null } | null;
-    const locationLink =
-      orgForLocation?.location_url?.trim() ||
-      (orgForLocation?.address?.trim() ? googleMapsLink(orgForLocation.address.trim()) : "");
-    const message = buildMessage(appt, serviceName, staffName, false, locationLink, orgForLocation?.timezone || "Europe/Istanbul");
+    const message = buildMessage(appt, serviceName, staffName, false, orgForLocation?.timezone || "Europe/Istanbul");
     const { date: waDate, time: waTime } = formatApptDateTime(appt.appointment_at, orgForLocation?.timezone || "Europe/Istanbul");
     const waTemplateParams = {
       business_name: (orgRow as { name?: string } | null)?.name ?? "",
@@ -487,10 +482,7 @@ export async function notifyAppointmentRequest(
     const serviceName = req.serviceName ?? (svcRow as { name?: string } | null)?.name ?? "Hizmet";
     const staffName = req.staffName ?? (stfRow as { full_name?: string } | null)?.full_name ?? "Personel";
     const orgForLocation = orgRow as { address?: string | null; location_url?: string | null; timezone?: string | null } | null;
-    const locationLink =
-      orgForLocation?.location_url?.trim() ||
-      (orgForLocation?.address?.trim() ? googleMapsLink(orgForLocation.address.trim()) : "");
-    const message = buildMessage(req, serviceName, staffName, true, locationLink, orgForLocation?.timezone || "Europe/Istanbul");
+    const message = buildMessage(req, serviceName, staffName, true, orgForLocation?.timezone || "Europe/Istanbul");
     const { date: waDate, time: waTime } = formatApptDateTime(req.appointment_at, orgForLocation?.timezone || "Europe/Istanbul");
     const waTemplateParams = {
       business_name: (orgRow as { name?: string } | null)?.name ?? "",
