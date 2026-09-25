@@ -1491,8 +1491,9 @@
       "delete": "Sil"
     },
     "pendingRequestsPage": {
-      "sourceLabel": "WhatsApp / Instagram",
-      "subtitle": "WhatsApp veya Instagram üzerinden gelen ve manuel onayınızı bekleyen randevu talepleri."
+      "sourceLabel": "Günlük İş Takibi",
+      "subtitle": "Onay bekleyen randevu talepleri (randevu linki, WhatsApp, Instagram), tamamlanmamış işlemler, eksik bilgiler ve stok uyarıları tek yerde.",
+      "channelRequestsHeading": "Onay Bekleyenler"
     },
     "overdueAppointments": {
       "title": "Sonuçlandırılmamış Randevular",
@@ -1751,7 +1752,7 @@
     "appointments": "Randevular",
     "waitlist": "Bekleme Listesi",
     "waitlistAndApprovals": "Bekleme Listesi / Onay Bekleyenler",
-    "pendingRequests": "Bekleyen İstekler",
+    "pendingRequests": "Bekleyen İşler",
     "liveNotify": {
       "newRequestTitle": "Yeni Randevu Talebi",
       "newRequestBodyNamed": "{name} adlı müşteriden yeni bir randevu talebi geldi.",
@@ -2066,6 +2067,7 @@
       "activeAppointments": "Aktif Randevular",
       "noUpcoming": "Yaklaşan randevu yok",
       "pendingCountLabel": "Bekliyor: {count}",
+      "approvedCountLabel": "Onaylanan: {count}",
       "doneCountLabel": "Tamamlanan: {count}",
       "campaignStatus": "Kampanya Durumu",
       "efficiencyLabel": "+%{value} Verimlilik",

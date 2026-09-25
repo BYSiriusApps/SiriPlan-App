@@ -14,7 +14,7 @@ import { HomeButton } from "@/components/dashboard/HomeButton";
 import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { usePlan } from "@/components/dashboard/PlanContext";
 import { toast } from "sonner";
-import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Lock, Pencil, X } from "lucide-react";
+import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Lock, Pencil, X, MessageCircle, Instagram, Globe } from "lucide-react";
 import { maskPhone } from "@/lib/phone";
 import type { Staff, Service } from "@/types/database";
 
@@ -27,6 +27,27 @@ type PendingAppt = {
   service: { name: string } | null;
   proposed_status?: "none" | "pending" | "accepted" | "rejected";
   proposed_appointment_at?: string | null;
+};
+
+/** appointment_requests — randevu linki DIŞINDA (WhatsApp/Instagram/web) kanallardan
+ * gelen, manuel onay bekleyen talepler. PendingAppt'ten AYRI bir tablo/akış; bu
+ * sayfada eskiden hiç gösterilmiyordu — "Bekleme Listesi / Onay Bekleyenler"
+ * başlığına rağmen yalnızca randevu linkinden gelen talepler görünüyordu. */
+type PendingRequest = {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  appointment_at: string;
+  source: string;
+  staff: { full_name: string } | null;
+  service: { name: string } | null;
+  proposed_status?: "none" | "pending" | "accepted" | "rejected";
+  proposed_appointment_at?: string | null;
+};
+
+const REQUEST_SOURCE_META: Record<string, { label: string; icon: typeof MessageCircle }> = {
+  whatsapp: { label: "WhatsApp", icon: MessageCircle },
+  instagram: { label: "Instagram", icon: Instagram },
 };
 
 type WaitlistEntry = {
@@ -68,6 +89,10 @@ export default function BeklemeListesiPage() {
   const t = useTranslations("dashboard");
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [pendingAppts, setPendingAppts] = useState<PendingAppt[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
+  const [requestBusyId, setRequestBusyId] = useState<string | null>(null);
+  const [requestEditingId, setRequestEditingId] = useState<string | null>(null);
+  const [requestEditValue, setRequestEditValue] = useState("");
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [proposingId, setProposingId] = useState<string | null>(null);
   const [cancelingId, setCancelingId] = useState<string | null>(null);
@@ -88,10 +113,11 @@ export default function BeklemeListesiPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const [res, apptRes] = await Promise.all([
+    const [res, apptRes, reqRes] = await Promise.all([
       // Pro+ değilse waitlist ucu 403 döner — boşuna çağırma.
       proTools ? fetch("/api/waitlist").catch(() => null) : Promise.resolve(null),
       fetch("/api/appointments?status=talep").catch(() => null),
+      fetch("/api/appointment-requests?status=pending").catch(() => null),
     ]);
     if (res && res.ok) {
       const d = await res.json();
@@ -104,8 +130,76 @@ export default function BeklemeListesiPage() {
       );
       setPendingAppts(list);
     }
+    if (reqRes && reqRes.ok) {
+      const d = await reqRes.json();
+      const list = ((d.requests || []) as PendingRequest[]).sort(
+        (a, b) => new Date(a.appointment_at).getTime() - new Date(b.appointment_at).getTime()
+      );
+      setPendingRequests(list);
+    }
     setLoading(false);
   }, [proTools]);
+
+  async function approveRequest(id: string) {
+    setRequestBusyId(id);
+    const res = await fetch(`/api/appointment-requests/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "approve" }),
+    });
+    setRequestBusyId(null);
+    if (res.ok) {
+      setPendingRequests((prev) => prev.filter((r) => r.id !== id));
+      toast.success("Randevu onaylandı");
+    } else {
+      const e = await res.json().catch(() => ({}));
+      toast.error(e.error || "İşlem gerçekleştirilemedi");
+    }
+  }
+
+  async function rejectRequest(id: string) {
+    setRequestBusyId(id);
+    const res = await fetch(`/api/appointment-requests/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reject" }),
+    });
+    setRequestBusyId(null);
+    if (res.ok) {
+      setPendingRequests((prev) => prev.filter((r) => r.id !== id));
+      toast.success("Talep reddedildi");
+    } else {
+      const e = await res.json().catch(() => ({}));
+      toast.error(e.error || "İşlem gerçekleştirilemedi");
+    }
+  }
+
+  function startProposingRequest(r: PendingRequest) {
+    setRequestEditingId(r.id);
+    setRequestEditValue(toLocalInputValue(r.appointment_at));
+  }
+
+  async function proposeRequest(id: string) {
+    if (!requestEditValue) return;
+    const iso = new Date(requestEditValue).toISOString();
+    setRequestBusyId(id);
+    const res = await fetch(`/api/appointment-requests/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reschedule", appointment_at: iso }),
+    });
+    setRequestBusyId(null);
+    if (res.ok) {
+      setPendingRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, proposed_status: "pending", proposed_appointment_at: iso } : r))
+      );
+      setRequestEditingId(null);
+      toast.success("Yeni saat önerildi, müşteri cevabı bekleniyor");
+    } else {
+      const e = await res.json().catch(() => ({}));
+      toast.error(e.error || "Öneri gönderilemedi");
+    }
+  }
 
   async function approveAppt(id: string) {
     setApprovingId(id);
@@ -283,17 +377,118 @@ export default function BeklemeListesiPage() {
         )}
       </div>
 
-      {/* Onay bekleyen randevular — panelden onay bekleyen (talep) randevular.
-          Kayda tıklayınca detay açılır; "Onayla" doğrudan onaylar. */}
-      {pendingAppts.length > 0 && (
+      {/* Onay bekleyen randevular — randevu linkinden gelen (talep) randevular
+          + WhatsApp/Instagram/web appointment_requests. İkisi de AYRI tablo/akış
+          (bkz. PendingRequest tipi yorumu); eskiden yalnızca talep randevuları
+          gösteriliyordu, "Onay Bekleyenler" başlığına rağmen kanal talepleri
+          burada hiç görünmüyordu. Kayda tıklayınca detay açılır; "Onayla"
+          doğrudan onaylar. */}
+      {(pendingAppts.length > 0 || pendingRequests.length > 0) && (
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-3">
               <CalendarClock className="h-4 w-4 text-primary" />
               <p className="text-sm font-semibold">{t("waitlistPage.pendingApprovalsTitle")}</p>
-              <Badge variant="outline" className="text-[10px] font-normal">{pendingAppts.length}</Badge>
+              <Badge variant="outline" className="text-[10px] font-normal">{pendingAppts.length + pendingRequests.length}</Badge>
             </div>
             <div className="space-y-1">
+              {pendingRequests.map((r) => {
+                const meta = REQUEST_SOURCE_META[r.source] ?? REQUEST_SOURCE_META.whatsapp;
+                const SourceIcon = meta.icon;
+                const busy = requestBusyId === r.id;
+                return (
+                  <div
+                    key={r.id}
+                    className="relative flex flex-col gap-2 px-3 py-3 rounded-lg data-row transition-colors"
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium leading-tight truncate">{r.customer_name}</p>
+                          <Badge variant="outline" className="text-[10px] gap-1">
+                            <SourceIcon className="h-3 w-3" /> {meta.label}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
+                          <Clock className="h-3 w-3 shrink-0" />
+                          {new Date(r.appointment_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          {r.service?.name && ` · ${r.service.name}`}
+                          {r.staff?.full_name && ` · ${r.staff.full_name}`}
+                        </p>
+                      </div>
+                      {requestEditingId === r.id ? (
+                        <div
+                          className="relative z-10 flex flex-col gap-2.5 w-full sm:w-80 shrink-0 rounded-xl border bg-muted/30 p-3"
+                          onClick={(ev) => ev.stopPropagation()}
+                        >
+                          <DateTimeSlotPicker
+                            value={requestEditValue}
+                            onChange={setRequestEditValue}
+                            minDate={new Date().toISOString().slice(0, 10)}
+                            slotMinutes={bookingSlotMinutes}
+                          />
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <Button
+                              size="lg" className="gap-1.5 w-full h-12 text-base justify-center sm:h-9 sm:text-xs sm:flex-1"
+                              disabled={busy}
+                              onClick={() => proposeRequest(r.id)}
+                            >
+                              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                              {t("proposeSubmit")}
+                            </Button>
+                            <Button
+                              size="lg" variant="outline" className="w-full h-12 text-base justify-center sm:w-auto sm:h-9 sm:text-xs"
+                              onClick={() => setRequestEditingId(null)}
+                            >
+                              {t("rescheduleCancelButton")}
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="relative z-10 flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:w-auto sm:shrink-0">
+                          <Button
+                            size="lg"
+                            className="gap-1.5 w-full h-12 text-base justify-center bg-emerald-600 hover:bg-emerald-700 text-white sm:w-auto sm:h-8 sm:text-xs"
+                            disabled={busy}
+                            onClick={() => approveRequest(r.id)}
+                          >
+                            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                            {t("approve")}
+                          </Button>
+                          <Button
+                            size="lg" variant="outline"
+                            className="gap-1.5 w-full h-12 text-base justify-center border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 sm:w-auto sm:h-8 sm:text-xs"
+                            disabled={busy || r.proposed_status === "pending"}
+                            onClick={() => startProposingRequest(r)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                            {t("proposeNewTime")}
+                          </Button>
+                          <Button
+                            size="lg" variant="outline"
+                            className="gap-1.5 w-full h-12 text-base justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 sm:w-auto sm:h-8 sm:text-xs"
+                            disabled={busy}
+                            onClick={() => rejectRequest(r.id)}
+                          >
+                            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                            {t("cancelAction")}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    {r.proposed_status === "pending" && r.proposed_appointment_at && (
+                      <Badge variant="outline" className="relative z-10 w-fit text-[10px] gap-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50">
+                        {t("proposalPendingBadge", { datetime: new Date(r.proposed_appointment_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) })}
+                      </Badge>
+                    )}
+                    {r.proposed_status === "rejected" && (
+                      <Badge variant="outline" className="relative z-10 w-fit text-[10px] gap-1 bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50">
+                        {t("proposalRejectedBadge")}
+                      </Badge>
+                    )}
+                  </div>
+                );
+              })}
               {pendingAppts.map((a) => (
                 <div
                   key={a.id}
@@ -304,7 +499,12 @@ export default function BeklemeListesiPage() {
                       href={`/dashboard/randevular/${a.id}`}
                       className="min-w-0 flex-1 before:absolute before:inset-0 before:content-['']"
                     >
-                      <p className="text-sm font-medium leading-tight truncate">{a.customer_name}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-medium leading-tight truncate">{a.customer_name}</p>
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          <Globe className="h-3 w-3" /> Randevu Linki
+                        </Badge>
+                      </div>
                       <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
                         <Clock className="h-3 w-3 shrink-0" />
                         {new Date(a.appointment_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}

@@ -94,6 +94,59 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ appointment: updated });
   }
 
+  // "reassign_staff" = randevu linkinden gelip henüz onaylanmamış ("talep")
+  // bir kayıtta, "personel farketmez" ile boş bırakılmış ya da müşterinin
+  // seçtiği personeli işletme değiştiriyor — appointment_requests'teki aynı
+  // aksiyonla birebir aynı davranış (bkz. api/appointment-requests/[id]).
+  // Bilerek generic ALLOWED akışının DIŞINDA tutulur: o akış staff_id
+  // değişince müşteriye "randevu revize edildi" WhatsApp şablonu gönderiyor —
+  // ama bu randevu müşteriye HİÇ onaylanmamış durumda, "revize" mesajı yanlış
+  // ve kafa karıştırıcı olurdu.
+  if (body.action === "reassign_staff") {
+    if (member.role === "staff") {
+      return NextResponse.json({ error: "Bu işlem için yetkiniz yok" }, { status: 403 });
+    }
+    const staffId = body.staff_id;
+    if (typeof staffId !== "string" || !staffId) {
+      return NextResponse.json({ error: "staff_id gerekli" }, { status: 400 });
+    }
+    const { data: current } = await supabase
+      .from("appointments")
+      .select("status, appointment_at")
+      .eq("id", id)
+      .eq("org_id", member.org_id)
+      .single();
+    if (!current) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
+    if (current.status !== "talep") {
+      return NextResponse.json({ error: "Sadece onay bekleyen randevularda personel bu şekilde değiştirilebilir" }, { status: 409 });
+    }
+    const { data: staffRow } = await supabase
+      .from("staff")
+      .select("id, full_name")
+      .eq("id", staffId)
+      .eq("org_id", member.org_id)
+      .eq("is_active", true)
+      .single();
+    if (!staffRow) {
+      return NextResponse.json({ error: "Personel bulunamadı" }, { status: 404 });
+    }
+    const { data: orgTz } = await supabase
+      .from("organizations")
+      .select("timezone")
+      .eq("id", member.org_id)
+      .single();
+    if (await isStaffOnTimeOff(supabase, member.org_id, staffId, current.appointment_at, orgTz?.timezone || "Europe/Istanbul")) {
+      return NextResponse.json({ error: "Personel bu tarihte izinli." }, { status: 409 });
+    }
+    const { error: reassignErr } = await supabase
+      .from("appointments")
+      .update({ staff_id: staffId })
+      .eq("id", id)
+      .eq("org_id", member.org_id);
+    if (reassignErr) return NextResponse.json({ error: reassignErr.message }, { status: 500 });
+    return NextResponse.json({ status: "reassigned", staff: { id: staffRow.id, full_name: staffRow.full_name } });
+  }
+
   const ALLOWED = [
     "status", "note", "internal_note", "tip", "payment_method", "cancel_reason",
     "customer_name", "customer_phone", "customer_email",

@@ -207,12 +207,14 @@ payment surface, and no link, button or text directing to purchase outside the a
 creation and plan selection are intentionally unavailable inside the app and redirect to the
 sign-in screen.
 
-OPTIONAL THIRD-PARTY INTEGRATIONS (WhatsApp Business & SMS). The app has two optional messaging
-integrations for appointment reminders and confirmations: (1) WhatsApp Business - each business
-connects its own Meta WhatsApp Business account; (2) SMS provider - each business enters its own
-SMS gateway API key. In the demo account these settings panels are intentionally left
+OPTIONAL THIRD-PARTY INTEGRATIONS (WhatsApp Business, SMS, and Instagram/Facebook Messenger). The
+app has three optional messaging integrations for appointment reminders, confirmations, and
+automated customer replies: (1) WhatsApp Business - each business connects its own Meta WhatsApp
+Business account; (2) SMS provider - each business enters its own SMS gateway API key; (3)
+Instagram & Facebook Messenger - each business connects its own Meta Page access token to
+auto-reply to incoming DMs. In the demo account all three settings panels are intentionally left
 unconfigured and appear empty. This is expected, not a defect: when no credentials are entered
-the app simply does not send reminder/confirmation messages, and every other feature (booking,
+the app simply does not send/receive these optional messages, and every other feature (booking,
 calendar, staff, customers, reporting) works fully.
 
 Demo login (owner, full access): sahip.demo@siriplan.com / Sahip!2026Demo
@@ -262,4 +264,17 @@ App Store Connect'te build seçilip tüm alanlar (metadata, gizlilik, yaş derec
 - [x] Adım 9 — Reviewer notları + demo giriş girildi (2026-09-23)
 - [x] Adım 10 — TestFlight ile cihazda test edildi (2026-09-23) — giriş çalıştı, "Hesabınız yok mu?" satırı iOS'ta doğrulanan şekilde gizli
 - [x] Adım 11 — İncelemeye gönderildi (2026-09-23 21:53, Submission ID 1676ea41-1e67-4673-b5b6-f078637267a3) — durum: **Waiting for Review**
-- [ ] Adım 12 — TAKİP: İnceleme sonucu bekleniyor (2026-09-24). WA/SMS/Instagram-Messenger ayar alanları demo hesapta boş — Reviewer Notes'ta yalnızca WhatsApp+SMS opsiyonel entegrasyon olarak açıklanmış, Instagram/Messenger ayrıca belirtilmemiş. Hâlâ "Waiting for Review" ise App Review Information notuna Instagram/Messenger'ı da ekle (build gerektirmez); reddedilirse Resolution Center'dan aynı açıklamayla yanıtla (bkz. memory)
+- [x] Adım 12 — Reddedildi (2026-09-24, Submission ID 1676ea41-1e67-4673-b5b6-f078637267a3): PWABuilder'ın varsayılan placeholder izin metinleri ("Capture Video/Audio by user request", "Track current location by user request") Apple'ın otomatik taramasında yetersiz bulundu (NSCameraUsageDescription, NSMicrophoneUsageDescription, NSLocationWhenInUseUsageDescription). `BYSiriusApps/siriplan-ios` reposunda `src/SiriPlan/Info.plist` içindeki üç metin, gerçek kullanım amacına göre somut/açıklayıcı hale getirildi (kamera→barkod tarama+hizmet/müşteri/logo fotoğrafı, mikrofon→sesli randevu/stok asistanı, konum→website ayarlarında "Konumumu kullan" butonu) ve commit `e77a1c3` ile main'e push edildi (2026-09-24).
+- [x] Adım 13a — Reviewer Notes metnine Instagram/Facebook Messenger de eklendi (2026-09-24, yukarıdaki Adım 9 bloğu güncellendi) — demo hesapta WA/SMS/Instagram üçü de bilerek boş, App Review Information'a bunu App Store Connect'te elle güncellemek gerekiyor (build gerektirmez, metadata).
+- [x] Adım 13b — TAMAMLANDI (2026-09-25): build number 1→2 bump edildi (commit `dbc2911`, App Store Connect "previousBundleVersion" hatası çözüldü), TestFlight Test Information (Feedback Email, Beta App Review contact+sign-in) dolduruldu, App Review Information Notes güncel metinle (Instagram/WhatsApp/SMS dahil) değiştirildi, build 2 sürüme bağlandı ("1 (2)" — Ready for Review), **Resubmit to App Review** basıldı — durum: **Waiting for Review**.
+- [ ] Adım 14 — TAKİP: İkinci inceleme sonucu bekleniyor (2026-09-25).
+
+### Resubmit yol haritası (red yememek için sırayla)
+
+1. **Codemagic build'i başlat.** PWABuilder'dan yeniden indirmeye gerek YOK — sadece `Info.plist` metni değişti, native proje (Xcode şeması/WKWebView kurulumu) aynı; `e77a1c3` commit'i zaten `main`'de. Codemagic panelinden **Start new build** (workflow: `ios-app-store`) — otomatik tetiklenmediyse elle başlat.
+2. **Build TestFlight'a yüklenene kadar bekle** (codemagic.yaml → `submit_to_testflight: true`, otomatik olur). E-posta ile bildirim gelir.
+3. **(Önerilir) TestFlight'ta gerçek cihazda hızlı kontrol:** kamera/mikrofon/konum izin diyaloglarından biri tetiklendiğinde (ör. barkod tarama veya sesli randevu) artık yeni açıklama metninin çıktığını doğrula — placeholder metnin gerçekten değiştiğini teyit eder.
+4. **App Store Connect → uygulama sürümü:** yeni build'i seç.
+5. **App Review Information** kutusundaki metni yukarıdaki güncellenmiş sürümle (Instagram/Messenger eklenmiş hali) değiştir.
+6. **Add for Review → Submit to App Review.** Bu bir "resubmission" — önceki reddin Resolution Center'ından yanıt yazmak YETMEZ, çünkü yeni bir binary yükledik; metadata-only bir düzeltme olsaydı Resolution Center yeterdi ama burada kod (Info.plist) değişti.
+7. Durumu takip et — "Waiting for Review" → genelde 24-48 saat.

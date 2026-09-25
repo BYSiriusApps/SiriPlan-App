@@ -1491,8 +1491,9 @@
       "delete": "حذف"
     },
     "pendingRequestsPage": {
-      "sourceLabel": "WhatsApp / Instagram",
-      "subtitle": "طلبات المواعيد الواردة عبر واتساب أو إنستغرام والتي تنتظر موافقتك اليدوية."
+      "sourceLabel": "متابعة المهام اليومية",
+      "subtitle": "طلبات المواعيد المعلقة (رابط الحجز، واتساب، إنستغرام)، العمليات غير المكتملة، البيانات الناقصة وتنبيهات المخزون، في مكان واحد.",
+      "channelRequestsHeading": "بانتظار الموافقة"
     },
     "overdueAppointments": {
       "title": "مواعيد غير مسواة",
@@ -1751,7 +1752,7 @@
     "appointments": "المواعيد",
     "waitlist": "قائمة الانتظار",
     "waitlistAndApprovals": "قائمة الانتظار / بانتظار الموافقة",
-    "pendingRequests": "الطلبات المعلقة",
+    "pendingRequests": "المهام المعلقة",
     "liveNotify": {
       "newRequestTitle": "طلب موعد جديد",
       "newRequestBodyNamed": "طلب موعد جديد من {name}.",
@@ -2066,6 +2067,7 @@
       "activeAppointments": "المواعيد النشطة",
       "noUpcoming": "لا توجد مواعيد قادمة",
       "pendingCountLabel": "قيد الانتظار: {count}",
+      "approvedCountLabel": "مؤكد: {count}",
       "doneCountLabel": "مكتمل: {count}",
       "campaignStatus": "حالة الحملة",
       "efficiencyLabel": "+{value}% الكفاءة",

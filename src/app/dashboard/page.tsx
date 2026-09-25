@@ -3,10 +3,7 @@ import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import {
   format,
-  startOfDay, endOfDay,
-  startOfWeek, endOfWeek,
-  startOfMonth, endOfMonth,
-  subDays, differenceInCalendarDays,
+  differenceInCalendarDays,
 } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
 import {
@@ -14,7 +11,10 @@ import {
   Clock, BarChart3, Wallet, Users, Scissors, Package, AlertTriangle,
 } from "lucide-react";
 import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
-import { istanbulTimeStr, istanbulDateStr, DEFAULT_ORG_TIMEZONE } from "@/lib/istanbul-time";
+import {
+  istanbulTimeStr, istanbulDateStr, istanbulDayOfWeek,
+  zonedWallTimeToUtc, DEFAULT_ORG_TIMEZONE,
+} from "@/lib/istanbul-time";
 import Link from "next/link";
 import { LiveClock } from "@/components/ui/LiveClock";
 import { QuickActionsPanel } from "@/components/dashboard/QuickActionsPanel";
@@ -29,6 +29,12 @@ import { OnboardingWelcome, OnboardingTour, STAFF_STEPS } from "@/components/das
 import { numberLocaleOf } from "@/lib/currency";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
+
+/** "2026-08-19" → "2026-08-20" (delta gün) — takvim aritmetiği UTC'de yapılır, sunucunun yerel saat diliminden bağımsız (bkz. dashboard/randevular/page.tsx nextDayStr). */
+function addDaysStr(day: string, delta: number): string {
+  const [y, m, d] = day.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + delta)).toISOString().slice(0, 10);
+}
 
 /* ─── Mini sparkline SVG — rengi aktif organizasyon temasından (currentColor) alır ─── */
 function Sparkline({ data }: { data: number[] }) {
@@ -91,15 +97,34 @@ export default async function DashboardPage() {
   const orgTimeZone = member.organizations?.timezone || DEFAULT_ORG_TIMEZONE;
 
   const now = new Date();
-  const todayStart = startOfDay(now).toISOString();
-  const todayEnd = endOfDay(now).toISOString();
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 }).toISOString();
-  const weekEnd = endOfWeek(now, { weekStartsOn: 1 }).toISOString();
-  const monthStart = startOfMonth(now).toISOString();
-  const monthEnd = endOfMonth(now).toISOString();
-  const monthStartDate = format(startOfMonth(now), "yyyy-MM-dd");
-  const monthEndDate = format(endOfMonth(now), "yyyy-MM-dd");
-  const day7Start = startOfDay(subDays(now, 6)).toISOString();
+  // Gün/hafta/ay sınırları İŞLETMENİN saat dilimine göre kurulur. Sunucu
+  // (Vercel) UTC çalışır; date-fns'in startOfDay/endOfDay gibi yardımcıları
+  // sunucunun yerel saatini kullandığı için Europe/Istanbul (UTC+3) gibi bir
+  // salonda gece yarısına yakın randevular "bugün" sorgusunun dışında
+  // kalıyordu — bekleyen/tamamlanan sayaçları ve ciro rakamları gerçek
+  // durumu yansıtmıyordu (bkz. dashboard/randevular/page.tsx'te aynı sorun
+  // zonedWallTimeToUtc ile çözülmüştü, ana sayfa bu düzeltmeyi almamıştı).
+  const todayStr = istanbulDateStr(now, orgTimeZone);
+  const todayStart = zonedWallTimeToUtc(todayStr, "00:00", orgTimeZone).toISOString();
+  const todayEnd = zonedWallTimeToUtc(addDaysStr(todayStr, 1), "00:00", orgTimeZone).toISOString();
+
+  const weekdayIdx = istanbulDayOfWeek(now, orgTimeZone); // 0=Paz..6=Cmt
+  const mondayOffset = weekdayIdx === 0 ? -6 : 1 - weekdayIdx;
+  const weekStartStr = addDaysStr(todayStr, mondayOffset);
+  const weekStart = zonedWallTimeToUtc(weekStartStr, "00:00", orgTimeZone).toISOString();
+  const weekEnd = zonedWallTimeToUtc(addDaysStr(weekStartStr, 7), "00:00", orgTimeZone).toISOString();
+
+  const [todayYear, todayMonth] = todayStr.split("-").map(Number);
+  const monthStartDate = `${todayYear}-${String(todayMonth).padStart(2, "0")}-01`;
+  const nextMonthStartDate = todayMonth === 12
+    ? `${todayYear + 1}-01-01`
+    : `${todayYear}-${String(todayMonth + 1).padStart(2, "0")}-01`;
+  const monthEndDate = addDaysStr(nextMonthStartDate, -1);
+  const monthStart = zonedWallTimeToUtc(monthStartDate, "00:00", orgTimeZone).toISOString();
+  const monthEnd = zonedWallTimeToUtc(nextMonthStartDate, "00:00", orgTimeZone).toISOString();
+
+  const day7StartStr = addDaysStr(todayStr, -6);
+  const day7Start = zonedWallTimeToUtc(day7StartStr, "00:00", orgTimeZone).toISOString();
 
   const isStaff = member.role === "staff";
   const staffId = member.staff_id;
@@ -111,7 +136,7 @@ export default async function DashboardPage() {
     .select("*, staff:staff!appointments_staff_id_fkey(full_name), service:services(name, duration_minutes)")
     .eq("org_id", orgId)
     .gte("appointment_at", todayStart)
-    .lte("appointment_at", todayEnd)
+    .lt("appointment_at", todayEnd)
     .neq("status", "iptal")
     .order("appointment_at");
 
@@ -129,7 +154,7 @@ export default async function DashboardPage() {
     .select("price, tip, status")
     .eq("org_id", orgId)
     .gte("appointment_at", weekStart)
-    .lte("appointment_at", weekEnd)
+    .lt("appointment_at", weekEnd)
     .neq("status", "iptal");
 
   let last7Query = supabase
@@ -137,7 +162,7 @@ export default async function DashboardPage() {
     .select("appointment_at, price")
     .eq("org_id", orgId)
     .gte("appointment_at", day7Start)
-    .lte("appointment_at", todayEnd)
+    .lt("appointment_at", todayEnd)
     .eq("status", "tamamlandi");
 
   let monthApptsQuery = supabase
@@ -145,8 +170,18 @@ export default async function DashboardPage() {
     .select("price, tip, status")
     .eq("org_id", orgId)
     .gte("appointment_at", monthStart)
-    .lte("appointment_at", monthEnd)
+    .lt("appointment_at", monthEnd)
     .eq("status", "tamamlandi");
+
+  // Onay bekleyen randevular — tarihe bakılmaksızın (bugünkü appts dizisiyle
+  // sınırlı sayılırsa, randevu linkinden başka bir güne alınmış "talep"ler
+  // ana sayfada "0 bekliyor" gösterip Bekleyen İstekler sayfasıyla çelişiyordu;
+  // bkz. dashboard/layout.tsx'teki sidebar rozetiyle aynı, tarihsiz sayım).
+  let talepCountAllQuery = supabase
+    .from("appointments")
+    .select("id", { count: "exact", head: true })
+    .eq("org_id", orgId)
+    .eq("status", "talep");
 
   if (isStaff && staffId && !staffAllAppointments) {
     todayQuery = todayQuery.eq("staff_id", staffId);
@@ -154,6 +189,7 @@ export default async function DashboardPage() {
     weekQuery = weekQuery.eq("staff_id", staffId);
     last7Query = last7Query.eq("staff_id", staffId);
     monthApptsQuery = monthApptsQuery.eq("staff_id", staffId);
+    talepCountAllQuery = talepCountAllQuery.eq("staff_id", staffId);
   }
 
   // Kurulum turu karşılama kutusu.
@@ -190,6 +226,8 @@ export default async function DashboardPage() {
     { data: monthExpenses },
     { data: recentCustomers },
     { data: inventoryItems },
+    { count: talepCountAll },
+    { count: pendingRequestsCount },
   ] = await Promise.all([
     todayQuery,
     nextQuery,
@@ -271,6 +309,14 @@ export default async function DashboardPage() {
       .select("id, name, current_stock, min_stock_alert, unit")
       .eq("org_id", orgId)
       .eq("is_active", true),
+
+    talepCountAllQuery,
+
+    supabase
+      .from("appointment_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .eq("status", "pending"),
   ]);
 
   type FullAppt = Appointment & {
@@ -286,8 +332,13 @@ export default async function DashboardPage() {
     return now.getTime() >= s && now.getTime() < s + a.duration_minutes * 60_000;
   };
   const liveCount = appts.filter(isLive).length;
-  const pendingCount = appts.filter((a) => a.status === "talep").length;
+  const approvedCount = appts.filter((a) => a.status === "onaylandi").length;
   const doneCount = appts.filter((a) => a.status === "tamamlandi").length;
+  /* "Bekliyor" rozeti tarihe bakılmaksızın TÜM onay bekleyen randevu/talepleri
+     sayar (bkz. talepCountAllQuery yorumu) — yalnızca bugünkü appts dizisi
+     kullanılırsa, başka bir güne ait "talep" kayıtları ana sayfada "0
+     bekliyor" gösterip Bekleyen İstekler/sidebar rozetiyle çelişiyordu. */
+  const totalPendingCount = (talepCountAll ?? 0) + (pendingRequestsCount ?? 0);
 
   /* Sıradaki randevular: şu andan itibaren en yakın tarih/saat sırasıyla.
      Ayrıca şu an devam eden bugünkü randevu varsa listenin başına al. */
@@ -304,6 +355,13 @@ export default async function DashboardPage() {
     (a) => !liveNow.some((l) => l.id === a.id)
   );
   const upcoming: NextAppt[] = [...liveNow, ...futureList].slice(0, 5);
+  /* Onay Bekleyenler kutusu: sadece bugüne değil, yaklaşan (nextQuery zaten
+     tarihsiz — "şu andan itibaren") tüm "talep" kayıtlarını gösterir; eskiden
+     yalnızca bugünkü appts kullanılıyordu ve başka güne ait bir talep varsa
+     liste boş görünüp üstteki sayaçla (totalPendingCount) çelişiyordu. */
+  const talepUpcoming = ((nextAppts ?? []) as unknown as NextAppt[])
+    .filter((a) => a.status === "talep")
+    .slice(0, 2);
 
   const todayInOrgTz = istanbulDateStr(now, orgTimeZone);
   const dayLabel = (iso: string) => {
@@ -320,10 +378,11 @@ export default async function DashboardPage() {
   const efficiency = weekRows.length ? Math.round((weekDone / weekRows.length) * 100) : 0;
   const newCustCount = (newCustomers as unknown as { count: number } | null)?.count ?? 0;
 
-  /* Son 7 gün ciro grafiği */
+  /* Son 7 gün ciro grafiği — gün ataması işletmenin saat dilimine göre yapılır (server tz değil). */
   const dailyRev: number[] = Array(7).fill(0);
   ((last7 ?? []) as { appointment_at: string; price: number }[]).forEach((a) => {
-    const diff = differenceInCalendarDays(new Date(a.appointment_at), subDays(now, 6));
+    const dayStr = istanbulDateStr(new Date(a.appointment_at), orgTimeZone);
+    const diff = differenceInCalendarDays(new Date(dayStr), new Date(day7StartStr));
     if (diff >= 0 && diff < 7) dailyRev[diff] += Number(a.price);
   });
 
@@ -434,7 +493,10 @@ export default async function DashboardPage() {
               </span>
             )}
             <span className="flex items-center gap-1.5">
-              <span className="status-dot pending" /> {t("homePage.pendingCountLabel", { count: pendingCount })}
+              <span className="status-dot pending" /> {t("homePage.pendingCountLabel", { count: totalPendingCount })}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="status-dot approved" /> {t("homePage.approvedCountLabel", { count: approvedCount })}
             </span>
             <span className="flex items-center gap-1.5">
               <span className="status-dot done" /> {t("homePage.doneCountLabel", { count: doneCount })}
@@ -506,9 +568,9 @@ export default async function DashboardPage() {
           </CardTitle>
           <div className="px-4 py-3.5 space-y-2.5">
             <p className="text-[12px] text-muted-foreground">
-              {t("homePage.pendingRequestsLabel", { count: (pendingRequests ?? []).length + pendingCount })}
+              {t("homePage.pendingRequestsLabel", { count: totalPendingCount })}
             </p>
-            {(pendingRequests ?? []).length === 0 && pendingCount === 0 ? (
+            {totalPendingCount === 0 ? (
               <p className="text-sm text-muted-foreground">{t("homePage.noPendingRequests")}</p>
             ) : (
               <>
@@ -535,7 +597,7 @@ export default async function DashboardPage() {
                     </div>
                   </Link>
                 ))}
-                {appts.filter((a) => a.status === "talep").slice(0, 2).map((a) => (
+                {talepUpcoming.map((a) => (
                   <div
                     key={a.id}
                     className="relative flex items-center gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-opacity"
@@ -554,7 +616,7 @@ export default async function DashboardPage() {
                         {t("homePage.awaitingApprovalLabel", { name: a.customer_name })}
                       </p>
                       <p className="text-[11px] text-muted-foreground">
-                        {t("today")} {istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)} · {a.service?.name}
+                        {dayLabel(a.appointment_at) || `${t("today")} `}{istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)} · {a.service?.name}
                       </p>
                     </Link>
                     <div className="relative z-10 shrink-0">

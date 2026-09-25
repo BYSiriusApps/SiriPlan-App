@@ -1491,8 +1491,9 @@
       "delete": "Delete"
     },
     "pendingRequestsPage": {
-      "sourceLabel": "WhatsApp / Instagram",
-      "subtitle": "Appointment requests received via WhatsApp or Instagram that are awaiting your manual approval."
+      "sourceLabel": "Daily Task Tracking",
+      "subtitle": "Pending appointment requests (booking link, WhatsApp, Instagram), unfinished bookings, missing info, and stock alerts, all in one place.",
+      "channelRequestsHeading": "Awaiting Approval"
     },
     "overdueAppointments": {
       "title": "Unresolved Appointments",
@@ -1751,7 +1752,7 @@
     "appointments": "Appointments",
     "waitlist": "Waitlist",
     "waitlistAndApprovals": "Waitlist / Pending Approvals",
-    "pendingRequests": "Pending Requests",
+    "pendingRequests": "Pending Tasks",
     "liveNotify": {
       "newRequestTitle": "New Appointment Request",
       "newRequestBodyNamed": "New appointment request from {name}.",
@@ -2066,6 +2067,7 @@
       "activeAppointments": "Active Appointments",
       "noUpcoming": "No upcoming appointments",
       "pendingCountLabel": "Pending: {count}",
+      "approvedCountLabel": "Approved: {count}",
       "doneCountLabel": "Completed: {count}",
       "campaignStatus": "Campaign Status",
       "efficiencyLabel": "+{value}% Efficiency",
