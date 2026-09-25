@@ -47,6 +47,7 @@ interface TalepAppointment {
   duration_minutes: number | null;
   price: number | null;
   note: string | null;
+  staff_id: string | null;
   staff: { full_name: string } | null;
   service: { name: string } | null;
   proposed_status?: "none" | "pending" | "accepted" | "rejected";
@@ -183,6 +184,26 @@ export function BekleyenIsteklerClient({
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || "Öneri gönderilemedi");
+    }
+  }
+
+  async function handleTalepReassign(id: string, staffId: string) {
+    setTalepBusyId(id);
+    const res = await fetch(`/api/appointments/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reassign_staff", staff_id: staffId }),
+    });
+    setTalepBusyId(null);
+    if (res.ok) {
+      const staffName = staffOptions.find((s) => s.id === staffId)?.full_name ?? "";
+      setTalepAppts((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, staff_id: staffId, staff: { full_name: staffName } } : a))
+      );
+      toast.success("Personel değiştirildi");
+    } else {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.error || "Personel değiştirilemedi");
     }
   }
 
@@ -517,6 +538,15 @@ export function BekleyenIsteklerClient({
         </Card>
       )}
 
+      {(requests.length > 0 || talepAppts.length > 0) && (
+        <div className="flex items-center gap-2 pt-1">
+          <Inbox className="h-4 w-4 text-primary shrink-0" />
+          <h2 className="text-sm font-bold uppercase tracking-wide text-primary">
+            {t("pendingRequestsPage.channelRequestsHeading")} ({requests.length + talepAppts.length})
+          </h2>
+        </div>
+      )}
+
       {talepAppts.length > 0 && (
         <Card className="border-0 shadow-none bg-rose-50/60 dark:bg-rose-950/20">
           <CardContent className="p-4 space-y-3">
@@ -572,7 +602,31 @@ export function BekleyenIsteklerClient({
                           </div>
                           <p className="text-sm mt-1.5 flex items-center gap-1.5 flex-wrap">
                             <span className="font-medium">{a.service?.name ?? "—"}</span>
-                            {a.staff?.full_name && <span className="text-muted-foreground"> · {a.staff.full_name}</span>}
+                            {canReassignStaff && staffOptions.length > 0 ? (
+                              <>
+                                <span className="text-muted-foreground">·</span>
+                                <Select
+                                  value={a.staff_id ?? undefined}
+                                  onValueChange={(v) => v && v !== a.staff_id && handleTalepReassign(a.id, v)}
+                                  disabled={talepBusyId === a.id}
+                                >
+                                  <SelectTrigger size="sm" className="h-6 text-xs px-2 py-0 w-auto min-w-[7rem] border-none bg-transparent shadow-none hover:bg-muted/60">
+                                    <SelectValue placeholder="Personel seç">
+                                      {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || "Personel seç"}
+                                    </SelectValue>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {staffOptions.map((s) => (
+                                      <SelectItem key={s.id} value={s.id}>
+                                        {s.full_name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </>
+                            ) : (
+                              a.staff?.full_name && <span className="text-muted-foreground"> · {a.staff.full_name}</span>
+                            )}
                             {a.price !== null && <span className="text-muted-foreground"> · {formatServicePrice(a.price, undefined, locale)}</span>}
                           </p>
                           {a.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{a.note}&quot;</p>}
@@ -606,29 +660,53 @@ export function BekleyenIsteklerClient({
                             </div>
                           </div>
                         ) : (
-                          <div className="flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:w-auto sm:shrink-0">
-                            <Button
-                              size="lg" className="gap-1.5 w-full h-12 text-base justify-center bg-emerald-600 hover:bg-emerald-700 text-white sm:w-auto sm:h-9 sm:text-xs"
-                              disabled={busy} onClick={() => handleTalepApprove(a.id)}
-                            >
-                              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                              {t("approve")}
-                            </Button>
-                            <Button
-                              variant="outline" size="lg"
-                              className="gap-1.5 w-full h-12 text-base justify-center border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 sm:w-auto sm:h-9 sm:text-xs"
-                              disabled={busy || a.proposed_status === "pending"} onClick={() => startTalepProposing(a)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                              {t("proposeNewTime")}
-                            </Button>
-                            <Button
-                              variant="outline" size="lg" className="gap-1.5 w-full h-12 text-base justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 sm:w-auto sm:h-9 sm:text-xs"
-                              disabled={busy} onClick={() => handleTalepReject(a.id)}
-                            >
-                              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
-                              {t("cancelAction")}
-                            </Button>
+                          <div className="flex flex-col gap-2 w-full sm:w-auto sm:shrink-0">
+                            {canReassignStaff && !a.staff_id && staffOptions.length > 0 && (
+                              <div className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 dark:border-amber-900/50 dark:bg-amber-950/30">
+                                <span className="text-xs text-amber-800 dark:text-amber-400 shrink-0">Personel farketmez —</span>
+                                <Select
+                                  onValueChange={(v: string | null) => v && handleTalepReassign(a.id, v)}
+                                  disabled={busy}
+                                >
+                                  <SelectTrigger size="sm" className="h-8 text-xs flex-1 min-w-0 bg-background">
+                                    <SelectValue placeholder="Personel ata">
+                                      {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || "Personel ata"}
+                                    </SelectValue>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {staffOptions.map((s) => (
+                                      <SelectItem key={s.id} value={s.id}>
+                                        {s.full_name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
+                            <div className="flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap">
+                              <Button
+                                size="lg" className="gap-1.5 w-full h-12 text-base justify-center bg-emerald-600 hover:bg-emerald-700 text-white sm:w-auto sm:h-9 sm:text-xs"
+                                disabled={busy} onClick={() => handleTalepApprove(a.id)}
+                              >
+                                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                                {t("approve")}
+                              </Button>
+                              <Button
+                                variant="outline" size="lg"
+                                className="gap-1.5 w-full h-12 text-base justify-center border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 sm:w-auto sm:h-9 sm:text-xs"
+                                disabled={busy || a.proposed_status === "pending"} onClick={() => startTalepProposing(a)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                                {t("proposeNewTime")}
+                              </Button>
+                              <Button
+                                variant="outline" size="lg" className="gap-1.5 w-full h-12 text-base justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 sm:w-auto sm:h-9 sm:text-xs"
+                                disabled={busy} onClick={() => handleTalepReject(a.id)}
+                              >
+                                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                                {t("cancelAction")}
+                              </Button>
+                            </div>
                           </div>
                         )}
                       </div>

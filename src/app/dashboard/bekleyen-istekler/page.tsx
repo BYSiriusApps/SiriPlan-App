@@ -27,7 +27,7 @@ export default async function BekleyenIsteklerPage() {
     // sahibi "Bekleyen İstekler"de aradığında bulamıyordu, burada da gösteriyoruz.
     supabase
       .from("appointments")
-      .select("id, customer_name, customer_phone, appointment_at, duration_minutes, price, note, staff:staff!appointments_staff_id_fkey(full_name), service:services(name), proposed_status, proposed_appointment_at")
+      .select("id, customer_name, customer_phone, appointment_at, duration_minutes, price, note, staff_id, staff:staff!appointments_staff_id_fkey(full_name), service:services(name), proposed_status, proposed_appointment_at")
       .eq("org_id", member.org_id)
       .eq("status", "talep")
       .order("appointment_at", { ascending: true }),
@@ -104,7 +104,7 @@ export default async function BekleyenIsteklerPage() {
   type TalepRow = {
     id: string; customer_name: string; customer_phone: string; appointment_at: string;
     duration_minutes: number | null; price: number | null; note: string | null;
-    staff: { full_name: string } | null; service: { name: string } | null;
+    staff_id: string | null; staff: { full_name: string } | null; service: { name: string } | null;
     proposed_status?: "none" | "pending" | "accepted" | "rejected"; proposed_appointment_at?: string | null;
   };
   const talepAppointments = (talepRaw ?? []) as unknown as TalepRow[];

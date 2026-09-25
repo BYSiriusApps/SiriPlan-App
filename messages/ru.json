@@ -1491,8 +1491,9 @@
       "delete": "Удалить"
     },
     "pendingRequestsPage": {
-      "sourceLabel": "WhatsApp / Instagram",
-      "subtitle": "Заявки на запись, полученные через WhatsApp или Instagram и ожидающие вашего ручного подтверждения."
+      "sourceLabel": "Ежедневный учёт задач",
+      "subtitle": "Заявки на запись, ожидающие подтверждения (ссылка на запись, WhatsApp, Instagram), незавершённые визиты, недостающие данные и предупреждения о запасах — всё в одном месте.",
+      "channelRequestsHeading": "Ожидают подтверждения"
     },
     "overdueAppointments": {
       "title": "Незавершённые записи",
@@ -1751,7 +1752,7 @@
     "appointments": "Записи",
     "waitlist": "Лист ожидания",
     "waitlistAndApprovals": "Лист ожидания / Ожидающие подтверждения",
-    "pendingRequests": "Ожидающие заявки",
+    "pendingRequests": "Текущие задачи",
     "liveNotify": {
       "newRequestTitle": "Новая заявка на запись",
       "newRequestBodyNamed": "Новая заявка на запись от {name}.",
@@ -2066,6 +2067,7 @@
       "activeAppointments": "Активные записи",
       "noUpcoming": "Нет предстоящих записей",
       "pendingCountLabel": "В ожидании: {count}",
+      "approvedCountLabel": "Подтверждено: {count}",
       "doneCountLabel": "Завершено: {count}",
       "campaignStatus": "Статус кампании",
       "efficiencyLabel": "+{value}% эффективность",

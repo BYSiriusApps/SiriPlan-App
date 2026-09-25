@@ -596,6 +596,7 @@
 
 .status-dot.active { background: #10b981; box-shadow: 0 0 6px #10b98180; }
 .status-dot.pending { background: #f59e0b; box-shadow: 0 0 6px #f59e0b80; }
+.status-dot.approved { background: #3b82f6; box-shadow: 0 0 6px #3b82f680; }
 .status-dot.done { background: #6366f1; box-shadow: 0 0 6px #6366f180; }
 .status-dot.cancelled { background: #ef4444; box-shadow: 0 0 6px #ef444480; }
 

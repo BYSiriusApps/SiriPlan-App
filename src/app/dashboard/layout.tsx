@@ -76,10 +76,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
       (item: any) => Number(item.min_stock_alert) > 0 && Number(item.current_stock) <= Number(item.min_stock_alert)
     ).length;
   }
-  // Randevu linkinden gelip onay bekleyen ("talep") randevular. Otomatik onay
-  // artık varsayılan açık — bu sayı yalnızca salon kutuyu KAPATTIYSA > 0 olur.
-  // O durumda her sayfada bir şerit gösterip onay atlanmasını önlüyoruz.
-  const pendingApptCount = role === "owner" || role === "manager" ? talepCount ?? 0 : 0;
+  // Onay bekleyen randevular: randevu linkinden gelip otomatik onay kapalıyken
+  // "talep" durumuna düşenler (talepCount) + WhatsApp/Instagram/web üzerinden
+  // gelen appointment_requests (requestCount). Eskiden yalnızca talepCount
+  // sayılıyordu — WhatsApp/Instagram'dan gelen bir talep varken şerit "1"
+  // gösterip gerçekte 2 randevu onay bekliyorsa kullanıcıyı yanıltıyordu.
+  const pendingApptCount = role === "owner" || role === "manager" ? (talepCount ?? 0) + (requestCount ?? 0) : 0;
   // Sidebar/mobil menüde "Bekleyen İşler" yanındaki sayaç — WhatsApp/Instagram/
   // link üzerinden gelen talepler + kritik stok. Tüm roller görsün diye (staff
   // dahil) role kısıtı YOK; yalnızca yukarıdaki tam genişlik şeritler owner/
@@ -126,7 +128,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <div className="bg-rose-600 hover:bg-rose-700 transition-colors text-white px-4 py-2.5 text-xs font-semibold flex items-center justify-between gap-4 border-b border-rose-700">
                 <span className="flex items-center gap-1.5">
                   <CalendarClock className="h-4 w-4 shrink-0" />
-                  {pendingApptCount} randevu onayınızı bekliyor — randevu linkinden geldi.
+                  {pendingApptCount} randevu onayınızı bekliyor — randevu linki, WhatsApp veya Instagram üzerinden geldi.
                 </span>
                 <Link
                   href="/dashboard/bekleyen-istekler"
