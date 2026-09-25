@@ -25,12 +25,12 @@ const ROLE_RANK: Record<string, number> = { staff: 0, manager: 1, owner: 2 };
 const SECONDARY_NAV = [
   { href: "/dashboard/takvim", icon: Calendar, tKey: "calendar", minRole: "staff" },
   { href: "/dashboard/randevular", icon: BookOpen, tKey: "appointments", minRole: "staff" },
-  { href: "/dashboard/musteriler", icon: Users, tKey: "customers", minRole: "staff" },
-  { href: "/dashboard/paketler", icon: Ticket, tKey: "packages", minRole: "staff" },
+  { href: "/dashboard/bekleme-listesi", icon: ListPlus, tKey: "waitlistAndApprovals", minRole: "staff" },
   { href: "/dashboard/bekleyen-istekler", icon: Inbox, tKey: "pendingRequests", minRole: "staff" },
+  { href: "/dashboard/paketler", icon: Ticket, tKey: "packages", minRole: "staff" },
+  { href: "/dashboard/musteriler", icon: Users, tKey: "customers", minRole: "staff" },
   { href: "/dashboard/personel", icon: UserCog, tKey: "staff", minRole: "manager" },
   { href: "/dashboard/hizmetler", icon: Scissors, tKey: "services", minRole: "staff" },
-  { href: "/dashboard/bekleme-listesi", icon: ListPlus, tKey: "waitlistAndApprovals", minRole: "staff" },
   { href: "/dashboard/kampanyalar", icon: Megaphone, tKey: "campaigns", minRole: "staff" },
   { href: "/dashboard/website-ayarlari", icon: Globe, tKey: "websiteSettings", minRole: "manager" },
   { href: "/dashboard/raporlar", icon: BarChart3, tKey: "reports", minRole: "staff" },
@@ -164,7 +164,7 @@ export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan, pe
                 >
                   <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
                   <span className="flex-1 truncate">{t(item.tKey)}</span>
-                  {item.href === "/dashboard/bekleyen-istekler" && pendingWorkCount > 0 && (
+                  {(item.href === "/dashboard/bekleyen-istekler" || item.href === "/dashboard/bekleme-listesi") && pendingWorkCount > 0 && (
                     <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold bg-rose-500 text-white shrink-0">
                       {pendingWorkCount > 99 ? "99+" : pendingWorkCount}
                     </span>
