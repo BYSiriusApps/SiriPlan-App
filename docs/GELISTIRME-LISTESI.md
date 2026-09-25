@@ -460,3 +460,79 @@ bitince dosya silindi.
 girişle tam kullanılabilir. `assetlinks.json` / imza etkilenmez.
 **İlgili:** `docs/play-store/aab-camera-todo.md`, `next.config.ts`
 (`PERMISSIONS_POLICY_DASHBOARD` = `camera=(self)`), `src/components/dashboard/BarcodeScanner.tsx`.
+
+---
+
+## 9. Panel geçiş/yükleme performansı — kalan fazlar (Faz 1-2 uygulandı)
+
+**Durum (25 Eyl 2026):** Mobilde "açılışta yavaşlık + geç güncelleme + geçişlerde
+yavaşlama" şikayeti araştırıldı (3 paralel Explore ajanı + Next.js'in bu sürüme
+özel resmi docs'u doğrulandı). Faz 1 (auth round-trip dedup:
+`src/app/actions/dashboard-widgets.ts` + `shortcuts.ts` → `getSessionUser()`) ve
+Faz 2 (LiveNotifications + UnifiedCalendar çift-refresh düzeltmesi, takvim
+sayfasında debounce + tekilleştirme) uygulandı. Kalan fazlar aşağıda — istenirse
+ayrı bir oturumda ele alınabilir.
+
+**Faz 5.5 — Bekleme Listesi sayfası SSR'a taşındı (25 Eyl 2026, ikinci tur):**
+Kullanıcı "bekleme listesi/bekleyen işler az önce takıldı, 3 sn'den geç açılıyor,
+App Store ret sebebi olabilir" diye bildirdi. Kök neden bulundu:
+`bekleme-listesi/page.tsx` tamamen client component'ti, mount olunca 6 ayrı API
+ucuna (`/api/waitlist`, `/api/appointments`, `/api/appointment-requests`,
+`/api/staff`, `/api/services`, `/api/org`) paralel istek atıyordu — her uç kendi
+`auth.getUser()` (Supabase Auth ağ turu) + `getActiveMember()` (DB turu) çiftini
+AYRI AYRI tekrarlıyordu (6 ayrı serverless çağrısı × 2 round-trip). Veriler boşken
+bile mobilde bu yüzden "takılıyordu". Komşu sayfa `bekleyen-istekler` zaten doğru
+desendeydi (server component + tek `Promise.all`) — aynı desen uygulandı:
+- `bekleme-listesi/page.tsx` → server component'e çevrildi, tüm başlangıç verisi
+  (waitlist/talep/appointment_requests + form dropdown'ları için personel/hizmet)
+  `getSessionUser()`/`getActiveMember()` zaten `cache()`'li olduğundan EK ağ turu
+  olmadan tek `Promise.all` ile çekiliyor.
+- Yeni `bekleme-listesi/BeklemeListesiClient.tsx` — tüm onayla/reddet/öner/sil/
+  kaydet mantığı BİREBİR korunarak (davranış hiç değişmedi) yalnızca başlangıç
+  state'i prop'tan alıyor; aksiyon sonrası tazeleme (`fetchData`) client'ta
+  aynen kaldı (yalnızca kullanıcı aksiyonuyla tetiklenir, ilk açılışı bloklamaz).
+- Personel dropdown'u artık `select("*")` yerine yalnızca `id, full_name`
+  seçiyor — maaş/prim gibi hassas kolonlar (staff rolünün asla görmemesi
+  gereken alanlar) baştan sorguya hiç girmiyor, önceki `stripSalaryIfStaff`
+  filtrelemesinden daha sıkı.
+- `npx tsc --noEmit` + `npm run lint` temiz (0 hata, iki dosyada hiç uyarı yok).
+- **Doğrulanmadı:** Gerçek mobil cihazda açılış süresi ölçümü — bulut senkronlu
+  D: sürücüsü yüzünden `npm run dev` bu oturumda güvenilir çalışmayabiliyordu,
+  kullanıcının kendi cihazında test etmesi önerilir.
+
+**Faz 3 — Sekme arka plandan dönünce yenileme ("geç güncelleme" şikayeti):**
+`src/components/dashboard/LiveNotifications.tsx`'e `visibilitychange`/`focus`
+dinleyicisi eklenip sekme öne dönünce throttle'lı (~5-10sn) `router.refresh()`
+tetiklenmesi — mobilde WebSocket kopması sonrası kaçırılan realtime olaylarını
+telafi eder. Katmalı/additive, düşük risk.
+
+**Faz 4 — QuickBookSheet + HelpAssistant code-splitting:**
+`RandevularHeader.tsx`/`TakvimHeader.tsx`'teki `QuickBookSheet` (949 satır, her
+zaman statik import + mount'ta gereksiz `/api/org` fetch'i) ve `layout.tsx`'teki
+`HelpAssistant` (318 satır, mikrofon/Web Speech mantığı) `next/dynamic({ssr:false})`
+ile code-split edilir — emsali `src/app/dashboard/stok/page.tsx:38-45`'teki
+`BarcodeScanner`. Dikkat: QuickBookSheet'in trigger butonu bileşenin içinde
+(`SheetTrigger`, satır ~547-552) — loading fallback'i aynı boyutta statik bir
+buton iskeleti olmalı, yoksa CLS/sıçrama olur.
+
+**Faz 5 — ayarlar/page.tsx çift `auth.getUser()` düzeltmesi:**
+`src/lib/active-org-client.ts`'teki `getActiveMemberClient()`'a opsiyonel
+`knownUserId` parametresi eklenip `ayarlar/page.tsx:244-247`'deki art arda 2
+auth ağ isteği 1'e indirilir (tek çağıran nokta, geriye dönük uyumlu).
+
+**Kapsam dışı bırakıldı (backlog'ta kalsın, ayrı değerlendirme gerekir):**
+- `experimental.staleTimes` (`next.config.ts`) — app-wide blast radius (pazarlama +
+  `/r/[slug]` herkese açık randevu linki + admin de etkilenir), `/r/[slug]`'de stale
+  müsaitlik verisi yanlış-randevu riski taşır.
+- `src/proxy.ts`'in kendi auth/membership sorguları — güvenlik kritik, ayrı
+  execution context (Edge middleware), dokunmak yetkilendirme riski taşır.
+- `dashboard/layout.tsx`'in 9 paralel sorgusu — zaten doğru paralelleştirilmiş,
+  azaltmak (ör. overdue count'u DB-side RPC'ye taşımak) migration gerektirir.
+- `randevular/page.tsx`'in upcoming→past sıralı sorgusu — gerçek veri bağımlılığı,
+  ölçülmeden (p95 gecikme) dokunmak spekülatif.
+- ColdStartSplash `warmStart`'ı sessionStorage'a taşımak + icon-mark.png (256x256,
+  75KB) optimizasyonu — kozmetik, düşük öncelik.
+- next/image'e geçiş (personel avatarı, org logosu) — küçük kazanım, düşük öncelik.
+
+**İlgili:** [[panel-performance-architecture]] memory'si (21 Ağu bulgusu, hâlâ
+geçerli mimari).

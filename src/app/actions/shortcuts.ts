@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export type ShortcutItem = {
@@ -14,7 +14,7 @@ export type ShortcutItem = {
 
 export async function getUserShortcuts(): Promise<ShortcutItem[]> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) return [];
 
   const { data } = await supabase
@@ -31,7 +31,7 @@ export async function saveUserShortcuts(
   shortcuts: ShortcutItem[]
 ): Promise<{ error?: string }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) return { error: "Yetkisiz" };
 
   // Replace all shortcuts for this user+org atomically

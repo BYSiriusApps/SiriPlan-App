@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export type WidgetPref = {
@@ -11,7 +11,7 @@ export type WidgetPref = {
 
 export async function getDashboardWidgetPrefs(): Promise<WidgetPref[]> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) return [];
 
   const { data } = await supabase
@@ -28,7 +28,7 @@ export async function saveDashboardWidgetPrefs(
   prefs: WidgetPref[]
 ): Promise<{ error?: string }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getSessionUser();
   if (!user) return { error: "Yetkisiz" };
 
   const { error: delErr } = await supabase
