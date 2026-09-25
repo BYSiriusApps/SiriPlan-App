@@ -13,13 +13,24 @@ export default async function BekleyenIsteklerPage() {
 
   const nowIso = new Date().toISOString();
 
-  const [{ data: requests }, { data: inventoryItems }, { data: overdueRaw }, { data: staffRows }, { data: missingPhoneRaw }] = await Promise.all([
+  const [{ data: requests }, { data: talepRaw }, { data: inventoryItems }, { data: overdueRaw }, { data: staffRows }, { data: missingPhoneRaw }] = await Promise.all([
     supabase
       .from("appointment_requests")
       .select("*, staff(full_name), service:services(name)")
       .eq("org_id", member.org_id)
       .eq("status", "pending")
       .order("created_at", { ascending: false }),
+    // Randevu linkinden (/r/[slug]) gelip otomatik onay kapalıyken doğrudan
+    // appointments'a "talep" durumuyla düşen kayıtlar — appointment_requests'ten
+    // AYRI bir tablo/akış (bkz. /api/appointments POST, webAutoBookingEligible).
+    // Daha önce yalnızca "Bekleme Listesi" sayfasında görünüyorlardı; salon
+    // sahibi "Bekleyen İstekler"de aradığında bulamıyordu, burada da gösteriyoruz.
+    supabase
+      .from("appointments")
+      .select("id, customer_name, customer_phone, appointment_at, duration_minutes, price, note, staff:staff!appointments_staff_id_fkey(full_name), service:services(name), proposed_status, proposed_appointment_at")
+      .eq("org_id", member.org_id)
+      .eq("status", "talep")
+      .order("appointment_at", { ascending: true }),
     supabase
       .from("inventory_items")
       .select("id, name, current_stock, min_stock_alert, unit")
@@ -90,9 +101,18 @@ export default async function BekleyenIsteklerPage() {
   const rawSlotMinutes = Number(settings.booking_slot_minutes);
   const bookingSlotMinutes = [15, 30, 60].includes(rawSlotMinutes) ? rawSlotMinutes : 15;
 
+  type TalepRow = {
+    id: string; customer_name: string; customer_phone: string; appointment_at: string;
+    duration_minutes: number | null; price: number | null; note: string | null;
+    staff: { full_name: string } | null; service: { name: string } | null;
+    proposed_status?: "none" | "pending" | "accepted" | "rejected"; proposed_appointment_at?: string | null;
+  };
+  const talepAppointments = (talepRaw ?? []) as unknown as TalepRow[];
+
   return (
     <BekleyenIsteklerClient
       initialRequests={requests || []}
+      initialTalepAppointments={talepAppointments}
       showPhone={showPhone}
       bookingSlotMinutes={bookingSlotMinutes}
       criticalStock={criticalStock}

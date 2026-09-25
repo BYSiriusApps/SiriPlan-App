@@ -178,6 +178,7 @@ const MOBILE_APP_ALLOWED_PREFIXES = [
   "/randevu/", // randevu detay (token'lı, müşteriye gönderilen link)
   "/onay/",    // KVKK / kampanya onay ekranı (token'lı)
   "/oneri/",   // işletmenin önerdiği yeni saati kabul/red (token'lı)
+  "/k/",       // müşteriye giden WA mesajındaki kısa konum linki (slug'lı)
 ];
 
 // Yalnızca pazarlama sayfaları (`app/[locale]/(marketing)`) locale-prefixli
@@ -187,7 +188,7 @@ const MOBILE_APP_ALLOWED_PREFIXES = [
 // ile kasıtlı olarak örtüşüyor: native uygulamanın zaten erişemediği tek
 // yüzey pazarlama siteleri, bu yüzden locale-prefixli bir pazarlama yolu da
 // (örn. /en/fiyatlar) native kilide aynı şekilde takılmaya devam eder.
-const LOCALE_ROUTING_EXCLUDED_PREFIXES = ["/dashboard", "/admin", "/api", "/auth", "/r/", "/randevu/", "/onay/", "/oneri/"];
+const LOCALE_ROUTING_EXCLUDED_PREFIXES = ["/dashboard", "/admin", "/api", "/auth", "/r/", "/randevu/", "/onay/", "/oneri/", "/k/"];
 
 function isMarketingPath(pathname: string): boolean {
   return !LOCALE_ROUTING_EXCLUDED_PREFIXES.some((p) => pathname.startsWith(p));

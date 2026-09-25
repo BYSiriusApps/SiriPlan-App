@@ -128,8 +128,17 @@ export async function sendPurposeTemplate({
     process.env.PLATFORM_SUPPORT_PHONE ||
     bookingUrl;
 
+  // WhatsApp mesaj gövdesi markdown/HTML link desteklemiyor — "Konum Bilgisi"
+  // gibi özel bir tıklama yazısı gösteremiyoruz, metinde görünen tam olarak
+  // linkin kendisi oluyor (bkz. registry.ts'teki hasUrlButton notları: buton
+  // bileşeni denemeleri Meta'yı reddettiriyordu). Bari kısa görünsün diye
+  // Google Maps'in uzun/çirkin arama linki yerine kendi kısa yönlendirmemiz
+  // kullanılıyor (/k/[slug] → organizations.location_url ya da adresten
+  // üretilen Maps linkine 302 ile yönlendirir, bkz. src/app/k/[slug]/route.ts).
+  const hasLocationDestination = !!(org.location_url?.trim() || org.address?.trim());
   const locationLink =
     vars.location_link?.trim() ||
+    (hasLocationDestination && org.slug ? `${appUrl}/k/${org.slug}` : "") ||
     org.location_url?.trim() ||
     (org.address?.trim() ? googleMapsLink(org.address.trim()) : "") ||
     bookingUrl;
