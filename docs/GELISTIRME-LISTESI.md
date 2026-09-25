@@ -460,3 +460,52 @@ bitince dosya silindi.
 girişle tam kullanılabilir. `assetlinks.json` / imza etkilenmez.
 **İlgili:** `docs/play-store/aab-camera-todo.md`, `next.config.ts`
 (`PERMISSIONS_POLICY_DASHBOARD` = `camera=(self)`), `src/components/dashboard/BarcodeScanner.tsx`.
+
+---
+
+## 9. Panel geçiş/yükleme performansı — kalan fazlar (Faz 1-2 uygulandı)
+
+**Durum (25 Eyl 2026):** Mobilde "açılışta yavaşlık + geç güncelleme + geçişlerde
+yavaşlama" şikayeti araştırıldı (3 paralel Explore ajanı + Next.js'in bu sürüme
+özel resmi docs'u doğrulandı). Faz 1 (auth round-trip dedup:
+`src/app/actions/dashboard-widgets.ts` + `shortcuts.ts` → `getSessionUser()`) ve
+Faz 2 (LiveNotifications + UnifiedCalendar çift-refresh düzeltmesi, takvim
+sayfasında debounce + tekilleştirme) uygulandı. Kalan fazlar aşağıda — istenirse
+ayrı bir oturumda ele alınabilir.
+
+**Faz 3 — Sekme arka plandan dönünce yenileme ("geç güncelleme" şikayeti):**
+`src/components/dashboard/LiveNotifications.tsx`'e `visibilitychange`/`focus`
+dinleyicisi eklenip sekme öne dönünce throttle'lı (~5-10sn) `router.refresh()`
+tetiklenmesi — mobilde WebSocket kopması sonrası kaçırılan realtime olaylarını
+telafi eder. Katmalı/additive, düşük risk.
+
+**Faz 4 — QuickBookSheet + HelpAssistant code-splitting:**
+`RandevularHeader.tsx`/`TakvimHeader.tsx`'teki `QuickBookSheet` (949 satır, her
+zaman statik import + mount'ta gereksiz `/api/org` fetch'i) ve `layout.tsx`'teki
+`HelpAssistant` (318 satır, mikrofon/Web Speech mantığı) `next/dynamic({ssr:false})`
+ile code-split edilir — emsali `src/app/dashboard/stok/page.tsx:38-45`'teki
+`BarcodeScanner`. Dikkat: QuickBookSheet'in trigger butonu bileşenin içinde
+(`SheetTrigger`, satır ~547-552) — loading fallback'i aynı boyutta statik bir
+buton iskeleti olmalı, yoksa CLS/sıçrama olur.
+
+**Faz 5 — ayarlar/page.tsx çift `auth.getUser()` düzeltmesi:**
+`src/lib/active-org-client.ts`'teki `getActiveMemberClient()`'a opsiyonel
+`knownUserId` parametresi eklenip `ayarlar/page.tsx:244-247`'deki art arda 2
+auth ağ isteği 1'e indirilir (tek çağıran nokta, geriye dönük uyumlu).
+
+**Kapsam dışı bırakıldı (backlog'ta kalsın, ayrı değerlendirme gerekir):**
+- `experimental.staleTimes` (`next.config.ts`) — app-wide blast radius (pazarlama +
+  `/r/[slug]` herkese açık randevu linki + admin de etkilenir), `/r/[slug]`'de stale
+  müsaitlik verisi yanlış-randevu riski taşır.
+- `src/proxy.ts`'in kendi auth/membership sorguları — güvenlik kritik, ayrı
+  execution context (Edge middleware), dokunmak yetkilendirme riski taşır.
+- `dashboard/layout.tsx`'in 9 paralel sorgusu — zaten doğru paralelleştirilmiş,
+  azaltmak (ör. overdue count'u DB-side RPC'ye taşımak) migration gerektirir.
+- `randevular/page.tsx`'in upcoming→past sıralı sorgusu — gerçek veri bağımlılığı,
+  ölçülmeden (p95 gecikme) dokunmak spekülatif.
+- ColdStartSplash `warmStart`'ı sessionStorage'a taşımak + icon-mark.png (256x256,
+  75KB) optimizasyonu — kozmetik, düşük öncelik.
+- next/image'e geçiş (personel avatarı, org logosu) — küçük kazanım, düşük öncelik.
+
+**İlgili:** [[panel-performance-architecture]] memory'si (21 Ağu bulgusu, hâlâ
+geçerli mimari).
