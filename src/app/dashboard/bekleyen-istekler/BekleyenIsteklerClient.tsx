@@ -13,6 +13,7 @@ import { HomeButton } from "@/components/dashboard/HomeButton";
 import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { formatServicePrice } from "@/lib/currency";
 import { maskPhone } from "@/lib/phone";
+import { waMessageLink } from "@/lib/wa-template";
 import Link from "next/link";
 import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks, Pencil, Phone } from "lucide-react";
 import { toast } from "sonner";
@@ -452,12 +453,28 @@ export function BekleyenIsteklerClient({
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-sm">{r.customer_name}</p>
+                        <Link
+                          href={`/dashboard/musteriler?q=${encodeURIComponent(r.customer_phone || r.customer_name)}`}
+                          className="font-semibold text-sm hover:text-primary hover:underline transition-colors"
+                        >
+                          {r.customer_name}
+                        </Link>
                         <Badge variant="outline" className={`text-[10px] gap-1 ${source.className}`}>
                           <SourceIcon className="h-3 w-3" /> {source.label}
                         </Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">{showPhone ? r.customer_phone : maskPhone(r.customer_phone)}</p>
+                      {showPhone ? (
+                        <a
+                          href={waMessageLink(r.customer_phone, "")}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-emerald-600 hover:underline transition-colors mt-1"
+                        >
+                          <MessageCircle className="h-3 w-3" /> {r.customer_phone}
+                        </a>
+                      ) : (
+                        <p className="text-xs text-muted-foreground mt-1">{maskPhone(r.customer_phone)}</p>
+                      )}
                       <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
@@ -479,7 +496,9 @@ export function BekleyenIsteklerClient({
                               disabled={busyId === r.id}
                             >
                               <SelectTrigger size="sm" className="h-6 text-xs px-2 py-0 w-auto min-w-[7rem] border-none bg-transparent shadow-none hover:bg-muted/60">
-                                <SelectValue placeholder="Personel seç" />
+                                <SelectValue placeholder="Personel seç">
+                                  {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || "Personel seç"}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 {staffOptions.map((s) => (

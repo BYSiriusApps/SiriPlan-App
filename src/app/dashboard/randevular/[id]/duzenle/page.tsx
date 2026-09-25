@@ -146,7 +146,9 @@ export default function RandevuDuzenlePage() {
                   <Label>Hizmet *</Label>
                   <Select value={form.service_id} onValueChange={(v) => v && setForm((f) => ({ ...f, service_id: v }))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Hizmet seçin" />
+                      <SelectValue placeholder="Hizmet seçin">
+                        {(value: string) => services.find((s) => s.id === value)?.name || "Hizmet seçin"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {services.map((s) => (

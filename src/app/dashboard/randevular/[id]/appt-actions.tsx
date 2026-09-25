@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,7 +65,12 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
   const isDone = appt.status === "tamamlandi" || appt.status === "iptal" || appt.status === "gelmedi";
   const canAct = viewerRole !== "staff" || appt.staff_id === viewerStaffId || appt.status === "talep";
 
-  function openManualWaMessage(purpose: "onay" | "iptal" | "revize" | "hatirlatma" = "onay") {
+  // Manuel WhatsApp linkleri gerçek <a href> olarak render ediliyor —
+  // window.open() burada işe yaramıyordu: native uygulama (Android/iOS
+  // WebView) içinde JS ile açılan pencereler görünmüyor, gerçek bir link
+  // tıklaması ise hem masaüstü tarayıcıda hem uygulama içinde WhatsApp'ı
+  // güvenilir şekilde açıyor.
+  function manualWaHref(purpose: "onay" | "iptal" | "revize" | "hatirlatma" = "onay") {
     let template = waTemplate;
     let defaultTemplate = DEFAULT_WA_TEMPLATE;
 
@@ -92,7 +98,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
       },
       defaultTemplate
     );
-    window.open(waMessageLink(appt.customer_phone, text), "_blank", "noopener,noreferrer");
+    return waMessageLink(appt.customer_phone, text);
   }
 
   async function patch(updates: Record<string, unknown>, actionKey: string, successMsg: string) {
@@ -336,36 +342,33 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
               <div className="space-y-1.5 pt-2 border-t">
                 <p className="text-xs font-semibold text-muted-foreground">Manuel WhatsApp Gönder (Kendi Cihazınızdan):</p>
                 <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => openManualWaMessage("onay")}
+                  <a
+                    href={manualWaHref("onay")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full")}
                   >
                     <MessageCircle className="h-3.5 w-3.5 mr-1" />
                     Onay Mesajı
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => openManualWaMessage("hatirlatma")}
+                  </a>
+                  <a
+                    href={manualWaHref("hatirlatma")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full")}
                   >
                     <MessageCircle className="h-3.5 w-3.5 mr-1" />
                     Hatırlatma
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-full col-span-2"
-                    onClick={() => openManualWaMessage("revize")}
+                  </a>
+                  <a
+                    href={manualWaHref("revize")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full col-span-2")}
                   >
                     <MessageCircle className="h-3.5 w-3.5 mr-1" />
                     Değişiklik (Güncelleme)
-                  </Button>
+                  </a>
                 </div>
               </div>
             )}
@@ -448,15 +451,15 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
               {ta("sendCancelSms")}
             </Button>
             {appt.customer_phone && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full col-span-2 mt-2"
-                onClick={() => openManualWaMessage("iptal")}
+              <a
+                href={manualWaHref("iptal")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full col-span-2 mt-2")}
               >
                 <MessageCircle className="h-3.5 w-3.5 mr-1" />
                 Manuel WhatsApp İptal Mesajı Gönder
-              </Button>
+              </a>
             )}
           </CardContent>
         </Card>

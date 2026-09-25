@@ -11,7 +11,7 @@ import { hasPermission } from "@/lib/permissions";
 export default async function MusterilerPage({
   searchParams,
 }: {
-  searchParams: Promise<{ kampanya?: string }>;
+  searchParams: Promise<{ kampanya?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const t = await getTranslations("dashboard");
@@ -65,6 +65,7 @@ export default async function MusterilerPage({
         customers={(customers ?? []) as Customer[]}
         showPhoneButtons={showPhoneButtons}
         initialKampanya={params.kampanya === "1"}
+        initialQ={params.q ?? ""}
         canDelete={canDelete}
         businessType={businessType}
       />
