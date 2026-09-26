@@ -273,6 +273,7 @@ export default async function RandevularPage({
               key={appt.id}
               appt={appt}
               canQuickAct={member.role !== "staff" || appt.staff_id === member.staff_id}
+              viewerRole={member.role}
             />
           ))
         )}

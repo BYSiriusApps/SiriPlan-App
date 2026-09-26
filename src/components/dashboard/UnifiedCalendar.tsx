@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { isTerminalStatus } from "@/lib/appointment-status";
 
 export type CalendarView = "day" | "staff" | "week" | "month";
 
@@ -1255,12 +1256,21 @@ export function UnifiedCalendar({
               {(() => {
                 const isStaffUser = userRole === "staff";
                 const canQuickAct = !isStaffUser || popover.appt.staff_id === currentStaffId;
-                const disabled = !!updatingId || !canQuickAct;
+                // Kapanmış (tamamlandı/iptal/gelmedi) bir randevuyu geriye dönük
+                // değiştirmek sahte işlem görüntüsü riski taşır — personele değil,
+                // yalnızca owner/manager'a açık.
+                const canChangeStatus = canQuickAct && (!isTerminalStatus(popover.appt.status) || !isStaffUser);
+                const disabled = !!updatingId || !canChangeStatus;
                 return (
                   <>
                     {!canQuickAct && (
                       <p className="text-[10px] text-amber-600 px-1 pb-0.5">
                         {t("cannotChangeStatus")}
+                      </p>
+                    )}
+                    {canQuickAct && !canChangeStatus && (
+                      <p className="text-[10px] text-amber-600 px-1 pb-0.5">
+                        {t("cannotReopenStatus")}
                       </p>
                     )}
                     {popover.appt.status !== "onaylandi" && (

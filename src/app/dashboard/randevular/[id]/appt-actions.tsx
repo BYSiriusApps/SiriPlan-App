@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { format } from "date-fns";
+import { tr, enUS, ru, ar } from "date-fns/locale";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -10,8 +12,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock, Send, MessageSquareText, MessageCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock, Send, MessageSquareText, MessageCircle, History } from "lucide-react";
 import type { Appointment } from "@/types/database";
+import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
 import {
   renderWaTemplate,
   waMessageLink,
@@ -20,6 +23,15 @@ import {
   DEFAULT_WA_REVIZE_TEMPLATE,
   DEFAULT_WA_REMINDER_TEMPLATE,
 } from "@/lib/wa-template";
+
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
+
+interface StatusHistoryEntry {
+  id: string;
+  created_at: string;
+  old_data: { status?: string } | null;
+  new_data: { status?: string; actor_name?: string } | null;
+}
 
 interface ApptActionsProps {
   appt: Appointment;
@@ -30,9 +42,12 @@ interface ApptActionsProps {
 
 export default function ApptActions({ appt, viewerRole, viewerStaffId, activePackage = null }: ApptActionsProps) {
   const router = useRouter();
+  const locale = useLocale();
+  const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
   const t = useTranslations("dashboard");
   const ta = useTranslations("dashboard.apptActions");
   const [loading, setLoading] = useState<string | null>(null);
+  const [statusHistory, setStatusHistory] = useState<StatusHistoryEntry[]>([]);
   const [tip, setTip] = useState("");
   const [extraIncome, setExtraIncome] = useState("");
   const [payMethod, setPayMethod] = useState("nakit");
@@ -62,8 +77,22 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
       .catch(() => {});
   }, []);
 
+  // Durum geçmişi (audit_logs) yalnızca owner/manager'a gösteriliyor — personel
+  // için gereksiz bir ağ çağrısını (ve API 403'ünü) baştan atlıyoruz.
+  useEffect(() => {
+    if (viewerRole === "staff") return;
+    fetch(`/api/appointments/${appt.id}/history`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setStatusHistory(d?.history ?? []))
+      .catch(() => {});
+  }, [appt.id, viewerRole]);
+
   const isDone = appt.status === "tamamlandi" || appt.status === "iptal" || appt.status === "gelmedi";
   const canAct = viewerRole !== "staff" || appt.staff_id === viewerStaffId || appt.status === "talep";
+  // Kapanmış bir randevuyu geriye dönük düzeltmek (yanlış işaretlenmiş
+  // tamamlandı/iptal/gelmedi'yi değiştirmek) sahte işlem görüntüsü riski
+  // taşır — personele değil, yalnızca owner/manager'a açık.
+  const canReopen = isDone && viewerRole !== "staff";
 
   // Manuel WhatsApp linkleri gerçek <a href> olarak render ediliyor —
   // window.open() burada işe yaramıyordu: native uygulama (Android/iOS
@@ -223,6 +252,15 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
           <CardContent className="p-4 flex items-center gap-2 text-sm text-muted-foreground">
             <Lock className="h-4 w-4 shrink-0" />
             {ta("lockedMessage")}
+          </CardContent>
+        </Card>
+      )}
+
+      {isDone && !canReopen && (
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Lock className="h-4 w-4 shrink-0" />
+            {ta("terminalLockedMessage")}
           </CardContent>
         </Card>
       )}
@@ -427,6 +465,66 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
         </Card>
       )}
 
+      {canReopen && (
+        <Card className="border-0 shadow-sm border-l-4 border-l-amber-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              {ta("reopenTitle")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-xs text-muted-foreground">{ta("reopenHint")}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {appt.status !== "onaylandi" && (
+                <Button
+                  variant="outline"
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                  onClick={() => patch({ status: "onaylandi" }, "reopen-approve", ta("toastApproved"))}
+                  disabled={!!loading}
+                >
+                  {loading === "reopen-approve" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <CheckCircle2 className="h-3.5 w-3.5 mr-1" />}
+                  {t("approve")}
+                </Button>
+              )}
+              {appt.status !== "gelmedi" && (
+                <Button
+                  variant="outline"
+                  className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                  onClick={() => patch({ status: "gelmedi" }, "reopen-noshow", ta("toastNoShow"))}
+                  disabled={!!loading}
+                >
+                  {loading === "reopen-noshow" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <AlertTriangle className="h-3.5 w-3.5 mr-1" />}
+                  {t("noShow")}
+                </Button>
+              )}
+              {appt.status !== "iptal" && (
+                <Button
+                  variant="outline"
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                  onClick={() => patch({ status: "iptal" }, "reopen-cancel", ta("toastCancelled"))}
+                  disabled={!!loading}
+                >
+                  {loading === "reopen-cancel" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <XCircle className="h-3.5 w-3.5 mr-1" />}
+                  {t("cancelAction")}
+                </Button>
+              )}
+              {appt.status !== "tamamlandi" && (
+                <Button
+                  variant="outline"
+                  className="text-green-600 border-green-200 hover:bg-green-50"
+                  onClick={handleComplete}
+                  disabled={!!loading}
+                >
+                  {loading === "complete" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <CheckCircle2 className="h-3.5 w-3.5 mr-1" />}
+                  {ta("markCompletedBtn")}
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {appt.status === "iptal" && (
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4 grid grid-cols-2 gap-2">
@@ -461,6 +559,42 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
                 Manuel WhatsApp İptal Mesajı Gönder
               </a>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {viewerRole !== "staff" && statusHistory.length > 0 && (
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <History className="h-4 w-4 text-muted-foreground" />
+              {ta("historyTitle")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1.5 max-h-64 overflow-y-auto">
+              {statusHistory.map((h) => {
+                const oldStatus = h.old_data?.status ?? "";
+                const newStatus = h.new_data?.status ?? "";
+                return (
+                  <div key={h.id} className="flex items-center justify-between gap-2 text-xs py-1.5 px-2 rounded-lg bg-muted/30">
+                    <span className="flex items-center gap-1 flex-wrap min-w-0">
+                      <span className={cn("px-1.5 py-0.5 rounded shrink-0", STATUS_BADGE_CLASSES[oldStatus])}>
+                        {STATUS_LABELS[oldStatus] ?? oldStatus}
+                      </span>
+                      <span className="shrink-0">→</span>
+                      <span className={cn("px-1.5 py-0.5 rounded shrink-0", STATUS_BADGE_CLASSES[newStatus])}>
+                        {STATUS_LABELS[newStatus] ?? newStatus}
+                      </span>
+                    </span>
+                    <span className="text-muted-foreground shrink-0 text-right">
+                      {h.new_data?.actor_name ? `${h.new_data.actor_name} · ` : ""}
+                      {format(new Date(h.created_at), "d MMM HH:mm", { locale: dateFnsLocale })}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
       )}
