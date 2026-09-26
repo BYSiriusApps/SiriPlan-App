@@ -6,6 +6,7 @@ import { notifyAppointment } from "@/lib/notify";
 import { logAppointmentStatusChange } from "@/lib/audit";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 import { isStaffOnTimeOff } from "@/lib/staff-availability";
+import { canChangeAppointmentStatus } from "@/lib/appointment-status";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -179,6 +180,18 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
     }
   }
+  // Kapanmış (tamamlandı/iptal/gelmedi) bir randevuyu geriye dönük başka bir
+  // duruma çekmek — sahte işlem görüntüsü riski nedeniyle — personele değil,
+  // yalnızca owner/manager'a açık. Kendi randevusu olması bu kısıtlamayı aşmaz.
+  if (
+    typeof updates.status === "string" &&
+    !canChangeAppointmentStatus(member.role, current.status, updates.status)
+  ) {
+    return NextResponse.json(
+      { error: "Bu randevu kapatıldığı için (tamamlandı/iptal/gelmedi) durumunu yalnızca yönetici veya salon sahibi değiştirebilir." },
+      { status: 403 }
+    );
+  }
   const previous = current;
 
   // When service changes, sync price and duration from the new service
@@ -340,6 +353,12 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   if (!current) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
   if (member.role === "staff" && current.staff_id !== member.staff_id) {
     return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
+  }
+  if (!canChangeAppointmentStatus(member.role, current.status, "iptal")) {
+    return NextResponse.json(
+      { error: "Bu randevu kapatıldığı için (tamamlandı/gelmedi) durumunu yalnızca yönetici veya salon sahibi değiştirebilir." },
+      { status: 403 }
+    );
   }
 
   const { error } = await supabase

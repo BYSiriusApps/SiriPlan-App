@@ -1847,7 +1847,8 @@
           "title": "6. Takvim & Randevu Yönetimi",
           "blocks": [
             { "heading": "Tıklayarak Anında Randevu Oluşturma:", "text": "Takvim ekranında boş bir saat dilimine veya bir uzmanın sütununa tıkladığınızda, seçtiğiniz Tarih, Saat ve Personel otomatik doldurulmuş olarak Yeni Randevu modalı açılır." },
-            { "heading": "Takvimi Özelleştirme ve Filtreleme:", "text": "Takviminizi Gün, Hafta veya Ay bazında görüntüleyebilirsiniz. Personel filtresini kullanarak tüm uzmanları yan yana sütunlar halinde kıyaslayabilir veya tek bir personelin programına odaklanabilirsiniz." }
+            { "heading": "Takvimi Özelleştirme ve Filtreleme:", "text": "Takviminizi Gün, Hafta veya Ay bazında görüntüleyebilirsiniz. Personel filtresini kullanarak tüm uzmanları yan yana sütunlar halinde kıyaslayabilir veya tek bir personelin programına odaklanabilirsiniz." },
+            { "heading": "Randevu Durumları ve Yetkiler:", "text": "Bir randevu Tamamlandı, İptal veya Gelmedi olarak işaretlendikten sonra bu durumu geri değiştirmek yalnızca Salon Sahibi ve Yönetici'ye açıktır — Personel, sahte işlem kaydı oluşmasını önlemek için kapanmış bir randevuyu geriye dönük değiştiremez. Salon Sahibi/Yönetici, randevu detay sayfasındaki \"Durumu Düzelt\" bölümünden yanlış işaretlenmiş bir randevuyu düzeltebilir; altındaki \"Durum Geçmişi\" listesi kimin ne zaman hangi durumu seçtiğini gösterir." }
           ]
         },
         "adisyon": {
@@ -2037,6 +2038,7 @@
     "monthDayEmpty": "Bu günde randevu yok",
     "quickUpdate": "Hızlı Güncelle",
     "cannotChangeStatus": "Bu randevu size atanmadığı için durum değiştiremezsiniz.",
+    "cannotReopenStatus": "Bu randevu kapatıldığı için (tamamlandı/iptal/gelmedi) durumunu yalnızca yönetici veya salon sahibi değiştirebilir.",
     "approve": "Onayla",
     "markCompleted": "Tamamlandı",
     "cancelAction": "İptal Et",
@@ -2171,6 +2173,10 @@
       "internalNotePlaceholder": "Personel için dahili not...",
       "saveNote": "Notu Kaydet",
       "lockedMessage": "Bu randevu size atanmadığı için durumunu değiştiremezsiniz.",
+      "terminalLockedMessage": "Bu randevu tamamlandı/iptal/gelmedi olarak kapatıldığı için durumunu artık değiştiremezsiniz. Yanlış işaretlendiğini düşünüyorsanız yönetici veya salon sahibinden düzeltmesini isteyin.",
+      "reopenTitle": "Durumu Düzelt",
+      "reopenHint": "Bu randevu kapatılmış. Yanlış işaretlenmişse aşağıdan doğru duruma çekebilirsiniz.",
+      "historyTitle": "Durum Geçmişi",
       "actionsTitle": "İşlemler",
       "completeSectionTitle": "Tamamla",
       "tipLabel": "Bahşiş (₺)",
