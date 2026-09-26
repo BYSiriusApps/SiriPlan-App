@@ -1847,7 +1847,8 @@
           "title": "6. Calendar & Appointment Management",
           "blocks": [
             { "heading": "Click to Book Instantly:", "text": "When you click a vacant slot or staff column on the calendar, the New Appointment dialog opens with Date, Time, and Staff pre-filled." },
-            { "heading": "Customize & Filter Calendar:", "text": "View calendar by Day, Week, or Month. Compare all staff columns side-by-side or focus on a single staff member's schedule." }
+            { "heading": "Customize & Filter Calendar:", "text": "View calendar by Day, Week, or Month. Compare all staff columns side-by-side or focus on a single staff member's schedule." },
+            { "heading": "Appointment Statuses & Permissions:", "text": "Once an appointment is marked Completed, Cancelled, or No-show, only the Owner and Manager can change that status again — staff can't reopen a closed appointment, to prevent fake transaction records. The Owner/Manager can fix a wrongly marked appointment from the \"Fix Status\" section on its detail page; the \"Status History\" list below it shows who picked which status and when." }
           ]
         },
         "adisyon": {
@@ -2175,6 +2176,7 @@
       "terminalLockedMessage": "This appointment is closed (completed/cancelled/no-show) and can no longer be changed. If it was marked incorrectly, ask a manager or the owner to fix it.",
       "reopenTitle": "Fix Status",
       "reopenHint": "This appointment is closed. If it was marked incorrectly, you can change it to the right status below.",
+      "historyTitle": "Status History",
       "actionsTitle": "Actions",
       "completeSectionTitle": "Complete",
       "tipLabel": "Tip (₺)",
