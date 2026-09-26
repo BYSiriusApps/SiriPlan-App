@@ -16,12 +16,17 @@ import { playNotificationChime } from "@/lib/notification-sound";
  * router.refresh() ile üstteki şeritleri/sayaçları canlı günceller.
  *
  * /dashboard/takvim sayfasında UnifiedCalendar.tsx AYRI bir realtime kanalıyla
- * aynı appointments/appointment_requests olaylarını dinleyip kendi (800ms
- * debounce'lu) router.refresh()'ini zaten çağırıyor — router.refresh() kökten
- * (layout dahil) yeniden render tetiklediği için takvimdeyken bu bileşenin
- * KENDİ refresh'i fazladan/gereksiz (2 ayrı tam-ağaç sorgulama). Bu yüzden
- * scheduleRefresh() takvim sayfasında kendi refresh'ini atlıyor — toast/ses/
- * native bildirim koşulsuz kalıyor, yalnızca router.refresh() atlanıyor.
+ * appointments (her olay) + appointment_requests INSERT'ini dinleyip kendi
+ * (800ms debounce'lu) router.refresh()'ini zaten çağırıyor — router.refresh()
+ * kökten (layout dahil) yeniden render tetiklediği için takvimdeyken bu
+ * olaylar için BURADA ikinci bir refresh planlamak fazladan/gereksiz (2 ayrı
+ * tam-ağaç sorgulama). Bu yüzden yalnızca UnifiedCalendar'ın zaten kapsadığı
+ * olaylar (appointments + appointment_requests INSERT) takvim sayfasındayken
+ * atlanıyor; appointment_requests UPDATE/DELETE ve inventory_items (stok)
+ * olayları UnifiedCalendar'da HİÇ dinlenmiyor, bu yüzden takvimdeyken de
+ * atlanmadan üstteki şeritler/sayaçlar (bkz. dashboard/layout.tsx
+ * lowStockCount/pendingApptCount/pendingWorkCount, Sidebar/MobileNav rozeti)
+ * güncel kalsın diye koşulsuz tetikleniyor.
  */
 export function LiveNotifications({ orgId }: { orgId: string }) {
   const router = useRouter();
@@ -57,13 +62,15 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
     if (!orgId) return;
     const supabase = createClient();
 
-    function scheduleRefresh() {
+    function scheduleRefresh(skipOnCalendar: boolean) {
       // /dashboard/takvim'de UnifiedCalendar.tsx zaten kendi (800ms debounce'lu)
-      // router.refresh()'ini bu olaylar için çağırıyor — kökten yeniden render
-      // tetiklediği için layout sayaçları da dahil zaten tazeleniyor. Burada
-      // ikinci bir refresh planlamak sadece fazladan bir tam-ağaç sorgulaması
-      // demek, bu yüzden atlanıyor.
-      if (pathnameRef.current === "/dashboard/takvim") return;
+      // router.refresh()'ini appointments + appointment_requests INSERT için
+      // çağırıyor — kökten yeniden render tetiklediği için layout sayaçları da
+      // dahil zaten tazeleniyor. Bu olaylarda ikinci bir refresh planlamak
+      // sadece fazladan bir tam-ağaç sorgulaması demek, bu yüzden atlanıyor.
+      // UnifiedCalendar'ın dinlemediği olaylarda (appointment_requests
+      // UPDATE/DELETE, inventory_items) takvimdeyken de atlanmaz.
+      if (skipOnCalendar && pathnameRef.current === "/dashboard/takvim") return;
       if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
       refreshTimerRef.current = setTimeout(() => {
         router.refresh();
@@ -86,7 +93,7 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
           // Bildirim API'si her tarayıcıda/ortamda garanti değil — sessizce yut
         }
       }
-      scheduleRefresh();
+      scheduleRefresh(true);
     }
 
     const channel = supabase
@@ -113,6 +120,28 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
             row.customer_name ? t("newRequestBodyNamed", { name: row.customer_name }) : t("newRequestBodyGeneric")
           );
         }
+      )
+      // Üstteki iki kanal yalnızca YENİ talep/istek geldiğinde ses+toast+
+      // bildirim veriyor. Ama bir talep/istek onaylanıp/reddedilip/stok
+      // güncellendiğinde (bu cihazdan değil, başka bir personel/cihazdan)
+      // üstteki şeritler ve Sidebar/MobileNav rozeti (bkz. dashboard/layout.tsx
+      // pendingApptCount/lowStockCount/pendingWorkCount) eskiden hiç
+      // tazelenmiyordu — yalnızca sayfa elle yenilenince güncelleniyordu. Bu
+      // üç dinleyici sessizce (ses/toast yok) sayaçları günceller.
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "appointments", filter: `org_id=eq.${orgId}` },
+        () => scheduleRefresh(true)
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "appointment_requests", filter: `org_id=eq.${orgId}` },
+        () => scheduleRefresh(false)
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "inventory_items", filter: `org_id=eq.${orgId}` },
+        () => scheduleRefresh(false)
       )
       .subscribe();
 

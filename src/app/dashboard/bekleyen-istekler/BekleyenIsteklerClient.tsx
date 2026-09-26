@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -111,6 +112,7 @@ export function BekleyenIsteklerClient({
   const to = useTranslations("dashboard.overdueAppointments");
   const tp = useTranslations("dashboard.missingPhone");
   const locale = useLocale();
+  const router = useRouter();
   const [requests, setRequests] = useState(initialRequests);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -126,6 +128,34 @@ export function BekleyenIsteklerClient({
   const [talepEditingId, setTalepEditingId] = useState<string | null>(null);
   const [talepEditValue, setTalepEditValue] = useState("");
 
+  // page.tsx (server component) her router.refresh()'te taze initial*/prop
+  // verileri verir; useState yalnızca ilk mount'ta bunları kullanır, sonraki
+  // prop güncellemelerini kendiliğinden yansıtmaz — bu yüzden render sırasında
+  // senkronize ediyoruz (React'ın "adjust state during render" deseni —
+  // useEffect'e göre bir render turu daha az, ekstra commit yok). Aksi halde
+  // bu sayfadaki sayaçlar/liste, başka bir cihaz/personelin yaptığı onay/red/
+  // stok değişikliğini sayfa manuel yenilenene kadar göstermezdi.
+  const [prevInitialRequests, setPrevInitialRequests] = useState(initialRequests);
+  if (initialRequests !== prevInitialRequests) {
+    setPrevInitialRequests(initialRequests);
+    setRequests(initialRequests);
+  }
+  const [prevInitialTalepAppointments, setPrevInitialTalepAppointments] = useState(initialTalepAppointments);
+  if (initialTalepAppointments !== prevInitialTalepAppointments) {
+    setPrevInitialTalepAppointments(initialTalepAppointments);
+    setTalepAppts(initialTalepAppointments);
+  }
+  const [prevOverdueAppointments, setPrevOverdueAppointments] = useState(overdueAppointments);
+  if (overdueAppointments !== prevOverdueAppointments) {
+    setPrevOverdueAppointments(overdueAppointments);
+    setOverdue(overdueAppointments);
+  }
+  const [prevMissingPhone, setPrevMissingPhone] = useState(missingPhone);
+  if (missingPhone !== prevMissingPhone) {
+    setPrevMissingPhone(missingPhone);
+    setPhoneMissing(missingPhone);
+  }
+
   async function handleTalepApprove(id: string) {
     setTalepBusyId(id);
     const res = await fetch(`/api/appointments/${id}`, {
@@ -137,6 +167,10 @@ export function BekleyenIsteklerClient({
     if (res.ok) {
       setTalepAppts((prev) => prev.filter((a) => a.id !== id));
       toast.success(t("apptActions.toastApprovedNotifying"));
+      // Bu sayfadaki liste local state ile güncelleniyor ama üstteki
+      // şeritler/Sidebar-MobileNav rozeti (dashboard/layout.tsx) ayrı bir
+      // server sorgusu — onlar router.refresh() olmadan eski sayıyı gösterir.
+      router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || t("apptActions.approveFailed"));
@@ -154,6 +188,7 @@ export function BekleyenIsteklerClient({
     if (res.ok) {
       setTalepAppts((prev) => prev.filter((a) => a.id !== id));
       toast.success("Randevu talebi iptal edildi");
+      router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || "İptal edilemedi");
@@ -218,6 +253,7 @@ export function BekleyenIsteklerClient({
     if (res.ok) {
       setRequests((prev) => prev.filter((r) => r.id !== id));
       toast.success(action === "approve" ? "Randevu onaylandı" : "Talep reddedildi");
+      router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || "İşlem gerçekleştirilemedi");
@@ -295,6 +331,7 @@ export function BekleyenIsteklerClient({
     if (res.ok) {
       setOverdue((prev) => prev.filter((a) => a.id !== id));
       toast.success(t("statusUpdatedToast", { status: t(status === "tamamlandi" ? "markCompleted" : status === "gelmedi" ? "statusGelmedi" : "statusIptal") }));
+      router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || t("updateFailed"));
@@ -328,6 +365,7 @@ export function BekleyenIsteklerClient({
     } else {
       toast.error(to("markAllFailed"));
     }
+    if (done > 0) router.refresh();
   }
 
   async function handleSavePhone(id: string) {
@@ -348,6 +386,7 @@ export function BekleyenIsteklerClient({
         return next;
       });
       toast.success(tp("savedToast"));
+      router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || tp("saveFailedToast"));
