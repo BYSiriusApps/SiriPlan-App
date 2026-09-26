@@ -24,3 +24,29 @@ export const STATUS_BADGE_CLASSES: Record<string, string> = {
   iptal:      "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300",
   gelmedi:    "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300",
 };
+
+/** Kapanmış (sonuçlanmış) durumlar — bir randevu bu durumlardan birine geçtikten
+ *  sonra geri açılması "geriye dönük düzeltme" sayılır. */
+export const TERMINAL_STATUSES = ["tamamlandi", "iptal", "gelmedi"] as const;
+
+export function isTerminalStatus(status: string): boolean {
+  return (TERMINAL_STATUSES as readonly string[]).includes(status);
+}
+
+/**
+ * Bir durum değişikliğine izin var mı? Kapanmış (tamamlandı/iptal/gelmedi) bir
+ * randevuyu başka bir duruma geri açmak — sahte işlem görüntüsünü önlemek için —
+ * yalnızca personel dışındaki rollere (owner/manager) açık; personel bir kez
+ * kapanan randevuyu geriye dönük değiştiremez. Kapanmamış bir randevuda ya da
+ * hedef durum mevcut durumla aynıysa herkese açık (mevcut atama kontrolleri
+ * ayrıca uygulanır).
+ */
+export function canChangeAppointmentStatus(
+  role: string,
+  currentStatus: string,
+  newStatus: string
+): boolean {
+  if (currentStatus === newStatus) return true;
+  if (isTerminalStatus(currentStatus) && role === "staff") return false;
+  return true;
+}

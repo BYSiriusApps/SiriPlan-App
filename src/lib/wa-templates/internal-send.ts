@@ -67,9 +67,18 @@ export async function sendInternalTemplate(
     }
   }
 
-  if (locale === "en" && def.metaNameEn) {
+  if (locale === "ru") {
+    const ruName = def.metaNameRu || def.metaNameEn || def.metaName;
+    if (ruName && (await attempt(ruName, "ru"))) return true;
+    if (def.metaNameEn && (await attempt(def.metaNameEn, "en"))) return true;
+  } else if (locale === "ar") {
+    const arName = def.metaNameAr || def.metaNameEn || def.metaName;
+    if (arName && (await attempt(arName, "ar"))) return true;
+    if (def.metaNameEn && (await attempt(def.metaNameEn, "en"))) return true;
+  } else if (locale === "en" && def.metaNameEn) {
     if (await attempt(def.metaNameEn, "en")) return true;
   }
+
   if (!def.metaName) return false;
   return attempt(def.metaName, "tr");
 }

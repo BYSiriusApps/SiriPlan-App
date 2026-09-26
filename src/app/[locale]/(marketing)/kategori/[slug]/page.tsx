@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { buildAlternates } from "@/lib/seo/alternates";
+import { buildAlternates, localizedUrl } from "@/lib/seo/alternates";
 import { LOCALES } from "@/lib/i18n/resolve-locale";
 
 type Params = { locale: string; slug: string };
@@ -78,9 +78,32 @@ export default async function KategoriPage({ params }: { params: Promise<Params>
   const desc = t(`sectors.${slug}.desc`);
   const features = t.raw(`sectors.${slug}.features`) as string[];
   const testimonialText = meta.testimonial ? t(`sectors.${slug}.testimonialText`) : null;
+  const pageUrl = localizedUrl(`/kategori/${slug}`, locale as any);
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "SiriPlan",
+        item: localizedUrl("/", locale as any),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: title,
+        item: pageUrl,
+      },
+    ],
+  };
 
   return (
     <div className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       {/* Hero */}
       <section className="py-16 md:py-24 border-b border-border bg-muted/20">
         <div className="container mx-auto px-4 text-center max-w-3xl">

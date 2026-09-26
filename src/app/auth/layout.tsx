@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { BySiriusBadge } from "@/components/layout/BySiriusBadge";
 import { AuthLogoLink } from "@/components/layout/AuthLogoLink";
 import { Toaster } from "@/components/ui/sonner";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const messages = await getMessages();

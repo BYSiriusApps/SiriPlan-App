@@ -15,8 +15,16 @@ import { SubscriptionLockBanner } from "@/components/dashboard/SubscriptionLockB
 import { RouteTransition } from "@/components/dashboard/RouteTransition";
 import { Toaster } from "@/components/ui/sonner";
 import { LiveNotifications } from "@/components/dashboard/LiveNotifications";
+import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();

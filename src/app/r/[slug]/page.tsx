@@ -64,6 +64,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       images: image ? [image] : undefined,
     },
+    alternates: {
+      canonical: `https://siriplan.com/r/${slug}`,
+    },
     // Website modu kapalı (Starter plan / henüz açılmamış) sayfalar arama motorlarından
     // gizli kalır; robots.ts artık /r/'ı toptan engellemiyor, granülerlik burada.
     robots: showWebsite ? undefined : { index: false, follow: false },

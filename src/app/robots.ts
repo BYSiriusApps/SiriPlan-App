@@ -6,7 +6,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/dashboard/", "/auth/", "/api/", "/r/iptal/"],
+        disallow: [
+          "/dashboard/",
+          "/admin/",
+          "/auth/",
+          "/api/",
+          "/r/iptal/",
+          "/randevu/",
+          "/onay/",
+          "/oneri/",
+        ],
       },
       // ChatGPT (OpenAI) — Bing üzerinden indeksler
       { userAgent: "GPTBot", allow: "/" },

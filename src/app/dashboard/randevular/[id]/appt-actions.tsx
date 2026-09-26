@@ -64,6 +64,10 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
 
   const isDone = appt.status === "tamamlandi" || appt.status === "iptal" || appt.status === "gelmedi";
   const canAct = viewerRole !== "staff" || appt.staff_id === viewerStaffId || appt.status === "talep";
+  // Kapanmış bir randevuyu geriye dönük düzeltmek (yanlış işaretlenmiş
+  // tamamlandı/iptal/gelmedi'yi değiştirmek) sahte işlem görüntüsü riski
+  // taşır — personele değil, yalnızca owner/manager'a açık.
+  const canReopen = isDone && viewerRole !== "staff";
 
   // Manuel WhatsApp linkleri gerçek <a href> olarak render ediliyor —
   // window.open() burada işe yaramıyordu: native uygulama (Android/iOS
@@ -223,6 +227,15 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
           <CardContent className="p-4 flex items-center gap-2 text-sm text-muted-foreground">
             <Lock className="h-4 w-4 shrink-0" />
             {ta("lockedMessage")}
+          </CardContent>
+        </Card>
+      )}
+
+      {isDone && !canReopen && (
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Lock className="h-4 w-4 shrink-0" />
+            {ta("terminalLockedMessage")}
           </CardContent>
         </Card>
       )}
@@ -423,6 +436,66 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
                 </Button>
               </div>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {canReopen && (
+        <Card className="border-0 shadow-sm border-l-4 border-l-amber-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              {ta("reopenTitle")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-xs text-muted-foreground">{ta("reopenHint")}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {appt.status !== "onaylandi" && (
+                <Button
+                  variant="outline"
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                  onClick={() => patch({ status: "onaylandi" }, "reopen-approve", ta("toastApproved"))}
+                  disabled={!!loading}
+                >
+                  {loading === "reopen-approve" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <CheckCircle2 className="h-3.5 w-3.5 mr-1" />}
+                  {t("approve")}
+                </Button>
+              )}
+              {appt.status !== "gelmedi" && (
+                <Button
+                  variant="outline"
+                  className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                  onClick={() => patch({ status: "gelmedi" }, "reopen-noshow", ta("toastNoShow"))}
+                  disabled={!!loading}
+                >
+                  {loading === "reopen-noshow" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <AlertTriangle className="h-3.5 w-3.5 mr-1" />}
+                  {t("noShow")}
+                </Button>
+              )}
+              {appt.status !== "iptal" && (
+                <Button
+                  variant="outline"
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                  onClick={() => patch({ status: "iptal" }, "reopen-cancel", ta("toastCancelled"))}
+                  disabled={!!loading}
+                >
+                  {loading === "reopen-cancel" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <XCircle className="h-3.5 w-3.5 mr-1" />}
+                  {t("cancelAction")}
+                </Button>
+              )}
+              {appt.status !== "tamamlandi" && (
+                <Button
+                  variant="outline"
+                  className="text-green-600 border-green-200 hover:bg-green-50"
+                  onClick={handleComplete}
+                  disabled={!!loading}
+                >
+                  {loading === "complete" ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <CheckCircle2 className="h-3.5 w-3.5 mr-1" />}
+                  {ta("markCompletedBtn")}
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}

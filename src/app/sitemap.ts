@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { blogPosts } from "@/lib/blog-posts";
 import { LOCALES } from "@/lib/i18n/resolve-locale";
 import { localizedUrl } from "@/lib/seo/alternates";
+import { createAdminClient } from "@/lib/supabase/server";
+import { getEntitlements } from "@/lib/entitlements";
 
 const sectorSlugs = [
   "kuafor", "berber", "guzellik", "spa", "nail",
@@ -64,8 +66,46 @@ function expandEntry(entry: PriorityEntry, now: Date): MetadataRoute.Sitemap {
   }));
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+/**
+ * Web sitesi modunu aktif kılan canlı işletmelerin herkese açık /r/[slug]
+ * sayfalarını sitemap'e dinamik olarak ekler.
+ */
+async function fetchPublicSalonEntries(now: Date): Promise<MetadataRoute.Sitemap> {
+  try {
+    const supabase = await createAdminClient();
+    const { data: orgs } = await supabase
+      .from("organizations")
+      .select("slug, plan, trial_ends_at, feature_website, website_enabled, updated_at")
+      .eq("website_enabled", true);
+
+    if (!orgs || orgs.length === 0) return [];
+
+    return orgs
+      .filter((org) => {
+        const entitlements = getEntitlements(org as any);
+        return entitlements.feature_website;
+      })
+      .map((org) => ({
+        url: `https://siriplan.com/r/${org.slug}`,
+        lastModified: org.updated_at ? new Date(org.updated_at) : now,
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+        alternates: {
+          languages: {
+            tr: `https://siriplan.com/r/${org.slug}`,
+            "x-default": `https://siriplan.com/r/${org.slug}`,
+          },
+        },
+      }));
+  } catch {
+    return [];
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const allEntries = [...STATIC_PATHS, ...SECTOR_PATHS, ...BLOG_PATHS];
-  return allEntries.flatMap((entry) => expandEntry(entry, now));
+  const staticSitemap = allEntries.flatMap((entry) => expandEntry(entry, now));
+  const salonSitemap = await fetchPublicSalonEntries(now);
+  return [...staticSitemap, ...salonSitemap];
 }

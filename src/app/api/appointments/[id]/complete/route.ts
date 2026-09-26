@@ -3,6 +3,7 @@ import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { logAppointmentStatusChange } from "@/lib/audit";
 import { findActivePackageForService, recordPackageUsage } from "@/lib/package-tx";
+import { canChangeAppointmentStatus } from "@/lib/appointment-status";
 
 export async function POST(
   req: NextRequest,
@@ -41,6 +42,15 @@ export async function POST(
   }
   if (member.role === "staff" && appt.staff_id !== member.staff_id) {
     return NextResponse.json({ error: "Bu randevu size atanmadığı için işlem yapamazsınız" }, { status: 403 });
+  }
+  // iptal/gelmedi bir randevuyu "tamamlandı"ya çekmek de geriye dönük bir
+  // düzeltmedir (ciro/sadakat/paket düşümü tetikler) — personele değil,
+  // yalnızca owner/manager'a açık.
+  if (!canChangeAppointmentStatus(member.role, appt.status, "tamamlandi")) {
+    return NextResponse.json(
+      { error: "Bu randevu kapatıldığı için (iptal/gelmedi) durumunu yalnızca yönetici veya salon sahibi değiştirebilir." },
+      { status: 403 }
+    );
   }
 
   // ── Paket eşleştirme ──────────────────────────────────────────

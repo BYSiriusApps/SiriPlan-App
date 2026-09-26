@@ -32,9 +32,13 @@ export interface WaTemplateDef {
   metaName: string;
   /** İngilizce (dil kodu "en") karşılığı — Meta onayı bekleniyorsa null. */
   metaNameEn?: string | null;
+  /** Rusça (dil kodu "ru") karşılığı — Meta onayı bekleniyorsa null. */
+  metaNameRu?: string | null;
+  /** Arapça (dil kodu "ar") karşılığı — Meta onayı bekleniyorsa null. */
+  metaNameAr?: string | null;
   /** {{1}}..{{n}} sırasıyla gövde parametrelerinin kaynağı. */
   bodyParamOrder: WaParamSource[];
-  /** Şablonun altında dinamik URL butonu var mı? (TR/EN aynı davranışı paylaşır.) */
+  /** Şablonun altında dinamik URL butonu var mı? (TR/EN/RU/AR aynı davranışı paylaşır.) */
   hasUrlButton?: boolean;
 }
 
@@ -45,6 +49,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "sicak",
     metaName: "randevu_onayi_1",
     metaNameEn: "appointment_confirmation_1",
+    metaNameRu: "appointment_confirmation_ru_1",
+    metaNameAr: "appointment_confirmation_ar_1",
     bodyParamOrder: ["customer_name", "business_name", "date", "time", "business_phone", "location_link"],
     // Meta'da onaylı "randevu_onayi_1" şablonunun BUTON bileşeni YOK. Buraya
     // dinamik URL butonu parametresi eklemek Meta'yı (#132018) hatasıyla
@@ -57,6 +63,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "v2",
     metaName: "randevu_onayi_2",
     metaNameEn: "appointment_confirmation_2",
+    metaNameRu: "appointment_confirmation_ru_2",
+    metaNameAr: "appointment_confirmation_ar_2",
     bodyParamOrder: ["customer_name", "business_name", "date", "time", "business_phone", "location_link"],
     // "randevu_onayi_2" şablonunun da butonu yok — bkz. onay_sicak notu.
   },
@@ -66,6 +74,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "sicak",
     metaName: "randevu_iptali",
     metaNameEn: "appointment_cancelled",
+    metaNameRu: "appointment_cancelled_ru",
+    metaNameAr: "appointment_cancelled_ar",
     bodyParamOrder: ["customer_name", "business_name", "date", "time"],
   },
   // iptal_v1/iptal_v2 KALDIRILDI (14 Eyl): Meta'daki onaylı "randevu_iptali_1"
@@ -84,6 +94,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "sicak",
     metaName: "randevu_revize",
     metaNameEn: "appointment_rescheduled",
+    metaNameRu: "appointment_rescheduled_ru",
+    metaNameAr: "appointment_rescheduled_ar",
     bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
     // "randevu_revize" şablonunda statik URL butonu var ama parametre KABUL
     // ETMİYOR ("does not require parameters"). Buton parametresi göndermek
@@ -107,6 +119,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "sicak",
     metaName: "randevu_hatirlatma_1",
     metaNameEn: "appointment_reminder_1",
+    metaNameRu: "appointment_reminder_ru_1",
+    metaNameAr: "appointment_reminder_ar_1",
     bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
   hatirlatma_v1: {
@@ -115,6 +129,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "v1",
     metaName: "randevu_hatirlatma_1",
     metaNameEn: "appointment_reminder_1",
+    metaNameRu: "appointment_reminder_ru_1",
+    metaNameAr: "appointment_reminder_ar_1",
     bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
   hatirlatma_v2: {
@@ -123,6 +139,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "v2",
     metaName: "randevu_hatirlatma_2",
     metaNameEn: "appointment_reminder_2",
+    metaNameRu: "appointment_reminder_ru_2",
+    metaNameAr: "appointment_reminder_ar_2",
     bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
   // "Yeni Saat Öner" akışı (18 Eyl) — Meta Business Manager'da BU İSİMLE, 4
@@ -144,6 +162,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     style: "sicak",
     metaName: "randevu_yeni_saat_onerisi_1_",
     metaNameEn: "new_time_proposal",
+    metaNameRu: "new_time_proposal_ru",
+    metaNameAr: "new_time_proposal_ar",
     bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
     hasUrlButton: true,
   },

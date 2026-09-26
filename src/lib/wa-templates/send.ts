@@ -71,7 +71,7 @@ export async function sendPurposeTemplate({
   const supabase = await createAdminClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("name, slug, wa_template_styles, phone, whatsapp_number, address, location_url, settings_json")
+    .select("name, slug, locale, timezone, wa_template_styles, phone, whatsapp_number, address, location_url, settings_json")
     .eq("id", orgId)
     .single();
 
@@ -100,18 +100,29 @@ export async function sendPurposeTemplate({
     return { skipped: true, reason: "template_not_found" };
   }
 
-  // Müşterinin panel/rehber üzerinde kayıtlı dil tercihi "en" ise İngilizce
-  // şablon önce denenir; şablon henüz Meta'da onaylı değilse (submit edilmiş
-  // ama PENDING) ya da tanımlı değilse aşağıdaki attempt() otomatik olarak
-  // Türkçe'ye (zaten onaylı, güvenilir) düşer — mevcut davranış hiçbir zaman
-  // BOZULMAZ, yalnızca İngilizce onaylanınca iyileşir.
+  // Müşterinin panel/rehber üzerinde kayıtlı dil tercihi ('tr', 'en', 'ru', 'ar')
+  // Dil tercihi yoksa: Türkiye işletmeleri için 'tr', yurtdışı işletmeler için 'en' esas alınır.
   const { data: customerRow } = await supabase
     .from("customers")
     .select("preferred_language")
     .eq("org_id", orgId)
     .eq("phone", toStoredPhoneFormat(toPhone))
     .maybeSingle();
-  const preferEnglish = customerRow?.preferred_language === "en" && !!def.metaNameEn;
+
+  const customerLang = customerRow?.preferred_language;
+
+  const isTurkeyOrg =
+    org.locale === "tr" ||
+    (org.phone && org.phone.replace(/\D/g, "").startsWith("90")) ||
+    (org.whatsapp_number && org.whatsapp_number.replace(/\D/g, "").startsWith("90")) ||
+    org.timezone === "Europe/Istanbul";
+
+  const targetLang: "tr" | "en" | "ru" | "ar" =
+    customerLang && ["tr", "en", "ru", "ar"].includes(customerLang)
+      ? (customerLang as "tr" | "en" | "ru" | "ar")
+      : isTurkeyOrg
+      ? "tr"
+      : "en";
 
   // Salonun kendi randevu vitrini — konum/telefon boşsa bile daima geçerli bir
   // bağlantı. Meta, gövde parametrelerinden herhangi biri BOŞ olursa şablon
@@ -147,7 +158,7 @@ export async function sendPurposeTemplate({
   // Çağıran (cron / manuel gönder) vermezse randevu saatinden hesapla.
   const remainingTime =
     vars.remaining_time?.trim() ||
-    (appointmentAt ? remainingTimeLabelFromDate(appointmentAt) : "");
+    (appointmentAt ? remainingTimeLabelFromDate(appointmentAt, new Date(), targetLang) : "");
 
   const paramValues: Record<WaParamSource, string> = {
     ...vars,
@@ -234,7 +245,7 @@ export async function sendPurposeTemplate({
     if (!res.ok) {
       const errText = await res.text().catch(() => "");
       console.error(
-        `[wa-templates] Meta API hatası — purpose=${purpose} template=${templateName} orgId=${orgId} status=${res.status} detail=${errText}`
+        `[wa-templates] Meta API hatası — purpose=${purpose} template=${templateName} lang=${languageCode} orgId=${orgId} status=${res.status} detail=${errText}`
       );
       return { error: "Meta API hatası", detail: errText };
     }
@@ -242,11 +253,30 @@ export async function sendPurposeTemplate({
     return { sent: true, template: templateName };
   }
 
-  // İngilizce onaylı değilse/reddedilirse Türkçe'ye (zaten onaylı) düş —
-  // müşteri hiçbir mesaj almadan kalmasın.
-  if (preferEnglish) {
-    const enResult = await attempt(def.metaNameEn!, "en");
-    if ("sent" in enResult) return enResult;
+  // Hedef dile (RU, AR, EN, TR) göre Meta API gönderimi ve kademeli yedekleme (fallback)
+  if (targetLang === "ru") {
+    const ruName = def.metaNameRu || def.metaNameEn || def.metaName;
+    const ruResult = await attempt(ruName, "ru");
+    if ("sent" in ruResult) return ruResult;
+
+    if (def.metaNameEn) {
+      const enResult = await attempt(def.metaNameEn, "en");
+      if ("sent" in enResult) return enResult;
+    }
+  } else if (targetLang === "ar") {
+    const arName = def.metaNameAr || def.metaNameEn || def.metaName;
+    const arResult = await attempt(arName, "ar");
+    if ("sent" in arResult) return arResult;
+
+    if (def.metaNameEn) {
+      const enResult = await attempt(def.metaNameEn, "en");
+      if ("sent" in enResult) return enResult;
+    }
+  } else if (targetLang === "en") {
+    if (def.metaNameEn) {
+      const enResult = await attempt(def.metaNameEn, "en");
+      if ("sent" in enResult) return enResult;
+    }
   }
 
   return attempt(def.metaName, "tr");
@@ -272,7 +302,28 @@ export function formatApptDateTime(appointmentAt: string, timeZone: string = "Eu
   };
 }
 
-export function remainingTimeLabel(hoursBefore: number): string {
+export function remainingTimeLabel(hoursBefore: number, locale: string = "tr"): string {
+  if (locale === "en") {
+    if (hoursBefore >= 24 && hoursBefore % 24 === 0) {
+      const days = hoursBefore / 24;
+      return `${days} ${days === 1 ? "day" : "days"}`;
+    }
+    return `${hoursBefore} ${hoursBefore === 1 ? "hour" : "hours"}`;
+  }
+  if (locale === "ru") {
+    if (hoursBefore >= 24 && hoursBefore % 24 === 0) {
+      const days = hoursBefore / 24;
+      return `${days} дн.`;
+    }
+    return `${hoursBefore} ч.`;
+  }
+  if (locale === "ar") {
+    if (hoursBefore >= 24 && hoursBefore % 24 === 0) {
+      const days = hoursBefore / 24;
+      return `${days} يوم`;
+    }
+    return `${hoursBefore} ساعة`;
+  }
   if (hoursBefore >= 24 && hoursBefore % 24 === 0) {
     const days = hoursBefore / 24;
     return `${days} gün`;
@@ -283,8 +334,8 @@ export function remainingTimeLabel(hoursBefore: number): string {
 /** Randevu zaman damgasından "2 saat" / "1 gün" gibi kalan-süre etiketi üretir.
  * Cron zaten offset_hours'tan hesaplayıp `remaining_time` geçiyor; bu yol
  * manuel "hatırlatmayı şimdi gönder" ve offset gelmeyen durumlar için. */
-export function remainingTimeLabelFromDate(appointmentAt: string, now: Date = new Date()): string {
+export function remainingTimeLabelFromDate(appointmentAt: string, now: Date = new Date(), locale: string = "tr"): string {
   const diffMs = new Date(appointmentAt).getTime() - now.getTime();
   const hours = Math.max(1, Math.round(diffMs / (60 * 60 * 1000)));
-  return remainingTimeLabel(hours);
+  return remainingTimeLabel(hours, locale);
 }
