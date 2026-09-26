@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
@@ -107,6 +108,7 @@ export function BeklemeListesiClient({
   bookingSlotMinutes,
 }: Props) {
   const t = useTranslations("dashboard");
+  const router = useRouter();
   const [entries, setEntries] = useState<WaitlistEntry[]>(initialEntries);
   const [pendingAppts, setPendingAppts] = useState<PendingAppt[]>(initialPendingAppts);
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>(initialPendingRequests);
@@ -126,6 +128,31 @@ export function BeklemeListesiClient({
   // Bekleme listesi Pro+ özelliği. "Onay bekleyen randevular" bölümü bundan
   // bağımsız — her planda çalışır (talep randevuları burada da onaylanabilsin).
   const { proTools } = usePlan();
+
+  // page.tsx (server component) her router.refresh()'te (kendi aksiyonumuz
+  // veya LiveNotifications'ın yakaladığı başka bir cihaz/personelin
+  // değişikliği sonrası) taze initial* prop'ları verir; useState yalnızca ilk
+  // mount'ta bunları kullanır, sonraki prop güncellemelerini kendiliğinden
+  // yansıtmaz — bu yüzden render sırasında senkronize ediyoruz (React'ın
+  // "adjust state during render" deseni — useEffect'e göre bir render turu
+  // daha az, ekstra commit yok). Aksi halde bu sayfadaki "Onay Bekleyenler"
+  // sayacı ve liste, başka bir yerden yapılan onay/red/stok değişikliğini
+  // sayfa manuel yenilenene kadar göstermezdi.
+  const [prevInitialEntries, setPrevInitialEntries] = useState(initialEntries);
+  if (initialEntries !== prevInitialEntries) {
+    setPrevInitialEntries(initialEntries);
+    setEntries(initialEntries);
+  }
+  const [prevInitialPendingAppts, setPrevInitialPendingAppts] = useState(initialPendingAppts);
+  if (initialPendingAppts !== prevInitialPendingAppts) {
+    setPrevInitialPendingAppts(initialPendingAppts);
+    setPendingAppts(initialPendingAppts);
+  }
+  const [prevInitialPendingRequests, setPrevInitialPendingRequests] = useState(initialPendingRequests);
+  if (initialPendingRequests !== prevInitialPendingRequests) {
+    setPrevInitialPendingRequests(initialPendingRequests);
+    setPendingRequests(initialPendingRequests);
+  }
 
   // Yalnızca aksiyon sonrası (ekleme/durum güncelleme/silme) tazeleme için
   // kullanılır — ilk yükleme artık page.tsx'te sunucuda yapılıyor, burada
@@ -169,6 +196,10 @@ export function BeklemeListesiClient({
     if (res.ok) {
       setPendingRequests((prev) => prev.filter((r) => r.id !== id));
       toast.success("Randevu onaylandı");
+      // Liste burada local state ile güncelleniyor ama üstteki şeritler ve
+      // Sidebar/MobileNav rozeti (dashboard/layout.tsx) ayrı bir server
+      // sorgusu — router.refresh() olmadan eski sayıyı göstermeye devam eder.
+      router.refresh();
     } else {
       const e = await res.json().catch(() => ({}));
       toast.error(e.error || "İşlem gerçekleştirilemedi");
@@ -186,6 +217,7 @@ export function BeklemeListesiClient({
     if (res.ok) {
       setPendingRequests((prev) => prev.filter((r) => r.id !== id));
       toast.success("Talep reddedildi");
+      router.refresh();
     } else {
       const e = await res.json().catch(() => ({}));
       toast.error(e.error || "İşlem gerçekleştirilemedi");
@@ -230,6 +262,7 @@ export function BeklemeListesiClient({
     if (res.ok) {
       setPendingAppts((prev) => prev.filter((a) => a.id !== id));
       toast.success(t("apptActions.toastApprovedNotifying"));
+      router.refresh();
     } else {
       const e = await res.json().catch(() => ({}));
       toast.error(e.error || t("apptActions.approveFailed"));
@@ -280,6 +313,7 @@ export function BeklemeListesiClient({
     if (res.ok) {
       setPendingAppts((prev) => prev.filter((a) => a.id !== id));
       toast.success("Randevu talebi iptal edildi");
+      router.refresh();
     } else {
       const e = await res.json().catch(() => ({}));
       toast.error(e.error || "İptal edilemedi");

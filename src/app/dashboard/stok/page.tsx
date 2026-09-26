@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import QRCode from "qrcode";
 import { useTranslations, useLocale } from "next-intl";
@@ -89,6 +90,7 @@ const EMPTY_ITEM = {
 };
 
 export default function StokPage() {
+  const router = useRouter();
   const t = useTranslations("dashboard");
   const tm = useTranslations("dashboard.mic");
   const tb = useTranslations("dashboard.stockPage.barcode");
@@ -281,6 +283,11 @@ export default function StokPage() {
         toast.success(data.response);
         if (data.lowStock) toast(tm("stockLow"), { icon: "⚠️", duration: 8000 });
         fetchData();
+        // Bu sayfa kendi state'ini /api/inventory'den ayrı çekiyor —
+        // dashboard/layout.tsx'teki kritik stok şeridi ve Sidebar/MobileNav
+        // rozeti (lowStockCount/pendingWorkCount) AYRI bir server sorgusu,
+        // router.refresh() olmadan güncellenmez.
+        router.refresh();
       } else {
         toast.error(data.response || tm("analyzeFailed"));
       }
@@ -292,7 +299,7 @@ export default function StokPage() {
       setVoiceParsed(null);
       setVoiceConfirmResponse("");
     }
-  }, [voiceParsed, tm, fetchData]);
+  }, [voiceParsed, tm, fetchData, router]);
 
   // Eller serbest: özet açılınca "onayla" veya "düzelt" komutlarını dinler —
   // randevu oluşturmadaki aynı hook, stok sesli komutunda eksik alan kavramı
@@ -406,6 +413,7 @@ export default function StokPage() {
         toast.success(isEdit ? "Ürün güncellendi" : "Yeni ürün eklendi");
         setShowItemModal(false);
         fetchData();
+        router.refresh();
       } else {
         const d = await res.json().catch(() => ({}));
         toast.error(d.error || "Kayıt başarısız");
@@ -424,6 +432,7 @@ export default function StokPage() {
       if (res.ok) {
         toast.success("Ürün silindi");
         fetchData();
+        router.refresh();
       } else {
         toast.error("Ürün silinemedi");
       }
@@ -470,6 +479,7 @@ export default function StokPage() {
         if (d.lowStock) toast(tb("nowLow", { name: txTargetItem.name }), { icon: "⚠️", duration: 8000 });
         setShowTxModal(false);
         fetchData();
+        router.refresh();
       } else {
         toast.error(d.error || "İşlem başarısız");
       }
@@ -534,6 +544,7 @@ export default function StokPage() {
         setBarcodeSellItem(null);
         setBarcodeUnknown(null);
         fetchData();
+        router.refresh();
       } else {
         toast.error(data.error || tb("sellFailed"));
       }
@@ -542,7 +553,7 @@ export default function StokPage() {
     } finally {
       setBarcodeSelling(false);
     }
-  }, [barcodeSellItem, barcodeSellQty, barcodeSellPrice]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [barcodeSellItem, barcodeSellQty, barcodeSellPrice, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const linkUnknownToProduct = useCallback(() => {
     if (!barcodeUnknown) return;
