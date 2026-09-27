@@ -180,6 +180,7 @@ export default async function TakvimPage({
             id: s.id,
             full_name: s.full_name,
             color: (s as { color?: string | null }).color ?? null,
+            group_label: (s as { group_label?: string | null }).group_label ?? null,
           }))}
           appointments={(appointments || []).map((a) => ({
             id: a.id,

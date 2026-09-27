@@ -64,6 +64,8 @@ interface Staff {
   full_name: string;
   /** Salon sahibinin atadığı kalıcı renk (hex). Boşsa palet sırası kullanılır. */
   color?: string | null;
+  /** İşletmenin kendi belirlediği serbest metin grup etiketi (ör. "Makyöz", "Grup 1"). Kalabalık personel listesini takvimde hızlı filtrelemek için. */
+  group_label?: string | null;
 }
 
 // "#rrggbb" → rgba(r,g,b,a)
@@ -163,9 +165,11 @@ export function UnifiedCalendar({
   const router = useRouter();
   const t = useTranslations("dashboard");
   const locale = useLocale();
-  // Gün görünümü saat bazında çok daha büyük gösterilir (tek gün, tüm genişlik boş kalmasın);
-  // hafta görünümü de öncekinden biraz büyütüldü.
-  const HOUR_PX = view === "day" || view === "staff" ? 112 : 64;
+  // Saat satırları excel tablosu gibi kompakt: gün/personel görünümü tek
+  // sütun/az sütun olduğu için biraz daha yüksek, hafta görünümü 7 sütun
+  // aynı anda göründüğü için daha da sıkı. Önceki değerler (112/64) satırları
+  // gereksiz yere şişiriyor, gereksiz kaydırma yaratıyordu.
+  const HOUR_PX = view === "day" || view === "staff" ? 72 : 52;
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
   const weekdayShort = useMemo(
     () => WEEKDAY_REF_DATES.map((d) => format(new Date(d + "T12:00:00"), "EEE", { locale: dateFnsLocale })),
@@ -203,15 +207,41 @@ export function UnifiedCalendar({
     );
   }
 
-  // Personel sütun görünümünde tek seferde en fazla bu kadar sütun gösterilir —
-  // mobilde randevu detayları sığsın diye (fazlası için sayfalama okları).
-  const STAFF_PER_PAGE = 2;
-  const [staffPage, setStaffPage] = useState(0);
-  // Personel seçimi değişince sayfalamayı başa sar.
-  useEffect(() => {
-    setStaffPage(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedStaffKey, lockedStaffId]);
+  // Kalabalık personel listesini (ör. 20 kişi) hızlı daraltmak için —
+  // işletmenin personel sayfasında kendi belirlediği serbest metin grup
+  // etiketleri (ör. "Makyöz", "Grup 1"). Yalnızca en az 2 farklı etiket
+  // fiilen kullanılıyorsa gösterilir, aksi halde tek personel çipleri yeterli.
+  const staffGroups = useMemo(() => {
+    const set = new Set<string>();
+    staff.forEach((s) => {
+      const g = s.group_label?.trim();
+      if (g) set.add(g);
+    });
+    return Array.from(set);
+  }, [staff]);
+
+  function selectGroup(group: string) {
+    const ids = staff.filter((s) => s.group_label?.trim() === group).map((s) => s.id);
+    setSelectedStaffIds(ids);
+  }
+
+  // Seçili küme tam olarak bir grubun personeline denk düşüyorsa o grup
+  // çipini aktif göster (elle tek tek seçimden ayırt etmek için).
+  const activeGroup = useMemo(() => {
+    if (isAllStaff) return null;
+    const currentKey = [...selectedStaffIds].sort().join(",");
+    return (
+      staffGroups.find((g) => {
+        const groupKey = staff
+          .filter((s) => s.group_label?.trim() === g)
+          .map((s) => s.id)
+          .sort()
+          .join(",");
+        return groupKey === currentKey;
+      }) ?? null
+    );
+  }, [staffGroups, staff, selectedStaffIds, isAllStaff]);
+
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const colorOf = useMemo(() => {
@@ -341,14 +371,6 @@ export function UnifiedCalendar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [staff, selectedStaffKey, lockedStaffId]);
 
-  // Sayfalanmış personel sütunları — görünen aralık [start, start+STAFF_PER_PAGE).
-  const staffPageCount = Math.max(1, Math.ceil(staffColumns.length / STAFF_PER_PAGE));
-  const safeStaffPage = Math.min(staffPage, staffPageCount - 1);
-  const pagedStaffColumns =
-    staffColumns.length > STAFF_PER_PAGE
-      ? staffColumns.slice(safeStaffPage * STAFF_PER_PAGE, safeStaffPage * STAFF_PER_PAGE + STAFF_PER_PAGE)
-      : staffColumns;
-
   // YEREL saate göre gün bazında grupla (UTC slice değil — tz kayması yapmaz)
   const byDay = useMemo(() => {
     const map: Record<string, Appointment[]> = {};
@@ -444,7 +466,7 @@ export function UnifiedCalendar({
   // dakika karşılığı (bkz. apptBlockStyle'daki aynı minimum).
   const gridStartMin = hours[0] * 60;
   const gridEndMin = (hours[hours.length - 1] + 1) * 60;
-  const minVisualMin = ((view === "day" ? 32 : 24) / HOUR_PX) * 60;
+  const minVisualMin = ((view === "day" || view === "staff" ? 32 : 24) / HOUR_PX) * 60;
 
   // ── Sürükle-bırak: randevuyu farklı bir saate (hafta/gün görünümü) veya
   // farklı bir güne (yalnızca hafta görünümü) taşımak için. Personel/lane
@@ -640,7 +662,7 @@ export function UnifiedCalendar({
     const rawTop = ((startMin - hours[0] * 60) / 60) * HOUR_PX;
     // Not: yüksekliği gerçek süreden fazla şişirmiyoruz — art arda kısa randevular
     // birbirinin üzerine taşar. Bunun yerine kısa kutularda 2. satır (hizmet) gizlenir.
-    let height = Math.max(view === "day" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
+    let height = Math.max(view === "day" || view === "staff" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
     // Aynı şeritteki bir sonraki randevu bu minimumdan önce başlıyorsa (ör. art arda
     // 15dk'lık randevular ya da grid dışı/hatalı saatli bir randevu), kutuyu onun
     // üstüne taşırmayacak şekilde kırp — aksi halde aslında çakışmayan randevular
@@ -666,8 +688,8 @@ export function UnifiedCalendar({
     const live = isLive(appt);
     const beingDragged = dragPreview?.apptId === appt.id;
     // Kutu çok kısaysa (kısa süreli randevu) 2. satırı (hizmet) gizle —
-    // saat + isim (başlık) her koşulda kesilmeden tam görünsün.
-    const canShowServiceLine = height >= (view === "day" || view === "staff" ? 46 : 34);
+    // saat + isim (başlık) her koşulda kesilmeden, üst üste binmeden tam görünsün.
+    const canShowServiceLine = height >= (view === "day" || view === "staff" ? 40 : 32);
 
     return (
       <button
@@ -692,18 +714,18 @@ export function UnifiedCalendar({
         }}
         className={cn(
           "absolute rounded-md overflow-hidden cursor-pointer hover:shadow-md transition-shadow text-left z-10 select-none",
-          view === "day" || view === "staff" ? "px-2 py-1.5 text-[13px] leading-snug" : "px-1.5 py-1 text-[11px] leading-tight",
+          view === "day" || view === "staff" ? "px-2 py-1 text-[12.5px] leading-snug" : "px-1.5 py-0.5 text-[11.5px] leading-tight",
           pending && "border-dashed"
         )}
       >
-        <p className="font-semibold truncate" style={{ color: c.solid }}>
+        <p className="font-bold truncate" style={{ color: c.solid }}>
           {live && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-1 align-middle" />}
           {done && <span className="mr-0.5">✓</span>}
           {noShow && <span className="mr-0.5">⚠</span>}
           {format(new Date(appt.appointment_at), "HH:mm")} {appt.customer_name}
         </p>
         {canShowServiceLine && (
-          <p className="truncate opacity-80">
+          <p className="truncate font-medium opacity-85">
             {live ? `● ${t("liveNow")} · ` : ""}
             {appt.service?.name}
             {opts?.showStaff ? ` · ${staffName(appt.staff_id)}` : ""}
@@ -877,6 +899,34 @@ export function UnifiedCalendar({
         )}
       </div>
 
+      {/* Grup filtre çipleri — kalabalık personel listesinde (ör. 20 kişi)
+          "Makyöz"/"Kuaför" gibi işletmenin kendi tanımladığı gruplar arasında
+          tek tıkla geçiş. Personel rolü zaten kendine kilitli olduğu için
+          gösterilmez. */}
+      {!lockedStaffId && staffGroups.length > 1 && (
+        <div className="flex items-center gap-2 flex-wrap -mt-1">
+          <span className="text-[11px] text-muted-foreground shrink-0">{t("groupsLabel")}</span>
+          {staffGroups.map((g) => {
+            const active = activeGroup === g;
+            return (
+              <button
+                key={g}
+                onClick={() => selectGroup(g)}
+                aria-pressed={active}
+                className={cn(
+                  "px-2.5 py-0.5 rounded-full text-[11px] font-medium border transition-colors",
+                  active
+                    ? "bg-foreground text-background border-foreground"
+                    : "hover:bg-accent text-muted-foreground border-border"
+                )}
+              >
+                {g}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* ─── HAFTA GÖRÜNÜMÜ ─────────────────────────────────── */}
       {view === "week" && (
         <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
@@ -940,82 +990,63 @@ export function UnifiedCalendar({
         </div>
       )}
 
-      {/* ─── PERSONEL SÜTUN GÖRÜNÜMÜ (SWIMLANE) ─────────────────── */}
+      {/* ─── PERSONEL SÜTUN GÖRÜNÜMÜ (SWIMLANE) ───────────────────
+          Tüm personel aynı anda, tek ekranda, eşit genişlikte sütunlarda
+          gösterilir — sayfalama/tıklanan ok yok, işletme sahibi ekranda
+          yeterli genişlik olduğunda hiç kaydırmaz (excel tablosu gibi
+          sütunlar daralarak sığar). Sütun sayısı ekrana gerçekten sığmayacak
+          kadar çoksa (ör. dar telefon ekranında çok personelli salon) her
+          sütun okunaklı bir minimum genişliğin altına inmez, bu durumda
+          doğal yatay kaydırma devreye girer — zorla sayfalama yerine. */}
       {view === "staff" && (
         <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
-          {/* Sayfalama: aynı anda en fazla STAFF_PER_PAGE personel — sütunlar
-              geniş kalsın, randevu detayları kesilmesin. */}
-          {staffColumns.length > STAFF_PER_PAGE && (
-            <div className="flex items-center justify-between gap-2 border-b bg-muted/20 px-2 py-1.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setStaffPage(Math.max(0, safeStaffPage - 1))}
-                disabled={safeStaffPage === 0}
-                className="inline-flex items-center gap-1 rounded-md border px-2 py-1 font-medium hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" />
-              </button>
-              <span className="font-medium text-muted-foreground">
-                {safeStaffPage * STAFF_PER_PAGE + 1}–{Math.min((safeStaffPage + 1) * STAFF_PER_PAGE, staffColumns.length)} / {staffColumns.length}
-              </span>
-              <button
-                type="button"
-                onClick={() => setStaffPage(Math.min(staffPageCount - 1, safeStaffPage + 1))}
-                disabled={safeStaffPage >= staffPageCount - 1}
-                className="inline-flex items-center gap-1 rounded-md border px-2 py-1 font-medium hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent"
-              >
-                <ChevronRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          )}
           <div className="overflow-x-auto">
-            {/* Görünen personel sayısı kadar eşit sütun; kalan genişliği doldurur. */}
-            <div className="grid" style={{ gridTemplateColumns: `40px repeat(${pagedStaffColumns.length || 1}, 1fr)` }}>
-              {hourRail}
-              {pagedStaffColumns.map((s) => {
-                const c = colorOf(s.id);
-                const dayStr = gridDays[0] || today;
-                const staffAppts = (byDay[dayStr] || []).filter((a) => a.staff_id === s.id);
-                const positioned = layoutDay(staffAppts, gridStartMin, gridEndMin, minVisualMin);
-                const isToday = dayStr === today;
-                const offNames = offStaffNamesOn(dayStr);
-                const isOff = offNames.includes(s.full_name);
+          <div className="grid" style={{ gridTemplateColumns: `40px repeat(${staffColumns.length || 1}, minmax(104px, 1fr))` }}>
+            {hourRail}
+            {staffColumns.map((s) => {
+              const c = colorOf(s.id);
+              const dayStr = gridDays[0] || today;
+              const staffAppts = (byDay[dayStr] || []).filter((a) => a.staff_id === s.id);
+              const positioned = layoutDay(staffAppts, gridStartMin, gridEndMin, minVisualMin);
+              const isToday = dayStr === today;
+              const offNames = offStaffNamesOn(dayStr);
+              const isOff = offNames.includes(s.full_name);
 
-                return (
+              return (
+                <div
+                  key={s.id}
+                  className="border-r last:border-r-0 min-w-0 relative"
+                  style={{ background: columnTintOf(s.id) }}
+                >
                   <div
-                    key={s.id}
-                    className="border-r last:border-r-0 min-w-0 relative"
-                    style={{ background: columnTintOf(s.id) }}
+                    className="h-10 border-b flex flex-col items-center justify-center text-xs font-semibold px-1 text-center"
+                    style={{ background: c.soft, borderBottomColor: c.border }}
                   >
-                    <div
-                      className="h-10 border-b flex flex-col items-center justify-center text-xs font-semibold px-2 text-center"
-                      style={{ background: c.soft, borderBottomColor: c.border }}
-                    >
-                      <span className="truncate" style={{ color: c.solid }}>{s.full_name}</span>
-                      <span className="text-[10px] font-normal text-muted-foreground">
-                        {t("apptCountLabel", { count: staffAppts.length })}
-                      </span>
+                    <span className="truncate max-w-full" style={{ color: c.solid }}>{s.full_name}</span>
+                    <span className="text-[10px] font-normal text-muted-foreground">
+                      {t("apptCountLabel", { count: staffAppts.length })}
+                    </span>
+                  </div>
+                  {isOff && (
+                    <div className="px-1 py-0.5 text-[9px] leading-tight text-center bg-red-50 dark:bg-red-950/20 text-red-600 border-b">
+                      İzinli
                     </div>
-                    {isOff && (
-                      <div className="px-1 py-0.5 text-[9px] leading-tight text-center bg-red-50 dark:bg-red-950/20 text-red-600 border-b">
-                        İzinli
-                      </div>
-                    )}
-                    <div
-                      className="relative cursor-pointer"
-                      style={{ height: gridHeight }}
-                      onClick={(e) => handleGridClick(e, dayStr, s.id)}
-                    >
-                      {slotLines}
-                      {isToday && nowLine}
-                      <div className="absolute inset-0">
-                        {positioned.map((p) => renderApptBlock(p, { showStaff: false }))}
-                      </div>
+                  )}
+                  <div
+                    className="relative cursor-pointer"
+                    style={{ height: gridHeight }}
+                    onClick={(e) => handleGridClick(e, dayStr, s.id)}
+                  >
+                    {slotLines}
+                    {isToday && nowLine}
+                    <div className="absolute inset-0">
+                      {positioned.map((p) => renderApptBlock(p, { showStaff: false }))}
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
+          </div>
           </div>
         </div>
       )}
