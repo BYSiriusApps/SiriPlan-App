@@ -47,6 +47,7 @@ interface StaffData {
   notify_channels_json?: { telegram?: boolean; whatsapp?: boolean } | null;
   preferred_language?: string | null;
   color?: string | null;
+  group_label?: string | null;
   staff_services?: StaffService[];
 }
 
@@ -197,7 +198,23 @@ export default function PersonelDetayPage() {
     notify_whatsapp: true,
     preferred_language: "",
     color: "",
+    group_label: "",
   });
+  // Diğer personelde daha önce kullanılmış grup adlarını öner — datalist,
+  // yazım farkıyla ("Kuaför" / "kuaför ") aynı grubun ikiye bölünmesini azaltır.
+  const [existingGroups, setExistingGroups] = useState<string[]>([]);
+  useEffect(() => {
+    fetch("/api/staff")
+      .then((r) => r.json())
+      .then((d) => {
+        const set = new Set<string>();
+        for (const s of d.staff ?? []) {
+          if (s.group_label?.trim()) set.add(s.group_label.trim());
+        }
+        setExistingGroups(Array.from(set));
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch(`/api/staff/${id}`)
@@ -221,6 +238,7 @@ export default function PersonelDetayPage() {
           notify_whatsapp: s.notify_channels_json?.whatsapp !== false,
           preferred_language: s.preferred_language || "",
           color: s.color || "",
+          group_label: s.group_label || "",
         });
       })
       .catch(() => toast.error("Yüklenemedi"))
@@ -252,6 +270,7 @@ export default function PersonelDetayPage() {
         notify_channels_json: { telegram: form.notify_telegram, whatsapp: form.notify_whatsapp },
         preferred_language: form.preferred_language || null,
         color: form.color || null,
+        group_label: form.group_label || null,
       }),
     });
     setSaving(false);
@@ -337,6 +356,21 @@ export default function PersonelDetayPage() {
                   onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
                   placeholder={tStr("rolePlaceholder")}
                 />
+              </div>
+              <div className="space-y-1">
+                <Label>{tStr("groupLabel")}</Label>
+                <Input
+                  list="staff-group-suggestions"
+                  value={form.group_label}
+                  onChange={(e) => setForm((f) => ({ ...f, group_label: e.target.value }))}
+                  placeholder={tStr("groupPlaceholder")}
+                />
+                <datalist id="staff-group-suggestions">
+                  {existingGroups.map((g) => (
+                    <option key={g} value={g} />
+                  ))}
+                </datalist>
+                <p className="text-[11px] text-muted-foreground">{tStr("groupDesc")}</p>
               </div>
               <div className="space-y-1">
                 <Label>{tStr("commission")}</Label>

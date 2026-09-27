@@ -12,6 +12,9 @@ function isMissingLanguageColumn(message: string): boolean {
 function isMissingBaseSalaryColumn(message: string): boolean {
   return message.includes("base_salary");
 }
+function isMissingGroupLabelColumn(message: string): boolean {
+  return message.includes("group_label");
+}
 
 // Maaş/prim yalnızca owner/manager'a açık — bu uç randevu formu, bekleme
 // listesi, stok gibi 'staff' rolünün de eriştiği sayfalarda çağrılıyor;
@@ -53,7 +56,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { full_name, role, phone, email, commission_rate, base_salary, start_time, end_time, working_days, preferred_language } = body;
+  const { full_name, role, phone, email, commission_rate, base_salary, start_time, end_time, working_days, preferred_language, group_label } = body;
 
   if (!full_name) return NextResponse.json({ error: "İsim zorunlu" }, { status: 400 });
 
@@ -112,6 +115,7 @@ export async function POST(req: NextRequest) {
     end_time: end_time || "18:00",
     working_days: working_days || [1, 2, 3, 4, 5],
     preferred_language: isSupportedLanguage(preferred_language) ? preferred_language : null,
+    group_label: typeof group_label === "string" ? group_label.trim() || null : null,
     is_active: true,
   };
 
@@ -123,6 +127,10 @@ export async function POST(req: NextRequest) {
   }
   if (error && isMissingBaseSalaryColumn(error.message)) {
     delete insertRow.base_salary;
+    ({ data, error } = await supabase.from("staff").insert(insertRow).select().single());
+  }
+  if (error && isMissingGroupLabelColumn(error.message)) {
+    delete insertRow.group_label;
     ({ data, error } = await supabase.from("staff").insert(insertRow).select().single());
   }
 

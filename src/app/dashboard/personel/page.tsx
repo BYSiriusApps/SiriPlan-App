@@ -171,8 +171,13 @@ export default async function PersonelPage() {
                       <CardTitle className="text-base group-hover:text-primary transition-colors truncate">
                         {s.full_name}
                       </CardTitle>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <p className="text-xs text-muted-foreground">{s.role}</p>
+                        {(s as unknown as { group_label?: string | null }).group_label && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                            {(s as unknown as { group_label?: string | null }).group_label}
+                          </span>
+                        )}
                         {(s as unknown as { preferred_language?: string }).preferred_language && (
                           <span
                             className="text-sm leading-none"

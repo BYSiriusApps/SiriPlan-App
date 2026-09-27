@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,7 +27,24 @@ export default function PersonelYeniPage() {
     end_time: "18:00",
     working_days: [1, 2, 3, 4, 5] as number[],
     preferred_language: "",
+    group_label: "",
   });
+  // Kalabalık personelli işletmelerde takvimde gruplama için — daha önce
+  // girilmiş grup adlarını datalist ile önerir, yazım farkıyla (ör.
+  // "Kuaför" / "kuaför ") aynı grubun ikiye bölünmesini azaltır.
+  const [existingGroups, setExistingGroups] = useState<string[]>([]);
+  useEffect(() => {
+    fetch("/api/staff")
+      .then((r) => r.json())
+      .then((d) => {
+        const set = new Set<string>();
+        for (const s of d.staff ?? []) {
+          if (s.group_label?.trim()) set.add(s.group_label.trim());
+        }
+        setExistingGroups(Array.from(set));
+      })
+      .catch(() => {});
+  }, []);
 
   function toggleDay(d: number) {
     setForm((f) => ({
@@ -117,6 +134,23 @@ export default function PersonelYeniPage() {
                   onChange={(e) => setForm((f) => ({ ...f, base_salary: e.target.value }))}
                   placeholder="0"
                 />
+              </div>
+              <div className="space-y-1">
+                <Label>Grup</Label>
+                <Input
+                  list="staff-group-suggestions"
+                  value={form.group_label}
+                  onChange={(e) => setForm((f) => ({ ...f, group_label: e.target.value }))}
+                  placeholder="Makyöz, Kuaför, Grup 1..."
+                />
+                <datalist id="staff-group-suggestions">
+                  {existingGroups.map((g) => (
+                    <option key={g} value={g} />
+                  ))}
+                </datalist>
+                <p className="text-[11px] text-muted-foreground">
+                  Takvimde personeli hızlı filtrelemek için (opsiyonel).
+                </p>
               </div>
               <div className="space-y-1">
                 <Label>Telefon</Label>

@@ -45,7 +45,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (!member) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (member.role === "staff") return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
-  const ALLOWED = ["full_name", "role", "phone", "email", "commission_rate", "base_salary", "start_time", "end_time", "working_days", "is_active", "telegram_chat_id", "whatsapp_number", "notify_channels_json", "preferred_language", "color"];
+  const ALLOWED = ["full_name", "role", "phone", "email", "commission_rate", "base_salary", "start_time", "end_time", "working_days", "is_active", "telegram_chat_id", "whatsapp_number", "notify_channels_json", "preferred_language", "color", "group_label"];
   const updates: Record<string, unknown> = {};
   for (const key of ALLOWED) {
     if (key in body) updates[key] = body[key];
@@ -70,6 +70,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     updates.color = null;
   }
 
+  if ("group_label" in updates) {
+    const trimmed = typeof updates.group_label === "string" ? updates.group_label.trim() : "";
+    updates.group_label = trimmed || null;
+  }
+
   if (!Object.keys(updates).length) {
     return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
   }
@@ -83,7 +88,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     .single();
 
   // Migration 009/014/015/20260808 uygulanmamışsa kolon yok — o alan olmadan tekrar dene
-  for (const optionalCol of ["preferred_language", "color", "base_salary"]) {
+  for (const optionalCol of ["preferred_language", "color", "base_salary", "group_label"]) {
     if (error && error.message.includes(optionalCol) && optionalCol in updates) {
       delete updates[optionalCol];
       if (Object.keys(updates).length) {
