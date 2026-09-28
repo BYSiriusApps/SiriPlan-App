@@ -16,7 +16,8 @@ import { formatServicePrice } from "@/lib/currency";
 import { maskPhone } from "@/lib/phone";
 import { waMessageLink } from "@/lib/wa-template";
 import Link from "next/link";
-import { MessageCircle, Instagram, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks, Pencil, Phone, CalendarClock, Globe } from "lucide-react";
+import { MessageCircle, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks, Pencil, Phone, CalendarClock, Globe } from "lucide-react";
+import { InstagramIcon } from "@/components/icons/brand-icons";
 import { toast } from "sonner";
 
 interface AppointmentRequest {
@@ -57,7 +58,7 @@ interface TalepAppointment {
 
 const SOURCE_META: Record<string, { label: string; icon: typeof MessageCircle; className: string }> = {
   whatsapp: { label: "WhatsApp", icon: MessageCircle, className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
-  instagram: { label: "Instagram", icon: Instagram, className: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400" },
+  instagram: { label: "Instagram", icon: InstagramIcon, className: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400" },
 };
 
 interface CriticalStockItem {
