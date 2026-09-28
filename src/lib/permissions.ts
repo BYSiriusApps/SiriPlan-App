@@ -24,12 +24,23 @@ export const PERM_KEYS = Object.keys(PERM_LABELS);
  */
 export const OWNER_ONLY_PERMS = new Set(["manage_staff"]);
 
+/**
+ * Hiçbir API rotası bu anahtarları kontrol etmiyor — randevu oluşturma/
+ * düzenleme/iptal ve müşteri düzenleme her org üyesine zaten açık. Kutucuk
+ * kapalıyken bile davranış değişmediği için (28 Eyl 2026 denetimi) yanıltıcı
+ * olmaması adına herkeste sabit AÇIK gösteriliyor/kaydediliyor — panel
+ * işleyişini bozmamak ve "kimde ne yetki var" görünümünü doğru tutmak için.
+ */
+export const ALWAYS_ON_PERMS = new Set([
+  "edit_customers", "create_appointments", "edit_appointments", "cancel_appointments",
+]);
+
 export const DEFAULT_PERMS: Record<"staff" | "manager", Record<string, boolean>> = {
   staff: {
-    edit_customers: false, delete_customers: false,
+    edit_customers: true, delete_customers: false,
     view_reports: false, edit_services: false, manage_staff: false,
     view_financials: false, manage_campaigns: false, create_appointments: true,
-    edit_appointments: true, cancel_appointments: false, manage_settings: false,
+    edit_appointments: true, cancel_appointments: true, manage_settings: false,
   },
   manager: {
     edit_customers: true, delete_customers: true,
@@ -58,6 +69,7 @@ export function hasPermission(
   member: PermissionSubject | null | undefined,
   key: string
 ): boolean {
+  if (ALWAYS_ON_PERMS.has(key)) return true;
   if (!member) return false;
   if (member.role === "owner") return true;
   const perms = member.permissions_json ?? {};
@@ -90,5 +102,8 @@ export function sanitizePermissions(input: unknown): Record<string, boolean> {
   for (const key of PERM_KEYS) {
     if (key in src) clean[key] = !!src[key];
   }
+  // Hiçbir yerde denetlenmeyen izinler her zaman açık kaydedilir — eski
+  // kayıtlardan gelen `false` değeri bir daha yazılmasın.
+  for (const key of ALWAYS_ON_PERMS) clean[key] = true;
   return clean;
 }
