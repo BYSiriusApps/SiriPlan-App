@@ -8,7 +8,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   const messages = await getMessages();
   return (
     <NextIntlClientProvider messages={messages}>
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 flex flex-col">
+      <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 flex flex-col">
         <Toaster position="top-right" richColors />
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="w-full max-w-md">

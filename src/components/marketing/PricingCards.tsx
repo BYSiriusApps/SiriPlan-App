@@ -102,7 +102,7 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
           return (
             <Card
               key={plan.key}
-              className={`relative overflow-visible ${isFull ? "flex flex-col" : ""} ${
+              className={`relative min-w-0 overflow-x-hidden overflow-y-visible ${isFull ? "flex flex-col" : ""} ${
                 plan.highlight
                   ? "border-primary shadow-lg shadow-primary/10 md:-translate-y-2 z-10"
                   : "border-border"
@@ -119,9 +119,9 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
                 <div className={isFull ? "mb-6" : undefined}>
                   <h3 className={`font-bold ${isFull ? "text-xl" : "text-lg"} mb-1`}>{t(`pricing.${plan.key}.name`)}</h3>
                   <p className="text-xs text-muted-foreground mb-4">{t(`pricing.${plan.key}.desc`)}</p>
-                  <div className="mb-1">
-                    <span className={`${isFull ? "text-4xl" : "text-3xl"} font-bold`}>{plan.display}</span>
-                    <span className="text-muted-foreground text-sm">{t("pricing.perMonth")}</span>
+                  <div className="mb-1 flex flex-wrap items-baseline gap-x-1 min-w-0">
+                    <span className={`${isFull ? "text-3xl sm:text-4xl" : "text-2xl sm:text-3xl"} font-bold break-words`}>{plan.display}</span>
+                    <span className="text-muted-foreground text-sm shrink-0">{t("pricing.perMonth")}</span>
                   </div>
                   <p className={`text-xs text-muted-foreground ${isFull ? "" : "mb-6"}`}>
                     {billing === "annual"
