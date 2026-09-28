@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { PERM_KEYS, DEFAULT_PERMS, OWNER_ONLY_PERMS } from "@/lib/permissions";
+import { PERM_KEYS, DEFAULT_PERMS, OWNER_ONLY_PERMS, ALWAYS_ON_PERMS } from "@/lib/permissions";
 import { toWhatsAppNumber } from "@/lib/phone";
 
 interface StaffOption {
@@ -315,15 +315,19 @@ export function PermissionChecklist({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
       {PERM_KEYS.map((key) => {
+        const alwaysOn = ALWAYS_ON_PERMS.has(key);
         // manage_staff yalnızca işletme sahibi tarafından devredilebilir.
-        const locked = disabled || (OWNER_ONLY_PERMS.has(key) && !viewerIsOwner);
-        if (locked && !permissions[key] && OWNER_ONLY_PERMS.has(key)) return null;
+        // Hiçbir API'nin kontrol etmediği izinler (alwaysOn) herkeste sabit
+        // açık gösterilir — kapalı görünüp aslında kısıtlamayan yanıltıcı
+        // kutucuk olmasın diye (bkz. lib/permissions.ts ALWAYS_ON_PERMS notu).
+        const locked = disabled || alwaysOn || (OWNER_ONLY_PERMS.has(key) && !viewerIsOwner);
+        if (locked && !alwaysOn && !permissions[key] && OWNER_ONLY_PERMS.has(key)) return null;
         const id = `${idPrefix}-perm-${key}`;
         return (
           <div key={key} className="flex items-start gap-2">
             <Checkbox
               id={id}
-              checked={!!permissions[key]}
+              checked={alwaysOn ? true : !!permissions[key]}
               disabled={locked}
               onCheckedChange={() => onToggle(key)}
               className="mt-0.5 shrink-0"
