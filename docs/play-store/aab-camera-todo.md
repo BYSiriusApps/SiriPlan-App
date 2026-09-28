@@ -1,8 +1,14 @@
-# ⏳ AAB güncellemesi gerekli — Barkod tarama kamerası (uygulama içi)
+# ✅ TAMAMLANDI — Barkod tarama kamerası (uygulama içi)
 
-**Tarih:** 11 Eylül 2026
-**Öncelik:** Orta (özellik elle girişle şu an tam çalışıyor; kamera sadece
-mobil tarayıcıda aktif).
+**Tarih:** 11 Eylül 2026 (açıldı) → **28 Eylül 2026 (tamamlandı)**
+
+**Sonuç (28 Eyl 2026):** Sürüm 3 (1.0.0.3, CAMERA+RECORD_AUDIO izinli) Play
+Console'da %100 rollout'ta, "Yayınlandı". Kullanıcı test cihazında uygulamayı
+kaldırıp yeniden kurdu → kamera izni soruluyor, barkod tarama TWA içinde
+çalışıyor (doğrulandı). Data safety formu içerik olarak değişmedi ("Fotoğraflar/
+videolar" zaten işaretliydi, ses toplanmıyor) — kullanıcı yine de tarih
+güncellensin diye formu değişiklik yapmadan yeniden gönderdi. Aşağıdaki bölüm
+orijinal plan olarak referans amaçlı bırakıldı.
 
 ## Durum
 

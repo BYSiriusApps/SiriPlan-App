@@ -206,9 +206,19 @@ güncellenir + Telegram/WA bildirimi gider.
 
 ---
 
-## 5. Personel/sahip WhatsApp bildirimi — güvenilir hale getirme (Meta şablon onayı bekleniyor)
+## 5. ✅ Personel/sahip WhatsApp bildirimi — TAMAMLANDI (28 Eyl 2026)
 
-**Durum (22 Eyl 2026):** Kod tamam, `main`'de. Meta Business Manager'da yeni bir
+**Sonuç (28 Eyl 2026):** Aşağıdaki 3 Türkçe + 10 İngilizce şablon (toplam 13)
+Meta tarafından onaylandı, kullanıcı teyit etti. `internal-registry.ts` /
+`wa-templates/registry.ts`'deki `metaName`/`metaNameEn` alanları zaten dolu
+olduğu için ek bir deploy gerekmedi — onay anında devreye girdi. Aşağıdaki
+geçmiş bölüm referans amaçlı bırakıldı.
+
+**Kalan:** Yok.
+
+---
+
+**Durum (22 Eyl 2026, geçmiş):** Kod tamam, `main`'de. Meta Business Manager'da yeni bir
 şablon submit edilip ONAYLANANA kadar devreye girmez — o ana kadar sistem eski
 davranışıyla (serbest metin, yalnızca son 24 saatte yazışılmışsa teslim olur)
 çalışmaya devam eder, hiçbir şey KIRILMADI.
@@ -440,26 +450,16 @@ bitince dosya silindi.
 
 ---
 
-## 8. ⏳ Barkod: uygulama içi kamera için yeni AAB
+## 8. ✅ Barkod: uygulama içi kamera için yeni AAB — TAMAMLANDI (28 Eyl 2026)
 
-**Durum:** Barkodla ürün satışı (11 Eyl 2026) web'de canlı. Kamerayla tarama
-**mobil tarayıcıda** çalışır; kurulu Play Store uygulaması (TWA) içinde `getUserMedia`
-`android.permission.CAMERA` bildirilmediği için reddedilir → tarayıcı otomatik
-**elle barkod girişi** moduna düşer (satış yine çalışır).
+Sürüm 3 (1.0.0.3, CAMERA+RECORD_AUDIO izinli) Play Console'da %100 rollout'ta,
+"Yayınlandı". Kamera izni kurulu TWA'da soruluyor, barkod tarama uygulama
+içinde çalışıyor (kullanıcı test cihazında doğruladı). Data safety formu
+içerik olarak değişmedi, kullanıcı tarih güncellensin diye değişiklik
+yapmadan yeniden gönderdi. Detay: `docs/play-store/aab-camera-todo.md`,
+memory `play-store-submission-state`.
 
-**Yapılacak (kamera uygulamada da çalışsın):**
-- PWABuilder / Bubblewrap projesinde CAMERA iznini aç (`"features": { "cameraPermission": true }`
-  veya `bubblewrap update --manifest` sonrası `AndroidManifest`'e `<uses-permission android:name="android.permission.CAMERA"/>`).
-- Yeni **AAB üret** → Play Console → yeni sürüm.
-- Play Console → **Data safety** formu: kamera kullanımı = "yalnızca cihazda, barkod
-  tarama; toplanmaz/paylaşılmaz" gerekçesi.
-- Test cihazında uygulamayı yeniden kur, `/dashboard/stok` → "Barkodla Sat" →
-  kamera izni sorulmalı ve tarama çalışmalı.
-
-**Not:** Bu AAB değişikliği yapılana kadar mağaza sürümü sağlam — özellik elle
-girişle tam kullanılabilir. `assetlinks.json` / imza etkilenmez.
-**İlgili:** `docs/play-store/aab-camera-todo.md`, `next.config.ts`
-(`PERMISSIONS_POLICY_DASHBOARD` = `camera=(self)`), `src/components/dashboard/BarcodeScanner.tsx`.
+**Kalan:** Yok.
 
 ---
 
