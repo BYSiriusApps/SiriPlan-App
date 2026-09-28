@@ -235,7 +235,11 @@ export default function PlanSecPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 py-12 px-4">
+    // Bu sayfa /auth/* altında, dar (max-w-md) form düzeni için tasarlanmış
+    // paylaşılan AuthLayout içine geliyor. 3 sütunlu fiyat kartları o dar
+    // kapta sıkışıp üst üste biniyordu; aşağıdaki full-bleed hilesiyle
+    // (100vw + ortala) o kabın genişlik sınırından çıkıyoruz.
+    <div className="relative left-1/2 w-screen -translate-x-1/2 min-h-screen bg-gradient-to-br from-rose-50 via-background to-fuchsia-50 dark:from-zinc-950 dark:via-background dark:to-purple-950/30 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <Link
           href="/dashboard"
@@ -293,7 +297,7 @@ export default function PlanSecPage() {
             return (
               <Card
                 key={plan.key}
-                className={`relative flex flex-col overflow-visible ${plan.color} transition-shadow hover:shadow-xl ${plan.highlight ? "md:-translate-y-2 shadow-lg" : ""}`}
+                className={`relative flex flex-col min-w-0 overflow-x-hidden overflow-y-visible ${plan.color} transition-shadow hover:shadow-xl ${plan.highlight ? "md:-translate-y-2 shadow-lg" : ""}`}
               >
                 {plan.highlight && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
@@ -303,16 +307,16 @@ export default function PlanSecPage() {
                   </div>
                 )}
                 <CardHeader className="pb-4 pt-6">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 min-w-0">
                     <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 text-primary shrink-0">
                       <Icon className="h-4.5 w-4.5" />
                     </div>
-                    <CardTitle className="text-lg">{plan.name}</CardTitle>
+                    <CardTitle className="text-lg truncate">{plan.name}</CardTitle>
                   </div>
                   <CardDescription className="text-xs leading-relaxed">{plan.description}</CardDescription>
-                  <div className="mt-4 flex items-baseline gap-1 whitespace-nowrap">
-                    <span className="text-4xl sm:text-5xl font-bold tabular-nums tracking-tight">{price}</span>
-                    <span className="text-muted-foreground text-sm">/ay</span>
+                  <div className="mt-4 flex flex-wrap items-baseline gap-x-1 min-w-0">
+                    <span className="text-3xl sm:text-4xl lg:text-5xl font-bold tabular-nums tracking-tight break-words">{price}</span>
+                    <span className="text-muted-foreground text-sm shrink-0">/ay</span>
                   </div>
                   <p className="text-[11px] text-muted-foreground mt-1 h-4">
                     {annual
