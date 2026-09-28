@@ -70,6 +70,12 @@ export async function sendInternalTemplate(
   if (locale === "en" && def.metaNameEn) {
     if (await attempt(def.metaNameEn, "en")) return true;
   }
+  if (locale === "ru" && def.metaNameRu) {
+    if (await attempt(def.metaNameRu, "ru")) return true;
+  }
+  if (locale === "ar" && def.metaNameAr) {
+    if (await attempt(def.metaNameAr, "ar")) return true;
+  }
   if (!def.metaName) return false;
   return attempt(def.metaName, "tr");
 }
