@@ -27,6 +27,10 @@ export interface WaInternalTemplateDef {
   /** İngilizce (en) karşılığı — tercih edilen dil "en" ise önce bu denenir,
    *  onaysız/başarısız olursa `metaName`e (tr) düşülür (bkz. internal-send.ts). */
   metaNameEn: string | null;
+  /** Rusça (ru) karşılığı — Meta onayı bekleniyorsa null. */
+  metaNameRu?: string | null;
+  /** Arapça (ar) karşılığı — Meta onayı bekleniyorsa null. */
+  metaNameAr?: string | null;
   /** {{1}}..{{n}} sırasıyla gövde parametrelerinin kaynak anahtarları. */
   bodyParamOrder: string[];
 }
@@ -36,12 +40,16 @@ export const WA_INTERNAL_TEMPLATES: Record<WaInternalPurpose, WaInternalTemplate
     purpose: "yeni_randevu",
     metaName: "personel_yeni_randevu",
     metaNameEn: "staff_new_appointment",
+    metaNameRu: "staff_new_appointment_ru",
+    metaNameAr: "staff_new_appointment_ar",
     bodyParamOrder: ["business_name", "customer_name", "service_name", "staff_name", "date", "time"],
   },
   yeni_talep: {
     purpose: "yeni_talep",
     metaName: "personel_yeni_talep",
     metaNameEn: "staff_new_request",
+    metaNameRu: "staff_new_request_ru",
+    metaNameAr: "staff_new_request_ar",
     bodyParamOrder: ["business_name", "customer_name", "service_name", "staff_name", "date", "time"],
   },
   kritik_stok: {
