@@ -15,7 +15,8 @@ import { HomeButton } from "@/components/dashboard/HomeButton";
 import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
 import { usePlan } from "@/components/dashboard/PlanContext";
 import { toast } from "sonner";
-import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Lock, Pencil, X, MessageCircle, Instagram, Globe } from "lucide-react";
+import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Lock, Pencil, X, MessageCircle, Globe } from "lucide-react";
+import { InstagramIcon } from "@/components/icons/brand-icons";
 import { maskPhone } from "@/lib/phone";
 
 export type PendingAppt = {
@@ -47,7 +48,7 @@ export type PendingRequest = {
 
 const REQUEST_SOURCE_META: Record<string, { label: string; icon: typeof MessageCircle }> = {
   whatsapp: { label: "WhatsApp", icon: MessageCircle },
-  instagram: { label: "Instagram", icon: Instagram },
+  instagram: { label: "Instagram", icon: InstagramIcon },
 };
 
 export type WaitlistEntry = {

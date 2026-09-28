@@ -13,7 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, Trash2, AlertTriangle, KeyRound, Globe, Instagram, type LucideIcon } from "lucide-react";
+import { Loader2, Save, Building2, Link2, Clock, ShieldCheck, MessageCircle, MessageSquareText, ChevronRight, CalendarCheck, Copy, Check, QrCode, Send, ImageUp, X, MapPin, CreditCard, Percent, Trash2, AlertTriangle, KeyRound, Globe, type LucideIcon } from "lucide-react";
+import { InstagramIcon } from "@/components/icons/brand-icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -1381,7 +1382,7 @@ export default function AyarlarPage() {
 
       {/* Instagram & Facebook Messenger Bağlantısı — gelen DM'lere otomatik AI yanıtı için */}
       <SectionCard
-        icon={Instagram}
+        icon={InstagramIcon}
         iconClassName="text-pink-600"
         title={t("settingsPage.metaBusinessConnTitle")}
         description={t("settingsPage.metaBusinessConnDesc")}

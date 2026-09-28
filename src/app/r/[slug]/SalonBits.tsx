@@ -1,14 +1,16 @@
 "use client";
 
-import { MapPin, Star as StarIcon, Instagram, Facebook, Linkedin, Phone, Clock } from "lucide-react";
+import { MapPin, Star as StarIcon, Phone, Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Organization } from "@/types/database";
 import { SUPPORTED_LANGUAGES, type LanguageCode } from "@/lib/languages";
 import { WEEKDAY_KEYS } from "./booking-shared";
+import { InstagramIcon, FacebookIcon, LinkedinIcon } from "@/components/icons/brand-icons";
 
-// lucide-react'ta marka ikonu olarak TikTok bulunmuyor (Instagram/Facebook gibi
-// birkaç istisna dışında marka logoları desteklenmiyor) — resmi TikTok notası
-// buraya inline SVG olarak eklendi, ek bir paket bağımlılığı gerekmesin diye.
+// lucide-react'ta marka ikonu olarak TikTok bulunmuyor (Instagram/Facebook/LinkedIn
+// de lucide-react 1.x'te aynı şekilde kaldırıldı, bkz. @/components/icons/brand-icons)
+// — resmi TikTok notası buraya inline SVG olarak eklendi, ek bir paket bağımlılığı
+// gerekmesin diye.
 export function TikTokIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
@@ -105,7 +107,7 @@ export function QuickLinks({
           aria-label="Instagram"
           className={`inline-flex items-center justify-center w-9 h-9 rounded-full transition-colors shrink-0 ${chip}`}
         >
-          <Instagram className="h-4 w-4" />
+          <InstagramIcon className="h-4 w-4" />
         </a>
       )}
       {org.tiktok_handle && (
@@ -127,7 +129,7 @@ export function QuickLinks({
           aria-label="Facebook"
           className={`inline-flex items-center justify-center w-9 h-9 rounded-full transition-colors shrink-0 ${chip}`}
         >
-          <Facebook className="h-4 w-4" />
+          <FacebookIcon className="h-4 w-4" />
         </a>
       )}
       {org.linkedin_handle && (
@@ -138,7 +140,7 @@ export function QuickLinks({
           aria-label="LinkedIn"
           className={`inline-flex items-center justify-center w-9 h-9 rounded-full transition-colors shrink-0 ${chip}`}
         >
-          <Linkedin className="h-4 w-4" />
+          <LinkedinIcon className="h-4 w-4" />
         </a>
       )}
     </div>
