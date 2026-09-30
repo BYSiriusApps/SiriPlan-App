@@ -26,12 +26,12 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
     keywords: ["bekliyor", "onaylandı", "onayla", "tamamlandı", "gelmedi", "no-show", "noshow", "randevu durum", "durum ne"],
     answer:
       "Randevu durumu butonları:\n" +
-      "• Bekliyor — online'dan talep edildi veya yeni oluşturuldu, henüz onaylanmadı.\n" +
+      "• Bekliyor — online'dan talep edildi veya yeni oluşturuldu, henüz onaylanmadı (Bekleyen İstekler sayfasında da görünür).\n" +
       "• Onayla / Onaylandı — randevu kesinleşti, takvime düştü.\n" +
       "• Tamamlandı — hizmet verildi; bu adımda ödeme yöntemi/bahşiş girilir ve Gelir-Gider'e otomatik işlenir. Bir randevu Tamamlandı olarak işaretlenmediği sürece Gelir-Gider hesaplamalarına hiç dahil edilmez.\n" +
       "• Gelmedi — müşteri randevusuna gelmedi (no-show), müşteri skorunu düşürür.\n" +
       "• İptal Et — randevu iptal edilir, ayarlarınıza göre müşteriye otomatik iptal bildirimi gider.\n" +
-      "Durumu, randevu detay sayfasındaki veya liste görünümündeki hızlı işlem butonlarından değiştirebilirsiniz.",
+      "Durumu, randevu detay sayfasındaki veya liste görünümündeki hızlı işlem butonlarından değiştirebilirsiniz. Tamamlandı/İptal/Gelmedi olarak kapanmış bir randevuyu geri açmak yalnızca işletme sahibi ve yöneticiye açıktır (detaydaki 'Durumu Düzelt'); 'Durum Geçmişi' kimin ne zaman değiştirdiğini gösterir.",
   },
   {
     keywords: ["aktif", "inaktif", "pasif", "pasife al", "devre dışı"],
@@ -79,7 +79,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["otomatik onay", "online randevu otomatik", "elle onay", "onay bekliyor online"],
     answer:
-      "Ayarlar → \"Online Randevu Ayarları\"ndan, online randevu sayfanızdan gelen taleplerin otomatik onaylanmasını açabilirsiniz (Pro veya Business planında). Kapalıyken online talepler önce \"Bekliyor\" durumunda kuyruğa düşer, siz onaylayana kadar takvime işlenmez.",
+      "Ayarlar → \"Online Randevu Ayarları\"ndan, online randevu sayfanızdan gelen taleplerin otomatik onaylanmasını açabilirsiniz (tüm planlarda). Yeni hesaplarda bu seçenek kapalı gelir. Kapalıyken online talepler önce \"Bekliyor\" durumunda kuyruğa düşer, siz onaylayana kadar takvime işlenmez.",
   },
   {
     keywords: ["müşteri dili", "müşterinin dili", "randevu sayfası dil", "online sayfa dil", "hangi dilde açılır"],
@@ -133,7 +133,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
     answer:
       "İki katmanlı yetki sistemi var:\n" +
       "1. Ayarlar → Personel Yetkileri: tüm personel için genel kurallar (örn. müşteri telefon numaralarını görebilme).\n" +
-      "2. Her personelin kendi detay sayfasında Rol (Personel — temel erişim / Yönetici — genişletilmiş erişim) ve tekil izinler: müşterileri görme/düzenleme, raporları görme, hizmetleri düzenleme, personeli yönetme, gelir/gideri görme, kampanyaları yönetme, randevu oluşturma/düzenleme/iptal etme.\n" +
+      "2. Her personelin kendi detay sayfasında Rol (Personel — temel erişim / Yönetici — genişletilmiş erişim) ve tekil izinler: müşterileri görme/düzenleme, raporları görme, hizmetleri düzenleme, personeli yönetme, gelir/gideri görme, kampanyaları yönetme, randevu oluşturma/düzenleme/iptal etme. Not: randevu oluşturma/düzenleme/iptal ve müşteri düzenleme kutuları herkeste sabit açıktır; müşteri silme, personel yönetimi, ayarlar, hizmet düzenleme, rapor, gelir-gider ve kampanya izinleri gerçekten kısıtlar. Personel yönetimi yetkisini yalnızca işletme sahibi verebilir.\n" +
       "Rol değiştirmek varsayılan izinleri sıfırlar, altta ince ayar yapabilirsiniz.",
   },
   {
@@ -147,7 +147,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
     keywords: ["whatsapp", "bildirim", "sms", "e-posta bildirim", "mail bildirim"],
     answer:
       "Ayarlar → Bildirimler'den WhatsApp (randevu oluşturulunca/revize edilince/iptal edilince ayrı ayrı açılıp kapatılır), SMS (Netgsm/VatanSMS/İletimerkezi sağlayıcılarından biriyle), e-posta ve Telegram kanallarını yönetebilirsiniz. " +
-      "Hatırlatma mesajının randevudan kaç saat önce gideceğini भी aynı sayfadan seçersiniz.",
+      "Hatırlatma mesajının randevudan kaç saat önce gideceğini de aynı sayfadan seçersiniz.",
   },
   {
     keywords: ["bahşiş", "ödeme yöntemi", "nakit mi kart mı", "ekstra gelir"],
@@ -197,11 +197,6 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Bekleme Listesi (Pro/Business) dolu saat isteyen müşterileri sıraya almanızı sağlar; sayfadan müşteri, hizmet ve tercih edilen zamanı kaydedin, yer açıldığında bilgilendirin. Onay bekleyen randevular her planda aynı sayfadan onaylanır.",
   },
   {
-    keywords: ["ana ekrana ekle", "uygulamayı yükle", "pwa", "ana ekran"],
-    answer:
-      "iPhone'da Safari → Paylaş → Ana Ekrana Ekle; Android'de Chrome menüsü → Uygulamayı yükle. Adım adım anlatım Kullanım Kılavuzu → Hızlı Başlangıç sayfasındaki kartta var.",
-  },
-  {
     keywords: ["kılavuz", "rehber", "kullanım kılavuzu", "nasıl kullanılır", "nasıl yapılır", "video", "sunum"],
     answer:
       "SiriPlan kullanım kılavuzuna, 24 slaytlık interaktif sunuma ve detaylı adım adım kurulum rehberlerine panelin sol menüsündeki 'Kullanım Kılavuzu' sayfasından (/dashboard/rehber) ulaşabilirsiniz. Bu sayfa içerikleri kopyalama korumalıdır.",
@@ -212,7 +207,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Hesabınızın planını ve kullanım limitlerini Ayarlar → Abonelik sayfasından görebilirsiniz. Mobil mağaza politikaları nedeniyle iOS/Android uygulamaları içinden doğrudan ödeme yapılamamaktadır; ödemelerinizi web tarayıcınızdan yapabilirsiniz. " +
       "Destek için: " + CONTACT_LINE,
     answer:
-      "Planlarımız Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar. " +
+      "Planlarımız Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar; deneme boyunca Pro seviyesindeki araçlar (sesli asistan, bekleme listesi, kampanya, website modu, müşteri skoru, PDF rapor) açıktır. Starter: 1 şube, 8 personel, stok/barkod, paket takibi, gelir-gider & KDV, WhatsApp hatırlatma. Pro: sınırsız personel + yukarıdaki araçlar. Business: 5 şubeye kadar + AI WhatsApp/IG asistanı. " +" +
       "Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görebilirsiniz. " +
       "Aboneliğiniz SiriPlan hesabınıza bağlıdır; plan yükseltme, yenileme veya faturalandırma sorularınız için: " + CONTACT_LINE,
   },
@@ -224,7 +219,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["takvim", "gün görünüm", "hafta görünüm"],
     answer:
-      "Takvim sayfası tüm randevuları gün/hafta bazlı, her personele atanmış renk koduyla gösterir. Boş bir saate tıklayarak hızlıca randevu oluşturabilir, mevcut bir randevuyu sürükleyerek farklı bir saate/personele taşıyabilirsiniz.",
+      "Takvim sayfası tüm randevuları gün/hafta bazlı, her personele atanmış renk koduyla, küçültülmüş satırlı kompakt tablo görünümünde gösterir; personel sayfasında verdiğiniz grup etiketleri (Saç, Tırnak vb.) takvimin üstünde filtre çipi olarak çıkar. Boş bir saate tıklayarak hızlıca randevu oluşturabilir, mevcut bir randevuyu sürükleyerek farklı bir saate/personele taşıyabilirsiniz.",
   },
   {
     keywords: ["personel", "davet", "çalışan ekle"],
@@ -234,7 +229,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["müşteri"],
     answer:
-      "Müşteriler sayfasında tüm müşterileriniz ve geçmiş randevu sayıları listelenir. Yeni Müşteri ekranından manuel ekleyebilir, detay sayfasından geçmiş randevu ve notları görebilirsiniz.",
+      "Müşteriler sayfasında üstteki özet şeridi toplam kaydı, bu ay gelenleri ve kişi başı ortalama ciroyu gösterir; 'Tümü / Son 30 Gün / Riskli-Uzaklaşan' filtreleriyle listeyi daraltır, satırdaki 'Randevu Ver' ile doğrudan randevu oluşturabilirsiniz. Yeni Müşteri ekranından manuel ekleyebilir, detay sayfasından geçmiş randevu ve notları görebilirsiniz. Renkli müşteri skoru rozeti Pro/Business planlarındadır.",
   },
   {
     keywords: ["hizmet"],
@@ -275,7 +270,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["ana ekrana ekle", "telefona yükle", "uygulama olarak", "pwa"],
     answer:
-      "Ayarlar sayfasındaki \"Uygulamayı telefona ekle\" kartından, tarayıcınızın \"Ana ekrana ekle\" özelliğiyle SiriPlan'ı telefonunuza bir uygulama gibi kurabilirsiniz — ayrı bir mağaza indirmesi gerekmez.",
+      "Ayarlar sayfasındaki \"Uygulamayı telefona ekle\" kartından, tarayıcınızın \"Ana ekrana ekle\" özelliğiyle SiriPlan'ı telefonunuza bir uygulama gibi kurabilirsiniz — ayrı bir mağaza indirmesi gerekmez. iPhone'da Safari → Paylaş → Ana Ekrana Ekle; Android'de Chrome menüsü → Uygulamayı yükle. Ayrıca Google Play ve App Store uygulamaları da mevcuttur.",
   },
 ];
 
