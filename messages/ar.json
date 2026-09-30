@@ -2063,8 +2063,19 @@
     "proposeSubmit": "اقتراح",
     "proposalPendingBadge": "تم إرسال الاقتراح — بانتظار رد العميل ({datetime})",
     "proposalRejectedBadge": "رفض العميل الموعد المقترح — اقترح موعدًا آخر أو ألغِ الطلب",
+    "cellDetailLabel": "تفاصيل الخلية",
+    "callCustomer": "اتصل بالعميل",
+    "occupancyLabel": "الإشغال التقديري",
+    "weeklyCapacityTitle": "سعة الأسبوع والإيرادات",
+    "dailyCapacityTitle": "سعة اليوم والإيرادات",
+    "staffCapacityTitle": "سعة الموظفين والإيرادات",
+    "monthlyCapacityTitle": "سعة الشهر والإيرادات",
+    "excelGridHint": "جدول إكسل: مرر الأسبوع بالكامل أفقيًا",
+    "scrollRight": "مرر لليمين",
+    "dailyAgendaTitle": "المواعيد حسب اليوم",
     "homePage": {
       "yourBusiness": "منشأتك",
+      "liveHeaderLabel": "لوحة الصالون المباشرة",
       "greeting": "مرحباً {name}.",
       "tomorrow": "غداً",
       "activeAppointments": "المواعيد النشطة",
@@ -2089,6 +2100,8 @@
       "weeklyStarLabel": "نجم الأسبوع: {name}",
       "staffStatsLabel": "{count} موعد · ₺{revenue}",
       "newApptButton": "موعد",
+      "newApptButtonLong": "إنشاء موعد جديد",
+      "micButtonAria": "إنشاء موعد بالصوت",
       "performanceReportTitle": "تقرير أدائي",
       "monthlyEarningsLabel": "إجمالي المبلغ الذي حققته هذا الشهر",
       "completedApptsCountLabel": "{count} موعد مكتمل",
@@ -2100,6 +2113,8 @@
         "failed": "فشل"
       },
       "dailyCalendar": "التقويم (اليوم)",
+      "activeCountBadge": "{count} نشط",
+      "staffPrefixLabel": "المختص: {name}",
       "todayScheduleEmpty": "لا توجد مواعيد مجدولة اليوم",
       "newCustomersTitle": "عملاء جدد",
       "newCustomersThisMonth": "{count} عميل جديد · هذا الشهر",
@@ -2213,7 +2228,9 @@
       "sendFailed": "تعذر الإرسال",
       "smsSendFailed": "تعذر إرسال الرسالة النصية",
       "approveFailed": "تعذّر تأكيد الموعد",
-      "toastApprovedNotifying": "تم تأكيد الموعد، ويجري إرسال إشعار إلى العميل"
+      "toastApprovedNotifying": "تم تأكيد الموعد، ويجري إرسال إشعار إلى العميل",
+      "toastRejected": "تم رفض الطلب",
+      "rejectFailed": "تعذّر الرفض"
     },
     "widgetGrid": {
       "customize": "تخصيص",

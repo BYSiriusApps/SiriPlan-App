@@ -2063,8 +2063,19 @@
     "proposeSubmit": "Предложить",
     "proposalPendingBadge": "Предложение отправлено — ожидается ответ клиента ({datetime})",
     "proposalRejectedBadge": "Клиент отклонил предложенное время — предложите снова или отмените",
+    "cellDetailLabel": "Детали ячейки",
+    "callCustomer": "Позвонить клиенту",
+    "occupancyLabel": "Примерная загрузка",
+    "weeklyCapacityTitle": "Недельная загрузка и выручка",
+    "dailyCapacityTitle": "Дневная загрузка и выручка",
+    "staffCapacityTitle": "Загрузка персонала и выручка",
+    "monthlyCapacityTitle": "Месячная загрузка и выручка",
+    "excelGridHint": "Таблица Excel: прокрутите всю неделю по горизонтали",
+    "scrollRight": "Прокрутить вправо",
+    "dailyAgendaTitle": "Записи по дням",
     "homePage": {
       "yourBusiness": "Ваш бизнес",
+      "liveHeaderLabel": "Живая панель салона",
       "greeting": "Здравствуйте, {name}.",
       "tomorrow": "Завтра",
       "activeAppointments": "Активные записи",
@@ -2089,6 +2100,8 @@
       "weeklyStarLabel": "Звезда недели: {name}",
       "staffStatsLabel": "{count} записей · ₺{revenue}",
       "newApptButton": "Запись",
+      "newApptButtonLong": "Новая запись",
+      "micButtonAria": "Создать запись голосом",
       "performanceReportTitle": "Мой отчёт об эффективности",
       "monthlyEarningsLabel": "Общая сумма, которую я заработал(а) в этом месяце",
       "completedApptsCountLabel": "{count} завершённых записей",
@@ -2100,6 +2113,8 @@
         "failed": "Ошибка"
       },
       "dailyCalendar": "Календарь (сегодня)",
+      "activeCountBadge": "{count} активно",
+      "staffPrefixLabel": "Специалист: {name}",
       "todayScheduleEmpty": "На сегодня записей нет",
       "newCustomersTitle": "Новые клиенты",
       "newCustomersThisMonth": "{count} новых клиентов · в этом месяце",
@@ -2213,7 +2228,9 @@
       "sendFailed": "Не удалось отправить",
       "smsSendFailed": "Не удалось отправить SMS",
       "approveFailed": "Не удалось подтвердить запись",
-      "toastApprovedNotifying": "Запись подтверждена, клиенту отправляется уведомление"
+      "toastApprovedNotifying": "Запись подтверждена, клиенту отправляется уведомление",
+      "toastRejected": "Заявка отклонена",
+      "rejectFailed": "Не удалось отклонить"
     },
     "widgetGrid": {
       "customize": "Настроить",

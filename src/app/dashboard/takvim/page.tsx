@@ -94,7 +94,7 @@ export default async function TakvimPage({
   const [{ data: appointments }, { data: staff }, { data: services }, { data: timeOff }] = await Promise.all([
     supabase
       .from("appointments")
-      .select("id, status, customer_name, customer_phone, customer_id, appointment_at, duration_minutes, staff_id, service:services(name)")
+      .select("id, status, customer_name, customer_phone, customer_id, appointment_at, duration_minutes, staff_id, price, service:services(name)")
       .eq("org_id", member.org_id)
       .gte("appointment_at", queryStart.toISOString())
       .lt("appointment_at", queryEnd.toISOString())
@@ -136,7 +136,7 @@ export default async function TakvimPage({
   const slotMinutes = Number(settingsJson.booking_slot_minutes) || 15;
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-3 sm:p-6 space-y-4">
       <TakvimHeader
         orgId={member.org_id}
         staff={(staff ?? []).map((s) => ({
@@ -187,9 +187,11 @@ export default async function TakvimPage({
             status: a.status,
             customer_name: a.customer_name,
             customer_id: (a as { customer_id?: string | null }).customer_id ?? null,
+            customer_phone: (a as { customer_phone?: string | null }).customer_phone ?? null,
             appointment_at: a.appointment_at,
             duration_minutes: a.duration_minutes,
             staff_id: a.staff_id,
+            price: (a as { price?: number | null }).price ?? null,
             service: (a as unknown as { service?: { name: string } | null }).service ?? null,
           }))}
           timeOff={(timeOff || []).map((t) => ({

@@ -8,7 +8,7 @@ import { tr, enUS, ru, ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import {
   X, CheckCircle2, XCircle, AlertCircle, Loader2, ExternalLink,
-  ChevronLeft, ChevronRight, Users,
+  ChevronLeft, ChevronRight, Users, CalendarDays, Phone, Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { isTerminalStatus } from "@/lib/appointment-status";
+import { ContactLinks } from "./ContactLinks";
 
 export type CalendarView = "day" | "staff" | "week" | "month";
 
@@ -34,18 +35,16 @@ const WEEKDAY_REF_DATES = [
   "2024-01-05", "2024-01-06", "2024-01-07",
 ];
 
-// Personel renk paleti — her personel dizindeki rengini alır
+// Personel renk paleti — 7 renkli tema, her personel dizindeki sırasına göre
+// rengini alır (7'den fazla personelde döngüsel tekrar eder).
 const STAFF_COLORS = [
-  { solid: "#6366f1", soft: "rgba(99,102,241,0.16)", border: "rgba(99,102,241,0.55)" },   // indigo
-  { solid: "#ec4899", soft: "rgba(236,72,153,0.16)", border: "rgba(236,72,153,0.55)" },   // pink
-  { solid: "#10b981", soft: "rgba(16,185,129,0.16)", border: "rgba(16,185,129,0.55)" },   // emerald
-  { solid: "#f59e0b", soft: "rgba(245,158,11,0.18)", border: "rgba(245,158,11,0.6)" },    // amber
-  { solid: "#06b6d4", soft: "rgba(6,182,212,0.16)", border: "rgba(6,182,212,0.55)" },     // cyan
-  { solid: "#8b5cf6", soft: "rgba(139,92,246,0.16)", border: "rgba(139,92,246,0.55)" },   // violet
-  { solid: "#ef4444", soft: "rgba(239,68,68,0.15)", border: "rgba(239,68,68,0.5)" },      // red
-  { solid: "#84cc16", soft: "rgba(132,204,22,0.18)", border: "rgba(132,204,22,0.55)" },   // lime
-  { solid: "#f97316", soft: "rgba(249,115,22,0.16)", border: "rgba(249,115,22,0.55)" },   // orange
-  { solid: "#14b8a6", soft: "rgba(20,184,166,0.16)", border: "rgba(20,184,166,0.55)" },   // teal
+  { solid: "#7C3AED", soft: "rgba(124,58,237,0.28)", border: "rgba(124,58,237,0.75)" },   // violet
+  { solid: "#BE185D", soft: "rgba(190,24,93,0.28)", border: "rgba(190,24,93,0.75)" },     // berry
+  { solid: "#0D9488", soft: "rgba(13,148,136,0.28)", border: "rgba(13,148,136,0.75)" },   // teal
+  { solid: "#0284C7", soft: "rgba(2,132,199,0.28)", border: "rgba(2,132,199,0.75)" },     // sky
+  { solid: "#D97706", soft: "rgba(217,119,6,0.30)", border: "rgba(217,119,6,0.78)" },    // amber
+  { solid: "#059669", soft: "rgba(5,150,105,0.28)", border: "rgba(5,150,105,0.75)" },     // emerald
+  { solid: "#4F46E5", soft: "rgba(79,70,229,0.28)", border: "rgba(79,70,229,0.75)" },     // indigo
 ];
 
 interface Appointment {
@@ -53,9 +52,11 @@ interface Appointment {
   status: string;
   customer_name: string;
   customer_id?: string | null;
+  customer_phone?: string | null;
   appointment_at: string;
   duration_minutes: number;
   staff_id: string;
+  price?: number | null;
   service?: { name: string } | null;
 }
 
@@ -192,6 +193,14 @@ export function UnifiedCalendar({
   const popoverRef = useRef<HTMLDivElement>(null);
   const [popoverPos, setPopoverPos] = useState<{ left: number; top: number } | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  // "Hücre Detayı" kartı — son tıklanan randevu, popover kapansa bile takvimin
+  // altında görünmeye devam eder (excel-tablosu mockup'ındaki kalıcı detay kartı).
+  // Salt görsel/bilgilendirici: mevcut popover'ın hiçbir davranışını değiştirmez,
+  // aynı tıklama olayına ek olarak ayrıca bu state'i de günceller.
+  const [lastSelected, setLastSelected] = useState<Appointment | null>(null);
+  // Hafta görünümünün altındaki gün-bazlı randevu listesinde tek seferde bir
+  // günün açık olması (akordeon) — mobilde 7 günün tamamı aynı anda dökülmesin.
+  const [expandedAgendaDay, setExpandedAgendaDay] = useState<string | null>(null);
   // Çoklu personel seçimi. Boş küme = "tümü". Staff rolü kendine kilitli.
   // Set yerine sıralı diziyle tutmak, useMemo bağımlılıklarında referans
   // kıyası yapılabilsin diye string'e serilenebilir olmasını sağlar.
@@ -251,8 +260,8 @@ export function UnifiedCalendar({
       if (s.color && /^#[0-9a-fA-F]{6}$/.test(s.color)) {
         map.set(s.id, {
           solid: s.color,
-          soft: hexToRgba(s.color, 0.16),
-          border: hexToRgba(s.color, 0.55),
+          soft: hexToRgba(s.color, 0.28),
+          border: hexToRgba(s.color, 0.75),
         });
       } else {
         map.set(s.id, STAFF_COLORS[i % STAFF_COLORS.length]);
@@ -263,12 +272,37 @@ export function UnifiedCalendar({
 
   // Personel sütununun tamamına verilen çok soluk renk zemini — randevu
   // bloklarının önde kalması için düşük opaklık.
-  const columnTintOf = (id: string) => hexToRgba(colorOf(id).solid, 0.07);
+  const columnTintOf = (id: string) => hexToRgba(colorOf(id).solid, 0.11);
 
   const staffName = useMemo(() => {
     const map = new Map(staff.map((s) => [s.id, s.full_name]));
     return (id: string) => map.get(id) ?? "";
   }, [staff]);
+
+  // Avatar rozetlerinde kullanılan kısa baş harfler (ör. "Selin Üstün" → "SÜ")
+  function initials(name: string) {
+    return name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((p) => p[0]?.toLocaleUpperCase(locale) ?? "")
+      .join("");
+  }
+
+  // Personel filtre çiplerinde gösterilen "o günkü randevu sayısı" — seçili
+  // personel filtresinden BAĞIMSIZ, görünen tarih aralığındaki (gridDays)
+  // ham randevu sayısı.
+  const gridDaysJoined = gridDays.join(",");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const gridDaysSet = useMemo(() => new Set(gridDays), [gridDaysJoined]);
+  function apptCountOnGrid(staffId: string) {
+    let n = 0;
+    for (const a of appointments) {
+      if (a.staff_id !== staffId) continue;
+      if (gridDaysSet.has(format(new Date(a.appointment_at), "yyyy-MM-dd"))) n++;
+    }
+    return n;
+  }
 
   function handleGridClick(e: React.MouseEvent<HTMLDivElement>, dayStr: string, staffIdOverride?: string) {
     if (justDraggedRef.current) {
@@ -396,6 +430,10 @@ export function UnifiedCalendar({
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gridDaysKey]);
+  useEffect(() => {
+    setExpandedAgendaDay(gridDays.includes(today) ? today : (gridDays[0] ?? null));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridDaysKey]);
 
   async function updateStatus(apptId: string, newStatus: string) {
     setUpdatingId(apptId);
@@ -459,6 +497,7 @@ export function UnifiedCalendar({
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setPopoverPos(null); // yeni konum ölçülene kadar gizle — eski yerde belirmesin
     setPopover({ appt, x: rect.right + 8, y: rect.top });
+    setLastSelected(appt);
   }
 
   const gridHeight = hours.length * HOUR_PX;
@@ -466,7 +505,7 @@ export function UnifiedCalendar({
   // dakika karşılığı (bkz. apptBlockStyle'daki aynı minimum).
   const gridStartMin = hours[0] * 60;
   const gridEndMin = (hours[hours.length - 1] + 1) * 60;
-  const minVisualMin = ((view === "day" || view === "staff" ? 32 : 24) / HOUR_PX) * 60;
+  const minVisualMin = ((view === "day" ? 32 : 24) / HOUR_PX) * 60;
 
   // ── Sürükle-bırak: randevuyu farklı bir saate (hafta/gün görünümü) veya
   // farklı bir güne (yalnızca hafta görünümü) taşımak için. Personel/lane
@@ -643,6 +682,51 @@ export function UnifiedCalendar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleAppointments, now]);
 
+  // Görünen aralığın tahmini cirosu — iptal edilenler zaten appointments
+  // sorgusuna hiç gelmiyor (bkz. takvim/page.tsx .neq("status","iptal")),
+  // "gelmedi" de dahil edilmez (gerçekleşmemiş ciro).
+  const periodRevenue = useMemo(() => {
+    let total = 0;
+    for (const a of visibleAppointments) {
+      if (a.status === "gelmedi") continue;
+      if (a.price != null) total += Number(a.price);
+    }
+    return total;
+  }, [visibleAppointments]);
+
+  // Görünen aralık için tahmini doluluk % — gerçek verilerden hesaplanır
+  // (uydurma bir sayı değil): kapasite = kapalı olmayan her gün × izinli
+  // olmayan her personel × açık saat sayısı × 60dk; doluluk = iptal/gelmedi
+  // dışındaki randevuların toplam süresi. Personel izni/işletme kapalı günü
+  // hesaba katıldığı için gerçekçi bir üst sınır verir.
+  const periodCapacityMinutes = useMemo(() => {
+    let total = 0;
+    for (const dayStr of gridDays) {
+      if (orgClosedOn(dayStr)) continue;
+      for (const s of staffColumns) {
+        if (staffOffOn(dayStr, s.id)) continue;
+        total += hours.length * 60;
+      }
+    }
+    return total;
+  }, [gridDays, staffColumns, hours, orgClosedOn, staffOffOn]);
+  const periodOccupiedMinutes = useMemo(() => {
+    let total = 0;
+    for (const a of visibleAppointments) {
+      if (a.status === "gelmedi") continue;
+      // Doluluk %'nin paydası (periodCapacityMinutes) yalnızca gridDays'i
+      // kapsıyor — pay da aynı güne ait olmalı, aksi halde appointments
+      // prop'unun (bkz. sayfa sorgusu) görünenden geniş tarih aralığı
+      // taşıması oranı yapay şekilde şişirir.
+      if (!gridDaysSet.has(format(new Date(a.appointment_at), "yyyy-MM-dd"))) continue;
+      total += a.duration_minutes;
+    }
+    return total;
+  }, [visibleAppointments, gridDaysSet]);
+  const occupancyPct = periodCapacityMinutes > 0
+    ? Math.min(100, Math.round((periodOccupiedMinutes / periodCapacityMinutes) * 100))
+    : 0;
+
   // Kırmızı "şu an" çizgisi (bugün görünürken)
   const nowMin = now.getHours() * 60 + now.getMinutes();
   const nowTop = ((nowMin - hours[0] * 60) / 60) * HOUR_PX;
@@ -662,7 +746,7 @@ export function UnifiedCalendar({
     const rawTop = ((startMin - hours[0] * 60) / 60) * HOUR_PX;
     // Not: yüksekliği gerçek süreden fazla şişirmiyoruz — art arda kısa randevular
     // birbirinin üzerine taşar. Bunun yerine kısa kutularda 2. satır (hizmet) gizlenir.
-    let height = Math.max(view === "day" || view === "staff" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
+    let height = Math.max(view === "day" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
     // Aynı şeritteki bir sonraki randevu bu minimumdan önce başlıyorsa (ör. art arda
     // 15dk'lık randevular ya da grid dışı/hatalı saatli bir randevu), kutuyu onun
     // üstüne taşırmayacak şekilde kırp — aksi halde aslında çakışmayan randevular
@@ -689,7 +773,7 @@ export function UnifiedCalendar({
     const beingDragged = dragPreview?.apptId === appt.id;
     // Kutu çok kısaysa (kısa süreli randevu) 2. satırı (hizmet) gizle —
     // saat + isim (başlık) her koşulda kesilmeden, üst üste binmeden tam görünsün.
-    const canShowServiceLine = height >= (view === "day" || view === "staff" ? 40 : 32);
+    const canShowServiceLine = height >= (view === "day" ? 40 : 32);
 
     return (
       <button
@@ -703,7 +787,7 @@ export function UnifiedCalendar({
           top, height,
           left: `calc(${lane * width}% + 2px)`,
           width: `calc(${width}% - 4px)`,
-          background: done ? "rgba(16,185,129,0.18)" : noShow ? "rgba(245,158,11,0.22)" : c.soft,
+          background: done ? "rgba(16,185,129,0.32)" : noShow ? "rgba(245,158,11,0.36)" : c.soft,
           borderLeft: `3px solid ${c.solid}`,
           borderTop: `1px solid ${live ? c.solid : c.border}`,
           borderRight: `1px solid ${live ? c.solid : c.border}`,
@@ -714,36 +798,138 @@ export function UnifiedCalendar({
         }}
         className={cn(
           "absolute rounded-md overflow-hidden cursor-pointer hover:shadow-md transition-shadow text-left z-10 select-none",
-          view === "day" || view === "staff" ? "px-2 py-1 text-[12.5px] leading-snug" : "px-1.5 py-0.5 text-[11.5px] leading-tight",
+          view === "day" ? "px-2 py-1 text-[12.5px] leading-snug" : "px-1.5 py-0.5 text-[11.5px] leading-tight",
           pending && "border-dashed"
         )}
       >
-        <p className="font-bold truncate" style={{ color: c.solid }}>
+        {/* Kutu rengi (arka plan/kenarlık) personelin rengini taşır; içerideki
+            saat/süre/müşteri adı ise okunabilirlik için her zaman koyu/siyah —
+            personel adı ayrı bir span'de kendi renginde gösterilir. */}
+        <p className="font-bold truncate text-foreground">
           {live && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-1 align-middle" />}
           {done && <span className="mr-0.5">✓</span>}
           {noShow && <span className="mr-0.5">⚠</span>}
           {format(new Date(appt.appointment_at), "HH:mm")} {appt.customer_name}
         </p>
         {canShowServiceLine && (
-          <p className="truncate font-medium opacity-85">
+          <p className="truncate font-bold text-foreground">
             {live ? `● ${t("liveNow")} · ` : ""}
             {appt.service?.name}
-            {opts?.showStaff ? ` · ${staffName(appt.staff_id)}` : ""}
+            {appt.duration_minutes ? ` · ${appt.duration_minutes}${t("minutesShort")}` : ""}
+            {opts?.showStaff && staffName(appt.staff_id) && (
+              <span> · <span style={{ color: c.solid }}>{staffName(appt.staff_id)}</span></span>
+            )}
           </p>
         )}
       </button>
     );
   }
 
+  // ─── Gün ajandası: seçili günün randevuları müşteri bazlı, iletişim
+  // bilgisi ve randevu detaylarıyla (hizmet, tutar, telefon, personel) ───
+  // day/staff/month görünümlerinin ALTINDA ortak kullanılır. Bugünse
+  // "en yakın randevudan itibaren" sıralanır: henüz geçmemiş randevular
+  // saate göre artan, ardından geçmiş randevular.
+  function renderDayAgenda(dayStr: string) {
+    const dayAppts = (byDay[dayStr] || [])
+      .slice()
+      .sort((a, b) => a.appointment_at.localeCompare(b.appointment_at));
+    const isTodayDay = dayStr === today;
+    const ordered = isTodayDay
+      ? [
+          ...dayAppts.filter((a) => new Date(a.appointment_at).getTime() + a.duration_minutes * 60_000 >= now.getTime()),
+          ...dayAppts.filter((a) => new Date(a.appointment_at).getTime() + a.duration_minutes * 60_000 < now.getTime()),
+        ]
+      : dayAppts;
+
+    if (ordered.length === 0) {
+      return <p className="px-4 py-6 text-sm text-muted-foreground text-center">{t("monthDayEmpty")}</p>;
+    }
+
+    return (
+      <div className="divide-y divide-border/50">
+        {ordered.map((a) => {
+          const c = colorOf(a.staff_id);
+          const past = isTodayDay && new Date(a.appointment_at).getTime() + a.duration_minutes * 60_000 < now.getTime();
+          return (
+            <div
+              key={a.id}
+              role="button"
+              tabIndex={0}
+              onClick={(e) => openPopover(e, a)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openPopover(e as unknown as React.MouseEvent, a); }}
+              className={cn(
+                "flex items-center gap-2.5 px-3.5 py-3 hover:bg-accent/40 transition-colors cursor-pointer",
+                past && "opacity-55"
+              )}
+            >
+              <div className="flex flex-col items-center justify-center w-12 shrink-0">
+                <span className="text-sm font-bold tabular-nums" style={{ color: c.solid }}>
+                  {format(new Date(a.appointment_at), "HH:mm")}
+                </span>
+                <span className="text-[10px] text-muted-foreground font-bold">{a.duration_minutes}{t("minutesShort")}</span>
+              </div>
+              <span
+                className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
+                style={{ background: c.solid, color: "#fff" }}
+              >
+                {initials(a.customer_name)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  {a.customer_id ? (
+                    <Link
+                      href={`/dashboard/musteriler/${a.customer_id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="font-bold text-sm truncate hover:underline"
+                    >
+                      {a.customer_name}
+                    </Link>
+                  ) : (
+                    <span className="font-bold text-sm truncate">{a.customer_name}</span>
+                  )}
+                  {a.status === "tamamlandi" && <span className="text-xs shrink-0">✓</span>}
+                  {a.status === "gelmedi" && <span className="text-xs shrink-0">⚠</span>}
+                </div>
+                <p className="text-xs text-muted-foreground truncate font-bold">
+                  {a.service?.name}
+                  {staffName(a.staff_id) ? ` · ${staffName(a.staff_id)}` : ""}
+                  {a.price != null ? ` · ₺${Number(a.price).toLocaleString("tr-TR")}` : ""}
+                </p>
+                {a.customer_phone && (
+                  <p className="text-[11px] text-muted-foreground truncate font-bold">{a.customer_phone}</p>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span
+                  className="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded-full font-bold border"
+                  style={{ background: c.soft, borderColor: c.border, color: c.solid }}
+                >
+                  {statusLabel(a.status)}
+                </span>
+                {a.customer_phone && <ContactLinks phone={a.customer_phone} size="md" />}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Hafta/personel görünümünde yatay kaydırmada saat sütunu ekranda sabit
+  // kalır (excel tablosu gibi "dondurulmuş sütun") — kaydırırken hangi saate
+  // baktığını kaybetmemek için.
   const hourRail = (
-    <div className="border-r bg-muted/20">
-      <div className="h-10 border-b" />
+    <div className={cn("border-r bg-muted/20", (view === "week" || view === "staff") && "sticky left-0 z-20 shadow-[2px_0_6px_-1px_rgba(0,0,0,0.08)]")}>
+      <div className={cn("border-b bg-muted/20 flex items-center justify-center text-[9px] font-bold text-muted-foreground tracking-wide", view === "staff" ? "h-14" : "h-10")}>
+        {(view === "week" || view === "staff") && "SAAT"}
+      </div>
       {hours.map((h) => (
         <div
           key={h}
           className={cn(
-            "border-b flex items-start justify-center pt-0.5 text-muted-foreground",
-            view === "day" || view === "staff" ? "text-xs font-medium pt-1.5" : "text-[10px]"
+            "border-b flex items-start justify-center pt-0.5 text-muted-foreground bg-muted/20 font-mono font-bold",
+            view === "day" || view === "staff" ? "text-xs pt-1.5" : "text-[10px]"
           )}
           style={{ height: HOUR_PX }}
         >
@@ -759,7 +945,12 @@ export function UnifiedCalendar({
   const slotLines = (
     <>
       {hours.map((h) => (
-        <div key={h} className="border-b border-border/60" style={{ height: HOUR_PX }}>
+        <div key={h} className="border-b border-border/60 relative" style={{ height: HOUR_PX }}>
+          {/* Boş hücrelerde excel tablosu hissi veren "+" ipucu — salt görsel,
+              tıklama zaten üst kapsayıcının onClick'i ile çalışıyor. */}
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground/20">
+            <Plus className="h-3 w-3" />
+          </span>
           {Array.from({ length: divisionsPerHour - 1 }, (_, i) => (
             <div
               key={i}
@@ -773,66 +964,159 @@ export function UnifiedCalendar({
     </>
   );
 
+  // Görünen aralığın toplam randevu + tahmini ciro + tahmini doluluk özeti —
+  // salt bilgilendirici, hiçbir aksiyon tetiklemez. Başlık görünüme göre
+  // değişir (mockup'taki "Haftalık Kapasite & Ciro Barı" hafta görünümünde
+  // birebir aynı metinle görünür).
+  const capacityTitle =
+    view === "week" ? t("weeklyCapacityTitle")
+    : view === "day" ? t("dailyCapacityTitle")
+    : view === "staff" ? t("staffCapacityTitle")
+    : t("monthlyCapacityTitle");
+  const periodSummaryBar = (
+    <div className="rounded-2xl bg-gradient-to-r from-foreground to-primary/80 text-background p-3.5 shadow-md space-y-2.5">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-bold text-background/80">{capacityTitle}</span>
+        <span className="text-[11px] font-bold text-background/80">{t("occupancyLabel")}: %{occupancyPct}</span>
+      </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <span className="text-background/60 text-[10px] block">{t("apptCountLabel", { count: visibleAppointments.length })}</span>
+          <span className="font-extrabold text-lg">{visibleAppointments.length}</span>
+        </div>
+        <div className="text-right">
+          <span className="text-background/60 text-[10px] block">Tahmini Ciro</span>
+          <span className="text-background font-extrabold text-lg font-mono">₺{periodRevenue.toLocaleString("tr-TR")}</span>
+        </div>
+      </div>
+      <div className="h-1.5 rounded-full bg-background/20 overflow-hidden">
+        <div className="h-full rounded-full bg-background/70" style={{ width: `${occupancyPct}%` }} />
+      </div>
+    </div>
+  );
+
+  // "Hücre Detayı" — son tıklanan randevunun takvimin altında kalıcı özeti
+  // (mockup'taki bottom card). Randevu blokları/ajanda satırları üzerindeki
+  // mevcut tıklama davranışı (popover açma) DEĞİŞMEDİ, bu kart yalnızca ek
+  // bir görsel yansıma.
+  const cellDetailCard = lastSelected ? (
+    <div className="rounded-xl border bg-card shadow-sm p-3.5 space-y-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <span
+          className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide truncate"
+          style={{ color: colorOf(lastSelected.staff_id).solid }}
+        >
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: colorOf(lastSelected.staff_id).solid }} />
+          {t("cellDetailLabel")} · {format(new Date(lastSelected.appointment_at), "EEEE HH:mm", { locale: dateFnsLocale })}
+        </span>
+        {lastSelected.price != null && (
+          <span className="text-sm font-extrabold font-mono shrink-0" style={{ color: colorOf(lastSelected.staff_id).solid }}>
+            ₺{Number(lastSelected.price).toLocaleString("tr-TR")}
+          </span>
+        )}
+      </div>
+      <div>
+        <p className="font-bold text-sm truncate">{lastSelected.customer_name}</p>
+        <p className="text-xs text-muted-foreground truncate font-bold">
+          {lastSelected.service?.name}
+          {lastSelected.duration_minutes ? ` · ${lastSelected.duration_minutes}${t("minutesShort")}` : ""}
+        </p>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span
+          className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+          style={{ background: colorOf(lastSelected.staff_id).solid, color: "#fff" }}
+        >
+          {initials(staffName(lastSelected.staff_id))}
+        </span>
+        <span className="text-xs font-bold truncate">{staffName(lastSelected.staff_id)}</span>
+      </div>
+      <div className="flex items-center gap-2 pt-1">
+        {lastSelected.customer_phone ? (
+          <a
+            href={`tel:${lastSelected.customer_phone}`}
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold hover:bg-accent transition-colors"
+          >
+            <Phone className="h-3.5 w-3.5" /> {t("callCustomer")}
+          </a>
+        ) : <span className="flex-1" />}
+        <Link
+          href={`/dashboard/randevular/${lastSelected.id}`}
+          className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-2 text-xs font-bold hover:opacity-90 transition-opacity"
+        >
+          <ExternalLink className="h-3.5 w-3.5" /> {t("viewDetail")}
+        </Link>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <div className="space-y-3">
       {/* Kontrol çubuğu: görünüm + gezinme + personel filtresi */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-1 rounded-lg border p-0.5 bg-card">
-          {([["day", t("day")], ["staff", "👥 Personel"], ["week", t("week")], ["month", t("month")]] as const).map(([v, l]) => (
-            <Link
-              key={v}
-              href={`/dashboard/takvim?view=${v}&date=${viewDate}`}
-              className={cn(
-                "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                view === v ? "bg-primary text-primary-foreground" : "hover:bg-accent text-muted-foreground"
-              )}
-            >
-              {l}
-            </Link>
-          ))}
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-center sm:justify-start">
+          <div className="flex items-center gap-1 rounded-full bg-muted/70 p-1 shadow-inner">
+            {([["day", t("day")], ["staff", "👥 Personel"], ["week", t("week")], ["month", t("month")]] as const).map(([v, l]) => (
+              <Link
+                key={v}
+                href={`/dashboard/takvim?view=${v}&date=${viewDate}`}
+                className={cn(
+                  "px-3.5 py-1.5 rounded-full text-sm font-bold transition-all active:scale-95",
+                  view === v ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-accent text-muted-foreground"
+                )}
+              >
+                {l}
+              </Link>
+            ))}
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 bg-card rounded-xl px-2.5 py-2 shadow-sm border border-border/60">
           <Link
             href={`/dashboard/takvim?view=${view}&date=${prevDate}`}
-            className="p-2 rounded-lg border hover:bg-accent transition-colors"
+            className="p-2 rounded-full hover:bg-accent transition-colors active:scale-90 shrink-0"
             aria-label={t("previous")}
           >
             <ChevronLeft className="h-4 w-4" />
           </Link>
-          <span className="text-sm font-semibold min-w-[180px] text-center capitalize">{label}</span>
-          <Link
-            href={`/dashboard/takvim?view=${view}&date=${nextDate}`}
-            className="p-2 rounded-lg border hover:bg-accent transition-colors"
-            aria-label={t("next")}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Link>
-          <Link
-            href={`/dashboard/takvim?view=${view}&date=${today}`}
-            className="px-3 py-1.5 rounded-lg border hover:bg-accent transition-colors text-sm"
-          >
-            {t("today")}
-          </Link>
+          <span className="text-sm font-bold flex-1 text-center capitalize truncate px-1">{label}</span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Link
+              href={`/dashboard/takvim?view=${view}&date=${today}`}
+              className="px-3 py-1.5 rounded-full border hover:bg-accent transition-colors text-xs font-bold active:scale-95"
+            >
+              {t("today")}
+            </Link>
+            <Link
+              href={`/dashboard/takvim?view=${view}&date=${nextDate}`}
+              className="p-2 rounded-full hover:bg-accent transition-colors active:scale-90"
+              aria-label={t("next")}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Durum özeti — görünen aralıktaki randevu durumları */}
-      <div className="flex items-center gap-2 flex-wrap text-xs">
+      <div className="flex items-center gap-1.5 flex-wrap text-[11px] font-bold">
         {statusCounts.devam > 0 && (
-          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold bg-red-50 text-red-600 border border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 border border-red-300 text-red-900 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+            <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 animate-pulse" />
             {statusCounts.devam} {t("inProgress")}
           </span>
         )}
-        <span className="px-2.5 py-1 rounded-full font-medium bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400">
+        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-900 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-400">
+          <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
           {statusCounts.talep} {t("awaiting")}
         </span>
-        <span className="px-2.5 py-1 rounded-full font-medium bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400">
+        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-300 text-blue-900 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400">
+          <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
           {statusCounts.onaylandi} {t("approved")}
         </span>
-        <span className="px-2.5 py-1 rounded-full font-medium bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
-          ✓ {statusCounts.tamamlandi} {t("completedChip")}
+        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-900 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
+          <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+          {statusCounts.tamamlandi} {t("completedChip")}
         </span>
       </div>
 
@@ -848,10 +1132,15 @@ export function UnifiedCalendar({
               return (
                 <span
                   key={s.id}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
+                  className="flex items-center gap-1.5 pl-1 pr-3 py-1 rounded-full text-xs font-bold shadow-sm"
                   style={{ background: c.soft, border: `1px solid ${c.border}`, color: c.solid }}
                 >
-                  <span className="w-2 h-2 rounded-full" style={{ background: c.solid }} />
+                  <span
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
+                    style={{ background: c.solid, color: "#fff" }}
+                  >
+                    {initials(s.full_name)}
+                  </span>
                   {s.full_name} ({t("yourAppointments")})
                 </span>
               );
@@ -861,37 +1150,52 @@ export function UnifiedCalendar({
             <button
               onClick={() => setSelectedStaffIds([])}
               className={cn(
-                "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
+                "px-3 py-1 rounded-full text-xs font-bold border transition-all active:scale-95",
                 isAllStaff
-                  ? "bg-foreground text-background border-foreground"
+                  ? "bg-foreground text-background border-foreground shadow-sm"
                   : "hover:bg-accent text-muted-foreground"
               )}
             >
-              {t("all")}
+              {t("all")} ({staff.length})
             </button>
             {staff.map((s) => {
               const c = colorOf(s.id);
               const active = selectedStaffIds.includes(s.id);
+              const count = apptCountOnGrid(s.id);
               return (
                 <button
                   key={s.id}
                   onClick={() => toggleStaff(s.id)}
                   aria-pressed={active}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-all"
+                  className="flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full text-xs font-bold border transition-all active:scale-95 shrink-0"
                   style={{
                     background: active ? c.soft : "transparent",
                     borderColor: active ? c.border : "var(--border)",
                     color: active ? c.solid : "var(--muted-foreground)",
+                    boxShadow: active ? "0 1px 3px 0 rgba(15,23,42,0.08)" : undefined,
                   }}
                 >
-                  <span className="w-2 h-2 rounded-full" style={{ background: c.solid }} />
-                  {s.full_name}
-                  {active && <span className="ml-0.5 opacity-70">✓</span>}
+                  <span
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
+                    style={{ background: c.solid, color: "#fff" }}
+                  >
+                    {initials(s.full_name)}
+                  </span>
+                  <span className="font-bold truncate max-w-[92px]">{s.full_name}</span>
+                  {count > 0 && (
+                    <span
+                      className="px-1.5 py-0 rounded-full text-[10px] font-bold leading-[16px]"
+                      style={{ background: active ? "rgba(255,255,255,0.35)" : c.soft, color: active ? c.solid : c.solid }}
+                    >
+                      {count}
+                    </span>
+                  )}
+                  {active && <span className="opacity-70">✓</span>}
                 </button>
               );
             })}
             {!isAllStaff && (
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-[11px] text-muted-foreground font-bold">
                 {selectedStaffIds.length}/{staff.length}
               </span>
             )}
@@ -905,7 +1209,7 @@ export function UnifiedCalendar({
           gösterilmez. */}
       {!lockedStaffId && staffGroups.length > 1 && (
         <div className="flex items-center gap-2 flex-wrap -mt-1">
-          <span className="text-[11px] text-muted-foreground shrink-0">{t("groupsLabel")}</span>
+          <span className="text-[11px] text-muted-foreground shrink-0 font-bold">{t("groupsLabel")}</span>
           {staffGroups.map((g) => {
             const active = activeGroup === g;
             return (
@@ -914,7 +1218,7 @@ export function UnifiedCalendar({
                 onClick={() => selectGroup(g)}
                 aria-pressed={active}
                 className={cn(
-                  "px-2.5 py-0.5 rounded-full text-[11px] font-medium border transition-colors",
+                  "px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-colors",
                   active
                     ? "bg-foreground text-background border-foreground"
                     : "hover:bg-accent text-muted-foreground border-border"
@@ -929,7 +1233,15 @@ export function UnifiedCalendar({
 
       {/* ─── HAFTA GÖRÜNÜMÜ ─────────────────────────────────── */}
       {view === "week" && (
-        <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+        <>
+          <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+          <div className="flex items-center justify-between px-3 py-1.5 border-b bg-muted/60 text-[11px] font-bold text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <CalendarDays className="h-3.5 w-3.5 text-primary" />
+              {t("excelGridHint")}
+            </span>
+            <span className="font-bold">↔ {t("scrollRight")}</span>
+          </div>
           <div className="overflow-x-auto">
             <div className="grid min-w-[760px]" style={{ gridTemplateColumns: `48px repeat(7, 1fr)` }}>
               {hourRail}
@@ -948,7 +1260,7 @@ export function UnifiedCalendar({
                     <Link
                       href={`/dashboard/takvim?view=day&date=${dayStr}`}
                       className={cn(
-                        "h-10 border-b flex flex-col items-center justify-center text-xs font-medium hover:bg-accent transition-colors",
+                        "h-10 border-b flex flex-col items-center justify-center text-xs font-bold hover:bg-accent transition-colors",
                         isToday && "bg-primary/20 text-primary font-bold border-b-2 border-primary shadow-sm",
                         closed && "bg-red-50 dark:bg-red-950/20"
                       )}
@@ -977,7 +1289,7 @@ export function UnifiedCalendar({
                             className="absolute inset-x-1 rounded-md border-2 border-dashed border-primary bg-primary/10 pointer-events-none z-30 flex items-start justify-center"
                             style={{ top: dragPreview.top, height: dragPreview.height }}
                           >
-                            <span className="text-[10px] font-semibold text-primary bg-card/80 px-1 rounded">{dragPreview.label}</span>
+                            <span className="text-[10px] font-bold text-primary bg-card/80 px-1 rounded">{dragPreview.label}</span>
                           </div>
                         )}
                       </div>
@@ -987,7 +1299,52 @@ export function UnifiedCalendar({
               })}
             </div>
           </div>
-        </div>
+          </div>
+
+          {cellDetailCard}
+
+          {/* ─── Gün bazlı randevu listesi (Pzt/Sal/Çar...) — akordeon ───
+              Her gün başlığına tıklayınca o günün müşteri bazlı randevu
+              listesi (renderDayAgenda) açılır/kapanır. */}
+          <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+            <div className="px-3.5 py-2.5 border-b">
+              <p className="text-sm font-bold">{t("dailyAgendaTitle")}</p>
+            </div>
+            <div className="divide-y divide-border/60">
+              {gridDays.map((dayStr) => {
+                const dayAppts = byDay[dayStr] || [];
+                const isOpen = expandedAgendaDay === dayStr;
+                const isToday = dayStr === today;
+                return (
+                  <div key={dayStr}>
+                    <button
+                      type="button"
+                      onClick={() => setExpandedAgendaDay(isOpen ? null : dayStr)}
+                      aria-expanded={isOpen}
+                      className={cn(
+                        "w-full flex items-center justify-between px-3.5 py-2.5 hover:bg-accent/40 transition-colors",
+                        isToday && "bg-primary/5"
+                      )}
+                    >
+                      <span className="flex items-center gap-2 min-w-0">
+                        <span className={cn("text-sm font-bold capitalize truncate", isToday && "text-primary")}>
+                          {format(new Date(dayStr + "T12:00:00"), "EEEE d MMMM", { locale: dateFnsLocale })}
+                        </span>
+                        {dayAppts.length > 0 && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted font-bold text-muted-foreground shrink-0">
+                            {dayAppts.length}
+                          </span>
+                        )}
+                      </span>
+                      <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform shrink-0", isOpen && "rotate-90")} />
+                    </button>
+                    {isOpen && renderDayAgenda(dayStr)}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
       )}
 
       {/* ─── PERSONEL SÜTUN GÖRÜNÜMÜ (SWIMLANE) ───────────────────
@@ -1001,7 +1358,10 @@ export function UnifiedCalendar({
       {view === "staff" && (
         <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
           <div className="overflow-x-auto">
-          <div className="grid" style={{ gridTemplateColumns: `40px repeat(${staffColumns.length || 1}, minmax(104px, 1fr))` }}>
+          {/* Sütun genişliği clamp() ile daralır: dar telefon ekranında en az
+              5 personel yatay kaydırma olmadan tek ekrana sığar, geniş
+              ekranda ise 130px'e kadar rahatça açılır. */}
+          <div className="grid" style={{ gridTemplateColumns: `34px repeat(${staffColumns.length || 1}, minmax(clamp(48px, 16vw, 130px), 1fr))` }}>
             {hourRail}
             {staffColumns.map((s) => {
               const c = colorOf(s.id);
@@ -1019,11 +1379,17 @@ export function UnifiedCalendar({
                   style={{ background: columnTintOf(s.id) }}
                 >
                   <div
-                    className="h-10 border-b flex flex-col items-center justify-center text-xs font-semibold px-1 text-center"
+                    className="h-14 border-b flex flex-col items-center justify-center gap-0.5 px-0.5 text-center"
                     style={{ background: c.soft, borderBottomColor: c.border }}
                   >
-                    <span className="truncate max-w-full" style={{ color: c.solid }}>{s.full_name}</span>
-                    <span className="text-[10px] font-normal text-muted-foreground">
+                    <span
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+                      style={{ background: c.solid, color: "#fff" }}
+                    >
+                      {initials(s.full_name)}
+                    </span>
+                    <span className="truncate max-w-full text-[10.5px] font-bold leading-tight" style={{ color: c.solid }}>{s.full_name}</span>
+                    <span className="text-[9px] font-bold text-muted-foreground leading-none">
                       {t("apptCountLabel", { count: staffAppts.length })}
                     </span>
                   </div>
@@ -1051,6 +1417,21 @@ export function UnifiedCalendar({
         </div>
       )}
 
+      {view === "staff" && cellDetailCard}
+
+      {/* ─── Gün ajandası (Personel görünümü altı) — müşteri bazlı, iletişim
+          bilgisiyle, en yakın randevudan itibaren sıralı ───────────────── */}
+      {view === "staff" && (
+        <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+          <div className="px-3.5 py-2.5 border-b flex items-center justify-between">
+            <p className="text-sm font-bold">
+              {t("apptCountLabel", { count: (byDay[gridDays[0] || today] || []).length })}
+            </p>
+          </div>
+          {renderDayAgenda(gridDays[0] || today)}
+        </div>
+      )}
+
       {/* ─── GÜN GÖRÜNÜMÜ (tek birleşik tablo) ───────────────────
           Personel başına ayrı sütun YOK: günün tüm randevuları tek
           zaman çizelgesinde, çakışanlar yan yana şeritlerde. Personel
@@ -1072,7 +1453,7 @@ export function UnifiedCalendar({
                   <div className="min-w-0">
                     <div
                       className={cn(
-                        "h-10 border-b flex items-center justify-center gap-2 text-xs font-semibold",
+                        "h-10 border-b flex items-center justify-center gap-2 text-xs font-bold",
                         isToday && "bg-primary/10 text-primary",
                         closed && "bg-red-50 dark:bg-red-950/20"
                       )}
@@ -1080,7 +1461,7 @@ export function UnifiedCalendar({
                       <span className="capitalize">
                         {format(new Date(dayStr + "T12:00:00"), "d MMMM EEEE", { locale: dateFnsLocale })}
                       </span>
-                      <span className="text-[10px] font-normal text-muted-foreground">
+                      <span className="text-[10px] font-bold text-muted-foreground">
                         {t("apptCountLabel", { count: dayAppts.length })}
                       </span>
                     </div>
@@ -1103,7 +1484,7 @@ export function UnifiedCalendar({
                             className="absolute inset-x-1 rounded-md border-2 border-dashed border-primary bg-primary/10 pointer-events-none z-30 flex items-start justify-center"
                             style={{ top: dragPreview.top, height: dragPreview.height }}
                           >
-                            <span className="text-[10px] font-semibold text-primary bg-card/80 px-1 rounded">{dragPreview.label}</span>
+                            <span className="text-[10px] font-bold text-primary bg-card/80 px-1 rounded">{dragPreview.label}</span>
                           </div>
                         )}
                       </div>
@@ -1113,6 +1494,21 @@ export function UnifiedCalendar({
               );
             })()}
           </div>
+        </div>
+      )}
+
+      {view === "day" && cellDetailCard}
+
+      {/* ─── Gün ajandası (Gün görünümü altı) — müşteri bazlı, iletişim
+          bilgisiyle, en yakın randevudan itibaren sıralı ───────────────── */}
+      {view === "day" && (
+        <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+          <div className="px-3.5 py-2.5 border-b flex items-center justify-between">
+            <p className="text-sm font-bold">
+              {t("apptCountLabel", { count: (byDay[gridDays[0]] || []).length })}
+            </p>
+          </div>
+          {renderDayAgenda(gridDays[0])}
         </div>
       )}
 
@@ -1127,7 +1523,7 @@ export function UnifiedCalendar({
         <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
           <div className="grid grid-cols-7 border-b bg-muted/30">
             {weekdayShort.map((d, i) => (
-              <div key={i} className="py-2 text-center text-xs font-medium text-muted-foreground">
+              <div key={i} className="py-2 text-center text-xs font-bold text-muted-foreground">
                 {d}
               </div>
             ))}
@@ -1159,7 +1555,7 @@ export function UnifiedCalendar({
                 >
                   <span
                     className={cn(
-                      "inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium",
+                      "inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold",
                       isToday && "bg-primary text-primary-foreground font-bold",
                       !isToday && isSelected && "font-bold text-primary"
                     )}
@@ -1178,65 +1574,20 @@ export function UnifiedCalendar({
             })}
           </div>
 
-          {/* Seçili günün randevu listesi */}
+          {/* Seçili günün randevu listesi — müşteri bazlı, iletişim
+              bilgisiyle, en yakın randevudan itibaren sıralı (bkz. renderDayAgenda) */}
           <div className="border-t bg-muted/10">
-            <p className="px-3 pt-3 pb-1 text-sm font-semibold capitalize">
+            <p className="px-3.5 pt-3 pb-1 text-sm font-bold capitalize">
               {format(new Date(selectedMonthDay + "T12:00:00"), "d MMMM", { locale: dateFnsLocale })}
               {" — "}
               {t("apptCountLabel", { count: (byDay[selectedMonthDay] || []).length })}
             </p>
-            {(byDay[selectedMonthDay] || []).length === 0 ? (
-              <p className="px-3 pb-4 text-sm text-muted-foreground">{t("monthDayEmpty")}</p>
-            ) : (
-              <div className="pb-2">
-                {(byDay[selectedMonthDay] || [])
-                  .slice()
-                  .sort((a, b) => a.appointment_at.localeCompare(b.appointment_at))
-                  .map((a) => {
-                    const c = colorOf(a.staff_id);
-                    return (
-                      <div
-                        key={a.id}
-                        role="button"
-                        tabIndex={0}
-                        onClick={(e) => openPopover(e, a)}
-                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openPopover(e as unknown as React.MouseEvent, a); }}
-                        className="flex items-start gap-3 px-3 py-2.5 border-b last:border-b-0 border-border/50 hover:bg-accent/40 transition-colors cursor-pointer"
-                      >
-                        <span className="text-sm font-semibold shrink-0 w-12 pt-0.5" style={{ color: c.solid }}>
-                          {format(new Date(a.appointment_at), "HH:mm")}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          {a.customer_id ? (
-                            <Link
-                              href={`/dashboard/musteriler/${a.customer_id}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="font-semibold text-sm truncate block hover:underline"
-                            >
-                              {a.status === "tamamlandi" && <span className="mr-0.5">✓</span>}
-                              {a.status === "gelmedi" && <span className="mr-0.5">⚠</span>}
-                              {a.customer_name}
-                            </Link>
-                          ) : (
-                            <p className="font-semibold text-sm truncate">
-                              {a.status === "tamamlandi" && <span className="mr-0.5">✓</span>}
-                              {a.status === "gelmedi" && <span className="mr-0.5">⚠</span>}
-                              {a.customer_name}
-                            </p>
-                          )}
-                          <p className="text-xs text-muted-foreground truncate">
-                            {a.service?.name}
-                            {staffName(a.staff_id) ? ` · ${staffName(a.staff_id)}` : ""}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            )}
+            {renderDayAgenda(selectedMonthDay)}
           </div>
         </div>
       )}
+
+      {periodSummaryBar}
 
       {/* ─── Durum Popover ──────────────────────────────────── */}
       {popover && (
@@ -1255,12 +1606,12 @@ export function UnifiedCalendar({
           >
             <div className="px-3 py-2.5 border-b flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="text-sm font-semibold truncate">{popover.appt.customer_name}</p>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="text-sm font-bold truncate">{popover.appt.customer_name}</p>
+                <p className="text-xs text-muted-foreground truncate font-bold">
                   {popover.appt.service?.name}
                   {staffName(popover.appt.staff_id) ? ` · ${staffName(popover.appt.staff_id)}` : ""}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground font-bold">
                   {format(new Date(popover.appt.appointment_at), "d MMM HH:mm", { locale: dateFnsLocale })} · {popover.appt.duration_minutes}{t("minutesShort")}
                 </p>
               </div>
@@ -1271,7 +1622,7 @@ export function UnifiedCalendar({
 
             <div className="px-3 py-2 border-b">
               <span
-                className="text-[10px] px-2 py-0.5 rounded-full font-medium border"
+                className="text-[10px] px-2 py-0.5 rounded-full font-bold border"
                 style={{
                   background: colorOf(popover.appt.staff_id).soft,
                   borderColor: colorOf(popover.appt.staff_id).border,
@@ -1283,7 +1634,7 @@ export function UnifiedCalendar({
             </div>
 
             <div className="p-2 space-y-1">
-              <p className="text-[10px] text-muted-foreground px-1 pb-0.5">{t("quickUpdate")}</p>
+              <p className="text-[10px] text-muted-foreground px-1 pb-0.5 font-bold">{t("quickUpdate")}</p>
               {(() => {
                 const isStaffUser = userRole === "staff";
                 const canQuickAct = !isStaffUser || popover.appt.staff_id === currentStaffId;
@@ -1308,7 +1659,7 @@ export function UnifiedCalendar({
                       <button
                         onClick={() => updateStatus(popover.appt.id, "onaylandi")}
                         disabled={disabled}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                         {t("approve")}
@@ -1319,7 +1670,7 @@ export function UnifiedCalendar({
                       <button
                         onClick={() => updateStatus(popover.appt.id, "tamamlandi")}
                         disabled={disabled}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-bold text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                         {t("markCompleted")}
@@ -1330,7 +1681,7 @@ export function UnifiedCalendar({
                       <button
                         onClick={() => updateStatus(popover.appt.id, "gelmedi")}
                         disabled={disabled}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-bold text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertCircle className="h-3.5 w-3.5" />}
                         {t("noShow")}
@@ -1341,7 +1692,7 @@ export function UnifiedCalendar({
                       <button
                         onClick={() => updateStatus(popover.appt.id, "iptal")}
                         disabled={disabled}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         {updatingId === popover.appt.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
                         {t("cancelAction")}
@@ -1355,7 +1706,7 @@ export function UnifiedCalendar({
                 <Link
                   href={`/dashboard/randevular/${popover.appt.id}`}
                   onClick={() => setPopover(null)}
-                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                   {t("viewDetail")}
