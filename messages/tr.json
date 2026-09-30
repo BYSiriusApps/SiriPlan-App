@@ -1427,7 +1427,10 @@
       },
       "sentCount": "gönderildi",
       "scheduledLabel": "Planlandı: {date}",
-      "draftLabel": "Taslak"
+      "draftLabel": "Taslak",
+      "deleteDraft": "Taslağı sil",
+      "deleteDraftConfirm": "\"{name}\" taslağı silinsin mi? Bu işlem geri alınamaz.",
+      "deleteDraftError": "Taslak silinemedi"
     },
     "staffPage": {
       "salaryEyebrow": "Ekip",
