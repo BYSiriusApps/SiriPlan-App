@@ -179,6 +179,11 @@ export async function GET(req: NextRequest) {
     return buildGelirGiderPdf(supabase, orgId, yearParam, view === "aylik" ? monthParam : null, new URL(req.url).origin);
   }
 
+  // Dışarı toplu veri aktarımı (CSV / Excel / JSON / Genel PDF) raporlama yetkisi gerektirir.
+  if (!hasPermission(member, "view_reports")) {
+    return NextResponse.json({ error: "Veri dışarı aktarma yetkiniz bulunmamaktadır." }, { status: 403 });
+  }
+
   const [
     { data: customers },
     { data: appointments },

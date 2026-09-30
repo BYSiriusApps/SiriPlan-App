@@ -195,10 +195,32 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
 
     await admin.from("customer_metrics").delete().eq("org_id", orgId).eq("customer_id", id);
 
-    // Randevulardaki denormalize isim/telefon da temizlenir (NOT NULL kolonlar)
+    // Randevulardaki denormalize isim/telefon ve özel notlar temizlenir (KVKK)
     await admin
       .from("appointments")
-      .update({ customer_name: "Silinmiş Müşteri", customer_phone: anonymizedPhone })
+      .update({ customer_name: "Silinmiş Müşteri", customer_phone: anonymizedPhone, notes: null })
+      .eq("org_id", orgId)
+      .eq("customer_id", id);
+
+    // Müşterinin paket ve seans kullanım hareketlerindeki isim ve notlar temizlenir (KVKK)
+    const { data: pkgRows } = await admin
+      .from("customer_packages")
+      .select("id")
+      .eq("org_id", orgId)
+      .eq("customer_id", id);
+
+    if (pkgRows && pkgRows.length > 0) {
+      const pkgIds = pkgRows.map((p) => p.id);
+      await admin
+        .from("customer_package_usages")
+        .update({ note: null })
+        .eq("org_id", orgId)
+        .in("package_id", pkgIds);
+    }
+
+    await admin
+      .from("customer_packages")
+      .update({ name: "Paket", note: null })
       .eq("org_id", orgId)
       .eq("customer_id", id);
   }

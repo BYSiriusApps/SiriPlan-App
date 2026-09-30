@@ -153,7 +153,21 @@ export async function recordPackageUsage(
     return { ok: false, error: error.message };
   }
 
-  const remaining = remainingBefore - 1;
+  // Atomik doğrulama: insert sonrası trigger çalıştı. Yarış durumu kontrolü: used_sessions > total_sessions mı?
+  const { data: updatedPkg } = await supabase
+    .from("customer_packages")
+    .select("total_sessions, used_sessions, name")
+    .eq("id", packageId)
+    .eq("org_id", orgId)
+    .single();
+
+  if (updatedPkg && updatedPkg.used_sessions > updatedPkg.total_sessions) {
+    // Eşzamanlı isteklerde paketteki kalan seans aşıldı -> yapılan kullanımı geri al
+    await supabase.from("customer_package_usages").delete().eq("id", usage.id);
+    return { ok: false, error: "Pakette kalan seans kalmadı" };
+  }
+
+  const remaining = updatedPkg ? Math.max(0, updatedPkg.total_sessions - updatedPkg.used_sessions) : remainingBefore - 1;
   return {
     ok: true,
     usageId: usage.id,

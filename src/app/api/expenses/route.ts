@@ -81,6 +81,21 @@ export async function PUT(req: NextRequest) {
   const { id } = body;
   if (!id) return NextResponse.json({ error: "ID gerekli" }, { status: 400 });
 
+  const { data: existing } = await supabase
+    .from("expenses")
+    .select("id, note")
+    .eq("id", id)
+    .eq("org_id", member.org_id)
+    .maybeSingle();
+
+  if (!existing) return NextResponse.json({ error: "Kayıt bulunamadı" }, { status: 404 });
+  if (existing.note && existing.note.startsWith("Otomatik")) {
+    return NextResponse.json(
+      { error: "Randevulardan otomatik oluşan gelir kayıtları değiştirilemez." },
+      { status: 400 }
+    );
+  }
+
   const updates: Record<string, unknown> = {};
   for (const key of ["type", "category", "amount", "description", "note", "date", "payment_method"]) {
     if (key in body) updates[key] = key === "amount" ? Number(body[key]) : body[key];
@@ -110,6 +125,21 @@ export async function DELETE(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "ID gerekli" }, { status: 400 });
+
+  const { data: existing } = await supabase
+    .from("expenses")
+    .select("id, note")
+    .eq("id", id)
+    .eq("org_id", member.org_id)
+    .maybeSingle();
+
+  if (!existing) return NextResponse.json({ error: "Kayıt bulunamadı" }, { status: 404 });
+  if (existing.note && existing.note.startsWith("Otomatik")) {
+    return NextResponse.json(
+      { error: "Randevulardan otomatik oluşan gelir kayıtları doğrudan silinemez." },
+      { status: 400 }
+    );
+  }
 
   const { error } = await supabase
     .from("expenses")
