@@ -125,6 +125,18 @@ Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olar
 - ⚙️ **Plan Bilgileriniz**: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.
 - ✉️ **Destek**: Abonelik SiriPlan hesabınıza bağlıdır. Plan yükseltme, yenileme veya faturalandırma sorularınız için info@bysirius.com (WhatsApp +90 535 503 26 34).
 
+## 16b. Yeni Araçlar (Eylül 2026 güncellemesi)
+
+- **Bekleyen İstekler & Yeni Saat Öner:** Talepleri Onayla / Yeni Saat Öner / İptal Et; müşteri öneriyi kabul edince randevu otomatik oluşur. Yeni hesaplarda otomatik onay kapalıdır.
+- **Bekleme Listesi (Pro):** Dolu saat isteyen müşteriyi sıraya alın.
+- **Paket / Seans Takibi (tüm planlar):** Randevu tamamlanınca seans otomatik düşer.
+- **Stok & Barkod (tüm planlar):** Stok hareketleri, kamerayla barkod okutma, kritik stok uyarısı.
+- **Sesli Asistan (Pro):** Basılı tutup konuşarak randevu/stok girişi; "onayla / düzelt / eksikleri ekle".
+- **Takvim:** Excel tarzı kompakt görünüm ve personel grup çipleri.
+- **Müşteriler:** Özet şeridi, hızlı filtreler (Son 30 Gün, Riskli/Uzaklaşan), "Randevu Ver", müşteri skoru (Pro).
+- **Mobil:** Google Play / App Store uygulaması veya Ana Ekrana Ekle.
+- **Deneme süresi** boyunca Pro seviyesi araçlar açıktır.
+
 ## 17. Sık Sorulan Sorular
 
 - Telegram randevu bildirimleri nasıl açılır? (Telegram'da `@siriplan_bot` botuna `/start` yazıp alınan Chat ID paneldeki alana kaydedilir).

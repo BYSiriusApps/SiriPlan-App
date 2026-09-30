@@ -172,9 +172,39 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Açıkken 'Tahmini KDV' kartı hem Gelir-Gider hem de Raporlar sayfasında, o ayki toplam gelirin KDV dahil olduğu varsayılarak hesaplanır ve görüntülenir.",
   },
   {
+    keywords: ["yeni saat öner", "saat öner", "alternatif saat", "talebi başka saate"],
+    answer:
+      "Bekleyen İstekler sayfasında bir talebin saati uygun değilse 'Yeni Saat Öner' düğmesiyle müşteriye alternatif saat gönderin. Müşteri kabul ederse randevu otomatik oluşur; reddederse size bildirim gelir ve tekrar öneri yapabilir ya da talebi iptal edebilirsiniz.",
+  },
+  {
+    keywords: ["barkod", "stok giriş", "stok çıkış", "kritik stok", "stok yönetimi", "stok sayım"],
+    answer:
+      "Stok sayfasından ürün ekleyip mal alımı, kullanım/satış ve sayım düzeltmelerini stok hareketi olarak kaydedebilirsiniz. Ürüne barkod atayıp telefon kamerasıyla okutarak hızlı satış yapabilirsiniz. Stok, tanımladığınız kritik sınırın altına inince panelde uyarı ve Telegram/WhatsApp bildirimi gelir.",
+  },
+  {
+    keywords: ["sesli asistan", "sesli randevu", "sesle randevu", "mikrofon", "konuşarak"],
+    answer:
+      "Sesli asistan Pro ve Business planlarında (ve deneme süresince) açıktır. Yeni randevu düğmesine basılı tutup konuşun (ör. 'Ayşe hanıma yarın saat üçte saç boyama'); form otomatik dolar, 'onayla', 'düzelt' veya 'eksikleri ekle' diyerek devam edebilirsiniz. Tarayıcı mikrofon izni istenir.",
+  },
+  {
+    keywords: ["paket seans", "seans paketi", "seans takibi", "kalan seans", "paket sat"],
+    answer:
+      "Paketler sayfasından veya müşteri detay kartından peşin satılan seans paketi tanımlayabilirsiniz. Paketli müşterinin randevusu 'Tamamlandı' işaretlenince bir seans otomatik düşer ve kalan sayaç güncellenir. Tüm planlarda kullanılabilir.",
+  },
+  {
+    keywords: ["bekleme listesi", "sıraya al", "yer açılınca"],
+    answer:
+      "Bekleme Listesi (Pro/Business) dolu saat isteyen müşterileri sıraya almanızı sağlar; sayfadan müşteri, hizmet ve tercih edilen zamanı kaydedin, yer açıldığında bilgilendirin. Onay bekleyen randevular her planda aynı sayfadan onaylanır.",
+  },
+  {
+    keywords: ["ana ekrana ekle", "uygulamayı yükle", "pwa", "ana ekran"],
+    answer:
+      "iPhone'da Safari → Paylaş → Ana Ekrana Ekle; Android'de Chrome menüsü → Uygulamayı yükle. Adım adım anlatım Kullanım Kılavuzu → Hızlı Başlangıç sayfasındaki kartta var.",
+  },
+  {
     keywords: ["kılavuz", "rehber", "kullanım kılavuzu", "nasıl kullanılır", "nasıl yapılır", "video", "sunum"],
     answer:
-      "SiriPlan kullanım kılavuzuna, 19 slaytlık interaktif sunuma ve detaylı adım adım kurulum rehberlerine panelin sol menüsündeki 'Kullanım Kılavuzu' sayfasından (/dashboard/rehber) ulaşabilirsiniz. Bu sayfa içerikleri kopyalama korumalıdır.",
+      "SiriPlan kullanım kılavuzuna, 24 slaytlık interaktif sunuma ve detaylı adım adım kurulum rehberlerine panelin sol menüsündeki 'Kullanım Kılavuzu' sayfasından (/dashboard/rehber) ulaşabilirsiniz. Bu sayfa içerikleri kopyalama korumalıdır.",
   },
   {
     keywords: ["ödeme yap", "abonelik", "plan seç", "starter", "pro plan", "business plan", "plan fiyat", "kredi kartı", "deneme süresi", "stripe", "mobil ödeme", "ios ödeme", "android ödeme"],
