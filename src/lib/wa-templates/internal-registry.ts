@@ -54,8 +54,12 @@ export const WA_INTERNAL_TEMPLATES: Record<WaInternalPurpose, WaInternalTemplate
   },
   kritik_stok: {
     purpose: "kritik_stok",
-    metaName: "personel_kritik_stok",
-    metaNameEn: "staff_low_stock_alert",
+    // 30 Eyl: Meta'daki personel_kritik_stok (TR) ve staff_low_stock_alert (EN)
+    // şablonları silindi → null. Kritik stok bildirimi Telegram + serbest metin
+    // yedeğiyle gitmeye devam eder (bkz. dosya başı notu). Yeni şablon
+    // onaylanırsa adları buraya yazmak yeterli.
+    metaName: null,
+    metaNameEn: null,
     bodyParamOrder: ["business_name", "item_name", "current_stock", "unit"],
   },
 };

@@ -1,6 +1,7 @@
 "use client";
 
-import { Phone, Mail, MessageCircle } from "lucide-react";
+import { Phone, Mail, MessageCircle, MessageSquare } from "lucide-react";
+import { useIsIOSNativeApp } from "@/lib/use-mobile-app";
 
 /** Telefonu wa.me formatına çevirir: "0532 111 22 33" → "905321112233" */
 export function toWaPhone(phone: string) {
@@ -24,6 +25,9 @@ export function ContactLinks({
   size?: "sm" | "md";
 }) {
   const icon = size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5";
+  // App Store 2.3.10: iOS uygulamasında üçüncü taraf platformu çağrıştıran yeşil
+  // sohbet balonu yerine nötr, marka renginde ikon. Bağlantı davranışı aynı.
+  const isIOSApp = useIsIOSNativeApp();
 
   function go(e: React.MouseEvent, href: string, external?: boolean) {
     e.preventDefault();
@@ -50,10 +54,10 @@ export function ContactLinks({
           <button
             type="button"
             title="WhatsApp"
-            className="p-1 rounded hover:bg-green-50 dark:hover:bg-green-900/20 text-green-500 transition-colors"
+            className={`p-1 rounded transition-colors ${isIOSApp ? "hover:bg-accent text-primary" : "hover:bg-green-50 dark:hover:bg-green-900/20 text-green-500"}`}
             onClick={(e) => go(e, `https://wa.me/${toWaPhone(phone)}`, true)}
           >
-            <MessageCircle className={icon} />
+            {isIOSApp ? <MessageSquare className={icon} /> : <MessageCircle className={icon} />}
           </button>
         </>
       )}

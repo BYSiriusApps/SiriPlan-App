@@ -90,7 +90,6 @@ export async function POST(
     }
   }
 
-  const effectivePrice = usedPackage ? 0 : Number(appt.price);
   const effectivePayment = usedPackage ? "paket" : payment_method;
 
   // Mark complete
@@ -145,25 +144,27 @@ export async function POST(
       .eq("id", id);
   }
 
-  // Update customer stats — paketten karşılanan randevu ciroya 0 katkı verir
-  // ama ziyaret sayılır.
-  if (appt.customer_id) {
-    const totalEarned = effectivePrice + Number(tip || 0);
+  // Müşteri istatistikleri (visit_count, total_spend += fiyat, last_visit_at,
+  // paketten karşılanan randevuda fiyat 0 → ciroya 0 katkı ama ziyaret sayılır)
+  // DB trigger'ı `trg_appointment_completion` (012_appointment_completion_triggers.sql)
+  // tarafından status "tamamlandi"ya geçerken YAZILIR. Burada tekrar artırmak
+  // her tamamlamada ziyareti ve cirosu ikişer kez sayıyordu. Trigger'ın hiç
+  // yazmadığı tek şey bahşiş olduğu için yalnızca onu ekliyoruz.
+  const tipAmount = Number(tip || 0);
+  if (appt.customer_id && tipAmount > 0) {
     const { data: cust } = await supabase
       .from("customers")
-      .select("visit_count, total_spend")
+      .select("total_spend")
       .eq("id", appt.customer_id)
+      .eq("org_id", member.org_id)
       .single();
 
     if (cust) {
       await supabase
         .from("customers")
-        .update({
-          visit_count: (cust.visit_count || 0) + 1,
-          total_spend: Number(cust.total_spend || 0) + totalEarned,
-          last_visit_at: new Date().toISOString(),
-        })
-        .eq("id", appt.customer_id);
+        .update({ total_spend: Number(cust.total_spend || 0) + tipAmount })
+        .eq("id", appt.customer_id)
+        .eq("org_id", member.org_id);
     }
   }
 
