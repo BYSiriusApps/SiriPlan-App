@@ -14,7 +14,7 @@ import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
-const BASE_URL = process.env.SCREENSHOT_BASE_URL || "https://www.siriplan.com";
+const BASE_URL = process.env.SCREENSHOT_BASE_URL || "https://www.siriplan.com"; // yerel production build için: SCREENSHOT_BASE_URL=http://localhost:3100
 const DEMO_EMAIL = "sahip.demo@siriplan.com";
 const DEMO_PASSWORD = process.env.SCREENSHOT_DEMO_PASSWORD || "Sahip!2026Demo";
 
@@ -64,7 +64,7 @@ const PAGES = [
   {
     num: "02",
     slug: "takvim",
-    path: "/dashboard/takvim",
+    path: "/dashboard/takvim?date=2026-09-24&view=staff", // dolu bir gün (9 randevu, 5 personel)
     // Personel bazlı takvim (sütunlar = personel). Görünüm tercihi hesaba göre
     // değişebildiği için her çalıştırmada AÇIKÇA seçilir ve doğrulanır; doğrulanamazsa
     // dosya yazılmaz (yanlış görünümde görsel çıkmasın).
@@ -92,13 +92,14 @@ const PAGES = [
   { num: "04", slug: "musteriler", path: "/dashboard/musteriler" },
   { num: "05", slug: "hizmetler", path: "/dashboard/hizmetler" },
   { num: "06", slug: "personel", path: "/dashboard/personel" },
-  { num: "07", slug: "stok", path: "/dashboard/stok" },
+  { num: "07", slug: "stok", path: "/dashboard/stok", settle: 3000 }, // liste istemci tarafında yüklenir
   { num: "08", slug: "kampanyalar", path: "/dashboard/kampanyalar" },
-  { num: "09", slug: "paketler", path: "/dashboard/paketler" },
+  { num: "09", slug: "paketler", path: "/dashboard/paketler", settle: 3000 },
   // Aşağıdakiler (Gelir-Gider bu ayki verisi boş/sıfır olduğu için hiç listelenmedi) demo veride yasaklı terim (ör. "Bysiri" hizmet adı) içerdiği
   // sürece taramada otomatik atlanır; veri düzelince kendiliğinden çıkar.
+  { num: "11", slug: "gelirgider", path: "/dashboard/gelir-gider", settle: 3000 },
   { num: "10", slug: "randevular", path: "/dashboard/randevular" },
-  { num: "12", slug: "raporlar", path: "/dashboard/raporlar" },
+  { num: "12", slug: "raporlar", path: "/dashboard/raporlar?gun=2026-09-26" }, // ciro > gider olan gün
 ];
 
 async function dismissCookieBanner(page) {
@@ -170,7 +171,7 @@ async function captureDevice(browser, device) {
     // bekleme daha güvenilir.
     await page.goto(`${BASE_URL}${item.path}`, { waitUntil: "load", timeout: 45000 });
     await dismissCookieBanner(page);
-    await page.waitForTimeout(1200);
+    await page.waitForTimeout(item.settle ?? 1200);
     if (item.afterLoad) {
       try {
         await item.afterLoad(page);
