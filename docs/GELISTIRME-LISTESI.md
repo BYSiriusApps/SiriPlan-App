@@ -264,7 +264,7 @@ bir ŞABLON yolu yoktu.
 submit edildi, üçü de Meta incelemesinde **PENDING**:
 - `personel_yeni_randevu` → template id `1441158747883677`
 - `personel_yeni_talep` → template id `3149481118576768`
-- `personel_kritik_stok` → template id `1857261352301818`
+- ~~`personel_kritik_stok` → template id `1857261352301818`~~ (30 Eyl: Meta'dan silindi, kayıt defterinde `null`)
 
 İlk denemede `personel_yeni_randevu` "değişken/kelime oranı" hatasıyla,
 `personel_yeni_talep` ise "değişken başta/sonda olamaz" hatasıyla reddedildi —
@@ -327,7 +327,7 @@ Müşteriye giden (7):
 Personel/sahibe giden (3 — yukarıdaki maddenin İngilizcesi):
 - `staff_new_appointment` (id `1717573342682155`) — `personel_yeni_randevu` EN
 - `staff_new_request` (id `1494018265912278`) — `personel_yeni_talep` EN
-- `staff_low_stock_alert` (id `1134593909213895`) — `personel_kritik_stok` EN
+- ~~`staff_low_stock_alert` (id `1134593909213895`)~~ — 30 Eyl: Meta'dan silindi, `personel_kritik_stok` ile birlikte
 
 **Dil seçimi nasıl çalışıyor:**
 - Müşteri tarafı (`wa-templates/send.ts`): gönderim anında `customers` tablosundan

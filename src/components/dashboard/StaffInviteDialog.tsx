@@ -168,7 +168,7 @@ export function StaffInviteDialog({ staffList, preselectedStaffId, viewerIsOwner
                     </p>
                   )}
                   {delivery.whatsapp !== "skipped" && (
-                    <p className={`flex items-start gap-1.5 ${delivery.whatsapp === "sent" ? "text-green-600 dark:text-green-500" : "text-amber-600 dark:text-amber-500"}`}>
+                    <p className="flex items-start gap-1.5 text-amber-600 dark:text-amber-500">
                       <Send className="h-3.5 w-3.5 mt-px shrink-0" />
                       {delivery.whatsapp === "sent" ? t("deliveryWhatsappSent") : t("deliveryWhatsappFailed")}
                     </p>
@@ -194,12 +194,12 @@ export function StaffInviteDialog({ staffList, preselectedStaffId, viewerIsOwner
 
               <div className="flex flex-col gap-2">
                 {form.phone && (
-                  <Button variant="outline" className="w-full gap-1.5" onClick={shareOnWhatsApp}>
+                  <Button className="w-full gap-1.5" onClick={shareOnWhatsApp}>
                     <Send className="h-3.5 w-3.5" />
                     {t("shareWhatsapp")}
                   </Button>
                 )}
-                <Button className="w-full" onClick={() => handleOpenChange(false)}>{t("closeButton")}</Button>
+                <Button variant={form.phone ? "outline" : "default"} className="w-full" onClick={() => handleOpenChange(false)}>{t("closeButton")}</Button>
               </div>
             </div>
           ) : (

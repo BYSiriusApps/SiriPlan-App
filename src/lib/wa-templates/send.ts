@@ -112,6 +112,8 @@ export async function sendPurposeTemplate({
     .eq("phone", toStoredPhoneFormat(toPhone))
     .maybeSingle();
   const preferEnglish = customerRow?.preferred_language === "en" && !!def.metaNameEn;
+  const preferRussian = customerRow?.preferred_language === "ru" && !!def.metaNameRu;
+  const preferArabic = customerRow?.preferred_language === "ar" && !!def.metaNameAr;
 
   // Salonun kendi randevu vitrini — konum/telefon boşsa bile daima geçerli bir
   // bağlantı. Meta, gövde parametrelerinden herhangi biri BOŞ olursa şablon
@@ -247,6 +249,14 @@ export async function sendPurposeTemplate({
   if (preferEnglish) {
     const enResult = await attempt(def.metaNameEn!, "en");
     if ("sent" in enResult) return enResult;
+  }
+  if (preferRussian) {
+    const ruResult = await attempt(def.metaNameRu!, "ru");
+    if ("sent" in ruResult) return ruResult;
+  }
+  if (preferArabic) {
+    const arResult = await attempt(def.metaNameAr!, "ar");
+    if ("sent" in arResult) return arResult;
   }
 
   return attempt(def.metaName, "tr");

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
 import { sendStaffInviteEmail } from "@/lib/email/send";
-import { DEFAULT_PERMS, OWNER_ONLY_PERMS, sanitizePermissions, canManageStaff } from "@/lib/permissions";
+import { DEFAULT_PERMS, OWNER_ONLY_PERMS, sanitizePermissions, canManageStaff, hasPermission } from "@/lib/permissions";
 
 const InviteSchema = z.object({
   staff_id: z.string().uuid().optional(),
@@ -94,8 +94,13 @@ export async function POST(req: NextRequest) {
     ...sanitizePermissions(data.permissions_json),
   };
 
-  // Sahibe özel izinler (manage_staff) davetle de devredilemez.
+  // Sahibe özel izinler (manage_staff) davetle devredilemez; yönetici sadece kendisinde olan izinleri verebilir.
   if (member.role !== "owner") {
+    for (const key of Object.keys(mergedPermissions)) {
+      if (mergedPermissions[key] && !hasPermission(member, key)) {
+        mergedPermissions[key] = false;
+      }
+    }
     for (const key of OWNER_ONLY_PERMS) mergedPermissions[key] = false;
   }
 

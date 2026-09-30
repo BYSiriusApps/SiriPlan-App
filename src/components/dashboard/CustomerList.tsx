@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, ShieldCheck, ShieldOff, MessageCircle, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2, CalendarPlus } from "lucide-react";
+import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, ShieldCheck, ShieldOff, MessageCircle, MessageSquare, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2, CalendarPlus } from "lucide-react";
+import { useIsIOSNativeApp } from "@/lib/use-mobile-app";
 import { format } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
 
@@ -84,6 +85,8 @@ interface Props {
  */
 export function CustomerList({ customers, showPhoneButtons, initialKampanya = false, initialQ = "", canDelete = false, businessType = null }: Props) {
   const t = useTranslations("dashboard");
+  // App Store 2.3.10: iOS uygulamasında yeşil WhatsApp benzeri ikon yerine nötr ikon (bağlantı aynı).
+  const isIOSApp = useIsIOSNativeApp();
   const statusFieldDef = useMemo(
     () => getFieldCatalog(businessType).find((f) => f.key === "status" && f.type === "select"),
     [businessType]
@@ -378,8 +381,8 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                                 <Phone className="h-3.5 w-3.5" />
                               </a>
                               <a href={`https://wa.me/${waPhone}`} target="_blank" rel="noopener noreferrer" title={t("customerList.whatsapp")}
-                                className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 text-emerald-600 transition-colors">
-                                <MessageCircle className="h-3.5 w-3.5" />
+                                className={`p-1.5 rounded-lg transition-colors ${isIOSApp ? "bg-primary/10 hover:bg-primary/20 text-primary" : "bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 text-emerald-600"}`}>
+                                {isIOSApp ? <MessageSquare className="h-3.5 w-3.5" /> : <MessageCircle className="h-3.5 w-3.5" />}
                               </a>
                             </>
                           )}

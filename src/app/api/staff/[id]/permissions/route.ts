@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
-import { canManageStaff, sanitizePermissions, OWNER_ONLY_PERMS } from "@/lib/permissions";
+import { canManageStaff, sanitizePermissions, OWNER_ONLY_PERMS, hasPermission } from "@/lib/permissions";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -111,12 +111,18 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     // Sadece bilinen izin anahtarları kabul edilir
     const clean = sanitizePermissions(body.permissions_json);
     if (!isOwner) {
-      // Sahip olmayan bir yönetici, sahibe özel izinleri ne verebilir ne de
-      // geri alabilir — mevcut değer aynen korunur.
-      const current = (target as { permissions_json?: Record<string, boolean> }).permissions_json;
+      // Sahip olmayan bir yönetici, kendisinde olmayan yetkileri başkasına veremez
+      // ve sahibe özel izinleri ne verebilir ne de geri alabilir.
+      const current = (target as { permissions_json?: Record<string, boolean> }).permissions_json ?? {};
+      for (const key of Object.keys(clean)) {
+        if (clean[key] && !hasPermission(member, key)) {
+          // Mevcut etkin değer (açık kayıt yoksa rol varsayılanı) aynen korunur.
+          clean[key] = hasPermission(target, key);
+        }
+      }
       for (const key of OWNER_ONLY_PERMS) {
         delete clean[key];
-        if (current && key in current) clean[key] = !!current[key];
+        if (key in current) clean[key] = !!current[key];
       }
     }
     updates.permissions_json = clean;
