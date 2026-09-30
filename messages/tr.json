@@ -1465,6 +1465,22 @@
         "defaultDesc": "Çoktan aza"
       },
       "toggleSort": "Sıralama yönünü değiştir",
+      "kpi": {
+        "total": "Toplam",
+        "records": "Kayıt",
+        "campaign": "Kampanya",
+        "approved": "Onaylı",
+        "thisMonth": "Bu Ay",
+        "visitors": "Gelen",
+        "avgSpend": "Ort. Ciro",
+        "perPerson": "Kişi Başı"
+      },
+      "quick": {
+        "all": "Tümü",
+        "recent": "Son 30 Gün",
+        "risk": "Riskli / Uzaklaşan"
+      },
+      "bookAppointment": "Randevu Ver",
       "marketingOnly": "Kampanya Onaylı",
       "clearFilters": "Filtreyi Temizle",
       "resultCount": "{count} müşteri gösteriliyor",

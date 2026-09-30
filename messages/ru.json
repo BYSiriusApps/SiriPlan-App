@@ -1465,6 +1465,22 @@
         "defaultDesc": "По убыванию"
       },
       "toggleSort": "Изменить направление сортировки",
+      "kpi": {
+        "total": "Всего",
+        "records": "Записей",
+        "campaign": "Рассылка",
+        "approved": "Согласны",
+        "thisMonth": "В этом месяце",
+        "visitors": "Пришли",
+        "avgSpend": "Средний чек",
+        "perPerson": "На клиента"
+      },
+      "quick": {
+        "all": "Все",
+        "recent": "Последние 30 дней",
+        "risk": "Риск / Отдаляются"
+      },
+      "bookAppointment": "Записать",
       "marketingOnly": "Согласие на рассылку",
       "clearFilters": "Очистить фильтры",
       "resultCount": "Показано {count} клиентов",

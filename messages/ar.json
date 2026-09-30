@@ -1465,6 +1465,22 @@
         "defaultDesc": "من الأعلى إلى الأقل"
       },
       "toggleSort": "تغيير اتجاه الفرز",
+      "kpi": {
+        "total": "الإجمالي",
+        "records": "سجل",
+        "campaign": "الحملات",
+        "approved": "موافق",
+        "thisMonth": "هذا الشهر",
+        "visitors": "زائر",
+        "avgSpend": "متوسط الإنفاق",
+        "perPerson": "لكل عميل"
+      },
+      "quick": {
+        "all": "الكل",
+        "recent": "آخر 30 يومًا",
+        "risk": "معرّض للفقدان"
+      },
+      "bookAppointment": "احجز موعدًا",
       "marketingOnly": "موافق على الرسائل",
       "clearFilters": "مسح المرشحات",
       "resultCount": "عرض {count} عميل",

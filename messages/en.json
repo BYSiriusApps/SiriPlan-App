@@ -1465,6 +1465,22 @@
         "defaultDesc": "High to low"
       },
       "toggleSort": "Change sort direction",
+      "kpi": {
+        "total": "Total",
+        "records": "Records",
+        "campaign": "Campaign",
+        "approved": "Approved",
+        "thisMonth": "This Month",
+        "visitors": "Visited",
+        "avgSpend": "Avg. Spend",
+        "perPerson": "Per Customer"
+      },
+      "quick": {
+        "all": "All",
+        "recent": "Last 30 Days",
+        "risk": "At Risk / Drifting"
+      },
+      "bookAppointment": "Book",
       "marketingOnly": "Marketing Approved",
       "clearFilters": "Clear filters",
       "resultCount": "Showing {count} customers",
