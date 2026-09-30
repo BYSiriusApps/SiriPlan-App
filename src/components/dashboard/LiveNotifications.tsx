@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { playNotificationChime } from "@/lib/notification-sound";
+import { useDashboardBadgeRefetch } from "@/components/dashboard/DashboardBadgeContext";
 
 /**
  * Panel açıkken (sekme arka planda olsa bile) yeni randevu/talep geldiğinde
@@ -44,6 +45,32 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
     pathnameRef.current = pathname;
   }, [pathname]);
 
+  // Mobilde sekme arka plana alınınca WebSocket kopabiliyor; aradaki realtime
+  // olaylar kaçırılıyor ("geç güncelleme" şikayeti). Sekme/pencere öne
+  // dönünce throttle'lı bir router.refresh() bu farkı kapatır. Postgres
+  // realtime effect'inden bağımsız/ek bir tetikleyici — üstteki
+  // scheduleRefresh'in takvim-sayfası atlama mantığına tabi değil, çünkü bu
+  // olay bir DB değişikliği değil, kullanıcının sekmeye geri dönmesi.
+  useEffect(() => {
+    let lastRefreshAt = 0;
+    const MIN_INTERVAL_MS = 8000;
+
+    function handleVisible() {
+      if (document.hidden) return;
+      const now = Date.now();
+      if (now - lastRefreshAt < MIN_INTERVAL_MS) return;
+      lastRefreshAt = now;
+      router.refresh();
+    }
+
+    document.addEventListener("visibilitychange", handleVisible);
+    window.addEventListener("focus", handleVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisible);
+      window.removeEventListener("focus", handleVisible);
+    };
+  }, [router]);
+
   useEffect(() => {
     if (
       !askedPermission.current &&
@@ -58,18 +85,27 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
     }
   }, []);
 
+  const refetchBadges = useDashboardBadgeRefetch();
+
   useEffect(() => {
     if (!orgId) return;
     const supabase = createClient();
 
     function scheduleRefresh(skipOnCalendar: boolean) {
+      // Bekleyen İşler/kritik stok/onay bekleyen rozetleri artık layout'tan
+      // gelmiyor (bkz. DashboardBadgeContext.tsx) — router.refresh() onları
+      // BİR DAHA tazelemez, bu yüzden burada ayrıca (ve calendar-atlama
+      // kuralına tabi OLMADAN) tetiklenmesi gerekiyor. Sunucu tarafı zaten
+      // 20 sn önbellekli olduğundan sık tetiklenmesi ucuz.
+      refetchBadges();
+
       // /dashboard/takvim'de UnifiedCalendar.tsx zaten kendi (800ms debounce'lu)
       // router.refresh()'ini appointments + appointment_requests INSERT için
-      // çağırıyor — kökten yeniden render tetiklediği için layout sayaçları da
-      // dahil zaten tazeleniyor. Bu olaylarda ikinci bir refresh planlamak
-      // sadece fazladan bir tam-ağaç sorgulaması demek, bu yüzden atlanıyor.
-      // UnifiedCalendar'ın dinlemediği olaylarda (appointment_requests
-      // UPDATE/DELETE, inventory_items) takvimdeyken de atlanmaz.
+      // çağırıyor — kökten yeniden render tetikliyor. Bu olaylarda ikinci bir
+      // refresh planlamak sadece fazladan bir tam-ağaç sorgulaması demek, bu
+      // yüzden atlanıyor. UnifiedCalendar'ın dinlemediği olaylarda
+      // (appointment_requests UPDATE/DELETE, inventory_items) takvimdeyken de
+      // atlanmaz.
       if (skipOnCalendar && pathnameRef.current === "/dashboard/takvim") return;
       if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
       refreshTimerRef.current = setTimeout(() => {
@@ -149,7 +185,7 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
       if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
       supabase.removeChannel(channel);
     };
-  }, [orgId, router, t]);
+  }, [orgId, router, t, refetchBadges]);
 
   return null;
 }

@@ -244,7 +244,7 @@ export default function AyarlarPage() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
-        const member = await getActiveMemberClient(supabase);
+        const member = await getActiveMemberClient(supabase, user.id);
         if (!member) return;
         const [{ data: orgData }, { data: staffData }] = await Promise.all([
           supabase.from("organizations").select("*").eq("id", member.org_id).single(),

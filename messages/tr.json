@@ -1492,7 +1492,7 @@
     },
     "pendingRequestsPage": {
       "sourceLabel": "Günlük İş Takibi",
-      "subtitle": "Onay bekleyen randevu talepleri (randevu linki, WhatsApp, Instagram), tamamlanmamış işlemler, eksik bilgiler ve stok uyarıları tek yerde.",
+      "subtitle": "Onay bekleyen randevu talepleri, tamamlanmamış işlemler, eksik bilgiler ve stok uyarıları tek yerde.",
       "channelRequestsHeading": "Onay Bekleyenler"
     },
     "overdueAppointments": {
@@ -2063,8 +2063,19 @@
     "proposeSubmit": "Öner",
     "proposalPendingBadge": "Öneri gönderildi — müşteri cevabı bekleniyor ({datetime})",
     "proposalRejectedBadge": "Müşteri önerilen saati reddetti — tekrar öneri ya da iptal edin",
+    "cellDetailLabel": "Hücre Detayı",
+    "callCustomer": "Müşteriyi Ara",
+    "occupancyLabel": "Tahmini Doluluk",
+    "weeklyCapacityTitle": "Haftalık Kapasite & Ciro Barı",
+    "dailyCapacityTitle": "Günlük Kapasite & Ciro Barı",
+    "staffCapacityTitle": "Personel Kapasite & Ciro Barı",
+    "monthlyCapacityTitle": "Aylık Kapasite & Ciro Barı",
+    "excelGridHint": "Excel Çizelgesi: Tüm haftayı yatay kaydırın",
+    "scrollRight": "Sağa Kaydır",
+    "dailyAgendaTitle": "Gün Bazlı Randevu Listesi",
     "homePage": {
       "yourBusiness": "İşletmeniz",
+      "liveHeaderLabel": "Canlı Salon Paneli",
       "greeting": "Merhaba {name}.",
       "tomorrow": "Yarın",
       "activeAppointments": "Aktif Randevular",
@@ -2089,6 +2100,8 @@
       "weeklyStarLabel": "Haftanın Yıldızı: {name}",
       "staffStatsLabel": "{count} randevu · ₺{revenue}",
       "newApptButton": "Randevu",
+      "newApptButtonLong": "Yeni Randevu Oluştur",
+      "micButtonAria": "Sesli Randevu Oluştur",
       "performanceReportTitle": "Performans Raporum",
       "monthlyEarningsLabel": "Bu Ay Kazandırdığım Toplam Tutar",
       "completedApptsCountLabel": "{count} Tamamlanan Randevu",
@@ -2100,6 +2113,8 @@
         "failed": "Hata"
       },
       "dailyCalendar": "Takvim (Bugün)",
+      "activeCountBadge": "{count} Aktif",
+      "staffPrefixLabel": "Uzman: {name}",
       "todayScheduleEmpty": "Bugün için planlanmış randevu yok",
       "newCustomersTitle": "Yeni Müşteriler",
       "newCustomersThisMonth": "{count} yeni müşteri · bu ay",
@@ -2213,7 +2228,9 @@
       "sendFailed": "Gönderilemedi",
       "smsSendFailed": "SMS gönderilemedi",
       "approveFailed": "Randevu onaylanamadı",
-      "toastApprovedNotifying": "Randevu onaylandı, müşteriye bilgi mesajı gönderiliyor"
+      "toastApprovedNotifying": "Randevu onaylandı, müşteriye bilgi mesajı gönderiliyor",
+      "toastRejected": "Talep reddedildi",
+      "rejectFailed": "Reddedilemedi"
     },
     "widgetGrid": {
       "customize": "Kişiselleştir",

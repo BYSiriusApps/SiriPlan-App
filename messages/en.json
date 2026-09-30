@@ -1492,7 +1492,7 @@
     },
     "pendingRequestsPage": {
       "sourceLabel": "Daily Task Tracking",
-      "subtitle": "Pending appointment requests (booking link, WhatsApp, Instagram), unfinished bookings, missing info, and stock alerts, all in one place.",
+      "subtitle": "Pending appointment requests, unfinished bookings, missing info, and stock alerts, all in one place.",
       "channelRequestsHeading": "Awaiting Approval"
     },
     "overdueAppointments": {
@@ -2063,8 +2063,19 @@
     "proposeSubmit": "Propose",
     "proposalPendingBadge": "Proposal sent — waiting for customer response ({datetime})",
     "proposalRejectedBadge": "Customer declined the proposed time — propose again or cancel",
+    "cellDetailLabel": "Cell Detail",
+    "callCustomer": "Call Customer",
+    "occupancyLabel": "Estimated Occupancy",
+    "weeklyCapacityTitle": "Weekly Capacity & Revenue",
+    "dailyCapacityTitle": "Daily Capacity & Revenue",
+    "staffCapacityTitle": "Staff Capacity & Revenue",
+    "monthlyCapacityTitle": "Monthly Capacity & Revenue",
+    "excelGridHint": "Excel Grid: scroll the whole week horizontally",
+    "scrollRight": "Scroll Right",
+    "dailyAgendaTitle": "Appointments by Day",
     "homePage": {
       "yourBusiness": "Your Business",
+      "liveHeaderLabel": "Live Salon Panel",
       "greeting": "Hello {name}.",
       "tomorrow": "Tomorrow",
       "activeAppointments": "Active Appointments",
@@ -2089,6 +2100,8 @@
       "weeklyStarLabel": "Star of the Week: {name}",
       "staffStatsLabel": "{count} appointments · ₺{revenue}",
       "newApptButton": "Appointment",
+      "newApptButtonLong": "Create New Appointment",
+      "micButtonAria": "Create Appointment by Voice",
       "performanceReportTitle": "My Performance Report",
       "monthlyEarningsLabel": "Total Amount I Earned This Month",
       "completedApptsCountLabel": "{count} Completed Appointments",
@@ -2100,6 +2113,8 @@
         "failed": "Failed"
       },
       "dailyCalendar": "Calendar (Today)",
+      "activeCountBadge": "{count} Active",
+      "staffPrefixLabel": "Staff: {name}",
       "todayScheduleEmpty": "No appointments scheduled for today",
       "newCustomersTitle": "New Customers",
       "newCustomersThisMonth": "{count} new customers · this month",
@@ -2213,7 +2228,9 @@
       "sendFailed": "Couldn't send",
       "smsSendFailed": "SMS couldn't be sent",
       "approveFailed": "Appointment could not be approved",
-      "toastApprovedNotifying": "Appointment approved, notification is being sent to the customer"
+      "toastApprovedNotifying": "Appointment approved, notification is being sent to the customer",
+      "toastRejected": "Request rejected",
+      "rejectFailed": "Could not reject"
     },
     "widgetGrid": {
       "customize": "Customize",

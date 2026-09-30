@@ -21,3 +21,19 @@ export function useIsMobileApp(): boolean {
   }, []);
   return isMobileApp;
 }
+
+/**
+ * Yalnızca iOS native sarmalayıcı (WKWebView, UA işaretçisi) — Android TWA'yı
+ * (çerez sinyali) KAPSAMAZ. App Store'daki görünen ad "Siri" trademark
+ * itirazı yüzünden "SiriusPlan"a çevrildi (bkz. docs/app-store-basvuru.md);
+ * Play Store/web hâlâ "SiriPlan" — bu yüzden marka metni gösteren birkaç
+ * bileşen (ColdStartSplash, AuthLogoLink, Sidebar) yalnızca iOS'ta farklı
+ * metin gösterebilsin diye Android'den ayrı bir sinyal gerekti.
+ */
+export function useIsIOSNativeApp(): boolean {
+  const [isIOSApp, setIsIOSApp] = useState(false);
+  useEffect(() => {
+    setIsIOSApp(isMobileAppUserAgent(navigator.userAgent));
+  }, []);
+  return isIOSApp;
+}

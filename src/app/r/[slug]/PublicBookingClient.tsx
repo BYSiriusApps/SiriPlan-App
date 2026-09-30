@@ -16,16 +16,22 @@ import { ClassicLayout } from "./ClassicLayout";
 import { ShowcaseLayout } from "./ShowcaseLayout";
 import { PoweredByBadge } from "@/components/public/PoweredByBadge";
 
+// Yalnızca "tr" (varsayılan ilk render, en yaygın durum) statik/eager import
+// edilir. Önceden burada 4 dilin de TAM mesaj dosyası (dashboard+pazarlama+
+// blog dahil, ~815KB ham) statik import ediliyordu — bu sayfa giriş
+// gerektirmeyen herkese açık randevu linki olduğu için (WhatsApp'tan gelen
+// her müşteri) bu şişkinliği HERKES indiriyordu, çoğu ziyaretçi tek bir dil
+// kullansa bile. en/ru/ar artık yalnızca `lang` o değere geçtiğinde (otomatik
+// salon dili tespiti ya da bayrak tıklaması) talep üzerine indiriliyor.
+// Hangi anahtarların hangi dile karşılık geldiği HİÇ değişmedi — yalnızca ne
+// zaman indirildiği değişti.
 import trMessages from "../../../../messages/tr.json";
-import enMessages from "../../../../messages/en.json";
-import ruMessages from "../../../../messages/ru.json";
-import arMessages from "../../../../messages/ar.json";
 
-const MESSAGES: Record<LanguageCode, AbstractIntlMessages> = {
-  tr: trMessages as unknown as AbstractIntlMessages,
-  en: enMessages as unknown as AbstractIntlMessages,
-  ru: ruMessages as unknown as AbstractIntlMessages,
-  ar: arMessages as unknown as AbstractIntlMessages,
+const MESSAGE_LOADERS: Record<LanguageCode, () => Promise<{ default: unknown }>> = {
+  tr: () => Promise.resolve({ default: trMessages }),
+  en: () => import("../../../../messages/en.json"),
+  ru: () => import("../../../../messages/ru.json"),
+  ar: () => import("../../../../messages/ar.json"),
 };
 
 const DATE_FNS_LOCALES: Record<LanguageCode, DateFnsLocale> = { tr, en: enUS, ru, ar };
@@ -33,22 +39,54 @@ const DATE_FNS_LOCALES: Record<LanguageCode, DateFnsLocale> = { tr, en: enUS, ru
 export function PublicBookingClient({ slug }: { slug: string }) {
   // Varsayılan dil salonun kendi tercihine göre değişir (org.locale), müşteri
   // telefonunu girdiğinde daha önce kaydettiği dil biliniyorsa ona geçilir.
-  // Elle seçilen bayrak butonu her zaman önceliklidir.
+  // Elle seçilen bayrak butonu her zaman önceliktir.
   const [lang, setLang] = useState<LanguageCode>("tr");
+  // "tr" baştan hazır; diğer diller yüklendikçe burada biriktirilir (sekme
+  // içinde ileri geri dil değiştirmek tekrar indirme yapmaz).
+  const [messagesByLang, setMessagesByLang] = useState<Partial<Record<LanguageCode, AbstractIntlMessages>>>({
+    tr: trMessages as unknown as AbstractIntlMessages,
+  });
+
+  useEffect(() => {
+    if (messagesByLang[lang]) return;
+    let cancelled = false;
+    MESSAGE_LOADERS[lang]().then((mod) => {
+      if (cancelled) return;
+      setMessagesByLang((prev) =>
+        prev[lang] ? prev : { ...prev, [lang]: mod.default as AbstractIntlMessages }
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, messagesByLang]);
+
+  // Hedef dil henüz inmediyse geçici olarak "tr" mesajlarıyla render edilir —
+  // ama asıl içerik (randevu formu) aşağıda messagesReady=false iken zaten
+  // yükleniyor ekranında kalır, yani ziyaretçi hiçbir zaman yanlış dilde
+  // (veya ham anahtar yoluyla) form içeriği görmez; en fazla yükleniyor
+  // yazısı bir an "tr" kalır (mevcut org-verisi bekleme ekranıyla aynı sınıf).
+  const messages = messagesByLang[lang] ?? messagesByLang.tr!;
 
   return (
-    <NextIntlClientProvider locale={lang} messages={MESSAGES[lang]}>
-      <PublicBookingPage slug={slug} lang={lang} setLang={setLang} />
+    <NextIntlClientProvider locale={lang} messages={messages}>
+      <PublicBookingPage
+        slug={slug}
+        lang={lang}
+        setLang={setLang}
+        messagesReady={!!messagesByLang[lang]}
+      />
     </NextIntlClientProvider>
   );
 }
 
 function PublicBookingPage({
-  slug, lang, setLang,
+  slug, lang, setLang, messagesReady,
 }: {
   slug: string;
   lang: LanguageCode;
   setLang: (l: LanguageCode) => void;
+  messagesReady: boolean;
 }) {
   const t = useTranslations("booking.public");
   const manualLangOverride = useRef(false);
@@ -136,7 +174,7 @@ function PublicBookingPage({
     }
   }, [setLang, slug]);
 
-  if (!org) {
+  if (!org || !messagesReady) {
     return (
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[oklch(0.985_0.006_70)] dark:bg-[oklch(0.15_0.03_290)]">
         <div className="absolute -top-32 -left-24 w-96 h-96 rounded-full bg-rose-300/25 dark:bg-fuchsia-800/20 blur-3xl animate-soft-float" />

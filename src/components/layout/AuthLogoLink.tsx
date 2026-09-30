@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useIsIOSNativeApp } from "@/lib/use-mobile-app";
 
 /**
  * /auth/* sayfalarının üstündeki SiriPlan logosu normalde pazarlama
@@ -15,15 +16,17 @@ export function AuthLogoLink() {
   const pathname = usePathname();
   const isPlanSec = pathname?.startsWith("/auth/plan-sec");
   const isDavet = pathname?.startsWith("/auth/davet");
+  const isIOSApp = useIsIOSNativeApp();
+  const brandName = isIOSApp ? "SiriusPlan" : "SiriPlan";
 
   const inner = (
     <>
       <img
         src="/icons/icon-mark.png"
-        alt="SiriPlan"
+        alt={brandName}
         className="w-10 h-10 rounded-xl shadow-lg group-hover:scale-105 transition-transform"
       />
-      <span className="text-2xl font-bold text-foreground">SiriPlan</span>
+      <span className="text-2xl font-bold text-foreground">{brandName}</span>
     </>
   );
 

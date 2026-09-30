@@ -1,10 +1,37 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { QuickBookSheet } from "./QuickBookSheet";
+import { Button } from "@/components/ui/button";
 import { HomeButton } from "./HomeButton";
-import { LayoutList, ListPlus } from "lucide-react";
+import { LayoutList, ListPlus, Plus } from "lucide-react";
+
+// QuickBookSheet (~950 satır) mount'ta hem kendi (mic/ses) mantığını hem de
+// gereksiz bir /api/org çağrısını tetikliyor; her panel açılışında değil,
+// yalnızca butona tıklanınca yüklenmesi için code-split edildi (bkz.
+// src/app/dashboard/stok/page.tsx'teki BarcodeScanner ile aynı desen).
+// Fallback, gerçek SheetTrigger butonuyla (QuickBookSheet.tsx satır ~547-552)
+// birebir aynı boyut/görünümde — yoksa tıklamadan önce/sonra CLS/sıçrama olur.
+const QuickBookSheet = dynamic(
+  () => import("./QuickBookSheet").then((mod) => mod.QuickBookSheet),
+  {
+    ssr: false,
+    loading: () => <QuickBookSheetFallback />,
+  }
+);
+
+function QuickBookSheetFallback() {
+  const tqb = useTranslations("dashboard.quickBook");
+  return (
+    <div className="flex items-center gap-1.5">
+      <Button size="sm" className="gap-1.5" disabled>
+        <Plus className="h-4 w-4" />
+        {tqb("addButton")}
+      </Button>
+    </div>
+  );
+}
 
 interface StaffCard {
   id: string;

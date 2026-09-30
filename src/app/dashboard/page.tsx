@@ -8,7 +8,7 @@ import {
 import { tr, enUS, ru, ar } from "date-fns/locale";
 import {
   Calendar, MessageCircle, Megaphone, Star, ChevronRight, Plus,
-  Clock, BarChart3, Wallet, Users, Scissors, Package, AlertTriangle,
+  BarChart3, Wallet, Users, Scissors, Package, AlertTriangle,
 } from "lucide-react";
 import type { Appointment, StaffPerformanceWeekly } from "@/types/database";
 import {
@@ -24,9 +24,13 @@ import { getDashboardWidgetPrefs } from "@/app/actions/dashboard-widgets";
 import { DashboardWidgetGrid, type DashboardWidget } from "@/components/dashboard/DashboardWidgetGrid";
 import { getTranslations, getLocale } from "next-intl/server";
 import { ApproveButton } from "@/components/dashboard/ApproveButton";
+import { RejectButton } from "@/components/dashboard/RejectButton";
+import { ContactLinks } from "@/components/dashboard/ContactLinks";
+import { HomeHeaderActions } from "@/components/dashboard/HomeHeaderActions";
 import { NewAppointmentFab } from "@/components/dashboard/NewAppointmentFab";
 import { OnboardingWelcome, OnboardingTour, STAFF_STEPS } from "@/components/dashboard/OnboardingTour";
 import { numberLocaleOf } from "@/lib/currency";
+import { cn } from "@/lib/utils";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
@@ -433,6 +437,18 @@ export default async function DashboardPage() {
     failed: t("homePage.campStatus.failed"),
   };
 
+  /* "Bugünkü Randevular" kartındaki durum rozeti renkleri — mevcut durum
+     değerleri/etiketleriyle birebir aynı (bkz. UnifiedCalendar statusLabel),
+     yalnızca burada ayrıca renk sınıfı eşleniyor. */
+  const STATUS_META: Record<string, { label: string; className: string }> = {
+    talep: { label: t("statusTalep"), className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
+    onaylandi: { label: t("statusOnaylandi"), className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
+    tamamlandi: { label: t("statusTamamlandi"), className: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400" },
+    gelmedi: { label: t("noShow"), className: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" },
+  };
+  const initialsOf = (name: string) =>
+    name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "").join("");
+
   const widgets: DashboardWidget[] = [
     {
       key: "active_appointments",
@@ -442,7 +458,7 @@ export default async function DashboardPage() {
         <GlassCard3D key="active_appointments" className="glass-card" glow intensity={3}>
           <CardTitle
             right={
-              <Link href="/dashboard/randevular" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/randevular" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -464,14 +480,14 @@ export default async function DashboardPage() {
                   <Link
                     key={a.id}
                     href={`/dashboard/randevular/${a.id}`}
-                    className="flex items-center justify-between gap-2 text-[13px] leading-snug hover:opacity-80 transition-opacity"
+                    className="flex items-center justify-between gap-2 text-[14px] leading-snug hover:opacity-80 transition-opacity"
                   >
-                    <span className="truncate text-foreground">
+                    <span className="truncate font-extrabold text-foreground">
                       {isLive(a) && <span className="status-dot active pulse-live inline-block mr-1.5 align-middle" />}
                       {a.customer_name}
-                      <span className="text-muted-foreground"> ({a.service?.name ?? "—"})</span>
+                      <span className="font-bold text-muted-foreground"> ({a.service?.name ?? "—"})</span>
                     </span>
-                    <span className="tabular-nums shrink-0 text-primary">
+                    <span className="tabular-nums shrink-0 font-extrabold text-primary">
                       {dayLabel(a.appointment_at)}{istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)}
                     </span>
                   </Link>
@@ -479,7 +495,7 @@ export default async function DashboardPage() {
               )}
               <Link
                 href="/dashboard/randevular"
-                className="inline-flex items-center gap-1 mt-1 text-[12px] font-semibold px-2.5 py-1 rounded-lg text-primary hover:opacity-80 transition-opacity"
+                className="inline-flex items-center gap-1 mt-1 text-[12px] font-extrabold px-2.5 py-1 rounded-lg text-primary hover:opacity-80 transition-opacity"
                 style={{ background: "color-mix(in oklch, var(--primary) 12%, transparent)", border: "1px solid color-mix(in oklch, var(--primary) 30%, transparent)" }}
               >
                 {t("viewAll")} <ChevronRight className="h-3 w-3" />
@@ -488,7 +504,7 @@ export default async function DashboardPage() {
           </div>
           <div className="flex items-center gap-3 flex-wrap px-4 pb-3.5 text-[11px] text-muted-foreground">
             {liveCount > 0 && (
-              <span className="flex items-center gap-1.5 font-semibold">
+              <span className="flex items-center gap-1.5 font-extrabold">
                 <span className="status-dot active pulse-live" /> {liveCount} {t("inProgress")}
               </span>
             )}
@@ -513,38 +529,62 @@ export default async function DashboardPage() {
         <GlassCard3D key="daily_calendar" className="glass-card h-full" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/takvim" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/takvim" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
           >
-            {t("homePage.dailyCalendar")}
+            <span className="flex items-center gap-2">
+              {t("homePage.dailyCalendar")}
+              {appts.length > 0 && (
+                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-primary text-primary-foreground normal-case tracking-normal">
+                  {t("homePage.activeCountBadge", { count: appts.length })}
+                </span>
+              )}
+            </span>
           </CardTitle>
           <div className="px-4 py-3.5">
             {appts.length === 0 ? (
               <p className="text-sm text-muted-foreground py-2">{t("homePage.todayScheduleEmpty")}</p>
             ) : (
-              <div className="space-y-1.5">
-                {appts.slice(0, 6).map((a) => (
-                  <Link
-                    key={a.id}
-                    href={`/dashboard/randevular/${a.id}`}
-                    className="flex items-center gap-2.5 text-[13px] leading-snug hover:opacity-80 transition-opacity"
-                  >
-                    <span className="tabular-nums shrink-0 w-12 text-primary font-semibold flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> {istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)}
-                    </span>
-                    <span className="truncate flex-1 text-foreground">{a.customer_name}</span>
-                    {a.staff?.full_name && (
-                      <span
-                        className="text-[10px] px-1.5 py-0.5 rounded-md shrink-0 text-muted-foreground"
-                        style={{ background: "color-mix(in oklch, var(--accent) 30%, transparent)" }}
-                      >
-                        {a.staff.full_name}
-                      </span>
-                    )}
-                  </Link>
-                ))}
+              <div className="space-y-2.5">
+                {appts.slice(0, 6).map((a) => {
+                  const status = STATUS_META[a.status] ?? { label: a.status, className: "bg-muted text-muted-foreground" };
+                  return (
+                    <div key={a.id} className="kpi-tile rounded-xl border-0 p-3 space-y-2">
+                      <Link href={`/dashboard/randevular/${a.id}`} className="flex items-start justify-between gap-2 hover:opacity-85 transition-opacity">
+                        <div className="flex items-start gap-2.5 min-w-0">
+                          <span className="tabular-nums shrink-0 text-[11px] font-extrabold px-2 py-1 rounded-lg bg-primary/15 text-primary">
+                            {istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="font-extrabold text-[15px] text-foreground truncate">{a.customer_name}</p>
+                            <p className="text-[13px] font-bold text-muted-foreground truncate">{a.service?.name ?? "—"}</p>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-extrabold text-foreground">₺{Number(a.price).toLocaleString(numLocale)}</p>
+                          <span className={cn("text-[10px] font-extrabold px-1.5 py-0.5 rounded-full inline-block mt-0.5", status.className)}>
+                            {status.label}
+                          </span>
+                        </div>
+                      </Link>
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/60">
+                        <span className="flex items-center gap-1.5 text-[12px] font-bold text-muted-foreground truncate">
+                          {a.staff?.full_name && (
+                            <>
+                              <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-[9px] font-extrabold shrink-0">
+                                {initialsOf(a.staff.full_name)}
+                              </span>
+                              {t("homePage.staffPrefixLabel", { name: a.staff.full_name })}
+                            </>
+                          )}
+                        </span>
+                        {a.customer_phone && <ContactLinks phone={a.customer_phone} size="md" />}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -559,7 +599,7 @@ export default async function DashboardPage() {
         <GlassCard3D key="whatsapp_assistant" className="glass-card h-full" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/randevular" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/randevular" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -588,7 +628,7 @@ export default async function DashboardPage() {
                       <MessageCircle className="h-4 w-4" style={{ color: "var(--chart-4)" }} />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-medium text-foreground truncate">
+                      <p className="text-[13px] font-bold text-foreground truncate">
                         {t("homePage.apptApprovalLabel", { name: r.customer_name })}
                       </p>
                       <p className="text-[11px] text-muted-foreground">
@@ -600,27 +640,36 @@ export default async function DashboardPage() {
                 {talepUpcoming.map((a) => (
                   <div
                     key={a.id}
-                    className="relative flex items-center gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-opacity"
+                    className="flex flex-col gap-2.5 rounded-xl px-3 py-2.5"
                     style={{ background: "color-mix(in oklch, var(--accent) 30%, transparent)", border: "1px solid color-mix(in oklch, var(--accent) 60%, transparent)" }}
                   >
-                    <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "color-mix(in oklch, var(--accent) 60%, transparent)" }}>
-                      <Calendar className="h-4 w-4 text-accent-foreground" />
-                    </span>
-                    {/* Kayda tıklayınca detay sayfası açılır — Link kartın tamamını
-                        kaplar (::before), "Onayla" düğmesi üstte kalır (relative z-10). */}
-                    <Link
-                      href={`/dashboard/randevular/${a.id}`}
-                      className="min-w-0 flex-1 before:absolute before:inset-0 before:content-['']"
-                    >
-                      <p className="text-[13px] font-medium text-foreground truncate">
-                        {t("homePage.awaitingApprovalLabel", { name: a.customer_name })}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {dayLabel(a.appointment_at) || `${t("today")} `}{istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)} · {a.service?.name}
-                      </p>
-                    </Link>
-                    <div className="relative z-10 shrink-0">
+                    <div className="relative flex items-center gap-3">
+                      <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "color-mix(in oklch, var(--accent) 60%, transparent)" }}>
+                        <Calendar className="h-4 w-4 text-accent-foreground" />
+                      </span>
+                      {/* Kayda tıklayınca detay sayfası açılır — Link satırın tamamını
+                          kaplar (::before), aksiyon düğmeleri altta ayrı bir satırda. */}
+                      <Link
+                        href={`/dashboard/randevular/${a.id}`}
+                        className="min-w-0 flex-1 before:absolute before:inset-0 before:content-['']"
+                      >
+                        <p className="text-[13px] font-bold text-foreground truncate">
+                          {t("homePage.awaitingApprovalLabel", { name: a.customer_name })}
+                        </p>
+                        <p className="text-[11px] font-bold text-muted-foreground">
+                          {dayLabel(a.appointment_at) || `${t("today")} `}{istanbulTimeStr(new Date(a.appointment_at), orgTimeZone)} · {a.service?.name}
+                        </p>
+                      </Link>
+                    </div>
+                    <div className="relative z-10 flex items-center gap-1.5 flex-wrap">
                       <ApproveButton appointmentId={a.id} label={t("approve")} />
+                      <Link
+                        href="/dashboard/bekleyen-istekler"
+                        className="text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0 border border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/30 transition-colors"
+                      >
+                        {t("proposeNewTime")}
+                      </Link>
+                      <RejectButton appointmentId={a.id} label={t("cancelAction")} />
                     </div>
                   </div>
                 ))}
@@ -645,7 +694,7 @@ export default async function DashboardPage() {
               <span className="text-[13px] font-bold tracking-wider uppercase opacity-90">
                 {t("homePage.campaignPerformance")}
               </span>
-              <Link href="/dashboard/kampanyalar" className="text-[11px] font-medium flex items-center gap-0.5 opacity-80 hover:opacity-100">
+              <Link href="/dashboard/kampanyalar" className="text-[11px] font-bold flex items-center gap-0.5 opacity-80 hover:opacity-100">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
@@ -655,7 +704,7 @@ export default async function DashboardPage() {
                 style={{ background: "color-mix(in oklch, var(--primary-foreground) 12%, transparent)" }}>
                 <Megaphone className="h-4 w-4 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium truncate">{t("homePage.campaignLabel", { name: camp.name })}</p>
+                  <p className="text-[13px] font-bold truncate">{t("homePage.campaignLabel", { name: camp.name })}</p>
                   {camp.sent_count > 0 && (
                     <p className="text-[11px] opacity-75">{t("homePage.reachedCustomers", { count: camp.sent_count })}</p>
                   )}
@@ -684,7 +733,7 @@ export default async function DashboardPage() {
                   <Star className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium truncate">
+                  <p className="text-[13px] font-bold truncate">
                     {t("homePage.weeklyStarLabel", { name: champ.staff.full_name })}
                   </p>
                   <p className="text-[11px] opacity-75">
@@ -705,7 +754,7 @@ export default async function DashboardPage() {
         <GlassCard3D key="new_customer" className="glass-card h-full" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/musteriler" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/musteriler" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -725,10 +774,10 @@ export default async function DashboardPage() {
                   <Link
                     key={c.id}
                     href="/dashboard/musteriler"
-                    className="flex items-center justify-between gap-2 text-[13px] leading-snug hover:opacity-80 transition-opacity"
+                    className="flex items-center justify-between gap-2 text-[14px] leading-snug hover:opacity-80 transition-opacity"
                   >
-                    <span className="truncate text-foreground">{c.full_name}</span>
-                    <span className="tabular-nums shrink-0 text-muted-foreground text-[11px]">
+                    <span className="truncate font-extrabold text-foreground">{c.full_name}</span>
+                    <span className="tabular-nums shrink-0 font-bold text-muted-foreground text-[11px]">
                       {format(new Date(c.created_at), "d MMM", { locale: dateFnsLocale })}
                     </span>
                   </Link>
@@ -747,7 +796,7 @@ export default async function DashboardPage() {
         <GlassCard3D key="reports_summary" className="glass-card h-full" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/raporlar" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/raporlar" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -757,7 +806,7 @@ export default async function DashboardPage() {
           <div className="px-4 py-3.5 flex items-center gap-3">
             <span
               className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "color-mix(in oklch, var(--primary) 15%, transparent)" }}
+              style={{ background: "color-mix(in oklch, var(--primary) 24%, transparent)" }}
             >
               <BarChart3 className="h-5 w-5 text-primary" />
             </span>
@@ -768,7 +817,7 @@ export default async function DashboardPage() {
               <p className="text-[11px] text-muted-foreground">{t("homePage.monthRevenueLabel")}</p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-sm font-semibold text-foreground">{t("homePage.monthApptsCountLabel", { count: monthApptsCount })}</p>
+              <p className="text-sm font-extrabold text-foreground">{t("homePage.monthApptsCountLabel", { count: monthApptsCount })}</p>
             </div>
           </div>
         </GlassCard3D>
@@ -782,7 +831,7 @@ export default async function DashboardPage() {
         <GlassCard3D key="income_expense" className="glass-card h-full" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/gelir-gider" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/gelir-gider" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -793,7 +842,7 @@ export default async function DashboardPage() {
             <div className="flex items-center gap-3 mb-3">
               <span
                 className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: "color-mix(in oklch, var(--primary) 15%, transparent)" }}
+                style={{ background: "color-mix(in oklch, var(--primary) 24%, transparent)" }}
               >
                 <Wallet className="h-5 w-5 text-primary" />
               </span>
@@ -804,11 +853,11 @@ export default async function DashboardPage() {
             </div>
             <div className="flex items-center justify-between text-[13px] py-1">
               <span className="text-muted-foreground">{t("homePage.extraIncomeLabel")}</span>
-              <span className="font-semibold" style={{ color: "var(--chart-2)" }}>+₺{extraIncomeTotal.toLocaleString(numLocale)}</span>
+              <span className="font-extrabold" style={{ color: "var(--chart-2)" }}>+₺{extraIncomeTotal.toLocaleString(numLocale)}</span>
             </div>
             <div className="flex items-center justify-between text-[13px] py-1">
               <span className="text-muted-foreground">{t("homePage.expenseLabel")}</span>
-              <span className="font-semibold" style={{ color: "var(--destructive)" }}>-₺{expenseTotal.toLocaleString(numLocale)}</span>
+              <span className="font-extrabold" style={{ color: "var(--destructive)" }}>-₺{expenseTotal.toLocaleString(numLocale)}</span>
             </div>
           </div>
         </GlassCard3D>
@@ -860,7 +909,7 @@ export default async function DashboardPage() {
         <GlassCard3D key="staff_today" className="glass-card h-full" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/personel" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/personel" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -875,13 +924,13 @@ export default async function DashboardPage() {
               <p className="text-sm text-muted-foreground">{t("homePage.noStaffToday")}</p>
             ) : (
               <div className="space-y-1.5">
-                <p className="text-[11px] font-medium text-muted-foreground">{t("homePage.workingTodayLabel")}</p>
+                <p className="text-[11px] font-bold text-muted-foreground">{t("homePage.workingTodayLabel")}</p>
                 {staffToday.map(([name, count]) => (
-                  <div key={name} className="flex items-center justify-between text-[13px]">
-                    <span className="flex items-center gap-2 text-foreground truncate">
+                  <div key={name} className="flex items-center justify-between text-[14px]">
+                    <span className="flex items-center gap-2 font-extrabold text-foreground truncate">
                       <Users className="h-3.5 w-3.5 text-primary shrink-0" /> {name}
                     </span>
-                    <span className="tabular-nums shrink-0 text-muted-foreground text-[11px]">{count}</span>
+                    <span className="tabular-nums shrink-0 font-extrabold text-primary text-[12px]">{count}</span>
                   </div>
                 ))}
               </div>
@@ -898,7 +947,7 @@ export default async function DashboardPage() {
         <GlassCard3D key="critical_stock" className="glass-card h-full" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/stok" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/stok" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -910,7 +959,7 @@ export default async function DashboardPage() {
               <p className="text-sm text-muted-foreground py-2">{t("homePage.criticalStockOk")}</p>
             ) : (
               <>
-                <p className="text-[12px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5">
+                <p className="text-[12px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1.5">
                   <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                   {t("homePage.criticalStockCount", { count: criticalStock.length })}
                 </p>
@@ -918,12 +967,12 @@ export default async function DashboardPage() {
                   <Link
                     key={i.id}
                     href="/dashboard/stok"
-                    className="flex items-center justify-between gap-2 text-[13px] leading-snug hover:opacity-80 transition-opacity"
+                    className="flex items-center justify-between gap-2 text-[14px] leading-snug hover:opacity-80 transition-opacity"
                   >
-                    <span className="flex items-center gap-2 truncate text-foreground">
+                    <span className="flex items-center gap-2 truncate font-extrabold text-foreground">
                       <Package className="h-3.5 w-3.5 text-amber-500 shrink-0" /> {i.name}
                     </span>
-                    <span className="tabular-nums shrink-0 text-amber-600 dark:text-amber-400 text-[11px] font-semibold">
+                    <span className="tabular-nums shrink-0 text-amber-600 dark:text-amber-400 text-[11px] font-extrabold">
                       {i.current_stock} {i.unit}
                     </span>
                   </Link>
@@ -942,7 +991,7 @@ export default async function DashboardPage() {
         <GlassCard3D key="services_summary" className="glass-card h-full" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/hizmetler" className="text-[11px] font-medium flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/hizmetler" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -957,12 +1006,12 @@ export default async function DashboardPage() {
               <Link
                 key={s.id}
                 href="/dashboard/hizmetler"
-                className="flex items-center justify-between gap-2 text-[13px] leading-snug hover:opacity-80 transition-opacity"
+                className="flex items-center justify-between gap-2 text-[14px] leading-snug hover:opacity-80 transition-opacity"
               >
-                <span className="flex items-center gap-2 truncate text-foreground">
+                <span className="flex items-center gap-2 truncate font-extrabold text-foreground">
                   <Scissors className="h-3.5 w-3.5 text-primary shrink-0" /> {s.name}
                 </span>
-                <span className="tabular-nums shrink-0 text-muted-foreground text-[11px]">
+                <span className="tabular-nums shrink-0 font-bold text-muted-foreground text-[11px]">
                   ₺{Number(s.price).toLocaleString(numLocale)} · {s.duration_minutes}{t("minutesShort")}
                 </span>
               </Link>
@@ -990,7 +1039,7 @@ export default async function DashboardPage() {
           <div className="px-4 py-4 flex items-center gap-3">
             <span
               className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "color-mix(in oklch, var(--primary) 15%, transparent)" }}
+              style={{ background: "color-mix(in oklch, var(--primary) 24%, transparent)" }}
             >
               <BarChart3 className="h-5 w-5 text-primary" />
             </span>
@@ -1001,7 +1050,7 @@ export default async function DashboardPage() {
               <p className="text-[11px] text-muted-foreground">{t("homePage.monthlyEarningsLabel")}</p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-sm font-semibold text-foreground">{t("homePage.completedApptsCountLabel", { count: monthApptsCount })}</p>
+              <p className="text-sm font-extrabold text-foreground">{t("homePage.completedApptsCountLabel", { count: monthApptsCount })}</p>
             </div>
           </div>
         </GlassCard3D>
@@ -1012,21 +1061,32 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ── Üst başlık: sıcak karşılama + canlı saat ── */}
-      <header className="flex items-start justify-between px-4 pt-6 pb-5 max-w-6xl mx-auto">
-        <div className="min-w-0">
-          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-foreground truncate text-balance">
-            {orgName}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">{t("homePage.greeting", { name: firstName })}</p>
-        </div>
-        <div className="text-right shrink-0 ml-3">
-          <div className="text-2xl font-bold tabular-nums text-foreground leading-none">
-            <LiveClock />
+      {/* ── Üst başlık: canlı-durum rozeti + sıcak karşılama + canlı saat + hızlı aksiyonlar ── */}
+      <header className="px-4 pt-4 pb-3 max-w-6xl mx-auto">
+        <div className="rounded-3xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent border border-primary/15 px-5 py-5">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div className="min-w-0">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.15em] text-primary">
+                <span className="status-dot active pulse-live" />
+                {t("homePage.liveHeaderLabel")}
+              </span>
+              <h1 className="font-heading text-2xl sm:text-3xl font-extrabold text-foreground truncate text-balance mt-1">
+                {orgName}
+              </h1>
+              <p className="text-sm font-bold text-muted-foreground mt-1">{t("homePage.greeting", { name: firstName })}</p>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-2xl font-extrabold tabular-nums text-foreground leading-none">
+                <LiveClock />
+              </div>
+              <p className="text-[11px] font-bold text-muted-foreground mt-1">
+                {format(now, "d MMMM", { locale: dateFnsLocale })}
+              </p>
+            </div>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">
-            {format(now, "d MMMM", { locale: dateFnsLocale })}
-          </p>
+          <div className="mt-4">
+            <HomeHeaderActions />
+          </div>
         </div>
       </header>
 

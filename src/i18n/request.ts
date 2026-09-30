@@ -47,6 +47,22 @@ async function detectLocale(): Promise<Locale> {
   });
 }
 
+// `import(\`...${locale}.json\`)` (template-string yolu) bundler için
+// belirsizdir: hangi dosyanın gerekeceğini derleme zamanında kestiremediği
+// için Turbopack/webpack DÖRT dilin de JSON'unu tek bir client-erişilebilir
+// chunk'ta birleştiriyordu (~815KB ham veri — ar+ru+tr+en aynı pakette).
+// Bunu müşteriye açık /r/[slug] randevu sayfası da indiriyordu, yani hiç
+// giriş yapmamış her müşteri kullanmayacağı 3 dilin metnini de çekiyordu.
+// Sabit (literal) yol içeren ayrı import() çağrıları bundler'a her dili
+// KENDİ chunk'ına ayırma imkânı verir — çalışma zamanı davranışı (hangi
+// dilin seçildiği) birebir aynı kalır, yalnızca paketleme değişir.
+const MESSAGE_LOADERS = {
+  tr: () => import("../../messages/tr.json"),
+  en: () => import("../../messages/en.json"),
+  ru: () => import("../../messages/ru.json"),
+  ar: () => import("../../messages/ar.json"),
+} satisfies Record<Locale, () => Promise<{ default: unknown }>>;
+
 export default getRequestConfig(async ({ requestLocale }) => {
   // Pazarlama sayfaları artık `app/[locale]/(marketing)` altında — next-intl
   // proxy.ts'te eşleştirdiği locale'i buraya `requestLocale` olarak iletir.
@@ -57,6 +73,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const locale = isLocale(segmentLocale) ? segmentLocale : await detectLocale();
   return {
     locale,
-    messages: (await import(`../../messages/${locale}.json`)).default,
+    messages: (await MESSAGE_LOADERS[locale]()).default,
   };
 });
