@@ -230,8 +230,8 @@ export default async function RandevularPage({
         <Link
           href={statusHref()}
           className={cn(
-            "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-            !params.status ? "bg-primary text-primary-foreground border-primary shadow-sm" : "border-border hover:bg-accent"
+            "px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all",
+            !params.status ? "bg-primary text-primary-foreground border-primary shadow-md" : "border-border bg-card hover:bg-primary/10 hover:text-primary hover:border-primary/40"
           )}
         >
           {t("all")}
@@ -241,10 +241,10 @@ export default async function RandevularPage({
             key={s}
             href={statusHref(s)}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              "px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all",
               params.status === s
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "border-border hover:bg-accent"
+                ? "bg-primary text-primary-foreground border-primary shadow-md"
+                : "border-border bg-card hover:bg-primary/10 hover:text-primary hover:border-primary/40"
             )}
           >
             {t(STATUS_LABEL_KEYS[s])}

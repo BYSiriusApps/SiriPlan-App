@@ -136,7 +136,7 @@ export default async function RaporlarPage({
               <p className="text-sm text-muted-foreground text-center py-3">Bu günde randevu kaydı yok</p>
             ) : (
               <div className="space-y-1">
-                <div className="hidden md:grid grid-cols-[64px_1fr_1fr_120px_90px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+                <div className="hidden md:grid grid-cols-[64px_1fr_1fr_120px_90px] gap-3 px-3 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wide border-b">
                   <span>Saat</span><span>Müşteri</span><span>Hizmet</span><span>Durum</span><span className="text-right">Tutar</span>
                 </div>
                 {mAppts.map((a) => {
@@ -147,17 +147,17 @@ export default async function RaporlarPage({
                       <div className="md:contents">
                         <span className="hidden md:block text-sm font-semibold tabular-nums">{format(new Date(a.appointment_at), "HH:mm")}</span>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">
+                          <p className="text-sm font-semibold truncate">
                             <span className="md:hidden font-semibold tabular-nums mr-1.5">{format(new Date(a.appointment_at), "HH:mm")}</span>
                             {a.customer_name}
                           </p>
                           <p className="text-xs text-muted-foreground truncate md:hidden">{a.service?.name}</p>
                         </div>
                         <span className="hidden md:block text-xs text-muted-foreground truncate">{a.service?.name}</span>
-                        <span className={`hidden md:inline-flex w-fit px-2 py-0.5 rounded-full text-[11px] font-medium ${st.cls}`}>{st.label}</span>
+                        <span className={`hidden md:inline-flex w-fit px-2 py-0.5 rounded-full text-[11px] font-bold ${st.cls}`}>{st.label}</span>
                       </div>
                       <div className="flex items-center gap-2 justify-end">
-                        <span className={`md:hidden px-2 py-0.5 rounded-full text-[10px] font-medium ${st.cls}`}>{st.label}</span>
+                        <span className={`md:hidden px-2 py-0.5 rounded-full text-[10px] font-bold ${st.cls}`}>{st.label}</span>
                         <span className="text-sm font-semibold text-right tabular-nums">{formatMoney(Number(a.price), currency, locale)}</span>
                       </div>
                     </Link>
@@ -358,7 +358,7 @@ export default async function RaporlarPage({
             href={`/api/export?format=pdf&gun=${dayParam}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-accent transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-sm font-bold hover:bg-primary/10 hover:text-primary hover:border-primary/40 transition-all"
           >
             <Download className="h-4 w-4" />
             {t("reportsPage.daySummaryPdf")}
@@ -456,7 +456,7 @@ export default async function RaporlarPage({
             <p className="text-sm text-muted-foreground text-center py-3">{t("reportsPage.noAppointments")}</p>
           ) : (
             <div className="space-y-1">
-              <div className="hidden md:grid grid-cols-[64px_1fr_1fr_120px_90px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+              <div className="hidden md:grid grid-cols-[64px_1fr_1fr_120px_90px] gap-3 px-3 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wide border-b">
                 <span>Saat</span>
                 <span>Müşteri</span>
                 <span>{t("reportsPage.serviceStaff")}</span>
@@ -483,7 +483,7 @@ export default async function RaporlarPage({
                         {format(new Date(a.appointment_at), "HH:mm")}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">
+                        <p className="text-sm font-semibold truncate">
                           <span className="md:hidden font-semibold tabular-nums mr-1.5">{format(new Date(a.appointment_at), "HH:mm")}</span>
                           {a.customer_name}
                         </p>
@@ -494,12 +494,12 @@ export default async function RaporlarPage({
                       <span className="hidden md:block text-xs text-muted-foreground truncate">
                         {a.service?.name}{a.staff?.full_name ? ` · ${a.staff.full_name}` : ""}
                       </span>
-                      <span className={`hidden md:inline-flex w-fit px-2 py-0.5 rounded-full text-[11px] font-medium ${st.cls}`}>
+                      <span className={`hidden md:inline-flex w-fit px-2 py-0.5 rounded-full text-[11px] font-bold ${st.cls}`}>
                         {st.label}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 justify-end">
-                      <span className={`md:hidden px-2 py-0.5 rounded-full text-[10px] font-medium ${st.cls}`}>{st.label}</span>
+                      <span className={`md:hidden px-2 py-0.5 rounded-full text-[10px] font-bold ${st.cls}`}>{st.label}</span>
                       <span className="text-sm font-semibold text-right tabular-nums">
                         {formatMoney(Number(a.price), currency, locale)}
                       </span>
@@ -513,10 +513,10 @@ export default async function RaporlarPage({
           {/* Gün içi gelir/gider kayıtları — elle girilen + otomatik randevu satırları */}
           {dExpenses.length > 0 && (
             <div className="space-y-1 pt-2 border-t">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-1.5">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide px-3 py-1.5">
                 Gün İçi Gelir / Gider Kayıtları
               </p>
-              <div className="hidden md:grid grid-cols-[90px_1fr_140px_90px] gap-3 px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <div className="hidden md:grid grid-cols-[90px_1fr_140px_90px] gap-3 px-3 py-1 text-xs font-bold text-muted-foreground uppercase tracking-wide">
                 <span>Tür</span>
                 <span>Açıklama</span>
                 <span>Kategori</span>
@@ -563,7 +563,7 @@ export default async function RaporlarPage({
             height={140}
           />
           <div className="space-y-1">
-            <div className="hidden sm:grid grid-cols-[1fr_120px_120px_110px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+            <div className="hidden sm:grid grid-cols-[1fr_120px_120px_110px] gap-3 px-3 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wide border-b">
               <span>Metrik</span>
               <span className="text-right">Geçen Ay</span>
               <span className="text-right">Bu Ay</span>
@@ -622,7 +622,7 @@ export default async function RaporlarPage({
               },
             ].map((group) => (
               <div key={group.title} className="rounded-lg border border-border p-3 space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{group.title}</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">{group.title}</p>
                 {group.best ? (
                   <div className="flex items-center justify-between gap-2 text-sm">
                     <span className="flex items-center gap-1.5 min-w-0">
@@ -729,7 +729,7 @@ export default async function RaporlarPage({
                       {i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{s.name}</p>
+                      <p className="text-sm font-semibold truncate">{s.name}</p>
                       <p className="text-xs text-muted-foreground">{s.count} randevu</p>
                     </div>
                     <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency, locale)}</p>
@@ -759,7 +759,7 @@ export default async function RaporlarPage({
                       {s.name[0]}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{s.name}</p>
+                      <p className="text-sm font-semibold truncate">{s.name}</p>
                       <p className="text-xs text-muted-foreground">{s.count} tamamlanan randevu</p>
                     </div>
                     <p className="text-sm font-semibold tabular-nums">{formatMoney(s.revenue, currency, locale)}</p>

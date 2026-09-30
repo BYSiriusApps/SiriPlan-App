@@ -776,7 +776,7 @@ export default function StokPage() {
         <Card className="kpi-tile border-0 shadow-sm">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground font-medium">{getStokText("totalProducts")}</p>
+              <p className="text-xs text-muted-foreground font-semibold">{getStokText("totalProducts")}</p>
               <p className="text-2xl font-bold tabular-nums mt-1">{totalProducts}</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -788,7 +788,7 @@ export default function StokPage() {
         <Card className="kpi-tile border-0 shadow-sm">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground font-medium">{getStokText("criticalStock")}</p>
+              <p className="text-xs text-muted-foreground font-semibold">{getStokText("criticalStock")}</p>
               <p className={`text-2xl font-bold tabular-nums mt-1 ${criticalStockCount > 0 ? "text-amber-600 dark:text-amber-400" : ""}`}>
                 {criticalStockCount}
               </p>
@@ -802,7 +802,7 @@ export default function StokPage() {
         <Card className="kpi-tile border-0 shadow-sm">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground font-medium">{getStokText("totalStockValue")}</p>
+              <p className="text-xs text-muted-foreground font-semibold">{getStokText("totalStockValue")}</p>
               <p className="text-2xl font-bold tabular-nums mt-1 text-emerald-600 dark:text-emerald-400">{fmt(totalStockValue)}</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 flex items-center justify-center">
@@ -827,8 +827,8 @@ export default function StokPage() {
         <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
           <button
             onClick={() => setSelectedCategory("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 ${
-              selectedCategory === "all" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shrink-0 ${
+              selectedCategory === "all" ? "bg-primary text-primary-foreground shadow-md" : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary"
             }`}
           >
             {t("stockPage.allCategories")} ({items.length})
@@ -839,8 +839,8 @@ export default function StokPage() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 ${
-                  selectedCategory === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shrink-0 ${
+                  selectedCategory === cat ? "bg-primary text-primary-foreground shadow-md" : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary"
                 }`}
               >
                 {cat} ({count})
@@ -883,7 +883,7 @@ export default function StokPage() {
                     const isCritical = Number(item.current_stock) <= Number(item.min_stock_alert);
                     return (
                       <tr key={item.id} className="hover:bg-muted/30 transition-colors group">
-                        <td className="p-3 pl-4 font-medium">
+                        <td className="p-3 pl-4 font-semibold">
                           <p className="leading-snug">{item.name}</p>
                           <p className="text-[11px] text-muted-foreground">{t("stockPage.unitShort")}: {item.unit}</p>
                           {item.barcode && (

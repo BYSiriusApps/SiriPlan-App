@@ -574,6 +574,20 @@
   box-shadow: 0 12px 28px -10px color-mix(in oklch, var(--primary) 22%, transparent);
 }
 
+/* Panel bütünlüğü — Genel Bakış / Takvim / Müşteriler'deki kalın-canlı dil,
+   diğer tüm panel sayfalarına yalnızca görsel olarak yayılır (tema token'ları; işleyiş yok). */
+.dashboard-shell h1 { font-weight: 800; }
+.dashboard-shell [data-slot="card-title"] { font-weight: 700; }
+.dashboard-shell .kpi-tile { border-color: color-mix(in oklch, var(--primary) 14%, var(--border)); }
+.dashboard-shell .kpi-tile::before { height: 3px; opacity: 1; }
+.dashboard-shell .kpi-tile .text-muted-foreground { font-weight: 600; }
+.dashboard-shell button.bg-primary.text-primary-foreground,
+.dashboard-shell a.bg-primary.text-primary-foreground {
+  font-weight: 700;
+  box-shadow: 0 4px 12px -4px color-mix(in oklch, var(--primary) 50%, transparent);
+}
+.dashboard-shell button.bg-primary.text-primary-foreground:disabled { box-shadow: none; }
+
 /* Data table row — liste satırlarında tutarlı hover/ayırıcı davranışı */
 .data-row {
   transition: background-color 0.15s ease;
