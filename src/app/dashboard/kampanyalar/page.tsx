@@ -1,6 +1,8 @@
 import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getEntitlements } from "@/lib/entitlements";
+import { hasPermission } from "@/lib/permissions";
+import { DeleteDraftButton } from "./DeleteDraftButton";
 import { isMobileApp } from "@/lib/mobile-app";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -76,6 +78,8 @@ export default async function KampanyalarPage() {
       .eq("org_id", member.org_id)
       .eq("marketing_consent", true),
   ]);
+
+  const canManageCampaigns = hasPermission(member, "manage_campaigns");
 
   return (
     <div className="p-6 space-y-6">
@@ -188,6 +192,9 @@ export default async function KampanyalarPage() {
                         <p className="text-sm font-semibold">{c.sent_count}</p>
                         <p className="text-xs text-muted-foreground">{t("campaignsPage.sentCount")}</p>
                       </div>
+                      {c.status === "draft" && canManageCampaigns && (
+                        <DeleteDraftButton id={c.id} name={c.name} />
+                      )}
                     </div>
                   </Link>
                 );

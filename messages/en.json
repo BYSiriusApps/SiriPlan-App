@@ -1427,7 +1427,10 @@
       },
       "sentCount": "sent",
       "scheduledLabel": "Scheduled: {date}",
-      "draftLabel": "Draft"
+      "draftLabel": "Draft",
+      "deleteDraft": "Delete draft",
+      "deleteDraftConfirm": "Delete the draft \"{name}\"? This cannot be undone.",
+      "deleteDraftError": "Could not delete the draft"
     },
     "staffPage": {
       "salaryEyebrow": "Team",

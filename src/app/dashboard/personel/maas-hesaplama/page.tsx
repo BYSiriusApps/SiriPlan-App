@@ -56,7 +56,29 @@ export default function MaasHesaplamaPage() {
     const res = await fetch(`/api/staff-payroll?year=${year}&month=${month}`);
     if (res.ok) {
       const data = await res.json();
-      setRows(data.rows ?? []);
+      const payrollRows: PayrollRow[] = data.rows ?? [];
+      setRows(payrollRows);
+      // Bu ay için zaten gider olarak kaydedilmiş maaşlar "Kaydedildi" görünsün —
+      // sayfa yenilenince/başka oturumda aynı maaş ikinci kez girilmesin.
+      // (Kontrol yalnızca gösterim; kayıt akışı ve API değişmedi.)
+      try {
+        const er = await fetch(`/api/expenses?year=${year}&month=${month}`);
+        if (er.ok) {
+          const entries: { type: string; category: string; description: string | null }[] = await er.json();
+          const recorded = new Set(
+            entries.filter((e) => e.type === "gider" && e.category === "personel").map((e) => e.description)
+          );
+          setSavedIds(
+            new Set(
+              payrollRows
+                .filter((r) => recorded.has(`${MONTHS[month - 1]} ${year} maaşı — ${r.full_name}`))
+                .map((r) => r.staff_id)
+            )
+          );
+        }
+      } catch {
+        // kontrol başarısızsa eski davranış: buton aktif kalır
+      }
     } else {
       toast.error("Yüklenemedi");
     }

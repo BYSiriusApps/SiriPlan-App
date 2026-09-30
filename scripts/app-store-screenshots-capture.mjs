@@ -14,7 +14,7 @@ import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
-const BASE_URL = process.env.SCREENSHOT_BASE_URL || "https://www.siriplan.com";
+const BASE_URL = process.env.SCREENSHOT_BASE_URL || "https://www.siriplan.com"; // yerel production build için: SCREENSHOT_BASE_URL=http://localhost:3100
 const DEMO_EMAIL = "sahip.demo@siriplan.com";
 const DEMO_PASSWORD = process.env.SCREENSHOT_DEMO_PASSWORD || "Sahip!2026Demo";
 
@@ -61,30 +61,45 @@ const DEVICES = [
 
 const PAGES = [
   { num: "01", slug: "anasayfa", path: "/dashboard" },
-  { num: "02", slug: "takvim", path: "/dashboard/takvim" },
   {
-    num: "03",
-    slug: "takvimay",
-    path: "/dashboard/takvim",
+    num: "02",
+    slug: "takvim",
+    path: "/dashboard/takvim?date=2026-09-24&view=staff", // dolu bir gün (9 randevu, 5 personel)
+    // Personel bazlı takvim (sütunlar = personel). Görünüm tercihi hesaba göre
+    // değişebildiği için her çalıştırmada AÇIKÇA seçilir ve doğrulanır; doğrulanamazsa
+    // dosya yazılmaz (yanlış görünümde görsel çıkmasın).
     afterLoad: async (page) => {
-      // Görünüm seçici düğme değil sekme/etiket olabilir: role'e bağlanmadan metinle bul.
-      const ayButton = page.getByText(/^(Ay|Month)$/).first();
-      if (await ayButton.count()) {
-        await ayButton.click();
-        await page.waitForTimeout(800);
+      const isPersonelView = () =>
+        page.evaluate(() => {
+          const t = document.body.innerText;
+          return /\bSAAT\b/.test(t) && (t.match(/\b\d+ randevu\b/g) || []).length >= 2;
+        });
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        await page.waitForTimeout(1500);
+        if (!(await isPersonelView())) {
+          await page.getByRole("button", { name: /Personel/ }).first().click();
+          await page.waitForTimeout(1000);
+        }
+        if (await isPersonelView()) {
+          await page.mouse.move(0, 0); // hover vurgusu görüntüye girmesin
+          await page.waitForTimeout(300);
+          return;
+        }
       }
+      throw new Error("Personel görünümüne geçilemedi");
     },
   },
   { num: "04", slug: "musteriler", path: "/dashboard/musteriler" },
   { num: "05", slug: "hizmetler", path: "/dashboard/hizmetler" },
   { num: "06", slug: "personel", path: "/dashboard/personel" },
-  { num: "07", slug: "stok", path: "/dashboard/stok" },
+  { num: "07", slug: "stok", path: "/dashboard/stok", settle: 3000 }, // liste istemci tarafında yüklenir
   { num: "08", slug: "kampanyalar", path: "/dashboard/kampanyalar" },
-  { num: "09", slug: "paketler", path: "/dashboard/paketler" },
+  { num: "09", slug: "paketler", path: "/dashboard/paketler", settle: 3000 },
   // Aşağıdakiler (Gelir-Gider bu ayki verisi boş/sıfır olduğu için hiç listelenmedi) demo veride yasaklı terim (ör. "Bysiri" hizmet adı) içerdiği
   // sürece taramada otomatik atlanır; veri düzelince kendiliğinden çıkar.
+  { num: "11", slug: "gelirgider", path: "/dashboard/gelir-gider", settle: 3000 },
   { num: "10", slug: "randevular", path: "/dashboard/randevular" },
-  { num: "12", slug: "raporlar", path: "/dashboard/raporlar" },
+  { num: "12", slug: "raporlar", path: "/dashboard/raporlar?gun=2026-09-26" }, // ciro > gider olan gün
 ];
 
 async function dismissCookieBanner(page) {
@@ -147,18 +162,22 @@ async function captureDevice(browser, device) {
   const page = await context.newPage();
   await login(page);
 
+  // SCREENSHOT_ONLY=takvimay,stok → yalnızca bu sayfaları (yeniden) çek.
+  const only = (process.env.SCREENSHOT_ONLY || "").split(",").filter(Boolean);
   for (const item of PAGES) {
+    if (only.length && !only.includes(item.slug)) continue;
     // networkidle realtime abonelikler (Supabase/websocket) yüzünden hiç
     // tetiklenmeyebiliyor (bkz. musteriler sayfası timeout) — "load" + sabit
     // bekleme daha güvenilir.
     await page.goto(`${BASE_URL}${item.path}`, { waitUntil: "load", timeout: 45000 });
     await dismissCookieBanner(page);
-    await page.waitForTimeout(1200);
+    await page.waitForTimeout(item.settle ?? 1200);
     if (item.afterLoad) {
       try {
         await item.afterLoad(page);
       } catch (err) {
-        console.warn(`  [uyarı] ${item.slug} afterLoad başarısız: ${err.message}`);
+        console.warn(`  [ATLANDI] ${item.slug} afterLoad başarısız: ${err.message}`);
+        continue;
       }
     }
     const pageText = await page.evaluate(() => document.body.innerText);

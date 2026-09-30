@@ -646,7 +646,7 @@ export default function GelirGiderPage() {
       </div>
 
       {/* Summary cards */}
-      <div className={`grid grid-cols-1 sm:grid-cols-3 ${kdvEnabled ? "lg:grid-cols-4" : ""} gap-4`}>
+      <div className={`grid grid-cols-1 sm:grid-cols-3 ${kdvEnabled ? "xl:grid-cols-4" : ""} gap-4`}>
         <div className="kpi-tile p-5 flex items-center gap-4 bg-emerald-50/60 dark:bg-emerald-950/20">
           <div className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 shrink-0">
             <ArrowUpCircle className="h-5 w-5 text-emerald-600" />

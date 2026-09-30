@@ -1426,6 +1426,9 @@
       "sentCount": "تم الإرسال",
       "scheduledLabel": "مجدول: {date}",
       "draftLabel": "مسودة",
+      "deleteDraft": "حذف المسودة",
+      "deleteDraftConfirm": "هل تريد حذف المسودة «{name}»؟ لا يمكن التراجع عن هذا الإجراء.",
+      "deleteDraftError": "تعذّر حذف المسودة",
       "eyebrow": "التسويق",
       "subtitle": "أرسل رسائل تلقائية إلى عملائك"
     },

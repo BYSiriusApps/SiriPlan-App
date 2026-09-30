@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect, useMemo, useRef } from "react";
+import { useState, useTransition, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
@@ -147,15 +147,33 @@ function layoutDay(appts: Appointment[], gridStartMin: number, gridEndMin: numbe
     placed.push({ appt, lane, start, end });
   }
 
-  // Çakışma kümesi başına şerit sayısı
-  return placed.map((p) => {
-    const overlapping = placed.filter((q) => q.start < p.end && q.end > p.start);
-    const lanes = Math.max(...overlapping.map((q) => q.lane)) + 1;
+  // Kutular ekranda (apptBlockStyle) kendi saat satırının sonuna ya da aynı
+  // şeritteki sonraki randevuya kadar uzatılarak çizilir; şerit sayısı da bu
+  // GÖRSEL aralığa göre, birbirine değen kutular tek küme sayılarak hesaplanır —
+  // aksi halde aynı kümedeki kutular farklı genişlikte olup üst üste biner.
+  const withNext = placed.map((p) => {
     const nextInLane = placed
       .filter((q) => q.lane === p.lane && q.start > p.start)
       .sort((a, b) => a.start - b.start)[0];
-    return { appt: p.appt, lane: p.lane, lanes, capMinutes: nextInLane ? nextInLane.start : null };
+    const rowEnd = (Math.floor(p.start / 60) + 1) * 60;
+    const vEnd = Math.min(gridEndMin, Math.max(p.end, Math.min(nextInLane ? nextInLane.start : Infinity, rowEnd)));
+    return { ...p, vEnd, nextStart: nextInLane ? nextInLane.start : null };
   });
+  const comp = withNext.map((_, i) => i);
+  const find = (i: number): number => (comp[i] === i ? i : (comp[i] = find(comp[i])));
+  for (let i = 0; i < withNext.length; i++) {
+    for (let j = i + 1; j < withNext.length; j++) {
+      if (withNext[i].start < withNext[j].vEnd && withNext[i].vEnd > withNext[j].start) comp[find(i)] = find(j);
+    }
+  }
+  const lanesOfComp = new Map<number, number>();
+  withNext.forEach((p, i) => {
+    const r = find(i);
+    lanesOfComp.set(r, Math.max(lanesOfComp.get(r) ?? 0, p.lane + 1));
+  });
+  return withNext.map((p, i) => ({
+    appt: p.appt, lane: p.lane, lanes: lanesOfComp.get(find(i)) ?? 1, capMinutes: p.nextStart,
+  }));
 }
 
 export function UnifiedCalendar({
@@ -170,7 +188,53 @@ export function UnifiedCalendar({
   // sütun/az sütun olduğu için biraz daha yüksek, hafta görünümü 7 sütun
   // aynı anda göründüğü için daha da sıkı. Önceki değerler (112/64) satırları
   // gereksiz yere şişiriyor, gereksiz kaydırma yaratıyordu.
-  const HOUR_PX = view === "day" || view === "staff" ? 72 : 52;
+  // Telefonda (dar ekran) gün/personel görünümü saat satırı daha alçak: 10-12
+  // saatlik mesai kaydırmadan tek ekrana sığsın. Geniş ekranda eski değer.
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const apply = () => setNarrow(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+  // ── Excel tablosu gibi "otomatik satır yüksekliği" ──
+  // Her saat satırı boşken kompakt (BASE_PX), o saatteki randevuların metni
+  // sığmıyorsa satır DİKEY büyür (aşağıdaki layout effect kutuların gerçek
+  // içerik yüksekliğini ölçüp satırları hesaplar). Randevu konumu/tıklama/
+  // sürükleme hesapları yOfMin/minOfY ile bu değişken yüksekliklere göre yapılır.
+  const BASE_PX = narrow ? 30 : view === "day" || view === "staff" ? 56 : 44;
+  const MAX_ROW_PX = 180;
+  const gridStartMin = hours[0] * 60;
+  const gridEndMin = (hours[hours.length - 1] + 1) * 60;
+  const [fit, setFit] = useState<number[] | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [, setSizeTick] = useState(0);
+  const rows = useMemo(
+    () => (fit && fit.length === hours.length ? fit : hours.map(() => BASE_PX)),
+    [fit, hours, BASE_PX]
+  );
+  const rowTops = useMemo(() => {
+    const tops: number[] = [];
+    let acc = 0;
+    for (const h of rows) { tops.push(acc); acc += h; }
+    return tops;
+  }, [rows]);
+  const gridHeight = rows.reduce((a, b) => a + b, 0);
+  function yOfMin(min: number) {
+    const rel = (min - gridStartMin) / 60;
+    if (rel <= 0) return 0;
+    if (rel >= rows.length) return gridHeight;
+    const i = Math.floor(rel);
+    return rowTops[i] + (rel - i) * rows[i];
+  }
+  function minOfY(y: number) {
+    if (y <= 0) return gridStartMin;
+    for (let i = 0; i < rows.length; i++) {
+      if (y < rowTops[i] + rows[i]) return gridStartMin + i * 60 + ((y - rowTops[i]) / rows[i]) * 60;
+    }
+    return gridEndMin;
+  }
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
   const weekdayShort = useMemo(
     () => WEEKDAY_REF_DATES.map((d) => format(new Date(d + "T12:00:00"), "EEE", { locale: dateFnsLocale })),
@@ -311,7 +375,7 @@ export function UnifiedCalendar({
     }
     const rect = e.currentTarget.getBoundingClientRect();
     const clickY = e.clientY - rect.top;
-    const minutesFromStart = Math.floor((clickY / HOUR_PX) * 60);
+    const minutesFromStart = Math.floor(minOfY(clickY) - gridStartMin);
     const roundedMinutes = Math.floor(minutesFromStart / slotMinutes) * slotMinutes;
     const targetHour = hours[0] + Math.floor(roundedMinutes / 60);
     const targetMinute = roundedMinutes % 60;
@@ -500,12 +564,11 @@ export function UnifiedCalendar({
     setLastSelected(appt);
   }
 
-  const gridHeight = hours.length * HOUR_PX;
   // layoutDay için: grid'in görünen saat aralığı + minimum kutu yüksekliğinin
   // dakika karşılığı (bkz. apptBlockStyle'daki aynı minimum).
-  const gridStartMin = hours[0] * 60;
-  const gridEndMin = (hours[hours.length - 1] + 1) * 60;
-  const minVisualMin = ((view === "day" ? 32 : 24) / HOUR_PX) * 60;
+  // Çok kısa (ör. 5 dk) randevular bile en az bu kadar dakikalık yer kaplar —
+  // satır yüksekliği bu aralığa göre metne yetecek şekilde büyütülür.
+  const minVisualMin = 15;
 
   // ── Sürükle-bırak: randevuyu farklı bir saate (hafta/gün görünümü) veya
   // farklı bir güne (yalnızca hafta görünümü) taşımak için. Personel/lane
@@ -572,7 +635,9 @@ export function UnifiedCalendar({
       const cur = dragRef.current;
       if (!cur || cur.apptId !== appt.id) return;
 
-      const rawMinDelta = (dy / HOUR_PX) * 60;
+      const origDate = new Date(cur.origAt);
+      const origMin = origDate.getHours() * 60 + origDate.getMinutes();
+      const rawMinDelta = minOfY(yOfMin(origMin) + dy) - origMin;
       const snappedMinDelta = Math.round(rawMinDelta / slotMinutes) * slotMinutes;
 
       let newDayIndex = cur.dayIndex;
@@ -595,8 +660,7 @@ export function UnifiedCalendar({
       cur.pendingDayIndex = newDayIndex;
 
       const previewMin = newDate.getHours() * 60 + newDate.getMinutes();
-      const rawTop = ((previewMin - hours[0] * 60) / 60) * HOUR_PX;
-      const top = Math.min(Math.max(rawTop, 0), gridHeight - 24);
+      const top = Math.min(yOfMin(previewMin), gridHeight - 24);
       setDragPreview({
         apptId: appt.id,
         dayIndex: newDayIndex,
@@ -648,6 +712,58 @@ export function UnifiedCalendar({
       setUpdatingId(null);
     }
   }
+
+  // Kutuların gerçek (sarılmış) içerik yüksekliğini ölçüp satırları büyütür.
+  // Ölçüm satır yüksekliğinden BAĞIMSIZ (yalnızca genişliğe bağlı; metin asla
+  // kırpılmıyor) olduğu için tek geçişte oturur, döngüye girmez.
+  useLayoutEffect(() => {
+    if (view === "month" || dragRef.current?.dragging) return;
+    const root = rootRef.current;
+    if (!root) return;
+    const n = hours.length;
+    const cons = Array.from(root.querySelectorAll<HTMLElement>("[data-fit]")).map((el) => ({
+      s: Number(el.dataset.s),
+      e: Number(el.dataset.e),
+      need: ((el.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0) + 8,
+    }));
+    const next: number[] = hours.map(() => BASE_PX);
+    for (let iter = 0; iter < 8; iter++) {
+      let changed = false;
+      for (const c of cons) {
+        let span = 0;
+        let fsum = 0;
+        const parts: number[] = [];
+        for (let i = 0; i < n; i++) {
+          const rs = gridStartMin + i * 60;
+          const ov = Math.max(0, Math.min(c.e, rs + 60) - Math.max(c.s, rs));
+          if (ov > 0) { span += (ov / 60) * next[i]; fsum += ov / 60; parts.push(i); }
+        }
+        if (fsum > 0 && span + 0.5 < c.need) {
+          const d = (c.need - span) / fsum;
+          for (const i of parts) next[i] = Math.min(MAX_ROW_PX, next[i] + d);
+          changed = true;
+        }
+      }
+      if (!changed) break;
+    }
+    const rounded = next.map((v) => Math.ceil(v));
+    const same = fit && fit.length === rounded.length && fit.every((v, i) => v === rounded[i]);
+    if (!same && !(fit === null && rounded.every((v) => v === BASE_PX))) setFit(rounded);
+  });
+
+  // Genişlik değişince (döndürme/yeniden boyutlama) ve yazı tipleri yüklenince
+  // metin farklı sarılır → yeniden ölç.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || typeof ResizeObserver === "undefined") return;
+    let lastW = root.clientWidth;
+    const ro = new ResizeObserver(() => {
+      if (root.clientWidth !== lastW) { lastW = root.clientWidth; setSizeTick((x) => x + 1); }
+    });
+    ro.observe(root);
+    document.fonts?.ready.then(() => setSizeTick((x) => x + 1)).catch(() => {});
+    return () => ro.disconnect();
+  }, []);
 
   // Dakikada bir tazelenen "şimdi" — devam eden randevu ve kırmızı çizgi için
   const [now, setNow] = useState(() => new Date());
@@ -729,8 +845,8 @@ export function UnifiedCalendar({
 
   // Kırmızı "şu an" çizgisi (bugün görünürken)
   const nowMin = now.getHours() * 60 + now.getMinutes();
-  const nowTop = ((nowMin - hours[0] * 60) / 60) * HOUR_PX;
-  const nowVisible = nowTop >= 0 && nowTop <= gridHeight;
+  const nowTop = yOfMin(nowMin);
+  const nowVisible = nowMin >= gridStartMin && nowMin <= gridEndMin;
   const nowLine = nowVisible ? (
     <div className="absolute left-0 right-0 z-20 pointer-events-none" style={{ top: nowTop }}>
       <div className="flex items-center">
@@ -740,44 +856,40 @@ export function UnifiedCalendar({
     </div>
   ) : null;
 
-  function apptBlockStyle(appt: Appointment, capMinutes?: number | null) {
+  function apptBlockStyle(appt: Appointment, capMinutes: number | null) {
     const d = new Date(appt.appointment_at);
     const startMin = d.getHours() * 60 + d.getMinutes();
-    const rawTop = ((startMin - hours[0] * 60) / 60) * HOUR_PX;
-    // Not: yüksekliği gerçek süreden fazla şişirmiyoruz — art arda kısa randevular
-    // birbirinin üzerine taşar. Bunun yerine kısa kutularda 2. satır (hizmet) gizlenir.
-    let height = Math.max(view === "day" ? 32 : 24, (appt.duration_minutes / 60) * HOUR_PX);
-    // Aynı şeritteki bir sonraki randevu bu minimumdan önce başlıyorsa (ör. art arda
-    // 15dk'lık randevular ya da grid dışı/hatalı saatli bir randevu), kutuyu onun
-    // üstüne taşırmayacak şekilde kırp — aksi halde aslında çakışmayan randevular
-    // görsel olarak üst üste binmiş gibi görünür. capMinutes, layoutDay'de zaten
-    // grid saatlerine kenetlenmiş olarak hesaplanır.
-    if (capMinutes != null) {
-      const capPx = ((capMinutes - hours[0] * 60) / 60) * HOUR_PX - rawTop;
-      if (capPx > 0) height = Math.min(height, Math.max(14, capPx - 2));
-    }
-    // Grid dışına taşan randevular gizlenmesin — kenara kenetle
-    const top = Math.min(Math.max(rawTop, 0), gridHeight - 24);
-    return { top, height: Math.min(height, gridHeight - top) };
+    // layoutDay ile aynı kenetleme: grid dışı randevular gizlenmesin
+    const sMin = Math.min(Math.max(startMin, gridStartMin), gridEndMin - minVisualMin);
+    const nominalEnd = Math.max(sMin + minVisualMin, Math.min(startMin + appt.duration_minutes, gridEndMin));
+    // Excel hücresi gibi: kısa randevu kendi saat satırının sonuna kadar (ya da
+    // aynı şeritteki sonraki randevuya kadar) uzayabilir — böylece metin için
+    // gereken yükseklik satırı gereğinden fazla şişirmez. Gerçek süreden uzun
+    // çizilen kısmı yalnızca görsel; randevu saati/süresi değişmez.
+    const rowEnd = (Math.floor(sMin / 60) + 1) * 60;
+    const eMin = Math.min(gridEndMin, Math.max(nominalEnd, Math.min(capMinutes ?? Infinity, rowEnd)));
+    const top = yOfMin(sMin);
+    const height = Math.max(20, yOfMin(eMin) - top - 2);
+    return { top, height, sMin, eMin };
   }
 
-  function renderApptBlock(p: Positioned, opts?: { showStaff?: boolean; dayIndex?: number }) {
+  function renderApptBlock(p: Positioned, opts?: { showStaff?: boolean; dayIndex?: number; compact?: boolean }) {
     const { appt, lane, lanes, capMinutes } = p;
     const c = colorOf(appt.staff_id);
-    const { top, height } = apptBlockStyle(appt, capMinutes);
+    const { top, height, sMin, eMin } = apptBlockStyle(appt, capMinutes);
     const width = 100 / lanes;
     const done = appt.status === "tamamlandi";
     const noShow = appt.status === "gelmedi";
     const pending = appt.status === "talep";
     const live = isLive(appt);
     const beingDragged = dragPreview?.apptId === appt.id;
-    // Kutu çok kısaysa (kısa süreli randevu) 2. satırı (hizmet) gizle —
-    // saat + isim (başlık) her koşulda kesilmeden, üst üste binmeden tam görünsün.
-    const canShowServiceLine = height >= (view === "day" ? 40 : 32);
 
     return (
       <button
         key={appt.id}
+        data-fit=""
+        data-s={sMin}
+        data-e={eMin}
         onClick={(e) => openPopover(e, appt)}
         onPointerDown={(e) => onApptPointerDown(e, appt, opts?.dayIndex ?? 0)}
         onPointerMove={(e) => onApptPointerMove(e, appt, height)}
@@ -798,29 +910,45 @@ export function UnifiedCalendar({
         }}
         className={cn(
           "absolute rounded-md overflow-hidden cursor-pointer hover:shadow-md transition-shadow text-left z-10 select-none",
-          view === "day" ? "px-2 py-1 text-[12.5px] leading-snug" : "px-1.5 py-0.5 text-[11.5px] leading-tight",
+          view === "day" ? "px-2 py-1 text-[12.5px] leading-snug" : "px-1 py-px text-[11px] leading-tight",
           pending && "border-dashed"
         )}
       >
-        {/* Kutu rengi (arka plan/kenarlık) personelin rengini taşır; içerideki
-            saat/süre/müşteri adı ise okunabilirlik için her zaman koyu/siyah —
-            personel adı ayrı bir span'de kendi renginde gösterilir. */}
-        <p className="font-bold truncate text-foreground">
-          {live && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-1 align-middle" />}
-          {done && <span className="mr-0.5">✓</span>}
-          {noShow && <span className="mr-0.5">⚠</span>}
-          {format(new Date(appt.appointment_at), "HH:mm")} {appt.customer_name}
-        </p>
-        {canShowServiceLine && (
-          <p className="truncate font-bold text-foreground">
-            {live ? `● ${t("liveNow")} · ` : ""}
-            {appt.service?.name}
-            {appt.duration_minutes ? ` · ${appt.duration_minutes}${t("minutesShort")}` : ""}
-            {opts?.showStaff && staffName(appt.staff_id) && (
-              <span> · <span style={{ color: c.solid }}>{staffName(appt.staff_id)}</span></span>
-            )}
-          </p>
-        )}
+        {/* İç sarmalayıcı: kutu sabit yükseklikte/overflow-hidden olsa da bu div
+            metnin DOĞAL yüksekliğini taşır — satır yüksekliği hesabı bunu ölçer.
+            Metin hiçbir zaman kırpılmaz (truncate yok), sarılır. Kutu rengi
+            personelin rengini taşır; yazılar okunabilirlik için koyu/siyah. */}
+        <div className="block">
+          {opts?.compact ? (
+            <>
+              <div className="flex items-baseline gap-1 min-w-0 font-bold text-foreground">
+                {live && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0 self-center" />}
+                {done && <span className="shrink-0">✓</span>}
+                {noShow && <span className="shrink-0">⚠</span>}
+                <span className="shrink-0 tabular-nums">{format(new Date(appt.appointment_at), "HH:mm")}</span>
+              </div>
+              <p className="font-bold text-foreground break-words">{appt.service?.name}</p>
+              <p className="text-[10px] text-foreground/70 font-semibold break-words">{appt.customer_name}</p>
+            </>
+          ) : (
+            <>
+              <p className="font-bold text-foreground break-words">
+                {live && <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mr-1 align-middle" />}
+                {done && <span className="mr-0.5">✓</span>}
+                {noShow && <span className="mr-0.5">⚠</span>}
+                {format(new Date(appt.appointment_at), "HH:mm")} {appt.customer_name}
+              </p>
+              <p className="font-bold text-foreground break-words">
+                {live ? `● ${t("liveNow")} · ` : ""}
+                {appt.service?.name}
+                {appt.duration_minutes ? ` · ${appt.duration_minutes}${t("minutesShort")}` : ""}
+                {opts?.showStaff && staffName(appt.staff_id) && (
+                  <span> · <span style={{ color: c.solid }}>{staffName(appt.staff_id)}</span></span>
+                )}
+              </p>
+            </>
+          )}
+        </div>
       </button>
     );
   }
@@ -924,14 +1052,14 @@ export function UnifiedCalendar({
       <div className={cn("border-b bg-muted/20 flex items-center justify-center text-[9px] font-bold text-muted-foreground tracking-wide", view === "staff" ? "h-14" : "h-10")}>
         {(view === "week" || view === "staff") && "SAAT"}
       </div>
-      {hours.map((h) => (
+      {hours.map((h, hi) => (
         <div
           key={h}
           className={cn(
             "border-b flex items-start justify-center pt-0.5 text-muted-foreground bg-muted/20 font-mono font-bold",
-            view === "day" || view === "staff" ? "text-xs pt-1.5" : "text-[10px]"
+            view === "day" || view === "staff" ? "text-[10.5px] sm:text-xs pt-1 sm:pt-1.5" : "text-[10px]"
           )}
-          style={{ height: HOUR_PX }}
+          style={{ height: rows[hi] }}
         >
           {String(h).padStart(2, "0")}:00
         </div>
@@ -944,8 +1072,8 @@ export function UnifiedCalendar({
   const divisionsPerHour = 60 / slotMinutes;
   const slotLines = (
     <>
-      {hours.map((h) => (
-        <div key={h} className="border-b border-border/60 relative" style={{ height: HOUR_PX }}>
+      {hours.map((h, hi) => (
+        <div key={h} className="border-b border-border/60 relative" style={{ height: rows[hi] }}>
           {/* Boş hücrelerde excel tablosu hissi veren "+" ipucu — salt görsel,
               tıklama zaten üst kapsayıcının onClick'i ile çalışıyor. */}
           <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground/20">
@@ -954,7 +1082,7 @@ export function UnifiedCalendar({
           {Array.from({ length: divisionsPerHour - 1 }, (_, i) => (
             <div
               key={i}
-              style={{ height: HOUR_PX / divisionsPerHour }}
+              style={{ height: rows[hi] / divisionsPerHour }}
               // Yarım saat çizgisi (i.e. saat başından 30dk sonrası) biraz daha belirgin
               className={cn("border-b", (i + 1) * slotMinutes === 30 ? "border-border/25" : "border-border/15")}
             />
@@ -1050,8 +1178,18 @@ export function UnifiedCalendar({
     </div>
   ) : null;
 
+  // Hafta görünümü: her gün sütununun genişliği yan yana şerit (çakışan randevu)
+  // sayısına göre açılır — şerit başına en az ~88px, böylece metin harf harf
+  // kırılmaz; dar ekranda Excel gibi yatay kaydırma zaten var.
+  const weekPositioned = view === "week"
+    ? gridDays.map((d) => layoutDay(byDay[d] || [], gridStartMin, gridEndMin, minVisualMin))
+    : [];
+  const weekColTemplate = weekPositioned
+    .map((pos) => `minmax(${Math.max(104, Math.max(1, ...pos.map((q) => q.lanes)) * 88)}px, 1fr)`)
+    .join(" ");
+
   return (
-    <div className="space-y-3">
+    <div ref={rootRef} className="space-y-3">
       {/* Kontrol çubuğu: görünüm + gezinme + personel filtresi */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-center sm:justify-start">
@@ -1243,11 +1381,11 @@ export function UnifiedCalendar({
             <span className="font-bold">↔ {t("scrollRight")}</span>
           </div>
           <div className="overflow-x-auto">
-            <div className="grid min-w-[760px]" style={{ gridTemplateColumns: `48px repeat(7, 1fr)` }}>
+            <div className="grid min-w-[760px]" style={{ gridTemplateColumns: `48px ${weekColTemplate}` }}>
               {hourRail}
               {gridDays.map((dayStr, dayIndex) => {
                 const dayAppts = byDay[dayStr] || [];
-                const positioned = layoutDay(dayAppts, gridStartMin, gridEndMin, minVisualMin);
+                const positioned = weekPositioned[dayIndex];
                 const isToday = dayStr === today;
                 const closed = orgClosedOn(dayStr);
                 const offNames = offStaffNamesOn(dayStr);
@@ -1283,7 +1421,7 @@ export function UnifiedCalendar({
                       {slotLines}
                       {isToday && nowLine}
                       <div className="absolute inset-0">
-                        {positioned.map((p) => renderApptBlock(p, { showStaff: !lockedStaffId && selectedStaffIds.length !== 1, dayIndex }))}
+                        {positioned.map((p) => renderApptBlock(p, { showStaff: !lockedStaffId && selectedStaffIds.length !== 1, dayIndex, compact: true }))}
                         {dragPreview && dragPreview.dayIndex === dayIndex && (
                           <div
                             className="absolute inset-x-1 rounded-md border-2 border-dashed border-primary bg-primary/10 pointer-events-none z-30 flex items-start justify-center"
@@ -1406,7 +1544,7 @@ export function UnifiedCalendar({
                     {slotLines}
                     {isToday && nowLine}
                     <div className="absolute inset-0">
-                      {positioned.map((p) => renderApptBlock(p, { showStaff: false }))}
+                      {positioned.map((p) => renderApptBlock(p, { showStaff: false, compact: true }))}
                     </div>
                   </div>
                 </div>
@@ -1448,7 +1586,7 @@ export function UnifiedCalendar({
               const offNames = offStaffNamesOn(dayStr);
 
               return (
-                <div className="grid min-w-[420px]" style={{ gridTemplateColumns: "48px 1fr" }}>
+                <div className="grid sm:min-w-[420px]" style={{ gridTemplateColumns: "48px minmax(0, 1fr)" }}>
                   {hourRail}
                   <div className="min-w-0">
                     <div
