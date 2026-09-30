@@ -49,3 +49,8 @@ next-env.d.ts
 
 # Claude Code yerel araç önbelleği (13MB vendored skill betikleri + kişisel ayarlar)
 .claude/
+
+# Yerel geçici çıktılar
+dev-server.log
+create-templates-result.json
+create-staff-templates-result.json
