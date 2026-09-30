@@ -61,31 +61,32 @@ const DEVICES = [
 
 const PAGES = [
   { num: "01", slug: "anasayfa", path: "/dashboard" },
-  { num: "02", slug: "takvim", path: "/dashboard/takvim" },
   {
-    num: "03",
-    slug: "takvimay",
+    num: "02",
+    slug: "takvim",
     path: "/dashboard/takvim",
+    // Personel bazlı takvim (sütunlar = personel). Görünüm tercihi hesaba göre
+    // değişebildiği için her çalıştırmada AÇIKÇA seçilir ve doğrulanır; doğrulanamazsa
+    // dosya yazılmaz (yanlış görünümde görsel çıkmasın).
     afterLoad: async (page) => {
-      // Sayfa hydrate olmadan tıklama kaçabiliyor (bir çalıştırmada Ay seçilmeden
-      // Personel görünümü çekilmişti). Tıkla → ay ızgarasının geldiğini DOĞRULA,
-      // olmazsa tekrar dene; hiç olmazsa hata fırlat (yanlış görsel yazılmasın).
-      const isMonthView = () =>
+      const isPersonelView = () =>
         page.evaluate(() => {
           const t = document.body.innerText;
-          return /\bPzt\b/.test(t) && /\bPaz\b/.test(t) && !/\bSAAT\b/.test(t);
+          return /\bSAAT\b/.test(t) && (t.match(/\b\d+ randevu\b/g) || []).length >= 2;
         });
       for (let attempt = 1; attempt <= 4; attempt++) {
         await page.waitForTimeout(1500);
-        await page.getByText(/^(Ay|Month)$/).first().click();
-        await page.waitForTimeout(1000);
-        if (await isMonthView()) {
+        if (!(await isPersonelView())) {
+          await page.getByRole("button", { name: /Personel/ }).first().click();
+          await page.waitForTimeout(1000);
+        }
+        if (await isPersonelView()) {
           await page.mouse.move(0, 0); // hover vurgusu görüntüye girmesin
           await page.waitForTimeout(300);
           return;
         }
       }
-      throw new Error("Ay görünümüne geçilemedi");
+      throw new Error("Personel görünümüne geçilemedi");
     },
   },
   { num: "04", slug: "musteriler", path: "/dashboard/musteriler" },

@@ -9,9 +9,10 @@ Yeni oturumda bu dosyadan devam et.
 - PR #81 ve #82 main'e merge edildi (iOS'ta nötr ikon, çift sayım düzeltmesi, güvenlik/muhasebe, RU/AR WA).
 - Migration `20260930_revert_auto_income_on_uncomplete.sql` canlıda çalıştırıldı.
 - Demo "Bysiri" randevuları iptal edildi (kayıtlar silinmedi, "İptal" olarak listede duruyor).
-- Ekran görüntüleri güncel: `screenshots-iphone-1284x2778/` ve `screenshots-ipad-2064x2752/` (11'er dosya:
-  01 anasayfa, 02 takvim, 03 takvimay, 04 musteriler, 05 hizmetler, 06 personel, 07 stok, 08 kampanyalar,
-  09 paketler, 10 randevular, 12 raporlar). `03-takvimay` artık gerçekten Ay görünümü (betik tıklamayı doğruluyor).
+- Ekran görüntüleri güncel: `screenshots-iphone-1284x2778/` ve `screenshots-ipad-2064x2752/` (10'ar dosya:
+  01 anasayfa, 02 takvim, 04 musteriler, 05 hizmetler, 06 personel, 07 stok, 08 kampanyalar,
+  09 paketler, 10 randevular, 12 raporlar). `02-takvim` PERSONEL bazlı takvim (betik her çalıştırmada Personel
+  görünümünü seçip doğruluyor); Ay görünümü görseli kaldırıldı (kullanıcı Personel istedi).
   Görsellerde "Bysiri"/WhatsApp/Instagram/Siri **görünmüyor** (gözle doğrulandı). `10-randevular` sayfa metninde
   hâlâ iptal edilmiş "Bysiri" satırı var ama listenin altında, görüntüye girmiyor.
 - Kampanya geçmişinde TASLAK satırlarına silme düğmesi eklendi (`DELETE /api/campaigns/[id]`, yalnızca draft,
