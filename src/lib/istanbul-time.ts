@@ -117,6 +117,17 @@ export function zonedWallTimeToUtc(
   return new Date(guess);
 }
 
+/**
+ * date-fns `format()` gibi ÇALIŞMA ZAMANININ yerel saatini yazan araçlar için:
+ * verilen anın işletme saat dilimindeki duvar saatini (yıl/ay/gün/saat/dk)
+ * taşıyan, çalışma zamanı yerel bir Date döndürür. Sunucu UTC olsa da
+ * `format(zonedWallDate(d, tz), "HH:mm")` işletmenin saatini yazar.
+ */
+export function zonedWallDate(date: Date, timeZone: string = DEFAULT_ORG_TIMEZONE): Date {
+  const w = new Date(date.getTime() + tzOffsetMs(date, timeZone));
+  return new Date(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate(), w.getUTCHours(), w.getUTCMinutes(), w.getUTCSeconds());
+}
+
 /** Verilen anda `timeZone`'un UTC'ye göre farkı (ms). UTC+3 için +10800000. */
 function tzOffsetMs(at: Date, timeZone: string): number {
   const parts = getOffsetFormatter(timeZone).formatToParts(at);

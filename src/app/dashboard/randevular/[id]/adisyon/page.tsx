@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { format } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
+import { DEFAULT_ORG_TIMEZONE, zonedWallDate } from "@/lib/istanbul-time";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 import type { Appointment, Organization } from "@/types/database";
@@ -76,7 +77,7 @@ export default async function AdisyonPage({
         <div className="border-t border-dashed pt-4 text-sm space-y-1.5">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Tarih</span>
-            <span className="tabular-nums">{format(new Date(a.appointment_at), "d MMMM yyyy, HH:mm", { locale: dateFnsLocale })}</span>
+            <span className="tabular-nums">{format(zonedWallDate(new Date(a.appointment_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMMM yyyy, HH:mm", { locale: dateFnsLocale })}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Müşteri</span>
@@ -97,10 +98,23 @@ export default async function AdisyonPage({
               </tr>
             </thead>
             <tbody className="tabular-nums">
-              <tr>
-                <td className="py-1">{a.service?.name ?? "—"}</td>
-                <td className="py-1 text-right">{formatMoney(Number(a.price), currency, locale)}</td>
-              </tr>
+              {Number(a.discount_amount) > 0 ? (
+                <>
+                  <tr>
+                    <td className="py-1">{a.service?.name ?? "—"}</td>
+                    <td className="py-1 text-right">{formatMoney(Number(a.price) + Number(a.discount_amount), currency, locale)}</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1 text-muted-foreground">Kampanya indirimi</td>
+                    <td className="py-1 text-right">−{formatMoney(Number(a.discount_amount), currency, locale)}</td>
+                  </tr>
+                </>
+              ) : (
+                <tr>
+                  <td className="py-1">{a.service?.name ?? "—"}</td>
+                  <td className="py-1 text-right">{formatMoney(Number(a.price), currency, locale)}</td>
+                </tr>
+              )}
               {Number(a.tip) > 0 && (
                 <tr>
                   <td className="py-1 text-muted-foreground">Bahşiş</td>
