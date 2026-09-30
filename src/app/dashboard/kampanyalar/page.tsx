@@ -54,7 +54,7 @@ export default async function KampanyalarPage() {
           ) : (
             <Link
               href="/dashboard/abonelik"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold shadow-md hover:bg-primary/90 active:scale-95 transition-all"
             >
               {t("campaignsPage.upgrade")} →
             </Link>
@@ -95,7 +95,7 @@ export default async function KampanyalarPage() {
         </div>
         <Link
           href="/dashboard/kampanyalar/yeni"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow-md hover:bg-primary/90 active:scale-95 transition-all"
         >
           {t("campaignsPage.createCampaign")}
         </Link>
@@ -174,7 +174,7 @@ export default async function KampanyalarPage() {
                     <div className="data-row flex items-center gap-3 p-3 rounded-lg transition-colors group">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm">{c.name}</p>
+                          <p className="font-bold text-sm">{c.name}</p>
                           <Badge variant="outline" className={cn("text-[10px]", statusConf.className)}>
                             <Icon className="h-3 w-3 mr-1" />
                             {statusLabel}

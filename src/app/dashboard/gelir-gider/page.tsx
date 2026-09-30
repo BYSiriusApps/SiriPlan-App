@@ -422,7 +422,7 @@ export default function GelirGiderPage() {
               href={pdfHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-accent transition-colors shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-sm font-bold hover:bg-primary/10 hover:text-primary hover:border-primary/40 transition-all shrink-0"
             >
               <Download className="h-4 w-4" />
               {getIncomeText("pdfExport")}
@@ -505,7 +505,7 @@ export default function GelirGiderPage() {
               </div>
             ) : (
               <div className="space-y-1">
-                <div className="hidden md:grid grid-cols-[1fr_140px_120px_80px_80px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+                <div className="hidden md:grid grid-cols-[1fr_140px_120px_80px_80px] gap-3 px-3 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wide border-b">
                   <span>{t("expensesPage.labelDescription")}</span>
                   <span>{t("expensesPage.labelCategory")}</span>
                   <span>{t("expensesPage.labelPayment")}</span>
@@ -521,7 +521,7 @@ export default function GelirGiderPage() {
                   >
                     <div className="md:contents">
                       <div>
-                        <p className="text-sm font-medium leading-tight">{r.description}</p>
+                        <p className="text-sm font-semibold leading-tight">{r.description}</p>
                         <p className="text-xs text-muted-foreground mt-0.5 md:hidden">
                           {categoryLabel(r.type, r.category)}
                           {!r.is_active && " · Pasif"}
@@ -633,7 +633,7 @@ export default function GelirGiderPage() {
             <button
               key={v}
               onClick={() => setViewMode(v)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
                 viewMode === v
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-background/60"
@@ -722,7 +722,7 @@ export default function GelirGiderPage() {
           />
           {periodCompare && (
             <div className="space-y-1">
-              <div className="hidden sm:grid grid-cols-[1fr_130px_130px_110px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+              <div className="hidden sm:grid grid-cols-[1fr_130px_130px_110px] gap-3 px-3 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wide border-b">
                 <span>{t("expensesPage.metric")}</span>
                 <span className="text-right">{months[Math.max(0, Math.min(month - 2, 11))]}</span>
                 <span className="text-right">{months[month - 1]}</span>
@@ -783,7 +783,7 @@ export default function GelirGiderPage() {
               </div>
             ) : (
               <div className="space-y-1">
-                <div className="hidden md:grid grid-cols-[90px_110px_110px_110px_130px_130px_130px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+                <div className="hidden md:grid grid-cols-[90px_110px_110px_110px_130px_130px_130px] gap-3 px-3 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wide border-b">
                   <span>Ay</span>
                   <span className="text-right">Gelir</span>
                   <span className="text-right">Gider</span>
@@ -834,7 +834,7 @@ export default function GelirGiderPage() {
                 <button
                   key={kind}
                   onClick={() => setFilterType(kind)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
                     filterType === kind
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -869,7 +869,7 @@ export default function GelirGiderPage() {
             </div>
           ) : (
             <div className="space-y-1">
-              <div className="hidden md:grid grid-cols-[100px_1fr_140px_120px_100px_40px] gap-3 px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b">
+              <div className="hidden md:grid grid-cols-[100px_1fr_140px_120px_100px_40px] gap-3 px-3 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wide border-b">
                 <span>{t("expensesPage.labelDate")}</span>
                 <span>{t("expensesPage.labelDescription")}</span>
                 <span>{t("expensesPage.labelCategory")}</span>
@@ -888,7 +888,7 @@ export default function GelirGiderPage() {
                       {new Date(e.date).toLocaleDateString("tr-TR")}
                     </span>
                     <div>
-                      <p className="text-sm font-medium leading-tight">
+                      <p className="text-sm font-semibold leading-tight">
                         {e.description}
                         {e.auto && (
                           <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium align-middle">
@@ -1019,7 +1019,7 @@ export default function GelirGiderPage() {
                 <button
                   key={kind}
                   onClick={() => setForm((f) => ({ ...f, type: kind, category: "diger" }))}
-                  className={`py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${
+                  className={`py-2.5 rounded-lg text-sm font-bold border-2 transition-colors ${
                     form.type === kind
                       ? kind === "gelir"
                         ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
@@ -1151,7 +1151,7 @@ export default function GelirGiderPage() {
                 <button
                   key={kind}
                   onClick={() => setRecurringForm((f) => ({ ...f, type: kind, category: "diger" }))}
-                  className={`py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${
+                  className={`py-2.5 rounded-lg text-sm font-bold border-2 transition-colors ${
                     recurringForm.type === kind
                       ? kind === "gelir"
                         ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
