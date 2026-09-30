@@ -53,7 +53,7 @@ export default async function MusterilerPage({
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/musteriler/yeni"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow-md hover:bg-primary/90 active:scale-95 transition-all"
           >
             {t("addCustomer")}
           </Link>

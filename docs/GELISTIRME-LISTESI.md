@@ -536,3 +536,36 @@ auth ağ isteği 1'e indirilir (tek çağıran nokta, geriye dönük uyumlu).
 
 **İlgili:** [[panel-performance-architecture]] memory'si (21 Ağu bulgusu, hâlâ
 geçerli mimari).
+
+---
+
+## 10. Müşteriler sayfası — tasarım taslağından alınmayanlar (30 Eyl 2026)
+
+Kaynak: kullanıcının Stitch taslağı ("Müşteri Portföyü", `müşteri portföyü.html` +
+`müş p.md` tasarım sistemi). `CustomerList.tsx` tema token'larıyla (primary/accent/
+muted) yeniden renklendirildi; özet şeridi, hızlı filtre çipleri ve "Randevu Ver"
+eklendi. Aşağıdakiler **veri/sorgu veya onay butonu gerektirdiği için bilerek
+alınmadı** — panel tasarımı kademeli değişirken gözden geçirilecek:
+
+- **Favori / atanan uzman** kartı: müşterinin en çok randevu aldığı personel
+  (randevulardan türetilir; ek sorgu + org_id kapsamı gerekir).
+- **Gelecek randevu** hücresi (tarih + hizmet): ek sorgu gerekir.
+- **Kart içi "Onay Bekleyen Randevu" bandı + "Hemen Onayla / Randevuyu Onayla"**:
+  onay butonu → mevcut onay API'sine bağlanmalı (CLAUDE.md: buton işlevi değişmemeli).
+  Bekleyen İşler sayfasındaki akışla çakışmadan yapılmalı.
+- **Üst "Onay Bekleyenler" çipi** ve üstteki pembe/turuncu uyarı şeritleri
+  (yeni randevu onayı + kritik stok) — panelde zaten başka yerde var, tekrar mı?
+- **VIP Platinum / Sadık Müşteri / Premium Üye** segment rozetleri: segment tanımı
+  (harcama/ziyaret eşiği) ve "VIP Müşteriler" çipi için kural belirlenmeli.
+- **Ziyaret sıklığı etiketi** ("21 günde bir", "Düzenli") ve "Aylık ort. harcama".
+- **Ödeme yöntemi** alt yazısı (Kart / Nakit / QR) — müşteri bazında tutulmuyor.
+- **Memnuniyet puanı** (5.0 / 4.8) — veri kaynağı yok (yorum/puan tablosu yok).
+- **Kart içi açılır not çekmecesi** (more_vert → müşteri notu, işlem geçmişi özeti).
+- **Kampanya/SMS rozeti** ("SMS • Kampanya Açık") telefonun yanında metinle.
+- **Kaynak kanal** satırı ("Instagram DM kanalından geldi") — `customers.source` var,
+  gösterimi eklenebilir (kolay).
+- **QR/Barkod tara** butonu arama kutusunda.
+- **Hızlı "Müşteri Ekle" modalı** (tam sayfa yerine) — mevcut `/musteriler/yeni` formu var.
+- **Üstte başlık altı özet**: "118 kampanya onaylı" metni.
+- Tasarım sistemi notu: sabit marka renkleri (#C026D3/#7C3AED) yerine panel temaları
+  (6 tema) token'ları kullanıldı; taslaktaki Plus Jakarta Sans fontu alınmadı.

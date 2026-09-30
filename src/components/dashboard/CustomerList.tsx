@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, ShieldCheck, ShieldOff, MessageCircle, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2 } from "lucide-react";
+import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, ShieldCheck, ShieldOff, MessageCircle, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2, CalendarPlus } from "lucide-react";
 import { format } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
 
@@ -37,6 +37,18 @@ function scoreEmoji(score: number) {
   if (score >= 70) return "🟢";
   if (score >= 40) return "🟡";
   return "🔴";
+}
+
+const DAY_MS = 86_400_000;
+
+function isRecent(c: Customer, now: number) {
+  return !!c.last_visit_at && now - new Date(c.last_visit_at).getTime() <= 30 * DAY_MS;
+}
+
+/** 90+ gündür gelmeyen (en az bir ziyareti olan) ya da skoru düşük (Pro) müşteri. */
+function isRisky(c: Customer, now: number, useScore: boolean) {
+  const lapsed = c.visit_count > 0 && (!c.last_visit_at || now - new Date(c.last_visit_at).getTime() > 90 * DAY_MS);
+  return lapsed || (useScore && c.score < 40);
 }
 
 const SORTS = [
@@ -88,6 +100,9 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
   // false = azalan (en yeni/en yüksek üstte) — listenin bugüne kadarki davranışı.
   const [asc, setAsc] = useState(false);
   const [kampanyaOnly, setKampanyaOnly] = useState(initialKampanya);
+  // Hızlı filtre çipleri (yalnızca istemci tarafı görünüm filtresi).
+  const [quick, setQuick] = useState<"all" | "recent" | "risk">("all");
+  const [now] = useState(() => Date.now());
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
   const [deleting, setDeleting] = useState(false);
   // Silinen kartlar router.refresh() tamamlanana kadar listede kalmasın.
@@ -137,6 +152,8 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
       );
     }
     if (kampanyaOnly) list = list.filter((c) => c.marketing_consent);
+    if (quick === "recent") list = list.filter((c) => isRecent(c, now));
+    if (quick === "risk") list = list.filter((c) => isRisky(c, now, proTools));
 
     // dir = 1 artan, -1 azalan. Karşılaştırmalar tek yerde artan olarak yazılıp
     // yönle çarpılıyor; her sıralama için iki ayrı dal tutmak hataya açıktı.
@@ -151,13 +168,86 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
       const bt = b.last_visit_at ? new Date(b.last_visit_at).getTime() : 0;
       return dir * (at - bt);
     });
-  }, [customers, q, sortBy, asc, kampanyaOnly, showPhoneButtons, removedIds]);
+  }, [customers, q, sortBy, asc, kampanyaOnly, quick, now, proTools, showPhoneButtons, removedIds]);
 
-  const hasFilter = q.trim() !== "" || kampanyaOnly;
+  const hasFilter = q.trim() !== "" || kampanyaOnly || quick !== "all";
+  const clearAll = () => { setQ(""); setKampanyaOnly(false); setQuick("all"); };
   const onayliSayisi = customers.filter((c) => c.marketing_consent).length;
+
+  // Üst özet şeridi — yalnızca zaten yüklü listeden hesaplanır (yeni sorgu yok).
+  const stats = useMemo(() => {
+    const live = removedIds.length ? customers.filter((c) => !removedIds.includes(c.id)) : customers;
+    const monthStart = new Date(now);
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+    const thisMonth = live.filter((c) => c.last_visit_at && new Date(c.last_visit_at).getTime() >= monthStart.getTime()).length;
+    const payers = live.filter((c) => Number(c.total_spend) > 0);
+    const avg = payers.length ? payers.reduce((s, c) => s + Number(c.total_spend), 0) / payers.length : 0;
+    return {
+      total: live.length,
+      approved: live.filter((c) => c.marketing_consent).length,
+      thisMonth,
+      avg: Math.round(avg),
+      recent: live.filter((c) => isRecent(c, now)).length,
+      risk: live.filter((c) => isRisky(c, now, proTools)).length,
+    };
+  }, [customers, removedIds, now, proTools]);
 
   return (
     <>
+      {/* Özet şeridi */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 rounded-2xl bg-card p-2 border border-border">
+        <div className="rounded-xl bg-muted p-2.5 text-center">
+          <p className="text-[11px] font-bold text-foreground/70">{t("customerList.kpi.total")}</p>
+          <p className="text-xl font-extrabold text-foreground tabular-nums">{stats.total}</p>
+          <p className="text-[11px] font-semibold text-foreground/70">{t("customerList.kpi.records")}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setKampanyaOnly((v) => !v)}
+          className="rounded-xl bg-primary/10 p-2.5 text-center hover:ring-2 hover:ring-primary/40 transition"
+        >
+          <p className="text-[11px] font-bold text-primary">{t("customerList.kpi.campaign")}</p>
+          <p className="text-xl font-extrabold text-primary tabular-nums">{stats.approved}</p>
+          <p className="text-[11px] font-bold text-primary">{t("customerList.kpi.approved")}</p>
+        </button>
+        <div className="rounded-xl bg-emerald-100 dark:bg-emerald-900/30 p-2.5 text-center">
+          <p className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300">{t("customerList.kpi.thisMonth")}</p>
+          <p className="text-xl font-extrabold text-emerald-700 dark:text-emerald-200 tabular-nums">{stats.thisMonth}</p>
+          <p className="text-[11px] font-semibold text-foreground/70">{t("customerList.kpi.visitors")}</p>
+        </div>
+        <div className="rounded-xl bg-accent/50 p-2.5 text-center">
+          <p className="text-[11px] font-bold text-accent-foreground">{t("customerList.kpi.avgSpend")}</p>
+          <p className="text-xl font-extrabold text-accent-foreground tabular-nums">₺{stats.avg.toLocaleString("tr-TR")}</p>
+          <p className="text-[11px] font-semibold text-foreground/70">{t("customerList.kpi.perPerson")}</p>
+        </div>
+      </div>
+
+      {/* Hızlı filtre çipleri */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 -mt-2">
+        {([
+          { key: "all", label: t("customerList.quick.all"), count: stats.total, dot: null },
+          { key: "recent", label: t("customerList.quick.recent"), count: stats.recent, dot: null },
+          { key: "risk", label: t("customerList.quick.risk"), count: stats.risk, dot: "bg-red-500" },
+        ] as const).map((chip) => (
+          <button
+            key={chip.key}
+            type="button"
+            onClick={() => setQuick(chip.key)}
+            className={cn(
+              "px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 whitespace-nowrap flex items-center gap-1.5 border transition-all",
+              quick === chip.key
+                ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                : "bg-card text-foreground/80 border-border hover:border-primary/60"
+            )}
+          >
+            {chip.dot && <span className={cn("w-2 h-2 rounded-full", chip.dot)} />}
+            {chip.label}
+            <span className={cn("text-[10px]", quick === chip.key ? "text-white/80" : "text-foreground/60")}>({chip.count})</span>
+          </button>
+        ))}
+      </div>
+
       {/* Arama + sıralama + filtre temizleme */}
       <div className="flex gap-3 flex-wrap items-center">
         <div className="relative flex-1 min-w-[200px]">
@@ -207,7 +297,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
             title={t("customerList.marketingOnly")}
             className={cn(
               "px-3 py-2 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap",
-              kampanyaOnly ? "bg-green-600 text-white border-green-600" : "border-border hover:bg-accent"
+              kampanyaOnly ? "bg-emerald-600 text-white border-emerald-600" : "border-border hover:bg-accent"
             )}
           >
             <Megaphone className="h-3.5 w-3.5" />
@@ -215,7 +305,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
           </button>
           {hasFilter && (
             <button
-              onClick={() => { setQ(""); setKampanyaOnly(false); }}
+              onClick={clearAll}
               className="px-3 py-2 rounded-lg text-xs font-medium border border-red-200 dark:border-red-900 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex items-center gap-1 shrink-0 whitespace-nowrap"
             >
               <X className="h-3.5 w-3.5" />
@@ -245,7 +335,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
             <p>{hasFilter ? t("customerList.noResults") : t("customerList.noCustomers")}</p>
             {hasFilter && (
               <button
-                onClick={() => { setQ(""); setKampanyaOnly(false); }}
+                onClick={clearAll}
                 className="mt-2 text-sm text-primary hover:underline"
               >
                 {t("customerList.clearFilters")}
@@ -264,8 +354,8 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                         {cust.full_name[0]}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-sm group-hover:text-primary transition-colors truncate">{cust.full_name}</p>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <p className="font-bold text-sm text-foreground group-hover:text-primary transition-colors truncate">{cust.full_name}</p>
+                        <div className="flex items-center gap-1 text-xs font-semibold text-foreground/80">
                           <Phone className="h-3 w-3 shrink-0" />
                           {/* showPhoneButtons=false → bu kullanıcı "personel"
                               rolünde ve Ayarlar'da telefon erişimi kapatılmış.
@@ -284,11 +374,11 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                           {showPhoneButtons && (
                             <>
                               <a href={`tel:${cust.phone}`} title={t("customerList.call")}
-                                className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 transition-colors">
+                                className="p-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors">
                                 <Phone className="h-3.5 w-3.5" />
                               </a>
                               <a href={`https://wa.me/${waPhone}`} target="_blank" rel="noopener noreferrer" title={t("customerList.whatsapp")}
-                                className="p-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-500 transition-colors">
+                                className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 text-emerald-600 transition-colors">
                                 <MessageCircle className="h-3.5 w-3.5" />
                               </a>
                             </>
@@ -346,30 +436,46 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 text-center divide-x divide-border/60">
-                    <div>
-                      <p className="text-xs text-muted-foreground">{t("customerList.visit")}</p>
-                      <p className="font-semibold text-sm tabular-nums">{cust.visit_count}</p>
+                  <div className="grid grid-cols-3 gap-1.5 text-center">
+                    <div className="rounded-lg bg-primary/10 py-1.5">
+                      <p className="text-[11px] font-bold text-primary">{t("customerList.visit")}</p>
+                      <p className="font-extrabold text-sm tabular-nums text-foreground">{cust.visit_count}</p>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">{t("customerList.spend")}</p>
-                      <p className="font-semibold text-sm tabular-nums">₺{Number(cust.total_spend).toLocaleString("tr-TR")}</p>
+                    <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 py-1.5">
+                      <p className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300">{t("customerList.spend")}</p>
+                      <p className="font-extrabold text-sm tabular-nums text-rose-700 dark:text-rose-300">₺{Number(cust.total_spend).toLocaleString("tr-TR")}</p>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">{t("customerList.score")}</p>
-                      <p className="font-semibold text-sm flex items-center justify-center gap-0.5 tabular-nums">
+                    <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 py-1.5">
+                      <p className="text-[11px] font-bold text-amber-700 dark:text-amber-300">{t("customerList.score")}</p>
+                      <p className="font-extrabold text-sm flex items-center justify-center gap-0.5 tabular-nums text-foreground">
                         <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
                         {cust.loyalty_punches}
                       </p>
                     </div>
                   </div>
 
-                  {cust.last_visit_at && (
-                    <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {t("customerList.lastVisit", { date: format(new Date(cust.last_visit_at), "d MMM yyyy", { locale: dateFnsLocale }) })}
+                  <div className="flex items-center justify-between gap-2 mt-3">
+                    <p className="text-xs font-semibold text-foreground/80 flex items-center gap-1 min-w-0">
+                      {cust.last_visit_at && (
+                        <>
+                          <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+                          <span className="truncate">
+                            {t("customerList.lastVisit", { date: format(new Date(cust.last_visit_at), "d MMM yyyy", { locale: dateFnsLocale }) })}
+                          </span>
+                        </>
+                      )}
                     </p>
-                  )}
+                    {/* Telefon gizli (maskeli) personelde numara forma taşınmasın diye buton çizilmez. */}
+                    {showPhoneButtons && (
+                      <Link
+                        href={`/dashboard/randevular/yeni?${new URLSearchParams({ customer_name: cust.full_name, customer_phone: cust.phone ?? "" }).toString()}`}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-sm shrink-0 transition-colors"
+                      >
+                        <CalendarPlus className="h-3.5 w-3.5" />
+                        {t("customerList.bookAppointment")}
+                      </Link>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             );
