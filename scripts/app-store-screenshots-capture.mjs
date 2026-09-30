@@ -67,12 +67,25 @@ const PAGES = [
     slug: "takvimay",
     path: "/dashboard/takvim",
     afterLoad: async (page) => {
-      // Görünüm seçici düğme değil sekme/etiket olabilir: role'e bağlanmadan metinle bul.
-      const ayButton = page.getByText(/^(Ay|Month)$/).first();
-      if (await ayButton.count()) {
-        await ayButton.click();
-        await page.waitForTimeout(800);
+      // Sayfa hydrate olmadan tıklama kaçabiliyor (bir çalıştırmada Ay seçilmeden
+      // Personel görünümü çekilmişti). Tıkla → ay ızgarasının geldiğini DOĞRULA,
+      // olmazsa tekrar dene; hiç olmazsa hata fırlat (yanlış görsel yazılmasın).
+      const isMonthView = () =>
+        page.evaluate(() => {
+          const t = document.body.innerText;
+          return /\bPzt\b/.test(t) && /\bPaz\b/.test(t) && !/\bSAAT\b/.test(t);
+        });
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        await page.waitForTimeout(1500);
+        await page.getByText(/^(Ay|Month)$/).first().click();
+        await page.waitForTimeout(1000);
+        if (await isMonthView()) {
+          await page.mouse.move(0, 0); // hover vurgusu görüntüye girmesin
+          await page.waitForTimeout(300);
+          return;
+        }
       }
+      throw new Error("Ay görünümüne geçilemedi");
     },
   },
   { num: "04", slug: "musteriler", path: "/dashboard/musteriler" },
@@ -147,7 +160,10 @@ async function captureDevice(browser, device) {
   const page = await context.newPage();
   await login(page);
 
+  // SCREENSHOT_ONLY=takvimay,stok → yalnızca bu sayfaları (yeniden) çek.
+  const only = (process.env.SCREENSHOT_ONLY || "").split(",").filter(Boolean);
   for (const item of PAGES) {
+    if (only.length && !only.includes(item.slug)) continue;
     // networkidle realtime abonelikler (Supabase/websocket) yüzünden hiç
     // tetiklenmeyebiliyor (bkz. musteriler sayfası timeout) — "load" + sabit
     // bekleme daha güvenilir.
@@ -158,7 +174,8 @@ async function captureDevice(browser, device) {
       try {
         await item.afterLoad(page);
       } catch (err) {
-        console.warn(`  [uyarı] ${item.slug} afterLoad başarısız: ${err.message}`);
+        console.warn(`  [ATLANDI] ${item.slug} afterLoad başarısız: ${err.message}`);
+        continue;
       }
     }
     const pageText = await page.evaluate(() => document.body.innerText);
