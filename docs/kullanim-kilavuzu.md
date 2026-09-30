@@ -96,7 +96,17 @@ Personeller, çalışma günleri, renk kodları, roller ve özel yetkileri tanı
 
 ## 11. Kampanyalar
 
-Müşteri listesine toplu WhatsApp mesajı gönderimi sağlanır.
+Müşteri listesine toplu WhatsApp/SMS mesajı gönderimi sağlanır (yalnızca kampanya bildirimi onayı olan müşterilere).
+
+### İndirimli kampanya
+
+- Kampanya oluştururken **İndirim** bölümü açılırsa yüzde ya da sabit tutar, **son geçerlilik tarihi (zorunlu)**, isteğe bağlı geçerli hizmetler ve asgari işlem tutarı tanımlanır. Kampanya sonsuz olamaz.
+- Mesajın sonuna indirim miktarı, geçerli hizmetler, son gün, "müşteri başına bir kez" ve "indirim işlem sonrasında salonda uygulanır" notu otomatik eklenir.
+- Hak müşteriye özeldir ve en fazla bir kez kullanılır. Son günü geçmiş kampanya gönderilemez; süresi dolan hak kendiliğinden kapanır, kayıtlar silinmez.
+- Müşteri randevu linkinden, indirimli bir hizmet için randevu alırken "indirim işlem sonrasında salonda uygulanacaktır" bilgi notunu görür.
+- **Uygulama anı randevunun tamamlanmasıdır:** müşterinin geçerli hakkı varsa "Tamamlandı"da uyarı çıkar; "İndirimi uygula" seçilirse tutar indirimli yazılır ve hak kullanıldı sayılır. Gelir-Gider ve raporlarda indirimli (gerçekten ödenen) tutar görünür.
+- Randevu tarihi son gün içindeyse tamamlama sonra yapılsa da hak geçerlidir. Randevu iptal/gelmedi olur ya da Tamamlandı'dan geri alınırsa hak müşteriye geri verilir.
+- Kampanyaları yalnızca işletme sahibi ve yönetici yönetir; sahip dilerse Personel → [isim] sayfasındaki "Kampanyaları yönetebilsin" kutusuyla bir personele de yetki verebilir. Serbest indirim girilemez, yalnızca kampanyada tanımlı tutar uygulanır.
 
 ## 12. Raporlar
 

@@ -98,6 +98,7 @@ function PublicBookingPage({
   const [staffServiceMap, setStaffServiceMap] = useState<Record<string, string[]>>({});
   // "kayitli ad -> 4 dildeki karsiligi" sozlugu; /api/public/salon yalnizca
   // katalogda karsiligi bulunan adlari gonderir (bkz. buildNameI18nMap).
+  const [campaignServiceIds, setCampaignServiceIds] = useState<"all" | string[] | null>(null);
   const [nameI18n, setNameI18n] = useState<Record<string, Partial<Record<LanguageCode, string>>>>({});
 
   // Salon verisi Supabase'den DOĞRUDAN çekilmez.
@@ -126,6 +127,10 @@ function PublicBookingPage({
           (map[row.service_id] ??= []).push(row.staff_id);
         }
         setStaffServiceMap(map);
+        {
+          const co = data.campaign_offer as { all: boolean; service_ids: string[] } | null | undefined;
+          setCampaignServiceIds(co ? (co.all ? "all" : co.service_ids) : null);
+        }
         setNameI18n((data.name_i18n as Record<string, Partial<Record<LanguageCode, string>>>) || {});
         setCategories(
           [...((data.categories as ServiceCategory[]) || [])].sort((a, b) => a.display_order - b.display_order)
@@ -227,7 +232,7 @@ function PublicBookingPage({
   const layout = websiteMode ? resolveWebsiteLayout(org.website_layout) : "classic";
   const dateLocale = DATE_FNS_LOCALES[lang];
 
-  const salon: SalonData = { org, services, categories, staff, staffServiceMap, localizeName, lang };
+  const salon: SalonData = { org, services, categories, staff, staffServiceMap, localizeName, lang, campaignServiceIds };
   const isRtl = lang === "ar";
 
   return (

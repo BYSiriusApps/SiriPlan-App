@@ -203,6 +203,9 @@ export interface Appointment {
   duration_minutes: number;
   price: number;
   tip: number;
+  /** Uygulanan kampanya indirimi (price zaten indirimli tutardır). */
+  discount_amount?: number;
+  campaign_log_id?: string | null;
   status: AppointmentStatus;
   source: AppointmentSource;
   note: string | null;
@@ -272,6 +275,12 @@ export interface Campaign {
   scheduled_at: string | null;
   sent_at: string | null;
   created_at: string;
+  /** İndirim teklifi (hepsi boşsa kampanya yalnızca mesajdır). */
+  discount_type?: "percent" | "fixed" | null;
+  discount_value?: number | null;
+  valid_until?: string | null;
+  service_ids?: string[] | null;
+  min_amount?: number | null;
 }
 
 export interface StaffPerformanceWeekly {

@@ -131,9 +131,40 @@ export async function GET(req: NextRequest) {
     ...(categories ?? []).map((c) => (c as unknown as { name: string | null }).name),
   ]);
 
+  // Aktif indirimli kampanya kapsamı — YALNIZCA "hangi hizmetlerde bir kampanya
+  // geçerli olabilir" bilgisi (hizmet kimlikleri). Kampanya adı, indirim tutarı,
+  // kimlere gittiği asla dışarı verilmez; sayfada genel bir bilgi notu için
+  // kullanılır. Migration henüz uygulanmamışsa ya da sorgu düşerse sessizce
+  // yok sayılır: randevu akışı bundan hiç etkilenmez.
+  let campaignOffer: { all: boolean; service_ids: string[] } | null = null;
+  try {
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: (org as unknown as { timezone?: string | null }).timezone || "Europe/Istanbul",
+    }).format(new Date());
+    const { data: offers, error: offerErr } = await supabase
+      .from("campaigns")
+      .select("service_ids")
+      .eq("org_id", orgId)
+      .eq("status", "sent")
+      .not("discount_type", "is", null)
+      .gte("valid_until", today)
+      .limit(50);
+    if (!offerErr && offers && offers.length > 0) {
+      const rows = offers as unknown as { service_ids: string[] | null }[];
+      const all = rows.some((r) => !r.service_ids || r.service_ids.length === 0);
+      campaignOffer = {
+        all,
+        service_ids: all ? [] : Array.from(new Set(rows.flatMap((r) => r.service_ids ?? []))),
+      };
+    }
+  } catch {
+    campaignOffer = null;
+  }
+
   return NextResponse.json(
     {
       org,
+      campaign_offer: campaignOffer,
       services: services ?? [],
       staff: staff ?? [],
       staff_services: scopedStaffServices,

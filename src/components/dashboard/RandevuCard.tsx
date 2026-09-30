@@ -15,6 +15,7 @@ import { Calendar, Phone, User, CheckCircle2, XCircle, AlertCircle, Loader2, Rec
 import { toast } from "sonner";
 import type { Appointment, AppointmentStatus } from "@/types/database";
 import { STATUS_LABEL_KEYS, STATUS_BADGE_CLASSES, isTerminalStatus } from "@/lib/appointment-status";
+import { completeAppointmentRequest } from "@/lib/complete-appointment-client";
 
 type ApptWithRelations = Appointment & {
   staff?: { full_name: string };
@@ -52,11 +53,7 @@ export function RandevuCard({
     // sadakat damgası ve paket seansı düşümü atlanmış olurdu.
     const res =
       newStatus === "tamamlandi"
-        ? await fetch(`/api/appointments/${appt.id}/complete`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({}),
-          })
+        ? await completeAppointmentRequest(appt.id)
         : await fetch(`/api/appointments/${appt.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },

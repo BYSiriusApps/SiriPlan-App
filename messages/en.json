@@ -1991,6 +1991,18 @@
             "Go to Campaigns tab and click + New Campaign.",
             "Write the text using dynamic variables: Hello {{musteri_adi}}, {{salon_adi}}...",
             "Filter the desired segment (e.g. inactive for last 30 days) and start sending."
+          ],
+          "discountTitle": "How do discount campaigns work?",
+          "discountItems": [
+            "Setting a discount: when creating a campaign, turn on the \"Discount\" section. Choose a percentage or a fixed amount and enter the last valid date (required). Optionally limit it to specific services and a minimum transaction amount. Campaigns are never open-ended; every discount has an end date.",
+            "The message completes itself: the discount amount, valid services, end date, \"once per customer\" and \"the discount is applied at the salon after the service\" are appended automatically. You don't need to write the discount into the template, so nothing can be misunderstood.",
+            "The right belongs to the customer: each customer who received the message can use it at most once. Only customers whose message was delivered get the right. A campaign past its end date cannot be sent; expired rights close on their own and no records are deleted.",
+            "Note when booking: if a customer books through your booking link for a service covered by an active campaign, they see the note \"The discount will be applied at the salon after the service.\" The discount is applied after the service, not at booking time.",
+            "Applied after the service: when the customer arrives and you mark the appointment Completed, a notice appears if the customer has a valid right. If you choose \"Apply discount\", the appointment amount is recorded discounted and the right is marked as used; if you don't, nothing changes.",
+            "Income and reports: because the amount is recorded discounted, income-expense, reports and page summaries show what the customer actually paid. The discount amount is also shown on the appointment card.",
+            "No customer is disadvantaged: if the appointment date is within the valid period, the right still applies even if you complete it later. If the appointment is cancelled, marked no-show or moved back from Completed, the right is returned to the customer. The same right can never be used twice.",
+            "Who manages it: only the business owner and managers can create and send campaigns. You can also grant this to a staff member with the \"Can manage campaigns\" checkbox on Staff → [name]. Anyone who completes the appointment can apply the discount, but free-form discounts are not possible — only the amount defined in the campaign is applied.",
+            "You can still send a campaign without a discount; it is then an information message only and no discount is applied."
           ]
         },
         "abonelik": {
@@ -3161,6 +3173,7 @@
       "serviceLabel": "Service:",
       "staffLabel": "Staff:",
       "autoAssignLabel": "Will be assigned automatically",
+      "campaignNote": "If a campaign applies to this service and you have a discount right, the discount will be applied at the salon after the service.",
       "nameLabel": "Your Full Name *",
       "phoneLabel": "Phone *",
       "emailLabel": "Email (optional)",

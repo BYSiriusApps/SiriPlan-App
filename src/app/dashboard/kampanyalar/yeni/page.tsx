@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Megaphone, Users, Search, X, Check, AlertCircle } from "lucide-react";
+import { ArrowLeft, Loader2, Megaphone, Users, Search, X, Check, AlertCircle, Percent } from "lucide-react";
 
 import { maskPhone } from "@/lib/phone";
 
@@ -28,16 +28,21 @@ const CAMPAIGN_TYPES = [
 ];
 
 const VARIABLES: Record<string, string[]> = {
-  birthday: ["{{musteri_adi}}", "{{salon_adi}}", "{{indirim_kodu}}"],
-  inactive: ["{{musteri_adi}}", "{{salon_adi}}", "{{son_ziyaret_gun}}", "{{indirim_kodu}}"],
+  birthday: ["{{musteri_adi}}", "{{salon_adi}}"],
+  inactive: ["{{musteri_adi}}", "{{salon_adi}}", "{{son_ziyaret_gun}}"],
   custom: ["{{musteri_adi}}", "{{salon_adi}}"],
 };
 
+// Şablonlarda sabit indirim vaadi YOK: indirim yalnızca aşağıdaki "İndirim"
+// bölümünde tanımlanırsa mesajın sonuna tutar, son gün ve koşullar otomatik
+// eklenir — böylece panelde karşılığı olmayan bir söz verilmez.
 const TEMPLATES: Record<string, string> = {
-  birthday: "Merhaba {{musteri_adi}}! 🎂 Doğum günün kutlu olsun! {{salon_adi}} olarak seni özel hissettirmek istiyoruz. Bu ay %20 indirim fırsatını kaçırma! 💇‍♀️",
-  inactive: "Merhaba {{musteri_adi}}, sizi {{son_ziyaret_gun}} gündür göremediniz 😊 {{salon_adi}} olarak sizi tekrar ağırlamak isteriz. Size özel indirimle randevunuzu şimdi alın!",
+  birthday: "Merhaba {{musteri_adi}}! 🎂 Doğum günün kutlu olsun! {{salon_adi}} olarak seni özel hissettirmek istiyoruz. 💇‍♀️",
+  inactive: "Merhaba {{musteri_adi}}, sizi {{son_ziyaret_gun}} gündür göremediniz 😊 {{salon_adi}} olarak sizi tekrar ağırlamak isteriz. Randevunuzu şimdi alabilirsiniz!",
   custom: "Merhaba {{musteri_adi}}, {{salon_adi}} olarak size özel bir kampanyamız var!",
 };
+
+interface OfferService { id: string; name: string }
 
 export default function YeniKampanyaPage() {
   const router = useRouter();
@@ -51,6 +56,16 @@ export default function YeniKampanyaPage() {
     inactive_days: "60",
     scheduled_at: "",
   });
+  // ── İndirim teklifi (isteğe bağlı) ──
+  const [offerOn, setOfferOn] = useState(false);
+  const [offer, setOffer] = useState({
+    type: "percent" as "percent" | "fixed",
+    value: "",
+    valid_until: "",
+    min_amount: "",
+  });
+  const [services, setServices] = useState<OfferService[]>([]);
+  const [offerServiceIds, setOfferServiceIds] = useState<Set<string>>(new Set());
   const [kvkkConsent, setKvkkConsent] = useState(false);
   const [iysConsent, setIysConsent] = useState(false);
 
@@ -69,6 +84,11 @@ export default function YeniKampanyaPage() {
       .then((d) => setCustomers(
         ((d.customers ?? []) as PickerCustomer[]).filter((c) => c.marketing_consent)
       ))
+      .catch(() => {});
+
+    fetch("/api/services")
+      .then((r) => r.json())
+      .then((d) => setServices(((d.services ?? []) as OfferService[]).map((s) => ({ id: s.id, name: s.name }))))
       .catch(() => {});
 
     fetch("/api/org")
@@ -130,6 +150,22 @@ export default function YeniKampanyaPage() {
       segment.customer_ids = Array.from(selectedIds);
     }
 
+    // İndirim tanımı (kapalıysa hiçbir alan gönderilmez → yalnızca mesaj kampanyası)
+    let offerPayload: Record<string, unknown> = {};
+    if (offerOn) {
+      const v = parseFloat(offer.value);
+      if (!(v > 0)) return toast.error("İndirim değeri 0'dan büyük olmalı");
+      if (offer.type === "percent" && v > 100) return toast.error("Yüzde indirim en fazla 100 olabilir");
+      if (!offer.valid_until) return toast.error("İndirim için son geçerlilik tarihi zorunlu");
+      offerPayload = {
+        discount_type: offer.type,
+        discount_value: v,
+        valid_until: offer.valid_until,
+        min_amount: offer.min_amount ? parseFloat(offer.min_amount) || null : null,
+        service_ids: Array.from(offerServiceIds),
+      };
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/campaigns", {
@@ -142,6 +178,7 @@ export default function YeniKampanyaPage() {
           channel: form.channel,
           segment_json: segment,
           scheduled_at: form.scheduled_at || null,
+          ...offerPayload,
         }),
       });
 
@@ -286,6 +323,130 @@ export default function YeniKampanyaPage() {
                 ))}
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* ── İndirim (isteğe bağlı) ── */}
+        <Card className="kpi-tile border-0 shadow-none">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Percent className="h-4 w-4" /> İndirim (isteğe bağlı)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={offerOn}
+                onChange={(e) => setOfferOn(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded accent-primary shrink-0"
+              />
+              <span className="text-sm">
+                Bu kampanyayla müşterilere süreli indirim hakkı tanımla
+                <span className="block text-xs text-muted-foreground">
+                  Kapalıysa kampanya yalnızca mesajdır, indirim uygulanmaz. Açıksa her müşteri hakkını en fazla bir kez,
+                  son gün dolmadan kullanabilir; indirim randevu tamamlanırken uygulanır ve ciroya indirimli tutar yansır.
+                </span>
+              </span>
+            </label>
+
+            {offerOn && (
+              <div className="space-y-3 pt-2 border-t">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label>İndirim türü</Label>
+                    <Select
+                      value={offer.type}
+                      onValueChange={(v) => v && setOffer((o) => ({ ...o, type: v as "percent" | "fixed" }))}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="percent">Yüzde (%)</SelectItem>
+                        <SelectItem value="fixed">Sabit tutar (₺)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label>{offer.type === "percent" ? "İndirim oranı (%)" : "İndirim tutarı (₺)"} *</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max={offer.type === "percent" ? "100" : undefined}
+                      step="any"
+                      value={offer.value}
+                      onChange={(e) => setOffer((o) => ({ ...o, value: e.target.value }))}
+                      placeholder={offer.type === "percent" ? "20" : "100"}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Son geçerlilik tarihi *</Label>
+                    <Input
+                      type="date"
+                      value={offer.valid_until}
+                      onChange={(e) => setOffer((o) => ({ ...o, valid_until: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Asgari işlem tutarı (₺, opsiyonel)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={offer.min_amount}
+                      onChange={(e) => setOffer((o) => ({ ...o, min_amount: e.target.value }))}
+                      placeholder="Boş = sınır yok"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>Geçerli hizmetler (opsiyonel)</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Hiçbiri seçilmezse tüm hizmetlerde geçerli olur.
+                  </p>
+                  <div className="max-h-40 overflow-y-auto rounded-lg border divide-y">
+                    {services.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-3">Hizmet bulunamadı</p>
+                    ) : (
+                      services.map((s) => {
+                        const checked = offerServiceIds.has(s.id);
+                        return (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() =>
+                              setOfferServiceIds((prev) => {
+                                const next = new Set(prev);
+                                if (next.has(s.id)) next.delete(s.id);
+                                else next.add(s.id);
+                                return next;
+                              })
+                            }
+                            className={`w-full flex items-center gap-3 px-3 py-2 text-left text-sm transition-colors ${
+                              checked ? "bg-primary/5" : "hover:bg-accent"
+                            }`}
+                          >
+                            <span
+                              className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
+                                checked ? "bg-primary border-primary" : "border-border"
+                              }`}
+                            >
+                              {checked && <Check className="h-3 w-3 text-primary-foreground" />}
+                            </span>
+                            <span className="truncate">{s.name}</span>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                <p className="text-xs rounded-lg bg-muted/50 px-3 py-2 text-muted-foreground">
+                  Mesajın sonuna otomatik olarak şu bilgiler eklenir: indirim miktarı, geçerli hizmetler, asgari tutar,
+                  son gün, &quot;müşteri başına bir kez&quot; ve &quot;indirim işlem sonrasında salonda uygulanır&quot; notu.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 

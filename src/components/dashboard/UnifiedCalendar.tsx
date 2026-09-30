@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { isTerminalStatus } from "@/lib/appointment-status";
 import { ContactLinks } from "./ContactLinks";
+import { completeAppointmentRequest } from "@/lib/complete-appointment-client";
 
 export type CalendarView = "day" | "staff" | "week" | "month";
 
@@ -507,11 +508,7 @@ export function UnifiedCalendar({
       // sadakat damgası ve paket seansı düşümü atlanmış olurdu.
       const res =
         newStatus === "tamamlandi"
-          ? await fetch(`/api/appointments/${apptId}/complete`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({}),
-            })
+          ? await completeAppointmentRequest(apptId)
           : await fetch(`/api/appointments/${apptId}`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },

@@ -89,13 +89,15 @@ export function BookingWizard({
   salon, dateLocale, preselected, hideServiceStep = false, showSteps = true, onDone, onPhotoOpen, onDetectedLanguage,
 }: Props) {
   const t = useTranslations("booking.public");
-  const { org, services, categories, staff, staffServiceMap, localizeName, lang } = salon;
+  const { org, services, categories, staff, staffServiceMap, localizeName, lang, campaignServiceIds } = salon;
 
   const STEPS = [t("stepService"), t("stepStaffTime"), t("stepYourInfo")];
   const firstStep = hideServiceStep ? 1 : 0;
 
   const [step, setStep] = useState(firstStep);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  // Seçilen hizmet aktif bir indirimli kampanya kapsamındaysa genel bilgi notu (tutar/ad gösterilmez).
+  const showCampaignNote = !!selectedService && (campaignServiceIds === "all" || (Array.isArray(campaignServiceIds) && campaignServiceIds.includes(selectedService.id)));
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [anyStaff, setAnyStaff] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
@@ -449,6 +451,9 @@ export function BookingWizard({
               <span className="text-sm text-muted-foreground tabular-nums">
                 {formatServicePrice(selectedService.price, selectedService.currency)} • {selectedService.duration_minutes}{t("minutesShort")}
               </span>
+              {showCampaignNote && (
+                <p className="basis-full text-xs text-amber-700 dark:text-amber-400">🎁 {t("campaignNote")}</p>
+              )}
             </div>
           ) : (
             /*
@@ -600,6 +605,9 @@ export function BookingWizard({
             <p className="font-heading font-bold text-primary text-lg pt-1">
               {formatServicePrice(selectedService?.price ?? null, selectedService?.currency)}
             </p>
+            {showCampaignNote && (
+              <p className="text-xs text-amber-700 dark:text-amber-400">🎁 {t("campaignNote")}</p>
+            )}
           </div>
 
           <div className="space-y-3.5">

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
-import { logAppointmentStatusChange } from "@/lib/audit";
+import { logAppointmentStatusChange, logAudit } from "@/lib/audit";
+import { findEligibleOffers, type EligibleOffer } from "@/lib/campaign-redeem";
 import { findActivePackageForService, recordPackageUsage } from "@/lib/package-tx";
 import { canChangeAppointmentStatus } from "@/lib/appointment-status";
 
@@ -19,6 +20,10 @@ export async function POST(
     // use_package_id gönderilebilir. false → paket hiç kullanılmaz.
     use_package = true,
     use_package_id = null,
+    // Kampanya indirimi: hak kimliği (campaign_logs.id) → uygula; "none" →
+    // uygulama; boş → hak varsa işlem yapılmadan 409 OFFER_CHOICE döner ki
+    // çalışan hakkı görüp karar versin (sessizce atlanıp hak kaybolmasın).
+    apply_campaign_log_id = null,
   } = await req.json();
 
   const supabase = await createClient();
@@ -51,6 +56,39 @@ export async function POST(
       { error: "Bu randevu kapatıldığı için (iptal/gelmedi) durumunu yalnızca yönetici veya salon sahibi değiştirebilir." },
       { status: 403 }
     );
+  }
+
+  // ── Kampanya indirim hakkı (yalnızca kontrol; henüz hiçbir şey yazılmaz) ──
+  // Sorgu hatası/eksik migration → "hak yok" sayılır, tamamlama eskisi gibi sürer.
+  const chosenLogId = typeof apply_campaign_log_id === "string" ? apply_campaign_log_id : null;
+  let offerChoice: EligibleOffer | null = null;
+  if (appt.customer_id && chosenLogId !== "none") {
+    const eligible = await findEligibleOffers(supabase, member.org_id, appt, member.organizations?.timezone);
+    if (eligible.length > 0 || chosenLogId) {
+      // Paketten karşılanacak randevu ücretsiz kapanır — indirim anlamsız, sorulmaz.
+      const coveredByPackage =
+        !!use_package &&
+        !!(
+          (typeof use_package_id === "string" && use_package_id) ||
+          appt.package_id ||
+          (await findActivePackageForService(supabase, member.org_id, appt.customer_id, appt.service_id))
+        );
+      if (!coveredByPackage) {
+        if (!chosenLogId) {
+          return NextResponse.json(
+            { code: "OFFER_CHOICE", error: "Müşterinin kullanılabilir kampanya indirim hakkı var", offers: eligible },
+            { status: 409 }
+          );
+        }
+        offerChoice = eligible.find((o) => o.log_id === chosenLogId) ?? null;
+        if (!offerChoice) {
+          return NextResponse.json(
+            { code: "OFFER_INVALID", error: "Seçilen indirim hakkı artık geçerli değil (kullanılmış ya da süresi dolmuş)" },
+            { status: 409 }
+          );
+        }
+      }
+    }
   }
 
   // ── Paket eşleştirme ──────────────────────────────────────────
@@ -92,7 +130,30 @@ export async function POST(
 
   const effectivePayment = usedPackage ? "paket" : payment_method;
 
-  // Mark complete
+  // Kampanya hakkını ATOMİK olarak ayır: aynı hak iki eşzamanlı tamamlamada
+  // ikinci kez kullanılamaz (redeemed_at IS NULL koşulu). Ayırma başarısızsa
+  // hiçbir değişiklik yapılmadan çıkılır.
+  if (usedPackage) offerChoice = null;
+  let claimedLogId: string | null = null;
+  if (offerChoice) {
+    const { data: claim } = await supabase
+      .from("campaign_logs")
+      .update({ redeemed_at: new Date().toISOString(), redeemed_appointment_id: id })
+      .eq("id", offerChoice.log_id)
+      .is("redeemed_at", null)
+      .select("id");
+    if (!claim || claim.length === 0) {
+      return NextResponse.json(
+        { code: "OFFER_INVALID", error: "Bu indirim hakkı az önce başka bir işlemde kullanılmış" },
+        { status: 409 }
+      );
+    }
+    claimedLogId = offerChoice.log_id;
+  }
+
+  // Mark complete — indirim uygulandıysa fiyat İNDİRİMLİ yazılır; gelir satırı,
+  // müşteri cirosu ve raporlar (DB tetikleyicisi NEW.price kullanır) otomatik
+  // gerçekten ödenen tutarı yansıtır.
   const { error: updateErr } = await supabase
     .from("appointments")
     .update({
@@ -100,10 +161,40 @@ export async function POST(
       tip: tip || 0,
       payment_method: effectivePayment,
       ...(usedPackage ? { price: 0 } : {}),
+      ...(offerChoice
+        ? { price: offerChoice.final_price, discount_amount: offerChoice.discount_amount, campaign_log_id: offerChoice.log_id }
+        : {}),
     })
     .eq("id", id);
 
-  if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 });
+  if (updateErr) {
+    // Tamamlama yazılamadıysa ayrılan hakkı geri bırak — hak kaybolmasın.
+    if (claimedLogId) {
+      await supabase
+        .from("campaign_logs")
+        .update({ redeemed_at: null, redeemed_appointment_id: null })
+        .eq("id", claimedLogId);
+    }
+    return NextResponse.json({ error: updateErr.message }, { status: 500 });
+  }
+
+  if (offerChoice) {
+    logAudit({
+      orgId: member.org_id,
+      userId: user.id,
+      action: "campaign_offer_redeem",
+      tableName: "appointments",
+      recordId: id,
+      details: {
+        campaign_id: offerChoice.campaign_id,
+        campaign_log_id: offerChoice.log_id,
+        discount_amount: offerChoice.discount_amount,
+        final_price: offerChoice.final_price,
+        role: member.role,
+      },
+      req,
+    }).catch(() => {});
+  }
 
   const extraIncomeAmount = Number(extra_income) || 0;
   if (extraIncomeAmount > 0) {
@@ -171,6 +262,9 @@ export async function POST(
   return NextResponse.json({
     success: true,
     usedPackage,
+    discount: offerChoice
+      ? { amount: offerChoice.discount_amount, final_price: offerChoice.final_price, campaign: offerChoice.campaign_name }
+      : null,
     package: usedPackage
       ? {
           name: packageResult?.packageName,

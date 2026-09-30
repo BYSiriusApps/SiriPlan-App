@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { CheckCircle2, XCircle, Loader2, AlertTriangle, Lock, Send, MessageSquareText, MessageCircle, History } from "lucide-react";
 import type { Appointment } from "@/types/database";
 import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
+import { completeAppointmentRequest } from "@/lib/complete-appointment-client";
 import {
   renderWaTemplate,
   waMessageLink,
@@ -149,16 +150,12 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
 
   async function handleComplete() {
     setLoading("complete");
-    const res = await fetch(`/api/appointments/${appt.id}/complete`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tip: parseFloat(tip) || 0,
-        payment_method: payMethod,
-        extra_income: parseFloat(extraIncome) || 0,
-        use_package: !!activePackage && usePackage,
-        use_package_id: activePackage && usePackage ? activePackage.id : null,
-      }),
+    const res = await completeAppointmentRequest(appt.id, {
+      tip: parseFloat(tip) || 0,
+      payment_method: payMethod,
+      extra_income: parseFloat(extraIncome) || 0,
+      use_package: !!activePackage && usePackage,
+      use_package_id: activePackage && usePackage ? activePackage.id : null,
     });
     setLoading(null);
     if (res.ok) {
@@ -167,7 +164,12 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
         label: t("adisyonLink"),
         onClick: () => router.push(`/dashboard/randevular/${appt.id}/adisyon`),
       };
-      if (body?.usedPackage && body?.package) {
+      if (body?.discount) {
+        toast.success(
+          `Tamamlandı — ${body.discount.campaign} indirimi uygulandı (−₺${body.discount.amount}) · tahsil edilecek ₺${body.discount.final_price}`,
+          { action: receiptAction }
+        );
+      } else if (body?.usedPackage && body?.package) {
         toast.success(
           `Paketten düşüldü — ${body.package.name} · kalan ${body.package.remaining} seans`,
           { action: receiptAction }

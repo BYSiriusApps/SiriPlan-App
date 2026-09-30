@@ -107,6 +107,8 @@ export default function RehberPage() {
     closeEsc?: string;
     ipTitle?: string;
     ipText?: string;
+    discountTitle?: string;
+    discountItems?: string[];
   }>;
 
   const getMenuLabel = (id: string, def: string) => menuLabels[id] ?? def;
@@ -303,6 +305,12 @@ export default function RehberPage() {
                       <li key={step}>{step}</li>
                     ))}
                   </ol>
+                  <h3 className="text-base font-semibold text-foreground pt-2">{sections.kampanya.discountTitle}</h3>
+                  <ul className="space-y-3 list-disc pl-5 text-sm text-muted-foreground">
+                    {(sections.kampanya.discountItems ?? []).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
                 </div>
               )}
 
