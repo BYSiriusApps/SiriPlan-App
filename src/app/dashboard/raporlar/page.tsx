@@ -3,7 +3,7 @@ import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { startOfMonth, endOfMonth, format, subMonths, startOfDay, endOfDay, addDays } from "date-fns";
+import { format, addDays } from "date-fns";
 import { TrendingUp, Users, Star, Download, CalendarCheck, ChevronLeft, ChevronRight, Activity, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { HomeButton } from "@/components/dashboard/HomeButton";
@@ -12,6 +12,7 @@ import { hasProTools } from "@/lib/entitlements";
 import { hasPermission } from "@/lib/permissions";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { compareValue } from "@/lib/report-trends";
+import { DEFAULT_ORG_TIMEZONE, istanbulDateStr, istanbulTimeStr, zonedWallTimeToUtc } from "@/lib/istanbul-time";
 
 export const dynamic = "force-dynamic";
 
@@ -32,18 +33,36 @@ export default async function RaporlarPage({
 
   const orgId = member.org_id;
   const now = new Date();
+  // Sunucu UTC çalışır; gün/ay sınırları ve saat gösterimi işletmenin saat
+  // dilimine göre hesaplanır (yoksa 00:00-03:00 TR randevuları yanlış güne
+  // düşer, liste saatleri 3 saat geri görünürdü).
+  const tz = member.organizations?.timezone || DEFAULT_ORG_TIMEZONE;
+  const todayStr = istanbulDateStr(now, tz);
   const currency = ((member.organizations?.settings_json as Record<string, unknown> | null)?.currency as string) || "TRY";
   // PDF rapor export Pro+ (Starter "Veri export (CSV)" içerir, PDF içermez).
   const canPdf = hasProTools(member.organizations);
 
   // ── Gün sonu özeti: geriye dönük tarih seçilebilir (?gun=yyyy-MM-dd) ──
-  const dayParam = sp.gun && /^\d{4}-\d{2}-\d{2}$/.test(sp.gun) ? sp.gun : format(now, "yyyy-MM-dd");
+  const dayParam = sp.gun && /^\d{4}-\d{2}-\d{2}$/.test(sp.gun) ? sp.gun : todayStr;
   const reportDay = new Date(dayParam + "T12:00:00");
-  const dayStart = startOfDay(reportDay).toISOString();
-  const dayEnd = endOfDay(reportDay).toISOString();
   const prevDay = format(addDays(reportDay, -1), "yyyy-MM-dd");
   const nextDay = format(addDays(reportDay, 1), "yyyy-MM-dd");
-  const isToday = dayParam === format(now, "yyyy-MM-dd");
+  const dayStart = zonedWallTimeToUtc(dayParam, "00:00", tz).toISOString();
+  const dayEnd = new Date(zonedWallTimeToUtc(nextDay, "00:00", tz).getTime() - 1).toISOString();
+  const isToday = dayParam === todayStr;
+
+  // İşletme saat diliminde ay sınırları (offset 0 = bu ay, 1 = geçen ay ...)
+  const monthBounds = (offset: number) => {
+    const [ty, tm] = todayStr.split("-").map(Number);
+    const first = new Date(Date.UTC(ty, tm - 1 - offset, 1));
+    const next = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 1));
+    const ymd = (d: Date) => `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-01`;
+    return {
+      start: zonedWallTimeToUtc(ymd(first), "00:00", tz).toISOString(),
+      end: new Date(zonedWallTimeToUtc(ymd(next), "00:00", tz).getTime() - 1).toISOString(),
+      labelDate: new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), 15, 12)),
+    };
+  };
 
   const INTL_LOCALE: Record<string, string> = { tr: "tr-TR", en: "en-US", ru: "ru-RU", ar: "ar-EG" };
   const intlLocale = INTL_LOCALE[locale] ?? "tr-TR";
@@ -108,7 +127,7 @@ export default async function RaporlarPage({
                   <ChevronLeft className="h-4 w-4" />
                 </Link>
                 <form method="GET" action="/dashboard/raporlar">
-                  <input key={dayParam} type="date" name="gun" defaultValue={dayParam} max={format(now, "yyyy-MM-dd")}
+                  <input key={dayParam} type="date" name="gun" defaultValue={dayParam} max={todayStr}
                     className="px-2 py-1.5 rounded-lg border border-border bg-background text-sm" />
                   <button type="submit" className="ml-1.5 px-3 py-1.5 rounded-lg border text-sm hover:bg-accent transition-colors">Getir</button>
                 </form>
@@ -145,10 +164,10 @@ export default async function RaporlarPage({
                     <Link key={a.id} href={`/dashboard/randevular/${a.id}`}
                       className="data-row grid grid-cols-[1fr_auto] md:grid-cols-[64px_1fr_1fr_120px_90px] items-center gap-3 px-3 py-2.5 rounded-lg transition-colors">
                       <div className="md:contents">
-                        <span className="hidden md:block text-sm font-semibold tabular-nums">{format(new Date(a.appointment_at), "HH:mm")}</span>
+                        <span className="hidden md:block text-sm font-semibold tabular-nums">{istanbulTimeStr(new Date(a.appointment_at), tz)}</span>
                         <div className="min-w-0">
                           <p className="text-sm font-semibold truncate">
-                            <span className="md:hidden font-semibold tabular-nums mr-1.5">{format(new Date(a.appointment_at), "HH:mm")}</span>
+                            <span className="md:hidden font-semibold tabular-nums mr-1.5">{istanbulTimeStr(new Date(a.appointment_at), tz)}</span>
                             {a.customer_name}
                           </p>
                           <p className="text-xs text-muted-foreground truncate md:hidden">{a.service?.name}</p>
@@ -207,10 +226,10 @@ export default async function RaporlarPage({
   // Last 6 months stats
   const monthlyStats = await Promise.all(
     Array.from({ length: 6 }, (_, i) => {
-      const d = subMonths(now, i);
-      const start = startOfMonth(d).toISOString();
-      const end = endOfMonth(d).toISOString();
-      const monthLabel = d.toLocaleDateString(intlLocale, { month: "short", year: "numeric" });
+      const mb = monthBounds(i);
+      const start = mb.start;
+      const end = mb.end;
+      const monthLabel = mb.labelDate.toLocaleDateString(intlLocale, { month: "short", year: "numeric", timeZone: "UTC" });
       return supabase
         .from("appointments")
         .select("price, tip, status")
@@ -234,14 +253,14 @@ export default async function RaporlarPage({
       .from("customers")
       .select("id", { count: "exact", head: true })
       .eq("org_id", orgId)
-      .gte("created_at", startOfMonth(now).toISOString())
-      .lte("created_at", endOfMonth(now).toISOString()),
+      .gte("created_at", monthBounds(0).start)
+      .lte("created_at", monthBounds(0).end),
     supabase
       .from("customers")
       .select("id", { count: "exact", head: true })
       .eq("org_id", orgId)
-      .gte("created_at", startOfMonth(subMonths(now, 1)).toISOString())
-      .lte("created_at", endOfMonth(subMonths(now, 1)).toISOString()),
+      .gte("created_at", monthBounds(1).start)
+      .lte("created_at", monthBounds(1).end),
   ]);
 
   const [{ data: topServices }, { data: topStaff }, { data: noShowData }] = await Promise.all([
@@ -250,20 +269,20 @@ export default async function RaporlarPage({
       .select("service_id, services(name), price, status, appointment_at")
       .eq("org_id", orgId)
       .eq("status", "tamamlandi")
-      .gte("appointment_at", startOfMonth(now).toISOString()),
+      .gte("appointment_at", monthBounds(0).start),
 
     supabase
       .from("appointments")
       .select("staff_id, staff:staff!appointments_staff_id_fkey(full_name), price, status")
       .eq("org_id", orgId)
       .eq("status", "tamamlandi")
-      .gte("appointment_at", startOfMonth(now).toISOString()),
+      .gte("appointment_at", monthBounds(0).start),
 
     supabase
       .from("appointments")
       .select("status")
       .eq("org_id", orgId)
-      .gte("appointment_at", startOfMonth(now).toISOString()),
+      .gte("appointment_at", monthBounds(0).start),
   ]);
 
   // Aggregate top services
@@ -293,8 +312,9 @@ export default async function RaporlarPage({
   // Gün bazlı ciro (bu ay, tamamlanan randevular) — en yüksek/en düşük cirolu gün için
   const dayMap: Record<string, number> = {};
   (topServices || []).forEach((a) => {
-    const day = (a as unknown as { appointment_at?: string }).appointment_at?.slice(0, 10);
-    if (!day) return;
+    const apptAt = (a as unknown as { appointment_at?: string }).appointment_at;
+    if (!apptAt) return;
+    const day = istanbulDateStr(new Date(apptAt), tz);
     dayMap[day] = (dayMap[day] ?? 0) + Number(a.price);
   });
   const dayEntriesArr = Object.entries(dayMap).sort((a, b) => b[1] - a[1]);
@@ -392,7 +412,7 @@ export default async function RaporlarPage({
                   type="date"
                   name="gun"
                   defaultValue={dayParam}
-                  max={format(now, "yyyy-MM-dd")}
+                  max={todayStr}
                   className="px-2 py-1.5 rounded-lg border border-border bg-background text-sm"
                 />
                 <button type="submit" className="ml-1.5 px-3 py-1.5 rounded-lg border text-sm hover:bg-accent transition-colors">
@@ -427,7 +447,7 @@ export default async function RaporlarPage({
                       href={`/dashboard/randevular/${a.id}`}
                       className="inline-flex items-center gap-1 rounded-md bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 text-xs font-medium hover:bg-amber-200 dark:hover:bg-amber-900/60 transition-colors"
                     >
-                      {format(new Date(a.appointment_at), "HH:mm")} · {a.customer_name}
+                      {istanbulTimeStr(new Date(a.appointment_at), tz)} · {a.customer_name}
                     </Link>
                   ))}
                 </div>
@@ -480,11 +500,11 @@ export default async function RaporlarPage({
                   >
                     <div className="md:contents">
                       <span className="hidden md:block text-sm font-semibold tabular-nums">
-                        {format(new Date(a.appointment_at), "HH:mm")}
+                        {istanbulTimeStr(new Date(a.appointment_at), tz)}
                       </span>
                       <div className="min-w-0">
                         <p className="text-sm font-semibold truncate">
-                          <span className="md:hidden font-semibold tabular-nums mr-1.5">{format(new Date(a.appointment_at), "HH:mm")}</span>
+                          <span className="md:hidden font-semibold tabular-nums mr-1.5">{istanbulTimeStr(new Date(a.appointment_at), tz)}</span>
                           {a.customer_name}
                         </p>
                         <p className="text-xs text-muted-foreground truncate md:hidden">

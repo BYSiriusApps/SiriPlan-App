@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { format } from "date-fns";
 import { tr, enUS, ru, ar } from "date-fns/locale";
+import { DEFAULT_ORG_TIMEZONE, zonedWallDate } from "@/lib/istanbul-time";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -100,7 +101,7 @@ export default async function ApptDetailPage({
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">
-            {format(new Date(a.appointment_at), "d MMMM yyyy, EEEE — HH:mm", { locale: dateFnsLocale })}
+            {format(zonedWallDate(new Date(a.appointment_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMMM yyyy, EEEE — HH:mm", { locale: dateFnsLocale })}
           </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 text-sm">
@@ -146,6 +147,12 @@ export default async function ApptDetailPage({
             <div>
               <p className="text-muted-foreground text-xs">Ücret</p>
               <p className="font-medium">₺{Number(a.price).toLocaleString("tr-TR")}</p>
+              {Number(a.discount_amount) > 0 && (
+                <p className="text-xs text-primary">
+                  Kampanya indirimi uygulandı: −₺{Number(a.discount_amount).toLocaleString("tr-TR")}
+                  {" "}(indirimsiz ₺{(Number(a.price) + Number(a.discount_amount)).toLocaleString("tr-TR")})
+                </p>
+              )}
             </div>
           </div>
           {a.tip > 0 && (

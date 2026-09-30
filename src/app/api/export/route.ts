@@ -5,7 +5,8 @@ import { hasProTools } from "@/lib/entitlements";
 import { hasPermission } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import * as XLSX from "xlsx";
-import { startOfDay, endOfDay, format as formatDate } from "date-fns";
+import { format as formatDate } from "date-fns";
+import { DEFAULT_ORG_TIMEZONE, istanbulDateStr, istanbulTimeStr, zonedWallTimeToUtc } from "@/lib/istanbul-time";
 import { tr } from "date-fns/locale";
 import { safeCell } from "@/lib/spreadsheet-safety";
 import { formatMoney } from "@/lib/currency";
@@ -157,7 +158,7 @@ export async function GET(req: NextRequest) {
       orgId, userId: user.id, action: "data_export", tableName: "appointments",
       details: { format: "pdf", scope: "gun_sonu", gun, role: member.role }, req,
     });
-    return buildGunSonuPdf(supabase, orgId, gun, new URL(req.url).origin);
+    return buildGunSonuPdf(supabase, orgId, gun, new URL(req.url).origin, member.organizations?.timezone || undefined);
   }
 
   // Gelir-Gider ekranının "PDF İndir" düğmesi — seçili ay veya yıl için özet.
@@ -393,11 +394,15 @@ async function buildGunSonuPdf(
   orgId: string,
   gun: string,
   origin: string,
+  tz: string = DEFAULT_ORG_TIMEZONE,
 ) {
   const reportDay = new Date(gun + "T12:00:00");
-  const dayStart = startOfDay(reportDay).toISOString();
-  const dayEnd = endOfDay(reportDay).toISOString();
-  const weekAgoStart = startOfDay(new Date(reportDay.getTime() - 6 * 86400000)).toISOString();
+  // Gün sınırları işletme saat diliminde (sunucu UTC çalışır).
+  const nextGun = formatDate(new Date(reportDay.getTime() + 86400000), "yyyy-MM-dd");
+  const weekAgoGun = formatDate(new Date(reportDay.getTime() - 6 * 86400000), "yyyy-MM-dd");
+  const dayStart = zonedWallTimeToUtc(gun, "00:00", tz).toISOString();
+  const dayEnd = new Date(zonedWallTimeToUtc(nextGun, "00:00", tz).getTime() - 1).toISOString();
+  const weekAgoStart = zonedWallTimeToUtc(weekAgoGun, "00:00", tz).toISOString();
 
   const [{ data: org }, { data: dayAppts }, { data: dayExpenses }, { count: dayNewCust }, { data: weekAppts }] = await Promise.all([
     supabase.from("organizations").select("name, logo_url").eq("id", orgId).single(),
@@ -452,7 +457,7 @@ async function buildGunSonuPdf(
     weekByDay[formatDate(d, "yyyy-MM-dd")] = 0;
   }
   ((weekAppts ?? []) as { appointment_at: string; price: number; tip: number | null }[]).forEach((a) => {
-    const key = a.appointment_at.slice(0, 10);
+    const key = istanbulDateStr(new Date(a.appointment_at), tz);
     if (key in weekByDay) weekByDay[key] += Number(a.price) + Number(a.tip ?? 0);
   });
   const weekPoints = Object.keys(weekByDay).map((key) => ({
@@ -462,7 +467,7 @@ async function buildGunSonuPdf(
 
   const apptRows = dAppts.map((a) => `
     <tr>
-      <td>${formatDate(new Date(a.appointment_at), "HH:mm")}</td>
+      <td>${istanbulTimeStr(new Date(a.appointment_at), tz)}</td>
       <td>${escapeHtml(a.customer_name)}</td>
       <td>${escapeHtml(a.service?.name ?? "-")}${a.staff?.full_name ? ` · ${escapeHtml(a.staff.full_name)}` : ""}</td>
       <td>${STATUS_TR[a.status] ?? escapeHtml(a.status)}</td>

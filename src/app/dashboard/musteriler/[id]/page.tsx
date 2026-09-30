@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+import { DEFAULT_ORG_TIMEZONE, zonedWallDate } from "@/lib/istanbul-time";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -230,7 +231,7 @@ export default async function MusteriDetailPage({
               <p className="text-muted-foreground text-xs">Son Ziyaret</p>
               <p className="font-medium text-sm">
                 {c.last_visit_at
-                  ? format(new Date(c.last_visit_at), "d MMM yyyy", { locale: tr })
+                  ? format(zonedWallDate(new Date(c.last_visit_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMM yyyy", { locale: tr })
                   : "—"}
               </p>
             </div>
@@ -301,10 +302,10 @@ export default async function MusteriDetailPage({
                 <Link href={`/dashboard/randevular/${appt.id}`} className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="text-center w-14 shrink-0">
                       <p className="text-xs text-muted-foreground">
-                        {format(new Date(appt.appointment_at), "d MMM yyyy", { locale: tr })}
+                        {format(zonedWallDate(new Date(appt.appointment_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMM yyyy", { locale: tr })}
                       </p>
                       <p className="text-sm font-bold text-primary tabular-nums">
-                        {format(new Date(appt.appointment_at), "HH:mm")}
+                        {format(zonedWallDate(new Date(appt.appointment_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "HH:mm")}
                       </p>
                     </div>
                     <div className="flex-1 min-w-0">
