@@ -163,7 +163,12 @@ async function captureDevice(browser, device) {
     }
     const pageText = await page.evaluate(() => document.body.innerText);
     const hits = [...pageText.matchAll(BANNED)].map((m) => m[0].toLowerCase());
-    if (hits.length) {
+    // SCREENSHOT_ALLOW_BANNED=randevular,raporlar → yalnızca bu sayfalar terime rağmen çekilir
+    // (UYARI basılır). Demo veri temizlenmeden bu dosyaları App Store'a YÜKLEMEYİN.
+    const allowed = (process.env.SCREENSHOT_ALLOW_BANNED || "").split(",").includes(item.slug);
+    if (hits.length && allowed) {
+      console.warn(`  [UYARI] ${item.slug}: yasaklı terim var (${[...new Set(hits)].join(", ")}) ama izinli — yüklemeden önce demo veriyi temizle`);
+    } else if (hits.length) {
       console.warn(`  [ATLANDI] ${item.slug}: yasaklı terim ${[...new Set(hits)].join(", ")}`);
       continue;
     }
