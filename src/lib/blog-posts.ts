@@ -475,6 +475,84 @@ Bu 6 yöntem tek başına da fark yaratır, birlikte uygulandığında no-show o
 **14 gün ücretsiz deneyin, farkı kendiniz görün.**
     `,
   },
+  {
+    slug: "salon-personel-prim-maas-hesaplama",
+    category: "Personel Yönetimi",
+    title: "Salon Personeli İçin Maaş ve Prim Hesaplama Rehberi",
+    excerpt: "Taban maaş, komisyon ve bahşişi ay sonunda Excel'siz, hatasız hesaplayın: kuaför ve güzellik salonları için prim hesaplama yöntemi.",
+    date: "30 Eylül 2026",
+    isoDate: "2026-09-30",
+    readTime: "6 dk",
+    author: "SiriPlan Ekibi",
+    content: `
+Ay sonu geldiğinde salon sahiplerinin en çok vakit kaybettiği iş: personelin maaş ve primini hesaplamak. Defter, Excel ya da not defteri… Kim kaç randevuya baktı, hangi hizmet ne kadar getirdi, bahşişler nereye yazıldı? Tek bir yanlış toplam, hem sizin hem personelin motivasyonunu bozar. Bu rehberde **kuaför prim hesaplama** mantığını adım adım anlatıyor ve süreci nasıl otomatikleştireceğinizi gösteriyoruz.
+
+## 1. Salonlarda Yaygın 3 Ücret Modeli
+
+Personel ücretlendirmede genelde şu üç yöntemden biri (ya da karışımı) kullanılır:
+
+| Model | Nasıl çalışır | Avantajı | Dezavantajı |
+|-------|---------------|----------|-------------|
+| **Sabit maaş** | Ay sonunda herkese aynı tutar | Öngörülebilir gider | Performansı ödüllendirmez |
+| **Yalnızca komisyon** | Yapılan cironun belirli yüzdesi | Personeli satışa teşvik eder | Sakin aylarda personel kaybı riski |
+| **Taban maaş + komisyon** | Düşük sabit tutar + ciro yüzdesi | Hem güvence hem motivasyon | Hesaplaması manuel yapılırsa zahmetli |
+
+Sektörde en dengeli sonucu genellikle **taban maaş + komisyon** modeli verir; ancak hesaplaması en karmaşık olan da odur. Çözüm, hesabı elle yapmaktan vazgeçmek.
+
+## 2. Personel Maaşı Nasıl Hesaplanır? (Formül)
+
+Taban maaş + komisyon + bahşiş modelinde aylık toplam şöyle bulunur:
+
+**Toplam Ödeme = Taban Maaş + (Aylık Ciro × Komisyon Oranı) + Bahşiş**
+
+**Örnek:** Taban maaşı 15.000 ₺, komisyon oranı %20 olan bir kuaförün ay içinde tamamlanan randevu cirosu 60.000 ₺, bahşişi 1.200 ₺ ise:
+
+- Komisyon: 60.000 × 0,20 = **12.000 ₺**
+- Toplam: 15.000 + 12.000 + 1.200 = **28.200 ₺**
+
+Formül basit, ama asıl zorluk "aylık ciro" rakamını doğru bulmakta.
+
+## 3. Ciro Hesabında En Sık Yapılan Hata
+
+Randevu defterinden ciro çıkarırken iptal edilen, gelmeyen ya da ertelenen randevuları yanlışlıkla dahil etmek çok yaygın bir hatadır. Komisyon yalnızca **gerçekten tamamlanmış** hizmetler üzerinden hesaplanmalıdır. Aksi halde personele hak etmediği prim ödersiniz — ya da tersi, unutulan bir randevu yüzünden hak ettiği primi eksik verirsiniz.
+
+Bu yüzden ciroyu, "randevu alındı" değil "**hizmet tamamlandı**" durumuna bağlamak en doğru yöntemdir.
+
+## 4. Bahşişleri Şeffaf Yönetin
+
+Bahşiş, ekip içinde en çok tartışma çıkaran kalemdir. Öneri: her bahşişi, ilgili randevuya kaydedin. Böylece ay sonunda kimin ne kadar bahşiş aldığı tartışmasız ve izlenebilir olur.
+
+## 5. SiriPlan ile Otomatik Maaş ve Prim Hesaplama
+
+SiriPlan'ın **Personel → Maaş Hesaplama** ekranı bu işi sizin yerinize yapar:
+
+- Ay ve yıl seçersiniz.
+- Aktif her personel için **taban maaş, komisyon oranı, tamamlanan randevu cirosu ve bahşiş** otomatik listelenir.
+- Komisyon yalnızca **tamamlandı** durumundaki randevulardan hesaplanır; iptal ve gelmeyenler dışarıda kalır.
+- Personelin toplam ödemesi ve tüm ekibin genel toplamı tek bakışta görünür.
+- İsterseniz tek tıkla o kişinin maaşını **gider kaydı** olarak Gelir-Gider sayfanıza işleyebilirsiniz; böylece aylık kâr-zarar raporunuz otomatik güncel kalır.
+
+Taban maaş ve komisyon oranını personel kartından bir kez girmeniz yeterli. Her ay Excel açmak, formül kopyalamak ya da randevu defterini tek tek toplamak gerekmez.
+
+## 6. Ay Sonu Kontrol Listesi
+
+1. Ayın tüm randevularının durumunu güncelleyin (tamamlandı / iptal / gelmedi).
+2. Bahşişlerin ilgili randevulara girildiğini kontrol edin.
+3. Maaş Hesaplama ekranından ayı seçip dökümü inceleyin.
+4. Personelle dökümü paylaşıp onay alın.
+5. Ödemeleri gider olarak kaydedin.
+
+*Not: Bu yazı genel bilgilendirme amaçlıdır; bordro, vergi ve SGK yükümlülükleri için muhasebecinize danışmanız gerekir.*
+
+---
+
+## Sonuç
+
+Adil ve şeffaf bir prim sistemi, personelin bağlılığını artırır ve ay sonu tartışmalarını ortadan kaldırır. SiriPlan, taban maaş, komisyon ve bahşişi tamamlanan randevulardan otomatik hesaplayarak size saatler kazandırır.
+
+**14 gün ücretsiz deneyin, ilk ay sonu hesabınızı saniyeler içinde görün.**
+    `,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
