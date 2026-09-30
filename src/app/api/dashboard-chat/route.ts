@@ -207,7 +207,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Hesabınızın planını ve kullanım limitlerini Ayarlar → Abonelik sayfasından görebilirsiniz. Mobil mağaza politikaları nedeniyle iOS/Android uygulamaları içinden doğrudan ödeme yapılamamaktadır; ödemelerinizi web tarayıcınızdan yapabilirsiniz. " +
       "Destek için: " + CONTACT_LINE,
     answer:
-      "Planlarımız Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar; deneme boyunca Pro seviyesindeki araçlar (sesli asistan, bekleme listesi, kampanya, website modu, müşteri skoru, PDF rapor) açıktır. Starter: 1 şube, 8 personel, stok/barkod, paket takibi, gelir-gider & KDV, WhatsApp hatırlatma. Pro: sınırsız personel + yukarıdaki araçlar. Business: 5 şubeye kadar + AI WhatsApp/IG asistanı. " +" +
+      "Planlarımız Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar; deneme boyunca Pro seviyesindeki araçlar (sesli asistan, bekleme listesi, kampanya, website modu, müşteri skoru, PDF rapor) açıktır. Starter: 1 şube, 8 personel, stok/barkod, paket takibi, gelir-gider & KDV, WhatsApp hatırlatma. Pro: sınırsız personel + yukarıdaki araçlar. Business: 5 şubeye kadar + AI WhatsApp/IG asistanı. " +
       "Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görebilirsiniz. " +
       "Aboneliğiniz SiriPlan hesabınıza bağlıdır; plan yükseltme, yenileme veya faturalandırma sorularınız için: " + CONTACT_LINE,
   },
