@@ -88,22 +88,22 @@ export function RandevuCard({
   const showReceiptShortcut = appt.status === "tamamlandi";
 
   return (
-    <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+    <Card className="kpi-tile border-0 shadow-none hover:-translate-y-0.5">
       <CardContent className="p-4">
         <Link href={`/dashboard/randevular/${appt.id}`} className="block">
           <div className="flex items-center gap-4 cursor-pointer">
-            <div className="text-center w-16 shrink-0">
-              <p className="text-xs text-muted-foreground">
+            <div className="text-center w-16 shrink-0 rounded-xl bg-primary/10 py-1.5">
+              <p className="text-xs font-semibold text-muted-foreground">
                 {format(new Date(appt.appointment_at), "d MMM", { locale: dateFnsLocale })}
               </p>
-              <p className="text-base font-bold text-primary">
+              <p className="text-base font-extrabold text-primary">
                 {format(new Date(appt.appointment_at), "HH:mm")}
               </p>
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <p className="font-semibold truncate">{appt.customer_name}</p>
+                <p className="font-bold truncate">{appt.customer_name}</p>
                 <Badge variant="outline" className={cn("text-[10px] shrink-0", STATUS_BADGE_CLASSES[appt.status])}>
                   {t(STATUS_LABEL_KEYS[appt.status])}
                 </Badge>
@@ -122,7 +122,7 @@ export function RandevuCard({
             </div>
 
             <div className="text-right shrink-0">
-              <p className="font-semibold">₺{Number(appt.price).toLocaleString("tr-TR")}</p>
+              <p className="font-extrabold text-base">₺{Number(appt.price).toLocaleString("tr-TR")}</p>
               <p className="text-xs text-muted-foreground">{appt.duration_minutes}dk</p>
             </div>
           </div>
@@ -138,7 +138,7 @@ export function RandevuCard({
                   disabled={updating}
                   onClick={() => updateStatus(a.key)}
                   className={cn(
-                    "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
+                    "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
                     a.className
                   )}
                 >

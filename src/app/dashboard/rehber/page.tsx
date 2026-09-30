@@ -28,7 +28,13 @@ import {
   AlertTriangle,
   Lock,
   ChevronRight,
-  Maximize2
+  Maximize2,
+  Inbox,
+  ListChecks,
+  Package,
+  Boxes,
+  Mic,
+  Smartphone
 } from "lucide-react";
 
 export default function RehberPage() {
@@ -112,15 +118,21 @@ export default function RehberPage() {
     { id: "hizmetler", icon: Scissors },
     { id: "personel", icon: Users },
     { id: "takvim", icon: Calendar },
+    { id: "talepler", icon: Inbox },
+    { id: "bekleme", icon: ListChecks },
     { id: "adisyon", icon: Wallet },
+    { id: "paketler", icon: Package },
+    { id: "stok", icon: Boxes },
+    { id: "sesli", icon: Mic },
     { id: "vitrin", icon: Globe },
     { id: "whatsapp", icon: MessageSquare },
     { id: "telegram", icon: Send },
     { id: "kampanya", icon: Megaphone },
-    { id: "abonelik", icon: CreditCard },
     { id: "sadakat", icon: Heart },
     { id: "maas", icon: Wallet },
     { id: "raporlar", icon: BarChart3 },
+    { id: "mobil", icon: Smartphone },
+    { id: "abonelik", icon: CreditCard },
     { id: "sss", icon: HelpCircle },
     { id: "sunum", icon: BookOpen, highlight: true }
   ].map(item => ({ ...item, label: getMenuLabel(item.id, "") }));
@@ -367,7 +379,23 @@ export default function RehberPage() {
                 </div>
               )}
 
-              {/* 🎬 İNTERAKTİF SUNUM (19 SLAYT) */}
+              {/* YENİ BÖLÜMLER (talepler, bekleme, paketler, stok, sesli, mobil) — ortak liste düzeni */}
+              {["talepler", "bekleme", "paketler", "stok", "sesli", "mobil"].includes(activeTab) && sections[activeTab] && (
+                <div className="space-y-4">
+                  <h2 className="text-xl font-bold text-foreground">{sections[activeTab].title}</h2>
+                  <p className="text-muted-foreground leading-relaxed">{sections[activeTab].intro}</p>
+                  <ul className="space-y-3 list-disc pl-5 text-sm text-muted-foreground">
+                    {(sections[activeTab].items as { label: string; desc: string }[]).map((item) => (
+                      <li key={item.label}>
+                        <b>{item.label}</b>{" "}
+                        {item.desc}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* 🎬 İNTERAKTİF SUNUM */}
               {activeTab === "sunum" && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">

@@ -98,7 +98,7 @@ export default async function PersonelPage() {
           <div className="flex flex-wrap items-stretch gap-2">
             <Link
               href="/dashboard/personel/maas-hesaplama"
-              className="inline-flex shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg border border-border text-sm font-medium whitespace-nowrap text-foreground hover:bg-accent transition-colors"
+              className="inline-flex shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg border border-border bg-card text-sm font-bold whitespace-nowrap text-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/40 transition-all"
             >
               <Wallet className="h-4 w-4" />
               {t("staffPage.salaryCalc")}
@@ -110,7 +110,7 @@ export default async function PersonelPage() {
             {m.role === "owner" && (staff?.length || 0) < maxStaff && (
               <Link
                 href="/dashboard/personel/yeni"
-                className="inline-flex shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium whitespace-nowrap hover:bg-primary/90 transition-colors"
+                className="inline-flex shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-bold whitespace-nowrap shadow-md hover:bg-primary/90 active:scale-95 transition-all"
               >
                 {t("staffPage.addStaff")}
               </Link>
@@ -172,7 +172,7 @@ export default async function PersonelPage() {
                         {s.full_name}
                       </CardTitle>
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <p className="text-xs text-muted-foreground">{s.role}</p>
+                        <p className="text-xs font-semibold text-muted-foreground">{s.role}</p>
                         {(s as unknown as { group_label?: string | null }).group_label && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
                             {(s as unknown as { group_label?: string | null }).group_label}
@@ -191,7 +191,7 @@ export default async function PersonelPage() {
                         <span key={b} className="text-sm" title={b}>{BADGE_ICONS[b]}</span>
                       ))}
                     </div>
-                    <Badge variant="outline" className="text-xs shrink-0">
+                    <Badge variant="outline" className="text-xs shrink-0 font-bold bg-primary/10 text-primary border-primary/20">
                       %{Math.round(s.commission_rate * 100)}
                     </Badge>
                   </div>
@@ -199,7 +199,7 @@ export default async function PersonelPage() {
                 <CardContent className="pt-0 space-y-2">
                   <div className="flex gap-1 flex-wrap">
                     {(s.working_days as number[])?.map((d) => (
-                      <span key={d} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                      <span key={d} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">
                         {(t.raw("weekDays") as string[])[d]}
                       </span>
                     ))}
@@ -209,7 +209,7 @@ export default async function PersonelPage() {
                   </p>
                   <div className="flex flex-wrap gap-1">
                     {s.staff_services?.slice(0, 3).map((ss) => (
-                      <Badge key={ss.services?.name} variant="secondary" className="text-[10px]">
+                      <Badge key={ss.services?.name} variant="secondary" className="text-[10px] font-semibold">
                         {ss.services?.name}
                       </Badge>
                     ))}

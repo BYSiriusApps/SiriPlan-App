@@ -310,7 +310,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
         {canEdit && (
           <Link
             href="/dashboard/hizmetler/yeni"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow-md hover:bg-primary/90 active:scale-95 transition-all"
           >
             {t("servicesPage.addButton")}
           </Link>
@@ -319,7 +319,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
 
       {groups.map((group) => (
         <div key={group.key}>
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 capitalize">
+          <h2 className="text-sm font-extrabold text-primary/80 uppercase tracking-wide mb-3 capitalize">
             {group.label}
           </h2>
           <div className="space-y-2">
@@ -342,7 +342,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-sm truncate max-w-full">{service.name}</p>
+                        <p className="font-bold text-sm truncate max-w-full">{service.name}</p>
                         <Badge
                           variant="outline"
                           className={cn("text-[10px]", CATEGORY_COLORS[service.category_tag] || CATEGORY_COLORS.genel)}

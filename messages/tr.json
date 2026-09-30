@@ -1799,43 +1799,81 @@
         "hizmetler": "4. Hizmet Tanımlama",
         "personel": "5. Personel & Yetkiler",
         "takvim": "6. Takvim & Randevu",
-        "adisyon": "7. Adisyon & Fiş Yazma",
-        "vitrin": "8. Web Vitrini (/r/[slug])",
-        "whatsapp": "9. Bildirim Ayarları",
-        "telegram": "10. Bildirim Kanalları",
-        "kampanya": "11. Toplu Kampanyalar",
-        "abonelik": "12. Abonelik & Plan",
-        "sadakat": "13. Sadakat Puanları",
-        "maas": "14. Gelir-Gider & Maaş",
-        "raporlar": "15. Raporlar & Veri Göçü",
-        "sss": "16. Sık Sorulan Sorular",
-        "sunum": "🎬 İnteraktif Sunum (19 Slayt)"
+        "talepler": "7. Bekleyen İstekler & Yeni Saat Öner",
+        "bekleme": "8. Bekleme Listesi",
+        "adisyon": "9. Adisyon & Fiş Yazma",
+        "paketler": "10. Paket / Seans Takibi",
+        "stok": "11. Stok & Barkod",
+        "sesli": "12. Sesli Asistan",
+        "vitrin": "13. Web Vitrini (/r/[slug])",
+        "whatsapp": "14. Bildirim Ayarları",
+        "telegram": "15. Bildirim Kanalları",
+        "kampanya": "16. Toplu Kampanyalar",
+        "sadakat": "17. Sadakat Puanları",
+        "maas": "18. Gelir-Gider & Maaş",
+        "raporlar": "19. Raporlar & Veri Göçü",
+        "mobil": "20. Mobil Uygulama & Ana Ekran",
+        "abonelik": "21. Abonelik & Plan",
+        "sss": "22. Sık Sorulan Sorular",
+        "sunum": "🎬 İnteraktif Sunum (24 Slayt)"
       },
       "sections": {
         "baslangic": {
           "title": "1. Hızlı Başlangıç & Hesap Kurulumu",
           "intro": "SiriPlan Randevu & İşletme Yönetim Sistemi ile salonunuzu 5 dakikada dijitalleştirin. Kağıt-kalem karmaşasına, unutulan randevulara ve boş koltuklara son verin!",
           "steps": [
-            { "title": "Ücretsiz Kayıt Olun", "desc": "Kayıt ekranından işletme adınız, e-postanız ve telefon numaranızla 14 gün ücretsiz hesabınızı açın. Kredi kartı gerekmez." },
-            { "title": "İşletme Bilgilerini Doldurun", "desc": "Ayarlar → Genel sekmesine gidin. Sektörünüzü seçin (Kuaför, Güzellik Salonu, Nail Art, Spa vb.), çalışma gün ve saatlerinizi belirleyin, logonuzu ve kapak görselinizi yükleyin." }
+            {
+              "title": "Ücretsiz Kayıt Olun",
+              "desc": "Kayıt ekranından işletme adınız, e-postanız ve telefon numaranızla 14 gün ücretsiz hesabınızı açın. Kredi kartı gerekmez."
+            },
+            {
+              "title": "İşletme Bilgilerini Doldurun",
+              "desc": "Ayarlar → Genel sekmesine gidin. Sektörünüzü seçin (Kuaför, Güzellik Salonu, Nail Art, Spa vb.), çalışma gün ve saatlerinizi belirleyin, logonuzu ve kapak görselinizi yükleyin."
+            },
+            {
+              "title": "Deneme Süresi",
+              "desc": "14 günlük deneme boyunca Pro seviyesindeki tüm araçlar (sesli asistan, bekleme listesi, kampanya, web sitesi modu, müşteri skoru, PDF rapor) açıktır. Süre bitince plan seçmezseniz Starter kapsamı dışındaki araçlar kapanır."
+            },
+            {
+              "title": "İlk Gün Kontrol Listesi",
+              "desc": "Panel karşılama kutusundan ve Ayarlar'daki balonlu turdan ilerleyin: çalışma saatleri → hizmetler → personel → bildirim kanalları → randevu linkiniz."
+            }
           ]
         },
         "giris": {
           "title": "2. Giriş Akışı: Yönetici ve Personel Girişi",
           "intro": "SiriPlan çoklu kullanıcı ve rol mimarisini destekler:",
           "items": [
-            { "label": "İşletme Sahibi / Yönetici Girişi:", "desc": "Kayıtlı E-posta veya Telefon numarası + şifre ile sisteme giriş yapar. İşletmenin tüm finansal verilerine, ayarlarına ve raporlarına tam erişime sahiptir." },
-            { "label": "Personel Girişi:", "desc": "Yönetici, Personel → Davet Et butonu ile personeline bir davet bağlantisi gönderir. Personel kendi e-postası veya telefonu ile sisteme girerek bağlı olduğu işletmenin paneline yönlendirilir. Personeller yalnızca kendi randevularını ve müşteri takvimini görür; işletme cirosu ve finansal ayarları göremezler." }
+            {
+              "label": "İşletme Sahibi / Yönetici Girişi:",
+              "desc": "Kayıtlı E-posta veya Telefon numarası + şifre ile sisteme giriş yapar. İşletmenin tüm finansal verilerine, ayarlarına ve raporlarına tam erişime sahiptir."
+            },
+            {
+              "label": "Personel Girişi:",
+              "desc": "Yönetici, Personel → Davet Et butonu ile personeline bir davet bağlantisi gönderir. Personel kendi e-postası veya telefonu ile sisteme girerek bağlı olduğu işletmenin paneline yönlendirilir. Personeller yalnızca kendi randevularını ve müşteri takvimini görür; işletme cirosu ve finansal ayarları göremezler."
+            }
           ]
         },
         "panel": {
           "title": "3. Panel Açılışını (Dashboard) Kişiselleştirme",
           "intro": "Panele giriş yaptığınızda karşınıza çıkan Ana Sayfa (Dashboard) widget tabanlı esnek bir yapıya sahiptir:",
           "items": [
-            { "label": "Widget'ları Sürükle-Bırak:", "desc": "Sağ üstteki \"Kişiselleştir\" butonuna basarak widget kartlarının yerlerini sürükleyip değiştirebilirsiniz." },
-            { "label": "Kartları Göster / Gizle:", "desc": "İhtiyacınız olmayan kartları göz ikonuna basarak gizleyebilir, sık kullandıklarınızı ön plana çıkarabilirsiniz." },
-            { "label": "Kişiye Özel Hafıza:", "desc": "Yapılan görünüm tercihleri her kullanıcının kendi hesabına özel kaydedilir (bir uzmanın gizlediği kart yöneticinin ekranını etkilemez)." },
-            { "label": "Renk Teması Seçimi:", "desc": "Sidebar'ın alt kısmındaki palet ikonundan işletmenize uygun bir renk teması seçin — Pembe Rose, Klasik Mavi, Okyanus Mavisi, Doğa Yeşili, Gece Modu, Turuncu Gün Batımı ve Gece Yarısı Mor arasından. Tercihiniz bu cihazda hatırlanır." }
+            {
+              "label": "Widget'ları Sürükle-Bırak:",
+              "desc": "Sağ üstteki \"Kişiselleştir\" butonuna basarak widget kartlarının yerlerini sürükleyip değiştirebilirsiniz."
+            },
+            {
+              "label": "Kartları Göster / Gizle:",
+              "desc": "İhtiyacınız olmayan kartları göz ikonuna basarak gizleyebilir, sık kullandıklarınızı ön plana çıkarabilirsiniz."
+            },
+            {
+              "label": "Kişiye Özel Hafıza:",
+              "desc": "Yapılan görünüm tercihleri her kullanıcının kendi hesabına özel kaydedilir (bir uzmanın gizlediği kart yöneticinin ekranını etkilemez)."
+            },
+            {
+              "label": "Renk Teması Seçimi:",
+              "desc": "Sidebar'ın alt kısmındaki palet ikonundan işletmenize uygun bir renk teması seçin — Pembe Rose, Klasik Mavi, Okyanus Mavisi, Doğa Yeşili, Gece Modu, Turuncu Gün Batımı ve Gece Yarısı Mor arasından. Tercihiniz bu cihazda hatırlanır."
+            }
           ]
         },
         "hizmetler": {
@@ -1856,19 +1894,37 @@
             "+ Personel Ekle / Davet Et butonuna tıklayın.",
             "Personelin adını, telefonunu, çalışma günlerini ve takvimde görünecek rengini seçin.",
             "Yetki Rolü Belirleyin: Yönetici (Tüm yetkiler) veya Personel (Yalnızca kendi randevularını görebilme) rollerini atayın.",
-            "Maaş & Komisyon Tanımı: Personel detay sayfasından Taban Maaş ve % Komisyon Oranı belirleyin."
+            "Maaş & Komisyon Tanımı: Personel detay sayfasından Taban Maaş ve % Komisyon Oranı belirleyin.",
+            "Yetki kutucukları: Müşteri silme, personel yönetimi, ayarlar, hizmet düzenleme, raporlar, gelir-gider ve kampanya izinleri gerçekten kısıtlayıcıdır. Randevu oluşturma/düzenleme/iptal ve müşteri düzenleme her personelde sabit açıktır. Personel yönetimi izni yalnızca işletme sahibi tarafından verilebilir."
           ]
         },
         "takvim": {
           "title": "6. Takvim & Randevu Yönetimi",
           "blocks": [
-            { "heading": "Tıklayarak Anında Randevu Oluşturma:", "text": "Takvim ekranında boş bir saat dilimine veya bir uzmanın sütununa tıkladığınızda, seçtiğiniz Tarih, Saat ve Personel otomatik doldurulmuş olarak Yeni Randevu modalı açılır." },
-            { "heading": "Takvimi Özelleştirme ve Filtreleme:", "text": "Takviminizi Gün, Hafta veya Ay bazında görüntüleyebilirsiniz. Personel filtresini kullanarak tüm uzmanları yan yana sütunlar halinde kıyaslayabilir veya tek bir personelin programına odaklanabilirsiniz." },
-            { "heading": "Randevu Durumları ve Yetkiler:", "text": "Bir randevu Tamamlandı, İptal veya Gelmedi olarak işaretlendikten sonra bu durumu geri değiştirmek yalnızca Salon Sahibi ve Yönetici'ye açıktır — Personel, sahte işlem kaydı oluşmasını önlemek için kapanmış bir randevuyu geriye dönük değiştiremez. Salon Sahibi/Yönetici, randevu detay sayfasındaki \"Durumu Düzelt\" bölümünden yanlış işaretlenmiş bir randevuyu düzeltebilir; altındaki \"Durum Geçmişi\" listesi kimin ne zaman hangi durumu seçtiğini gösterir." }
+            {
+              "heading": "Tıklayarak Anında Randevu Oluşturma:",
+              "text": "Takvim ekranında boş bir saat dilimine veya bir uzmanın sütununa tıkladığınızda, seçtiğiniz Tarih, Saat ve Personel otomatik doldurulmuş olarak Yeni Randevu modalı açılır."
+            },
+            {
+              "heading": "Takvimi Özelleştirme ve Filtreleme:",
+              "text": "Takviminizi Gün, Hafta veya Ay bazında görüntüleyebilirsiniz. Personel filtresini kullanarak tüm uzmanları yan yana sütunlar halinde kıyaslayabilir veya tek bir personelin programına odaklanabilirsiniz."
+            },
+            {
+              "heading": "Randevu Durumları ve Yetkiler:",
+              "text": "Bir randevu Tamamlandı, İptal veya Gelmedi olarak işaretlendikten sonra bu durumu geri değiştirmek yalnızca Salon Sahibi ve Yönetici'ye açıktır — Personel, sahte işlem kaydı oluşmasını önlemek için kapanmış bir randevuyu geriye dönük değiştiremez. Salon Sahibi/Yönetici, randevu detay sayfasındaki \"Durumu Düzelt\" bölümünden yanlış işaretlenmiş bir randevuyu düzeltebilir; altındaki \"Durum Geçmişi\" listesi kimin ne zaman hangi durumu seçtiğini gösterir."
+            },
+            {
+              "heading": "Yeni Excel Tablosu Görünümü & Kompakt Mod:",
+              "text": "Takvim, satırları küçültülmüş tablo görünümüyle tek ekranda daha fazla randevu gösterir. Personel sayısı çok olsa bile sayfalama yoktur; hepsi yan yana listelenir."
+            },
+            {
+              "heading": "Personel Grupları:",
+              "text": "Personel düzenleme sayfasından bir grup etiketi (ör. Saç, Tırnak, Cilt) verirseniz takvimin üstünde grup çipleri belirir; bir çipe basarak yalnızca o gruptaki uzmanları görürsünüz."
+            }
           ]
         },
         "adisyon": {
-          "title": "7. Adisyon Oluşturma & Fiş Çıkarma",
+          "title": "9. Adisyon Oluşturma & Fiş Çıkarma",
           "intro": "SiriPlan panelinde tamamlanan randevular için profesyonel adisyon ve fiş dökümü mevcuttur:",
           "steps": [
             "Randevunun üzerine tıklayıp detay sayfasında bulunan \"Adisyon\" butonuna tıklayın.",
@@ -1878,25 +1934,43 @@
           ]
         },
         "vitrin": {
-          "title": "8. İşletme Web Sitesi & Vitrin Görünümü (/r/[slug])",
+          "title": "13. İşletme Web Sitesi & Vitrin Görünümü (/r/[slug])",
           "intro": "Müşterilerinizin 7/24 online randevu alabileceği ve salonunuzu inceleyebileceği özel bir web vitrini sunulur:",
           "items": [
-            { "label": "Özel Web Adresi:", "desc": "Her işletmeye özel siriplan.com/r/isletme-adiniz şeklinde şık bir bağlantı tanımlanır." },
-            { "label": "Resim & Görsel Yükleme:", "desc": "Ayarlar → Genel sayfasından salonunuzun Logosunu, Kapak Görselini ve Salon Galeri Fotoğraflarını yükleyebilirsiniz. Fotoğraflar vitrin sayfasında estetik şekilde listelenir." },
-            { "label": "Online Randevu Sihirbazı:", "desc": "Müşterileriniz profilinize girerek sırasıyla Hizmet → Personel → Tarih ve Saat seçip saniyeler içinde randevu oluşturabilirler." }
+            {
+              "label": "Özel Web Adresi:",
+              "desc": "Her işletmeye özel siriplan.com/r/isletme-adiniz şeklinde şık bir bağlantı tanımlanır."
+            },
+            {
+              "label": "Resim & Görsel Yükleme:",
+              "desc": "Ayarlar → Genel sayfasından salonunuzun Logosunu, Kapak Görselini ve Salon Galeri Fotoğraflarını yükleyebilirsiniz. Fotoğraflar vitrin sayfasında estetik şekilde listelenir."
+            },
+            {
+              "label": "Online Randevu Sihirbazı:",
+              "desc": "Müşterileriniz profilinize girerek sırasıyla Hizmet → Personel → Tarih ve Saat seçip saniyeler içinde randevu oluşturabilirler."
+            }
           ]
         },
         "whatsapp": {
-          "title": "9. Otomatik WhatsApp / SMS Bildirimleri",
+          "title": "14. Otomatik WhatsApp / SMS Bildirimleri",
           "intro": "Müşterilerinizin randevuyu unutmasını engellemenin en pratik yolu!",
           "items": [
-            { "label": "Ayarlar → Bildirimler:", "desc": "bölümüne gidip WhatsApp, SMS veya Telegram entegrasyonunu aktif edin." },
-            { "label": "Otomatik Mesaj Türleri:", "desc": "Randevu Oluşturuldu, Hatırlatma (randevudan 2 saat veya 1 gün önce) ve İptal/Değişiklik bildirimleri otomatik olarak gider." },
-            { "label": "Mesaj Tonu:", "desc": "Sıcak, Resmi veya Kısa stillerden salon konseptinize uygun olanı seçin." }
+            {
+              "label": "Ayarlar → Bildirimler:",
+              "desc": "bölümüne gidip WhatsApp, SMS veya Telegram entegrasyonunu aktif edin."
+            },
+            {
+              "label": "Otomatik Mesaj Türleri:",
+              "desc": "Randevu Oluşturuldu, Hatırlatma (randevudan 2 saat veya 1 gün önce) ve İptal/Değişiklik bildirimleri otomatik olarak gider."
+            },
+            {
+              "label": "Mesaj Tonu:",
+              "desc": "Sıcak, Resmi veya Kısa stillerden salon konseptinize uygun olanı seçin."
+            }
           ]
         },
         "telegram": {
-          "title": "10. Personel Bildirim Kanalları (Telegram, WhatsApp, Uygulama İçi)",
+          "title": "15. Personel Bildirim Kanalları (Telegram, WhatsApp, Uygulama İçi)",
           "intro": "Yeni randevu/talep geldiğinde siz ve personeliniz birden fazla kanaldan aynı anda haberdar olabilir:",
           "steps": [
             "Telegram uygulamasında arama kısmına @siriplan_bot yazın, botu açıp \"Başlat / Start\" butonuna basın.",
@@ -1908,7 +1982,7 @@
           ]
         },
         "kampanya": {
-          "title": "11. Toplu WhatsApp Kampanyaları",
+          "title": "16. Toplu WhatsApp Kampanyaları",
           "intro": "Boş günleri doldurmak veya özel kampanyalar yapmak için müşterilerinize toplu mesaj gönderin:",
           "steps": [
             "Kampanyalar sekmesine tıklayın ve + Yeni Kampanya butonuna basın.",
@@ -1917,52 +1991,231 @@
           ]
         },
         "abonelik": {
-          "title": "12. Abonelik & Plan Yönetimi",
+          "title": "21. Abonelik & Plan Yönetimi",
           "paragraphs": [
             "Planlar: Starter, Pro ve Business planlarının tamamı sabit ve şeffaf yapıdadır; teklif alma / temsilci bekleme adımı yoktur. Her yeni hesap 14 gün ücretsiz deneme ile başlar.",
             "Plan bilgileriniz: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.",
-            "Aboneliğiniz SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir. Plan yükseltme, yenileme veya faturalandırmayla ilgili sorularınız için destek ekibimizle iletişime geçin: info@bysirius.com · WhatsApp +90 535 503 26 34."
+            "Aboneliğiniz SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir. Plan yükseltme, yenileme veya faturalandırmayla ilgili sorularınız için destek ekibimizle iletişime geçin: info@bysirius.com · WhatsApp +90 535 503 26 34.",
+            "Plan farkları: Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, gelir-gider ve KDV, WhatsApp hatırlatma, sadakat kartı, CSV export. Pro — sınırsız personel, sesli asistan, website modu, bekleme listesi, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar."
           ]
         },
         "sadakat": {
-          "title": "13. Müşteri Yönetimi & Sadakat Puanları",
+          "title": "17. Müşteri Yönetimi & Sadakat Puanları",
           "intro": "Müşterilerinizin bağlılığını artırmak için sadakat puanı altyapısını kullanın:",
           "items": [
-            { "label": "Müşteri Geçmişi:", "desc": "Müşteri detay sayfasından geçmiş tüm işlemlerini ve özel notlarını inceleyin." },
-            { "label": "Sadakat Puanı:", "desc": "Her tamamlanan randevuda müşterilerinize otomatik puan kazandırabilirsiniz. Hangi hizmetlerin sadakat kartı kazandıracağını Hizmetler sekmesinden ayarlayabilirsiniz." }
+            {
+              "label": "Müşteri Geçmişi:",
+              "desc": "Müşteri detay sayfasından geçmiş tüm işlemlerini ve özel notlarını inceleyin."
+            },
+            {
+              "label": "Sadakat Puanı:",
+              "desc": "Her tamamlanan randevuda müşterilerinize otomatik puan kazandırabilirsiniz. Hangi hizmetlerin sadakat kartı kazandıracağını Hizmetler sekmesinden ayarlayabilirsiniz."
+            },
+            {
+              "label": "Müşteri Özet Şeridi & Hızlı Filtreler:",
+              "desc": "Müşteriler sayfasının üstündeki şerit toplam kayıt, kampanya onaylı sayısı, bu ay gelen müşteri ve kişi başı ortalama ciroyu gösterir. Filtre çipleri: Tümü, Son 30 Gün, Riskli/Uzaklaşan (90+ gündür gelmeyen veya düşük skorlu). Satırdan doğrudan \"Randevu Ver\" diyebilirsiniz."
+            },
+            {
+              "label": "Müşteri Skoru (Pro):",
+              "desc": "Müşteri listesinde yeşil/sarı/kırmızı skor rozeti görünür ve skora göre sıralayabilirsiniz; düşük skorlu müşteriler Riskli filtresine düşer."
+            }
           ]
         },
         "maas": {
-          "title": "14. Gelir-Gider Takibi & Personel Maaş Hesaplama",
+          "title": "18. Gelir-Gider Takibi & Personel Maaş Hesaplama",
           "items": [
-            { "label": "Kasa Yönetimi:", "desc": "Kira, malzeme alımı, çay-faturalar gibi tüm harcamaları Gelir-Gider sekmesinden kaydederek net kârınızı izleyin." },
-            { "label": "Personel Maaş & Komisyon:", "desc": "Personel → Maaş Hesapla sayfasından o ayki toplam ödemeyi tek tıkla hesaplayın: Taban Maaş + (Yapılan Ciro × Komisyon %) + Bahşişler. Ödeme tamamlandığında tek tıkla gider olarak kasaya işleyin." },
-            { "label": "KDV Hesaplama:", "desc": "Ayarlar → KDV Hesaplama'dan oranınızı girip özelliği açabilirsiniz (yeni işletmelerde varsayılan olarak açıktır). Yasal oran değiştiğinde aynı ekrandan güncellersiniz — sabit kodlanmış bir oran kullanılmaz. Açıkken \"Tahmini KDV\" kartı hem bu sayfada hem de Raporlar'da, o ayki gelirin KDV dahil olduğu varsayılarak hesaplanır." }
+            {
+              "label": "Kasa Yönetimi:",
+              "desc": "Kira, malzeme alımı, çay-faturalar gibi tüm harcamaları Gelir-Gider sekmesinden kaydederek net kârınızı izleyin."
+            },
+            {
+              "label": "Personel Maaş & Komisyon:",
+              "desc": "Personel → Maaş Hesapla sayfasından o ayki toplam ödemeyi tek tıkla hesaplayın: Taban Maaş + (Yapılan Ciro × Komisyon %) + Bahşişler. Ödeme tamamlandığında tek tıkla gider olarak kasaya işleyin."
+            },
+            {
+              "label": "KDV Hesaplama:",
+              "desc": "Ayarlar → KDV Hesaplama'dan oranınızı girip özelliği açabilirsiniz (yeni işletmelerde varsayılan olarak açıktır). Yasal oran değiştiğinde aynı ekrandan güncellersiniz — sabit kodlanmış bir oran kullanılmaz. Açıkken \"Tahmini KDV\" kartı hem bu sayfada hem de Raporlar'da, o ayki gelirin KDV dahil olduğu varsayılarak hesaplanır."
+            }
           ]
         },
         "raporlar": {
-          "title": "15. Raporlar ve Veri Göçü (Excel)",
+          "title": "19. Raporlar ve Veri Göçü (Excel)",
           "items": [
-            { "label": "Detaylı Raporlar:", "desc": "Günlük/haftalık randevu sayıları, ciro grafikleri, en çok tercih edilen hizmetler ve personel performanslarını analiz edin." },
-            { "label": "Excel/CSV Aktarımı:", "desc": "Eski müşteri listenizi Veri Göçü sayfasından Excel dosyasıyla tek tıkla yükleyin veya tüm verilerinizi yedeklemek için JSON/CSV olarak dışarı aktarın." }
+            {
+              "label": "Detaylı Raporlar:",
+              "desc": "Günlük/haftalık randevu sayıları, ciro grafikleri, en çok tercih edilen hizmetler ve personel performanslarını analiz edin."
+            },
+            {
+              "label": "Excel/CSV Aktarımı:",
+              "desc": "Eski müşteri listenizi Veri Göçü sayfasından Excel dosyasıyla tek tıkla yükleyin veya tüm verilerinizi yedeklemek için JSON/CSV olarak dışarı aktarın."
+            }
           ]
         },
         "sss": {
-          "title": "16. Sık Sorulan Sorular (SSS)",
+          "title": "22. Sık Sorulan Sorular (SSS)",
           "faqs": [
-            { "q": "Telegram randevu bildirimlerini nasıl açabilirim?", "a": "Telegram'da @siriplan_bot botuna mesaj atıp /start butonuna basın. Size verilen Chat ID numarasını Ayarlar sekmesindeki Telegram alanına yapıştırın." },
-            { "q": "Business planı için teklif mi istemeliyim?", "a": "Hayır, Business dahil tüm planlar sabit ve şeffaf yapıdadır; teklif alma adımı yoktur." },
-            { "q": "Planımı nereden görebilirim?", "a": "Ayarlar → Abonelik sayfasından mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi görüntüleyebilirsiniz. Plan ve faturalandırma sorularınız için: info@bysirius.com" }
+            {
+              "q": "Telegram randevu bildirimlerini nasıl açabilirim?",
+              "a": "Telegram'da @siriplan_bot botuna mesaj atıp /start butonuna basın. Size verilen Chat ID numarasını Ayarlar sekmesindeki Telegram alanına yapıştırın."
+            },
+            {
+              "q": "Business planı için teklif mi istemeliyim?",
+              "a": "Hayır, Business dahil tüm planlar sabit ve şeffaf yapıdadır; teklif alma adımı yoktur."
+            },
+            {
+              "q": "Planımı nereden görebilirim?",
+              "a": "Ayarlar → Abonelik sayfasından mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi görüntüleyebilirsiniz. Plan ve faturalandırma sorularınız için: info@bysirius.com"
+            },
+            {
+              "q": "Kapanmış (tamamlandı/iptal/gelmedi) bir randevuyu geri açabilir miyim?",
+              "a": "Yalnızca işletme sahibi ve yönetici, randevu detayındaki \"Durumu Düzelt\" bölümünden yapabilir. Durum Geçmişi kimin neyi ne zaman değiştirdiğini gösterir."
+            },
+            {
+              "q": "Müşteri randevu talebi gönderdi ama saat uygun değil, ne yapmalıyım?",
+              "a": "Bekleyen İstekler'de \"Yeni Saat Öner\" ile alternatif saat gönderin; müşteri kabul edince randevu otomatik oluşur."
+            },
+            {
+              "q": "Telefonumdaki uygulamada ödeme/plan yükseltme neden yok?",
+              "a": "Abonelik mağazalardan bağımsız web üzerinden yönetilir. Plan işlemleri için siriplan.com veya info@bysirius.com."
+            }
           ]
         },
         "sunum": {
           "title": "🎬 SiriPlan İnteraktif Sunum",
-          "subtitle": "Kullanım kılavuzunu 19 slaytlık görsel slayt gösterisi olarak inceleyin.",
+          "subtitle": "Kullanım kılavuzunu 24 slaytlık görsel slayt gösterisi olarak inceleyin.",
           "fullscreenBtn": "Tam Ekran Modu",
           "fullscreenTitle": "SiriPlan İnteraktif Sunum",
           "closeEsc": "Kapat (ESC)",
           "ipTitle": "Fikri Mülkiyet Koruması:",
           "ipText": "Bu interaktif sunum dosyası oturum doğrulamalı güvenli API üzerinden çekilmektedir. Harici platformlarda paylaşılamaz veya kopyalanamaz."
+        },
+        "talepler": {
+          "title": "7. Bekleyen İstekler & Yeni Saat Öner",
+          "intro": "Web vitrininden veya WhatsApp'tan gelen randevu talepleri, tamamlanmamış işler ve stok uyarıları Bekleyen İstekler sayfasında tek yerde toplanır. Menüdeki sayaç, bekleyen iş kadar rozet gösterir.",
+          "items": [
+            {
+              "label": "Onayla:",
+              "desc": "Talebi randevuya çevirir ve müşteriye onay bildirimi gönderir."
+            },
+            {
+              "label": "Yeni Saat Öner:",
+              "desc": "İstenen saat uygun değilse müşteriye alternatif bir saat önerin. Müşteri kabul ettiğinde randevu otomatik oluşur; öneri bekleyen talepler listesinde ayrıca işaretlenir."
+            },
+            {
+              "label": "Düzenle & İptal Et:",
+              "desc": "Talebi başka bir saate taşıyabilir veya iptal edebilirsiniz; müşteri her adımda bilgilendirilir."
+            },
+            {
+              "label": "Otomatik Onay:",
+              "desc": "Yeni hesaplarda randevu linki otomatik onayı kapalı gelir, talepler burada bekler. Ayarlar'dan açarsanız randevular doğrudan onaylanır."
+            },
+            {
+              "label": "Sonuçlandırılmamış işler:",
+              "desc": "Saati geçmiş ama Tamamlandı/İptal/Gelmedi olarak işaretlenmemiş randevular da burada listelenir; böylece kasa ve sadakat kayıtları eksik kalmaz."
+            }
+          ]
+        },
+        "bekleme": {
+          "title": "8. Bekleme Listesi (Pro)",
+          "intro": "Dolu saatlerde randevu isteyen müşterileri sıraya alın, yer açıldığında haberdar edin.",
+          "items": [
+            {
+              "label": "Listeye Ekle:",
+              "desc": "Bekleme Listesi sayfasından müşteriyi, istediği hizmeti ve tercih ettiği zamanı kaydedin."
+            },
+            {
+              "label": "Aktif / Tümü filtresi:",
+              "desc": "Sadece bekleyenleri veya geçmiş kayıtların tamamını görüntüleyin."
+            },
+            {
+              "label": "Onay Bekleyen Randevular:",
+              "desc": "Bu sayfadaki üst kart, onay bekleyen randevularınızı her planda buradan onaylamanızı sağlar. Bekleme Listesi'nin kendisi Pro ve Business planlarındadır."
+            }
+          ]
+        },
+        "paketler": {
+          "title": "10. Paket / Seans Takibi",
+          "intro": "Müşteriye peşin satılan seans paketlerini (ör. 6 seans lazer) müşteri bazında izleyin.",
+          "items": [
+            {
+              "label": "Paket Oluştur:",
+              "desc": "Paketler sayfasından veya müşteri detay kartından paket ekleyin; kalan seans sayacı müşteri bazlı tutulur."
+            },
+            {
+              "label": "Otomatik Düşüm:",
+              "desc": "Paketli müşterinin randevusu Tamamlandı işaretlendiğinde bir seans otomatik düşer ve randevu tutarı 0 ₺ olarak kapanır."
+            },
+            {
+              "label": "Tüm planlarda:",
+              "desc": "Paket takibi Starter dahil tüm planlarda kullanılabilir."
+            }
+          ]
+        },
+        "stok": {
+          "title": "11. Stok Yönetimi & Barkodla Satış",
+          "intro": "Salon ürünlerinizi ve sarf malzemelerinizi panelden takip edin.",
+          "items": [
+            {
+              "label": "Ürün & Katalog:",
+              "desc": "Yeni ürün ekleyin veya örnek katalog yükleyin; ölçü birimi, maliyet/satış fiyatı ve kritik stok sınırı tanımlayın."
+            },
+            {
+              "label": "Giriş / Çıkış / Sayım:",
+              "desc": "Mal alımı, kullanım-satış ve sayım düzeltmelerini stok hareketi olarak kaydedin; toplam stok değeri otomatik hesaplanır."
+            },
+            {
+              "label": "Barkod:",
+              "desc": "Ürüne barkod atayıp telefon kamerasıyla okutarak hızlıca satış/çıkış yapın (mobil uygulamada kamera izni istenir)."
+            },
+            {
+              "label": "Kritik Stok Uyarısı:",
+              "desc": "Stok sınırın altına inince panelde widget, Telegram/WhatsApp bildirimi ve Bekleyen İstekler'de uyarı görünür."
+            }
+          ]
+        },
+        "sesli": {
+          "title": "12. Sesli Asistan (Pro)",
+          "intro": "Mikrofon düğmesiyle konuşarak randevu veya stok hareketi girin.",
+          "items": [
+            {
+              "label": "Sesli Randevu:",
+              "desc": "Yeni randevu düğmesine basılı tutup \"Ayşe hanıma yarın saat üçte saç boyama\" gibi konuşun; form otomatik dolar. Tek dokunuş normal formu açar."
+            },
+            {
+              "label": "Onay Komutları:",
+              "desc": "Form doluyken \"onayla\", \"düzelt\" veya \"eksikleri ekle\" diyerek eller serbest devam edin. Eksik alanlar sarı uyarıyla gösterilir."
+            },
+            {
+              "label": "Telefon Opsiyonel:",
+              "desc": "Kayıtlı müşterinin adı söylenince telefonu otomatik dolar; telefon zorunlu değildir."
+            },
+            {
+              "label": "Sesli Stok:",
+              "desc": "Stok sayfasındaki mikrofonla \"3 şampuan giriş\" gibi stok hareketi ekleyin. Tarayıcıdan mikrofon izni vermeniz gerekir."
+            }
+          ]
+        },
+        "mobil": {
+          "title": "20. Mobil Uygulama & Ana Ekrana Ekle",
+          "intro": "SiriPlan panelini telefonunuzda uygulama gibi kullanın.",
+          "items": [
+            {
+              "label": "Uygulama Mağazaları:",
+              "desc": "Android'de Google Play, iPhone'da App Store üzerinden indirip mevcut e-posta/telefon ve şifrenizle giriş yapın."
+            },
+            {
+              "label": "Ana Ekrana Ekle:",
+              "desc": "Tarayıcıdan kullanıyorsanız Hızlı Başlangıç sayfasındaki kartı izleyin: iPhone'da Safari → Paylaş → Ana Ekrana Ekle, Android'de Chrome menüsü → Uygulamayı yükle."
+            },
+            {
+              "label": "Mobilde akordeon menü:",
+              "desc": "Bu kılavuz dahil tüm sayfalar dar ekranda mobil uyumlu açılır."
+            },
+            {
+              "label": "Abonelik:",
+              "desc": "Mobil uygulamada satın alma yüzeyi yoktur; plan işlemleri web sitesinden veya destek ekibinden yapılır."
+            }
+          ]
         }
       }
     },
