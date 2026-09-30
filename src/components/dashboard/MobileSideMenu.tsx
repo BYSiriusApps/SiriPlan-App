@@ -12,6 +12,7 @@ import { ThemePicker } from "@/components/layout/ThemePicker";
 import { LogoutButtonMobile } from "@/components/dashboard/LogoutButton";
 import { NotificationSoundToggle } from "@/components/dashboard/NotificationSoundToggle";
 import { useAiAssistant } from "@/components/dashboard/AiAssistantContext";
+import { useDashboardBadges } from "@/components/dashboard/DashboardBadgeContext";
 import { cn } from "@/lib/utils";
 import { hasPermission } from "@/lib/permissions";
 import {
@@ -47,11 +48,10 @@ interface Props {
   permissionsJson?: Record<string, boolean> | null;
   orgSlug?: string;
   plan?: string;
-  pendingWorkCount?: number;
-  pendingApptCount?: number;
 }
 
-export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan, pendingWorkCount = 0, pendingApptCount = 0 }: Props) {
+export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan }: Props) {
+  const { pendingWorkCount, pendingApprovalsCount: pendingApptCount } = useDashboardBadges();
   const t = useTranslations("dashboard");
   const pathname = usePathname();
   const { setOpen: setAssistantOpen } = useAiAssistant();

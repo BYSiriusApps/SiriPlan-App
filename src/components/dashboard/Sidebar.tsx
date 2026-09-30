@@ -20,6 +20,8 @@ import { NotificationSoundToggle } from "@/components/dashboard/NotificationSoun
 import { GlobalSearch } from "@/components/dashboard/GlobalSearch";
 import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
 import { hasPermission } from "@/lib/permissions";
+import { useDashboardBadges } from "@/components/dashboard/DashboardBadgeContext";
+import { useIsIOSNativeApp } from "@/lib/use-mobile-app";
 
 // roles: "owner" | "manager" | "staff"
 // minRole: who can see this item (owner > manager > staff)
@@ -72,7 +74,6 @@ interface SidebarProps {
   activeOrgId?: string;
   memberships?: { org_id: string; role: string; org_name: string }[];
   isPlatformAdmin?: boolean;
-  pendingWorkCount?: number;
 }
 
 export function Sidebar({
@@ -84,8 +85,10 @@ export function Sidebar({
   activeOrgId,
   memberships = [],
   isPlatformAdmin = false,
-  pendingWorkCount = 0,
 }: SidebarProps) {
+  const { pendingWorkCount } = useDashboardBadges();
+  const isIOSApp = useIsIOSNativeApp();
+  const brandName = isIOSApp ? "SiriusPlan" : "SiriPlan";
   const pathname = usePathname();
   const t = useTranslations("dashboard");
   const [isLegalOpen, setIsLegalOpen] = useState(false);
@@ -115,15 +118,17 @@ export function Sidebar({
       {/* Logo + org name */}
       <div className="px-5 py-5 border-b border-sidebar-border">
         <Link href="/dashboard" className="flex items-center gap-3 group">
-          {/* SiriPlan logo */}
+          {/* Marka logosu — App Store'daki "Siri" trademark itirazı yüzünden
+              iOS native uygulama içinde "SiriusPlan" gösterilir, web/Android
+              "SiriPlan" kalır (bkz. useIsIOSNativeApp). */}
           <img
             src="/icons/icon-mark.png"
-            alt="SiriPlan"
+            alt={brandName}
             className="w-9 h-9 rounded-xl shrink-0 group-hover:scale-105 transition-transform"
             style={{ boxShadow: "0 0 20px color-mix(in oklch, var(--sidebar-primary) 40%, transparent)" }}
           />
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold text-sidebar-foreground/45 uppercase tracking-[0.2em] leading-none mb-1.5">SiriPlan</p>
+            <p className="text-[10px] font-semibold text-sidebar-foreground/45 uppercase tracking-[0.2em] leading-none mb-1.5">{brandName}</p>
             <p className="font-heading text-[15px] font-semibold text-sidebar-foreground truncate leading-none">{orgName}</p>
           </div>
         </Link>

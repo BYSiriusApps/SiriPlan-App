@@ -1492,7 +1492,7 @@
     },
     "pendingRequestsPage": {
       "sourceLabel": "Daily Task Tracking",
-      "subtitle": "Pending appointment requests (booking link, WhatsApp, Instagram), unfinished bookings, missing info, and stock alerts, all in one place.",
+      "subtitle": "Pending appointment requests, unfinished bookings, missing info, and stock alerts, all in one place.",
       "channelRequestsHeading": "Awaiting Approval"
     },
     "overdueAppointments": {

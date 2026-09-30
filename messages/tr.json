@@ -1492,7 +1492,7 @@
     },
     "pendingRequestsPage": {
       "sourceLabel": "Günlük İş Takibi",
-      "subtitle": "Onay bekleyen randevu talepleri (randevu linki, WhatsApp, Instagram), tamamlanmamış işlemler, eksik bilgiler ve stok uyarıları tek yerde.",
+      "subtitle": "Onay bekleyen randevu talepleri, tamamlanmamış işlemler, eksik bilgiler ve stok uyarıları tek yerde.",
       "channelRequestsHeading": "Onay Bekleyenler"
     },
     "overdueAppointments": {

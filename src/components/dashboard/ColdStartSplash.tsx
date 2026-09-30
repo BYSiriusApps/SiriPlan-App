@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useIsIOSNativeApp } from "@/lib/use-mobile-app";
 
 /**
  * Panel açılış ekranı — YALNIZCA uygulamanın ilk açılışında.
@@ -36,6 +37,7 @@ export function ColdStartSplash() {
   // İstemci içi geçişlerde bu bileşen sunucu HTML'inden hidrate edilmez,
   // sıfırdan render edilir — yani uyuşmazlık oluşabilecek bir durum yok.
   const [warm] = useState(() => warmStart);
+  const isIOSApp = useIsIOSNativeApp();
 
   if (warm) {
     return (
@@ -60,12 +62,16 @@ export function ColdStartSplash() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/icons/icon-mark.png"
-        alt="SiriPlan"
+        alt={isIOSApp ? "SiriusPlan" : "SiriPlan"}
         className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-[2rem] shadow-2xl shadow-black/40"
       />
       <div className="relative text-center space-y-1">
         <p className="text-2xl font-bold tracking-tight text-white">
-          Siri<span className="text-amber-400">Plan</span>
+          {isIOSApp ? (
+            <>Sirius<span className="text-amber-400">Plan</span></>
+          ) : (
+            <>Siri<span className="text-amber-400">Plan</span></>
+          )}
         </p>
         <p className="text-xs font-medium tracking-[0.2em] text-white/50 uppercase">by BySirius</p>
       </div>
