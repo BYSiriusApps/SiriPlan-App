@@ -303,18 +303,20 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
               <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">{t("servicesPage.eyebrow")}</span>
               <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight">{t("services")}</h1>
             </div>
-            <HomeButton />
           </div>
           <p className="text-muted-foreground text-sm mt-1">{t("servicesPage.countLabel", { count: services.length })}</p>
         </div>
-        {canEdit && (
-          <Link
-            href="/dashboard/hizmetler/yeni"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow-md hover:bg-primary/90 active:scale-95 transition-all"
-          >
-            {t("servicesPage.addButton")}
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          {canEdit && (
+            <Link
+              href="/dashboard/hizmetler/yeni"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow-md hover:bg-primary/90 active:scale-95 transition-all"
+            >
+              {t("servicesPage.addButton")}
+            </Link>
+          )}
+          <HomeButton corner />
+        </div>
       </div>
 
       {groups.map((group) => (
