@@ -36,6 +36,10 @@ const CATEGORY_INTERNAL_LINKS: Record<string, { href: string; label: string }[]>
     { href: "/fiyatlar", label: "Planları ve fiyatları inceleyin" },
     { href: "/ozellikler", label: "Raporlama özellikleri" },
   ],
+  "Personel Yönetimi": [
+    { href: "/ozellikler", label: "Personel ve raporlama özellikleri" },
+    { href: "/kategori/kuafor", label: "Kuaförler için SiriPlan" },
+  ],
 };
 
 /**
@@ -75,6 +79,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "KVKK & Hukuk": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
   "Büyüme": "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
   "Ciro": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  "Personel Yönetimi": "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
 };
 
 function markdownToHtml(content: string): string {
