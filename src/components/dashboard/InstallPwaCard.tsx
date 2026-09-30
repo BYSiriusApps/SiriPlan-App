@@ -84,9 +84,12 @@ export function InstallPwaCard() {
                 <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">1</span>
                 Alttaki <Share className="h-3.5 w-3.5 inline mx-0.5" /> <strong>Paylaş</strong> düğmesine dokunun
               </li>
-              <li className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">2</span>
-                <PlusSquare className="h-3.5 w-3.5 inline mx-0.5" /> <strong>Ana Ekrana Ekle</strong>&apos;yi seçin
+              <li className="flex items-start gap-2">
+                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <span>
+                  <PlusSquare className="h-3.5 w-3.5 inline mx-0.5" /> <strong>Ana Ekrana Ekle</strong>&apos;yi seçin —
+                  <span className="text-xs"> listede hemen görünmüyorsa aşağı kaydırın ya da <strong>Diğer/Daha Fazla</strong> seçeneğine dokunun</span>
+                </span>
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">3</span>

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { useTranslations } from "next-intl";
 import {
   HelpCircle,
@@ -131,6 +132,10 @@ export default function RehberPage() {
                 <div className="space-y-4">
                   <h2 className="text-xl font-bold text-foreground">{sections.baslangic.title}</h2>
                   <p className="text-muted-foreground leading-relaxed">{sections.baslangic.intro}</p>
+                  {/* iOS/Android kullanıcıları "Ana Ekrana Ekle" seçeneğini bulamadığı için
+                      (bkz. destek talepleri) kılavuzun en görünür yerine, adım adım
+                      yönergeyle birlikte eklendi. Native uygulama/zaten kuruluysa kendini gizler. */}
+                  <InstallPwaCard />
                   <div className="space-y-3 mt-4">
                     {(sections.baslangic.steps as { title: string; desc: string }[]).map((step, i) => (
                       <div className="flex gap-3" key={step.title}>
