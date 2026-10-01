@@ -19,6 +19,8 @@ export interface SalonData {
   /** Hizmet/kategori adını ziyaretçinin diline çevirir — SADECE GÖSTERİM. */
   localizeName: (name?: string | null) => string;
   lang: LanguageCode;
+  /** Aktif indirimli kampanya kapsamı: "all" = tüm hizmetler, dizi = yalnızca bu hizmetler, null = yok. Yalnızca bilgi notu içindir. */
+  campaignServiceIds?: "all" | string[] | null;
 }
 
 export interface CategoryGroup {

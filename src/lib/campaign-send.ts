@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveCampaignRecipients, renderCampaignMessage } from "@/lib/campaign-segment";
 import { sendSms } from "@/lib/sms";
 import { optOutFooter } from "@/lib/marketing-opt-out";
+import { getOffer, isOfferExpired, offerTermsLine } from "@/lib/campaign-offer";
 
 /**
  * Kampanya gönderiminin tek gerçek uygulaması. Hem kullanıcının "Şimdi Gönder"
@@ -69,6 +70,30 @@ export async function sendCampaignNow(
 
   if (!org) return { ok: false, error: "İşletme bulunamadı" };
 
+  // İndirim teklifi varsa: süresi dolmuş bir teklif asla gönderilmez (müşteri
+  // "indirim var" mesajı alıp salonda geçersiz bulmasın). Planlı kampanya bu
+  // yüzden her 5 dakikada yeniden denenmesin diye başarısız işaretlenir.
+  const offer = getOffer(campaign);
+  let offerLine = "";
+  if (offer) {
+    if (isOfferExpired(offer)) {
+      if (campaign.status === "scheduled") {
+        await supabase.from("campaigns").update({ status: "failed", sent_count: 0 }).eq("id", campaignId);
+      }
+      return { ok: false, error: "İndirimin son geçerlilik tarihi geçmiş — yeni bir kampanya oluşturun" };
+    }
+    let serviceNames: string[] = [];
+    if (offer.service_ids) {
+      const { data: svc } = await supabase
+        .from("services")
+        .select("name")
+        .eq("org_id", campaign.org_id)
+        .in("id", offer.service_ids);
+      serviceNames = (svc ?? []).map((s: { name: string }) => s.name);
+    }
+    offerLine = "\n\n" + offerTermsLine(offer, serviceNames);
+  }
+
   const recipients = await resolveCampaignRecipients(supabase, campaign.org_id, campaign.segment_json);
 
   if (recipients.length === 0) {
@@ -96,7 +121,7 @@ export async function sendCampaignNow(
         customerName: c.full_name,
         orgName: org.name,
         lastVisitAt: c.last_visit_at,
-      }) + optOutFooter(channel === "sms" ? "sms" : "whatsapp");
+      }) + offerLine + optOutFooter(channel === "sms" ? "sms" : "whatsapp");
 
     if (channel === "sms") {
       const result = await sendSms({ toPhone: c.phone, orgId: campaign.org_id, message });

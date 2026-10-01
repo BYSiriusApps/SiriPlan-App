@@ -19,6 +19,7 @@ import Link from "next/link";
 import { MessageCircle, Calendar, Clock, Loader2, Check, X, Inbox, Package, AlertTriangle, CheckCircle2, AlertCircle, ListChecks, Pencil, Phone, CalendarClock, Globe } from "lucide-react";
 import { InstagramIcon } from "@/components/icons/brand-icons";
 import { toast } from "sonner";
+import { completeAppointmentRequest } from "@/lib/complete-appointment-client";
 
 interface AppointmentRequest {
   id: string;
@@ -318,11 +319,7 @@ export function BekleyenIsteklerClient({
     setOverdueBusyId(id);
     const res =
       status === "tamamlandi"
-        ? await fetch(`/api/appointments/${id}/complete`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({}),
-          })
+        ? await completeAppointmentRequest(id)
         : await fetch(`/api/appointments/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -348,11 +345,7 @@ export function BekleyenIsteklerClient({
     let done = 0;
     const failedIds: string[] = [];
     for (const a of actionable) {
-      const res = await fetch(`/api/appointments/${a.id}/complete`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      }).catch(() => null);
+      const res = await completeAppointmentRequest(a.id).catch(() => null);
       if (res?.ok) {
         done++;
       } else {

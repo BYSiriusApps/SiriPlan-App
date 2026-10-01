@@ -179,6 +179,21 @@ Salondaki boş günleri doldurmak veya özel günleri kutlamak için müşterile
 3. Mesaj metnini yazın. Değişkenleri kullanın: `Merhaba {{musteri_adi}}, {{salon_adi}} salonumuzda bu haftaya özel %20 indirim fırsatı!`
 4. Müşteri grubunu filtreleyin (Örn: *Son 30 gündür gelmeyen müşteriler*) ve **Gönder**'e basın.
 
+### İndirimli kampanya nasıl çalışır?
+
+1. **İndirim tanımlayın:** Kampanya oluştururken **İndirim** bölümünü açın. Yüzde (%) ya da sabit tutar (₺) seçin ve **son geçerlilik tarihini** girin (zorunlu). İsterseniz yalnızca belirli hizmetlerde ve belirli bir asgari işlem tutarının üzerinde geçerli olacak şekilde sınırlayın. Kampanya sonsuz olamaz; her indirimin bir son günü vardır.
+2. **Mesaj kendiliğinden tamamlanır:** Mesajın sonuna indirim miktarı, geçerli hizmetler, son gün, "müşteri başına bir kez" ve **"indirim işlem sonrasında salonda uygulanır"** notu otomatik eklenir. Şablona ayrıca indirim yazmanıza gerek yoktur.
+3. **Hak müşteriye özeldir:** Mesajı alan her müşteri hakkını en fazla bir kez kullanabilir. Son günü geçmiş kampanya gönderilemez; süresi dolan hak kendiliğinden kapanır, hiçbir kayıt silinmez.
+4. **Randevu alırken bilgi notu:** Müşteri randevu linkinden, kampanyalı bir hizmet için randevu alırken *"İndirim işlem sonrasında salonda uygulanacaktır"* bilgi notunu görür. İndirim randevu anında değil, işlem bittikten sonra uygulanır.
+5. **Salonda uygulama (randevu tamamlanırken):** Müşteri geldiğinde randevuyu **Tamamlandı** yaparken, müşterinin geçerli bir hakkı varsa ekranda uyarı çıkar. **"İndirimi uygula"** derseniz randevu tutarı indirimli yazılır ve hak kullanıldı sayılır; uygulamazsanız hiçbir şey değişmez.
+6. **Gelir ve raporlar doğru yansır:** Tutar indirimli yazıldığı için Gelir-Gider, Raporlar ve özetlerde müşterinin gerçekten ödediği tutar görünür; indirim tutarı randevu kartında ayrıca gösterilir.
+7. **Mağduriyet olmaması için:**
+   - Randevu tarihi son gün içindeyse, tamamlama sonra yapılsa bile hak geçerlidir.
+   - Randevu iptal edilir, *gelmedi* işaretlenir ya da Tamamlandı'dan geri alınırsa hak müşteriye geri verilir.
+   - Aynı hak ikinci kez kullanılamaz.
+8. **Kim yönetir?** Kampanya oluşturma ve gönderme yalnızca **işletme sahibi ve yönetici**ye açıktır. Dilerseniz **Personel → [isim] → "Kampanyaları yönetebilsin"** kutucuğuyla bir personele de yetki verebilirsiniz. İndirimi randevuyu tamamlayan herkes uygulayabilir; ancak serbest indirim girilemez, yalnızca kampanyada tanımlı tutar uygulanır.
+9. İndirim tanımlamazsanız kampanya yalnızca bilgilendirme mesajıdır; hiçbir indirim uygulanmaz.
+
 ---
 
 ## 12. Abonelik & Plan Yönetimi

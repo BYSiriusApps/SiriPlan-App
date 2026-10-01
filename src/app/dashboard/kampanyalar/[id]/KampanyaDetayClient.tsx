@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { maskPhone } from "@/lib/phone";
 import type { Campaign } from "@/types/database";
+import { getOffer, formatDiscount, formatOfferDate } from "@/lib/campaign-offer";
 import {
   ArrowLeft,
   Send,
@@ -63,6 +64,7 @@ export default function KampanyaDetayClient({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const offer = getOffer(campaign);
   const justCreated = searchParams.get("created") === "1";
 
   const [sending, setSending] = useState(false);
@@ -161,6 +163,16 @@ export default function KampanyaDetayClient({
             <p className="text-xs text-muted-foreground mb-1">Mesaj Şablonu</p>
             <p className="whitespace-pre-wrap rounded-lg border bg-background p-3">{campaign.message_template}</p>
           </div>
+          {offer && (
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-0.5">
+              <p className="text-xs text-muted-foreground">İndirim</p>
+              <p className="font-medium">{formatDiscount(offer)} · {formatOfferDate(offer.valid_until)} tarihine kadar</p>
+              <p className="text-xs text-muted-foreground">
+                {offer.service_ids ? `${offer.service_ids.length} hizmetle sınırlı` : "Tüm hizmetlerde geçerli"}
+                {offer.min_amount ? ` · en az ${offer.min_amount} ₺` : ""} · müşteri başına bir kez · randevu tamamlanırken uygulanır
+              </p>
+            </div>
+          )}
           {campaign.sent_at && (
             <p className="text-xs text-muted-foreground">
               Gönderim: {format(new Date(campaign.sent_at), "d MMM yyyy HH:mm", { locale: tr })}

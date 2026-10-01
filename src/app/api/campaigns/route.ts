@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { hasPermission } from "@/lib/permissions";
+import { parseOfferInput } from "@/lib/campaign-offer";
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -43,6 +44,23 @@ export async function POST(req: NextRequest) {
   const scheduledAtIso = scheduled_at || null;
   const isFutureSchedule = !!scheduledAtIso && new Date(scheduledAtIso).getTime() > Date.now();
 
+  // İsteğe bağlı indirim teklifi (tür, değer, son gün, hizmet/tutar koşulu).
+  const offerResult = parseOfferInput(body, scheduledAtIso);
+  if (!offerResult.ok) return NextResponse.json({ error: offerResult.error }, { status: 400 });
+  const offer = offerResult.offer;
+
+  // Seçilen hizmetler bu işletmeye ait olmalı (başka kiracının hizmet kimliği kabul edilmez).
+  if (offer?.service_ids) {
+    const { data: ownServices } = await supabase
+      .from("services")
+      .select("id")
+      .eq("org_id", member.org_id)
+      .in("id", offer.service_ids);
+    if ((ownServices ?? []).length !== offer.service_ids.length) {
+      return NextResponse.json({ error: "Seçilen hizmetlerden biri bulunamadı" }, { status: 400 });
+    }
+  }
+
   const { data, error } = await supabase
     .from("campaigns")
     .insert({
@@ -55,6 +73,14 @@ export async function POST(req: NextRequest) {
       status: isFutureSchedule ? "scheduled" : "draft",
       sent_count: 0,
       scheduled_at: scheduledAtIso,
+      // Yalnızca teklif tanımlıysa yazılır — tanımsız kampanyalar eski şemayla da çalışır.
+      ...(offer ? {
+        discount_type: offer.discount_type,
+        discount_value: offer.discount_value,
+        valid_until: offer.valid_until,
+        service_ids: offer.service_ids,
+        min_amount: offer.min_amount,
+      } : {}),
     })
     .select()
     .single();

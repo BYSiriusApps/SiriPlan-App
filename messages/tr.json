@@ -1991,6 +1991,18 @@
             "Kampanyalar sekmesine tıklayın ve + Yeni Kampanya butonuna basın.",
             "Mesaj metnini yazın ve dinamik değişkenleri kullanın: Merhaba {{musteri_adi}}, {{salon_adi}}...",
             "İstediğiniz müşteri grubunu filtreleyin (Örn: Son 30 gündür gelmeyenler) ve gönderimi başlatın."
+          ],
+          "discountTitle": "İndirimli kampanya nasıl çalışır?",
+          "discountItems": [
+            "İndirim tanımlama: Kampanya oluştururken \"İndirim\" bölümünü açın. Yüzde ya da sabit tutar seçin, son geçerlilik tarihini girin (zorunlu). İsterseniz yalnızca belirli hizmetlerde ve belirli bir asgari işlem tutarının üzerinde geçerli olacak şekilde sınırlayın. Kampanya sonsuz olamaz; her indirimin bir son günü vardır.",
+            "Mesaj otomatik tamamlanır: Mesajın sonuna indirim miktarı, geçerli hizmetler, son gün, \"müşteri başına bir kez\" ve \"indirim işlem sonrasında salonda uygulanır\" notu kendiliğinden eklenir. Şablona ayrıca indirim yazmanız gerekmez; yanlış anlaşılmaya yer kalmaz.",
+            "Hak müşteriye özeldir: Mesajı alan her müşteri hakkını en fazla bir kez kullanabilir. Yalnızca mesajı başarıyla ulaşan müşteriler hak sahibi olur. Son günü geçen kampanya gönderilemez; süresi dolan hak kendiliğinden kapanır, kayıtlar silinmez.",
+            "Randevu alırken bilgi notu: Müşteri randevu linkinden, ilgili hizmet için geçerli bir kampanyanız varken randevu alırsa \"İndirim işlem sonrasında salonda uygulanacaktır\" bilgi notunu görür. İndirim randevu anında değil, işlem bittikten sonra uygulanır.",
+            "İşlem sonrası uygulama: Müşteri salona geldiğinde randevuyu Tamamlandı yaparken, müşterinin geçerli bir hakkı varsa ekranda uyarı çıkar. \"İndirimi uygula\"yı seçerseniz randevu tutarı indirimli yazılır ve hak kullanıldı sayılır; seçmezseniz hiçbir şey değişmez.",
+            "Gelir ve raporlar: Tutar indirimli yazıldığı için gelir-gider, raporlar ve sayfa özetlerinde müşterinin gerçekten ödediği tutar görünür. Randevu kartında indirim tutarı ayrıca gösterilir.",
+            "Mağduriyet olmaması için: Randevu tarihi son gün içinde kalıyorsa tamamlama işlemi sonra yapılsa bile hak geçerlidir. Randevu iptal edilir, gelmedi işaretlenir veya Tamamlandı'dan geri alınırsa hak müşteriye geri verilir. Aynı hak ikinci kez kullanılamaz.",
+            "Kim yönetir: Kampanya oluşturma ve gönderme yalnızca işletme sahibi ile yöneticiye açıktır. İsterseniz Personel → [isim] sayfasındaki \"Kampanyaları yönetebilsin\" kutucuğuyla bir personele de yetki verebilirsiniz. İndirimi uygulama işlemini ise randevuyu tamamlayan herkes yapabilir; serbest indirim girilemez, yalnızca kampanyada tanımlı tutar uygulanır.",
+            "İndirim tanımlamadan da kampanya gönderebilirsiniz; bu durumda kampanya yalnızca bilgilendirme mesajıdır ve hiçbir indirim uygulanmaz."
           ]
         },
         "abonelik": {
@@ -3161,6 +3173,7 @@
       "serviceLabel": "Hizmet:",
       "staffLabel": "Personel:",
       "autoAssignLabel": "Otomatik atanacak",
+      "campaignNote": "Bu hizmette kampanya geçerliyse ve size özel bir indirim hakkınız varsa, indirim işlem sonrasında salonda uygulanacaktır.",
       "nameLabel": "Adınız Soyadınız *",
       "phoneLabel": "Telefon *",
       "emailLabel": "E-posta (opsiyonel)",
