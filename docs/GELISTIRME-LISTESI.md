@@ -186,23 +186,10 @@ repoda `android/` kaynak kodu yok) FCM entegrasyonu yok.
 
 ---
 
-## 4. "Yeni Saat Öner" özelliğinin devreye alınması
+## 4. ✅ "Yeni Saat Öner" — TAMAMLANDI (22 Eyl 2026; 1 Eki 2026 canlıda yeniden doğrulandı)
 
-**Durum: TAMAMLANDI VE CANLIDA AKTİF (22 Eyl 2026).** `feat/randevu-yeni-saat-oneri`
-main'e merge edildi (PR #38), migration canlıda çalıştırıldı, Meta şablonu onaylı.
-Aynı gün bir isim uyuşmazlığı bugı bulunup düzeltildi (PR #44, commit `9ebca3b`):
-`registry.ts`'teki `metaName` `randevu_yeni_saat_onerisi_1` idi, Meta'daki gerçek
-API adı sonunda fazladan alt çizgi taşıyordu (`..._1_`) — tek karakterlik fark
-yüzünden WA müşteriye hiç gitmiyordu (panel kırılmıyordu). Düzeltme merge edildi
-(`fix/yeni-saat-oneri-mobile-i18n`, PR #40), uçtan uca doğrulandı: panelden tıkla →
-müşteriye gerçek WA gider → `/oneri/[token]` linkinden Kabul Et/Reddet → panel
-güncellenir + Telegram/WA bildirimi gider.
-
-**Kalan:** Yok.
-
-**İlgili dosya:** [[yeni-saat-oner-reschedule-proposal-sept18]] (memory),
-`src/lib/wa-templates/registry.ts`, `src/lib/appointment-requests/approve.ts`,
-`src/app/api/public/appointment-proposal/route.ts`, `src/app/oneri/[token]/page.tsx`.
+Öneri → müşteri linki (`/oneri/[token]`) → kabul → randevu onaylandı akışı canlıda uçtan uca
+test edildi, çalışıyor. Kalan iş yok.
 
 ---
 
@@ -569,3 +556,24 @@ alınmadı** — panel tasarımı kademeli değişirken gözden geçirilecek:
 - **Üstte başlık altı özet**: "118 kampanya onaylı" metni.
 - Tasarım sistemi notu: sabit marka renkleri (#C026D3/#7C3AED) yerine panel temaları
   (6 tema) token'ları kullanıldı; taslaktaki Plus Jakarta Sans fontu alınmadı.
+
+---
+
+## 11. Açık notlar (1 Eki 2026)
+
+- **RU/AR WhatsApp şablonları satır aralıksız geliyordu** (tek paragraf; TR/EN satır aralıklı).
+  Satır aralıklı `_2` sürümleri 1 Eki 2026'da Meta'ya gönderildi (PENDING): appointment_confirmation/
+  reminder/rescheduled/cancelled + new_time_proposal, ru+ar = 10 şablon. **Onaylanınca**
+  `src/lib/wa-templates/registry.ts` içindeki `metaNameRu/metaNameAr` adları `_2` ile değiştirilecek
+  (confirmation/reminder: `..._ru_1` → `..._ru_2`; cancelled/rescheduled/proposal: `..._ru` → `..._ru_2`).
+  Eski şablonlar silinmedi, yedek olarak duruyor.
+- **RU/AR konum bağlantısı**: 1 Eki'de 8 test mesajı 5553287509'a gönderildi; bağlantı
+  (`siriplan.com/k/<slug>`) sunucuda Google Haritalar'a yönleniyor. Telefonda tıklayıp açıldığını kullanıcı teyit edecek.
+- **`/api/import` hizmet içe aktarımı**: `services` tablosunda (org_id, name) benzersiz kısıtı yok, bu yüzden
+  Excel/CSV ile hizmet aktarımındaki upsert Postgres hatası veriyor ("no unique or exclusion constraint
+  matching the ON CONFLICT specification") — hizmetler içe aktarılamıyor (canlı demoda doğrulandı).
+  Çözüm: ya kısıt eklenir (önce mevcut yinelenen adlar temizlenir) ya da kod önce mevcut adları okuyup yalnızca yenileri ekler.
+- **Paketle kapanan randevu geri alınıp normal ödemeyle tamamlanırsa fiyat 0 kalıyor** (tasarım gerekir).
+- **Telefonla giriş, boşluklu kayıtlı telefonu bulamıyor** (`/api/auth/login` ön filtresi son 4 haneyi
+  `ilike %5566%` ile arıyor; `+90 532 000 55 66` gibi boşluklu kayıtlarda eşleşmiyor). Boşluksuz kayıtlı
+  telefonlar (örn. 05320005567) çalışıyor. Auth koduna dokunulduğu için ayrı onay bekliyor.

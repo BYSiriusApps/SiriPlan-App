@@ -18,21 +18,25 @@ Yeni oturumda bu dosyadan devam et.
 - Kampanya geçmişinde TASLAK satırlarına silme düğmesi eklendi (`DELETE /api/campaigns/[id]`, yalnızca draft,
   `manage_campaigns` izni + org_id kapsamı).
 
-## SENİN YAPACAKLARIN (sırayla)
-1. Bu dalın PR'ını merge et, deploy'u bekle; Kampanyalar → Kampanya Geçmişi'nde
-   "Zamanlanmış Test Kampanya" taslağını yeni çöp kutusu düğmesiyle sil. Sonra `01-anasayfa` iPad görselini
-   yeniden çek (iPad ana sayfada "Test Kampanya" görünüyor): `SCREENSHOT_ONLY=anasayfa node scripts/app-store-screenshots-capture.mjs`
-2. (İsteğe bağlı, daha temiz) `node scripts/_tmp/cleanup_bysiri.mjs` — iptal edilen "Bysiri" randevularını/gelirlerini kalıcı siler.
-   Bu yapılırsa `randevular` taraması da temiz çıkar.
-3. `siriplan-ios` reposu (bu klasörde yok): `Info.plist` → `CFBundleDisplayName` = "SiriusPlan",
-   build numarasını artır, yeni build yükle. Repo yolunu/erişimi yeni oturumda ver.
-4. App Store Connect: uygulama adı/subtitle/anahtar kelimelerde "Siri" geçen her yeri "SiriusPlan" yap;
-   yeni ekran görüntülerini yükle; Resolution Center'a kısa yanıt + resubmit.
-5. Telefondan doğrula: RU/AR test mesajlarındaki konum bağlantısı Google Haritalar'ı açıyor mu.
+## SENİN YAPACAKLARIN
+(Hepsi tamamlandı — aşağıdaki 1 Ekim güncellemesine bak. Apple sonucu bekleniyor.)
 
 ## Bilinen açık noktalar
-- Bekleyen İstekler sayfası ekran görüntüsüne alınmadı ("WhatsApp" kaynak etiketi + uyarı metni, kodda sabit).
-- `/api/import` hizmet upsert'i `org_id,name` benzersiz kısıtına dayanıyor, DB'de yok — test edilmedi.
+- `/api/import` hizmet içe aktarımı ÇALIŞMIYOR (benzersiz kısıt yok) — bkz. GELISTIRME-LISTESI.md §11.
 - Paketle kapanan randevu geri alınıp normal ödemeyle tamamlanırsa fiyat 0 kalıyor (tasarım gerekir).
 - `iPad randevular` görselinde bir müşterinin telefonu test numarası (05553287509) görünüyor — demo veri, sorun değil.
 - Meta'dan silinen `personel_kritik_stok`/`staff_low_stock_alert`: kritik stok bildirimi Telegram + serbest metin yedeğiyle gidiyor.
+
+## GÜNCELLEME — 30 Eylül 2026, ~20:12: 4. RED SONRASI YENİDEN GÖNDERİLDİ
+- siriplan-ios: Info.plist (CFBundleDisplayName + izin metinleri = SiriusPlan), build 3, yazısız ikon + LaunchIcon
+  (hazır dosyalar: `docs/app-store/ios-build-3/`) GitHub'a yüklendi, Codemagic #11 ile build 3 TestFlight'a işlendi.
+- ASC: Name=SiriusPlan, Description/Notes güncellendi (WhatsApp/Instagram metadata'dan çıkarıldı, Notes'ta entegrasyon açıklaması duruyor),
+  10'ar iPhone/iPad görseli yüklendi, build 3 seçildi, Resolution Center'a yanıt yazıldı.
+- Durum: iOS Submission "Waiting for Review" (Build 1.0 (3)). Sonuç bekleniyor.
+- Sıradaki (Apple onaylarsa): sürüm otomatik yayınlanacak şekilde ayarlı (Automatically release).
+- Sonra yapılacaklar (acil değil): GELISTIRME-LISTESI.md §11.
+
+## GÜNCELLEME — 1 Ekim 2026
+- Taslak kampanya silme + "Bysiri" temizliği artık gerekmiyor (görsellerde görünmüyor, iPad görselleri zaten yüklü). Listeden çıkarıldı.
+- Bekleyen İstekler görseli gerek görülmedi, listeden çıkarıldı.
+- Beklenen: Apple incelemesi (Build 1.0 (3)).
