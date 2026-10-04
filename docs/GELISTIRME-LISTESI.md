@@ -559,21 +559,18 @@ alınmadı** — panel tasarımı kademeli değişirken gözden geçirilecek:
 
 ---
 
-## 11. Açık notlar (1 Eki 2026)
+## 11. Açık notlar (4 Eki 2026)
 
-- **RU/AR WhatsApp şablonları satır aralıksız geliyordu** (tek paragraf; TR/EN satır aralıklı).
-  Satır aralıklı `_2` sürümleri 1 Eki 2026'da Meta'ya gönderildi (PENDING): appointment_confirmation/
-  reminder/rescheduled/cancelled + new_time_proposal, ru+ar = 10 şablon. **Onaylanınca**
-  `src/lib/wa-templates/registry.ts` içindeki `metaNameRu/metaNameAr` adları `_2` ile değiştirilecek
-  (confirmation/reminder: `..._ru_1` → `..._ru_2`; cancelled/rescheduled/proposal: `..._ru` → `..._ru_2`).
-  Eski şablonlar silinmedi, yedek olarak duruyor.
-- **RU/AR konum bağlantısı**: 1 Eki'de 8 test mesajı 5553287509'a gönderildi; bağlantı
-  (`siriplan.com/k/<slug>`) sunucuda Google Haritalar'a yönleniyor. Telefonda tıklayıp açıldığını kullanıcı teyit edecek.
-- **`/api/import` hizmet içe aktarımı**: `services` tablosunda (org_id, name) benzersiz kısıtı yok, bu yüzden
-  Excel/CSV ile hizmet aktarımındaki upsert Postgres hatası veriyor ("no unique or exclusion constraint
-  matching the ON CONFLICT specification") — hizmetler içe aktarılamıyor (canlı demoda doğrulandı).
-  Çözüm: ya kısıt eklenir (önce mevcut yinelenen adlar temizlenir) ya da kod önce mevcut adları okuyup yalnızca yenileri ekler.
-- **Paketle kapanan randevu geri alınıp normal ödemeyle tamamlanırsa fiyat 0 kalıyor** (tasarım gerekir).
-- **Telefonla giriş, boşluklu kayıtlı telefonu bulamıyor** (`/api/auth/login` ön filtresi son 4 haneyi
-  `ilike %5566%` ile arıyor; `+90 532 000 55 66` gibi boşluklu kayıtlarda eşleşmiyor). Boşluksuz kayıtlı
-  telefonlar (örn. 05320005567) çalışıyor. Auth koduna dokunulduğu için ayrı onay bekliyor.
+- **Paketle kapanan randevu geri alınıp normal ödemeyle tamamlanırsa fiyat 0 kalıyor** (tasarım gerekir:
+  geri açınca fiyat hizmet fiyatına dönsün mü, yoksa tamamlarken sorulsun mu?).
+
+Tamamlananlar (4 Eki 2026): RU/AR WhatsApp şablonları satır aralıklı `_2` sürümüne geçti ve Arapça
+parametre yön izolasyonu eklendi; `/api/import` hizmet içe aktarma düzeltildi; boşluklu/+90'lı telefonla giriş çalışıyor.
+
+## 13. App Store yayın sonrası takip (4 Eki 2026)
+- [ ] Mağaza sayfası: `https://apps.apple.com/tr/app/id6815322807` açılıyor mu, aramada "SiriusPlan" çıkıyor mu (yayılma 24 saate kadar sürebilir). Çıkmazsa App Store Connect sürüm durumu + bağlantı ile bak.
+- [ ] Agreements: Business → Agreements → "Free Apps" = Active mi (ücretsiz uygulama için banka/vergi gerekmez).
+- [ ] AB ülkeleri (27) için DSA trader beyanı — bkz. §12 (App Store + Google Play).
+- [ ] Uygulamanın mağaza dili "English" görünüyor (PWABuilder varsayılanı); zorunlu değil, istenirse Info.plist dil ayarı sonra düzeltilir.
+- [ ] ASC uygulama listesindeki küçük ikon eski görünüyor (önbellek); mağaza sayfasında yeni ikon doğrulandı.
+- [ ] Kalan küçük işler: bkz. §11.
