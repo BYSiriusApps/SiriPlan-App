@@ -40,3 +40,8 @@ Yeni oturumda bu dosyadan devam et.
 - Taslak kampanya silme + "Bysiri" temizliği artık gerekmiyor (görsellerde görünmüyor, iPad görselleri zaten yüklü). Listeden çıkarıldı.
 - Bekleyen İstekler görseli gerek görülmedi, listeden çıkarıldı.
 - Beklenen: Apple incelemesi (Build 1.0 (3)).
+
+## SONUÇ — 3 Ekim 2026: ONAYLANDI
+- Apple "Review of your SiriusPlan (iOS) submission is complete" e-postası geldi (17:18): sürüm 1.0 (build 3) dağıtıma uygun,
+  otomatik yayın açık. Mağaza: https://apps.apple.com/app/siriusplan/id6815322807
+- App Store süreci KAPANDI. Kalan küçük işler: GELISTIRME-LISTESI.md §11.

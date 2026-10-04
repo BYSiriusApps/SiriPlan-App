@@ -574,3 +574,10 @@ parametre yön izolasyonu eklendi; `/api/import` hizmet içe aktarma düzeltildi
 - [ ] Uygulamanın mağaza dili "English" görünüyor (PWABuilder varsayılanı); zorunlu değil, istenirse Info.plist dil ayarı sonra düzeltilir.
 - [ ] ASC uygulama listesindeki küçük ikon eski görünüyor (önbellek); mağaza sayfasında yeni ikon doğrulandı.
 - [ ] Kalan küçük işler: bkz. §11.
+
+### §12 ek notu — App Store Connect ekranı (4 Eki 2026)
+- Business sayfasında kırmızı uyarı duruyor: AB'de görünmek için DSA trader beyanı gerekli ("Complete Compliance Requirements"). Yapılana kadar 27 AB ülkesinde uygulama görünmez; diğer ülkeler etkilenmez.
+- Free Apps Agreement = Active (22 Eyl 2026 – 22 Eyl 2027), yenileme tarihini takip et.
+- Paid Apps Agreement = New: imzalama (uygulama içi satın alma yok, abonelik web'den). "Edit Legal Entity" uyarısı da buna bağlı.
+- Beyanda şirket e-postası/telefonu kullan (kişisel numara değil); bilgiler AB'de herkese açık gösterilir.
+- Google Play Console'da aynı DSA trader beyanı ve AB görünürlüğü ayrıca kontrol edilecek.
