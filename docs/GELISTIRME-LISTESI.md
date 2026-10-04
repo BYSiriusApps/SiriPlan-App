@@ -581,3 +581,9 @@ parametre yön izolasyonu eklendi; `/api/import` hizmet içe aktarma düzeltildi
 - Paid Apps Agreement = New: imzalama (uygulama içi satın alma yok, abonelik web'den). "Edit Legal Entity" uyarısı da buna bağlı.
 - Beyanda şirket e-postası/telefonu kullan (kişisel numara değil); bilgiler AB'de herkese açık gösterilir.
 - Google Play Console'da aynı DSA trader beyanı ve AB görünürlüğü ayrıca kontrol edilecek.
+
+- **CI güvenlik kapısı (npm audit) — PR #92 bekliyor** (4 Eki 2026): `braces` (≤3.0.3, GHSA-vfj7-8cjw-p6xm)
+  için düzeltilmiş sürüm henüz yok; zincir yalnızca geliştirme/lint aracında (eslint-config-next → fast-glob →
+  micromatch → braces), canlıya giren paketlerde 0 uyarı. Bu yüzden `security.yml` main'de ikiye bölündü
+  (production `--omit=dev` sıkı/engelleyici, dev araçları yalnızca uyarı). **Yama çıkınca:** Dependabot'un
+  `braces` PR'ını merge et, sonra PR #92'yi (eski tek sıkı kapı) merge et.
