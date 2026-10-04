@@ -169,6 +169,12 @@ const MOBILE_APP_ALLOWED_PREFIXES = [
   "/admin",
   "/api",
   "/auth/giris",
+  // Uygulama içi kayıt: yalnızca hesap + 14 günlük deneme açar (quick-register).
+  // Fiyat/plan seçimi/ödeme YOK — o kısımlar siriplan.com'da kalır; kayıt
+  // sayfasındaki ?plan= satın alma niyeti native'de yok sayılır ve
+  // /api/stripe/checkout native'de sunucu tarafında 403 verir. /auth/plan-sec
+  // bilerek listede YOK.
+  "/auth/kayit",
   "/auth/callback",
   "/auth/davet",
   "/auth/dogrula",
@@ -180,6 +186,16 @@ const MOBILE_APP_ALLOWED_PREFIXES = [
   "/oneri/",   // işletmenin önerdiği yeni saati kabul/red (token'lı)
   "/k/",       // müşteriye giden WA mesajındaki kısa konum linki (slug'lı)
 ];
+
+// Kayıt formundaki zorunlu onay metinleri (KVKK / gizlilik / koşullar) — native'de
+// çerçevesiz (menü/fiyat/footer olmadan) gösterilir, bkz.
+// app/[locale]/(marketing)/layout.tsx. Bunlar pazarlama sayfası olduğu için
+// dile göre /en/kvkk gibi önekli URL'e yönlendirilebilir; önek de kabul edilir.
+const MOBILE_APP_LEGAL_RE = new RegExp("^/(?:(?:tr|en|ru|ar)/)?(?:kvkk|gizlilik|kosullar)/?$");
+
+function isMobileAppAllowedPath(pathname: string): boolean {
+  return MOBILE_APP_ALLOWED_PREFIXES.some((p) => pathname.startsWith(p)) || MOBILE_APP_LEGAL_RE.test(pathname);
+}
 
 // Yalnızca pazarlama sayfaları (`app/[locale]/(marketing)`) locale-prefixli
 // URL alır (/en/fiyatlar vb.) — panel, auth akışları, API ve token'lı
@@ -325,7 +341,7 @@ async function proxyInner(request: NextRequest, nonce: string | null) {
 
   if (
     isMobileAppRequest(request) &&
-    !MOBILE_APP_ALLOWED_PREFIXES.some((p) => pathname.startsWith(p))
+    !isMobileAppAllowedPath(pathname)
   ) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }

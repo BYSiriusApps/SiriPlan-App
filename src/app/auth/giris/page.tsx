@@ -15,13 +15,10 @@ import { useIsMobileApp } from "@/lib/use-mobile-app";
 const DEMO_ENABLED = false;
 
 export default function GirisPage() {
-  // Native uygulamada (App Store/Play Store) yalnızca "giriş ekranı" olmalı:
-  // kayıt akışı UYGULAMA İÇİNDE yoktur (/auth/kayit proxy.ts'teki route
-  // kilidiyle zaten engelli, çünkü kayıt akışının sonu plan seçimi/ödemedir —
-  // App Store 3.1.1). Önceden Android'de harici tarayıcıya açılan bir "kayıt
-  // ol" bağlantısı gösteriliyordu; mağaza incelemesinde risk teşkil ettiği
-  // için hem Android hem iOS'ta bağlantı TAMAMEN kaldırıldı — mobil uygulamada
-  // kayıt/ödeme akışına giden hiçbir buton veya link bulunmuyor.
+  // Native uygulamada (App Store/Play Store) kayıt bağlantısı VAR ama nötr
+  // ("Kayıt olun"): /auth/kayit sadece hesap + deneme açar, fiyat/plan seçimi/
+  // ödeme içermez (bkz. proxy.ts ve kayit/page.tsx). Web'deki "Ücretsiz
+  // deneyin" metni native'de kullanılmaz.
   const isMobileApp = useIsMobileApp();
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
@@ -181,14 +178,12 @@ export default function GirisPage() {
           </Button>
         </form>
 
-        {isMobileApp ? null : (
-          <p className="text-center text-sm text-muted-foreground">
-            Hesabınız yok mu?{" "}
-            <Link href="/auth/kayit" className="text-primary font-medium hover:underline">
-              Ücretsiz deneyin
-            </Link>
-          </p>
-        )}
+        <p className="text-center text-sm text-muted-foreground">
+          Hesabınız yok mu?{" "}
+          <Link href="/auth/kayit" className="text-primary font-medium hover:underline">
+            {isMobileApp ? "Kayıt olun" : "Ücretsiz deneyin"}
+          </Link>
+        </p>
       </CardContent>
     </Card>
   );

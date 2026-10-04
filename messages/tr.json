@@ -1156,6 +1156,7 @@
       "hasAccount": "Zaten hesabınız var mı?",
       "loginLink": "Giriş yapın",
       "loginLinkCta": "Giriş Yap",
+      "legalBack": "Geri",
       "registrationFailed": "Kayıt başarısız. Lütfen tekrar deneyin.",
       "signInFailed": "Hesap oluşturuldu ancak giriş yapılamadı: {message}",
       "genericError": "Bir hata oluştu. Lütfen tekrar deneyin.",

@@ -1156,6 +1156,7 @@
       "hasAccount": "Уже есть аккаунт?",
       "loginLink": "Войти",
       "loginLinkCta": "Войти",
+      "legalBack": "Назад",
       "registrationFailed": "Регистрация не удалась. Попробуйте снова.",
       "signInFailed": "Аккаунт создан, но не удалось войти: {message}",
       "genericError": "Произошла ошибка. Попробуйте снова.",

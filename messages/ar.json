@@ -1156,6 +1156,7 @@
       "hasAccount": "هل لديك حساب بالفعل؟",
       "loginLink": "تسجيل الدخول",
       "loginLinkCta": "تسجيل الدخول",
+      "legalBack": "رجوع",
       "registrationFailed": "فشل التسجيل. حاول مرة أخرى.",
       "signInFailed": "تم إنشاء الحساب لكن تعذّر تسجيل الدخول: {message}",
       "genericError": "حدث خطأ ما. حاول مرة أخرى.",
