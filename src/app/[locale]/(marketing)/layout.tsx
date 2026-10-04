@@ -4,9 +4,24 @@ import { Navbar } from "@/components/marketing/Navbar";
 import { Footer } from "@/components/marketing/Footer";
 import { ChatWidgetLazy } from "@/components/marketing/ChatWidgetLazy";
 import { Toaster } from "@/components/ui/sonner";
+import { NativeLegalBar } from "@/components/marketing/NativeLegalBar";
+import { isMobileApp } from "@/lib/mobile-app";
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
   const messages = await getMessages();
+
+  // Native uygulamada (App Store/Play Store) pazarlama sayfalarından yalnızca
+  // kayıt formunun onay metinleri (/kvkk, /gizlilik, /kosullar) açılabilir
+  // (bkz. proxy.ts MOBILE_APP_ALLOWED_PREFIXES). Menü (Fiyatlar), footer,
+  // WhatsApp ve sohbet düğmesi gösterilmez — yalnızca metin + geri düğmesi.
+  if (await isMobileApp()) {
+    return (
+      <NextIntlClientProvider messages={messages}>
+        <NativeLegalBar />
+        <main className="flex-1">{children}</main>
+      </NextIntlClientProvider>
+    );
+  }
 
   return (
     <NextIntlClientProvider messages={messages}>

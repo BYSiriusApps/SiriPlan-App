@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { TIMEZONE_OPTIONS } from "@/lib/timezones";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
+import { useIsMobileApp, useIsIOSNativeApp } from "@/lib/use-mobile-app";
+import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
 
 function isMobileDevice() {
   if (typeof navigator === "undefined") return false;
@@ -36,6 +38,11 @@ const BUSINESS_TYPE_KEYS = [
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
+// Native uygulamada (App Store/Play Store) kayıt formu yalnızca hesap + 14 günlük
+// deneme açar; plan/ödeme yok. Yasal metin bağlantıları aynı sekmede açıldığı için
+// (geri dönüşte form sıfırlanmasın) taslak oturum boyunca saklanır — şifre ASLA.
+const NATIVE_DRAFT_KEY = "sp_register_draft";
+
 const PURCHASE_PLAN_KEYS = ["starter", "pro", "business"] as const;
 type PurchasePlanKey = (typeof PURCHASE_PLAN_KEYS)[number];
 
@@ -53,6 +60,8 @@ function buildPhone(countryCode: string, localPhone: string) {
 export default function KayitPage() {
   const t = useTranslations("auth.registerPage");
   const router = useRouter();
+  const isNativeApp = useIsMobileApp();
+  const isIOSNative = useIsIOSNativeApp();
   const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
   // Başlangıç değeri "tr" — hydration uyuşmazlığı olmasın diye gerçek değer
@@ -93,12 +102,47 @@ export default function KayitPage() {
   const [purchaseIntent, setPurchaseIntent] = useState<{ plan: PurchasePlanKey; annual: boolean } | null>(null);
 
   useEffect(() => {
+    // Native'de ödeme niyeti yok sayılır (3.1.1) — kayıt normal "ücretsiz deneme" akışına düşer.
+    if (isMobileAppUserAgent(navigator.userAgent) || hasMobileAppCookie(document.cookie)) return;
     const params = new URLSearchParams(window.location.search);
     const planParam = params.get("plan");
     if ((PURCHASE_PLAN_KEYS as readonly string[]).includes(planParam ?? "")) {
       setPurchaseIntent({ plan: planParam as PurchasePlanKey, annual: params.get("billing") === "annual" });
     }
   }, []);
+
+  // Native taslak: geri dönüşte (yasal metin sayfasından) alanları geri yükle.
+  useEffect(() => {
+    if (!isNativeApp) return;
+    try {
+      const raw = sessionStorage.getItem(NATIVE_DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw) as { form?: Record<string, string>; kvkk?: boolean; gizlilik?: boolean; marketing?: boolean };
+      if (d.form) setForm((f) => ({ ...f, ...d.form, password: f.password, website: "" }));
+      if (d.kvkk) setKvkkChecked(true);
+      if (d.gizlilik) setGizlilikChecked(true);
+      if (d.marketing) setMarketingChecked(true);
+    } catch {
+      /* sessionStorage yoksa taslak olmadan devam */
+    }
+  }, [isNativeApp]);
+
+  function saveDraft() {
+    if (!isNativeApp) return;
+    try {
+      const { password: _pw, website: _hp, ...safe } = form;
+      void _pw; void _hp;
+      sessionStorage.setItem(
+        NATIVE_DRAFT_KEY,
+        JSON.stringify({ form: safe, kvkk: kvkkChecked, gizlilik: gizlilikChecked, marketing: marketingChecked }),
+      );
+    } catch {
+      /* yok say */
+    }
+  }
+
+  // iOS'ta marka "SiriusPlan" (bkz. useIsIOSNativeApp) — form metinlerinde de aynı ad.
+  const brand = (text: string) => (isIOSNative ? text.replace(/SiriPlan/g, "SiriusPlan") : text);
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -224,8 +268,11 @@ export default function KayitPage() {
         toast.error(t("checkoutFailed"));
       }
 
-      // Mobil cihazlarda paneline gitmeden önce "ana ekrana ekle" kısayolunu öner
-      if (isMobileDevice()) {
+      try { sessionStorage.removeItem(NATIVE_DRAFT_KEY); } catch { /* yok say */ }
+
+      // Mobil tarayıcıda paneline gitmeden önce "ana ekrana ekle" kısayolunu öner
+      // (zaten uygulamanın içindeysek anlamsız — doğrudan panele).
+      if (isMobileDevice() && !isNativeApp) {
         setRegistered(true);
         setLoading(false);
         return;
@@ -441,7 +488,7 @@ export default function KayitPage() {
               <label htmlFor="kvkk" className="leading-snug cursor-pointer">
                 {t.rich("kvkkLabel", {
                   link: (chunks) => (
-                    <Link href="/kvkk" target="_blank" className="text-primary font-medium hover:underline">{chunks}</Link>
+                    <Link href="/kvkk" {...(isNativeApp ? { onClick: saveDraft } : { target: "_blank" })} className="text-primary font-medium hover:underline">{chunks}</Link>
                   ),
                 })}{" "}
                 <span className="text-red-500 font-medium">*</span>
@@ -458,10 +505,10 @@ export default function KayitPage() {
               <label htmlFor="gizlilik" className="leading-snug cursor-pointer">
                 {t.rich("privacyLabel", {
                   privacyLink: (chunks) => (
-                    <Link href="/gizlilik" target="_blank" className="text-primary font-medium hover:underline">{chunks}</Link>
+                    <Link href="/gizlilik" {...(isNativeApp ? { onClick: saveDraft } : { target: "_blank" })} className="text-primary font-medium hover:underline">{chunks}</Link>
                   ),
                   termsLink: (chunks) => (
-                    <Link href="/kosullar" target="_blank" className="text-primary font-medium hover:underline">{chunks}</Link>
+                    <Link href="/kosullar" {...(isNativeApp ? { onClick: saveDraft } : { target: "_blank" })} className="text-primary font-medium hover:underline">{chunks}</Link>
                   ),
                 })}{" "}
                 <span className="text-red-500 font-medium">*</span>
@@ -476,7 +523,7 @@ export default function KayitPage() {
                 className="mt-0.5 shrink-0"
               />
               <label htmlFor="marketing" className="leading-snug cursor-pointer text-muted-foreground">
-                {t("marketingLabel")}{" "}
+                {brand(t("marketingLabel"))}{" "}
                 <span className="text-xs">{t("optional")}</span>
               </label>
             </div>

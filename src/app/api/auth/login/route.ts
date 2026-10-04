@@ -85,7 +85,11 @@ export async function POST(req: NextRequest) {
     }
 
     const admin = await createAdminClient();
-    const tail = wanted.slice(-4);
+    // Kayıtlı telefonlar boşluklu/tireli olabilir ("+90 532 000 55 66"); bu yüzden
+    // son 6 hane, rakamlar arasına joker konarak aranır ("0%0%5%5%6%6"). Bu yalnızca
+    // ADAY listesini daraltır — asıl eşleşme aşağıda normalizePhone ile birebir
+    // yapılır ve giriş yine şifre gerektirir.
+    const tail = wanted.slice(-6).split("").join("%");
 
     // Personel kayıtlarında telefon eşleşmesi ara
     const { data: staffRows } = await admin
@@ -93,7 +97,7 @@ export async function POST(req: NextRequest) {
       .select("email, phone")
       .not("email", "is", null)
       .ilike("phone", `%${tail}%`)
-      .limit(50);
+      .limit(500);
 
     for (const row of staffRows ?? []) {
       if (row.phone && normalizePhone(row.phone) === wanted && row.email) {
@@ -108,7 +112,7 @@ export async function POST(req: NextRequest) {
       .select("email, phone")
       .not("email", "is", null)
       .ilike("phone", `%${tail}%`)
-      .limit(20);
+      .limit(200);
 
     for (const row of orgRows ?? []) {
       if (row.phone && normalizePhone(row.phone) === wanted && row.email) {
