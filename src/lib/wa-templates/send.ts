@@ -196,7 +196,8 @@ export async function sendPurposeTemplate({
     }
   }
 
-  const components: Record<string, unknown>[] = [{ type: "body", parameters: bodyParameters }];
+  const buildComponents = (params: { type: string; text: string }[]): Record<string, unknown>[] => {
+  const components: Record<string, unknown>[] = [{ type: "body", parameters: params }];
 
   if (def.hasUrlButton && finalCancelToken) {
     components.push({
@@ -212,9 +213,17 @@ export async function sendPurposeTemplate({
     });
   }
 
+  return components;
+  };
+
   const to = normalizePhone(toPhone);
 
-  async function attempt(templateName: string, languageCode: string): Promise<SendPurposeTemplateResult> {
+  async function attempt(
+    templateName: string,
+    languageCode: string,
+    params: { type: string; text: string }[] = bodyParameters
+  ): Promise<SendPurposeTemplateResult> {
+    const components = buildComponents(params);
     const res = await fetch(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
       method: "POST",
       headers: {
@@ -255,7 +264,12 @@ export async function sendPurposeTemplate({
     if ("sent" in ruResult) return ruResult;
   }
   if (preferArabic) {
-    const arResult = await attempt(def.metaNameAr!, "ar");
+    // Arapça (sağdan sola) metinde Latin harf / rakam içeren değerler (işletme adı,
+    // tarih, +90 telefon, bağlantı) çevre cümleyle karışıp sıra bozuluyordu. Her
+    // değeri Unicode "first strong isolate" (U+2068 … U+2069) içine alıp kendi
+    // yönünde okunmasını sağlıyoruz; yalnızca Arapça gönderimde uygulanır.
+    const arParameters = bodyParameters.map((p) => ({ ...p, text: "\u2068" + p.text + "\u2069" }));
+    const arResult = await attempt(def.metaNameAr!, "ar", arParameters);
     if ("sent" in arResult) return arResult;
   }
 

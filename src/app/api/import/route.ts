@@ -401,11 +401,34 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      for (let i = 0; i < payload.length; i += 200) {
-        const chunk = payload.slice(i, i + 200);
+      // services tablosunda (org_id, name) benzersiz kısıtı YOK — upsert/onConflict
+      // Postgres hatası veriyordu. Bunun yerine bu kiracının mevcut hizmet adlarını
+      // okuyup (org_id kapsamlı) yalnızca YENİ adları ekliyoruz; mevcut olanlar
+      // üzerine yazılmaz, yinelenen sayılır.
+      let readFailed = false;
+      const existingNames = new Set<string>();
+      for (let from = 0; ; from += 1000) {
+        const { data: rows, error: readErr } = await supabase
+          .from("services")
+          .select("name")
+          .eq("org_id", orgId)
+          .range(from, from + 999);
+        if (readErr) { dbError ??= readErr.message; readFailed = true; break; }
+        for (const r of rows ?? []) existingNames.add(String(r.name).trim().toLowerCase());
+        if (!rows || rows.length < 1000) break;
+      }
+      const fresh = readFailed ? [] : payload.filter((p) => {
+        const isNew = !existingNames.has(String(p.name).trim().toLowerCase());
+        if (!isNew) duplicates++;
+        return isNew;
+      });
+
+      if (readFailed) skipped += payload.length;
+      for (let i = 0; i < fresh.length; i += 200) {
+        const chunk = fresh.slice(i, i + 200);
         const { data, error } = await supabase
           .from("services")
-          .upsert(chunk, { onConflict: "org_id,name", ignoreDuplicates: false })
+          .insert(chunk)
           .select("id");
         if (error) {
           dbError ??= error.message;
