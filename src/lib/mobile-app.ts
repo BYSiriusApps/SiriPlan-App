@@ -13,3 +13,17 @@ export async function isMobileApp(): Promise<boolean> {
   if (isMobileAppUserAgent(h.get("user-agent"))) return true;
   return isMobileAppCookieValue(c.get(MOBILE_APP_COOKIE)?.value);
 }
+
+/**
+ * Kaydın/isteğin geldiği native platform. iOS: UA işaretçisi + iPhone/iPad/iPod;
+ * Android (TWA): sp_app çerezi + Android UA. Native değilse null (web).
+ */
+export async function getMobileAppPlatform(): Promise<"ios" | "android" | null> {
+  const [h, c] = await Promise.all([headers(), cookies()]);
+  const ua = h.get("user-agent") ?? "";
+  if (isMobileAppUserAgent(ua) && /iPhone|iPad|iPod/i.test(ua)) return "ios";
+  if (isMobileAppUserAgent(ua) || isMobileAppCookieValue(c.get(MOBILE_APP_COOKIE)?.value)) {
+    return /Android/i.test(ua) ? "android" : "ios";
+  }
+  return null;
+}

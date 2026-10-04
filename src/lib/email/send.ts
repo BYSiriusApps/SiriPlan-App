@@ -38,14 +38,27 @@ export interface AppointmentEmailData {
   locale?: string | null;
 }
 
-function baseLayout(content: string, orgName: string, locale?: string | null) {
+/** Native uygulamadan kayıtta mavi/logolu marka; web'de mevcut pembe tema (marka verilmez). */
+export type EmailBrand = "siriusplan" | "siriplan";
+
+const BRAND_BLUE = "#1d4ed8";
+const BRAND_LOGO_URL = "https://siriplan.com/icons/icon-mark.png";
+
+function baseLayout(content: string, orgName: string, locale?: string | null, brand?: EmailBrand) {
   const S = emailStrings(locale);
+  const accent = brand ? BRAND_BLUE : "#e11d48";
+  const headerBg = brand ? "#0b2a6f" : "#e11d48";
+  const headerGradient = brand ? "linear-gradient(135deg,#0b2a6f 0%,#1d4ed8 100%)" : "linear-gradient(135deg,#e11d48 0%,#a21caf 100%)";
+  const brandName = brand === "siriusplan" ? "SiriusPlan" : "SiriPlan";
+  const logo = brand
+    ? `<img src="${BRAND_LOGO_URL}" width="56" height="56" alt="${brandName}" style="display:block;margin:0 auto 10px;border-radius:14px;border:0;" />`
+    : "";
   return `<!DOCTYPE html>
 <html lang="${S.htmlLang}"${S.rtl ? ' dir="rtl"' : ''}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SiriPlan</title>
+  <title>${brandName}</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f5;padding:32px 16px;">
@@ -54,8 +67,8 @@ function baseLayout(content: string, orgName: string, locale?: string | null) {
         <table role="presentation" width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
           <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,#e11d48 0%,#a21caf 100%);padding:28px 32px;text-align:center;">
-              <span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">SiriPlan</span>
+            <td bgcolor="${headerBg}" style="background:${headerGradient};padding:28px 32px;text-align:center;">
+              ${logo}<span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">${brandName}</span>
               <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.8);">${esc(orgName)}</p>
             </td>
           </tr>
@@ -70,7 +83,7 @@ function baseLayout(content: string, orgName: string, locale?: string | null) {
             <td style="background:#f9fafb;padding:20px 32px;text-align:center;border-top:1px solid #e5e7eb;">
               <p style="margin:0;font-size:11px;color:#9ca3af;">
                 ${esc(S.footerNote(orgName))}<br/>
-                <a href="https://siriplan.com" style="color:#e11d48;text-decoration:none;">siriplan.com</a>
+                <a href="https://siriplan.com" style="color:${accent};text-decoration:none;">siriplan.com</a>
                 &nbsp;·&nbsp;
                 <a href="https://bysirius.com" style="color:#9ca3af;text-decoration:none;">BY Sirius Group Ai & Technology Co Ltd.</a>
               </p>
@@ -157,15 +170,17 @@ export async function sendConfirmationEmail(data: AppointmentEmailData) {
   });
 }
 
-export async function sendWelcomeEmail(data: { to: string; salonName: string; ownerName: string }) {
+export async function sendWelcomeEmail(data: { to: string; salonName: string; ownerName: string; brand?: EmailBrand }) {
   if (!emailEnabled()) return;
 
+  const brandName = data.brand === "siriusplan" ? "SiriusPlan" : "SiriPlan";
+  const accent = data.brand ? BRAND_BLUE : "#e11d48";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
 
   const content = `
     <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Hoş Geldiniz! 🎉</h2>
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
-      Merhaba <strong>${esc(data.ownerName)}</strong>, <strong>${esc(data.salonName)}</strong> adına SiriPlan'a hoş geldiniz!
+      Merhaba <strong>${esc(data.ownerName)}</strong>, <strong>${esc(data.salonName)}</strong> adına ${brandName}'a hoş geldiniz!
     </p>
 
     <p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">
@@ -182,22 +197,22 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
     </table>
 
     <a href="${appUrl}/dashboard"
-       style="display:inline-block;padding:12px 28px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+       style="display:inline-block;padding:12px 28px;background:${accent};color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       Dashboard'a Git →
     </a>
 
     <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
-      Herhangi bir sorunuz için <a href="mailto:info@bysirius.com" style="color:#e11d48;text-decoration:none;">info@bysirius.com</a> adresinden veya
+      Herhangi bir sorunuz için <a href="mailto:info@bysirius.com" style="color:${accent};text-decoration:none;">info@bysirius.com</a> adresinden veya
       <a href="https://wa.me/905355032634" style="color:#25D366;text-decoration:none;">WhatsApp</a> üzerinden ulaşabilirsiniz.<br/>
       İyi çalışmalar! ✨
     </p>
   `;
 
   await getResend().emails.send({
-    from: `SiriPlan <${FROM}>`,
+    from: `${brandName} <${FROM}>`,
     to: data.to,
-    subject: `Hoş Geldiniz ${data.salonName}! SiriPlan'da 14 günlük ücretsiz denemeniz başladı`,
-    html: baseLayout(content, "SiriPlan"),
+    subject: `Hoş Geldiniz ${data.salonName}! ${brandName}'da 14 günlük ücretsiz denemeniz başladı`,
+    html: baseLayout(content, brandName, undefined, data.brand),
   });
 }
 

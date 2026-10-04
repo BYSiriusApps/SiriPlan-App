@@ -6,6 +6,7 @@ import { seedDefaultServices } from "@/lib/services/seed";
 import { TRIAL_PLAN_LIMITS } from "@/lib/entitlements";
 import { limitByIp, clientIp, tooManyRequests } from "@/lib/rate-limit";
 import { detectBot, BOT_REJECTION_MESSAGE } from "@/lib/bot-guard";
+import { isMobileApp, getMobileAppPlatform } from "@/lib/mobile-app";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR } from "@/lib/tax-number";
 
 const VALID_BUSINESS_TYPES = new Set([
@@ -13,6 +14,11 @@ const VALID_BUSINESS_TYPES = new Set([
 ]);
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+
+// Native uygulamada (App Store 3.1.1) "plan seçin" yönlendirmesi yapılmaz.
+const RETURNING_EXPIRED_MSG_NATIVE =
+  "Bu bilgilerle daha önce bir işletme hesabı açılmış ve 14 günlük deneme süresi dolmuş. " +
+  "Giriş yaparak kaldığınız yerden devam edebilirsiniz — verileriniz duruyor.";
 
 const RETURNING_EXPIRED_MSG =
   "Bu bilgilerle daha önce bir işletme hesabı açılmış ve 14 günlük deneme süresi dolmuş. " +
@@ -185,7 +191,10 @@ export async function POST(req: NextRequest) {
   // yeni hesap açtırmak yerine giriş + plan seçimine yönlendir.
   const returningMsg = await returningExpiredTrialMessage(admin, email, phone || null);
   if (returningMsg) {
-    return NextResponse.json({ error: returningMsg, code: "returning_expired" }, { status: 409 });
+    return NextResponse.json(
+      { error: (await isMobileApp()) ? RETURNING_EXPIRED_MSG_NATIVE : returningMsg, code: "returning_expired" },
+      { status: 409 },
+    );
   }
 
   // 1. Create user with email already confirmed
@@ -280,7 +289,9 @@ export async function POST(req: NextRequest) {
   await seedDefaultServices(admin, org.id, safeBusinessType, safeLocale);
 
   // 4. Send welcome email via Resend (fire-and-forget, ortak şablon)
-  sendWelcomeEmail({ to: email, salonName, ownerName: fullName }).catch(() => {});
+  const platform = await getMobileAppPlatform();
+  const brand = platform === "ios" ? "siriusplan" : platform === "android" ? "siriplan" : undefined;
+  sendWelcomeEmail({ to: email, salonName, ownerName: fullName, brand }).catch(() => {});
 
   // 5. Platform admine yeni kayıt bildirimi (fire-and-forget)
   notifyAdminNewSignup({ salonName, ownerName: fullName, email, phone, businessType: safeBusinessType }).catch(() => {});
