@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendWelcomeEmail } from "@/lib/email/send";
+import { getMobileAppPlatform } from "@/lib/mobile-app";
 import { notifyAdminNewSignup } from "@/lib/notify-admin";
 import { seedDefaultServices } from "@/lib/services/seed";
 import { TRIAL_PLAN_LIMITS } from "@/lib/entitlements";
@@ -83,7 +84,9 @@ export async function GET(req: NextRequest) {
         await admin.from("staff").insert({ org_id: org.id, full_name: fullName, role: "Salon Sahibi", is_active: true });
         await seedDefaultServices(admin, org.id, type, seedLocale);
 
-        sendWelcomeEmail({ to: user.email!, salonName, ownerName: fullName }).catch(() => {});
+        const platform = await getMobileAppPlatform();
+        const brand = platform === "ios" ? "siriusplan" : platform === "android" ? "siriplan" : undefined;
+        sendWelcomeEmail({ to: user.email!, salonName, ownerName: fullName, brand }).catch(() => {});
         notifyAdminNewSignup({ salonName, ownerName: fullName, email: user.email!, phone, businessType: type }).catch(() => {});
       }
     }
