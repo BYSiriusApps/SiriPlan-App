@@ -169,7 +169,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const touchesSchedule = "staff_id" in updates || "appointment_at" in updates;
   const { data: current } = await supabase
     .from("appointments")
-    .select("status, staff_id, customer_name, appointment_at, duration_minutes")
+    .select("status, staff_id, service_id, campaign_log_id, customer_name, appointment_at, duration_minutes")
     .eq("id", id)
     .eq("org_id", member.org_id)
     .single();
@@ -193,6 +193,24 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     );
   }
   const previous = current;
+
+  // Kampanya indirimiyle tamamlanmış randevuda fiyat zaten indirimli yazılıdır.
+  // Aşağıdaki "hizmetten fiyat senkronu" bu tutarı katalog fiyatına çekip
+  // indirimi sessizce bozardı (düzenleme formu aynı service_id'yi de gönderir).
+  // Aynı hizmet → senkron atlanır; farklı hizmet → önce tamamlanma geri alınmalı
+  // (bu, hakkı müşteriye iade eder ve fiyatı indirimsiz hale döndürür).
+  if (current.campaign_log_id && updates.service_id) {
+    if (updates.service_id !== current.service_id) {
+      return NextResponse.json(
+        { error: "Kampanya indirimi uygulanmış randevunun hizmeti değiştirilemez. Önce randevuyu Tamamlandı durumundan geri alın (indirim hakkı müşteriye iade edilir)." },
+        { status: 409 }
+      );
+    }
+    delete updates.service_id;
+    if (!Object.keys(updates).length) {
+      return NextResponse.json({ appointment: current });
+    }
+  }
 
   // When service changes, sync price and duration from the new service
   if (updates.service_id) {
