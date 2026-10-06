@@ -25,6 +25,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
 
   return (
     <NextIntlClientProvider messages={messages}>
+      <div className="marketing-sunset flex min-h-screen flex-1 flex-col bg-background text-foreground">
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
@@ -46,6 +47,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
 
       {/* AI Chatbot — position above WhatsApp button */}
       <ChatWidgetLazy />
+      </div>
     </NextIntlClientProvider>
   );
 }
