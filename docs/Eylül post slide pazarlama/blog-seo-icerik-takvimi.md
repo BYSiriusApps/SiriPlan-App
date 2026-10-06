@@ -19,7 +19,7 @@ Aynı nişte zaten içerik üreten rakipler bulundu: **salonmerkezi.com** (semt+
 |---|---|---|---|---|---|---|
 | 1 | 19 Eyl 2026 | İpuçları | Randevuya Gelmeme (No-Show) Oranını Azaltmanın 6 Yolu | "no show azaltma", "randevuya gelmeme önleme" | Hatırlatma + kaparo | ✅ Yayınlandı (`randevu-no-show-azaltma`) |
 | 2 | 30 Eyl 2026 | Personel Yönetimi *(yeni kategori)* | Salon Personeli İçin Maaş ve Prim Hesaplama Rehberi | "kuaför prim hesaplama", "personel maaş hesaplama salon" | `/dashboard/personel/maas-hesaplama` | ✅ Yayınlandı (`salon-personel-prim-maas-hesaplama`) |
-| 3 | 5 Eki 2026 | Müşteri Yönetimi | Bekleme Listesi ile Boş Randevu Saatini Doldurma Rehberi | "randevu bekleme listesi", "iptal olan randevuyu doldurma" | Bekleme listesi modülü | ☐ |
+| 3 | 5 Eki 2026 | Müşteri Yönetimi | Bekleme Listesi ile Boş Randevu Saatini Doldurma Rehberi | "randevu bekleme listesi", "iptal olan randevuyu doldurma" | Bekleme listesi modülü | ✅ Yayına hazır (`randevu-bekleme-listesi-bos-saat-doldurma`) |
 | 4 | 12 Eki 2026 | Ciro | Peşin Paket/Seans Satışı ile Nakit Akışını Güçlendirin | "kuaför paket satışı", "seans paketi yazılımı" | Paket/seans takibi | ☐ |
 | 5 | 19 Eki 2026 | Sektörler *(yeni kategori)* | Nail Stüdyosu, Estetik Merkezi ve Diyetisyenler İçin Randevu Sistemi Farkları | "estetik merkezi randevu sistemi", "diyetisyen randevu programı" | Sektör kategori sayfaları (`/kategori/nail`, `/kategori/estetik`, `/kategori/diyetisyen`) | ☐ |
 | 6 | 26 Eki 2026 | Büyüme | Google Haritalar'da Salonunuzu Öne Çıkarmanın 7 Yolu (Yerel SEO) | "salon google haritalar sıralama", "yerel seo kuaför" | Randevu vitrini linki (`/r/[slug]`) | ☐ |
