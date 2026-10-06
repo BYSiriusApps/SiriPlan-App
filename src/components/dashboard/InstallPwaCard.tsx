@@ -5,6 +5,7 @@ import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { Button } from "@/components/ui/button";
 import { Smartphone, Share, PlusSquare, MonitorSmartphone, CheckCircle2 } from "lucide-react";
 import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/store-links";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -63,9 +64,29 @@ export function InstallPwaCard() {
       </div>
       <div className="px-4 py-3.5 space-y-3">
         <p className="text-xs text-muted-foreground -mt-1">
-          App Store / Google Play&apos;e kadar SiriPlan&apos;ı ana ekranınıza ekleyip
+          SiriPlan&apos;ı mağazadan indirebilir ya da ana ekranınıza ekleyip
           uygulama gibi tam ekran kullanabilirsiniz. Personelinize de önerin.
         </p>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={APP_STORE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold hover:bg-muted/70 transition-colors"
+          >
+            <Smartphone className="h-3.5 w-3.5" />
+            App Store&apos;dan indir
+          </a>
+          <a
+            href={PLAY_STORE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold hover:bg-muted/70 transition-colors"
+          >
+            <Smartphone className="h-3.5 w-3.5" />
+            Google Play&apos;den indir
+          </a>
+        </div>
         {installed ? (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 dark:bg-green-950/20 text-sm text-green-700 dark:text-green-400">
             <CheckCircle2 className="h-4 w-4 shrink-0" />

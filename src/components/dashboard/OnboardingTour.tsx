@@ -26,6 +26,11 @@ import { Button } from "@/components/ui/button";
 import { Compass, X, ChevronLeft, ChevronRight, Sparkles, BookOpen } from "lucide-react";
 
 const LS_KEY = "siriplan_onboarding_tour_done";
+/**
+ * Bayrak ORGANİZASYON başına tutulur: aynı tarayıcıda önceki bir hesapla turu
+ * kapatmak, yeni kaydolan işletmenin karşılama kutusunu gizlememeli.
+ */
+const lsKey = (orgId: string) => `${LS_KEY}:${orgId}`;
 /** Aynı sayfada "turu tekrar başlat" için — useSearchParams'a gerek kalmadan. */
 const TOUR_EVENT = "siriplan:onboarding-tour";
 
@@ -77,7 +82,7 @@ export const STAFF_STEPS: Step[] = [
 
 async function markCompleted(orgId: string, personalOnly = false) {
   try {
-    localStorage.setItem(LS_KEY, "1");
+    localStorage.setItem(lsKey(orgId), "1");
   } catch {
     /* özel pencere / depolama kapalı — sorun değil */
   }
@@ -104,11 +109,11 @@ export function OnboardingWelcome({ orgId, role = "owner" }: { orgId: string; ro
 
   useEffect(() => {
     try {
-      if (localStorage.getItem(LS_KEY) === "1") setHidden(true);
+      if (localStorage.getItem(lsKey(orgId)) === "1") setHidden(true);
     } catch {
       /* yok say */
     }
-  }, []);
+  }, [orgId]);
 
   if (hidden) return null;
 
@@ -421,12 +426,13 @@ export function OnboardingTour({
 /* ────────────────────────────────────────────────────────────
  * Ayarlar üstündeki "turu tekrar başlat" düğmesi
  * ──────────────────────────────────────────────────────────── */
-export function OnboardingRestartButton() {
+export function OnboardingRestartButton({ orgId }: { orgId?: string }) {
   const t = useTranslations("dashboard.tour");
   return (
     <button
       onClick={() => {
         try {
+          if (orgId) localStorage.removeItem(lsKey(orgId));
           localStorage.removeItem(LS_KEY);
           window.history.replaceState(window.history.state, "", "/dashboard/ayarlar?tour=1");
         } catch {
