@@ -10,11 +10,16 @@
  */
 
 import Link from "next/link";
-import { AlertTriangle, CalendarClock } from "lucide-react";
+import { AlertTriangle, CalendarClock, MessageCircle } from "lucide-react";
 import { useDashboardBadges } from "@/components/dashboard/DashboardBadgeContext";
+import { useIsMobileApp } from "@/lib/use-mobile-app";
 
 export function DashboardBanners({ role }: { role: string }) {
-  const { pendingApprovalsCount, lowStockCount } = useDashboardBadges();
+  const { pendingApprovalsCount, lowStockCount, waQuota } = useDashboardBadges();
+  const isNativeApp = useIsMobileApp();
+  // Mini plan: aylık müşteri WhatsApp mesajı hakkının %80'i dolunca uyar (yalnızca sahip/yönetici).
+  const showWaQuota = !!waQuota && waQuota.used >= Math.ceil(waQuota.limit * 0.8) && (role === "owner" || role === "manager");
+  const waQuotaFull = !!waQuota && waQuota.used >= waQuota.limit;
   // Onay bekliyor şeridi yalnızca owner/manager'a — sayaçtaki (Sidebar/
   // MobileNav) tam sayı tüm rollere görünür kalmaya devam ediyor, burada
   // değişen bir şey yok.
@@ -22,6 +27,21 @@ export function DashboardBanners({ role }: { role: string }) {
 
   return (
     <>
+      {showWaQuota && waQuota && (
+        <div className={`${waQuotaFull ? "bg-rose-600 border-rose-700" : "bg-amber-500 border-amber-600"} text-white px-4 py-2.5 text-xs font-semibold flex items-center justify-between gap-4 border-b`}>
+          <span className="flex items-center gap-1.5">
+            <MessageCircle className="h-4 w-4 shrink-0" />
+            {waQuotaFull
+              ? `Bu ayki WhatsApp mesaj hakkınız doldu (${waQuota.used}/${waQuota.limit}) — müşterilere otomatik onay/hatırlatma mesajı yeni aya kadar gönderilmiyor.`
+              : `Bu ayki WhatsApp mesaj hakkınızın %80'i kullanıldı (${waQuota.used}/${waQuota.limit}).`}
+          </span>
+          {!isNativeApp && (
+            <Link href="/dashboard/abonelik" className="underline hover:opacity-80 transition-opacity shrink-0 font-bold">
+              Planı Yükselt →
+            </Link>
+          )}
+        </div>
+      )}
       {pendingApptCount > 0 && (
         <div className="bg-rose-600 hover:bg-rose-700 transition-colors text-white px-4 py-2.5 text-xs font-semibold flex items-center justify-between gap-4 border-b border-rose-700">
           <span className="flex items-center gap-1.5">

@@ -28,12 +28,14 @@ export interface DashboardBadgeCounts {
   pendingWorkCount: number;
   pendingApprovalsCount: number;
   lowStockCount: number;
+  waQuota: { used: number; limit: number } | null;
 }
 
 const DEFAULT_COUNTS: DashboardBadgeCounts = {
   pendingWorkCount: 0,
   pendingApprovalsCount: 0,
   lowStockCount: 0,
+  waQuota: null,
 };
 
 interface DashboardBadgeState {
@@ -61,6 +63,10 @@ export function DashboardBadgeProvider({ children }: { children: ReactNode }) {
           pendingWorkCount: Number(data.pendingWorkCount) || 0,
           pendingApprovalsCount: Number(data.pendingApprovalsCount) || 0,
           lowStockCount: Number(data.lowStockCount) || 0,
+          waQuota:
+            data.waQuota && Number(data.waQuota.limit) > 0
+              ? { used: Number(data.waQuota.used) || 0, limit: Number(data.waQuota.limit) }
+              : null,
         });
       })
       .catch(() => {})

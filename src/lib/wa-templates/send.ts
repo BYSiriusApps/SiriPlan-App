@@ -8,7 +8,8 @@ import {
 import { googleMapsLink } from "@/lib/wa-template";
 import { normalizePhone as toStoredPhoneFormat } from "@/lib/phone";
 import { monthlyWaMessageLimit } from "@/lib/entitlements";
-import { consumePlanUsage, releasePlanUsage } from "@/lib/plan-usage";
+import { consumePlanUsage, getPlanUsage, releasePlanUsage } from "@/lib/plan-usage";
+import { notifyWaQuota, shouldNotifyWaQuota } from "@/lib/plan-limit-notify";
 
 /**
  * Meta onaylı WhatsApp şablon mesajı gönderiminin tek gerçek uygulaması.
@@ -274,6 +275,12 @@ export async function sendPurposeTemplate({
   // Meta mesajı kabul etmediyse harcanan hak geri verilir (gitmeyen mesaj sayılmasın).
   if (usageConsumed && !("sent" in result)) {
     await releasePlanUsage(orgId, "wa_message");
+  }
+  // Hak %80 ve %100'e ulaşınca salon sahibine tek seferlik bildirim (hata gönderimi etkilemez).
+  if (usageConsumed && waLimit !== null && "sent" in result) {
+    const used = await getPlanUsage(orgId, "wa_message");
+    const level = shouldNotifyWaQuota(used, waLimit);
+    if (level) await notifyWaQuota(orgId, level, used, waLimit);
   }
   return result;
 

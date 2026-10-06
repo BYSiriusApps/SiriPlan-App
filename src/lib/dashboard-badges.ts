@@ -1,5 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
+import { monthlyWaMessageLimit } from "@/lib/entitlements";
+import { getPlanUsage } from "@/lib/plan-usage";
 
 export interface DashboardBadgeCounts {
   /** Sidebar/MobileNav "Bekleyen İşler" rozeti — stok + talep + telefonsuz + gecikmiş toplamı. */
@@ -8,6 +10,8 @@ export interface DashboardBadgeCounts {
   pendingApprovalsCount: number;
   /** Kritik stok seviyesinin altındaki ürün sayısı. */
   lowStockCount: number;
+  /** Mini plan: bu ayki müşteri WhatsApp mesajı kullanımı. Sınırsız planlarda null. */
+  waQuota: { used: number; limit: number } | null;
 }
 
 /**
@@ -23,6 +27,8 @@ export interface DashboardBadgeCounts {
 async function computeDashboardBadgeCounts(orgId: string): Promise<DashboardBadgeCounts> {
   const supabase = await createAdminClient();
   const nowIso = new Date().toISOString();
+  // Mini planın aylık mesaj sınırı için plan bilgisi (diğer planlarda sonuç null → ek sorgu yok).
+  const orgPromise = supabase.from("organizations").select("plan, trial_ends_at").eq("id", orgId).single();
 
   const [{ data: inventoryItems }, { count: talepCount }, { count: requestCount }, { count: missingPhoneCount }, { data: overdueRaw }] =
     await Promise.all([
@@ -73,7 +79,14 @@ async function computeDashboardBadgeCounts(orgId: string): Promise<DashboardBadg
   const pendingApprovalsCount = (talepCount ?? 0) + (requestCount ?? 0);
   const pendingWorkCount = lowStockCount + (requestCount ?? 0) + (missingPhoneCount ?? 0) + (talepCount ?? 0) + overdueCount;
 
-  return { pendingWorkCount, pendingApprovalsCount, lowStockCount };
+  let waQuota: DashboardBadgeCounts["waQuota"] = null;
+  const { data: orgRow } = await orgPromise;
+  const waLimit = monthlyWaMessageLimit(orgRow);
+  if (waLimit !== null) {
+    waQuota = { used: Math.min(await getPlanUsage(orgId, "wa_message"), waLimit), limit: waLimit };
+  }
+
+  return { pendingWorkCount, pendingApprovalsCount, lowStockCount, waQuota };
 }
 
 /**
