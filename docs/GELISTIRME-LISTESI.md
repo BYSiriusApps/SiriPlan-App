@@ -186,23 +186,10 @@ repoda `android/` kaynak kodu yok) FCM entegrasyonu yok.
 
 ---
 
-## 4. "Yeni Saat Öner" özelliğinin devreye alınması
+## 4. ✅ "Yeni Saat Öner" — TAMAMLANDI (22 Eyl 2026; 1 Eki 2026 canlıda yeniden doğrulandı)
 
-**Durum: TAMAMLANDI VE CANLIDA AKTİF (22 Eyl 2026).** `feat/randevu-yeni-saat-oneri`
-main'e merge edildi (PR #38), migration canlıda çalıştırıldı, Meta şablonu onaylı.
-Aynı gün bir isim uyuşmazlığı bugı bulunup düzeltildi (PR #44, commit `9ebca3b`):
-`registry.ts`'teki `metaName` `randevu_yeni_saat_onerisi_1` idi, Meta'daki gerçek
-API adı sonunda fazladan alt çizgi taşıyordu (`..._1_`) — tek karakterlik fark
-yüzünden WA müşteriye hiç gitmiyordu (panel kırılmıyordu). Düzeltme merge edildi
-(`fix/yeni-saat-oneri-mobile-i18n`, PR #40), uçtan uca doğrulandı: panelden tıkla →
-müşteriye gerçek WA gider → `/oneri/[token]` linkinden Kabul Et/Reddet → panel
-güncellenir + Telegram/WA bildirimi gider.
-
-**Kalan:** Yok.
-
-**İlgili dosya:** [[yeni-saat-oner-reschedule-proposal-sept18]] (memory),
-`src/lib/wa-templates/registry.ts`, `src/lib/appointment-requests/approve.ts`,
-`src/app/api/public/appointment-proposal/route.ts`, `src/app/oneri/[token]/page.tsx`.
+Öneri → müşteri linki (`/oneri/[token]`) → kabul → randevu onaylandı akışı canlıda uçtan uca
+test edildi, çalışıyor. Kalan iş yok.
 
 ---
 
@@ -628,3 +615,32 @@ dil seçici (Turkish ▾) → English ekle:
 - Hazır olunana kadar AB ülkeleri Pricing and Availability'den çıkarılabilir; hazır olunca trader girilip AB eklenir.
 - Patent başvurusu / site AB uyumu Apple'ın şartı DEĞİL (yalnızca trader beyanı); site hukuki gözden geçirme
   kalemleri §6'da.
+
+## 11. Açık notlar (4 Eki 2026)
+
+- **Paketle kapanan randevu geri alınıp normal ödemeyle tamamlanırsa fiyat 0 kalıyor** (tasarım gerekir:
+  geri açınca fiyat hizmet fiyatına dönsün mü, yoksa tamamlarken sorulsun mu?).
+
+Tamamlananlar (4 Eki 2026): RU/AR WhatsApp şablonları satır aralıklı `_2` sürümüne geçti ve Arapça
+parametre yön izolasyonu eklendi; `/api/import` hizmet içe aktarma düzeltildi; boşluklu/+90'lı telefonla giriş çalışıyor.
+
+## 13. App Store yayın sonrası takip (4 Eki 2026)
+- [ ] Mağaza sayfası: `https://apps.apple.com/tr/app/id6815322807` açılıyor mu, aramada "SiriusPlan" çıkıyor mu (yayılma 24 saate kadar sürebilir). Çıkmazsa App Store Connect sürüm durumu + bağlantı ile bak.
+- [ ] Agreements: Business → Agreements → "Free Apps" = Active mi (ücretsiz uygulama için banka/vergi gerekmez).
+- [ ] AB ülkeleri (27) için DSA trader beyanı — bkz. §12 (App Store + Google Play).
+- [ ] Uygulamanın mağaza dili "English" görünüyor (PWABuilder varsayılanı); zorunlu değil, istenirse Info.plist dil ayarı sonra düzeltilir.
+- [ ] ASC uygulama listesindeki küçük ikon eski görünüyor (önbellek); mağaza sayfasında yeni ikon doğrulandı.
+- [ ] Kalan küçük işler: bkz. §11.
+
+### §12 ek notu — App Store Connect ekranı (4 Eki 2026)
+- Business sayfasında kırmızı uyarı duruyor: AB'de görünmek için DSA trader beyanı gerekli ("Complete Compliance Requirements"). Yapılana kadar 27 AB ülkesinde uygulama görünmez; diğer ülkeler etkilenmez.
+- Free Apps Agreement = Active (22 Eyl 2026 – 22 Eyl 2027), yenileme tarihini takip et.
+- Paid Apps Agreement = New: imzalama (uygulama içi satın alma yok, abonelik web'den). "Edit Legal Entity" uyarısı da buna bağlı.
+- Beyanda şirket e-postası/telefonu kullan (kişisel numara değil); bilgiler AB'de herkese açık gösterilir.
+- Google Play Console'da aynı DSA trader beyanı ve AB görünürlüğü ayrıca kontrol edilecek.
+
+- **CI güvenlik kapısı (npm audit) — PR #92 bekliyor** (4 Eki 2026): `braces` (≤3.0.3, GHSA-vfj7-8cjw-p6xm)
+  için düzeltilmiş sürüm henüz yok; zincir yalnızca geliştirme/lint aracında (eslint-config-next → fast-glob →
+  micromatch → braces), canlıya giren paketlerde 0 uyarı. Bu yüzden `security.yml` main'de ikiye bölündü
+  (production `--omit=dev` sıkı/engelleyici, dev araçları yalnızca uyarı). **Yama çıkınca:** Dependabot'un
+  `braces` PR'ını merge et, sonra PR #92'yi (eski tek sıkı kapı) merge et.

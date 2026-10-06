@@ -1189,6 +1189,7 @@
       "hasAccount": "Already have an account?",
       "loginLink": "Log in",
       "loginLinkCta": "Log In",
+      "legalBack": "Back",
       "registrationFailed": "Registration failed. Please try again.",
       "signInFailed": "Account created but sign-in failed: {message}",
       "genericError": "Something went wrong. Please try again.",
