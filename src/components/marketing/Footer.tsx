@@ -56,7 +56,7 @@ export async function Footer() {
             <Link href="/" className="flex items-center gap-2 mb-4">
               <img src="/icons/icon-mark.png" alt="SiriPlan" className="w-7 h-7 rounded-lg" />
               <span className="font-bold text-base">
-                Siri<span className="text-primary">Plan</span>
+                Siri<span className="text-muted-foreground font-medium">(us)</span><span className="text-primary">Plan</span>
               </span>
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">

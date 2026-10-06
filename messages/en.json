@@ -1,4 +1,41 @@
 {
+  "homeVisual": {
+    "tickerLabel": "What you can do with SiriPlan",
+    "ticker": ["Track your stock live — get alerted the moment it drops below the critical level.","See your work list in real time: who is coming today, what is pending?","How many clients you have, how often each came, what they earned you — with private notes, all at hand.","Never lose a client: stop churn, build loyalty.","Turn on automatic booking and stop juggling phone calls.","Or let booking requests wait for your approval — revise with one tap.","Follow income and expenses live: daily, monthly, yearly.","Shape your services and strategy, raise efficiency.","Manage your staff, measure and track their performance.","Speak into the mic and the appointment creates itself.","All in a single panel."],
+    "mobile": {"title":"Your salon in your pocket","subtitle":"With the iOS and Android app, calendar, stock, clients and cash are always at hand.","calendar":"Staff calendar","stock":"Live stock tracking","customers":"Client history","finance":"Income & expenses"},
+    "mini": {"badge":"For solo professionals","title":"Start today with Mini","cta":"Try Mini free"},
+    "storeNote": "iOS: listed on the App Store as SiriusPlan · Android: SiriPlan",
+    "mock": {
+      "today": "Today",
+      "svc1": "Hair colouring",
+      "svc2": "Manicure & pedicure",
+      "svc3": "Facial care",
+      "revenue": "Today's revenue",
+      "wa": "Your appointment is confirmed ✓ See you tomorrow at 10:00!",
+      "occupancy": "occupancy",
+      "voice": "“Create a hair colouring appointment for Ipek Yilmaz tomorrow at 3:30 PM”"
+    },
+    "chat": {
+      "q": "Do you have a free slot tomorrow evening?",
+      "a": "Yes! 6:30 PM and 7:15 PM are open. Which one should I book?",
+      "done": "Appointment created automatically"
+    },
+    "steps": {
+      "title": "Get started in 3 steps",
+      "s1": {
+        "title": "Create your account",
+        "desc": "14 days free, no credit card. Add your services and staff in minutes."
+      },
+      "s2": {
+        "title": "Share your booking link",
+        "desc": "Share the link on WhatsApp and Instagram; clients book on their own 24/7."
+      },
+      "s3": {
+        "title": "Let SiriPlan do the rest",
+        "desc": "Confirmations, reminders and reports run automatically. You focus on your craft."
+      }
+    }
+  },
   "nav": {
     "features": "Features",
     "pricing": "Pricing",

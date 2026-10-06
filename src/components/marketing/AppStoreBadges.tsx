@@ -3,12 +3,12 @@ import { getTranslations } from "next-intl/server";
 
 // Mağazalar yayına girdikçe burayı aç — kod tekrar yazılmaz, rozet linke döner.
 export const PLAY_STORE_LIVE = true;
-export const APP_STORE_LIVE = false;
+export const APP_STORE_LIVE = true;
 
 export const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.siriplan.app";
-// App Store onayı gelince gerçek URL buraya (apps.apple.com/app/idXXXXXXXXXX).
-export const APP_STORE_URL = "";
+// Apple SiriPlan adını kabul etmediği için App Store'da "SiriusPlan" adıyla yayında.
+export const APP_STORE_URL = "https://apps.apple.com/gb/app/siriusplan/id6815322807";
 
 function GooglePlayGlyph() {
   return (

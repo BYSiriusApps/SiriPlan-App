@@ -364,7 +364,8 @@
 }
 
 /* ─── Sunset Theme — Tattoo, Makyaj, Nail Salon ────────────────────── */
-.sunset {
+.sunset,
+html.light .marketing-sunset {
   --primary: oklch(0.58 0.18 40);
   --primary-foreground: oklch(0.99 0 0);
 
@@ -731,4 +732,28 @@ html {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Ana sayfa hero önizlemesi — yüzen kartlar */
+@keyframes sp-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.sp-float { animation: sp-float 6s ease-in-out infinite; }
+.sp-float-slow { animation: sp-float 8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .sp-float, .sp-float-slow { animation: none; }
+}
+
+/* Ana sayfa kayan "canlı bar" */
+@keyframes sp-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.sp-marquee { animation: sp-marquee 55s linear infinite; }
+.sp-marquee-rev { animation-direction: reverse; animation-duration: 65s; }
+.sp-marquee-wrap:hover .sp-marquee { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .sp-marquee { animation: none; }
+  .sp-marquee-wrap { overflow-x: auto; }
 }

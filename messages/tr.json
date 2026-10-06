@@ -1,4 +1,41 @@
 {
+  "homeVisual": {
+    "tickerLabel": "SiriPlan ile neler yapabilirsiniz",
+    "ticker": ["Stoklarını anlık takip et — kritik seviyenin altına düşerse anında haberin olsun.","İş listeni anlık gör: bugün kim geliyor, ne bekliyor?","Kaç müşterin var, kim ne kadar gelmiş, sana ne kazandırmış — özel notlarıyla hepsi elinin altında.","Müşterilerin kaybolmasın: müşteri erimesini durdur, sadakati artır.","Otomatik randevuyu aç, telefonla uğraşma.","İstersen randevu talepleri onayına düşsün, tek tıkla revize et.","Gelir-giderini anlık takip et: günlük, aylık, yıllık.","Hizmetlerini ve stratejini düzenle, verimliliği artır.","Personelini yönet, verimliliğini ölç, takip et.","Mikrofona konuş, randevu kendiliğinden oluşsun.","Hepsi tek panelde."],
+    "mobile": {"title":"Cebinizdeki salon yönetimi","subtitle":"iOS ve Android uygulamasıyla takvim, stok, müşteri ve kasa her an elinizin altında.","calendar":"Personel takvimi","stock":"Anlık stok takibi","customers":"Müşteri geçmişi","finance":"Gelir - gider"},
+    "mini": {"badge":"Tek başına çalışanlar için","title":"Mini ile hemen başlayın","cta":"Mini'yi Ücretsiz Dene"},
+    "storeNote": "iOS: App Store üzerinde SiriusPlan adıyla · Android: SiriPlan",
+    "mock": {
+      "today": "Bugün",
+      "svc1": "Saç boyama",
+      "svc2": "Manikür & pedikür",
+      "svc3": "Cilt bakımı",
+      "revenue": "Bugünkü ciro",
+      "wa": "Randevunuz onaylandı ✓ Yarın 10:00'da görüşmek üzere!",
+      "occupancy": "doluluk",
+      "voice": "“Yarına 15:30 İpek Yılmaz'a saç boyama randevusu oluştur”"
+    },
+    "chat": {
+      "q": "Yarın akşam boş yeriniz var mı?",
+      "a": "Evet! 18:30 ve 19:15 müsait. Hangisini ayırayım?",
+      "done": "Randevu otomatik oluşturuldu"
+    },
+    "steps": {
+      "title": "3 Adımda Başlayın",
+      "s1": {
+        "title": "Hesabınızı açın",
+        "desc": "14 gün ücretsiz, kredi kartı gerekmez. Hizmet ve personelinizi dakikalar içinde ekleyin."
+      },
+      "s2": {
+        "title": "Randevu linkinizi paylaşın",
+        "desc": "Linki WhatsApp ve Instagram'da paylaşın; müşterileriniz 7/24 kendi randevusunu alsın."
+      },
+      "s3": {
+        "title": "Gerisini SiriPlan yapsın",
+        "desc": "Onay, hatırlatma ve raporlar otomatik. Siz sadece hizmetinize odaklanın."
+      }
+    }
+  },
   "nav": {
     "features": "Özellikler",
     "pricing": "Fiyatlar",
