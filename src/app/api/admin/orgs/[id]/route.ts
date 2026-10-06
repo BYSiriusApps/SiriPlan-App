@@ -5,7 +5,7 @@ import { PLANS } from "@/lib/stripe/config";
 import { z } from "zod";
 
 const PatchSchema = z.object({
-  plan: z.enum(["trial", "starter", "pro", "business"]).optional(),
+  plan: z.enum(["trial", "mini", "starter", "pro", "business"]).optional(),
   subscription_status: z.enum(["active", "past_due", "canceled", "paused"]).optional(),
   max_staff: z.number().int().min(1).max(9999).optional(),
   max_appointments_monthly: z.number().int().min(1).max(999999).optional(),

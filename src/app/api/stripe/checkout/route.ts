@@ -6,6 +6,7 @@ import { getStripe, PLANS, type PlanKey } from "@/lib/stripe/config";
 import { createClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
+import { activeStaffBlockingPlan, staffBlockingMessage } from "@/lib/stripe/plan-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Mini'ye geçerken aktif personel sayısı planın sınırını aşıyorsa satın almaya izin verilmez.
+  const blockingStaff = await activeStaffBlockingPlan(member.org_id, plan);
+  if (blockingStaff !== null) {
+    return NextResponse.json({ error: staffBlockingMessage(blockingStaff), code: "STAFF_OVER_PLAN_LIMIT" }, { status: 409 });
+  }
+
   // Deneme süresi yalnızca bir defa verilir: org kayıt sırasında zaten kendi
   // ücretsiz denemesini almıştır (trial_ends_at dolu). Stripe'ta ikinci bir
   // deneme süresi tanımlamıyoruz — kart girildiğinde ücretlendirme hemen başlar.
@@ -90,6 +97,9 @@ export async function POST(req: NextRequest) {
   }
 
   const priceId = annual ? planConfig.annual : planConfig.monthly;
+  if (!priceId) {
+    return NextResponse.json({ error: "Bu plan için fiyat tanımlı değil" }, { status: 500 });
+  }
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   // Ziyaretçinin fiyat sayfasında GÖRDÜĞÜ para birimi (pricing_currency

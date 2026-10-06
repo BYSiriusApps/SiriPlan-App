@@ -1,6 +1,6 @@
 export const PRICING_CURRENCIES = ["TRY", "USD", "EUR"] as const;
 export type PricingCurrency = (typeof PRICING_CURRENCIES)[number];
-export type PlanKey = "starter" | "pro" | "business";
+export type PlanKey = "mini" | "starter" | "pro" | "business";
 
 export type PlanPricing = {
   monthly: number;
@@ -9,16 +9,19 @@ export type PlanPricing = {
 
 export const PRICING_BY_CURRENCY: Record<PricingCurrency, Record<PlanKey, PlanPricing>> = {
   TRY: {
-    starter: { monthly: 1314, annual: 12930 },
-    pro: { monthly: 1963, annual: 19316 },
+    mini: { monthly: 399, annual: 3926 },
+    starter: { monthly: 1199, annual: 11798 },
+    pro: { monthly: 1799, annual: 17702 },
     business: { monthly: 4752, annual: 46760 },
   },
   USD: {
+    mini: { monthly: 14, annual: 138 },
     starter: { monthly: 29, annual: 285 },
     pro: { monthly: 39, annual: 384 },
     business: { monthly: 99, annual: 974 },
   },
   EUR: {
+    mini: { monthly: 13, annual: 128 },
     starter: { monthly: 26, annual: 256 },
     pro: { monthly: 33, annual: 325 },
     business: { monthly: 84, annual: 827 },
@@ -84,4 +87,35 @@ export function getVisitorPricing(headers?: Headers | Record<string, string | nu
     currency,
     plans: PRICING_BY_CURRENCY[currency],
   };
+}
+
+/**
+ * Yapay zeka asistanlarının (web sohbet, panel yardımcısı) söyleyeceği GÜNCEL
+ * fiyat özeti — tüm planlar, aylık/yıllık, TL + USD + EUR. Fiyat metinleri
+ * elle yazılırsa eskiyip yanlış fiyat söylenir; bu yüzden tek kaynaktan üretilir.
+ */
+const ASSISTANT_UNITS = {
+  tr: { perMonth: "/ay", yearly: "yıllık" },
+  en: { perMonth: "/mo", yearly: "yearly" },
+  ru: { perMonth: "/мес", yearly: "за год" },
+  ar: { perMonth: "/شهر", yearly: "سنويًا" },
+} as const;
+
+export function pricingSummaryForAssistant(lang: keyof typeof ASSISTANT_UNITS = "tr"): string {
+  const u = ASSISTANT_UNITS[lang];
+  const plans: { key: PlanKey; name: string }[] = [
+    { key: "mini", name: "Mini" },
+    { key: "starter", name: "Starter" },
+    { key: "pro", name: "Pro" },
+    { key: "business", name: "Business" },
+  ];
+  return plans
+    .map(({ key, name }) => {
+      const parts = PRICING_CURRENCIES.map((cur) => {
+        const p = PRICING_BY_CURRENCY[cur][key];
+        return `${formatPrice(p.monthly, cur)}${u.perMonth} (${u.yearly} ${formatPrice(p.annual, cur)})`;
+      });
+      return `${name}: ${parts.join(" · ")}`;
+    })
+    .join("; ");
 }

@@ -4,6 +4,7 @@ import { getStripe, PLANS, type PlanKey } from "@/lib/stripe/config";
 import { applyPlanToOrg } from "@/lib/stripe/apply-plan";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
+import { activeStaffBlockingPlan, staffBlockingMessage } from "@/lib/stripe/plan-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +56,12 @@ export async function POST(req: NextRequest) {
       { error: "Aktif bir aboneliğiniz yok. Lütfen önce bir plan satın alın.", code: "NO_ACTIVE_SUBSCRIPTION" },
       { status: 404 }
     );
+  }
+
+  // Mini'ye düşerken aktif personel sayısı planın sınırını aşıyorsa değişiklik yapılmaz.
+  const blockingStaff = await activeStaffBlockingPlan(member.org_id, plan);
+  if (blockingStaff !== null) {
+    return NextResponse.json({ error: staffBlockingMessage(blockingStaff), code: "STAFF_OVER_PLAN_LIMIT" }, { status: 409 });
   }
 
   const stripe = getStripe();

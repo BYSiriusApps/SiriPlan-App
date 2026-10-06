@@ -138,7 +138,7 @@ Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olar
 ## 16b. Yeni Araçlar (Eylül 2026 güncellemesi)
 
 - **Bekleyen İstekler & Yeni Saat Öner:** Talepleri Onayla / Yeni Saat Öner / İptal Et; müşteri öneriyi kabul edince randevu otomatik oluşur. Yeni hesaplarda otomatik onay kapalıdır.
-- **Bekleme Listesi (Pro):** Dolu saat isteyen müşteriyi sıraya alın.
+- **Bekleme Listesi:** Dolu saat isteyen müşteriyi sıraya alın.
 - **Paket / Seans Takibi (tüm planlar):** Randevu tamamlanınca seans otomatik düşer.
 - **Stok & Barkod (tüm planlar):** Stok hareketleri, kamerayla barkod okutma, kritik stok uyarısı.
 - **Sesli Asistan (Pro):** Basılı tutup konuşarak randevu/stok girişi; "onayla / düzelt / eksikleri ekle".

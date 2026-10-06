@@ -54,6 +54,7 @@ function canSee(userRole: string, minRole: string) {
 
 const PLAN_COLORS: Record<string, string> = {
   trial:    "color-mix(in oklch, var(--sidebar-foreground) 12%, transparent)",
+  mini:     "rgba(14,165,233,0.25)",
   starter:  "rgba(99,102,241,0.25)",
   pro:      "color-mix(in oklch, var(--sidebar-primary) 25%, transparent)",
   business: "rgba(168,85,247,0.25)",
@@ -97,6 +98,7 @@ export function Sidebar({
   const planLabel =
     plan === "trial"
       ? (daysLeft !== null ? t("trialDaysLeft", { days: daysLeft }) : t("trial"))
+      : plan === "mini"    ? "🌱 Mini"
       : plan === "starter" ? "⚡ Starter"
       : plan === "pro"     ? "✨ Pro Plan"
       : plan === "business"? "🏢 Business"

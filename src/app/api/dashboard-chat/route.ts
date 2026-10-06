@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { limitByIp } from "@/lib/rate-limit";
 import { isMobileApp } from "@/lib/mobile-app";
+import { pricingSummaryForAssistant } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -194,7 +195,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["bekleme listesi", "sıraya al", "yer açılınca"],
     answer:
-      "Bekleme Listesi (Pro/Business) dolu saat isteyen müşterileri sıraya almanızı sağlar; sayfadan müşteri, hizmet ve tercih edilen zamanı kaydedin, yer açıldığında bilgilendirin. Onay bekleyen randevular her planda aynı sayfadan onaylanır.",
+      "Bekleme Listesi (tüm planlarda) dolu saat isteyen müşterileri sıraya almanızı sağlar; sayfadan müşteri, hizmet ve tercih edilen zamanı kaydedin, yer açıldığında bilgilendirin. Onay bekleyen randevular her planda aynı sayfadan onaylanır.",
   },
   {
     keywords: ["kılavuz", "rehber", "kullanım kılavuzu", "nasıl kullanılır", "nasıl yapılır", "video", "sunum"],
@@ -202,12 +203,13 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "SiriPlan kullanım kılavuzuna, 24 slaytlık interaktif sunuma ve detaylı adım adım kurulum rehberlerine panelin sol menüsündeki 'Kullanım Kılavuzu' sayfasından (/dashboard/rehber) ulaşabilirsiniz. Bu sayfa içerikleri kopyalama korumalıdır.",
   },
   {
-    keywords: ["ödeme yap", "abonelik", "plan seç", "starter", "pro plan", "business plan", "plan fiyat", "kredi kartı", "deneme süresi", "stripe", "mobil ödeme", "ios ödeme", "android ödeme"],
+    keywords: ["ödeme yap", "abonelik", "plan seç", "mini plan", "starter", "pro plan", "business plan", "plan fiyat", "kredi kartı", "deneme süresi", "stripe", "mobil ödeme", "ios ödeme", "android ödeme"],
     nativeAnswer:
       "Hesabınızın planını ve kullanım limitlerini Ayarlar → Abonelik sayfasından görebilirsiniz. Mobil mağaza politikaları nedeniyle iOS/Android uygulamaları içinden doğrudan ödeme yapılamamaktadır; ödemelerinizi web tarayıcınızdan yapabilirsiniz. " +
       "Destek için: " + CONTACT_LINE,
     answer:
-      "Planlarımız Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar; deneme boyunca Pro seviyesindeki araçlar (sesli asistan, bekleme listesi, kampanya, website modu, müşteri skoru, PDF rapor) açıktır. Starter: 1 şube, 8 personel, stok/barkod, paket takibi, gelir-gider & KDV, WhatsApp hatırlatma. Pro: sınırsız personel + yukarıdaki araçlar. Business: 5 şubeye kadar + AI WhatsApp/IG asistanı. " +
+      "Planlarımız Mini, Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar; deneme boyunca Pro seviyesindeki araçlar (sesli asistan, kampanya, website modu, müşteri skoru, PDF rapor) açıktır. Mini: tek kişilik, 1 personel, ayda 200 randevu ve 200 WhatsApp mesajı, stok/barkod, paket takibi, gelir-gider & KDV. Starter: 1 şube, 8 personel, stok/barkod, paket takibi, bekleme listesi, gelir-gider & KDV, WhatsApp hatırlatma, ayda 1 kampanya. Pro: sınırsız personel + yukarıdaki araçlar. Business: 5 şubeye kadar + AI WhatsApp/IG asistanı. " +
+      "Güncel fiyatlar (TL / USD / EUR, aylık ve yıllık parantezde): " + pricingSummaryForAssistant("tr") + ". Yıllık ödemede yaklaşık %18 indirim vardır. " +
       "Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görebilirsiniz. " +
       "Aboneliğiniz SiriPlan hesabınıza bağlıdır; plan yükseltme, yenileme veya faturalandırma sorularınız için: " + CONTACT_LINE,
   },

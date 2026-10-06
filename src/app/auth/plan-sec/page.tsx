@@ -8,12 +8,30 @@ import { CheckCircle2, Loader2, Zap, Building2, Sparkles, AlertTriangle, Mail, P
 import { toast } from "sonner";
 import Link from "next/link";
 import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
-import { formatPrice, type PricingCurrency } from "@/lib/pricing";
+import { formatPrice, DEFAULT_PRICING, type PricingCurrency } from "@/lib/pricing";
 
 const SUPPORT_EMAIL = "info@bysirius.com";
 const SUPPORT_PHONE = "+905355032634";
 
 const PLANS = [
+  {
+    key: "mini",
+    name: "Mini",
+    icon: Zap,
+    color: "border-sky-200 dark:border-sky-800",
+    highlight: "",
+    description: "Tek başına çalışan uzmanlar için",
+    features: [
+      "1 personel",
+      "Ayda 200 randevu",
+      "Ayda 200 WhatsApp mesajı",
+      "Online randevu sayfası",
+      "Müşteri kaydı",
+      "Stok yönetimi (barkodla satış)",
+      "Paket / seans takibi",
+      "Gelir-gider raporları & KDV hesaplama",
+    ],
+  },
   {
     key: "starter",
     name: "Starter",
@@ -29,8 +47,10 @@ const PLANS = [
       "Müşteri yönetimi",
       "Stok yönetimi (barkodla satış)",
       "Paket / seans takibi",
+      "Bekleme listesi",
       "Gelir-gider raporları & KDV hesaplama",
       "Sadakat kartı sistemi",
+      "Ayda 1 kampanya",
       "Temel raporlar",
     ],
   },
@@ -47,9 +67,8 @@ const PLANS = [
       "Tüm Starter özellikleri",
       "Sesli asistan (randevu & stok komutları)",
       "Website modu (özelleştirilebilir randevu sayfası)",
-      "Bekleme listesi",
       "PDF rapor export",
-      "Kampanya modülü",
+      "Sınırsız kampanya",
       "Müşteri skorlama",
       "Gamification (Haftanın Elemanı)",
       "Veri göçü (mevcut sistemden)",
@@ -72,15 +91,6 @@ const PLANS = [
     ],
   },
 ] as const;
-
-const DEFAULT_PRICING = {
-  currency: "TRY" as PricingCurrency,
-  plans: {
-    starter: { monthly: 1752, annual: 17240 },
-    pro: { monthly: 3024, annual: 29756 },
-    business: { monthly: 5424, annual: 53372 },
-  },
-};
 
 export default function PlanSecPage() {
   const [annual, setAnnual] = useState(false);
@@ -267,7 +277,7 @@ export default function PlanSecPage() {
           {trialActive === true && !expired && (
             <p className="mt-3 max-w-xl mx-auto text-sm text-muted-foreground">
               Şu an <strong className="text-foreground">Pro özelliklerini denemedesiniz</strong>. Aşağıda
-              Starter ve Pro'yu yan yana karşılaştırıp size uygun planla aboneliğinizi başlatabilirsiniz.
+              Planları yan yana karşılaştırıp size uygun olanla aboneliğinizi başlatabilirsiniz.
             </p>
           )}
 
@@ -288,7 +298,7 @@ export default function PlanSecPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-7 mb-10 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 md:gap-7 mb-10 items-stretch">
           {PLANS.map((plan) => {
             const Icon = plan.icon;
             const planPricing = pricing.plans[plan.key];

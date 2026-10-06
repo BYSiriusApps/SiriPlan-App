@@ -3,6 +3,9 @@ import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { hasPermission } from "@/lib/permissions";
 import { parseOfferInput } from "@/lib/campaign-offer";
+import { getEntitlements, monthlyCampaignLimit } from "@/lib/entitlements";
+import { consumePlanUsage, releasePlanUsage } from "@/lib/plan-usage";
+import { isMobileApp } from "@/lib/mobile-app";
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -38,6 +41,12 @@ export async function POST(req: NextRequest) {
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
   if (!hasPermission(member, "manage_campaigns")) return NextResponse.json({ error: "Yetersiz yetki" }, { status: 403 });
 
+  // Kampanya modülü plan özelliğidir (panel sayfası da aynı kontrolü yapar);
+  // arayüz atlanıp API doğrudan çağrılsa da Mini/süresi dolmuş hesaplar kampanya açamaz.
+  if (!getEntitlements(member.organizations).feature_campaigns) {
+    return NextResponse.json({ error: "Kampanya modülü mevcut planınıza dahil değil." }, { status: 403 });
+  }
+
   // İleri bir tarih seçildiyse kampanya "scheduled" olarak kaydedilir ve
   // cron (/api/cron/campaigns) o tarih geldiğinde otomatik gönderir; geçmiş
   // bir tarih ya da tarih seçilmediyse hemen gönderime hazır taslak kalır.
@@ -59,6 +68,27 @@ export async function POST(req: NextRequest) {
     if ((ownServices ?? []).length !== offer.service_ids.length) {
       return NextResponse.json({ error: "Seçilen hizmetlerden biri bulunamadı" }, { status: 400 });
     }
+  }
+
+  // Starter planda ayda 1 kampanya: hak oluşturma anında atomik tüketilir (taslak
+  // silinip yeniden oluşturularak ya da eşzamanlı isteklerle aşılamaz). Diğer
+  // planlarda limit null → bu blok çalışmaz. Sayaç hatasında oluşturma ENGELLENMEZ.
+  const campaignLimit = monthlyCampaignLimit(member.organizations);
+  let campaignUsageConsumed = false;
+  if (campaignLimit !== null) {
+    const usage = await consumePlanUsage(member.org_id, "campaign", campaignLimit);
+    if (usage === "exceeded") {
+      return NextResponse.json(
+        {
+          error: (await isMobileApp())
+            ? `Bu ay için kampanya hakkınız doldu (ayda ${campaignLimit} kampanya).`
+            : `Starter planda ayda ${campaignLimit} kampanya oluşturabilirsiniz; bu ayki hakkınız doldu. Daha fazlası için Pro'ya geçebilirsiniz.`,
+          code: "CAMPAIGN_LIMIT",
+        },
+        { status: 403 }
+      );
+    }
+    campaignUsageConsumed = usage === "ok";
   }
 
   const { data, error } = await supabase
@@ -85,6 +115,10 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    // Kampanya oluşturulamadıysa harcanan hak geri verilir.
+    if (campaignUsageConsumed) await releasePlanUsage(member.org_id, "campaign");
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   return NextResponse.json({ campaign: data }, { status: 201 });
 }

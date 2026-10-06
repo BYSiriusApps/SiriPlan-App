@@ -4,6 +4,7 @@ import { HelpCircle, ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getTranslations } from "next-intl/server";
 import { buildAlternates } from "@/lib/seo/alternates";
+import { PricingSummary } from "@/components/marketing/PricingSummary";
 
 const CATEGORY_META = [
   { key: "general", count: 4 },
@@ -101,6 +102,8 @@ export default async function SssPage() {
           ))}
         </div>
       </section>
+
+      <PricingSummary />
 
       {/* Contact CTA */}
       <section className="py-12 bg-muted/20 border-t border-border">

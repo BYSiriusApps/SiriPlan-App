@@ -36,7 +36,7 @@ const BUSINESS_TYPE_KEYS = [
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
-const PURCHASE_PLAN_KEYS = ["starter", "pro", "business"] as const;
+const PURCHASE_PLAN_KEYS = ["mini", "starter", "pro", "business"] as const;
 type PurchasePlanKey = (typeof PURCHASE_PLAN_KEYS)[number];
 
 /** Ülke kodu + yerel numarayı depolama biçimine indirger. TR (90) için mevcut

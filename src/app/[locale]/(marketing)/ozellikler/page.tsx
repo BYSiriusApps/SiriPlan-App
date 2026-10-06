@@ -15,7 +15,7 @@ const GROUP_META = [
     items: [
       { key: "multiChannel", icon: Calendar, badge: "all" },
       { key: "website", icon: Globe, badge: "pro" },
-      { key: "waitlist", icon: Smartphone, badge: "pro" },
+      { key: "waitlist", icon: Smartphone, badge: "all" },
       { key: "inventory", icon: Upload, badge: "all" },
       { key: "barcodeSale", icon: ScanBarcode, badge: "all" },
       { key: "qr", icon: QrCode, badge: "all" },

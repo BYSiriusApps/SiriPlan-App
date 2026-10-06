@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sanitizePermissions } from "@/lib/permissions";
+import { isSingleUserPlan } from "@/lib/entitlements";
 
 // token 48 karakterlik hex üretiliyor (011_staff_invites_permissions_quota: encode(gen_random_bytes(24), 'hex'))
 const TOKEN_RE = /^[a-f0-9]{16,64}$/i;
@@ -40,6 +41,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "Davet geçersiz veya süresi dolmuş" },
       { status: 404 }
+    );
+  }
+
+  // Mini plan tek kullanıcılıdır: işletme sonradan Mini'ye geçtiyse daha önce
+  // gönderilmiş bekleyen davetler artık ek kullanıcı oluşturamaz.
+  const { data: inviteOrg } = await admin
+    .from("organizations")
+    .select("plan, trial_ends_at")
+    .eq("id", invite.org_id)
+    .single();
+  if (isSingleUserPlan(inviteOrg)) {
+    return NextResponse.json(
+      { error: "Bu işletmenin planı ek kullanıcıya izin vermiyor." },
+      { status: 403 }
     );
   }
 

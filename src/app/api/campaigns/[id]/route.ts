@@ -3,6 +3,8 @@ import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { resolveCampaignRecipients } from "@/lib/campaign-segment";
 import { hasPermission } from "@/lib/permissions";
+import { monthlyCampaignLimit } from "@/lib/entitlements";
+import { releasePlanUsage } from "@/lib/plan-usage";
 
 /**
  * Yalnızca TASLAK (status = 'draft') kampanyalar silinebilir. Gönderilmiş,
@@ -31,7 +33,7 @@ export async function DELETE(
     .eq("id", id)
     .eq("org_id", member.org_id)
     .eq("status", "draft")
-    .select("id");
+    .select("id, created_at");
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!deleted || deleted.length === 0) {
@@ -43,6 +45,14 @@ export async function DELETE(
       .maybeSingle();
     if (!existing) return NextResponse.json({ error: "Kampanya bulunamadı" }, { status: 404 });
     return NextResponse.json({ error: "Yalnızca taslak kampanyalar silinebilir" }, { status: 409 });
+  }
+  // Starter'ın aylık kampanya hakkı: hiç gönderilmemiş (taslak) bir kampanya silinirse
+  // bu ay oluşturulmuşsa hakkı geri verilir; geçmiş ayın taslağı bu ayın sayacına dokunmaz.
+  if (monthlyCampaignLimit(member.organizations) !== null) {
+    const createdAt = (deleted[0] as { created_at?: string }).created_at;
+    if (createdAt && createdAt.slice(0, 7) === new Date().toISOString().slice(0, 7)) {
+      await releasePlanUsage(member.org_id, "campaign");
+    }
   }
   return NextResponse.json({ ok: true });
 }
