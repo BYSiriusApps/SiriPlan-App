@@ -40,6 +40,7 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
   const t = useTranslations("dashboard.liveNotify");
   const askedPermission = useRef(false);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const refetchBadges = useDashboardBadgeRefetch();
 
   useEffect(() => {
     pathnameRef.current = pathname;
@@ -60,6 +61,9 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
       const now = Date.now();
       if (now - lastRefreshAt < MIN_INTERVAL_MS) return;
       lastRefreshAt = now;
+      // Rozet sayaçları DashboardBadgeContext'ten geliyor; router.refresh()
+      // onları tazelemez, kaçırılan olaylar rozette eski kalırdı.
+      refetchBadges();
       router.refresh();
     }
 
@@ -69,7 +73,7 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
       document.removeEventListener("visibilitychange", handleVisible);
       window.removeEventListener("focus", handleVisible);
     };
-  }, [router]);
+  }, [router, refetchBadges]);
 
   useEffect(() => {
     if (
@@ -84,8 +88,6 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
       Notification.requestPermission().catch(() => {});
     }
   }, []);
-
-  const refetchBadges = useDashboardBadgeRefetch();
 
   useEffect(() => {
     if (!orgId) return;
