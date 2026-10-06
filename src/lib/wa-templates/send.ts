@@ -293,7 +293,7 @@ export async function sendPurposeTemplate({
       // tarih, +90 telefon, bağlantı) çevre cümleyle karışıp sıra bozuluyordu. Her
       // değeri Unicode "first strong isolate" (U+2068 … U+2069) içine alıp kendi
       // yönünde okunmasını sağlıyoruz; yalnızca Arapça gönderimde uygulanır.
-      const arParameters = bodyParameters.map((p) => ({ ...p, text: "⁨" + p.text + "⁩" }));
+      const arParameters = bodyParameters.map((p) => ({ ...p, text: "\u2068" + p.text + "\u2069" }));
       const arResult = await attempt(def!.metaNameAr!, "ar", arParameters);
       if ("sent" in arResult) return arResult;
     }
