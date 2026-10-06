@@ -1180,6 +1180,10 @@
       "title": "Start Your 14-Day Free Trial",
       "subtitle": "No credit card required • Start instantly",
       "businessTypeLabel": "Business Type",
+      "sectionBusiness": "Your business",
+      "sectionBusinessHint": "Select your industry",
+      "sectionYou": "About you",
+      "sectionAccount": "Account security",
       "businessTypes": {
         "kuafor": "💇 Hair Salon",
         "berber": "✂️ Barbershop",

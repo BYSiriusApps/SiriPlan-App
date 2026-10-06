@@ -1180,6 +1180,10 @@
       "title": "14 Gün Ücretsiz Deneyin",
       "subtitle": "Kredi kartı gerekmez • Anında başlayın",
       "businessTypeLabel": "İşletme Türü",
+      "sectionBusiness": "İşletmeniz",
+      "sectionBusinessHint": "Sektörünüzü seçin",
+      "sectionYou": "Sizin bilgileriniz",
+      "sectionAccount": "Hesap güvenliği",
       "businessTypes": {
         "kuafor": "💇 Kuaför / Saç Salonu",
         "berber": "✂️ Berber",

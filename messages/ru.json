@@ -1180,6 +1180,10 @@
       "title": "14 дней бесплатно",
       "subtitle": "Без карты • Начните прямо сейчас",
       "businessTypeLabel": "Тип бизнеса",
+      "sectionBusiness": "Ваш бизнес",
+      "sectionBusinessHint": "Выберите сферу деятельности",
+      "sectionYou": "О вас",
+      "sectionAccount": "Безопасность аккаунта",
       "businessTypes": {
         "kuafor": "💇 Парикмахерская",
         "berber": "✂️ Барбершоп",

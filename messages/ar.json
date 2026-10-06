@@ -1180,6 +1180,10 @@
       "title": "جرّب مجانًا لمدة 14 يومًا",
       "subtitle": "لا حاجة لبطاقة ائتمان • ابدأ فورًا",
       "businessTypeLabel": "نوع النشاط التجاري",
+      "sectionBusiness": "نشاطك التجاري",
+      "sectionBusinessHint": "اختر مجال عملك",
+      "sectionYou": "معلوماتك",
+      "sectionAccount": "أمان الحساب",
       "businessTypes": {
         "kuafor": "💇 صالون حلاقة / تصفيف شعر",
         "berber": "✂️ صالون حلاقة رجالي",
