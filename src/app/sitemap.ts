@@ -9,7 +9,14 @@ const sectorSlugs = [
   "dis-klinigi", "petkuafor",
 ];
 
-type PriorityEntry = { pathname: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number };
+/**
+ * lastmod SABİT olmalı: her istekte `new Date()` vermek Google'a "her şey
+ * her an değişti" der ve sitemap lastmod'u güvenilmez sayılıp yok sayılır.
+ * Statik sayfalar için içerik gözden geçirildikçe bu tarihi elle güncelle.
+ */
+const SITE_LAST_MODIFIED = new Date("2026-10-05");
+
+type PriorityEntry = { lastModified?: Date; pathname: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number };
 
 const STATIC_PATHS: PriorityEntry[] = [
   { pathname: "/", changeFrequency: "weekly", priority: 1.0 },
@@ -39,6 +46,7 @@ const BLOG_PATHS: PriorityEntry[] = blogPosts.map((post) => ({
   pathname: `/blog/${post.slug}`,
   changeFrequency: "monthly",
   priority: 0.6,
+  lastModified: new Date(post.isoDate),
 }));
 
 /**
@@ -50,14 +58,14 @@ const BLOG_PATHS: PriorityEntry[] = blogPosts.map((post) => ({
  * fonksiyondan geçiyor — sitemap ile sayfa canonical'ının zamanla
  * birbirinden sapmasını (klasik hreflang hatası) engelliyor.
  */
-function expandEntry(entry: PriorityEntry, now: Date): MetadataRoute.Sitemap {
+function expandEntry(entry: PriorityEntry): MetadataRoute.Sitemap {
   const languages: Record<string, string> = {};
   for (const l of LOCALES) languages[l] = localizedUrl(entry.pathname, l);
   languages["x-default"] = localizedUrl(entry.pathname, "tr");
 
   return LOCALES.map((locale) => ({
     url: localizedUrl(entry.pathname, locale),
-    lastModified: now,
+    lastModified: entry.lastModified ?? SITE_LAST_MODIFIED,
     changeFrequency: entry.changeFrequency,
     priority: entry.priority,
     alternates: { languages },
@@ -65,7 +73,6 @@ function expandEntry(entry: PriorityEntry, now: Date): MetadataRoute.Sitemap {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
   const allEntries = [...STATIC_PATHS, ...SECTOR_PATHS, ...BLOG_PATHS];
-  return allEntries.flatMap((entry) => expandEntry(entry, now));
+  return allEntries.flatMap((entry) => expandEntry(entry));
 }
