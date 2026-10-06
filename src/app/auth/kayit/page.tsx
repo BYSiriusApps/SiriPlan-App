@@ -381,7 +381,7 @@ export default function KayitPage() {
         </div>
         <CardTitle className="text-2xl">{purchaseIntent ? t("titlePurchase") : t("title")}</CardTitle>
         <CardDescription>{purchaseIntent ? t("subtitlePurchase") : t("subtitle")}</CardDescription>
-        {!isNativeApp && (
+        {!isNativeApp && !purchaseIntent && (
           <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />{th("trial14")}</span>
             <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />{th("noCard")}</span>
