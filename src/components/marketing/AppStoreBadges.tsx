@@ -5,10 +5,8 @@ import { getTranslations } from "next-intl/server";
 export const PLAY_STORE_LIVE = true;
 export const APP_STORE_LIVE = true;
 
-export const PLAY_STORE_URL =
-  "https://play.google.com/store/apps/details?id=com.siriplan.app";
-// Apple SiriPlan adını kabul etmediği için App Store'da "SiriusPlan" adıyla yayında.
-export const APP_STORE_URL = "https://apps.apple.com/app/siriusplan/id6815322807";
+import { PLAY_STORE_URL, APP_STORE_URL } from "@/lib/store-links";
+export { PLAY_STORE_URL, APP_STORE_URL };
 
 function GooglePlayGlyph() {
   return (

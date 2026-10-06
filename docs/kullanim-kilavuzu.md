@@ -131,7 +131,7 @@ Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olar
 
 ## 16. Abonelik ve Plan Yönetimi
 
-- 🧾 **Şeffaf Planlar**: Starter, Pro ve Business planları sabit ve şeffaf yapıdadır. "Teklif Al" bekleme adımı bulunmaz; her yeni hesap 14 gün ücretsiz deneme ile başlar.
+- 🧾 **Şeffaf Planlar**: Mini, Starter, Pro ve Business planları sabit ve şeffaf yapıdadır. **Mini** (aylık ₺399): tek kişilik işletmeler için; 1 personel (ek personel daveti yok), ayda 200 randevu ve 200 müşteri WhatsApp mesajı, randevu linki, stok/barkod, paket takibi, gelir-gider & KDV. WhatsApp hakkının %80 ve %100'ünde sahibe bildirim gelir ve panelde şerit görünür. Deneme bitince Pro araçları (sesli asistan, kampanya vb.) Mini'de kapanır. "Teklif Al" bekleme adımı bulunmaz; her yeni hesap 14 gün ücretsiz deneme ile başlar.
 - ⚙️ **Plan Bilgileriniz**: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.
 - ✉️ **Destek**: Abonelik SiriPlan hesabınıza bağlıdır. Plan yükseltme, yenileme veya faturalandırma sorularınız için info@bysirius.com (WhatsApp +90 535 503 26 34).
 
@@ -144,7 +144,7 @@ Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olar
 - **Sesli Asistan (Pro):** Basılı tutup konuşarak randevu/stok girişi; "onayla / düzelt / eksikleri ekle".
 - **Takvim:** Excel tarzı kompakt görünüm ve personel grup çipleri.
 - **Müşteriler:** Özet şeridi, hızlı filtreler (Son 30 Gün, Riskli/Uzaklaşan), "Randevu Ver", müşteri skoru (Pro).
-- **Mobil:** Google Play / App Store uygulaması veya Ana Ekrana Ekle.
+- **Mobil:** [App Store](https://apps.apple.com/app/siriusplan/id6815322807) (SiriusPlan) / [Google Play](https://play.google.com/store/apps/details?id=com.siriplan.app) uygulaması veya Ana Ekrana Ekle (Ayarlar → "Uygulamayı Telefona Ekle" kartında doğrudan mağaza bağlantıları da vardır).
 - **Deneme süresi** boyunca Pro seviyesi araçlar açıktır.
 
 ## 17. Sık Sorulan Sorular
