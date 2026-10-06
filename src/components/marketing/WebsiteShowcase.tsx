@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ArrowRight, Share2, MapPin, Phone, Images, Star, Globe } from "lucide-react";
+import { ArrowRight, Share2, MapPin, Phone, Images, Star, Globe, Navigation } from "lucide-react";
 import { BookingDemo } from "@/components/marketing/BookingDemo";
 import { Button } from "@/components/ui/button";
 
@@ -64,6 +64,35 @@ export async function WebsiteShowcase() {
 
           {/* Tarayıcı + telefon çerçevesi: uzun sayfa görüntüsü çerçevede kayar */}
           <div className="relative mx-auto w-full max-w-[680px] pb-0 sm:pb-24 sm:pr-32">
+
+            {/* Orta boşluğu dolduran yüzen kartlar: Google yorumu + yol tarifi */}
+            <div className="sp-float-slow absolute -left-36 top-[27%] z-10 hidden w-[210px] rounded-2xl border border-border bg-card p-3.5 shadow-xl xl:block">
+              <div className="mb-1.5 flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                ))}
+                <span className="ml-1 text-xs font-bold">4.9</span>
+              </div>
+              <p className="mb-2.5 text-xs leading-snug text-foreground">{t("demo.review")}</p>
+              <div className="flex items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/sectors/spa.jpg" alt="" className="h-6 w-6 rounded-full object-cover object-[45%_20%]" />
+                <span className="text-[11px] font-semibold text-muted-foreground">Zeynep A. · Google</span>
+              </div>
+            </div>
+
+            <div className="sp-float absolute -left-28 bottom-[4%] z-10 hidden w-[210px] overflow-hidden rounded-2xl border border-border bg-card shadow-xl xl:block">
+              <div className="relative h-24 bg-emerald-500/10 [background-image:linear-gradient(0deg,transparent_24%,var(--border)_25%,var(--border)_26%,transparent_27%),linear-gradient(90deg,transparent_24%,var(--border)_25%,var(--border)_26%,transparent_27%)] [background-size:28px_28px]">
+                <span className="absolute left-[22%] top-[40%] h-1.5 w-24 rotate-[18deg] rounded-full bg-sky-400/50" />
+                <span className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-[60%] items-center justify-center rounded-full bg-rose-500 text-white shadow-lg ring-4 ring-rose-500/20">
+                  <MapPin className="h-5 w-5" />
+                </span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold">
+                <Navigation className="h-3.5 w-3.5 text-primary" />
+                {t("demo.directions")}
+              </div>
+            </div>
             <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-primary/10">
               <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-rose-400/80" />
