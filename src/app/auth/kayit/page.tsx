@@ -33,7 +33,7 @@ const LOCALES = [
 
 const BUSINESS_TYPE_KEYS = [
   "kuafor", "berber", "guzellik", "spa", "nail",
-  "estetik", "makyaj", "tattoo", "diyetisyen", "kas_kirpik", "pet_kuafor",
+  "estetik", "makyaj", "tattoo", "diyetisyen", "kas_kirpik", "pet_kuafor", "diger",
 ] as const;
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
@@ -368,7 +368,9 @@ export default function KayitPage() {
           <div className="space-y-1.5">
             <Label>{t("businessTypeLabel")}</Label>
             <Select value={form.type} onValueChange={(v) => set("type", v ?? "kuafor")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full">
+                <SelectValue>{(v: string | null) => (v ? t(`businessTypes.${v}`) : "")}</SelectValue>
+              </SelectTrigger>
               <SelectContent>
                 {BUSINESS_TYPE_KEYS.map((key) => (
                   <SelectItem key={key} value={key}>{t(`businessTypes.${key}`)}</SelectItem>
@@ -456,7 +458,7 @@ export default function KayitPage() {
           <div className="space-y-1.5">
             <Label>{t("timezoneLabel")}</Label>
             <Select value={form.timezone} onValueChange={(v) => set("timezone", v ?? "Europe/Istanbul")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {TIMEZONE_OPTIONS.map((tz) => (
                   <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>

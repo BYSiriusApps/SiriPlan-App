@@ -1191,7 +1191,8 @@
         "tattoo": "🖋️ Tattoo Studio",
         "diyetisyen": "🥗 Dietitian",
         "kas_kirpik": "👁️ Brow & Lash Studio",
-        "pet_kuafor": "🐾 Pet Grooming"
+        "pet_kuafor": "🐾 Pet Grooming",
+        "diger": "🏢 Other"
       },
       "salonNameLabel": "Salon / Business Name",
       "salonNamePlaceholder": "Your Salon Name",
@@ -3129,6 +3130,7 @@
       "bizTattoo": "Tattoo Studio",
       "bizDiyetisyen": "Dietitian",
       "bizKasKirpik": "Brows & Lashes",
+      "bizDiger": "Other",
       "legalBody": "All source code, designs, and flows of the SiriPlan platform are protected under FSEK and the Berne Convention. A fully compliant infrastructure with Store (App Store / Play Store) policies and GDPR/KVKK data privacy is provided.",
       "dangerZoneTitle": "Danger Zone",
       "dangerZoneBody": "When you delete your account, your login credentials and all staff access of your business will be permanently closed, and your subscription will be cancelled. Your customer records will not be deleted, but personal identifying details (name, phone, email) will be anonymized; appointment and revenue history will continue to be kept statistically for the legal accounting retention period. This action cannot be undone.",
