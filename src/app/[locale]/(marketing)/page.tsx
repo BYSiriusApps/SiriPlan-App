@@ -204,7 +204,7 @@ export default async function HomePage() {
             <HeroMockup currency={pricing.currency} />
           </div>
           {/* SEO: uzun tanıtım metni korunur; görsel hiyerarşiyi bozmaması için alta alındı */}
-          <p className="mt-16 text-sm md:text-base text-muted-foreground max-w-3xl mx-auto text-center leading-relaxed">
+          <p className="mt-16 text-base md:text-lg font-bold text-foreground max-w-3xl mx-auto text-center leading-relaxed">
             {t("hero.intro")}
           </p>
         </div>
