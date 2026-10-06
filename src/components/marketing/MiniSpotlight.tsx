@@ -38,12 +38,19 @@ export async function MiniSpotlight({
                 </span>
                 <span className="pb-1.5 text-muted-foreground">{t("pricing.perMonth")}</span>
               </div>
-              <Link href="/auth/kayit?plan=mini&billing=monthly">
-                <Button size="lg" className="h-12 gap-2 px-8 text-base shadow-lg shadow-primary/20">
-                  {t("homeVisual.mini.cta")}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
+              <div className="flex flex-wrap items-center gap-3">
+                <Link href="/auth/kayit">
+                  <Button size="lg" className="h-12 gap-2 px-8 text-base shadow-lg shadow-primary/20">
+                    {t("homeVisual.mini.cta")}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/auth/kayit?plan=mini&billing=monthly">
+                  <Button size="lg" variant="ghost" className="h-12 px-4 text-sm text-muted-foreground hover:text-foreground">
+                    {t("pricing.buyNowWithPrice", { price: `${formatPrice(mini.monthly, currency)}${t("pricing.perMonth")}` })}
+                  </Button>
+                </Link>
+              </div>
               <p className="mt-3 text-xs text-muted-foreground">{t("pricing.bottomNote")}</p>
             </div>
 

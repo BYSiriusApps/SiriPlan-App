@@ -757,3 +757,13 @@ html {
   .sp-marquee { animation: none; }
   .sp-marquee-wrap { overflow-x: auto; }
 }
+
+/* Ana sayfa "Website Modu" vitrini: uzun sayfa görüntüsü çerçeve içinde yavaşça kayar */
+@keyframes sp-site-scroll-desktop {
+  0%, 8% { transform: translateY(0); }
+  92%, 100% { transform: translateY(-70%); }
+}
+.sp-site-scroll-desktop { animation: sp-site-scroll-desktop 26s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) {
+  .sp-site-scroll-desktop { animation: none; }
+}

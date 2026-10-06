@@ -2,18 +2,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, Share2, MapPin, Phone, Images, Star, Globe } from "lucide-react";
+import { BookingDemo } from "@/components/marketing/BookingDemo";
 import { Button } from "@/components/ui/button";
 
 /**
  * "Website Modu" vitrini — demo salonun (sirius-demo-salon) gerçek randevu
- * sayfasından alınan ekran görüntüleri. Görseller public/website-demo/ altında.
+ * sayfasından alınan uzun ekran görüntüleri; çerçeve içinde yavaşça kayar.
+ * Görseller public/website-demo/ altında.
  */
 const POINTS = [
-  { key: "social", Icon: Share2 },
-  { key: "location", Icon: MapPin },
-  { key: "contact", Icon: Phone },
-  { key: "photos", Icon: Images },
-  { key: "reviews", Icon: Star },
+  { key: "social", Icon: Share2, tile: "from-pink-500 to-rose-400", glow: "hover:shadow-rose-500/20" },
+  { key: "location", Icon: MapPin, tile: "from-emerald-500 to-teal-400", glow: "hover:shadow-emerald-500/20" },
+  { key: "contact", Icon: Phone, tile: "from-sky-500 to-blue-400", glow: "hover:shadow-sky-500/20" },
+  { key: "photos", Icon: Images, tile: "from-violet-500 to-fuchsia-400", glow: "hover:shadow-violet-500/20" },
+  { key: "reviews", Icon: Star, tile: "from-amber-500 to-orange-400", glow: "hover:shadow-amber-500/20" },
 ] as const;
 
 export async function WebsiteShowcase() {
@@ -32,13 +34,19 @@ export async function WebsiteShowcase() {
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">{t("title")}</h2>
             <p className="mb-6 text-muted-foreground">{t("subtitle")}</p>
 
-            <ul className="mb-8 space-y-3">
-              {POINTS.map(({ key, Icon }) => (
-                <li key={key} className="flex items-center gap-3 text-sm font-medium">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                    <Icon className="h-4 w-4 text-primary" />
+            <ul className="mb-8 space-y-2.5">
+              {POINTS.map(({ key, Icon, tile, glow }) => (
+                <li
+                  key={key}
+                  className={`group flex cursor-default items-center gap-4 rounded-2xl border border-transparent px-3 py-2.5 text-sm font-semibold transition-all duration-300 hover:translate-x-1.5 hover:border-border hover:bg-card hover:shadow-lg ${glow}`}
+                >
+                  <span
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${tile} text-white shadow-md transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110`}
+                  >
+                    <Icon className="h-5 w-5" />
                   </span>
-                  {t(key)}
+                  <span className="flex-1">{t(key)}</span>
+                  <ArrowRight className="h-4 w-4 -translate-x-2 text-muted-foreground opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
                 </li>
               ))}
             </ul>
@@ -54,8 +62,8 @@ export async function WebsiteShowcase() {
             </div>
           </div>
 
-          {/* Tarayıcı + telefon çerçevesi */}
-          <div className="relative mx-auto w-full max-w-[640px] pb-10 pr-10 md:pr-16">
+          {/* Tarayıcı + telefon çerçevesi: uzun sayfa görüntüsü çerçevede kayar */}
+          <div className="relative mx-auto w-full max-w-[680px] pb-0 sm:pb-24 sm:pr-32">
             <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-primary/10">
               <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-rose-400/80" />
@@ -65,25 +73,20 @@ export async function WebsiteShowcase() {
                   siriplan.com/r/salon-adiniz
                 </span>
               </div>
-              <Image
-                src="/website-demo/desktop.webp"
-                alt={t("imgAlt")}
-                width={1100}
-                height={688}
-                sizes="(min-width:1024px) 600px, 90vw"
-                className="h-auto w-full"
-              />
+              <div className="aspect-[1100/688] overflow-hidden bg-background">
+                <Image
+                  src="/website-demo/desktop-tall.webp"
+                  alt={t("imgAlt")}
+                  width={1100}
+                  height={2400}
+                  sizes="(min-width:1024px) 600px, 90vw"
+                  className="sp-site-scroll-desktop h-auto w-full"
+                />
+              </div>
             </div>
 
-            <div className="absolute -bottom-2 right-0 w-[34%] max-w-[190px] rounded-[1.6rem] border-[5px] border-foreground/85 bg-foreground/85 shadow-2xl shadow-primary/20">
-              <Image
-                src="/website-demo/mobile.webp"
-                alt=""
-                width={480}
-                height={1040}
-                sizes="190px"
-                className="h-auto w-full rounded-[1.2rem]"
-              />
+            <div className="mx-auto mt-6 w-full max-w-[280px] sm:absolute sm:-bottom-6 sm:right-0 sm:mt-0 sm:w-[250px]">
+              <BookingDemo />
             </div>
           </div>
         </div>
