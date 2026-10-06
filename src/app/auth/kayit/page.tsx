@@ -10,7 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Building2, Mail, Lock, Phone, User, AlertCircle, CheckCircle2, Hash } from "lucide-react";
+import {
+  Loader2, Building2, Mail, Lock, Phone, User, AlertCircle, CheckCircle2, Hash,
+  Scissors, Sparkles, Flower2, Hand, Droplets, Palette, PenTool, Apple, Eye, PawPrint, LayoutGrid,
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
@@ -47,6 +50,35 @@ const BUSINESS_TYPE_KEYS = [
   "kuafor", "berber", "guzellik", "spa", "nail",
   "estetik", "makyaj", "tattoo", "diyetisyen", "kas_kirpik", "pet_kuafor", "diger",
 ] as const;
+
+type IconCmp = React.ComponentType<{ className?: string }>;
+
+// lucide'de berber direği yok — aynı çizgi stilinde küçük özel simge.
+function BarberPoleIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <rect x="8" y="6" width="8" height="14" rx="1.5" />
+      <path d="M8 10.5l8-3M8 15.5l8-3" />
+      <path d="M9.5 3h5M10.5 3v3M13.5 3v3" />
+    </svg>
+  );
+}
+
+// İşletme türü kartlarının simge + renk eşlemesi (emoji yerine tutarlı, net çizgi simgeler).
+const TYPE_STYLE: Record<(typeof BUSINESS_TYPE_KEYS)[number], { Icon: IconCmp; grad: string }> = {
+  kuafor: { Icon: Scissors, grad: "from-rose-400 to-pink-600" },
+  berber: { Icon: BarberPoleIcon, grad: "from-sky-500 to-indigo-700" },
+  guzellik: { Icon: Sparkles, grad: "from-fuchsia-400 to-purple-600" },
+  spa: { Icon: Flower2, grad: "from-emerald-400 to-teal-600" },
+  nail: { Icon: Hand, grad: "from-pink-300 to-rose-500" },
+  estetik: { Icon: Droplets, grad: "from-amber-300 to-orange-500" },
+  makyaj: { Icon: Palette, grad: "from-violet-400 to-indigo-600" },
+  tattoo: { Icon: PenTool, grad: "from-zinc-500 to-zinc-800" },
+  diyetisyen: { Icon: Apple, grad: "from-lime-400 to-green-600" },
+  kas_kirpik: { Icon: Eye, grad: "from-cyan-400 to-blue-600" },
+  pet_kuafor: { Icon: PawPrint, grad: "from-orange-400 to-amber-600" },
+  diger: { Icon: LayoutGrid, grad: "from-stone-400 to-stone-600" },
+};
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
@@ -394,7 +426,7 @@ export default function KayitPage() {
               {BUSINESS_TYPE_KEYS.map((key) => {
                 const full = t(`businessTypes.${key}`);
                 const sp = full.indexOf(" ");
-                const emoji = sp > 0 ? full.slice(0, sp) : "";
+                const st = TYPE_STYLE[key];
                 const text = sp > 0 ? full.slice(sp + 1) : full;
                 const active = form.type === key;
                 return (
@@ -410,7 +442,9 @@ export default function KayitPage() {
                         : "border-border bg-background hover:border-primary/40 hover:bg-primary/5"
                     }`}
                   >
-                    <span className="text-2xl leading-none">{emoji}</span>
+                    <span className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm ${st.grad}`}>
+                      <st.Icon className="h-5 w-5" />
+                    </span>
                     <span className="line-clamp-3 text-[11px] font-medium leading-tight">{text}</span>
                   </button>
                 );
