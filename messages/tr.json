@@ -1,6 +1,6 @@
 {
   "homeVisual": {
-    "website": {"badge":"Website Modu","title":"Randevu sayfanız, aynı zamanda web siteniz","subtitle":"Ayrı bir site yaptırmayın: randevu linkiniz salonunuzun vitrini olsun. Müşteriniz tek sayfada hem sizi tanır hem randevusunu alır.","social":"Sosyal medya hesaplarınız tek dokunuşla","location":"Konum ve yol tarifi","contact":"Telefon ve iletişim bilgileri","photos":"Yaptığınız hizmetlerin fotoğrafları","reviews":"Google yorum bağlantısı","cta":"Canlı demoyu inceleyin","planNote":"Pro ve Business planlarında","imgAlt":"Randevu sayfası web sitesi görünümü"},
+    "website": {"badge":"Website Modu","title":"Randevu sayfanız, aynı zamanda web siteniz","subtitle":"Ayrı bir site yaptırmayın: randevu linkiniz salonunuzun vitrini olsun. Müşteriniz tek sayfada hem sizi tanır hem randevusunu alır.","social":"Sosyal medya hesaplarınız tek dokunuşla","location":"Konum ve yol tarifi","contact":"Telefon ve iletişim bilgileri","photos":"Yaptığınız hizmetlerin fotoğrafları","reviews":"Google yorum bağlantısı","cta":"Canlı demoyu inceleyin","planNote":"Pro ve Business planlarında","imgAlt":"Randevu sayfası web sitesi görünümü","demo":{"title":"Randevu al","service":"Saç Kesimi · 45 dk","tomorrow":"Yarın","pickTime":"Müsait saatler","pickStaff":"Uzman seçin","done":"Randevunuz oluşturuldu!","summary":"{staff} · Yarın {time}","wa":"Randevunuz onaylandı ✓ Yarın {time}'da görüşmek üzere!","tg":"Yeni randevu: Elif K. · Yarın {time}","reset":"Baştan dene","hint":"Deneyin: bir saate dokunun","back":"Geri"}},
     "tickerLabel": "SiriPlan ile neler yapabilirsiniz",
     "ticker": ["Stoklarını anlık takip et — kritik seviyenin altına düşerse anında haberin olsun.","İş listeni anlık gör: bugün kim geliyor, ne bekliyor?","Kaç müşterin var, kim ne kadar gelmiş, sana ne kazandırmış — özel notlarıyla hepsi elinin altında.","Müşterilerin kaybolmasın: müşteri erimesini durdur, sadakati artır.","Otomatik randevuyu aç, telefonla uğraşma.","İstersen randevu talepleri onayına düşsün, tek tıkla revize et.","Gelir-giderini anlık takip et: günlük, aylık, yıllık.","Hizmetlerini ve stratejini düzenle, verimliliği artır.","Personelini yönet, verimliliğini ölç, takip et.","Mikrofona konuş, randevu kendiliğinden oluşsun.","Randevu sayfan senin vitrinin: hizmet fotoğrafların, konumun, sosyal medyan ve Google yorum linkin tek sayfada.","Ayrı web sitesi yaptırma — randevu linkin aynı zamanda web siten.","Hepsi tek panelde."],
     "mobile": {"title":"Cebinizdeki salon yönetimi","subtitle":"iOS ve Android uygulamasıyla takvim, stok, müşteri ve kasa her an elinizin altında.","calendar":"Personel takvimi","stock":"Anlık stok takibi","customers":"Müşteri geçmişi","finance":"Gelir - gider"},
@@ -14,7 +14,9 @@
       "revenue": "Bugünkü ciro",
       "wa": "Randevunuz onaylandı ✓ Yarın 10:00'da görüşmek üzere!",
       "occupancy": "doluluk",
-      "voice": "“Yarına 15:30 İpek Yılmaz'a saç boyama randevusu oluştur”"
+      "voice": "“Yarına 15:30 İpek Yılmaz'a saç boyama randevusu oluştur”",
+      "live": "Canlı",
+      "newAppt": "Yeni online randevu"
     },
     "chat": {
       "q": "Yarın akşam boş yeriniz var mı?",
