@@ -502,7 +502,7 @@ ile code-split edilir — emsali `src/app/dashboard/stok/page.tsx:38-45`'teki
 (`SheetTrigger`, satır ~547-552) — loading fallback'i aynı boyutta statik bir
 buton iskeleti olmalı, yoksa CLS/sıçrama olur.
 
-**Faz 5 — ayarlar/page.tsx çift `auth.getUser()` düzeltmesi:**
+**Faz 5 — ✅ TAMAMLANDI (dbcf204): ayarlar/page.tsx çift `auth.getUser()` düzeltmesi:**
 `src/lib/active-org-client.ts`'teki `getActiveMemberClient()`'a opsiyonel
 `knownUserId` parametresi eklenip `ayarlar/page.tsx:244-247`'deki art arda 2
 auth ağ isteği 1'e indirilir (tek çağıran nokta, geriye dönük uyumlu).
