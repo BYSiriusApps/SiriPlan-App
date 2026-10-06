@@ -19,6 +19,7 @@ import { AddonsSection } from "@/components/marketing/AddonsSection";
 import { MiniSpotlight } from "@/components/marketing/MiniSpotlight";
 import { HeroMockup } from "@/components/marketing/HeroMockup";
 import { LiveTicker } from "@/components/marketing/LiveTicker";
+import { WebsiteShowcase } from "@/components/marketing/WebsiteShowcase";
 import { MobileShowcase } from "@/components/marketing/MobileShowcase";
 import { SectorShowcase } from "@/components/marketing/SectorShowcase";
 import { FeatureBento } from "@/components/marketing/FeatureBento";
@@ -260,6 +261,8 @@ export default async function HomePage() {
           <FeatureBento />
         </div>
       </section>
+
+      <WebsiteShowcase />
 
       <MobileShowcase />
 
