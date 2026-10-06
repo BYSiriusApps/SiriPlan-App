@@ -14,11 +14,11 @@ import { buildAlternates, localizedUrl } from "@/lib/seo/alternates";
 import type { Locale } from "@/lib/i18n/resolve-locale";
 import { AppStoreBadges } from "@/components/marketing/AppStoreBadges";
 import { PricingCards } from "@/components/marketing/PricingCards";
-import { PricingSummary } from "@/components/marketing/PricingSummary";
 import { AddonsSection } from "@/components/marketing/AddonsSection";
 import { MiniSpotlight } from "@/components/marketing/MiniSpotlight";
 import { HeroMockup } from "@/components/marketing/HeroMockup";
 import { LiveTicker } from "@/components/marketing/LiveTicker";
+import { WebsiteShowcase } from "@/components/marketing/WebsiteShowcase";
 import { MobileShowcase } from "@/components/marketing/MobileShowcase";
 import { SectorShowcase } from "@/components/marketing/SectorShowcase";
 import { FeatureBento } from "@/components/marketing/FeatureBento";
@@ -261,6 +261,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <WebsiteShowcase />
+
       <MobileShowcase />
 
       {/* How it works */}
@@ -297,8 +299,6 @@ export default async function HomePage() {
           <PricingCards currency={pricing.currency} plans={pricing.plans} variant="home" />
         </div>
       </section>
-
-      <PricingSummary />
 
       <AddonsSection />
 
