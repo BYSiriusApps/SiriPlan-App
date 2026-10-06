@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { PLAN_USAGE_LIMITS } from "@/lib/entitlements";
 
 export function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder", {
@@ -8,6 +9,24 @@ export function getStripe() {
 }
 
 export const PLANS = {
+  mini: {
+    name: "Mini",
+    monthly: process.env.STRIPE_PRICE_MINI_MONTHLY || "",
+    annual: process.env.STRIPE_PRICE_MINI_ANNUAL || "",
+    // price_* yalnızca plan sıralaması içindir (USD baz); gerçek fiyat lib/pricing.ts + Stripe'ta.
+    price_monthly: 12,
+    price_annual: 10,
+    max_staff: PLAN_USAGE_LIMITS.mini.staff,
+    max_appointments_monthly: PLAN_USAGE_LIMITS.mini.appointments,
+    features: {
+      feature_ai: false,
+      feature_campaigns: false,
+      feature_gamification: false,
+      feature_api: false,
+      feature_whitelabel: false,
+      feature_website: false,
+    },
+  },
   starter: {
     name: "Starter",
     monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || "",
@@ -18,7 +37,8 @@ export const PLANS = {
     max_appointments_monthly: 999999,
     features: {
       feature_ai: false,
-      feature_campaigns: false,
+      // Ayda 1 kampanya (sayı sınırı API'de: PLAN_USAGE_LIMITS.starter.campaigns).
+      feature_campaigns: true,
       feature_gamification: false,
       feature_api: false,
       feature_whitelabel: false,

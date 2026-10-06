@@ -101,10 +101,42 @@
     "contactUs": "Teklif Al / İletişime Geç",
     "contactForPrice": "Özel Teklif Alın",
     "contactUsSub": "İşletmenize özel paket ve fiyatlandırma",
-    "bottomNote": "Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
+    "bottomNote": "Mini, Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
     "foreignFeeNote": "Ödeme yurt dışında kurulu üye işyerimiz üzerinden tahsil edilir; kartınızın bankası bu nedenle işlem tutarına genellikle %1-3 arası bir yurt dışı işlem komisyonu ekleyebilir. Fiyatlarımız bu komisyon göz önünde bulundurularak belirlenmiştir — komisyon bankanıza aittir, SiriPlan tarafından eklenmez.",
     "annualLabel": "veya {annual}/ay · {total}/yıl ({save})",
     "annualBilledNote": "{total} olarak yıllık tek seferde tahsil edilir · aylık ödemede {monthly}/ay",
+    "summary": {
+      "title": "Güncel Fiyatlar",
+      "subtitle": "Planları aylık ya da yıllık ödeyebilirsiniz. Fiyatlar TL, USD ve EUR cinsinden listelenmiştir.",
+      "monthly": "Aylık",
+      "annual": "Yıllık",
+      "perMonthEquivalent": "≈ {amount}/ay",
+      "note": "Yıllık ödemede %18'e varan indirim · Mini, Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğiniz zaman iptal",
+      "seeAll": "Plan özelliklerini karşılaştırın"
+    },
+    "mini": {
+      "name": "Mini",
+      "desc": "Tek başına çalışan uzmanlar için",
+      "features": [
+        "1 şube, 1 personel",
+        "Ayda 200 randevu",
+        "Ayda 200 WhatsApp mesajı (onay & hatırlatma)",
+        "Kişisel randevu linki (siriplan.com/r/salon-adin)",
+        "Müşteri kaydı ve geçmişi",
+        "Stok yönetimi (mal/ürün takibi, barkodla satış)",
+        "Paket / seans takibi",
+        "Gelir - gider raporları & KDV hesaplama",
+        "Veri export (CSV)",
+        "E-posta desteği"
+      ],
+      "notIncluded": [
+        "Ek personel / kullanıcı",
+        "Website modu",
+        "Sesli asistan ile randevu & stok komutları",
+        "PDF rapor export",
+        "Kampanya & Müşteri skoru"
+      ]
+    },
     "starter": {
       "name": "Starter",
       "desc": "Küçük salonlar için mükemmel başlangıç",
@@ -114,17 +146,19 @@
         "Kişisel randevu linki (siriplan.com/r/salon-adin)",
         "Stok yönetimi (mal/ürün takibi, barkodla satış)",
         "Paket / seans takibi",
+        "Bekleme listesi",
         "Gelir - gider raporları & KDV hesaplama",
         "WhatsApp hatırlatmaları",
         "Sadakat kartı sistemi",
+        "Ayda 1 kampanya",
         "Veri export (CSV)",
         "E-posta desteği"
       ],
       "notIncluded": [
         "Website modu",
         "Sesli asistan ile randevu & stok komutları",
-        "Bekleme listesi & PDF export",
-        "Kampanya & Müşteri skoru"
+        "PDF rapor export",
+        "Sınırsız kampanya & Müşteri skoru"
       ]
     },
     "pro": {
@@ -135,9 +169,8 @@
         "Sınırsız randevu",
         "Sesli asistan ile randevu ve stok komutları",
         "Website modu — renk paleti ve kategori fotoğraflarıyla özelleştirilmiş randevu sayfası",
-        "Bekleme listesi",
         "PDF rapor export",
-        "Kampanya modülü",
+        "Sınırsız kampanya modülü",
         "Müşteri skoru sistemi",
         "Haftanın Elemanı gamification"
       ],
@@ -192,7 +225,7 @@
     }
   },
   "pricingPage": {
-    "metaDescription": "SiriPlan fiyatlandırma — Starter ₺1.314/ay, Pro ₺1.963/ay, Business ₺4.752/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
+    "metaDescription": "SiriPlan fiyatlandırma — Mini ₺399/ay, Starter ₺1.199/ay, Pro ₺1.799/ay, Business ₺4.752/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
     "heroBadge": "14 Gün Ücretsiz — Kredi Kartı Gerekmez",
     "heroTitle": "Şeffaf Fiyatlandırma,",
     "heroTitleHighlight": "Sürpriz Yok",
@@ -206,7 +239,7 @@
       "q3": "Verilerimi kaybeder miyim?",
       "a3": "Hayır. İptal etseniz bile 30 gün boyunca verilerinize erişebilir, JSON/Excel olarak indirebilirsiniz.",
       "q4": "Faturalama nasıl çalışıyor?",
-      "a4": "Stripe ile güvenli ödeme. Aylık veya yıllık seçebilirsiniz. Yıllıkta %18 tasarruf edersiniz.",
+      "a4": "Stripe ile güvenli ödeme. Aylık veya yıllık seçebilirsiniz; yıllıkta %18 civarı tasarruf edersiniz. Fiyatlar ₺, $ ve € cinsinden bu sayfadaki \"Güncel Fiyatlar\" bölümünde listelidir.",
       "q5": "Birden fazla şube yönetebilir miyim?",
       "a5": "Business planında 5 şubeye kadar yönetebilirsiniz. Starter/Pro için Ek Şube Paketi eklenerek genişletilebilir."
     },
@@ -561,7 +594,7 @@
           },
           "q4": {
             "q": "Yıllık planla ne kadar tasarruf ediyorum?",
-            "a": "Yıllık ödeme tercihinde %18 indirim uygulanır. Örn. Starter plan ₺1.314/ay yerine yıllık ödemede ₺12.930/yıl (~₺1.078/ay) dengindedir."
+            "a": "Yıllık ödeme tercihinde %18 civarı indirim uygulanır. Örn. Starter plan ₺1.199/ay yerine yıllık ödemede ₺11.798/yıl (~₺983/ay) dengindedir. Güncel fiyatlar (aylık / yıllık): Mini ₺399 / ₺3.926 · $14 / $138 · €13 / €128; Starter ₺1.199 / ₺11.798 · $29 / $285 · €26 / €256; Pro ₺1.799 / ₺17.702 · $39 / $384 · €33 / €325; Business ₺4.752 / ₺46.760 · $99 / $974 · €84 / €827."
           }
         }
       },
@@ -1268,6 +1301,8 @@
       "trialEnds": "Deneme {date} tarihinde bitiyor",
       "staffLabel": "Personel",
       "appointmentsLabel": "Randevu (bu ay)",
+      "waMessagesLabel": "WhatsApp mesajı (bu ay)",
+      "campaignsLabel": "Kampanya (bu ay)",
       "unlimited": "Sınırsız",
       "contactSupport": "Destek ile iletişime geçin",
       "appStoreNote": "Hesabınızın planı ve kullanım limitleri yukarıda görünür.",
@@ -1540,9 +1575,7 @@
       "filterAll": "Tümü",
       "emptyState": "Bekleme listesi boş",
       "addFirstEntry": "İlk Kaydı Ekle",
-      "pendingApprovalsTitle": "Onay Bekleyen Randevular",
-      "proTitle": "Bekleme listesi Pro ve Business planlarında",
-      "proDesc": "Dolu saatler için müşterileri sıraya alın, yer açıldığında bilgilendirin. Onay bekleyen randevularınızı bu planda da buradan onaylarsınız."
+      "pendingApprovalsTitle": "Onay Bekleyen Randevular"
     },
     "expensesPage": {
       "eyebrow": "Mali İşler",
@@ -1836,7 +1869,7 @@
             },
             {
               "title": "Deneme Süresi",
-              "desc": "14 günlük deneme boyunca Pro seviyesindeki tüm araçlar (sesli asistan, bekleme listesi, kampanya, web sitesi modu, müşteri skoru, PDF rapor) açıktır. Süre bitince plan seçmezseniz Starter kapsamı dışındaki araçlar kapanır."
+              "desc": "14 günlük deneme boyunca Pro seviyesindeki tüm araçlar (sesli asistan, kampanya, web sitesi modu, müşteri skoru, PDF rapor) açıktır. Süre bitince plan seçmezseniz Starter kapsamı dışındaki araçlar kapanır."
             },
             {
               "title": "İlk Gün Kontrol Listesi",
@@ -2009,10 +2042,10 @@
         "abonelik": {
           "title": "21. Abonelik & Plan Yönetimi",
           "paragraphs": [
-            "Planlar: Starter, Pro ve Business planlarının tamamı sabit ve şeffaf yapıdadır; teklif alma / temsilci bekleme adımı yoktur. Her yeni hesap 14 gün ücretsiz deneme ile başlar.",
+            "Planlar: Mini, Starter, Pro ve Business planlarının tamamı sabit ve şeffaf yapıdadır; teklif alma / temsilci bekleme adımı yoktur. Her yeni hesap 14 gün ücretsiz deneme ile başlar.",
             "Plan bilgileriniz: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.",
             "Aboneliğiniz SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir. Plan yükseltme, yenileme veya faturalandırmayla ilgili sorularınız için destek ekibimizle iletişime geçin: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Plan farkları: Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, gelir-gider ve KDV, WhatsApp hatırlatma, sadakat kartı, CSV export. Pro — sınırsız personel, sesli asistan, website modu, bekleme listesi, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar."
+            "Plan farkları: Mini — 1 personel, ayda 200 randevu ve 200 WhatsApp mesajı, randevu linki, müşteri kaydı, stok/barkod, paket takibi, gelir-gider ve KDV, CSV export. Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, bekleme listesi, gelir-gider ve KDV, WhatsApp hatırlatma, sadakat kartı, ayda 1 kampanya, CSV export. Pro — sınırsız personel, sesli asistan, website modu, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar."
           ]
         },
         "sadakat": {
@@ -2132,7 +2165,7 @@
           ]
         },
         "bekleme": {
-          "title": "8. Bekleme Listesi (Pro)",
+          "title": "8. Bekleme Listesi",
           "intro": "Dolu saatlerde randevu isteyen müşterileri sıraya alın, yer açıldığında haberdar edin.",
           "items": [
             {
@@ -2145,7 +2178,7 @@
             },
             {
               "label": "Onay Bekleyen Randevular:",
-              "desc": "Bu sayfadaki üst kart, onay bekleyen randevularınızı her planda buradan onaylamanızı sağlar. Bekleme Listesi'nin kendisi Pro ve Business planlarındadır."
+              "desc": "Bu sayfadaki üst kart, onay bekleyen randevularınızı buradan onaylamanızı sağlar. Bekleme listesi ve onay kartı tüm planlarda kullanılabilir."
             }
           ]
         },

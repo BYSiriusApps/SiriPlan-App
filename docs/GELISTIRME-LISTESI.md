@@ -559,6 +559,63 @@ alınmadı** — panel tasarımı kademeli değişirken gözden geçirilecek:
 
 ---
 
+## 11. Deneme bitimine 2 gün kala "tanıtım + sunum" SMS'i (4 Eki 2026) — KARAR BEKLİYOR
+
+**Durum:** Netgsm hattı alındı. Altyapı kodda zaten var, yeni cron gerekmiyor:
+- `src/lib/sms.ts` → `sendPlatformSms()` (Netgsm destekli; env: `PLATFORM_SMS_PROVIDER=netgsm`,
+  `PLATFORM_SMS_USERNAME`, `PLATFORM_SMS_PASSWORD`, `PLATFORM_SMS_SENDER_ID` — Vercel'e girilmeli,
+  girilmezse SMS sessizce atlanır).
+- `src/app/api/cron/trial-reminder/route.ts` (`vercel.json`: her gün 10:00 UTC) — bitime 2 gün kala
+  ve bittiği gün e-posta + SMS atıyor; şu an SMS metni çok kısa, sunum/özellik bilgisi yok.
+
+**Yapılacak (kullanıcı onaylayınca):** 2 gün kala SMS metnini zenginleştirmek (bitiş günü SMS'i kısa kalır).
+
+**Karar bekleyen:** SMS'teki sunum linki. Mevcut sunumlar herkese açık adreste değil:
+1. `/api/docs/presentation` → girişli kullanıcıya özel (SMS'ten açılmaz).
+2. `docs/musteri-sunumu/musteri-sunumu.html` + `SiriPlan-Musteri-Sunumu.pdf` → public yayınlanmamış.
+Seçenekler: (a) musteri-sunumu.html'i herkese açık `/sunum` sayfası yapmak (önerilen),
+(b) mevcut `siriplan.com/ozellikler` sayfasına yönlendirmek, (c) PDF'i `public/` altına koymak.
+
+**Taslak SMS (≈ 2 SMS / ~300 karakter, Türkçe karakter kullanmadan tek SMS'e yakın):**
+```
+SiriPlan: "{salon}" icin ucretsiz denemeniz 2 gun sonra bitiyor.
+Ozellikler ve sunum: siriplan.com/sunum
+Abonelik: siriplan.com/auth/plan-sec (bilgileriniz silinmez)
+Destek: WhatsApp 0535 503 26 34
+```
+**Açık riskler / dikkat:**
+- `toLocalPhone` yalnızca TR numaralarını (+90) doğru işler; yabancı numaralı kayıtlara
+  Netgsm'den gönderim yapılmamalı (numara filtresi eklenecek).
+- Türkçe karakter içeren SMS Netgsm'de 70 karakterlik parçalara bölünür (ücret artar) → ASCII yazım.
+- Ticari ileti sayılma riski: bu bir işlem/hizmet bilgilendirmesi (deneme bitimi) olarak yazılmalı;
+  pazarlama ağırlıklı metin İYS izni gerektirebilir (bkz. `docs/legal/IYS-UYUM-PLANI.md`).
+- Netgsm başlık (SENDER_ID) onayı: `SIRIPLAN` başlığı Netgsm panelinde onaylı olmalı.
+- Locale: kayıtlı `organizations.locale` EN/RU/AR ise TR SMS gitmemeli (ya da o dillerde metin).
+
+---
+
+## 12. App Store: İngilizce yerelleştirme + AB trader (DSA) bilgisi (5 Eki 2026) — YAPILACAK
+
+**Bağlam:** iOS uygulaması (SiriusPlan, Apple ID 6815322807, bundle `com.siriplan.app`) 3 Eki'de onaylandı ve
+yayında; doğrudan linkle (`https://apps.apple.com/app/id6815322807`) açılıyor/indiriliyor. Aramada çıkmaması
+indeks gecikmesi (1-3 gün). Ana dil Turkish; mağaza sayfasında İngilizce yerelleştirme YOK.
+
+**12.1 İngilizce (en-US/en-GB) yerelleştirme ekle** — App Store Connect → Distribution → sürüm sayfası →
+dil seçici (Turkish ▾) → English ekle:
+- Ad / alt başlık / açıklama / anahtar kelimeler / promosyon metni / "What's New" / destek ve pazarlama URL'leri.
+- Ekran görüntülerini İngilizce yerelleştirmede de yüklemek (şu an promo mockup'lar Türkçe).
+- Ad, alt başlık ve anahtar kelime değişiklikleri YENİ SÜRÜM gerektirir (App Information'daki bilgi kutusu).
+- Gerekirse RU/AR için de aynı mantık (uygulama zaten TR/EN/RU/AR destekliyor).
+
+**12.2 AB trader (Digital Services Act) bilgisi** — App Store Connect → Business (veya Apps üstündeki uyarı)
+→ trader status:
+- Trader olarak beyan edilecek: adres, telefon, e-posta AB ürün sayfasında HERKESE AÇIK görünür
+  (UK Ltd 17142392 künyesiyle tutarlı olmalı; kişisel adres yerine şirket/iş adresi tercih edilmeli).
+- Beyan verilmezse uygulama yalnızca AB ülkelerinde dağıtılmaz; TR/diğer ülkeler etkilenmez.
+- Hazır olunana kadar AB ülkeleri Pricing and Availability'den çıkarılabilir; hazır olunca trader girilip AB eklenir.
+- Patent başvurusu / site AB uyumu Apple'ın şartı DEĞİL (yalnızca trader beyanı); site hukuki gözden geçirme
+  kalemleri §6'da.
+
 ## 11. Açık notlar (4 Eki 2026)
 
 - **Paketle kapanan randevu geri alınıp normal ödemeyle tamamlanırsa fiyat 0 kalıyor** (tasarım gerekir:

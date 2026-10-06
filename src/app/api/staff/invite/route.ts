@@ -5,6 +5,7 @@ import { z } from "zod";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
 import { sendStaffInviteEmail } from "@/lib/email/send";
+import { isSingleUserPlan } from "@/lib/entitlements";
 import { DEFAULT_PERMS, OWNER_ONLY_PERMS, sanitizePermissions, canManageStaff, hasPermission } from "@/lib/permissions";
 
 const InviteSchema = z.object({
@@ -55,11 +56,19 @@ export async function POST(req: NextRequest) {
   // Org info + plan check
   const { data: org } = await supabase
     .from("organizations")
-    .select("name, plan, max_staff, telegram_chat_id")
+    .select("name, plan, trial_ends_at, max_staff, telegram_chat_id")
     .eq("id", member.org_id)
     .single();
 
   if (!org) return NextResponse.json({ error: "Organizasyon bulunamadı" }, { status: 404 });
+
+  // Mini plan tek kullanıcılıdır — ek kullanıcı (davet) hiçbir koşulda açılmaz.
+  if (isSingleUserPlan(org)) {
+    return NextResponse.json(
+      { error: "Mini planda ek kullanıcı davet edilemez. Daha fazla kullanıcı için planı yükseltin." },
+      { status: 403 }
+    );
+  }
 
   // Mevcut aktif personel sayısı kontrolü
   const { count } = await supabase

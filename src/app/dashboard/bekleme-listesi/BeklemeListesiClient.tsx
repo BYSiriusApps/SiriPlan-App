@@ -13,9 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { DateTimeSlotPicker } from "@/components/dashboard/DateTimeSlotPicker";
-import { usePlan } from "@/components/dashboard/PlanContext";
 import { toast } from "sonner";
-import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Lock, Pencil, X, MessageCircle, Globe } from "lucide-react";
+import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Pencil, X, MessageCircle, Globe } from "lucide-react";
 import { InstagramIcon } from "@/components/icons/brand-icons";
 import { maskPhone } from "@/lib/phone";
 
@@ -126,9 +125,6 @@ export function BeklemeListesiClient({
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [filterStatus, setFilterStatus] = useState<"active" | "all">("active");
-  // Bekleme listesi Pro+ özelliği. "Onay bekleyen randevular" bölümü bundan
-  // bağımsız — her planda çalışır (talep randevuları burada da onaylanabilsin).
-  const { proTools } = usePlan();
 
   // page.tsx (server component) her router.refresh()'te (kendi aksiyonumuz
   // veya LiveNotifications'ın yakaladığı başka bir cihaz/personelin
@@ -161,7 +157,7 @@ export function BeklemeListesiClient({
   const fetchData = useCallback(async () => {
     setLoading(true);
     const [res, apptRes, reqRes] = await Promise.all([
-      proTools ? fetch("/api/waitlist").catch(() => null) : Promise.resolve(null),
+      fetch("/api/waitlist").catch(() => null),
       fetch("/api/appointments?status=talep").catch(() => null),
       fetch("/api/appointment-requests?status=pending").catch(() => null),
     ]);
@@ -184,7 +180,7 @@ export function BeklemeListesiClient({
       setPendingRequests(list);
     }
     setLoading(false);
-  }, [proTools]);
+  }, []);
 
   async function approveRequest(id: string) {
     setRequestBusyId(id);
@@ -401,12 +397,10 @@ export function BeklemeListesiClient({
           </div>
           <p className="text-muted-foreground text-sm">{t("waitlistPage.subtitle")}</p>
         </div>
-        {proTools && (
-          <Button onClick={() => setShowForm(true)} className="gap-2 shrink-0">
-            <Plus className="h-4 w-4" />
-            {t("waitlistPage.addButton")}
-          </Button>
-        )}
+        <Button onClick={() => setShowForm(true)} className="gap-2 shrink-0">
+          <Plus className="h-4 w-4" />
+          {t("waitlistPage.addButton")}
+        </Button>
       </div>
 
       {/* Onay bekleyen randevular — randevu linkinden gelen (talep) randevular
@@ -621,22 +615,7 @@ export function BeklemeListesiClient({
         </Card>
       )}
 
-      {!proTools && (
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-5 flex items-start gap-3">
-            <div className="flex items-center justify-center h-9 w-9 rounded-xl bg-primary/10 text-primary shrink-0">
-              <Lock className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold">{t("waitlistPage.proTitle")}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{t("waitlistPage.proDesc")}</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Filter + liste — bekleme listesi Pro+ */}
-      {proTools && (
+      {/* Filter + liste */}
       <>
       <div className="flex gap-1 p-1 rounded-full bg-muted w-fit">
         {(["active", "all"] as const).map((v) => (
@@ -724,10 +703,8 @@ export function BeklemeListesiClient({
         </CardContent>
       </Card>
       </>
-      )}
 
       {/* Add dialog */}
-      {proTools && (
       <Dialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) setForm(EMPTY_FORM); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -781,7 +758,6 @@ export function BeklemeListesiClient({
           </div>
         </DialogContent>
       </Dialog>
-      )}
     </div>
   );
 }

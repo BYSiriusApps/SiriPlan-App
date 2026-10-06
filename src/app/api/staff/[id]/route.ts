@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { isSupportedLanguage } from "@/lib/languages";
+import { isSingleUserPlan, type EntitlementOrg } from "@/lib/entitlements";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -77,6 +78,23 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   if (!Object.keys(updates).length) {
     return NextResponse.json({ error: "Güncellenecek alan yok" }, { status: 400 });
+  }
+
+  // Mini plan tek aktif personeldir: pasif bir personeli yeniden etkinleştirerek
+  // sınır aşılamaz (DB'deki trg_mini_staff_limit de aynı kuralı uygular).
+  if (updates.is_active === true && isSingleUserPlan((member as unknown as { organizations: EntitlementOrg }).organizations)) {
+    const { count: otherActive } = await supabase
+      .from("staff")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", member.org_id)
+      .eq("is_active", true)
+      .neq("id", id);
+    if ((otherActive ?? 0) >= 1) {
+      return NextResponse.json(
+        { error: "Mini planda yalnızca 1 aktif personel kullanılabilir. Daha fazlası için planı yükseltin." },
+        { status: 403 }
+      );
+    }
   }
 
   let { data, error } = await supabase

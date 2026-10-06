@@ -7,6 +7,8 @@ import {
 } from "@/lib/wa-templates/registry";
 import { googleMapsLink } from "@/lib/wa-template";
 import { normalizePhone as toStoredPhoneFormat } from "@/lib/phone";
+import { monthlyWaMessageLimit } from "@/lib/entitlements";
+import { consumePlanUsage, releasePlanUsage } from "@/lib/plan-usage";
 
 /**
  * Meta onaylı WhatsApp şablon mesajı gönderiminin tek gerçek uygulaması.
@@ -71,7 +73,7 @@ export async function sendPurposeTemplate({
   const supabase = await createAdminClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("name, slug, wa_template_styles, phone, whatsapp_number, address, location_url, settings_json")
+    .select("name, slug, wa_template_styles, phone, whatsapp_number, address, location_url, settings_json, plan, trial_ends_at")
     .eq("id", orgId)
     .single();
 
@@ -253,27 +255,51 @@ export async function sendPurposeTemplate({
     return { sent: true, template: templateName };
   }
 
-  // İngilizce onaylı değilse/reddedilirse Türkçe'ye (zaten onaylı) düş —
-  // müşteri hiçbir mesaj almadan kalmasın.
-  if (preferEnglish) {
-    const enResult = await attempt(def.metaNameEn!, "en");
-    if ("sent" in enResult) return enResult;
-  }
-  if (preferRussian) {
-    const ruResult = await attempt(def.metaNameRu!, "ru");
-    if ("sent" in ruResult) return ruResult;
-  }
-  if (preferArabic) {
-    // Arapça (sağdan sola) metinde Latin harf / rakam içeren değerler (işletme adı,
-    // tarih, +90 telefon, bağlantı) çevre cümleyle karışıp sıra bozuluyordu. Her
-    // değeri Unicode "first strong isolate" (U+2068 … U+2069) içine alıp kendi
-    // yönünde okunmasını sağlıyoruz; yalnızca Arapça gönderimde uygulanır.
-    const arParameters = bodyParameters.map((p) => ({ ...p, text: "\u2068" + p.text + "\u2069" }));
-    const arResult = await attempt(def.metaNameAr!, "ar", arParameters);
-    if ("sent" in arResult) return arResult;
+  // Mini planın aylık müşteri mesajı sınırı (ödenen plan değilse / diğer planlarda
+  // limit null → bu blok hiç çalışmaz, davranış aynen eskisi gibidir). Hak, Meta'ya
+  // gitmeden ÖNCE atomik olarak tüketilir; dil yedeği denemeleri (EN→TR) tek mesajdır.
+  // Sayaç altyapısı hata verirse ("error") gönderim ENGELLENMEZ.
+  const waLimit = monthlyWaMessageLimit(org);
+  let usageConsumed = false;
+  if (waLimit !== null) {
+    const usage = await consumePlanUsage(orgId, "wa_message", waLimit);
+    if (usage === "exceeded") {
+      console.warn(`[wa-templates] aylık mesaj sınırı doldu — purpose=${purpose} orgId=${orgId} limit=${waLimit}`);
+      return { skipped: true, reason: "wa_quota_exceeded" };
+    }
+    usageConsumed = usage === "ok";
   }
 
-  return attempt(def.metaName, "tr");
+  const result = await sendWithLocaleFallback();
+  // Meta mesajı kabul etmediyse harcanan hak geri verilir (gitmeyen mesaj sayılmasın).
+  if (usageConsumed && !("sent" in result)) {
+    await releasePlanUsage(orgId, "wa_message");
+  }
+  return result;
+
+  // İngilizce onaylı değilse/reddedilirse Türkçe'ye (zaten onaylı) düş —
+  // müşteri hiçbir mesaj almadan kalmasın.
+  async function sendWithLocaleFallback(): Promise<SendPurposeTemplateResult> {
+    if (preferEnglish) {
+      const enResult = await attempt(def!.metaNameEn!, "en");
+      if ("sent" in enResult) return enResult;
+    }
+    if (preferRussian) {
+      const ruResult = await attempt(def!.metaNameRu!, "ru");
+      if ("sent" in ruResult) return ruResult;
+    }
+    if (preferArabic) {
+      // Arapça (sağdan sola) metinde Latin harf / rakam içeren değerler (işletme adı,
+      // tarih, +90 telefon, bağlantı) çevre cümleyle karışıp sıra bozuluyordu. Her
+      // değeri Unicode "first strong isolate" (U+2068 … U+2069) içine alıp kendi
+      // yönünde okunmasını sağlıyoruz; yalnızca Arapça gönderimde uygulanır.
+      const arParameters = bodyParameters.map((p) => ({ ...p, text: "\u2068" + p.text + "\u2069" }));
+      const arResult = await attempt(def!.metaNameAr!, "ar", arParameters);
+      if ("sent" in arResult) return arResult;
+    }
+
+    return attempt(def!.metaName, "tr");
+  }
 }
 
 /** Randevu tarihinden {{date}}/{{time}} param çiftini üretir. timeZone verilmezse

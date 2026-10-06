@@ -1,6 +1,5 @@
 import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
-import { hasProTools } from "@/lib/entitlements";
 import { redirect } from "next/navigation";
 import {
   BeklemeListesiClient,
@@ -30,21 +29,15 @@ export default async function BeklemeListesiPage() {
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
 
-  const proTools = hasProTools(member.organizations);
-
   const [{ data: waitlistRaw }, { data: talepRaw }, { data: requestsRaw }, { data: staffRows }, { data: serviceRows }] =
     await Promise.all([
-      // Bekleme listesi Pro+ özelliği — değilse tablo hiç sorgulanmaz (eskiden
-      // /api/waitlist zaten 403 dönüyordu, burada baştan atlanıyor).
-      proTools
-        ? supabase
-            .from("waitlist")
-            .select(
-              "id, customer_name, customer_phone, service_id, staff_id, preferred_dates, status, requested_at, service:services(name), staff:staff!waitlist_staff_id_fkey(full_name)"
-            )
-            .eq("org_id", member.org_id)
-            .order("requested_at", { ascending: false })
-        : Promise.resolve({ data: [] as unknown[] }),
+      supabase
+        .from("waitlist")
+        .select(
+          "id, customer_name, customer_phone, service_id, staff_id, preferred_dates, status, requested_at, service:services(name), staff:staff!waitlist_staff_id_fkey(full_name)"
+        )
+        .eq("org_id", member.org_id)
+        .order("requested_at", { ascending: false }),
       supabase
         .from("appointments")
         .select(
@@ -64,22 +57,18 @@ export default async function BeklemeListesiPage() {
       // Yalnızca "Bekleme Listesine Ekle" formundaki dropdown'lar için — maaş/prim
       // gibi hassas kolonları hiç seçmiyoruz (personel rolü zaten bunları hiç
       // görmemeli; select("*") yerine id+full_name ile bu risk baştan kapatılıyor).
-      proTools
-        ? supabase
-            .from("staff")
-            .select("id, full_name")
-            .eq("org_id", member.org_id)
-            .eq("is_active", true)
-            .order("display_order")
-        : Promise.resolve({ data: [] as unknown[] }),
-      proTools
-        ? supabase
-            .from("services")
-            .select("id, name")
-            .eq("org_id", member.org_id)
-            .eq("is_active", true)
-            .order("display_order")
-        : Promise.resolve({ data: [] as unknown[] }),
+      supabase
+        .from("staff")
+        .select("id, full_name")
+        .eq("org_id", member.org_id)
+        .eq("is_active", true)
+        .order("display_order"),
+      supabase
+        .from("services")
+        .select("id, name")
+        .eq("org_id", member.org_id)
+        .eq("is_active", true)
+        .order("display_order")
     ]);
 
   const settings = (member.organizations?.settings_json ?? {}) as Record<string, unknown>;

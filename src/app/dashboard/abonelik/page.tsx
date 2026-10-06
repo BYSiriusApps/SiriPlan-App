@@ -1,25 +1,28 @@
 import { createClient, createAdminClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
-import { getEntitlements, isTrialActive } from "@/lib/entitlements";
+import { getEntitlements, isTrialActive, monthlyCampaignLimit, monthlyWaMessageLimit } from "@/lib/entitlements";
+import { getPlanUsage } from "@/lib/plan-usage";
+import { PricingSummary } from "@/components/marketing/PricingSummary";
 import { isMobileApp } from "@/lib/mobile-app";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { redirect } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, CalendarDays, type LucideIcon } from "lucide-react";
+import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, CalendarDays, MessageCircle, Megaphone, type LucideIcon } from "lucide-react";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { ManageBillingButton } from "@/components/dashboard/ManageBillingButton";
 import { CancelSubscriptionButton } from "@/components/dashboard/CancelSubscriptionButton";
 import { ChangePlanButton } from "@/components/dashboard/ChangePlanButton";
 import Link from "next/link";
 
-const PLAN_ORDER: PlanKey[] = ["starter", "pro", "business"];
+const PLAN_ORDER: PlanKey[] = ["mini", "starter", "pro", "business"];
 
 const SUPPORT_EMAIL = "info@bysirius.com";
 
 const PLAN_DETAILS = {
   trial: { icon: Zap, color: "text-gray-600" },
+  mini: { icon: Zap, color: "text-sky-600" },
   starter: { icon: Zap, color: "text-blue-600" },
   pro: { icon: Sparkles, color: "text-primary" },
   business: { icon: Building2, color: "text-purple-600" },
@@ -51,7 +54,7 @@ export default async function AbonelikPage() {
 
   const planDisplayName = org.plan === "trial"
     ? t("dashboard.subscriptionPage.trialPlanName")
-    : (org.plan === "starter" ? "Starter" : org.plan === "pro" ? "Pro" : "Business");
+    : (PLANS[org.plan as PlanKey]?.name ?? "Business");
 
   const ent = getEntitlements(org);
   const trialActive = isTrialActive(org);
@@ -62,13 +65,18 @@ export default async function AbonelikPage() {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
-  const [{ count: staffCount }, { count: appointmentCount }] = await Promise.all([
+  // Mini: ayda 200 müşteri WhatsApp mesajı · Starter: ayda 1 kampanya (diğer planlarda null → gösterge yok)
+  const waLimit = monthlyWaMessageLimit(org);
+  const campaignLimit = monthlyCampaignLimit(org);
+  const [{ count: staffCount }, { count: appointmentCount }, waUsed, campaignUsed] = await Promise.all([
     admin.from("staff").select("id", { count: "exact", head: true }).eq("org_id", member.org_id).eq("is_active", true),
     admin.from("appointments").select("id", { count: "exact", head: true }).eq("org_id", member.org_id)
       .gte("created_at", monthStart).lt("created_at", monthEnd),
+    waLimit !== null ? getPlanUsage(member.org_id, "wa_message") : Promise.resolve(0),
+    campaignLimit !== null ? getPlanUsage(member.org_id, "campaign") : Promise.resolve(0),
   ]);
 
-  const currentPlanKey = org.plan === "trial" ? "pro" : (org.plan as "starter" | "pro" | "business");
+  const currentPlanKey = org.plan === "trial" ? "pro" : (org.plan as PlanKey);
   const planFeatures = t.raw(`pricing.${currentPlanKey}.features`) as string[];
   const planNotIncluded = (t.raw(`pricing.${currentPlanKey}.notIncluded`) as string[] | undefined) ?? [];
 
@@ -143,6 +151,24 @@ export default async function AbonelikPage() {
               max={maxAppointments}
               unlimitedLabel={t("dashboard.subscriptionPage.unlimited")}
             />
+            {waLimit !== null && (
+              <UsageMeter
+                icon={MessageCircle}
+                label={t("dashboard.subscriptionPage.waMessagesLabel")}
+                used={Math.min(waUsed, waLimit)}
+                max={waLimit}
+                unlimitedLabel={t("dashboard.subscriptionPage.unlimited")}
+              />
+            )}
+            {campaignLimit !== null && (
+              <UsageMeter
+                icon={Megaphone}
+                label={t("dashboard.subscriptionPage.campaignsLabel")}
+                used={Math.min(campaignUsed, campaignLimit)}
+                max={campaignLimit}
+                unlimitedLabel={t("dashboard.subscriptionPage.unlimited")}
+              />
+            )}
           </div>
 
           <div className="space-y-2">
@@ -210,7 +236,7 @@ export default async function AbonelikPage() {
                   ));
               })()}
             </div>
-          ) : org.plan === "trial" || org.plan === "starter" ? (
+          ) : org.plan === "trial" || org.plan === "mini" || org.plan === "starter" ? (
             <Link
               href="/auth/plan-sec"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
@@ -246,6 +272,9 @@ export default async function AbonelikPage() {
             )}
         </div>
       )}
+
+      {/* Güncel fiyatlar (TL/USD/EUR, aylık/yıllık). Native uygulamada mağaza kuralları gereği fiyat gösterilmez. */}
+      {!mobileApp && <PricingSummary compact id="abonelik-fiyatlar" />}
 
       {org.plan === "trial" && !mobileApp && (
         <p className="text-xs text-center text-muted-foreground">

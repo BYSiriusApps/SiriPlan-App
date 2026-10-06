@@ -27,6 +27,17 @@ Yeni oturumda bu dosyadan devam et.
 - `iPad randevular` görselinde bir müşterinin telefonu test numarası (05553287509) görünüyor — demo veri, sorun değil.
 - Meta'dan silinen `personel_kritik_stok`/`staff_low_stock_alert`: kritik stok bildirimi Telegram + serbest metin yedeğiyle gidiyor.
 
+## YAPILACAK — Sonraki iOS sürümünde Review Notes'a eklenecek (4 Ekim 2026)
+Uygulama içi kayıt eklendi (PR: feat/uygulama-ici-kayit; yeni build GEREKMEZ, canlı web). Yayında olan sürüm
+(1.0 build 3) kilitli olduğu için Notes şimdi düzenlenemiyor. Bir sonraki sürüm gönderilirken (sol menü iOS App yanındaki "+")
+App Review Information → Notes alanının sonuna şunu ekle:
+
+```
+In-app registration (new): The login screen now has a "Kayıt olun" (Sign up) link. It only creates a free 14-day trial account (name, business, email, phone, password). There is NO pricing, plan selection or payment anywhere in the app. Subscriptions are B2B and purchased/managed outside the app on our website (Guideline 3.1.3(c) Enterprise Services); the app contains no purchase buttons, links or calls to action. Account deletion is available in-app: Settings > "Delete my account" (Guideline 5.1.1(v)). Privacy Policy / Terms / KVKK links on the sign-up form open inside the app.
+```
+Ayrıca ASC → App Privacy: ad, e-posta, telefon toplandığı işaretli mi kontrol et.
+Play Console tarafı kontrol edildi: Veri güvenliği formu uygun (kullanıcı adı+şifre, ad, e-posta, adres, telefon işaretli), değişiklik gerekmedi.
+
 ## GÜNCELLEME — 30 Eylül 2026, ~20:12: 4. RED SONRASI YENİDEN GÖNDERİLDİ
 - siriplan-ios: Info.plist (CFBundleDisplayName + izin metinleri = SiriusPlan), build 3, yazısız ikon + LaunchIcon
   (hazır dosyalar: `docs/app-store/ios-build-3/`) GitHub'a yüklendi, Codemagic #11 ile build 3 TestFlight'a işlendi.

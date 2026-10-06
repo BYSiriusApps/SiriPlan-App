@@ -45,8 +45,8 @@ export function isTrialActive(org: EntitlementOrg | null | undefined): boolean {
 
 /**
  * "Pro rozetli" araçlara erişim var mı? — panelde sesli asistan (mikrofonla
- * randevu/stok komutu), bekleme listesi, müşteri skoru, PDF rapor export.
- * Fiyatlandırmada bu 4 grup Starter'da "dahil değil" (✕); Pro + Business +
+ * randevu/stok komutu), müşteri skoru, PDF rapor export.
+ * Fiyatlandırmada bu 3 grup Starter'da "dahil değil" (✕); Pro + Business +
  * aktif deneme'de açık.
  *
  * Not: Bu grup için ayrı `feature_*` kolonu yok — plandan CANLI hesaplanır,
@@ -83,6 +83,42 @@ export function getEntitlements(org: EntitlementOrg | null | undefined): Entitle
     feature_whitelabel: !!org?.feature_whitelabel,
     feature_website: !!org?.feature_website,
   };
+}
+
+/**
+ * Plana bağlı aylık kullanım sınırları — TEK kaynak. stripe/config.ts (plan
+ * satın alınınca org satırına yazılan max_staff / max_appointments_monthly),
+ * API kontrolleri ve arayüz buradan okur; böylece rakamlar birbirinden sapmaz.
+ *
+ * - mini: tek kullanıcı/personel, ayda 200 randevu, ayda 200 müşteri WhatsApp
+ *   mesajı (platform şablon mesajları — bkz. lib/wa-templates/send.ts).
+ * - starter: ayda 1 kampanya (kampanya modülü açık ama sayısı sınırlı).
+ * Diğer planlar bu sınırlardan muaftır (null).
+ */
+export const PLAN_USAGE_LIMITS = {
+  mini: { staff: 1, appointments: 200, waMessages: 200 },
+  starter: { campaigns: 1 },
+} as const;
+
+/** Aktif denemede (Pro'ya denk) aylık sınır yoktur; yalnızca ödenen plan sınırlar. */
+function paidPlan(org: EntitlementOrg | null | undefined): string | null {
+  if (!org || isTrialActive(org)) return null;
+  return org.plan ?? null;
+}
+
+/** Ayda gönderilebilecek müşteri WhatsApp şablon mesajı sayısı; sınırsızsa null. */
+export function monthlyWaMessageLimit(org: EntitlementOrg | null | undefined): number | null {
+  return paidPlan(org) === "mini" ? PLAN_USAGE_LIMITS.mini.waMessages : null;
+}
+
+/** Ayda oluşturulabilecek kampanya sayısı; sınırsızsa null. */
+export function monthlyCampaignLimit(org: EntitlementOrg | null | undefined): number | null {
+  return paidPlan(org) === "starter" ? PLAN_USAGE_LIMITS.starter.campaigns : null;
+}
+
+/** Tek kullanıcılı plan mı? (Mini: ek personel/kullanıcı daveti yok.) */
+export function isSingleUserPlan(org: EntitlementOrg | null | undefined): boolean {
+  return paidPlan(org) === "mini";
 }
 
 /**

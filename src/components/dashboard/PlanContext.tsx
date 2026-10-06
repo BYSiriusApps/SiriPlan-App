@@ -13,7 +13,7 @@ import { createContext, useContext, type ReactNode } from "react";
 
 interface PlanState {
   plan: string;
-  /** "Pro rozetli" araçlar (sesli asistan, bekleme listesi vb.) açık mı?
+  /** "Pro rozetli" araçlar (sesli asistan, müşteri skoru, PDF vb.) açık mı?
    *  Pro / Business / aktif deneme. Bkz. lib/entitlements → hasProTools. */
   proTools: boolean;
 }

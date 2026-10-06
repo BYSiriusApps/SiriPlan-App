@@ -101,10 +101,42 @@
     "contactUs": "Get Quote / Contact Us",
     "contactForPrice": "Custom Quote",
     "contactUsSub": "Tailored packages and pricing for your business",
-    "bottomNote": "14-day free trial for Starter & Pro · No credit card required · Cancel anytime",
+    "bottomNote": "14-day free trial for Mini, Starter & Pro · No credit card required · Cancel anytime",
     "foreignFeeNote": "Payment is processed through our merchant account registered outside Turkey; your bank may add a foreign transaction fee, typically around 1-3% of the charge. Our prices already account for this fee — it goes to your bank, not to SiriPlan.",
     "annualLabel": "or {annual}/mo · {total}/yr ({save})",
     "annualBilledNote": "Billed as {total} once a year · {monthly}/mo if paid monthly",
+    "summary": {
+      "title": "Current Prices",
+      "subtitle": "Pay monthly or yearly. Prices are listed in TRY, USD and EUR.",
+      "monthly": "Monthly",
+      "annual": "Yearly",
+      "perMonthEquivalent": "≈ {amount}/mo",
+      "note": "Up to 18% off with yearly billing · 14-day free trial for Mini, Starter & Pro · No credit card required · Cancel anytime",
+      "seeAll": "Compare plan features"
+    },
+    "mini": {
+      "name": "Mini",
+      "desc": "For solo professionals",
+      "features": [
+        "1 location, 1 staff member",
+        "200 appointments per month",
+        "200 WhatsApp messages per month (confirmations & reminders)",
+        "Personal booking link (siriplan.com/r/your-salon)",
+        "Customer records & history",
+        "Stock & inventory management (barcode sales)",
+        "Package / session tracking",
+        "Income & expense reports & VAT calculation",
+        "Data export (CSV)",
+        "Email support"
+      ],
+      "notIncluded": [
+        "Additional staff / users",
+        "Website mode",
+        "Voice assistant for booking & stock commands",
+        "PDF report export",
+        "Campaigns & Customer score"
+      ]
+    },
     "starter": {
       "name": "Starter",
       "desc": "Perfect starting point for small salons",
@@ -114,17 +146,19 @@
         "Personal booking link (siriplan.com/r/your-salon)",
         "Stock & inventory management (barcode sales)",
         "Package / session tracking",
+        "Waiting list",
         "Income & expense reports & VAT calculation",
         "WhatsApp reminders",
         "Loyalty card system",
+        "1 campaign per month",
         "Data export (CSV)",
         "Email support"
       ],
       "notIncluded": [
         "Website mode",
         "Voice assistant for booking & stock commands",
-        "Waiting list & PDF export",
-        "Campaigns & Customer score"
+        "PDF report export",
+        "Unlimited campaigns & Customer score"
       ]
     },
     "pro": {
@@ -135,9 +169,8 @@
         "Unlimited appointments",
         "Voice assistant for booking and inventory commands",
         "Website mode — customizable booking page with color palette and category photos",
-        "Waiting list",
         "PDF report export",
-        "Campaign module",
+        "Unlimited campaign module",
         "Customer score system",
         "Staff of the Week gamification"
       ],
@@ -192,7 +225,7 @@
     }
   },
   "pricingPage": {
-    "metaDescription": "SiriPlan pricing — Starter $29/mo, Pro $39/mo, Business $99/mo. 14-day free trial, no credit card required.",
+    "metaDescription": "SiriPlan pricing — Mini $14/mo, Starter $29/mo, Pro $39/mo, Business $99/mo. 14-day free trial, no credit card required.",
     "heroBadge": "14-Day Free Trial — No Credit Card Required",
     "heroTitle": "Transparent Pricing,",
     "heroTitleHighlight": "No Surprises",
@@ -206,7 +239,7 @@
       "q3": "Will I lose my data?",
       "a3": "No. Even if you cancel, you can access your data for 30 days and download it as JSON/Excel.",
       "q4": "How does billing work?",
-      "a4": "Secure payment via Stripe. Choose monthly or annual billing. Save 18% with annual billing.",
+      "a4": "Secure payment via Stripe. Choose monthly or annual billing; save about 18% with annual billing. Prices in ₺, $ and € are listed in the \"Current Prices\" section on this page.",
       "q5": "Can I manage multiple locations?",
       "a5": "You can manage up to 5 locations on the Business plan. Starter/Pro can be extended with the Extra Location add-on."
     },
@@ -552,8 +585,8 @@
             "a": "Yes, no credit card information is required. You can use all Pro plan features free for 14 days."
           },
           "q2": {
-            "q": "Are the prices in dollars?",
-            "a": "Prices are in USD. Payment is processed securely via Stripe. Please contact us for payment in Turkish lira."
+            "q": "Which currency do I pay in?",
+            "a": "In Türkiye you pay in ₺ (TRY); elsewhere in $ (USD) or € (EUR). Payment is processed securely via Stripe."
           },
           "q3": {
             "q": "Can I cancel anytime?",
@@ -561,7 +594,7 @@
           },
           "q4": {
             "q": "How much do I save with the annual plan?",
-            "a": "An 18% discount applies with annual billing. For example, the Pro plan is $52/mo (billed $620/yr) instead of $63/mo."
+            "a": "An 18% discount applies with annual billing. For example, the Pro plan is $32/mo (billed $384/yr) instead of $39/mo. Current prices (monthly / yearly): Mini ₺399 / ₺3,926 · $14 / $138 · €13 / €128; Starter ₺1,199 / ₺11,798 · $29 / $285 · €26 / €256; Pro ₺1,799 / ₺17,702 · $39 / $384 · €33 / €325; Business ₺4,752 / ₺46,760 · $99 / $974 · €84 / €827."
           }
         }
       },
@@ -1268,6 +1301,8 @@
       "trialEnds": "Trial ends on {date}",
       "staffLabel": "Staff",
       "appointmentsLabel": "Appointments (this month)",
+      "waMessagesLabel": "WhatsApp messages (this month)",
+      "campaignsLabel": "Campaigns (this month)",
       "unlimited": "Unlimited",
       "contactSupport": "Contact Support",
       "appStoreNote": "Your account plan and usage limits are shown above.",
@@ -1540,9 +1575,7 @@
       "filterAll": "All",
       "emptyState": "Waitlist is empty",
       "addFirstEntry": "Add first entry",
-      "pendingApprovalsTitle": "Appointments Awaiting Approval",
-      "proTitle": "Waitlist is on the Pro and Business plans",
-      "proDesc": "Queue customers for full slots and notify them when one opens up. Appointments awaiting approval are still approved here on this plan too."
+      "pendingApprovalsTitle": "Appointments Awaiting Approval"
     },
     "expensesPage": {
       "eyebrow": "Finance",
@@ -1836,7 +1869,7 @@
             },
             {
               "title": "Trial period",
-              "desc": "During the 14-day trial all Pro-level tools (voice assistant, waitlist, campaigns, website mode, customer score, PDF reports) are open. If you don't pick a plan afterwards, tools outside Starter close."
+              "desc": "During the 14-day trial all Pro-level tools (voice assistant, campaigns, website mode, customer score, PDF reports) are open. If you don't pick a plan afterwards, tools outside Starter close."
             },
             {
               "title": "First-day checklist",
@@ -2009,10 +2042,10 @@
         "abonelik": {
           "title": "21. Subscription & Plan Management",
           "paragraphs": [
-            "Plans: Starter, Pro, and Business plans are fixed and transparent. No requests for quote or waiting for agents. Every account starts with a 14-day free trial.",
+            "Plans: Mini, Starter, Pro, and Business plans are fixed and transparent. No requests for quote or waiting for agents. Every account starts with a 14-day free trial.",
             "Plan Details: View your current plan, limits, and billing history under Settings → Subscription.",
             "Your subscription is linked to SiriPlan and managed independently of app stores. For questions about upgrades or billing, contact support: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Plan differences: Starter — 1 branch, 8 staff, unlimited appointments, booking link, stock/barcode, packages, income-expense & VAT, WhatsApp reminders, loyalty card, CSV export. Pro — unlimited staff, voice assistant, website mode, waitlist, PDF reports, campaigns, customer score and Employee of the Week. Business — up to 5 branches, all Pro features, AI WhatsApp/IG assistant and custom integrations."
+            "Plan differences: Mini — 1 staff, 200 appointments and 200 WhatsApp messages per month, booking link, customer records, stock/barcode, packages, income-expense & VAT, CSV export. Starter — 1 branch, 8 staff, unlimited appointments, booking link, stock/barcode, packages, waitlist, income-expense & VAT, WhatsApp reminders, loyalty card, 1 campaign per month, CSV export. Pro — unlimited staff, voice assistant, website mode, PDF reports, campaigns, customer score and Employee of the Week. Business — up to 5 branches, all Pro features, AI WhatsApp/IG assistant and custom integrations."
           ]
         },
         "sadakat": {
@@ -2132,7 +2165,7 @@
           ]
         },
         "bekleme": {
-          "title": "8. Waitlist (Pro)",
+          "title": "8. Waitlist",
           "intro": "Queue customers who want a fully booked slot and let them know when space opens up.",
           "items": [
             {
@@ -2145,7 +2178,7 @@
             },
             {
               "label": "Awaiting-approval bookings:",
-              "desc": "The top card lets you approve pending bookings on any plan. The waitlist itself is on Pro and Business."
+              "desc": "The top card lets you approve pending bookings. Both the waitlist and the approval card are available on every plan."
             }
           ]
         },

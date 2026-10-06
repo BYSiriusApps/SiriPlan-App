@@ -553,6 +553,76 @@ Adil ve şeffaf bir prim sistemi, personelin bağlılığını artırır ve ay s
 **14 gün ücretsiz deneyin, ilk ay sonu hesabınızı saniyeler içinde görün.**
     `,
   },
+  {
+    slug: "randevu-bekleme-listesi-bos-saat-doldurma",
+    category: "Müşteri Yönetimi",
+    title: "Bekleme Listesi ile İptal Olan Randevu Saatini Doldurun",
+    excerpt: "İptal ve son dakika boşlukları gelir kaybıdır. Randevu bekleme listesi kurarak boşalan saati birkaç dakikada yeniden satmanın yolu.",
+    date: "5 Ekim 2026",
+    isoDate: "2026-10-05",
+    readTime: "5 dk",
+    author: "SiriPlan Ekibi",
+    content: `
+"Cumartesi 15:00 dolu" dediğiniz müşteri ertesi gün başka salona gider. Sonra o saat iptal olur ve boş kalır. İki kayıp da aynı sorundan çıkar: **dolu saat isteyen müşteriyi kaydedecek bir sıra yok.** Randevu bekleme listesi bu açığı kapatır. Bu rehberde iptal olan randevuyu doldurmanın pratik yöntemini adım adım anlatıyoruz.
+
+## 1. Bekleme Listesi Nedir, Neden Gelir Getirir?
+
+Bekleme listesi, istediği saat dolu olan müşterinin **adını, telefonunu, istediği hizmeti ve uygun olduğu zamanları** kaydettiğiniz bir sıradır. Bir randevu iptal olduğunda listeye bakar, uygun müşteriyi arar ve saati doldurursunuz.
+
+Hesap basit: ortalama hizmet bedeli 800 ₺ olan bir salonda haftada 3 iptal boş kalırsa, ayda yaklaşık **9.600 ₺** kaybedilir. Listeden yalnızca yarısını doldursanız bile bu kaybın önemli kısmı geri gelir.
+
+## 2. Hangi Durumlarda Listeye Almalısınız?
+
+- İstenen gün veya saat tamamen dolu olduğunda
+- Müşteri belirli bir personeli istiyor ve o personelin takvimi doluysa
+- Müşteri "başka saat olursa haber verin" dediğinde
+- Randevu linkinden gelen talebi şimdilik karşılayamıyorsanız
+
+Her seferinde aynı üç bilgiyi alın: **hizmet, personel tercihi ve uygun günler.** Listeyi sonradan eşleştirmek bu bilgilerle kolaylaşır.
+
+## 3. Boşalan Saati Doldurmanın 4 Adımı
+
+1. **Boşluğu görün.** İptali aldığınız anda takvimde o saat boşalmış olur.
+2. **Listeden eşleştirin.** Aynı hizmeti isteyen ve uygun günü tutan müşteriyi seçin. Personel tercihi olanlara öncelik verin.
+3. **Hızlı arayın veya yazın.** İptal olan saat kısa sürede satılmazsa değeri düşer. Mesaj kısa ve net olsun:
+> "Merhaba Ayşe Hanım! Cumartesi 15:00'te yer açıldı. Sizin için ayırmamı ister misiniz? Cevabınızı bekliyorum."
+4. **Kaydı kapatın.** Müşteri kabul ederse randevuyu oluşturun, listedeki kaydı kapatın.
+
+## 4. Sık Yapılan Hatalar
+
+- **Listeyi defter veya Excel'de tutmak:** İptal anında dosyayı açıp aramak vakit kaybettirir, çoğu zaman liste unutulur.
+- **Kimi aradığınızı kaydetmemek:** Aynı müşteriyi iki kez aramak ya da bir müşteriyi atlamak olur.
+- **Eski kayıtları temizlememek:** Randevusunu başka yerden alan müşteriyi aramak güveni zedeler.
+- **Sadece iptallerde kullanmak:** Liste, salonunuzun gerçek talebini de gösterir. Hep aynı saat aralığı isteniyorsa o saate personel veya mesai eklemek mantıklıdır.
+
+## 5. SiriPlan'da Bekleme Listesi
+
+SiriPlan'ın **Bekleme Listesi** sayfası bu süreci tek yerde toplar ve **Starter dahil tüm planlarda** kullanılabilir.
+
+- Müşteriyi, istediği hizmeti, personel tercihini ve uygun tarihlerini kaydedersiniz.
+- Her kayıt bir durum taşır: **Bekliyor, Bilgilendirildi, Randevu Alındı, Süresi Doldu.** Kimi aradığınız ve kimin kaldığı nettir.
+- Müşteriyi aradığınızda **"Bilgilendirdim"** ile işaretlersiniz.
+- Müşteri kabul ederse aynı kayıttan **"Randevu Oluştur"** ile randevuyu açarsınız.
+- Artık geçerli olmayan talepleri **"Süresi Doldu"** ile kapatırsınız. "Aktif / Tümü" filtresi yalnızca bekleyenleri gösterir.
+
+Not: Bekleme listesi, müşteriyi sizin adınıza otomatik aramaz. Sıra ve kayıt düzeni sağlar, iletişimi siz yönetirsiniz. Bu da müşteriye kişisel dokunuş katar.
+
+## 6. Hafta İçi Uygulama Planı
+
+1. Bu hafta dolu saat nedeniyle geri çevirdiğiniz her müşteriyi listeye ekleyin.
+2. Her iptalde ilk iş listeyi kontrol edin.
+3. Hafta sonunda kaç saatin listeden dolduğunu sayın.
+4. Hep aynı saat aralığı isteniyorsa mesai veya personel planınızı gözden geçirin.
+
+---
+
+## Sonuç
+
+Boş kalan saat, geri alınamayan bir gelirdir. Bekleme listesi sayesinde iptal, kaybetmek yerine yeniden satmak anlamına gelir. SiriPlan'da müşteriyi kaydeder, durumunu izler ve boşalan saati tek tıkla randevuya çevirirsiniz.
+
+**14 gün ücretsiz deneyin, ilk iptal olan saati birlikte doldurun.**
+    `,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {

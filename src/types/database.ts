@@ -1,4 +1,4 @@
-export type OrgPlan = "trial" | "starter" | "pro" | "business";
+export type OrgPlan = "trial" | "mini" | "starter" | "pro" | "business";
 export type OrgRole = "owner" | "manager" | "staff";
 export type AppointmentStatus = "talep" | "onaylandi" | "tamamlandi" | "iptal" | "gelmedi";
 export type AppointmentSource = "web" | "website" | "whatsapp" | "instagram" | "tiktok" | "telefon" | "yuzyuze" | "manual";

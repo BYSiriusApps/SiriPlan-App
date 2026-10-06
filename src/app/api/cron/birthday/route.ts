@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendBirthdayEmail } from "@/lib/email/send";
 import { emailStrings } from "@/lib/email/i18n";
-import { getEntitlements } from "@/lib/entitlements";
+import { getEntitlements, monthlyCampaignLimit } from "@/lib/entitlements";
 import { format } from "date-fns";
 import { isCronAuthorized } from "@/lib/webhook-signature";
 import { optOutFooter } from "@/lib/marketing-opt-out";
@@ -65,6 +65,9 @@ export async function POST(req: NextRequest) {
     const org = c.organizations;
     // Deneme süresi Pro'ya denk: kampanya yetkisi etkin yetkiden hesaplanır.
     if (!org || !getEntitlements(org).feature_campaigns) continue;
+    // Starter'da kampanya modülü ayda 1 kampanyayla sınırlıdır; otomatik doğum günü
+    // mesajları (sınırsız, her gün) Starter'a açılmaz — davranış eskisi gibi kalır.
+    if (monthlyCampaignLimit(org) !== null) continue;
 
     const bookingUrl = `${appUrl}/r/${org.slug}`;
     // Müşteriye giden metin müşterinin dilinde; dil yoksa Türkçe.

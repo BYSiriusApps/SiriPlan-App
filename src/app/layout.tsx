@@ -10,6 +10,7 @@ import { getLocale } from "next-intl/server";
 import { headers } from "next/headers";
 import { CookieConsent } from "@/components/analytics/CookieConsent";
 import { CSP_NONCE_HEADER } from "@/lib/csp";
+import { PRICING_BY_CURRENCY } from "@/lib/pricing";
 import { MobileAppCookieHealer } from "@/components/layout/MobileAppCookieHealer";
 
 // Sayfa gövdesinde fiilen çizilen TEK aile Jakarta'dır (--font-sans zincirinin
@@ -189,12 +190,16 @@ export default async function RootLayout({
                   ...(mobileApp
                     ? {}
                     : {
-                        offers: {
-                          "@type": "Offer",
-                          price: "1752",
-                          priceCurrency: "TRY",
-                          description: "Starter plan — 14 days free trial",
-                        },
+                        // Tüm planlar × TL/USD/EUR aylık fiyat (tek kaynak: lib/pricing.ts)
+                        offers: (["mini", "starter", "pro", "business"] as const).flatMap((plan) =>
+                          (["TRY", "USD", "EUR"] as const).map((cur) => ({
+                            "@type": "Offer",
+                            name: plan.charAt(0).toUpperCase() + plan.slice(1),
+                            price: String(PRICING_BY_CURRENCY[cur][plan].monthly),
+                            priceCurrency: cur,
+                            description: plan === "business" ? "Business plan — monthly" : plan.charAt(0).toUpperCase() + plan.slice(1) + " plan — monthly, 14 days free trial",
+                          }))
+                        ),
                       }),
                   description: "AI destekli randevu ve işletme yönetim platformu",
                   url: "https://siriplan.com",

@@ -9,6 +9,7 @@ import { buildAlternates } from "@/lib/seo/alternates";
 import { getVisitorPricing } from "@/lib/pricing";
 import { CurrencyToggle } from "@/components/marketing/CurrencyToggle";
 import { PricingCards } from "@/components/marketing/PricingCards";
+import { PricingSummary } from "@/components/marketing/PricingSummary";
 import { AddonsSection } from "@/components/marketing/AddonsSection";
 
 // Fiyatlar ziyaretçinin ülkesine göre değiştiği için (bkz. lib/pricing.ts)
@@ -55,11 +56,13 @@ export default async function FiyatlarPage() {
 
       {/* Pricing cards */}
       <section className="py-16">
-        <div className="container mx-auto px-4 max-w-5xl">
+        <div className="container mx-auto px-4 max-w-6xl">
           {pricing.currency !== "TRY" && <CurrencyToggle currentCurrency={pricing.currency} />}
           <PricingCards currency={pricing.currency} plans={pricing.plans} variant="full" />
         </div>
       </section>
+
+      <PricingSummary />
 
       <AddonsSection />
 

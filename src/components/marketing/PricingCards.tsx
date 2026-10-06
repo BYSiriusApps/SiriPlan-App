@@ -19,6 +19,7 @@ import {
 type BillingCycle = "monthly" | "annual";
 
 const PLAN_ORDER = [
+  { key: "mini", highlight: false },
   { key: "starter", highlight: false },
   { key: "pro", highlight: true },
   { key: "business", highlight: false },
@@ -83,7 +84,7 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
         </div>
       </div>
 
-      <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 ${isFull ? "" : "max-w-5xl mx-auto"}`}>
+      <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 ${isFull ? "" : "max-w-6xl mx-auto"}`}>
         {planMeta.map((plan) => {
           const features = t.raw(`pricing.${plan.key}.features`) as string[];
           const notIncluded = isFull
