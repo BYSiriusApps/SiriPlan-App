@@ -14,7 +14,6 @@ import { buildAlternates, localizedUrl } from "@/lib/seo/alternates";
 import type { Locale } from "@/lib/i18n/resolve-locale";
 import { AppStoreBadges } from "@/components/marketing/AppStoreBadges";
 import { PricingCards } from "@/components/marketing/PricingCards";
-import { PricingSummary } from "@/components/marketing/PricingSummary";
 import { AddonsSection } from "@/components/marketing/AddonsSection";
 import { MiniSpotlight } from "@/components/marketing/MiniSpotlight";
 import { HeroMockup } from "@/components/marketing/HeroMockup";
@@ -300,8 +299,6 @@ export default async function HomePage() {
           <PricingCards currency={pricing.currency} plans={pricing.plans} variant="home" />
         </div>
       </section>
-
-      <PricingSummary />
 
       <AddonsSection />
 
