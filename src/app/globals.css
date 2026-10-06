@@ -767,3 +767,15 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .sp-site-scroll-desktop { animation: none; }
 }
+
+/* Telefon demosu: dokunuş halkası + üstten kayan bildirim */
+@keyframes sp-tap {
+  0% { transform: scale(0.4); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.sp-tap { animation: sp-tap 0.7s ease-out infinite; }
+@keyframes sp-notif-in {
+  from { opacity: 0; transform: translateY(-120%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.sp-notif { animation: sp-notif-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }

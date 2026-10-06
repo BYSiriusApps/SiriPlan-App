@@ -75,7 +75,7 @@ export async function WebsiteShowcase() {
               </div>
               <div className="aspect-[1100/688] overflow-hidden bg-background">
                 <Image
-                  src="/website-demo/desktop-tall.webp"
+                  src="/website-demo/site-desktop.webp"
                   alt={t("imgAlt")}
                   width={1100}
                   height={2400}
@@ -85,7 +85,7 @@ export async function WebsiteShowcase() {
               </div>
             </div>
 
-            <div className="mx-auto mt-6 w-full max-w-[280px] sm:absolute sm:-bottom-6 sm:right-0 sm:mt-0 sm:w-[250px]">
+            <div className="mx-auto mt-6 w-full max-w-[240px] sm:absolute sm:-bottom-6 sm:right-0 sm:mt-0 sm:w-[230px]">
               <BookingDemo />
             </div>
           </div>
