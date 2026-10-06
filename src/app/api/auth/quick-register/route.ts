@@ -10,7 +10,7 @@ import { isMobileApp, getMobileAppPlatform } from "@/lib/mobile-app";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR } from "@/lib/tax-number";
 
 const VALID_BUSINESS_TYPES = new Set([
-  "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik","pet_kuafor",
+  "kuafor","berber","guzellik","spa","nail","estetik","makyaj","tattoo","diyetisyen","kas_kirpik","pet_kuafor","diger",
 ]);
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;

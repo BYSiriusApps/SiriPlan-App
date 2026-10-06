@@ -1191,7 +1191,8 @@
         "tattoo": "🖋️ Tattoo Stüdyosu",
         "diyetisyen": "🥗 Diyetisyen",
         "kas_kirpik": "👁️ Kaş & Kirpik Stüdyosu",
-        "pet_kuafor": "🐾 Pet Kuaför / Evcil Hayvan Bakımı"
+        "pet_kuafor": "🐾 Pet Kuaför / Evcil Hayvan Bakımı",
+        "diger": "🏢 Diğer"
       },
       "salonNameLabel": "Salon / İşletme Adı",
       "salonNamePlaceholder": "Salon Adınız",
@@ -3129,6 +3130,7 @@
       "bizTattoo": "Tattoo Stüdyosu",
       "bizDiyetisyen": "Diyetisyen",
       "bizKasKirpik": "Kaş & Kirpik",
+      "bizDiger": "Diğer",
       "legalBody": "SiriPlan platformunun tüm kaynak kodları, tasarımları ve akışları FSEK ve Bern Sözleşmesi kapsamında koruma altındadır. Mağaza (App Store / Play Store) politikaları ve KVKK/GDPR veri gizliliği ile tam uyumlu altyapı sunulmaktadır.",
       "dangerZoneTitle": "Tehlikeli Bölge",
       "dangerZoneBody": "Hesabınızı sildiğinizde giriş bilgileriniz ve işletmenizin tüm personel erişimleri kalıcı olarak kapatılır, aboneliğiniz iptal edilir. Müşteri kayıtlarınız silinmez, kişisel tanımlayıcı bilgileri (isim, telefon, e-posta) anonimleştirilir; randevu/ciro geçmişi yasal muhasebe saklama süresi boyunca istatistiksel olarak tutulmaya devam eder. Bu işlem geri alınamaz.",

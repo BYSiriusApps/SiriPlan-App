@@ -18,6 +18,9 @@ export async function seedDefaultServices(
   businessType: string,
   locale?: string | null
 ): Promise<void> {
+  // "Diğer" iş türünde hazır bir katalog yoktur; kuaför kataloğuna düşüp alakasız
+  // hizmetler eklenmesin — işletme hizmetlerini kendisi ekler.
+  if (businessType === "diger") return;
   const safeLocale: CatalogLocale = isSupportedLanguage(locale) ? locale : "tr";
   const catalog = getCatalog(businessType, safeLocale);
   if (!catalog) return;

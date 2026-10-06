@@ -84,11 +84,11 @@ const DAY_LABEL_KEYS: Record<(typeof DAY_KEYS)[number], string> = {
 };
 
 const BUSINESS_TYPE_VALUES = [
-  "kuafor", "berber", "guzellik", "spa", "nail", "estetik", "makyaj", "tattoo", "diyetisyen", "kas_kirpik",
+  "kuafor", "berber", "guzellik", "spa", "nail", "estetik", "makyaj", "tattoo", "diyetisyen", "kas_kirpik", "diger",
 ] as const;
 const BUSINESS_TYPE_LABEL_KEYS: Record<(typeof BUSINESS_TYPE_VALUES)[number], string> = {
   kuafor: "bizKuafor", berber: "bizBerber", guzellik: "bizGuzellik", spa: "bizSpa", nail: "bizNail",
-  estetik: "bizEstetik", makyaj: "bizMakyaj", tattoo: "bizTattoo", diyetisyen: "bizDiyetisyen", kas_kirpik: "bizKasKirpik",
+  estetik: "bizEstetik", makyaj: "bizMakyaj", tattoo: "bizTattoo", diyetisyen: "bizDiyetisyen", kas_kirpik: "bizKasKirpik", diger: "bizDiger",
 };
 
 interface StaffListItem {
