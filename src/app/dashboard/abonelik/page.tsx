@@ -2,7 +2,6 @@ import { createClient, createAdminClient, getSessionUser } from "@/lib/supabase/
 import { getActiveMember } from "@/lib/active-org";
 import { getEntitlements, isTrialActive, monthlyCampaignLimit, monthlyWaMessageLimit } from "@/lib/entitlements";
 import { getPlanUsage } from "@/lib/plan-usage";
-import { PricingSummary } from "@/components/marketing/PricingSummary";
 import { isMobileApp } from "@/lib/mobile-app";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { redirect } from "next/navigation";
@@ -272,9 +271,6 @@ export default async function AbonelikPage() {
             )}
         </div>
       )}
-
-      {/* Güncel fiyatlar (TL/USD/EUR, aylık/yıllık). Native uygulamada mağaza kuralları gereği fiyat gösterilmez. */}
-      {!mobileApp && <PricingSummary compact id="abonelik-fiyatlar" />}
 
       {org.plan === "trial" && !mobileApp && (
         <p className="text-xs text-center text-muted-foreground">

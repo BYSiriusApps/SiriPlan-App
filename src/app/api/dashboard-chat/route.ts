@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { limitByIp } from "@/lib/rate-limit";
 import { isMobileApp } from "@/lib/mobile-app";
-import { pricingSummaryForAssistant } from "@/lib/pricing";
+import { pricingSummaryForAssistant, getPricingCurrencyFromHeaders, type PricingCurrency } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const CONTACT_LINE = "📧 info@bysirius.com veya 💬 WhatsApp: +90 535 503 26 34 üzerinden bize ulaşabilirsiniz.";
+
+// Fiyat metni modül düzeyinde sabit olduğundan yer tutucu bırakılır; yanıt
+// anında ziyaretçinin para birimiyle doldurulur (diğer para birimleri verilmez).
+const PRICES_TOKEN = "__PRICES__";
 
 /**
  * Panel içi yardım asistanının bilgi tabanı — tamamen statik (LLM/API anahtarı gerekmez).
@@ -208,8 +212,8 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Hesabınızın planını ve kullanım limitlerini Ayarlar → Abonelik sayfasından görebilirsiniz. Mobil mağaza politikaları nedeniyle iOS/Android uygulamaları içinden doğrudan ödeme yapılamamaktadır; ödemelerinizi web tarayıcınızdan yapabilirsiniz. " +
       "Destek için: " + CONTACT_LINE,
     answer:
-      "Planlarımız Mini, Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar; deneme boyunca Pro seviyesindeki araçlar (sesli asistan, kampanya, website modu, müşteri skoru, PDF rapor) açıktır. Mini (aylık 399 TL): tek kişilik, 1 personel (ek personel daveti yok), ayda 200 randevu ve 200 müşteri WhatsApp mesajı (%80 ve %100'de sahibe bildirim gelir), randevu linki, stok/barkod, paket takibi, gelir-gider & KDV; Pro araçları (sesli asistan, kampanya vb.) deneme sonrası kapalıdır. Starter: 1 şube, 8 personel, stok/barkod, paket takibi, bekleme listesi, gelir-gider & KDV, WhatsApp hatırlatma, ayda 1 kampanya. Pro: sınırsız personel + yukarıdaki araçlar. Business: 5 şubeye kadar + AI WhatsApp/IG asistanı. " +
-      "Güncel fiyatlar (TL / USD / EUR, aylık ve yıllık parantezde): " + pricingSummaryForAssistant("tr") + ". Yıllık ödemede yaklaşık %18 indirim vardır. " +
+      "Planlarımız Mini, Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar; deneme boyunca Pro seviyesindeki araçlar (sesli asistan, kampanya, website modu, müşteri skoru, PDF rapor) açıktır. Mini: tek kişilik, 1 personel (ek personel daveti yok), ayda 200 randevu ve 200 müşteri WhatsApp mesajı (%80 ve %100'de sahibe bildirim gelir), randevu linki, stok/barkod, paket takibi, gelir-gider & KDV; Pro araçları (sesli asistan, kampanya vb.) deneme sonrası kapalıdır. Starter: 1 şube, 8 personel, stok/barkod, paket takibi, bekleme listesi, gelir-gider & KDV, WhatsApp hatırlatma, ayda 1 kampanya. Pro: sınırsız personel + yukarıdaki araçlar. Business: 5 şubeye kadar + AI WhatsApp/IG asistanı. " +
+      "Güncel fiyatlar (aylık, yıllık parantezde): " + PRICES_TOKEN + ". Yıllık ödemede yaklaşık %18 indirim vardır. " +
       "Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görebilirsiniz. " +
       "Aboneliğiniz SiriPlan hesabınıza bağlıdır; plan yükseltme, yenileme veya faturalandırma sorularınız için: " + CONTACT_LINE,
   },
@@ -312,7 +316,8 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
   }
 };
 
-function getStaticResponse(message: string, mobileApp: boolean, lang: string): string {
+
+function getStaticResponse(message: string, mobileApp: boolean, lang: string, currency: PricingCurrency): string {
   const msg = message.toLowerCase();
   const contact = lang === "ar" ? CONTACT_LINE_AR : lang === "ru" ? CONTACT_LINE_RU : lang === "en" ? CONTACT_LINE_EN : CONTACT_LINE_TR;
   const trans = TRANSLATIONS[lang] || TRANSLATIONS.tr;
@@ -322,7 +327,7 @@ function getStaticResponse(message: string, mobileApp: boolean, lang: string): s
       const mainAns = entry.answer;
       const nativeAns = entry.nativeAnswer;
       // If language is not turkish, we provide an automatic english translation note or format, but we'll return the response as is
-      return mobileApp && nativeAns ? nativeAns : mainAns;
+      return (mobileApp && nativeAns ? nativeAns : mainAns).replace(PRICES_TOKEN, pricingSummaryForAssistant("tr", [currency]));
     }
   }
 
@@ -358,7 +363,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: trans.tooLong }, { status: 400 });
     }
 
-    return NextResponse.json({ response: getStaticResponse(message, await isMobileApp(), lang) });
+    return NextResponse.json({ response: getStaticResponse(message, await isMobileApp(), lang, getPricingCurrencyFromHeaders(req.headers)) });
   } catch {
     return NextResponse.json({
       response: `${trans.fallback}${contact}`,

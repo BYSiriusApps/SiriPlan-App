@@ -282,7 +282,7 @@
       "q3": "Will I lose my data?",
       "a3": "No. Even if you cancel, you can access your data for 30 days and download it as JSON/Excel.",
       "q4": "How does billing work?",
-      "a4": "Secure payment via Stripe. Choose monthly or annual billing; save about 18% with annual billing. Prices in ₺, $ and € are listed in the \"Current Prices\" section on this page.",
+      "a4": "Secure payment via Stripe. Choose monthly or annual billing; save about 18% with annual billing.",
       "q5": "Can I manage multiple locations?",
       "a5": "You can manage up to 5 locations on the Business plan. Starter/Pro can be extended with the Extra Location add-on."
     },

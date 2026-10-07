@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { limitByIp } from "@/lib/rate-limit";
 import { sanitizeUserMessage, wrapAsUserData } from "@/lib/ai-input";
-import { pricingSummaryForAssistant } from "@/lib/pricing";
+import { pricingSummaryForAssistant, getPricingCurrencyFromHeaders, type PricingCurrency } from "@/lib/pricing";
 
 // Fiyatlar tek kaynaktan (lib/pricing.ts) okunur — elle yazılmış rakam eskiyip yanlış fiyat söylüyordu.
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const SYSTEM_PROMPT = `Sen SiriPlan'ın AI destek asistanısın. SiriPlan, BY Sirius Group tarafından geliştirilen, kuaför, berber, güzellik salonu, SPA, klinik ve diğer sektörler için yapay zeka destekli randevu ve işletme yönetim platformudur.
+const buildSystemPrompt = (currency: PricingCurrency) => `Sen SiriPlan'ın AI destek asistanısın. SiriPlan, BY Sirius Group tarafından geliştirilen, kuaför, berber, güzellik salonu, SPA, klinik ve diğer sektörler için yapay zeka destekli randevu ve işletme yönetim platformudur.
 
 Temel bilgiler:
 - Platform: siriplan.com
 - Destek: info@bysirius.com | WhatsApp: +90 535 503 26 34
-- Fiyatlar (güncel; TL / USD / EUR, aylık ve yıllık): ${pricingSummaryForAssistant("tr")}. Mini tek kişiliktir: 1 personel, ayda 200 randevu ve 200 WhatsApp mesajı. Yıllık ödemede yaklaşık %18 indirim vardır.
+- Fiyatlar (güncel, aylık ve yıllık): ${pricingSummaryForAssistant("tr", [currency])}. Mini tek kişiliktir: 1 personel, ayda 200 randevu ve 200 WhatsApp mesajı. Yıllık ödemede yaklaşık %18 indirim vardır.
 - 14 gün ücretsiz deneme, kredi kartı gerekmez
 - Desteklenen sektörler: Kuaför, Berber, Güzellik Salonu, SPA & Masaj, Nail Salon, Estetik Klinik, Makyaj Stüdyosu, Tattoo Studio, Diyetisyen, Kaş & Kirpik
 
@@ -84,7 +84,7 @@ function detectLang(message: string, uiLocale?: string): Lang {
   return "tr";
 }
 
-function getStaticResponse(message: string, uiLocale?: string): string {
+function getStaticResponse(message: string, uiLocale: string | undefined, currency: PricingCurrency): string {
   const msg = message.toLowerCase();
   const lang = detectLang(message, uiLocale);
 
@@ -173,6 +173,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { message } = body;
     if (isSupportedLang(body?.locale)) uiLocale = body.locale;
+    const currency = getPricingCurrencyFromHeaders(req.headers);
 
     // Bu uç kimlik doğrulaması olmadan Gemini'ye erişim veriyordu: herkes
     // siriplan.com/api/chat üzerinden bizim API anahtarımızla sınırsız LLM
@@ -201,7 +202,7 @@ export async function POST(req: NextRequest) {
     // o yol LLM'e hiç uğramaz.
     const safeMessage = sanitizeUserMessage(message, 1000);
     if (!safeMessage) {
-      return NextResponse.json({ response: getStaticResponse(message, uiLocale) });
+      return NextResponse.json({ response: getStaticResponse(message, uiLocale, currency) });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
@@ -209,7 +210,7 @@ export async function POST(req: NextRequest) {
 
     if (isPlaceholder) {
       // Use static keyword-based fallback
-      const response = getStaticResponse(message, uiLocale);
+      const response = getStaticResponse(message, uiLocale, currency);
       return NextResponse.json({ response });
     }
 
@@ -221,7 +222,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          systemInstruction: { parts: [{ text: buildSystemPrompt(currency) }] },
           contents: [{ role: "user", parts: [{ text: `<arayuz_dili>${uiLocale}</arayuz_dili>\n${wrapAsUserData(safeMessage)}` }] }],
           generationConfig: { maxOutputTokens: 300 },
         }),
@@ -229,12 +230,12 @@ export async function POST(req: NextRequest) {
     );
 
     if (!geminiResponse.ok) {
-      const fallback = getStaticResponse(message, uiLocale);
+      const fallback = getStaticResponse(message, uiLocale, currency);
       return NextResponse.json({ response: fallback });
     }
 
     const data = await geminiResponse.json();
-    const response = data.candidates?.[0]?.content?.parts?.[0]?.text ?? getStaticResponse(message, uiLocale);
+    const response = data.candidates?.[0]?.content?.parts?.[0]?.text ?? getStaticResponse(message, uiLocale, currency);
 
     return NextResponse.json({ response });
   } catch {

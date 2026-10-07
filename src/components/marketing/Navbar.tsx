@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemePicker } from "@/components/layout/ThemePicker";
+import { FlagIcon } from "./FlagIcon";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 
@@ -17,10 +18,10 @@ const NAV_HREFS = [
 ] as const;
 
 const LOCALES = [
-  { code: "tr", label: "TR", flag: "🇹🇷" },
-  { code: "en", label: "EN", flag: "🇬🇧" },
-  { code: "ru", label: "RU", flag: "🇷🇺" },
-  { code: "ar", label: "AR", flag: "🇸🇦" },
+  { code: "tr", label: "TR", name: "Türkçe" },
+  { code: "en", label: "EN", name: "English" },
+  { code: "ru", label: "RU", name: "Русский" },
+  { code: "ar", label: "AR", name: "العربية" },
 ] as const;
 
 export function Navbar() {
@@ -66,7 +67,7 @@ export function Navbar() {
           <span className="font-bold text-lg tracking-tight">
             Siri<span className="text-muted-foreground font-medium">(us)</span><span className="text-primary">Plan</span>
           </span>
-          <span className="hidden md:inline text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
+          <span className="hidden xl:inline text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
             by BySirius
           </span>
         </Link>
@@ -79,7 +80,7 @@ export function Navbar() {
             yavaş hissettirmesinin sebebi buydu. Bu liste mobilde `hidden`
             olduğu için görünürlük tabanlı prefetch telefonda tetiklenmez;
             telefonda veri harcanmaz. */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-4 lg:gap-6">
           {NAV_HREFS.map((l) => (
             <Link
               key={l.href}
@@ -95,20 +96,22 @@ export function Navbar() {
         {/* Right side */}
         <div className="flex items-center gap-1 md:gap-2">
           {/* Locale switcher — masaüstü: tüm diller yan yana */}
-          <div className="hidden md:flex items-center gap-0.5 bg-muted rounded-lg p-1">
+          <div className="hidden md:flex items-center gap-0.5 rounded-full border border-border/60 bg-muted/60 p-0.5 ml-2">
             {LOCALES.map((l) => (
               <button
                 key={l.code}
                 onClick={() => switchLocale(l.code)}
                 disabled={isPending}
-                title={l.label}
-                className={`flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-md transition-all ${
+                title={l.name}
+                aria-label={l.name}
+                aria-pressed={activeLocale === l.code}
+                className={`flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2.5 text-xs font-semibold transition-all ${
                   activeLocale === l.code
-                    ? "bg-background shadow-sm text-foreground"
+                    ? "bg-background text-foreground shadow-sm ring-1 ring-primary/30"
                     : "text-muted-foreground hover:text-foreground hover:bg-background/60"
                 }`}
               >
-                <span className="text-sm leading-none">{l.flag}</span>
+                <FlagIcon code={l.code} className="h-5 w-5" />
                 <span>{l.label}</span>
               </button>
             ))}
@@ -121,27 +124,28 @@ export function Navbar() {
               onClick={() => setLangOpen((v) => !v)}
               disabled={isPending}
               aria-label={t("language")}
-              className="flex items-center gap-0.5 px-1.5 py-1.5 text-xs font-medium rounded-lg bg-muted text-foreground"
+              className="flex items-center gap-1 rounded-full border border-border/60 bg-muted/60 py-1 pl-1 pr-2 text-xs font-semibold text-foreground"
             >
-              <span className="text-sm leading-none">{currentLocaleMeta.flag}</span>
+              <FlagIcon code={currentLocaleMeta.code} className="h-5 w-5" />
               <ChevronDown className="w-3 h-3 text-muted-foreground" />
             </button>
             {langOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
-                <div className="absolute right-0 top-full mt-2 z-50 min-w-[120px] rounded-lg border border-border bg-background p-1 shadow-lg">
+                <div className="absolute right-0 top-full mt-2 z-50 min-w-[150px] rounded-xl border border-border bg-background p-1 shadow-lg">
                   {LOCALES.map((l) => (
                     <button
                       key={l.code}
                       onClick={() => { switchLocale(l.code); setLangOpen(false); }}
-                      className={`flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                      className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors ${
                         activeLocale === l.code
                           ? "bg-muted text-foreground"
                           : "text-muted-foreground hover:bg-muted/60"
                       }`}
                     >
-                      <span className="text-sm leading-none">{l.flag}</span>
-                      <span>{l.label}</span>
+                      <FlagIcon code={l.code} className="h-5 w-5" />
+                      <span>{l.name}</span>
+                      {activeLocale === l.code && <span className="ml-auto text-xs text-primary">✓</span>}
                     </button>
                   ))}
                 </div>
