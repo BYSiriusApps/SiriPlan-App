@@ -33,7 +33,12 @@ export function useIsMobileApp(): boolean {
 export function useIsIOSNativeApp(): boolean {
   const [isIOSApp, setIsIOSApp] = useState(false);
   useEffect(() => {
-    setIsIOSApp(isMobileAppUserAgent(navigator.userAgent));
+    const ua = navigator.userAgent;
+    // UA işaretçisi asıl sinyal. Sarmalayıcı işaretçiyi göndermese bile native
+    // sayılıyorsa (sp_app çerezi/parametresi) ve cihaz iPhone/iPad ise de iOS
+    // uygulaması say — Android TWA aynı çerezi taşır ama bu UA'ya hiç uymaz.
+    const appleDevice = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+    setIsIOSApp(isMobileAppUserAgent(ua) || (appleDevice && hasMobileAppCookie(document.cookie)));
   }, []);
   return isIOSApp;
 }
