@@ -46,6 +46,35 @@ const GlobeIcon = (
   </svg>
 );
 
+const SECTORS: { slug: string; img: string; name: string }[] = [
+  { slug: "kuafor", img: "kuafor", name: "Kuaför" },
+  { slug: "berber", img: "berber", name: "Berber" },
+  { slug: "guzellik", img: "guzellik", name: "Güzellik Salonu" },
+  { slug: "spa", img: "spa", name: "SPA & Masaj" },
+  { slug: "makyaj", img: "makyaj", name: "Makyaj Stüdyosu" },
+  { slug: "tattoo", img: "tattoo", name: "Tattoo Studio" },
+  { slug: "diyetisyen", img: "diyetisyen", name: "Diyetisyen" },
+  { slug: "nail", img: "nail", name: "Nail Salon" },
+  { slug: "petkuafor", img: "petkuafor", name: "Pet Kuaför" },
+];
+
+const FEATURES = ["WhatsApp & Telegram otomatik hatırlatma", "Online randevu linki", "Kasa, stok ve personel takibi", "Sesli randevu asistanı"];
+
+function MarqueeRow({ items, className }: { items: typeof SECTORS; className: string }) {
+  // Aynı liste iki kez: -%50 kayınca kesintisiz döngü.
+  const doubled = [...items, ...items];
+  return (
+    <div className="overflow-hidden" aria-hidden="true">
+      <div className={`flex w-max gap-3 ${className}`}>
+        {doubled.map((s, i) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={i} src={`/indir/${s.img}.webp`} alt="" width={160} height={160} loading={i < 5 ? "eager" : "lazy"} className="h-28 w-28 shrink-0 rounded-2xl object-cover shadow-lg ring-1 ring-white/20 sm:h-36 sm:w-36" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default async function IndirPage() {
   const ua = (await headers()).get("user-agent") ?? "";
   const isIOS = /iPhone|iPad|iPod/i.test(ua);
@@ -68,37 +97,82 @@ export default async function IndirPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#022058] bg-gradient-to-b from-[#022058] to-[#010f2e] px-4 py-10 text-white">
-      <div className="mx-auto flex w-full max-w-md flex-col items-center">
+    <main className="relative min-h-screen overflow-hidden bg-[#022058] bg-gradient-to-b from-[#022058] via-[#031a4a] to-[#010f2e] pb-12 text-white">
+      {/* Arka plan ışıkları */}
+      <div aria-hidden="true" className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#e8c15a]/25 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute top-[28rem] -right-24 h-72 w-72 rounded-full bg-pink-500/20 blur-3xl" />
+
+      {/* Kayan mutlu esnaf kolajı */}
+      <div className="space-y-3 pt-6">
+        <MarqueeRow items={SECTORS} className="indir-row-l" />
+        <MarqueeRow items={[...SECTORS].reverse()} className="indir-row-r" />
+      </div>
+
+      <div className="relative mx-auto flex w-full max-w-md flex-col items-center px-4 sm:max-w-xl">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/icon-192x192.png" alt="SiriPlan" width={96} height={96} className="rounded-3xl shadow-lg ring-2 ring-[#e8c15a]/60" />
-        <h1 className="mt-4 text-2xl font-bold">SiriPlan</h1>
-        <p className="mt-1 text-center text-sm text-white/75">
-          Güzellik salonu ve kuaförler için otomatik randevu, müşteri ve kasa yönetimi
+        <img src="/icons/icon-192x192.png" alt="SiriPlan" width={80} height={80} className="indir-rise mt-4 rounded-3xl shadow-xl ring-2 ring-[#e8c15a]/70" />
+
+        <h1 className="indir-rise mt-5 text-center text-3xl font-extrabold leading-tight sm:text-4xl" style={{ animationDelay: "80ms" }}>
+          Defteri bırakın,<br />
+          <span className="indir-gradient-text">randevular kendi kendine dolsun</span>
+        </h1>
+        <p className="indir-rise mt-3 text-center text-sm text-white/80 sm:text-base" style={{ animationDelay: "160ms" }}>
+          Güzellik salonu, kuaför, berber, spa, klinik… Randevu, müşteri, kasa ve stok tek uygulamada. Müşteriniz randevusunu unutmasın, siz telefonla uğraşmayın.
         </p>
 
+        <ul className="indir-rise mt-4 flex flex-wrap justify-center gap-2" style={{ animationDelay: "220ms" }}>
+          {FEATURES.map((f) => (
+            <li key={f} className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur">
+              ✓ {f}
+            </li>
+          ))}
+        </ul>
+
+        {/* Bağlantılar */}
         <ul className="mt-8 w-full space-y-3">
           {items.map((it, i) => (
-            <li key={it.label}>
+            <li key={it.label} className="indir-rise" style={{ animationDelay: `${280 + i * 70}ms` }}>
               <a
                 href={it.href}
                 {...(it.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                 className={
-                  "flex items-center gap-4 rounded-2xl px-4 py-3.5 transition active:scale-[0.98] " +
+                  "group relative flex items-center gap-4 overflow-hidden rounded-2xl px-4 py-3.5 transition duration-200 hover:-translate-y-0.5 hover:shadow-2xl active:scale-[0.98] " +
                   (i === 0
-                    ? "bg-[#e8c15a] text-[#022058] shadow-lg hover:bg-[#f0cd6e]"
-                    : "border border-white/15 bg-white/10 hover:bg-white/15")
+                    ? "indir-shine indir-pulse bg-gradient-to-r from-[#e8c15a] to-[#f6d77a] text-[#022058] shadow-lg"
+                    : "border border-white/15 bg-white/10 backdrop-blur hover:border-[#e8c15a]/60 hover:bg-white/20")
                 }
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center">{it.icon}</span>
-                <span className="flex flex-col">
-                  <span className="text-base font-semibold leading-tight">{it.label}</span>
-                  <span className={"text-xs " + (i === 0 ? "text-[#022058]/70" : "text-white/65")}>{it.sub}</span>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center transition-transform duration-200 group-hover:scale-110">{it.icon}</span>
+                <span className="flex flex-1 flex-col">
+                  <span className="text-base font-bold leading-tight">{it.label}</span>
+                  <span className={"text-xs " + (i === 0 ? "text-[#022058]/75" : "text-white/70")}>{it.sub}</span>
+                </span>
+                <span aria-hidden="true" className="text-xl transition-transform duration-200 group-hover:translate-x-1">›</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        {/* Sektör kartları */}
+        <h2 className="mt-12 text-center text-xl font-bold">Hangi sektördesiniz?</h2>
+        <p className="mt-1 text-center text-sm text-white/70">Sektörünüze özel sayfayı görün</p>
+        <ul className="mt-5 grid w-full grid-cols-3 gap-3">
+          {SECTORS.map((s) => (
+            <li key={s.slug}>
+              <a href={`/kategori/${s.slug}?${UTM}`} className="group relative block aspect-square overflow-hidden rounded-2xl ring-1 ring-white/20 transition duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(232,193,90,0.35)] hover:ring-[#e8c15a]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/indir/${s.img}.webp`} alt={s.name} width={320} height={320} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-2 pb-2 pt-8 text-center text-xs font-bold leading-tight transition group-hover:text-[#f6d77a] sm:text-sm">
+                  {s.name}
                 </span>
               </a>
             </li>
           ))}
         </ul>
+
+        <a href={`/auth/kayit?${UTM}`} className="indir-pulse mt-8 rounded-full bg-[#e8c15a] px-6 py-3 text-sm font-bold text-[#022058] transition hover:-translate-y-0.5 hover:bg-[#f6d77a]">
+          Sizin sektörünüz için ücretsiz başlayın →
+        </a>
 
         <p className="mt-10 text-xs text-white/40">© SiriPlan · BY Sirius Group</p>
       </div>
