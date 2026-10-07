@@ -28,6 +28,9 @@ export const PRICING_BY_CURRENCY: Record<PricingCurrency, Record<PlanKey, PlanPr
   },
 } as const;
 
+/** Mini aylık fiyatın indirim öncesi (üstü çizili) değeri; yalnızca eski fiyatı bilinen para birimleri. */
+export const MINI_LIST_PRICE: Partial<Record<PricingCurrency, number>> = { TRY: 499 };
+
 export const DEFAULT_PRICING = {
   currency: "TRY" as PricingCurrency,
   plans: PRICING_BY_CURRENCY.TRY,
