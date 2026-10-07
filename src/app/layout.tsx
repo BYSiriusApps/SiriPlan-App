@@ -173,7 +173,7 @@ export default async function RootLayout({
                   name: "SiriPlan",
                   url: "https://siriplan.com",
                   logo: "https://siriplan.com/icons/icon-192x192.png",
-                  sameAs: ["https://bysirius.com"],
+                  sameAs: ["https://bysirius.com", "https://www.instagram.com/siriplan.app/"],
                   contactPoint: {
                     "@type": "ContactPoint",
                     telephone: "+90-535-503-2634",
