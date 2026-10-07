@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatPrice, type PricingCurrency, type PlanPricing } from "@/lib/pricing";
+import { formatPrice, MINI_LIST_PRICE, type PricingCurrency, type PlanPricing } from "@/lib/pricing";
 
 /**
  * Mini planı ana sayfada öne çıkaran bant. Fiyat ve özellik listesi mevcut
@@ -18,6 +18,7 @@ export async function MiniSpotlight({
 }) {
   const t = await getTranslations();
   const features = t.raw("pricing.mini.features") as string[];
+  const listPrice = MINI_LIST_PRICE[currency];
 
   return (
     <section className="py-16">
@@ -32,11 +33,21 @@ export async function MiniSpotlight({
               </span>
               <h2 className="mb-3 text-3xl font-bold md:text-4xl">{t("homeVisual.mini.title")}</h2>
               <p className="mb-6 text-muted-foreground">{t("pricing.mini.desc")}</p>
-              <div className="mb-6 flex items-end gap-2">
+              <div className="mb-6 flex flex-wrap items-end gap-x-3 gap-y-1">
+                {listPrice && listPrice > mini.monthly && (
+                  <span className="pb-1.5 text-2xl font-medium text-muted-foreground line-through decoration-red-500/70 decoration-2">
+                    {formatPrice(listPrice, currency)}
+                  </span>
+                )}
                 <span className="text-5xl font-bold tracking-tight text-primary">
                   {formatPrice(mini.monthly, currency)}
                 </span>
                 <span className="pb-1.5 text-muted-foreground">{t("pricing.perMonth")}</span>
+                {listPrice && listPrice > mini.monthly && (
+                  <span className="mb-2 rounded-full bg-red-500 px-2.5 py-0.5 text-xs font-bold text-white">
+                    -%{Math.round((1 - mini.monthly / listPrice) * 100)}
+                  </span>
+                )}
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <Link href="/auth/kayit">
