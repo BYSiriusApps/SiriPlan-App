@@ -201,7 +201,9 @@ Salondaki boş günleri doldurmak veya özel günleri kutlamak için müşterile
 SiriPlan aboneliği ve faturalandırması SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir.
 
 - **Şeffaf Planlar**:
-  - **Starter**, **Pro** ve **Business** planlarının tamamı sabit ve şeffaf yapıdadır.
+  - **Mini**, **Starter**, **Pro** ve **Business** planlarının tamamı sabit ve şeffaf yapıdadır.
+  - **Mini (aylık ₺399)** tek kişilik işletmeler içindir: 1 personel (ek personel daveti yok), ayda 200 randevu ve 200 müşteri WhatsApp mesajı, randevu linki, stok/barkod, paket takibi, gelir-gider & KDV. WhatsApp hakkınızın %80'ine ve %100'üne ulaşınca bildirim alırsınız. Deneme bitince sesli asistan ve kampanya gibi Pro araçları Mini'de kapanır; ihtiyaç olursa Ayarlar → Abonelik'ten plan yükseltebilirsiniz.
+  - **Mobil uygulama:** [App Store](https://apps.apple.com/app/siriusplan/id6815322807) (SiriusPlan) ve [Google Play](https://play.google.com/store/apps/details?id=com.siriplan.app) üzerinden indirebilirsiniz; ayrıca tarayıcıdan "Ana Ekrana Ekle" ile de kurabilirsiniz.
   - **"Teklif Al" bekleme dönemi yoktur.** Her yeni hesap tüm özelliklerle **14 gün ücretsiz deneme** ile başlar.
 - **Plan Bilgileriniz**:
   - Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi **Ayarlar → Abonelik** sayfasından görüntüleyebilirsiniz.

@@ -10,7 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Building2, Mail, Lock, Phone, User, AlertCircle, CheckCircle2, Hash } from "lucide-react";
+import {
+  Loader2, Building2, Mail, Lock, Phone, User, AlertCircle, CheckCircle2, Hash,
+  Scissors, Sparkles, Flower2, Hand, Droplets, Palette, PenTool, Apple, Eye, PawPrint, LayoutGrid,
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
@@ -18,6 +21,18 @@ import { TIMEZONE_OPTIONS } from "@/lib/timezones";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
 import { useIsMobileApp, useIsIOSNativeApp } from "@/lib/use-mobile-app";
 import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
+
+function StepHeading({ n, children }: { n: number; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2.5 pt-3">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+        {n}
+      </span>
+      <span className="text-sm font-semibold">{children}</span>
+      <span className="h-px flex-1 bg-border" />
+    </div>
+  );
+}
 
 function isMobileDevice() {
   if (typeof navigator === "undefined") return false;
@@ -35,6 +50,35 @@ const BUSINESS_TYPE_KEYS = [
   "kuafor", "berber", "guzellik", "spa", "nail",
   "estetik", "makyaj", "tattoo", "diyetisyen", "kas_kirpik", "pet_kuafor", "diger",
 ] as const;
+
+type IconCmp = React.ComponentType<{ className?: string }>;
+
+// lucide'de berber direği yok — aynı çizgi stilinde küçük özel simge.
+function BarberPoleIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <rect x="8" y="6" width="8" height="14" rx="1.5" />
+      <path d="M8 10.5l8-3M8 15.5l8-3" />
+      <path d="M9.5 3h5M10.5 3v3M13.5 3v3" />
+    </svg>
+  );
+}
+
+// İşletme türü kartlarının simge + renk eşlemesi (emoji yerine tutarlı, net çizgi simgeler).
+const TYPE_STYLE: Record<(typeof BUSINESS_TYPE_KEYS)[number], { Icon: IconCmp; grad: string }> = {
+  kuafor: { Icon: Scissors, grad: "from-rose-400 to-pink-600" },
+  berber: { Icon: BarberPoleIcon, grad: "from-sky-500 to-indigo-700" },
+  guzellik: { Icon: Sparkles, grad: "from-fuchsia-400 to-purple-600" },
+  spa: { Icon: Flower2, grad: "from-emerald-400 to-teal-600" },
+  nail: { Icon: Hand, grad: "from-pink-300 to-rose-500" },
+  estetik: { Icon: Droplets, grad: "from-amber-300 to-orange-500" },
+  makyaj: { Icon: Palette, grad: "from-violet-400 to-indigo-600" },
+  tattoo: { Icon: PenTool, grad: "from-zinc-500 to-zinc-800" },
+  diyetisyen: { Icon: Apple, grad: "from-lime-400 to-green-600" },
+  kas_kirpik: { Icon: Eye, grad: "from-cyan-400 to-blue-600" },
+  pet_kuafor: { Icon: PawPrint, grad: "from-orange-400 to-amber-600" },
+  diger: { Icon: LayoutGrid, grad: "from-stone-400 to-stone-600" },
+};
 
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
@@ -59,6 +103,7 @@ function buildPhone(countryCode: string, localPhone: string) {
 
 export default function KayitPage() {
   const t = useTranslations("auth.registerPage");
+  const th = useTranslations("hero");
   const router = useRouter();
   const isNativeApp = useIsMobileApp();
   const isIOSNative = useIsIOSNativeApp();
@@ -336,6 +381,13 @@ export default function KayitPage() {
         </div>
         <CardTitle className="text-2xl">{purchaseIntent ? t("titlePurchase") : t("title")}</CardTitle>
         <CardDescription>{purchaseIntent ? t("subtitlePurchase") : t("subtitle")}</CardDescription>
+        {!isNativeApp && !purchaseIntent && (
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />{th("trial14")}</span>
+            <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />{th("noCard")}</span>
+            <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />{th("cancelAnytime")}</span>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {authNotice && (
@@ -365,18 +417,39 @@ export default function KayitPage() {
             aria-hidden="true"
             style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
           />
+          <StepHeading n={1}>{t("sectionBusiness")}</StepHeading>
+
           <div className="space-y-1.5">
             <Label>{t("businessTypeLabel")}</Label>
-            <Select value={form.type} onValueChange={(v) => set("type", v ?? "kuafor")}>
-              <SelectTrigger className="w-full">
-                <SelectValue>{(v: string | null) => (v ? t(`businessTypes.${v}`) : "")}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {BUSINESS_TYPE_KEYS.map((key) => (
-                  <SelectItem key={key} value={key}>{t(`businessTypes.${key}`)}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <p className="text-xs text-muted-foreground">{t("sectionBusinessHint")}</p>
+            <div role="radiogroup" aria-label={t("businessTypeLabel")} className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {BUSINESS_TYPE_KEYS.map((key) => {
+                const full = t(`businessTypes.${key}`);
+                const sp = full.indexOf(" ");
+                const st = TYPE_STYLE[key];
+                const text = sp > 0 ? full.slice(sp + 1) : full;
+                const active = form.type === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => set("type", key)}
+                    className={`flex min-h-[4.75rem] flex-col items-center justify-center gap-1 rounded-xl border px-1.5 py-2 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      active
+                        ? "border-primary bg-primary/10 shadow-sm ring-2 ring-primary/30"
+                        : "border-border bg-background hover:border-primary/40 hover:bg-primary/5"
+                    }`}
+                  >
+                    <span className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm ${st.grad}`}>
+                      <st.Icon className="h-5 w-5" />
+                    </span>
+                    <span className="line-clamp-3 text-[11px] font-medium leading-tight">{text}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="space-y-1.5">
@@ -409,6 +482,21 @@ export default function KayitPage() {
               ? <p className="text-xs text-red-500 mt-0.5">{taxError}</p>
               : <p className="text-xs text-muted-foreground">{t("taxNumberHelp")}</p>}
           </div>
+
+          <div className="space-y-1.5">
+            <Label>{t("timezoneLabel")}</Label>
+            <Select value={form.timezone} onValueChange={(v) => set("timezone", v ?? "Europe/Istanbul")}>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {TIMEZONE_OPTIONS.map((tz) => (
+                  <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">{t("timezoneHelp")}</p>
+          </div>
+
+          <StepHeading n={2}>{t("sectionYou")}</StepHeading>
 
           <div className="space-y-1.5">
             <Label>{t("fullNameLabel")}</Label>
@@ -455,18 +543,8 @@ export default function KayitPage() {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>{t("timezoneLabel")}</Label>
-            <Select value={form.timezone} onValueChange={(v) => set("timezone", v ?? "Europe/Istanbul")}>
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {TIMEZONE_OPTIONS.map((tz) => (
-                  <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">{t("timezoneHelp")}</p>
-          </div>
+
+          <StepHeading n={3}>{t("sectionAccount")}</StepHeading>
 
           <div className="space-y-1.5">
             <Label>{t("passwordLabel")}</Label>
@@ -538,7 +616,7 @@ export default function KayitPage() {
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="h-11 w-full text-base" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             {loading ? t("submitLoading") : purchaseIntent ? t("submitPurchase") : t("submit")}
           </Button>

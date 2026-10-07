@@ -444,7 +444,7 @@ export default function AyarlarPage() {
             <HomeButton />
           </div>
           <p className="text-sm text-muted-foreground mt-1">{t("settingsPage.subtitle")}</p>
-          <div className="mt-2"><OnboardingRestartButton /></div>
+          <div className="mt-2"><OnboardingRestartButton orgId={org.id} /></div>
         </div>
       </header>
 

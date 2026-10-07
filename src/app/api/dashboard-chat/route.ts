@@ -208,7 +208,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
       "Hesabınızın planını ve kullanım limitlerini Ayarlar → Abonelik sayfasından görebilirsiniz. Mobil mağaza politikaları nedeniyle iOS/Android uygulamaları içinden doğrudan ödeme yapılamamaktadır; ödemelerinizi web tarayıcınızdan yapabilirsiniz. " +
       "Destek için: " + CONTACT_LINE,
     answer:
-      "Planlarımız Mini, Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar; deneme boyunca Pro seviyesindeki araçlar (sesli asistan, kampanya, website modu, müşteri skoru, PDF rapor) açıktır. Mini: tek kişilik, 1 personel, ayda 200 randevu ve 200 WhatsApp mesajı, stok/barkod, paket takibi, gelir-gider & KDV. Starter: 1 şube, 8 personel, stok/barkod, paket takibi, bekleme listesi, gelir-gider & KDV, WhatsApp hatırlatma, ayda 1 kampanya. Pro: sınırsız personel + yukarıdaki araçlar. Business: 5 şubeye kadar + AI WhatsApp/IG asistanı. " +
+      "Planlarımız Mini, Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar; deneme boyunca Pro seviyesindeki araçlar (sesli asistan, kampanya, website modu, müşteri skoru, PDF rapor) açıktır. Mini (aylık 399 TL): tek kişilik, 1 personel (ek personel daveti yok), ayda 200 randevu ve 200 müşteri WhatsApp mesajı (%80 ve %100'de sahibe bildirim gelir), randevu linki, stok/barkod, paket takibi, gelir-gider & KDV; Pro araçları (sesli asistan, kampanya vb.) deneme sonrası kapalıdır. Starter: 1 şube, 8 personel, stok/barkod, paket takibi, bekleme listesi, gelir-gider & KDV, WhatsApp hatırlatma, ayda 1 kampanya. Pro: sınırsız personel + yukarıdaki araçlar. Business: 5 şubeye kadar + AI WhatsApp/IG asistanı. " +
       "Güncel fiyatlar (TL / USD / EUR, aylık ve yıllık parantezde): " + pricingSummaryForAssistant("tr") + ". Yıllık ödemede yaklaşık %18 indirim vardır. " +
       "Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görebilirsiniz. " +
       "Aboneliğiniz SiriPlan hesabınıza bağlıdır; plan yükseltme, yenileme veya faturalandırma sorularınız için: " + CONTACT_LINE,
@@ -272,7 +272,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
   {
     keywords: ["ana ekrana ekle", "telefona yükle", "uygulama olarak", "pwa"],
     answer:
-      "Ayarlar sayfasındaki \"Uygulamayı telefona ekle\" kartından, tarayıcınızın \"Ana ekrana ekle\" özelliğiyle SiriPlan'ı telefonunuza bir uygulama gibi kurabilirsiniz — ayrı bir mağaza indirmesi gerekmez. iPhone'da Safari → Paylaş → Ana Ekrana Ekle; Android'de Chrome menüsü → Uygulamayı yükle. Ayrıca Google Play ve App Store uygulamaları da mevcuttur.",
+      "Ayarlar sayfasındaki \"Uygulamayı telefona ekle\" kartından, tarayıcınızın \"Ana ekrana ekle\" özelliğiyle SiriPlan'ı telefonunuza bir uygulama gibi kurabilirsiniz — ayrı bir mağaza indirmesi gerekmez. iPhone'da Safari → Paylaş → Ana Ekrana Ekle; Android'de Chrome menüsü → Uygulamayı yükle. Ayrıca mağaza uygulamaları da mevcuttur — App Store (SiriusPlan): https://apps.apple.com/app/siriusplan/id6815322807 · Google Play: https://play.google.com/store/apps/details?id=com.siriplan.app",
   },
 ];
 
