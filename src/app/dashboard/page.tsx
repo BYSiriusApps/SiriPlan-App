@@ -17,9 +17,7 @@ import {
 } from "@/lib/istanbul-time";
 import Link from "next/link";
 import { LiveClock } from "@/components/ui/LiveClock";
-import { QuickActionsPanel } from "@/components/dashboard/QuickActionsPanel";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
-import { getUserShortcuts } from "@/app/actions/shortcuts";
 import { getDashboardWidgetPrefs } from "@/app/actions/dashboard-widgets";
 import { DashboardWidgetGrid, type DashboardWidget } from "@/components/dashboard/DashboardWidgetGrid";
 import { getTranslations, getLocale } from "next-intl/server";
@@ -31,6 +29,7 @@ import { NewAppointmentFab } from "@/components/dashboard/NewAppointmentFab";
 import { OnboardingWelcome, OnboardingTour, STAFF_STEPS } from "@/components/dashboard/OnboardingTour";
 import { numberLocaleOf } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { DashboardSummary, type SummaryPeriod } from "@/components/dashboard/DashboardSummary";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
 
@@ -41,7 +40,7 @@ function addDaysStr(day: string, delta: number): string {
 }
 
 /* ─── Mini sparkline SVG — rengi aktif organizasyon temasından (currentColor) alır ─── */
-function Sparkline({ data }: { data: number[] }) {
+function Sparkline({ data, className = "text-primary" }: { data: number[]; className?: string }) {
   if (data.length < 2) return null;
   const max = Math.max(...data, 1);
   const W = 260, H = 64;
@@ -49,7 +48,7 @@ function Sparkline({ data }: { data: number[] }) {
     .map((v, i) => `${(i / (data.length - 1)) * W},${H - (v / max) * (H - 6) - 3}`)
     .join(" ");
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-16 overflow-visible text-primary" preserveAspectRatio="none">
+    <svg viewBox={`0 0 ${W} ${H}`} className={cn("w-full h-16 overflow-visible", className)} preserveAspectRatio="none">
       <defs>
         <linearGradient id="dsg" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="currentColor" stopOpacity="0.28" />
@@ -80,7 +79,13 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 /* ─── Sayfa ─── */
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ donem?: string | string[] }>;
+}) {
+  const donemParam = (await searchParams)?.donem;
+  const period: SummaryPeriod = donemParam === "hafta" || donemParam === "ay" ? donemParam : "bugun";
   const t = await getTranslations("dashboard");
   const locale = await getLocale();
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
@@ -187,7 +192,23 @@ export default async function DashboardPage() {
     .eq("org_id", orgId)
     .eq("status", "talep");
 
+  /* Üst özet şeridi — seçilen dönemin (bugün/hafta/ay) aralığı, işletme saat diliminde. */
+  const range =
+    period === "hafta"
+      ? { start: weekStart, end: weekEnd, dateFrom: weekStartStr, dateTo: addDaysStr(weekStartStr, 6) }
+      : period === "ay"
+        ? { start: monthStart, end: monthEnd, dateFrom: monthStartDate, dateTo: monthEndDate }
+        : { start: todayStart, end: todayEnd, dateFrom: todayStr, dateTo: todayStr };
+
+  let summaryApptsQuery = supabase
+    .from("appointments")
+    .select("price, tip, status")
+    .eq("org_id", orgId)
+    .gte("appointment_at", range.start)
+    .lt("appointment_at", range.end);
+
   if (isStaff && staffId && !staffAllAppointments) {
+    summaryApptsQuery = summaryApptsQuery.eq("staff_id", staffId);
     todayQuery = todayQuery.eq("staff_id", staffId);
     nextQuery = nextQuery.eq("staff_id", staffId);
     weekQuery = weekQuery.eq("staff_id", staffId);
@@ -221,7 +242,6 @@ export default async function DashboardPage() {
     { data: last7 },
     { data: pendingRequests },
     { data: latestCampaign },
-    userShortcuts,
     dashboardWidgetPrefs,
     { count: staffCount },
     { count: activeServicesCount },
@@ -232,6 +252,10 @@ export default async function DashboardPage() {
     { data: inventoryItems },
     { count: talepCountAll },
     { count: pendingRequestsCount },
+    { data: summaryAppts },
+    { data: summaryExpenses },
+    { count: summaryNewCustomers },
+    { count: totalCustomers },
   ] = await Promise.all([
     todayQuery,
     nextQuery,
@@ -269,7 +293,6 @@ export default async function DashboardPage() {
       .limit(1)
       .maybeSingle(),
 
-    getUserShortcuts(),
     getDashboardWidgetPrefs(),
 
     supabase
@@ -321,6 +344,27 @@ export default async function DashboardPage() {
       .select("id", { count: "exact", head: true })
       .eq("org_id", orgId)
       .eq("status", "pending"),
+
+    summaryApptsQuery,
+
+    supabase
+      .from("expenses")
+      .select("type, amount")
+      .eq("org_id", orgId)
+      .gte("date", range.dateFrom)
+      .lte("date", range.dateTo),
+
+    supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .gte("created_at", range.start)
+      .lt("created_at", range.end),
+
+    supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("org_id", orgId),
   ]);
 
   type FullAppt = Appointment & {
@@ -422,6 +466,16 @@ export default async function DashboardPage() {
   const criticalStock = ((inventoryItems ?? []) as InvRow[])
     .filter((i) => Number(i.min_stock_alert) > 0 && Number(i.current_stock) <= Number(i.min_stock_alert))
     .sort((a, b) => Number(a.current_stock) - Number(b.current_stock));
+
+  /* Üst özet şeridi değerleri */
+  const sumRows = (summaryAppts ?? []) as { price: number; tip: number | null; status: string }[];
+  const sumRevenue = sumRows
+    .filter((a) => a.status === "tamamlandi")
+    .reduce((s, a) => s + Number(a.price) + Number(a.tip ?? 0), 0);
+  const sumExpRows = (summaryExpenses ?? []) as { type: string; amount: number }[];
+  const sumExpense = sumExpRows.filter((e) => e.type === "gider").reduce((s, e) => s + Number(e.amount), 0);
+  const sumExtraIncome = sumExpRows.filter((e) => e.type === "gelir").reduce((s, e) => s + Number(e.amount), 0);
+  const sumIncome = sumRevenue + sumExtraIncome;
 
   const firstName =
     (user.user_metadata?.full_name as string | undefined)?.split(" ")[0] ??
@@ -682,19 +736,19 @@ export default async function DashboardPage() {
     {
       key: "campaigns_star",
       label: "Kampanyalar",
-      colSpanClass: "lg:col-span-7",
+      colSpanClass: "lg:col-span-6",
       node: (
-        <div key="campaigns_star" className="rounded-2xl bg-primary text-primary-foreground h-full relative overflow-hidden">
+        <div key="campaigns_star" className="rounded-2xl bg-primary text-primary-foreground h-full relative overflow-hidden cursor-pointer">
           <div
             className="pointer-events-none absolute -top-12 -right-12 w-64 h-64 rounded-full blur-3xl"
             style={{ background: "color-mix(in oklch, var(--primary-foreground) 20%, transparent)" }}
           />
-          <div className="relative z-10 px-6 py-6 space-y-4">
+          <div className="relative z-10 px-6 py-6 space-y-4 h-full">
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-bold tracking-wider uppercase opacity-90">
                 {t("homePage.campaignPerformance")}
               </span>
-              <Link href="/dashboard/kampanyalar" className="text-[11px] font-bold flex items-center gap-0.5 opacity-80 hover:opacity-100">
+              <Link href="/dashboard/kampanyalar" className="text-[11px] font-bold flex items-center gap-0.5 opacity-80 hover:opacity-100 after:absolute after:inset-0 after:z-[1] after:content-['']">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
@@ -719,7 +773,7 @@ export default async function DashboardPage() {
             ) : (
               <Link
                 href="/dashboard/kampanyalar/yeni"
-                className="flex items-center gap-2 text-[13px] opacity-85 hover:opacity-100 transition-opacity"
+                className="relative z-[2] flex items-center gap-2 text-[13px] opacity-85 hover:opacity-100 transition-opacity"
               >
                 <Plus className="h-4 w-4" /> {t("homePage.createFirstCampaign")}
               </Link>
@@ -742,6 +796,27 @@ export default async function DashboardPage() {
                 </div>
               </div>
             )}
+
+            {/* Kampanya durumu: son 7 gün ciro grafiği + doluluk (eski ayrı "Ciro Özeti" kutusu) */}
+            <div
+              className="rounded-xl px-3 py-3"
+              style={{ background: "color-mix(in oklch, var(--primary-foreground) 12%, transparent)" }}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[12px] font-bold uppercase tracking-wider opacity-90">
+                  {t("homePage.campaignStatus")}
+                </span>
+                <span className="text-[11px] opacity-75 capitalize">
+                  {format(now, "MMM yyyy", { locale: dateFnsLocale })}
+                </span>
+              </div>
+              <Sparkline data={dailyRev} className="text-primary-foreground" />
+              <div className="flex items-center justify-between mt-2 text-[13px] font-bold">
+                <span>{t("homePage.efficiencyLabel", { value: efficiency })}</span>
+                <span>{t("homePage.newCustomersLabel", { count: newCustCount })}</span>
+              </div>
+              <p className="text-[11px] opacity-75 mt-1">{t("homePage.chartCaption")}</p>
+            </div>
           </div>
         </div>
       ),
@@ -749,12 +824,12 @@ export default async function DashboardPage() {
     {
       key: "new_customer",
       label: "Yeni Müşteriler",
-      colSpanClass: "lg:col-span-5",
+      colSpanClass: "lg:col-span-6",
       node: (
-        <GlassCard3D key="new_customer" className="glass-card h-full" glow intensity={4}>
+        <GlassCard3D key="new_customer" className="glass-card h-full cursor-pointer" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/musteriler" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/musteriler" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80 after:absolute after:inset-0 after:z-[1] after:content-['']">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -793,10 +868,10 @@ export default async function DashboardPage() {
       label: "Raporlar",
       colSpanClass: "lg:col-span-6",
       node: (
-        <GlassCard3D key="reports_summary" className="glass-card h-full" glow intensity={4}>
+        <GlassCard3D key="reports_summary" className="glass-card h-full cursor-pointer" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/raporlar" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/raporlar" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80 after:absolute after:inset-0 after:z-[1] after:content-['']">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -828,10 +903,10 @@ export default async function DashboardPage() {
       label: "Gelir & Gider",
       colSpanClass: "lg:col-span-6",
       node: (
-        <GlassCard3D key="income_expense" className="glass-card h-full" glow intensity={4}>
+        <GlassCard3D key="income_expense" className="glass-card h-full cursor-pointer" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/gelir-gider" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/gelir-gider" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80 after:absolute after:inset-0 after:z-[1] after:content-['']">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -864,52 +939,14 @@ export default async function DashboardPage() {
       ),
     },
     {
-      key: "quick_actions",
-      label: "Hızlı İşlemler",
-      colSpanClass: "lg:col-span-4",
-      node: <QuickActionsPanel key="quick_actions" initialShortcuts={userShortcuts} orgId={orgId} role={member.role} permissionsJson={member.permissions_json} />,
-    },
-    {
-      key: "revenue_summary",
-      label: "Ciro Özeti",
-      colSpanClass: "lg:col-span-8",
-      node: (
-        <GlassCard3D key="revenue_summary" className="glass-card h-full" glow intensity={4}>
-          <CardTitle
-            right={
-              <span className="text-[11px] text-muted-foreground capitalize">
-                {format(now, "MMM yyyy", { locale: dateFnsLocale })}
-              </span>
-            }
-          >
-            {t("homePage.campaignStatus")}
-          </CardTitle>
-          <div className="px-4 py-3.5">
-            <Sparkline data={dailyRev} />
-            <div className="flex items-center justify-between mt-3">
-              <span className="text-sm font-bold text-primary">
-                {t("homePage.efficiencyLabel", { value: efficiency })}
-              </span>
-              <span className="text-sm font-bold text-foreground">
-                {t("homePage.newCustomersLabel", { count: newCustCount })}
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-1.5">
-              {t("homePage.chartCaption")}
-            </p>
-          </div>
-        </GlassCard3D>
-      ),
-    },
-    {
       key: "staff_today",
       label: "Personel",
       colSpanClass: "lg:col-span-6",
       node: (
-        <GlassCard3D key="staff_today" className="glass-card h-full" glow intensity={4}>
+        <GlassCard3D key="staff_today" className="glass-card h-full cursor-pointer" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/personel" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/personel" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80 after:absolute after:inset-0 after:z-[1] after:content-['']">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -944,10 +981,10 @@ export default async function DashboardPage() {
       label: "Kritik Stok",
       colSpanClass: "lg:col-span-6",
       node: (
-        <GlassCard3D key="critical_stock" className="glass-card h-full" glow intensity={4}>
+        <GlassCard3D key="critical_stock" className="glass-card h-full cursor-pointer" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/stok" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/stok" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80 after:absolute after:inset-0 after:z-[1] after:content-['']">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -988,10 +1025,10 @@ export default async function DashboardPage() {
       label: "Hizmetler",
       colSpanClass: "lg:col-span-6",
       node: (
-        <GlassCard3D key="services_summary" className="glass-card h-full" glow intensity={4}>
+        <GlassCard3D key="services_summary" className="glass-card h-full cursor-pointer" glow intensity={4}>
           <CardTitle
             right={
-              <Link href="/dashboard/hizmetler" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80">
+              <Link href="/dashboard/hizmetler" className="text-[11px] font-bold flex items-center gap-0.5 text-primary hover:opacity-80 after:absolute after:inset-0 after:z-[1] after:content-['']">
                 {t("all")} <ChevronRight className="h-3 w-3" />
               </Link>
             }
@@ -1025,7 +1062,7 @@ export default async function DashboardPage() {
   let displayWidgets = widgets;
   if (isStaff) {
     displayWidgets = widgets.filter(
-      (w) => !["income_expense", "reports_summary", "revenue_summary", "staff_today", "campaigns_star", "services_summary"].includes(w.key)
+      (w) => !["income_expense", "reports_summary", "staff_today", "campaigns_star", "services_summary"].includes(w.key)
     );
     const personalReportWidget = {
       key: "staff_personal_report",
@@ -1099,6 +1136,26 @@ export default async function DashboardPage() {
       {member.role === "staff" && (
         <OnboardingTour orgId={orgId} steps={STAFF_STEPS} basePath="/dashboard" personalOnly />
       )}
+
+      <DashboardSummary
+        data={{
+          period,
+          showFinance: !isStaff,
+          income: sumIncome,
+          revenue: sumRevenue,
+          expense: sumExpense,
+          net: sumIncome - sumExpense,
+          apptTotal: sumRows.filter((a) => a.status !== "iptal").length,
+          apptDone: sumRows.filter((a) => a.status === "tamamlandi").length,
+          apptCancelled: sumRows.filter((a) => a.status === "iptal").length,
+          newCustomers: summaryNewCustomers ?? 0,
+          totalCustomers: totalCustomers ?? 0,
+          criticalStock: criticalStock.length,
+          activeItems: (inventoryItems ?? []).length,
+          pending: totalPendingCount,
+          numLocale,
+        }}
+      />
 
       {/* ── Bento ızgara: mobil tek sütun, geniş ekran 12 sütun — kişiselleştirilebilir ── */}
       <div className="px-4 pb-24 max-w-6xl mx-auto">
