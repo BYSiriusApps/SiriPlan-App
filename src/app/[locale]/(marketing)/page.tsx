@@ -21,6 +21,7 @@ import { LiveTicker } from "@/components/marketing/LiveTicker";
 import { WebsiteShowcase } from "@/components/marketing/WebsiteShowcase";
 import { MobileShowcase } from "@/components/marketing/MobileShowcase";
 import { SectorShowcase } from "@/components/marketing/SectorShowcase";
+import { PanelHighlights } from "@/components/marketing/PanelHighlights";
 import { FeatureBento } from "@/components/marketing/FeatureBento";
 
 // Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (/demo route'u) korunuyor.
@@ -247,6 +248,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <PanelHighlights />
+
 
       {/* Features */}
       <section className="py-20 bg-muted/20">
