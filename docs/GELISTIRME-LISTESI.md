@@ -487,13 +487,13 @@ desendeydi (server component + tek `Promise.all`) — aynı desen uygulandı:
   D: sürücüsü yüzünden `npm run dev` bu oturumda güvenilir çalışmayabiliyordu,
   kullanıcının kendi cihazında test etmesi önerilir.
 
-**Faz 3 — Sekme arka plandan dönünce yenileme ("geç güncelleme" şikayeti):**
+**Faz 3 — ✅ TAMAMLANDI (6 Eki 2026): sekme arka plandan dönünce yenileme ("geç güncelleme" şikayeti):**
 `src/components/dashboard/LiveNotifications.tsx`'e `visibilitychange`/`focus`
 dinleyicisi eklenip sekme öne dönünce throttle'lı (~5-10sn) `router.refresh()`
 tetiklenmesi — mobilde WebSocket kopması sonrası kaçırılan realtime olaylarını
 telafi eder. Katmalı/additive, düşük risk.
 
-**Faz 4 — QuickBookSheet + HelpAssistant code-splitting:**
+**Faz 4 — ✅ TAMAMLANDI (dbcf204): QuickBookSheet + HelpAssistant code-splitting:**
 `RandevularHeader.tsx`/`TakvimHeader.tsx`'teki `QuickBookSheet` (949 satır, her
 zaman statik import + mount'ta gereksiz `/api/org` fetch'i) ve `layout.tsx`'teki
 `HelpAssistant` (318 satır, mikrofon/Web Speech mantığı) `next/dynamic({ssr:false})`
@@ -502,7 +502,7 @@ ile code-split edilir — emsali `src/app/dashboard/stok/page.tsx:38-45`'teki
 (`SheetTrigger`, satır ~547-552) — loading fallback'i aynı boyutta statik bir
 buton iskeleti olmalı, yoksa CLS/sıçrama olur.
 
-**Faz 5 — ayarlar/page.tsx çift `auth.getUser()` düzeltmesi:**
+**Faz 5 — ✅ TAMAMLANDI (dbcf204): ayarlar/page.tsx çift `auth.getUser()` düzeltmesi:**
 `src/lib/active-org-client.ts`'teki `getActiveMemberClient()`'a opsiyonel
 `knownUserId` parametresi eklenip `ayarlar/page.tsx:244-247`'deki art arda 2
 auth ağ isteği 1'e indirilir (tek çağıran nokta, geriye dönük uyumlu).
