@@ -779,3 +779,34 @@ html {
   to { opacity: 1; transform: translateY(0); }
 }
 .sp-notif { animation: sp-notif-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* /indir (Instagram bio sayfası): iki sıra ters yönde kayan sektör kolajı, parlayan ana buton, canlı başlık */
+@keyframes indir-slide-l { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes indir-slide-r { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+.indir-row-l { animation: indir-slide-l 38s linear infinite; }
+.indir-row-r { animation: indir-slide-r 44s linear infinite; }
+@keyframes indir-shine {
+  0% { transform: translateX(-120%) skewX(-20deg); }
+  60%, 100% { transform: translateX(260%) skewX(-20deg); }
+}
+.indir-shine::after {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+  animation: indir-shine 3.2s ease-in-out infinite;
+}
+@keyframes indir-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,193,90,0.55); }
+  50% { box-shadow: 0 0 0 14px rgba(232,193,90,0); }
+}
+.indir-pulse { animation: indir-pulse 2.2s ease-out infinite; }
+@keyframes indir-gradient { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+.indir-gradient-text {
+  background: linear-gradient(90deg, #f6d77a, #ff8fb1, #8fd3ff, #f6d77a);
+  background-size: 200% 100%; -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; animation: indir-gradient 6s linear infinite;
+}
+@keyframes indir-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.indir-rise { animation: indir-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .indir-row-l, .indir-row-r, .indir-shine::after, .indir-pulse, .indir-gradient-text, .indir-rise { animation: none; }
+}
