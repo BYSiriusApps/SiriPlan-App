@@ -7,7 +7,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { blogPosts, getBlogPost } from "@/lib/blog-posts";
 import { buildAlternates, localizedUrl, SITE_BASE_URL } from "@/lib/seo/alternates";
 import { LOCALES, type Locale } from "@/lib/i18n/resolve-locale";
-import { PricingSummary } from "@/components/marketing/PricingSummary";
 
 type Params = { locale: string; slug: string };
 
@@ -214,9 +213,6 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
           )}
         </div>
       </section>
-
-      {/* Güncel fiyatlar — aylık/yıllık, TL/USD/EUR (lib/pricing.ts tek kaynak) */}
-      <PricingSummary />
 
       {/* CTA */}
       <section className="py-10 bg-primary/5 border-y border-primary/20">

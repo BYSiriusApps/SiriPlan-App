@@ -101,7 +101,10 @@ const ASSISTANT_UNITS = {
   ar: { perMonth: "/شهر", yearly: "سنويًا" },
 } as const;
 
-export function pricingSummaryForAssistant(lang: keyof typeof ASSISTANT_UNITS = "tr"): string {
+export function pricingSummaryForAssistant(
+  lang: keyof typeof ASSISTANT_UNITS = "tr",
+  currencies: readonly PricingCurrency[] = PRICING_CURRENCIES,
+): string {
   const u = ASSISTANT_UNITS[lang];
   const plans: { key: PlanKey; name: string }[] = [
     { key: "mini", name: "Mini" },
@@ -111,7 +114,7 @@ export function pricingSummaryForAssistant(lang: keyof typeof ASSISTANT_UNITS = 
   ];
   return plans
     .map(({ key, name }) => {
-      const parts = PRICING_CURRENCIES.map((cur) => {
+      const parts = currencies.map((cur) => {
         const p = PRICING_BY_CURRENCY[cur][key];
         return `${formatPrice(p.monthly, cur)}${u.perMonth} (${u.yearly} ${formatPrice(p.annual, cur)})`;
       });

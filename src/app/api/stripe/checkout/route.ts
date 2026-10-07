@@ -21,6 +21,16 @@ const STRIPE_LOCALE: Record<string, Stripe.Checkout.SessionCreateParams.Locale> 
   ar: "en",
 };
 
+// TRY ödemede Stripe sayfasının "Abone ol" düğmesi altında gösterilen not
+// (Stripe custom_text.submit — en fazla 1200 karakter). Arapça Stripe'ta
+// olmadığı için sayfa İngilizce açılır; not da İngilizce verilir.
+const FOREIGN_FEE_NOTE: Record<string, string> = {
+  tr: "Not: Ödeme yurt dışı üye işyerimiz üzerinden tahsil edildiği için kartınızın bankası işlem tutarından %1-3 arası komisyon kesintisi yapabilir. Bu komisyon bankanıza aittir, SiriPlan tarafından eklenmez.",
+  en: "Note: Because payment is processed through our merchant account outside Turkey, your card's bank may deduct a 1-3% fee from the transaction amount. This fee goes to your bank, not to SiriPlan.",
+  ru: "Примечание: поскольку платёж проходит через наш зарубежный счёт, банк вашей карты может удержать комиссию 1-3% от суммы операции. Эта комиссия идёт банку, а не SiriPlan.",
+  ar: "Note: Because payment is processed through our merchant account outside Turkey, your card's bank may deduct a 1-3% fee from the transaction amount. This fee goes to your bank, not to SiriPlan.",
+};
+
 export async function POST(req: NextRequest) {
   // Mağaza kurallarına uyum: native uygulama (App Store/Play Store) içinden
   // ödeme oturumu asla oluşturulmamalı — /auth/plan-sec ve /dashboard/abonelik
@@ -121,6 +131,11 @@ export async function POST(req: NextRequest) {
     },
     allow_promotion_codes: true,
     locale: STRIPE_LOCALE[locale] ?? "auto",
+    // Yurt dışı işlem komisyonu uyarısı Stripe'ın kendi ödeme sayfasında da
+    // görünsün (plan-sec/fiyat sayfasındaki notun aynısı) — yalnızca TRY.
+    ...(visitorCurrency === "try" && FOREIGN_FEE_NOTE[locale]
+      ? { custom_text: { submit: { message: FOREIGN_FEE_NOTE[locale] } } }
+      : {}),
   };
 
   // Stripe, çok para birimli fiyatlarda `currency` GEÇİLMEDİKÇE Price'ın
