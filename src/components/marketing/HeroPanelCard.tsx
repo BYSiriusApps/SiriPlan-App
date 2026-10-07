@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Check, Users, UserCog, Boxes, Wallet, LayoutDashboard } from "lucide-react";
+import { Check, Users, UserCog, Boxes, Wallet, LayoutDashboard, Scissors, Megaphone } from "lucide-react";
 
 /**
  * Hero'nun orta boşluğuna oturan "Tek panelde her şey" özeti: CRM, personel,
@@ -7,10 +7,12 @@ import { Check, Users, UserCog, Boxes, Wallet, LayoutDashboard } from "lucide-re
  * küçük rozet satırı. Dekoratif; veri çekmez.
  */
 const ITEMS = [
+  { key: "salon", Icon: Scissors, tone: "from-orange-500 to-amber-400" },
   { key: "crm", Icon: Users, tone: "from-pink-500 to-rose-400" },
   { key: "staff", Icon: UserCog, tone: "from-violet-500 to-fuchsia-400" },
   { key: "stock", Icon: Boxes, tone: "from-sky-500 to-blue-400" },
   { key: "finance", Icon: Wallet, tone: "from-emerald-500 to-teal-400" },
+  { key: "campaign", Icon: Megaphone, tone: "from-blue-500 to-indigo-400" },
 ] as const;
 
 export async function HeroPanelCard() {
@@ -19,18 +21,18 @@ export async function HeroPanelCard() {
   return (
     <>
       {/* Geniş ekran: sol sütunun sağ alt boşluğunda yüzen kart */}
-      <div className="sp-float-slow absolute -right-6 bottom-6 z-10 hidden w-[270px] rounded-2xl border border-border bg-card/95 p-4 text-left shadow-xl backdrop-blur xl:block">
+      <div className="sp-float-slow absolute -right-10 bottom-2 z-10 hidden w-[270px] rounded-2xl border border-border bg-card/95 p-4 text-left shadow-xl backdrop-blur xl:block">
         <div className="mb-3 flex items-center gap-2 text-sm font-bold">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-amber-500 text-primary-foreground">
             <LayoutDashboard className="h-4 w-4" />
           </span>
           {t("title")}
         </div>
-        <ul className="space-y-2">
+        <ul className="space-y-1">
           {ITEMS.map(({ key, Icon, tone }) => (
-            <li key={key} className="group flex items-center gap-2.5 rounded-xl px-1.5 py-1 transition-colors hover:bg-muted/60">
+            <li key={key} className="group flex items-center gap-2.5 rounded-xl px-1.5 py-0.5 transition-colors hover:bg-muted/60">
               <span
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${tone} text-white shadow transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${tone} text-white shadow transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}
               >
                 <Icon className="h-4 w-4" />
               </span>
