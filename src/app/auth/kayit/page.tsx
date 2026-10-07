@@ -80,6 +80,43 @@ const TYPE_STYLE: Record<(typeof BUSINESS_TYPE_KEYS)[number], { Icon: IconCmp; g
   diger: { Icon: LayoutGrid, grad: "from-stone-400 to-stone-600" },
 };
 
+// İşletme türü kutularında gösterilen mutlu esnaf fotoğrafları (public/indir + public/sectors).
+// "diger" için fotoğraf yok — eski simge görünümü kalır.
+const TYPE_PHOTO: Partial<Record<(typeof BUSINESS_TYPE_KEYS)[number], string>> = {
+  kuafor: "/indir/kuafor.webp",
+  berber: "/indir/berber.webp",
+  guzellik: "/indir/guzellik.webp",
+  spa: "/indir/spa.webp",
+  nail: "/indir/nail.webp",
+  estetik: "/sectors/estetik.jpg",
+  makyaj: "/indir/makyaj.webp",
+  tattoo: "/indir/tattoo.webp",
+  diyetisyen: "/indir/diyetisyen.webp",
+  kas_kirpik: "/sectors/kas.jpg",
+  pet_kuafor: "/indir/petkuafor.webp",
+};
+
+// Formun üstünde ters yönde kayan iki sıra mutlu esnaf kolajı (yalnızca görsel).
+function RegisterCollage() {
+  const imgs = Object.values(TYPE_PHOTO) as string[];
+  const row = (list: string[], cls: string) => (
+    <div className="overflow-hidden">
+      <div className={`flex w-max gap-2 ${cls}`}>
+        {[...list, ...list].map((src, i) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={i} src={src} alt="" width={80} height={80} loading={i < 4 ? "eager" : "lazy"} className="h-16 w-16 shrink-0 rounded-xl object-cover shadow-md ring-1 ring-black/5 sm:h-20 sm:w-20" />
+        ))}
+      </div>
+    </div>
+  );
+  return (
+    <div aria-hidden="true" className="space-y-2 [mask-image:linear-gradient(90deg,transparent,#000_10%,#000_90%,transparent)]">
+      {row(imgs, "indir-row-l")}
+      {row([...imgs].reverse(), "indir-row-r")}
+    </div>
+  );
+}
+
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
 // Native uygulamada (App Store/Play Store) kayıt formu yalnızca hesap + 14 günlük
@@ -353,6 +390,8 @@ export default function KayitPage() {
   }
 
   return (
+    <div className="space-y-4">
+    {!isNativeApp && <RegisterCollage />}
     <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm">
       <CardHeader className="text-center pb-2">
         <div className="flex justify-end mb-1">
@@ -429,6 +468,7 @@ export default function KayitPage() {
                 const st = TYPE_STYLE[key];
                 const text = sp > 0 ? full.slice(sp + 1) : full;
                 const active = form.type === key;
+                const photo = TYPE_PHOTO[key];
                 return (
                   <button
                     key={key}
@@ -436,16 +476,32 @@ export default function KayitPage() {
                     role="radio"
                     aria-checked={active}
                     onClick={() => set("type", key)}
-                    className={`flex min-h-[4.75rem] flex-col items-center justify-center gap-1 rounded-xl border px-1.5 py-2 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    className={`group relative flex aspect-square flex-col items-center justify-center gap-1 overflow-hidden rounded-xl border px-1.5 py-2 text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       active
-                        ? "border-primary bg-primary/10 shadow-sm ring-2 ring-primary/30"
-                        : "border-border bg-background hover:border-primary/40 hover:bg-primary/5"
+                        ? "border-primary shadow-md ring-2 ring-primary"
+                        : "border-border bg-background hover:border-primary/60"
                     }`}
                   >
-                    <span className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm ${st.grad}`}>
-                      <st.Icon className="h-5 w-5" />
-                    </span>
-                    <span className="line-clamp-3 text-[11px] font-medium leading-tight">{text}</span>
+                    {photo ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photo} alt="" width={160} height={160} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <span className="relative mt-auto line-clamp-2 text-[11px] font-bold leading-tight text-white drop-shadow">{text}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm transition-transform duration-200 group-hover:scale-110 ${st.grad}`}>
+                          <st.Icon className="h-5 w-5" />
+                        </span>
+                        <span className="line-clamp-3 text-[11px] font-semibold leading-tight">{text}</span>
+                      </>
+                    )}
+                    {active && (
+                      <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -616,7 +672,7 @@ export default function KayitPage() {
             )}
           </div>
 
-          <Button type="submit" className="h-11 w-full text-base" disabled={loading}>
+          <Button type="submit" className="indir-shine relative h-12 w-full overflow-hidden text-base font-bold shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             {loading ? t("submitLoading") : purchaseIntent ? t("submitPurchase") : t("submit")}
           </Button>
@@ -628,5 +684,6 @@ export default function KayitPage() {
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 }
