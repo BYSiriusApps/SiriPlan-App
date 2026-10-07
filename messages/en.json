@@ -1,6 +1,7 @@
 {
   "homeVisual": {
     "website": {"badge":"Website Mode","title":"Your booking page is also your website","subtitle":"No need for a separate site: let your booking link be your salon's storefront. Clients get to know you and book on a single page.","social":"Your social media, one tap away","location":"Location and directions","contact":"Phone and contact details","photos":"Photos of the services you offer","reviews":"Google reviews link","cta":"See the live demo","planNote":"On Pro and Business plans","imgAlt":"Booking page in website view","demo":{"title":"Book now","service":"Haircut · 45 min","tomorrow":"Tomorrow","pickTime":"Available times","pickStaff":"Choose a stylist","done":"Your appointment is booked!","summary":"{staff} · Tomorrow {time}","wa":"Your appointment is confirmed ✓ See you tomorrow at {time}!","tg":"New booking: Elif K. · Tomorrow {time}","reset":"Try again","hint":"Try it: tap a time slot","back":"Back"}},
+    "panel": {"badge":"One panel","title":"Everything in one panel","subtitle":"From appointments to stock, clients to cash — your whole business on one screen.","crm":"Customer (CRM) Management","staff":"Staff Management","stock":"Stock Management","finance":"Income & Expense Tracking","chip1":"Appointments","chip2":"WhatsApp & Telegram","salon":"Salon Management","campaign":"Campaign Management"},
     "tickerLabel": "What you can do with SiriPlan",
     "ticker": ["Track your stock live — get alerted the moment it drops below the critical level.","See your work list in real time: who is coming today, what is pending?","How many clients you have, how often each came, what they earned you — with private notes, all at hand.","Never lose a client: stop churn, build loyalty.","Turn on automatic booking and stop juggling phone calls.","Or let booking requests wait for your approval — revise with one tap.","Follow income and expenses live: daily, monthly, yearly.","Shape your services and strategy, raise efficiency.","Manage your staff, measure and track their performance.","Speak into the mic and the appointment creates itself.","Your booking page is your storefront: service photos, location, social media and Google reviews link on one page.","Skip the separate website — your booking link is your website.","All in a single panel."],
     "mobile": {"title":"Your salon in your pocket","subtitle":"With the iOS and Android app, calendar, stock, clients and cash are always at hand.","calendar":"Staff calendar","stock":"Live stock tracking","customers":"Client history","finance":"Income & expenses"},
@@ -21,7 +22,9 @@
     "chat": {
       "q": "Do you have a free slot tomorrow evening?",
       "a": "Yes! 6:30 PM and 7:15 PM are open. Which one should I book?",
-      "done": "Appointment created automatically"
+      "done": "Appointment created automatically",
+      "q2": "Are you open on Saturday morning?",
+      "a2": "Yes, we're open Saturday 09:00–18:00."
     },
     "steps": {
       "title": "Get started in 3 steps",

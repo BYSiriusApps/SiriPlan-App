@@ -21,6 +21,7 @@ import { LiveTicker } from "@/components/marketing/LiveTicker";
 import { WebsiteShowcase } from "@/components/marketing/WebsiteShowcase";
 import { MobileShowcase } from "@/components/marketing/MobileShowcase";
 import { SectorShowcase } from "@/components/marketing/SectorShowcase";
+import { HeroPanelCard } from "@/components/marketing/HeroPanelCard";
 import { FeatureBento } from "@/components/marketing/FeatureBento";
 
 // Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (/demo route'u) korunuyor.
@@ -131,7 +132,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 bysirius-watermark pointer-events-none" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="text-center lg:text-left">
+            <div className="relative text-center lg:text-left">
               <Badge variant="secondary" className="mb-6 gap-1.5 px-3 py-1 text-xs font-medium">
                 <Sparkles className="w-3 h-3 text-primary" />
                 {t("hero.badge")}
@@ -196,6 +197,8 @@ export default async function HomePage() {
                 </div>
               </div>
 
+              <HeroPanelCard />
+
               <p className="text-sm text-muted-foreground">
                 ✓ {t("hero.noCard")} &nbsp;·&nbsp; ✓ {t("hero.trial14")} &nbsp;·&nbsp; ✓ {t("hero.cancelAnytime")}
               </p>
@@ -247,6 +250,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
 
       {/* Features */}
       <section className="py-20 bg-muted/20">
