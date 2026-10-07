@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useIsIOSNativeApp } from "@/lib/use-mobile-app";
 
@@ -18,6 +19,8 @@ export function AuthLogoLink() {
   const isDavet = pathname?.startsWith("/auth/davet");
   const isIOSApp = useIsIOSNativeApp();
   const brandName = isIOSApp ? "SiriusPlan" : "SiriPlan";
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
 
   const inner = (
     <>
@@ -26,7 +29,7 @@ export function AuthLogoLink() {
         alt={brandName}
         className="w-10 h-10 rounded-xl shadow-lg group-hover:scale-105 transition-transform"
       />
-      <span className="text-2xl font-bold text-foreground">{brandName}</span>
+      <span className={`text-2xl font-bold text-foreground ${ready ? "" : "invisible"}`}>{brandName}</span>
     </>
   );
 

@@ -563,7 +563,7 @@ export default function KayitPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             <div className="space-y-1.5">
               <Label>{t("emailLabel")}</Label>
               <div className="relative">
@@ -579,7 +579,7 @@ export default function KayitPage() {
             <div className="space-y-1.5">
               <Label>{t("phoneLabel")} <span className="text-red-500">*</span></Label>
               <div className="flex gap-1.5">
-                <div className="relative w-[4.5rem] shrink-0">
+                <div className="relative w-20 shrink-0">
                   <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">+</span>
                   <Input inputMode="numeric" placeholder="90" title={t("countryCodeTitle")}
                     className="pl-4 pr-1 text-center"
