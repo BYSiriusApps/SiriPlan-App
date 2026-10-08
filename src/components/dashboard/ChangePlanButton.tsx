@@ -11,6 +11,7 @@ type Preview = {
   interval: string;
   currency: string;
   amountDue: number;
+  total: number;
 };
 
 function money(cents: number, currency: string) {
@@ -107,7 +108,7 @@ export function ChangePlanButton({
           </p>
         ) : (
           <p>
-            Şimdi ödeme alınmaz. Mevcut planınızın kullanılmayan kısmı ({money(Math.abs(preview.amountDue), preview.currency)}) hesabınıza kredi
+            Şimdi ödeme alınmaz. Mevcut planınızın kullanılmayan kısmı ({money(Math.abs(Math.min(preview.total, 0)), preview.currency)}) hesabınıza kredi
             olarak yazılır ve sonraki faturanızdan düşülür. Fatura dönemi tarihiniz değişmez.
           </p>
         )}
