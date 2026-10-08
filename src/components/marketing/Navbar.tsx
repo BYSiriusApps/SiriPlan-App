@@ -167,7 +167,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="sm"
-              className="whitespace-normal px-2 text-center text-xs leading-tight md:whitespace-nowrap md:px-3 md:text-[0.8rem]"
+              className="h-auto min-h-7 whitespace-normal px-2 py-1 text-center text-xs leading-tight md:whitespace-nowrap md:px-3 md:text-[0.8rem]"
             >
               {t("login")}
             </Button>
@@ -175,9 +175,10 @@ export function Navbar() {
           <NextLink href="/auth/kayit">
             <Button
               size="sm"
-              className="max-w-[100px] whitespace-normal bg-primary px-2.5 text-center text-xs leading-tight shadow-sm hover:bg-primary/90 md:max-w-none md:whitespace-nowrap md:px-4 md:text-[0.8rem]"
+              className="h-auto min-h-7 max-w-[110px] whitespace-normal bg-primary px-2.5 py-1 text-center text-xs leading-tight shadow-sm hover:bg-primary/90 md:max-w-none md:whitespace-nowrap md:px-4 md:text-[0.8rem]"
             >
-              {t("startFree")}
+              <span className="md:hidden">{t("signUp")}</span>
+              <span className="hidden md:inline">{t("startFree")}</span>
             </Button>
           </NextLink>
 
