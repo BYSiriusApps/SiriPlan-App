@@ -509,13 +509,13 @@
     "ctaButton": "Ücretsiz Başlayın"
   },
   "aboutPage": {
-    "metaDescription": "BY Sirius Group Ai & Technology Co Ltd. ve SiriPlan hakkında bilgi edinin.",
+    "metaDescription": "BY Sirius Group Ai and Technology Co Ltd. ve SiriPlan hakkında bilgi edinin.",
     "heroTitle": "Teknolojiyle İşletmenizi",
     "heroTitleHighlight": "Geleceğe Taşıyoruz",
-    "heroSubtitle": "SiriPlan, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> çatısı altında geliştirilen, 10'dan fazla sektöre hizmet sunan yapay zeka destekli randevu ve işletme yönetim platformudur.",
+    "heroSubtitle": "SiriPlan, <strong>BY Sirius Group Ai and Technology Co Ltd.</strong> çatısı altında geliştirilen, 10'dan fazla sektöre hizmet sunan yapay zeka destekli randevu ve işletme yönetim platformudur.",
     "aboutTitle": "BY Sirius Group Kimdir?",
-    "aboutP1": "<strong>BY Sirius Group Ai & Technology Co Ltd.</strong>, yapay zeka, SaaS çözümleri ve dijital dönüşüm alanlarında faaliyet gösteren teknoloji şirketidir. Kuruluşumuzdan bu yana işletmelerin dijitalleşme yolculuğunu kolaylaştırmak için yenilikçi ürünler geliştirmekteyiz.",
-    "aboutP2": "SiriPlan, BY Sirius Group Ai & Technology Co Ltd.'un amiral gemisi ürünü olarak kuaförden kliniklere, berbelerden spa merkezlerine kadar geniş bir sektör yelpazesine randevu yönetimi ve operasyonel verimlilik sağlar.",
+    "aboutP1": "<strong>BY Sirius Group Ai and Technology Co Ltd.</strong>, yapay zeka, SaaS çözümleri ve dijital dönüşüm alanlarında faaliyet gösteren teknoloji şirketidir. Kuruluşumuzdan bu yana işletmelerin dijitalleşme yolculuğunu kolaylaştırmak için yenilikçi ürünler geliştirmekteyiz.",
+    "aboutP2": "SiriPlan, BY Sirius Group Ai and Technology Co Ltd.'un amiral gemisi ürünü olarak kuaförden kliniklere, berbelerden spa merkezlerine kadar geniş bir sektör yelpazesine randevu yönetimi ve operasyonel verimlilik sağlar.",
     "websiteButton": "bysirius.com",
     "stats": {
       "sectors": "Desteklenen Sektör",
@@ -606,7 +606,7 @@
         "items": {
           "q1": {
             "q": "SiriPlan nedir?",
-            "a": "SiriPlan, kuaför, berber, güzellik salonu, SPA, klinik ve daha fazlası için geliştirilmiş yapay zeka destekli randevu ve işletme yönetim platformudur. BY Sirius Group Ai & Technology Co Ltd. tarafından geliştirilmiştir."
+            "a": "SiriPlan, kuaför, berber, güzellik salonu, SPA, klinik ve daha fazlası için geliştirilmiş yapay zeka destekli randevu ve işletme yönetim platformudur. BY Sirius Group Ai and Technology Co Ltd. tarafından geliştirilmiştir."
           },
           "q2": {
             "q": "Hangi sektörlere hitap ediyor?",
@@ -715,7 +715,7 @@
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "controllerTitle": "Veri Sorumlusu",
-    "controllerP1": "<strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Şirket\") olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") uyarınca veri sorumlusu sıfatıyla kişisel verilerinizi aşağıda açıklanan amaçlar doğrultusunda ve mevzuata uygun biçimde işlemekteyiz.",
+    "controllerP1": "<strong>BY Sirius Group Ai and Technology Co Ltd.</strong> (\"Şirket\") olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") uyarınca veri sorumlusu sıfatıyla kişisel verilerinizi aşağıda açıklanan amaçlar doğrultusunda ve mevzuata uygun biçimde işlemekteyiz.",
     "controllerContact": "<strong>Web sitesi:</strong> bysirius.com | <strong>E-posta:</strong> kvkk@bysirius.com",
     "dataTitle": "İşlenen Kişisel Veriler",
     "dataTableCategory": "Veri Kategorisi",
@@ -774,7 +774,7 @@
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Veri Sorumlusu",
-    "s1P1": "Bu gizlilik politikası, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Şirket\", \"biz\", \"bize\") tarafından işletilen <strong>SiriPlan</strong> platformu için geçerlidir. Şirket, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında veri sorumlusu sıfatını taşımaktadır.",
+    "s1P1": "Bu gizlilik politikası, <strong>BY Sirius Group Ai and Technology Co Ltd.</strong> (\"Şirket\", \"biz\", \"bize\") tarafından işletilen <strong>SiriPlan</strong> platformu için geçerlidir. Şirket, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında veri sorumlusu sıfatını taşımaktadır.",
     "s1P2": "<strong>Web sitesi:</strong> bysirius.com | <strong>E-posta:</strong> privacy@bysirius.com",
     "s2Title": "2. Toplanan Kişisel Veriler",
     "s2Intro": "Platform kullanımı sırasında aşağıdaki veriler işlenebilir:",
@@ -813,13 +813,13 @@
     "s9Title": "8. Politika Değişiklikleri",
     "s9P": "Bu politikada yapılan değişiklikler platform üzerinden duyurulur. Değişikliklerin yürürlüğe girmesinden sonra platformu kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir.",
     "s10Title": "9. Yurt Dışı Kullanıcılar ve Uygulanacak Hükümler",
-    "s10P": "SiriPlan, BY Sirius Group Ai & Technology Co Ltd. tarafından işletilmektedir. Türkiye dışından erişen kullanıcıların kişisel verileri de bu politikada açıklanan amaç ve yöntemlerle işlenir. Bulunduğunuz ülkenin veri koruma mevzuatı size ek haklar tanıyorsa, bu hakları kullanmak için privacy@bysirius.com adresine başvurabilirsiniz; talepler yürürlükteki mevzuatın öngördüğü süre ve kapsamda değerlendirilir."
+    "s10P": "SiriPlan, BY Sirius Group Ai and Technology Co Ltd. tarafından işletilmektedir. Türkiye dışından erişen kullanıcıların kişisel verileri de bu politikada açıklanan amaç ve yöntemlerle işlenir. Bulunduğunuz ülkenin veri koruma mevzuatı size ek haklar tanıyorsa, bu hakları kullanmak için privacy@bysirius.com adresine başvurabilirsiniz; talepler yürürlükteki mevzuatın öngördüğü süre ve kapsamda değerlendirilir."
   },
   "accountDeletionPage": {
     "metaDescription": "SiriPlan hesabınızı ve kişisel verilerinizi nasıl sildireceğinizi öğrenin.",
     "pageTitle": "Hesap ve Veri Silme Talebi",
     "lastUpdated": "Son güncelleme: Ağustos 2026",
-    "appInfo": "<strong>Uygulama:</strong> SiriPlan (com.siriplan.app) — <strong>Geliştirici:</strong> BY Sirius Group Ai & Technology Co Ltd.",
+    "appInfo": "<strong>Uygulama:</strong> SiriPlan (com.siriplan.app) — <strong>Geliştirici:</strong> BY Sirius Group Ai and Technology Co Ltd.",
     "intro": "Bu sayfada SiriPlan hesabınızı ve hesabınıza bağlı kişisel verilerinizi nasıl kalıcı olarak sildirebileceğiniz açıklanır. Bu sayfayı görüntülemek veya talep göndermek için giriş yapmanız gerekmez.",
     "inAppTitle": "Yöntem 1 — Uygulama içinden (anında)",
     "inAppP": "İşletme sahibi hesabınızla giriş yapın:",
@@ -852,7 +852,7 @@
     "lastUpdated": "Son güncelleme: Ağustos 2026",
     "translationNote": "",
     "s1Title": "1. Taraflar ve Kapsam",
-    "s1P": "Bu Kullanım Koşulları, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"SiriPlan\", \"biz\") ile platformu kullanan bireyler ve işletmeler (\"Kullanıcı\") arasındaki hukuki ilişkiyi düzenler. Platformu kullanarak bu koşulları kabul etmiş sayılırsınız.",
+    "s1P": "Bu Kullanım Koşulları, <strong>BY Sirius Group Ai and Technology Co Ltd.</strong> (\"SiriPlan\", \"biz\") ile platformu kullanan bireyler ve işletmeler (\"Kullanıcı\") arasındaki hukuki ilişkiyi düzenler. Platformu kullanarak bu koşulları kabul etmiş sayılırsınız.",
     "s2Title": "2. Hizmet Tanımı",
     "s2P": "SiriPlan; randevu yönetimi, müşteri takibi, personel yönetimi, kampanya modülü ve ciro raporlaması gibi işletme yönetim araçları sunan SaaS (Hizmet Olarak Yazılım) platformudur. Platform erişimi seçilen abonelik planı kapsamında sağlanır.",
     "s3Title": "3. Kullanıcı Yükümlülükleri",
@@ -868,9 +868,9 @@
     "s4Title": "4. Ücretlendirme ve Abonelik",
     "s4P": "Abonelik ücretleri seçilen plana göre aylık veya yıllık olarak peşin tahsil edilir. Yıllık planda %18 indirim uygulanır. Ücretsiz deneme süresi, hizmeti satın almadan önce değerlendirmeniz içindir. Aboneliğinizi istediğiniz zaman iptal edebilirsiniz; iptal sonraki yenilemeyi durdurur ve mevcut dönem sonuna kadar erişiminiz sürer. Yürürlükteki mevzuatın zorunlu kıldığı hâller dışında, başlamış abonelik dönemlerine ilişkin ücretler iade edilmez. Sorularınız için support@bysirius.com.",
     "s5Title": "5. Hizmet Kesintileri ve Sorumluluk Sınırları",
-    "s5P": "Platform %99,9 uptime hedefiyle çalışır; ancak bakım veya teknik nedenlerle kısa süreli kesintiler yaşanabilir. BY Sirius Group Ai & Technology Co Ltd., dolaylı, arızi veya sonuçta ortaya çıkan zararlardan sorumlu tutulamaz. Sorumluluğumuz, ilgili ay içinde ödediğiniz abonelik ücretiyle sınırlıdır.",
+    "s5P": "Platform %99,9 uptime hedefiyle çalışır; ancak bakım veya teknik nedenlerle kısa süreli kesintiler yaşanabilir. BY Sirius Group Ai and Technology Co Ltd., dolaylı, arızi veya sonuçta ortaya çıkan zararlardan sorumlu tutulamaz. Sorumluluğumuz, ilgili ay içinde ödediğiniz abonelik ücretiyle sınırlıdır.",
     "s6Title": "6. Fikri Mülkiyet",
-    "s6P": "Platformun, tüm kaynak kodunun, veritabanı şemalarının, tasarımlarının ve iş akışlarının fikri mülkiyet hakları BY Sirius Group Ai & Technology Co Ltd.'e aittir. Geliştirme aşamasında yapay zeka (AI) model asistanlarından faydalanılmış olup, ortaya çıkan tüm çıktılar, kod mimarisi ve özgün kurgu FSEK ve Bern Sözleşmesi uyarınca koruma altındadır. Kodların kopyalanması, tersine mühendislikle deşifre edilmesi, klonlanması, taklit edilmesi veya decompile edilmesi kesinlikle yasaktır ve yasal takibat sebebidir. Kullanıcılar sisteme kendi yükledikleri içeriklerin (müşteri verileri, randevular) haklarını saklı tutar.",
+    "s6P": "Platformun, tüm kaynak kodunun, veritabanı şemalarının, tasarımlarının ve iş akışlarının fikri mülkiyet hakları BY Sirius Group Ai and Technology Co Ltd.'e aittir. Geliştirme aşamasında yapay zeka (AI) model asistanlarından faydalanılmış olup, ortaya çıkan tüm çıktılar, kod mimarisi ve özgün kurgu FSEK ve Bern Sözleşmesi uyarınca koruma altındadır. Kodların kopyalanması, tersine mühendislikle deşifre edilmesi, klonlanması, taklit edilmesi veya decompile edilmesi kesinlikle yasaktır ve yasal takibat sebebidir. Kullanıcılar sisteme kendi yükledikleri içeriklerin (müşteri verileri, randevular) haklarını saklı tutar.",
     "s7Title": "7. Sözleşmenin Feshi",
     "s7P": "Kullanım koşullarının ihlali durumunda hesabınız önceden bildirmeksizin askıya alınabilir veya kapatılabilir. Hesap kapatma öncesinde verilerinizi dışa aktarma hakkına sahipsiniz.",
     "s8Title": "8. Uygulanacak Hukuk",
@@ -3007,7 +3007,7 @@
       "linkCopiedButton": "Kopyalandı",
       "shareWhatsAppButton": "WhatsApp'ta Paylaş",
       "legalSectionTitle": "Fikri Mülkiyet & Yasal Garanti",
-      "legalSectionDesc": "Bu yazılımın tüm telif ve fikri mülkiyet hakları BY Sirius Group Ai & Technology Co Ltd. tarafından tescilli olup, Bern Sözleşmesi ve FSEK hükümleri uyarınca korunmaktadır.",
+      "legalSectionDesc": "Bu yazılımın tüm telif ve fikri mülkiyet hakları BY Sirius Group Ai and Technology Co Ltd. tarafından tescilli olup, Bern Sözleşmesi ve FSEK hükümleri uyarınca korunmaktadır.",
       "legalNoticeButton": "Yasal Hakları & Telif Beyanını Görüntüle",
       "accountDeletionButton": "Hesabımı ve Tüm Verilerimi Sil",
       "accountDeletionDesc": "Mobil uygulama mağazaları (App Store & Play Store) ve KVKK kuralları gereği, hesabınızı ve ilişkili tüm verilerinizi kalıcı olarak silebilirsiniz. Bu işlem geri alınamaz.",
@@ -3230,7 +3230,7 @@
     },
     "legalModal": {
       "title": "Yasal Haklar ve Telif Bildirimi",
-      "copyright": "Copyright © 2026 BY Sirius Group Ai & Technology Co Ltd. Tüm hakları saklıdır.",
+      "copyright": "Copyright © 2026 BY Sirius Group Ai and Technology Co Ltd. Tüm hakları saklıdır.",
       "aiNotice": "Bu platformun tüm kaynak kodları, mimarisi ve arayüz tasarımları BY Sirius Group'a aittir ve telif hakkı ile fikri mülkiyet mevzuatı kapsamında korunmaktadır. İzinsiz kopyalama, tersine mühendislik, klonlama veya taklit kesinlikle yasaktır ve yasal takibat sebebidir.",
       "storeNotice": "Mobil Uygulama Uyumluluğu: Bu platform Apple App Store ve Google Play Store gizlilik ve veri saklama (hesap silme) politikalarıyla %100 uyumludur. Verileriniz KVKK kapsamında korunmakta ve Stripe altyapısıyla şifrelenmektedir.",
       "close": "Kapat"

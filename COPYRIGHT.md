@@ -2,9 +2,9 @@
 ## (INTELLECTUAL PROPERTY & COPYRIGHT DECLARATION)
 
 ### 1. Yasal Sahiplik ve Telif Hakları (Legal Ownership & Copyright)
-Bu yazılımın (Siriplan), kaynak kodunun, veritabanı şemalarının, kullanıcı arayüzü tasarımlarının, iş süreçlerinin, PWA/mobil paketlerinin ve tüm özgün içeriklerinin mülkiyet ve telif hakları **5846 Sayılı Fikir ve Sanat Eserleri Kanunu (FSEK)** ve uluslararası **Bern Sözleşmesi (Berne Convention)** hükümleri çerçevesinde **BY Sirius Group Ai & Technology Co Ltd.**'ye (veya lisans sahibi hak sahibine) aittir.
+Bu yazılımın (Siriplan), kaynak kodunun, veritabanı şemalarının, kullanıcı arayüzü tasarımlarının, iş süreçlerinin, PWA/mobil paketlerinin ve tüm özgün içeriklerinin mülkiyet ve telif hakları **5846 Sayılı Fikir ve Sanat Eserleri Kanunu (FSEK)** ve uluslararası **Bern Sözleşmesi (Berne Convention)** hükümleri çerçevesinde **BY Sirius Group Ai and Technology Co Ltd.**'ye (veya lisans sahibi hak sahibine) aittir.
 
-*   **Telif Hakkı Saklıdır:** Copyright © 2026 BY Sirius Group Ai & Technology Co Ltd. Tüm hakları saklıdır.
+*   **Telif Hakkı Saklıdır:** Copyright © 2026 BY Sirius Group Ai and Technology Co Ltd. Tüm hakları saklıdır.
 *   **Yetkisiz Kullanım Yasağı:** Bu yazılımın kaynak kodlarının tamamı veya bir kısmı; kopyalanamaz, dağıtılamaz, tersine mühendislik işlemlerine tabi tutulamaz, kaynak koda dönüştürülemez (decompile) ve izinsiz ticari amaçlarla kullanılamaz.
 
 ---
