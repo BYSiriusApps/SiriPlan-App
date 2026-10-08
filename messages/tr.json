@@ -51,6 +51,7 @@
     "contact": "İletişim",
     "login": "Giriş Yap",
     "startFree": "Ücretsiz Başla",
+    "signUp": "Kayıt Ol",
     "language": "Dil",
     "faq": "SSS"
   },
@@ -164,7 +165,7 @@
       "features": [
         "1 şube, 1 personel",
         "Ayda 200 randevu",
-        "Ayda 200 WhatsApp mesajı (onay & hatırlatma)",
+        "Ayda 200 WhatsApp mesajı (onay + hatırlatma)",
         "Kişisel randevu linki (siriplan.com/r/salon-adin)",
         "Müşteri kaydı ve geçmişi",
         "Stok yönetimi (mal/ürün takibi, barkodla satış)",
@@ -245,7 +246,7 @@
     },
     "sms": {
       "name": "SMS Paketi",
-      "desc": "1.000 SMS/ay, Twilio altyapısı, teslimat garantisi",
+      "desc": "1.000 SMS kontörü, tek seferlik, süre sınırı yok. Kendi SMS hesabınıza gerek kalmadan gönderin",
       "price": "$19/ay"
     },
     "multiBranch": {
@@ -1359,6 +1360,14 @@
       "upgradeToPro": "Pro'ya Yükselt",
       "changeToPlan": "{plan} Planına Geç",
       "manageBilling": "Fatura & Ödeme Yöntemini Yönet",
+      "smsPackTitle": "SMS Kontörü",
+      "smsPackDesc": "Kendi SMS hesabınızı bağlamadan, müşterilerinize SMS gönderin. Tek seferlik 1.000 SMS, süre sınırı yok.",
+      "smsPackBalance": "Kalan SMS",
+      "smsPackBuy": "1.000 SMS Kontörü Satın Al",
+      "smsPackHint": "Kontör, Ayarlar'da SMS bildirimleri açıkken ve kendi SMS sağlayıcınız bağlı değilken kullanılır.",
+      "smsPackSuccess": "Ödemeniz alındı. Kontörünüz birkaç saniye içinde hesabınıza yüklenir.",
+      "smsPackCanceled": "Ödeme tamamlanmadı.",
+      "smsPackError": "Ödeme sayfası açılamadı.",
       "trialBottomNote": "Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez. Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz.",
       "cancelSubscription": "Aboneliği İptal Et",
       "cancelConfirmTitle": "Aboneliği iptal etmek istediğinize emin misiniz?",

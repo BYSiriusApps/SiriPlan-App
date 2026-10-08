@@ -8,11 +8,13 @@ import { redirect } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, CalendarDays, MessageCircle, Megaphone, type LucideIcon } from "lucide-react";
+import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, CalendarDays, MessageCircle, MessageSquare, Megaphone, type LucideIcon } from "lucide-react";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { ManageBillingButton } from "@/components/dashboard/ManageBillingButton";
 import { CancelSubscriptionButton } from "@/components/dashboard/CancelSubscriptionButton";
 import { ChangePlanButton } from "@/components/dashboard/ChangePlanButton";
+import { BuySmsPackButton } from "@/components/dashboard/BuySmsPackButton";
+import { getSmsCredits } from "@/lib/sms-credits";
 import Link from "next/link";
 
 const PLAN_ORDER: PlanKey[] = ["mini", "starter", "pro", "business"];
@@ -27,7 +29,13 @@ const PLAN_DETAILS = {
   business: { icon: Building2, color: "text-purple-600" },
 };
 
-export default async function AbonelikPage() {
+export default async function AbonelikPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sms_pack?: string }>;
+}) {
+  const { sms_pack: smsPackParam } = await searchParams;
+  const smsPackStatus = smsPackParam === "success" || smsPackParam === "canceled" ? smsPackParam : undefined;
   const t = await getTranslations();
   const locale = await getLocale();
   const supabase = await createClient();
@@ -67,12 +75,13 @@ export default async function AbonelikPage() {
   // Mini: ayda 200 müşteri WhatsApp mesajı · Starter: ayda 1 kampanya (diğer planlarda null → gösterge yok)
   const waLimit = monthlyWaMessageLimit(org);
   const campaignLimit = monthlyCampaignLimit(org);
-  const [{ count: staffCount }, { count: appointmentCount }, waUsed, campaignUsed] = await Promise.all([
+  const [{ count: staffCount }, { count: appointmentCount }, waUsed, campaignUsed, smsCredits] = await Promise.all([
     admin.from("staff").select("id", { count: "exact", head: true }).eq("org_id", member.org_id).eq("is_active", true),
     admin.from("appointments").select("id", { count: "exact", head: true }).eq("org_id", member.org_id)
       .gte("created_at", monthStart).lt("created_at", monthEnd),
     waLimit !== null ? getPlanUsage(member.org_id, "wa_message") : Promise.resolve(0),
     campaignLimit !== null ? getPlanUsage(member.org_id, "campaign") : Promise.resolve(0),
+    getSmsCredits(member.org_id),
   ]);
 
   const currentPlanKey = org.plan === "trial" ? "pro" : (org.plan as PlanKey);
@@ -270,6 +279,38 @@ export default async function AbonelikPage() {
               />
             )}
         </div>
+      )}
+
+      {/* SMS kontörü: tek seferlik paket. Native uygulamada satın alma yüzeyi gösterilmez
+          (mağaza kuralları); bakiye yine de görünür. */}
+      {(smsCredits > 0 || !mobileApp) && (
+        <Card className="kpi-tile border-0 shadow-none">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-primary" />
+              {t("dashboard.subscriptionPage.smsPackTitle")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-baseline justify-between">
+              <span className="text-sm text-muted-foreground">{t("dashboard.subscriptionPage.smsPackBalance")}</span>
+              <span className="text-2xl font-bold tabular-nums">{smsCredits}</span>
+            </div>
+            {!mobileApp && (
+              <>
+                <p className="text-sm text-muted-foreground">{t("dashboard.subscriptionPage.smsPackDesc")}</p>
+                <BuySmsPackButton
+                  label={t("dashboard.subscriptionPage.smsPackBuy")}
+                  errorText={t("dashboard.subscriptionPage.smsPackError")}
+                  successText={t("dashboard.subscriptionPage.smsPackSuccess")}
+                  canceledText={t("dashboard.subscriptionPage.smsPackCanceled")}
+                  returnStatus={smsPackStatus}
+                />
+                <p className="text-xs text-muted-foreground">{t("dashboard.subscriptionPage.smsPackHint")}</p>
+              </>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {org.plan === "trial" && !mobileApp && (

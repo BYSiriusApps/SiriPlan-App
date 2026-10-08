@@ -47,6 +47,37 @@ export async function POST(req: NextRequest) {
       // stripe/checkout zaten Session oluşturulmadan ÖNCE stripe_customer_id'yi
       // org'a yazmıştı, o eşleşme burada kullanılıyor (customer.subscription.*
       // handler'larındaki desenle aynı).
+      // Tek seferlik SMS kontör paketi (payment modu; abonelik değil). Kontör
+      // YALNIZCA ödeme alındıysa yüklenir; org'un customer'ı oturumdakiyle
+      // eşleşmiyorsa yüklenmez. Aynı oturum tekrar gelirse add_sms_credits
+      // idempotent olduğu için ikinci kez yüklenmez.
+      if (session.mode === "payment" && session.metadata?.kind === "sms_pack") {
+        const packOrgId = session.metadata.org_id;
+        const credits = Number(session.metadata.credits);
+        if (session.payment_status === "paid" && packOrgId && Number.isInteger(credits) && credits > 0) {
+          const { data: packOrg } = await supabase
+            .from("organizations")
+            .select("id, stripe_customer_id")
+            .eq("id", packOrgId)
+            .single();
+          if (packOrg && packOrg.stripe_customer_id && packOrg.stripe_customer_id === session.customer) {
+            const { error } = await supabase.rpc("add_sms_credits", {
+              p_org: packOrg.id,
+              p_credits: credits,
+              p_session: session.id,
+              p_amount: session.amount_total,
+              p_currency: session.currency,
+            });
+            if (error) {
+              console.error("[stripe-webhook] SMS kontörü yüklenemedi:", error.message);
+              // 500 → Stripe olayı yeniden dener; ödeme alınmış kontör kaybolmasın.
+              return NextResponse.json({ error: "sms_credit_failed" }, { status: 500 });
+            }
+            await writeAuditLog(packOrg.id, "sms_pack.purchased", { credits, session: session.id, event: event.id });
+          }
+        }
+        break;
+      }
       const customerId = session.customer as string | null;
       const subscriptionId = session.subscription as string | null;
       if (customerId && subscriptionId) {
