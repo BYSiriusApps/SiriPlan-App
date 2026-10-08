@@ -51,6 +51,7 @@
     "contact": "Contact",
     "login": "Log In",
     "startFree": "Start Free",
+    "signUp": "Sign Up",
     "language": "Language",
     "faq": "FAQ"
   },
@@ -164,7 +165,7 @@
       "features": [
         "1 location, 1 staff member",
         "200 appointments per month",
-        "200 WhatsApp messages per month (confirmations & reminders)",
+        "200 WhatsApp messages per month (confirmations + reminders)",
         "Personal booking link (siriplan.com/r/your-salon)",
         "Customer records & history",
         "Stock & inventory management (barcode sales)",
@@ -245,7 +246,7 @@
     },
     "sms": {
       "name": "SMS Package",
-      "desc": "1,000 SMS/month, Twilio infrastructure, delivery guarantee",
+      "desc": "1,000 SMS credits, one-time, no expiry. Send without your own SMS account",
       "price": "$19/mo"
     },
     "multiBranch": {
@@ -1359,6 +1360,14 @@
       "upgradeToPro": "Upgrade to Pro",
       "changeToPlan": "Switch to {plan}",
       "manageBilling": "Manage Billing & Payment Method",
+      "smsPackTitle": "SMS Credits",
+      "smsPackDesc": "Send SMS to your customers without connecting your own SMS account. One-time 1,000 SMS, no expiry.",
+      "smsPackBalance": "SMS remaining",
+      "smsPackBuy": "Buy 1,000 SMS Credits",
+      "smsPackHint": "Credits are used when SMS notifications are enabled in Settings and you have no SMS provider of your own connected.",
+      "smsPackSuccess": "Payment received. Your credits will be added to your account within a few seconds.",
+      "smsPackCanceled": "Payment was not completed.",
+      "smsPackError": "Could not open the payment page.",
       "trialBottomNote": "All Pro features are free during the trial period — no credit card required. You can compare Starter and Pro before the trial ends and continue with the plan that suits you.",
       "cancelSubscription": "Cancel Subscription",
       "cancelConfirmTitle": "Are you sure you want to cancel your subscription?",

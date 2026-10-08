@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import { consumeSmsCredit, releaseSmsCredit } from "@/lib/sms-credits";
 
 /**
  * Sağlayıcıdan bağımsız SMS gönderim katmanı. wa-templates/send.ts'deki
@@ -98,7 +99,13 @@ export async function sendSms({ toPhone, orgId, message }: SendSmsParams): Promi
   if (!org) return { skipped: true, reason: "org_not_found" };
   if (!org.sms_notifications_enabled) return { skipped: true, reason: "sms_disabled" };
   if (!org.sms_provider || !org.sms_username || !org.sms_password) {
-    return { skipped: true, reason: "sms_not_configured" };
+    // Kendi sağlayıcısını bağlamamış kiracı: satın aldığı SMS kontörü varsa
+    // SiriPlan'ın platform hesabından gönderilir ve her SMS için 1 kontör düşer.
+    // (Sağlayıcısı bağlı kiracıların akışı yukarıdaki gibi aynen sürer.)
+    if (!(await consumeSmsCredit(orgId))) return { skipped: true, reason: "sms_not_configured" };
+    const result = await sendPlatformSms(toPhone, message);
+    if (!("sent" in result)) await releaseSmsCredit(orgId);
+    return result;
   }
 
   const creds = { username: org.sms_username, password: org.sms_password, senderId: org.sms_sender_id };
