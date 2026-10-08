@@ -17,9 +17,9 @@
 | 7 | **SalonAppy** | Yok | "Ücretsiz deneyin" (süre belirsiz) | Başlangıç **1.299** | Standart **1.699** (8 personel) | Full **2.599** (10 personel) | 8–10 | Kurumsal: çoklu | Sınırsız | Standart+: otomatik hatırlatma | Var (Full) | Kurumsal: markalı uygulama |
 | 8 | **Arvengo** | Yok | 7 gün | ? (sitede "TL --") | ? | ? | 2 / 8 / 10 | Full: çoklu şube | Sınırsız | SMS (Standart: toplu SMS) | Var (Full) | Var |
 | 9 | **SalonRandevu** | "Ücretsiz randevu programı" ifadesi var | "Ücretsiz Dene" (süre belirsiz) | ? (paket + SMS paketi modeli) | ? | ? | Sınırsız | Sınırsız | ? | SMS paketleri (ayrı satılıyor) | ? | iOS, Android, Huawei |
-| — | **SiriPlan** | Yok | **14 gün** | Mini **399** | Starter **1.199** / Pro **1.799** | Business **4.752** | 1 / 8 / sınırsız / sınırsız | 1 / 1 / 1 / 5 | Mini 200/ay; diğerleri sınırsız | Mini: 200 WA/ay; Starter+: WA hatırlatma; Pro: kampanya, sesli asistan; Business: AI WA/IG asistanı | **Var (tüm planlar)** | iOS (SiriusPlan) + Android (SiriPlan) |
+| — | **SiriPlan** | Yok | **14 gün** | Mini **399** | Starter **1.199** / Pro **1.799** | Business **4.699** | 1 / 8 / sınırsız / sınırsız | 1 / 1 / 1 / 5 | Mini 200/ay; diğerleri sınırsız | Mini: 200 WA/ay; Starter+: WA hatırlatma; Pro: kampanya, sesli asistan; Business: AI WA/IG asistanı | **Var (tüm planlar)** | iOS (SiriusPlan) + Android (SiriPlan) |
 
-Yıllık ödemede SiriPlan ≈ %18 indirim (Mini 3.926, Starter 11.798, Pro 17.702, Business 46.760 ₺/yıl).
+Yıllık ödemede SiriPlan ≈ %18 indirim (Mini 3.926, Starter 11.798, Pro 17.702, Business 46.238 ₺/yıl).
 
 ## 2. SiriPlan'ın konumu
 

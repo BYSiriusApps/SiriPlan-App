@@ -128,7 +128,7 @@ SMS ≈ $0,0275–0,0288/segment (doğrulanacak) ⇒ 1 SMS ≈ 2 segment olursa 
 |---|---|---|---|
 | Starter | 100 | ~$5,7 | kabul edilebilir |
 | Pro | 300–500 | ~$17–29 | **Mini planın tüm aylık fiyatı (USD $14) kadar** — fazla |
-| Business | 1.000 | ~$57 | Business ₺4.752; sınırda |
+| Business | 1.000 | ~$57 | Business ₺4.699; sınırda |
 
 **Öneri:** Dahil kotayı **SMS yerine WhatsApp Utility** ağırlıklı kur (çok daha ucuz), SMS'i "WA gitmediyse fallback" olarak kur ve dahil SMS'i küçük tut (örn. Starter 50 / Pro 150 / Business 500). Rakamı Faz 2'deki **gerçek pilot segment maliyetiyle** kesinleştir. Mini'ye SMS dahil etme.
 

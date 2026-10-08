@@ -147,7 +147,7 @@
     "bottomNote": "Mini, Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
     "foreignFeeNote": "Ödeme yurt dışında kurulu üye işyerimiz üzerinden tahsil edilir; kartınızın bankası bu nedenle işlem tutarına genellikle %1-3 arası bir yurt dışı işlem komisyonu ekleyebilir. Fiyatlarımız bu komisyon göz önünde bulundurularak belirlenmiştir — komisyon bankanıza aittir, SiriPlan tarafından eklenmez.",
     "annualLabel": "veya {annual}/ay · {total}/yıl",
-    "priceLock": "1 yÄ±l sabit fiyat garantisi",
+    "priceLock": "1 yıl sabit fiyat garantisi",
     "annualBilledNote": "{total} olarak yıllık tek seferde tahsil edilir · aylık ödemede {monthly}/ay",
     "summary": {
       "title": "Güncel Fiyatlar",
@@ -269,7 +269,7 @@
     }
   },
   "pricingPage": {
-    "metaDescription": "SiriPlan fiyatlandırma — Mini ₺399/ay, Starter ₺1.199/ay, Pro ₺1.799/ay, Business ₺4.752/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
+    "metaDescription": "SiriPlan fiyatlandırma — Mini ₺399/ay, Starter ₺1.199/ay, Pro ₺1.799/ay, Business ₺4.699/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
     "heroBadge": "14 Gün Ücretsiz — Kredi Kartı Gerekmez",
     "heroTitle": "Şeffaf Fiyatlandırma,",
     "heroTitleHighlight": "Sürpriz Yok",
@@ -638,7 +638,7 @@
           },
           "q4": {
             "q": "Yıllık planla ne kadar tasarruf ediyorum?",
-            "a": "Yıllık ödeme tercihinde %18 civarı indirim uygulanır. Örn. Starter plan ₺1.199/ay yerine yıllık ödemede ₺11.798/yıl (~₺983/ay) dengindedir. Güncel fiyatlar (aylık / yıllık): Mini ₺399 / ₺3.926 · $14 / $138 · €13 / €128; Starter ₺1.199 / ₺11.798 · $29 / $285 · €26 / €256; Pro ₺1.799 / ₺17.702 · $39 / $384 · €33 / €325; Business ₺4.752 / ₺46.760 · $99 / $974 · €84 / €827."
+            "a": "Yıllık ödeme tercihinde %18 civarı indirim uygulanır. Örn. Starter plan ₺1.199/ay yerine yıllık ödemede ₺11.798/yıl (~₺983/ay) dengindedir. Güncel fiyatlar (aylık / yıllık): Mini ₺399 / ₺3.926 · $14 / $138 · €13 / €128; Starter ₺1.199 / ₺11.798 · $29 / $285 · €26 / €256; Pro ₺1.799 / ₺17.702 · $39 / $384 · €33 / €325; Business ₺4.699 / ₺46.238 · $99 / $974 · €84 / €827."
           }
         }
       },

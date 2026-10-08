@@ -672,7 +672,7 @@ parametre yön izolasyonu eklendi; `/api/import` hizmet içe aktarma düzeltildi
 - Herkese açık sunum: `public/sunum.html` (+ `public/sunum/*.png`) → `siriplan.com/sunum.html`.
   `docs/musteri-sunumu/musteri-sunumu.html`'den türetildi: eski ekran görüntüsü adları güncel dosyalara
   eşlendi, mobil ölçekleme + noindex eklendi, fiyat slaytı güncel 4 plana (Mini ₺399 / Starter ₺1.199 /
-  Pro ₺1.799 / Business ₺4.752) çevrildi, son slayt "Plan seç & abone ol" butonu (`/auth/plan-sec`).
+  Pro ₺1.799 / Business ₺4.699) çevrildi, son slayt "Plan seç & abone ol" butonu (`/auth/plan-sec`).
   Dosya uzantılı yollar `proxy.ts` matcher'ı dışında → proxy'ye dokunulmadı. Fiyatlar değişirse HTML elle güncellenmeli.
 - SMS metni (2 gün kala, ~242 karakter, 2 parça): ödeme/abonelik linki açıkça belirtildi, `https://` kısaltıldı;
   bitiş günü SMS'i de "Odeme/abonelik baslatmak icin" ifadesine çevrildi.
@@ -701,3 +701,10 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
 - **Kontrol edilip kapatılanlar:** blog/haftalik-2-personel-prim (PR #81 main'de), takvim ay görünümü + customer_id
   stash'i (main'de zaten var; stash eski/gereksiz), Panel performans §9 (Faz 1-5 tamam), kayıt sayfası telefon/seçici
   genişliği (PR #116 main'de).
+
+## 14. Notlar (9 Eki 2026)
+
+- **TAMAMLANDI — fiyat güncellemesi (PR #120 main'de):** Business ₺4.699/ay, ₺46.238/yıl (Stripe'ta güncellendi);
+  kart altındaki tasarruf parantezi kaldırıldı; "1 yıl sabit fiyat garantisi" satırı eklendi. Tüm site/doküman
+  metinlerindeki eski Business fiyatı (₺4.752 / ₺46.760) temizlendi.
+- **TAMAMLANDI — SMS kontörü:** `20261010_sms_credits.sql` migration'ı canlıda ÇALIŞTIRILDI (kullanıcı teyidi).
