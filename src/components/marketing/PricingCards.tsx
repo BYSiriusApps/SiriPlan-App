@@ -10,7 +10,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   formatPrice,
   getAnnualMonthlyEquivalent,
-  getAnnualSavings,
   type PlanKey,
   type PlanPricing,
   type PricingCurrency,
@@ -47,7 +46,6 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
       monthly: formatPrice(details.monthly, currency),
       annual: formatPrice(annualMonthly, currency),
       annualTotal: formatPrice(details.annual, currency),
-      save: formatPrice(getAnnualSavings(details.monthly, details.annual), currency),
     };
   });
 
@@ -83,6 +81,10 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
           </button>
         </div>
       </div>
+
+      <p className="text-center text-xs font-medium text-primary -mt-4 mb-8">
+        🔒 {t("pricing.priceLock")}
+      </p>
 
       <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 ${isFull ? "" : "max-w-6xl mx-auto"}`}>
         {planMeta.map((plan) => {
@@ -127,7 +129,7 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
                   <p className={`text-xs text-muted-foreground ${isFull ? "" : "mb-6"}`}>
                     {billing === "annual"
                       ? t("pricing.annualBilledNote", { total: plan.annualTotal, monthly: plan.monthly })
-                      : t("pricing.annualLabel", { annual: plan.annual, total: plan.annualTotal, save: plan.save })}
+                      : t("pricing.annualLabel", { annual: plan.annual, total: plan.annualTotal })}
                   </p>
                 </div>
 
