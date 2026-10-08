@@ -93,7 +93,7 @@ klasöründen servis edilir, harici bağımlılık yok).
                 Bu e-posta SiriPlan tarafından gönderildi.<br/>
                 <a href="https://siriplan.com" style="color:#b07d1f;text-decoration:none;">siriplan.com</a>
                 &nbsp;·&nbsp;
-                <a href="https://bysirius.com" style="color:#9ca3af;text-decoration:none;">BY Sirius Group Ai &amp; Technology Co Ltd.</a>
+                <a href="https://bysirius.com" style="color:#9ca3af;text-decoration:none;">BY Sirius Group Ai and Technology Co Ltd.</a>
               </p>
             </td>
           </tr>

@@ -509,13 +509,13 @@
     "ctaButton": "Start Free"
   },
   "aboutPage": {
-    "metaDescription": "Learn about BY Sirius Group Ai & Technology Co Ltd. and SiriPlan.",
+    "metaDescription": "Learn about BY Sirius Group Ai and Technology Co Ltd. and SiriPlan.",
     "heroTitle": "Taking Your Business",
     "heroTitleHighlight": "Into the Future, with Technology",
-    "heroSubtitle": "SiriPlan is an AI-powered appointment and business management platform developed under <strong>BY Sirius Group Ai & Technology Co Ltd.</strong>, serving more than 10 industries.",
+    "heroSubtitle": "SiriPlan is an AI-powered appointment and business management platform developed under <strong>BY Sirius Group Ai and Technology Co Ltd.</strong>, serving more than 10 industries.",
     "aboutTitle": "Who Is BY Sirius Group?",
-    "aboutP1": "<strong>BY Sirius Group Ai & Technology Co Ltd.</strong> is a technology company operating in artificial intelligence, SaaS solutions, and digital transformation. Since our founding, we have been building innovative products to make businesses' digitalization journey easier.",
-    "aboutP2": "As BY Sirius Group Ai & Technology Co Ltd.'s flagship product, SiriPlan provides appointment management and operational efficiency for a wide range of industries — from hair salons to clinics, barbershops to spas.",
+    "aboutP1": "<strong>BY Sirius Group Ai and Technology Co Ltd.</strong> is a technology company operating in artificial intelligence, SaaS solutions, and digital transformation. Since our founding, we have been building innovative products to make businesses' digitalization journey easier.",
+    "aboutP2": "As BY Sirius Group Ai and Technology Co Ltd.'s flagship product, SiriPlan provides appointment management and operational efficiency for a wide range of industries — from hair salons to clinics, barbershops to spas.",
     "websiteButton": "bysirius.com",
     "stats": {
       "sectors": "Industries Supported",
@@ -606,7 +606,7 @@
         "items": {
           "q1": {
             "q": "What is SiriPlan?",
-            "a": "SiriPlan is an AI-powered appointment and business management platform built for hair salons, barbershops, beauty salons, spas, clinics, and more. It's developed by BY Sirius Group Ai & Technology Co Ltd."
+            "a": "SiriPlan is an AI-powered appointment and business management platform built for hair salons, barbershops, beauty salons, spas, clinics, and more. It's developed by BY Sirius Group Ai and Technology Co Ltd."
           },
           "q2": {
             "q": "Which industries does it serve?",
@@ -715,7 +715,7 @@
     "lastUpdated": "Last updated: August 2026",
     "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
     "controllerTitle": "Data Controller",
-    "controllerP1": "As <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (the \"Company\"), we process your personal data as the data controller under Law No. 6698 on the Protection of Personal Data (\"KVKK\"), for the purposes described below and in compliance with applicable law.",
+    "controllerP1": "As <strong>BY Sirius Group Ai and Technology Co Ltd.</strong> (the \"Company\"), we process your personal data as the data controller under Law No. 6698 on the Protection of Personal Data (\"KVKK\"), for the purposes described below and in compliance with applicable law.",
     "controllerContact": "<strong>Website:</strong> bysirius.com | <strong>Email:</strong> kvkk@bysirius.com",
     "dataTitle": "Personal Data We Process",
     "dataTableCategory": "Data Category",
@@ -774,7 +774,7 @@
     "lastUpdated": "Last updated: August 2026",
     "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
     "s1Title": "1. Data Controller",
-    "s1P1": "This privacy policy applies to the <strong>SiriPlan</strong> platform operated by <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (the \"Company\", \"we\", \"us\"). The Company acts as the data controller under Law No. 6698 on the Protection of Personal Data (KVKK).",
+    "s1P1": "This privacy policy applies to the <strong>SiriPlan</strong> platform operated by <strong>BY Sirius Group Ai and Technology Co Ltd.</strong> (the \"Company\", \"we\", \"us\"). The Company acts as the data controller under Law No. 6698 on the Protection of Personal Data (KVKK).",
     "s1P2": "<strong>Website:</strong> bysirius.com | <strong>Email:</strong> privacy@bysirius.com",
     "s2Title": "2. Personal Data We Collect",
     "s2Intro": "The following data may be processed while using the platform:",
@@ -813,13 +813,13 @@
     "s9Title": "8. Policy Changes",
     "s9P": "Changes to this policy will be announced through the platform. Continuing to use the platform after changes take effect means you accept the updated policy.",
     "s10Title": "9. International Users and Applicable Provisions",
-    "s10P": "SiriPlan is operated by BY Sirius Group Ai & Technology Co Ltd. The personal data of users accessing from outside Türkiye is also processed for the purposes and by the methods described in this policy. If the data protection law of your country grants you additional rights, you may exercise them by contacting privacy@bysirius.com; requests are assessed within the time and scope required by applicable law."
+    "s10P": "SiriPlan is operated by BY Sirius Group Ai and Technology Co Ltd. The personal data of users accessing from outside Türkiye is also processed for the purposes and by the methods described in this policy. If the data protection law of your country grants you additional rights, you may exercise them by contacting privacy@bysirius.com; requests are assessed within the time and scope required by applicable law."
   },
   "accountDeletionPage": {
     "metaDescription": "Learn how to delete your SiriPlan account and personal data.",
     "pageTitle": "Account & Data Deletion Request",
     "lastUpdated": "Last updated: August 2026",
-    "appInfo": "<strong>App:</strong> SiriPlan (com.siriplan.app) — <strong>Developer:</strong> BY Sirius Group Ai & Technology Co Ltd.",
+    "appInfo": "<strong>App:</strong> SiriPlan (com.siriplan.app) — <strong>Developer:</strong> BY Sirius Group Ai and Technology Co Ltd.",
     "intro": "This page explains how to permanently delete your SiriPlan account and the personal data linked to it. You do not need to sign in to view this page or submit a request.",
     "inAppTitle": "Option 1 — From within the app (instant)",
     "inAppP": "Sign in with your business owner account:",
@@ -852,7 +852,7 @@
     "lastUpdated": "Last updated: August 2026",
     "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
     "s1Title": "1. Parties and Scope",
-    "s1P": "These Terms of Service govern the legal relationship between <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"SiriPlan\", \"we\") and the individuals and businesses using the platform (the \"User\"). By using the platform, you are deemed to have accepted these terms.",
+    "s1P": "These Terms of Service govern the legal relationship between <strong>BY Sirius Group Ai and Technology Co Ltd.</strong> (\"SiriPlan\", \"we\") and the individuals and businesses using the platform (the \"User\"). By using the platform, you are deemed to have accepted these terms.",
     "s2Title": "2. Service Description",
     "s2P": "SiriPlan is a SaaS (Software as a Service) platform offering business management tools such as appointment management, customer tracking, staff management, a campaign module, and revenue reporting. Platform access is provided within the scope of the selected subscription plan.",
     "s3Title": "3. User Obligations",
@@ -868,9 +868,9 @@
     "s4Title": "4. Pricing and Subscription",
     "s4P": "Subscription fees are charged in advance, monthly or annually, according to the selected plan. Annual plans receive an 18% discount. The free trial is provided so that you can evaluate the service before purchasing. You may cancel your subscription at any time; cancellation stops the next renewal and your access continues until the end of the current period. Except where mandatorily required by applicable law, fees for subscription periods that have already begun are non-refundable. Questions: support@bysirius.com.",
     "s5Title": "5. Service Interruptions and Limitation of Liability",
-    "s5P": "The platform operates with a 99.9% uptime target; however, brief interruptions may occur due to maintenance or technical reasons. BY Sirius Group Ai & Technology Co Ltd. shall not be liable for indirect, incidental, or consequential damages. Our liability is limited to the subscription fee you paid in the relevant month.",
+    "s5P": "The platform operates with a 99.9% uptime target; however, brief interruptions may occur due to maintenance or technical reasons. BY Sirius Group Ai and Technology Co Ltd. shall not be liable for indirect, incidental, or consequential damages. Our liability is limited to the subscription fee you paid in the relevant month.",
     "s6Title": "6. Intellectual Property",
-    "s6P": "All intellectual property rights to the platform, its source code, database structures, designs, and workflows belong to BY Sirius Group Ai & Technology Co Ltd. The platform was developed utilizing artificial intelligence (AI) model assistants; all resulting codebases, configurations, and creative structures are protected under Turkish Intellectual Property Law (FSEK) and the Berne Convention. Any unauthorized copying, decompiling, reverse engineering, cloning, or mimicking of the codebase or UI is strictly prohibited and subject to legal prosecution. Users retain the rights to the content and data they upload to the platform.",
+    "s6P": "All intellectual property rights to the platform, its source code, database structures, designs, and workflows belong to BY Sirius Group Ai and Technology Co Ltd. The platform was developed utilizing artificial intelligence (AI) model assistants; all resulting codebases, configurations, and creative structures are protected under Turkish Intellectual Property Law (FSEK) and the Berne Convention. Any unauthorized copying, decompiling, reverse engineering, cloning, or mimicking of the codebase or UI is strictly prohibited and subject to legal prosecution. Users retain the rights to the content and data they upload to the platform.",
     "s7Title": "7. Termination",
     "s7P": "Your account may be suspended or terminated without prior notice in the event of a violation of these terms of use. You have the right to export your data before account closure.",
     "s8Title": "8. Governing Law",
@@ -3007,7 +3007,7 @@
       "linkCopiedButton": "Copied",
       "shareWhatsAppButton": "Share on WhatsApp",
       "legalSectionTitle": "Intellectual Property & Legal Guarantee",
-      "legalSectionDesc": "All copyright and intellectual property rights to this software are registered by BY Sirius Group Ai & Technology Co Ltd. and protected under the Berne Convention and FSEK provisions.",
+      "legalSectionDesc": "All copyright and intellectual property rights to this software are registered by BY Sirius Group Ai and Technology Co Ltd. and protected under the Berne Convention and FSEK provisions.",
       "legalNoticeButton": "View Legal Rights & Copyright Declaration",
       "accountDeletionButton": "Delete My Account & All Data",
       "accountDeletionDesc": "In compliance with mobile application store policies (App Store & Play Store) and data privacy regulations, you can permanently delete your account and all associated data. This action cannot be undone.",
@@ -3230,7 +3230,7 @@
     },
     "legalModal": {
       "title": "Legal Rights & Copyright Notice",
-      "copyright": "Copyright © 2026 BY Sirius Group Ai & Technology Co Ltd. All rights reserved.",
+      "copyright": "Copyright © 2026 BY Sirius Group Ai and Technology Co Ltd. All rights reserved.",
       "aiNotice": "All source code, architecture, and UI designs of this platform are the property of BY Sirius Group and are protected under copyright and intellectual property law. Any unauthorized copying, decompiling, reverse engineering, cloning, or mimicking is strictly prohibited and subject to legal prosecution.",
       "storeNotice": "App Store Compliance: This platform is 100% compliant with Apple App Store and Google Play Store privacy and data retention (account deletion) policies. Your data is encrypted and protected under GDPR/KVKK and Stripe billing compliance standards.",
       "close": "Close"

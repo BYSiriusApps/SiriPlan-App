@@ -85,7 +85,7 @@ function baseLayout(content: string, orgName: string, locale?: string | null, br
                 ${esc(S.footerNote(orgName))}<br/>
                 <a href="https://siriplan.com" style="color:${accent};text-decoration:none;">siriplan.com</a>
                 &nbsp;·&nbsp;
-                <a href="https://bysirius.com" style="color:#9ca3af;text-decoration:none;">BY Sirius Group Ai & Technology Co Ltd.</a>
+                <a href="https://bysirius.com" style="color:#9ca3af;text-decoration:none;">BY Sirius Group Ai and Technology Co Ltd.</a>
               </p>
             </td>
           </tr>
