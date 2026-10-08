@@ -8,6 +8,8 @@ import { activeStaffBlockingPlan, staffBlockingMessage } from "@/lib/stripe/plan
 
 export const dynamic = "force-dynamic";
 
+const PLAN_RANK: Record<string, number> = { mini: 1, starter: 2, pro: 3, business: 4 };
+
 /**
  * Zaten ödeyen bir abone plan değiştirdiğinde (ör. yıllık Starter -> yıllık
  * Pro) kullanılır. `/api/stripe/checkout`'un aksine YENİ bir Checkout
@@ -23,6 +25,12 @@ export const dynamic = "force-dynamic";
  * "error_if_incomplete"`: fark tutarı hemen faturalanır ve tahsil edilir;
  * ödeme (kart reddi, 3D Secure vb.) başarısız olursa Stripe planı hiç
  * DEĞİŞTİRMEZ ve biz hata döneriz — kullanıcı ödemeden Pro'ya geçmez.
+ *
+ * YÜKSELTMEDE (ör. Mini -> Starter/Pro, Starter -> Pro/Business) faturalama
+ * döngüsü yükseltme anına çekilir (`billing_cycle_anchor: "now"`): eski planın
+ * kullanılmayan kısmı kredi olarak düşülür, yeni plan tam fiyatla başlar ve
+ * yeni 1 aylık (yıllıkta 1 yıllık) dönem yükseltme anından itibaren işler.
+ * Düşürmede döngü korunur (anchor değişmez).
  */
 export async function POST(req: NextRequest) {
   if (await isMobileApp()) {
@@ -86,11 +94,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Zaten bu plandasınız" }, { status: 400 });
   }
 
+  const isUpgrade = (PLAN_RANK[plan] ?? 0) > (PLAN_RANK[org.plan ?? ""] ?? 0);
+
   let updated;
   try {
     updated = await stripe.subscriptions.update(org.stripe_subscription_id, {
       items: [{ id: currentItem.id, price: targetPriceId }],
       proration_behavior: "always_invoice",
+      ...(isUpgrade ? { billing_cycle_anchor: "now" as const } : {}),
       payment_behavior: "error_if_incomplete",
       // Kullanıcı planını yükseltiyorsa aboneliğe devam etmek istediği açıktır —
       // daha önce "dönem sonunda iptal" işaretlenmişse burada geri alınır.

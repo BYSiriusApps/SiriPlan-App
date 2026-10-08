@@ -24,7 +24,7 @@ const PLANS = [
     features: [
       "1 personel",
       "Ayda 200 randevu",
-      "Ayda 200 WhatsApp mesajı",
+      "Ayda 200 WhatsApp mesajı (onay + hatırlatma)",
       "Online randevu sayfası",
       "Müşteri kaydı",
       "Stok yönetimi (barkodla satış)",

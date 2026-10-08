@@ -51,6 +51,7 @@
     "contact": "Contact",
     "login": "Log In",
     "startFree": "Start Free",
+    "signUp": "Sign Up",
     "language": "Language",
     "faq": "FAQ"
   },
@@ -164,7 +165,7 @@
       "features": [
         "1 location, 1 staff member",
         "200 appointments per month",
-        "200 WhatsApp messages per month (confirmations & reminders)",
+        "200 WhatsApp messages per month (confirmations + reminders)",
         "Personal booking link (siriplan.com/r/your-salon)",
         "Customer records & history",
         "Stock & inventory management (barcode sales)",

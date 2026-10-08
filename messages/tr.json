@@ -51,6 +51,7 @@
     "contact": "İletişim",
     "login": "Giriş Yap",
     "startFree": "Ücretsiz Başla",
+    "signUp": "Kayıt Ol",
     "language": "Dil",
     "faq": "SSS"
   },
@@ -164,7 +165,7 @@
       "features": [
         "1 şube, 1 personel",
         "Ayda 200 randevu",
-        "Ayda 200 WhatsApp mesajı (onay & hatırlatma)",
+        "Ayda 200 WhatsApp mesajı (onay + hatırlatma)",
         "Kişisel randevu linki (siriplan.com/r/salon-adin)",
         "Müşteri kaydı ve geçmişi",
         "Stok yönetimi (mal/ürün takibi, barkodla satış)",
