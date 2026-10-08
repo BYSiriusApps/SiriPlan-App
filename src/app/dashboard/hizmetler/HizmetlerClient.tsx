@@ -80,9 +80,26 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
       .catch(() => {});
   }, [canEdit]);
 
+  function formFromService(svc: Service) {
+    return {
+      name: svc.name,
+      price: svc.price !== null ? String(svc.price) : "",
+      currency: svc.currency ?? "TRY",
+      duration_minutes: svc.duration_minutes !== null ? String(svc.duration_minutes) : "",
+      is_bookable_online: svc.is_bookable_online,
+      category_id: svc.category_id ?? NO_CATEGORY,
+    };
+  }
+
+  // Satıra/kaleme tek dokunuş: detay açılır ve yetkili kullanıcıda düzenleme formu hazır gelir.
   async function openDetail(svc: Service) {
     setDetailTarget(svc);
-    setEditing(false);
+    if (canEdit) {
+      setEditForm(formFromService(svc));
+      setEditing(true);
+    } else {
+      setEditing(false);
+    }
     setEditingStaff(false);
     setConfirmDelete(false);
     setDetailStaff([]);
@@ -137,14 +154,7 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
 
   function startEdit() {
     if (!detailTarget) return;
-    setEditForm({
-      name: detailTarget.name,
-      price: detailTarget.price !== null ? String(detailTarget.price) : "",
-      currency: detailTarget.currency ?? "TRY",
-      duration_minutes: detailTarget.duration_minutes !== null ? String(detailTarget.duration_minutes) : "",
-      is_bookable_online: detailTarget.is_bookable_online,
-      category_id: detailTarget.category_id ?? NO_CATEGORY,
-    });
+    setEditForm(formFromService(detailTarget));
     setEditing(true);
     setConfirmDelete(false);
   }
@@ -367,6 +377,16 @@ export function HizmetlerClient({ initialServices, initialCategories, canEdit }:
                       )}
                     </div>
                     <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      {canEdit && (
+                        <Button
+                          variant="ghost" size="icon" className="h-8 w-8 text-primary"
+                          aria-label={t("servicesPage.editButton")}
+                          title={t("servicesPage.editButton")}
+                          onClick={() => openDetail(service)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost" size="icon" className="h-6 w-6"
                         disabled={idx === 0 || movingId === service.id}
