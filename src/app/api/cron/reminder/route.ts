@@ -20,6 +20,7 @@ type ApptWithRelations = {
   customer_phone: string;
   customer_id?: string;
   appointment_at: string;
+  created_at?: string;
   cancel_token?: string;
   reminder_sent_at?: string | null;
   organizations: { name: string; email?: string; address?: string; location_url?: string };
@@ -128,6 +129,16 @@ export async function POST(req: NextRequest) {
   }
 
   for (const appt of (upcoming || []) as ApptWithRelations[]) {
+    // Gün öncesi hatırlatma: randevu, hatırlatma anından (randevu-24s) en az 12 saat
+    // önce alınmamışsa gitmez (WhatsApp tarafıyla aynı kural, bkz. migration
+    // 20261009). Tekrar taranmasın diye işaretlenir; 2 saatlik son hatırlatma etkilenmez.
+    if (
+      appt.created_at &&
+      new Date(appt.created_at).getTime() > new Date(appt.appointment_at).getTime() - 36 * 3600 * 1000
+    ) {
+      await supabase.from("appointments").update({ reminder_sent_at: now.toISOString() }).eq("id", appt.id);
+      continue;
+    }
     const org = appt.organizations;
     const apptAt = new Date(appt.appointment_at);
     const hoursAway = Math.max(1, differenceInHours(apptAt, now));

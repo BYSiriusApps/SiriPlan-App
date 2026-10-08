@@ -239,6 +239,8 @@ export async function POST(req: NextRequest) {
     // Çoğu işletme sahibi internet/sosyal medyadan gelen randevuların otomatik
     // onaylanmasını istemiyor — ilk kayıtta kapalı, dileyen ayarlardan açar.
     has_auto_booking: false,
+    // WhatsApp hatırlatma: 2 saat + 1 gün önce, varsayılan işaretli.
+    wa_reminder_offsets_hours: [2, 24],
   };
 
   // signup_ip ve tax_number kolonları henüz uygulanmamış olabilir (migration

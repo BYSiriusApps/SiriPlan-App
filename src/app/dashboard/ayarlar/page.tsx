@@ -47,6 +47,7 @@ import {
 import {
   DEFAULT_WA_TEMPLATE_STYLES,
   WA_REMINDER_OFFSET_PRESETS,
+  WA_REMINDER_OFFSET_DEFAULT,
 } from "@/lib/wa-templates/registry";
 import { DEFAULT_KVKK_NOTICE_TEMPLATE, renderKvkkNotice } from "@/lib/kvkk";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
@@ -294,7 +295,7 @@ export default function AyarlarPage() {
         custom_cancellation_message: org.custom_cancellation_message,
         whatsapp_notifications_enabled: org.whatsapp_notifications_enabled,
         wa_template_styles: org.wa_template_styles ?? DEFAULT_WA_TEMPLATE_STYLES,
-        wa_reminder_offsets_hours: org.wa_reminder_offsets_hours ?? [2],
+        wa_reminder_offsets_hours: org.wa_reminder_offsets_hours ?? WA_REMINDER_OFFSET_DEFAULT,
         sms_notifications_enabled: org.sms_notifications_enabled ?? false,
         sms_provider: org.sms_provider,
         sms_username: org.sms_username,
@@ -1131,15 +1132,20 @@ export default function AyarlarPage() {
             <p className="text-xs text-muted-foreground">{t("settingsPage.reminderOffsetDesc")}</p>
             <div className="flex flex-wrap gap-3 pt-1">
               {WA_REMINDER_OFFSET_PRESETS.map((h) => {
-                const offsets = (org.wa_reminder_offsets_hours as number[] | undefined) ?? [2];
+                const offsets = (org.wa_reminder_offsets_hours as number[] | undefined) ?? [...WA_REMINDER_OFFSET_DEFAULT];
                 const checked = offsets.includes(h);
                 return (
                   <label key={h} className="flex items-center gap-1.5 text-sm cursor-pointer">
                     <Checkbox
                       checked={checked}
                       onCheckedChange={(c) => {
-                        if (!c) return; // tekli seçim: mevcut seçili süre bırakılamaz, sadece değiştirilir
-                        setField("wa_reminder_offsets_hours", [h]);
+                        // Çoklu seçim: her kutu kendi süresini açar/kapatır.
+                        // Eski (artık sunulmayan) süreler kayıttan temizlenir.
+                        const base = offsets.filter((o) =>
+                          (WA_REMINDER_OFFSET_PRESETS as readonly number[]).includes(o)
+                        );
+                        const next = c ? Array.from(new Set([...base, h])) : base.filter((o) => o !== h);
+                        setField("wa_reminder_offsets_hours", next.sort((a, b) => a - b));
                       }}
                     />
                     {h < 24 ? t("settingsPage.hoursBefore", { h: String(h) }) : t("settingsPage.daysBefore", { d: String(h / 24) })}

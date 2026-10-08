@@ -186,4 +186,6 @@ export const DEFAULT_WA_TEMPLATE_STYLES: Record<WaPurpose, WaStyle> = {
   oneri: "sicak",
 };
 
-export const WA_REMINDER_OFFSET_PRESETS = [1, 2, 3, 6, 24] as const;
+export const WA_REMINDER_OFFSET_PRESETS = [2, 24] as const;
+// Yeni kayıtlarda ikisi de işaretli gelir; sonradan ayarlardan değiştirilebilir.
+export const WA_REMINDER_OFFSET_DEFAULT: number[] = [2, 24];
