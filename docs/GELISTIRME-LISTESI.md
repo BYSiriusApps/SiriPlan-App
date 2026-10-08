@@ -450,7 +450,7 @@ memory `play-store-submission-state`.
 
 ---
 
-## 9. Panel geçiş/yükleme performansı — kalan fazlar (Faz 1-2 uygulandı)
+## 9. ✅ Panel geçiş/yükleme performansı — TAMAMLANDI (Faz 1-5 uygulandı; 8 Eki 2026 doğrulandı)
 
 **Durum (25 Eyl 2026):** Mobilde "açılışta yavaşlık + geç güncelleme + geçişlerde
 yavaşlama" şikayeti araştırıldı (3 paralel Explore ajanı + Next.js'in bu sürüme
@@ -620,6 +620,9 @@ dil seçici (Turkish ▾) → English ekle:
 
 - **Paketle kapanan randevu geri alınıp normal ödemeyle tamamlanırsa fiyat 0 kalıyor** (tasarım gerekir:
   geri açınca fiyat hizmet fiyatına dönsün mü, yoksa tamamlarken sorulsun mu?).
+  _8 Eki 2026 kod kontrolü:_ `appointments/[id]/complete/route.ts` yalnızca paket kullanılınca `price: 0` yazıyor;
+  normal ödemeyle tamamlarken ya da geri açarken fiyatı hizmet fiyatına döndüren kod bulunamadı → HÂLÂ AÇIK
+  görünüyor (canlıda denenip teyit edilirse kapatılabilir).
 
 Tamamlananlar (4 Eki 2026): RU/AR WhatsApp şablonları satır aralıklı `_2` sürümüne geçti ve Arapça
 parametre yön izolasyonu eklendi; `/api/import` hizmet içe aktarma düzeltildi; boşluklu/+90'lı telefonla giriş çalışıyor.
@@ -644,3 +647,57 @@ parametre yön izolasyonu eklendi; `/api/import` hizmet içe aktarma düzeltildi
   micromatch → braces), canlıya giren paketlerde 0 uyarı. Bu yüzden `security.yml` main'de ikiye bölündü
   (production `--omit=dev` sıkı/engelleyici, dev araçları yalnızca uyarı). **Yama çıkınca:** Dependabot'un
   `braces` PR'ını merge et, sonra PR #92'yi (eski tek sıkı kapı) merge et.
+
+### §11 güncelleme (6 Eki 2026) — altyapı HAZIR, SMS bilgileri + test kaldı
+**Kodda yapıldı** (`src/app/api/cron/trial-reminder/route.ts`, commit'siz, dal `perf/faz3-rozet-tazeleme`):
+- 2 gün kala SMS metni zenginleştirildi (`buildTwoDaySms`: deneme bitiyor + özellik/sunum linki +
+  abonelik linki `/auth/plan-sec` + "verileriniz silinmez" + WhatsApp destek no). ASCII (Türkçe karaktersiz).
+- Yalnızca TR cep numaralarına (`isTurkishMobile`) ve `organizations.locale = tr` olan salonlara gider.
+- Bitiş günü SMS'i kısa kaldı (değişmedi). E-posta akışı değişmedi.
+- Sunum linki geçici olarak `/ozellikler` (`SUNUM_PATH` sabiti) — karar verilince tek satır değişecek.
+
+**Yarın (kullanıcı):** Vercel env'e `PLATFORM_SMS_PROVIDER=netgsm`, `PLATFORM_SMS_USERNAME`,
+`PLATFORM_SMS_PASSWORD`, `PLATFORM_SMS_SENDER_ID` (Netgsm'de onaylı başlık) gir + redeploy.
+**Sonra TEST EDİLECEK:**
+1. Test salonu: `trial_ends_at = now()+2 gün`, `trial_reminder_2d_sent_at = null`, `plan='trial'`,
+   `locale='tr'`, telefon = kendi TR cep numaran.
+2. Cron'u elle çağır: `GET /api/cron/trial-reminder` (Authorization: Bearer CRON_SECRET).
+3. Kontrol: SMS geldi mi, kaç parça (Netgsm raporu), gönderici adı, link tıklanıyor mu;
+   `trial_reminder_2d_sent_at` doluyor mu; yabancı numara/EN salon için SMS gitmedi mi.
+4. Netgsm hatasında sessiz yutuluyor (catch {}) — gerekirse yanıt kodu loglanmalı.
+5. Bilinen: SMS atlansa bile `trial_reminder_2d_sent_at` damgası atılıyor (hat bağlanmadan çalışırsa
+   o gün SMS kaçar) — env girilmeden cron'un o gün çalışmaması için hattı bağlayana kadar dikkat.
+
+### §11 güncelleme (7 Eki 2026) — sunum sayfası + ödeme linki eklendi
+- Herkese açık sunum: `public/sunum.html` (+ `public/sunum/*.png`) → `siriplan.com/sunum.html`.
+  `docs/musteri-sunumu/musteri-sunumu.html`'den türetildi: eski ekran görüntüsü adları güncel dosyalara
+  eşlendi, mobil ölçekleme + noindex eklendi, fiyat slaytı güncel 4 plana (Mini ₺399 / Starter ₺1.199 /
+  Pro ₺1.799 / Business ₺4.752) çevrildi, son slayt "Plan seç & abone ol" butonu (`/auth/plan-sec`).
+  Dosya uzantılı yollar `proxy.ts` matcher'ı dışında → proxy'ye dokunulmadı. Fiyatlar değişirse HTML elle güncellenmeli.
+- SMS metni (2 gün kala, ~242 karakter, 2 parça): ödeme/abonelik linki açıkça belirtildi, `https://` kısaltıldı;
+  bitiş günü SMS'i de "Odeme/abonelik baslatmak icin" ifadesine çevrildi.
+- Not: fiyat güncellemesi (Mini planı) başka dalda (`feat/mini-plan-fiyatlar`); sunumdaki fiyatlar o dal main'e
+  girince tutarlı olur.
+
+---
+
+## 12. Communication Service (SMS + WhatsApp merkezi altyapı) — PLAN HAZIR, karar bekliyor (8 Eki 2026)
+Tam plan: [docs/iletisim-altyapisi-plani.md](iletisim-altyapisi-plani.md) (mimari, veri modeli, politika kuralları,
+faz faz yol haritası, sağlayıcı soru listesi, §11 karar soruları). Kod henüz yazılmadı.
+Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse URL'siz hâle getirilmeli (planın §4.8'i).
+
+---
+
+## 13. Notlar / durum özeti (8 Eki 2026)
+
+- **WA hatırlatma süreleri (2 saat + 1 gün):** kod + migration'lar `20261008_wa_reminder_2h_1d_default.sql` ve
+  `20261009_wa_reminder_skip_short_notice.sql` canlıda ÇALIŞTIRILDI (kullanıcı teyidi). Ayarlar'da hatırlatma
+  kutuları artık çoklu seçim; 1 gün önce hatırlatması, randevu hatırlatma anına 12 saatten az kala alındıysa gitmez
+  (WA ve e-posta cron'u aynı kural). Mevcut tüm salonlar {2,24}'e alındı.
+- **Kampanya MARKETING WhatsApp şablonları:** Meta'da onaylı ve koda eklenmiş/aktif durumda; ANCAK şu an salonun
+  değil başka bir WABA/numaraya bağlı. İleride doğru numaraya (kendi WABA'sına) bağlanmalı — şimdilik bilerek
+  bu şekilde bırakıldı.
+- **Açık PR'lar bekliyor (bilerek):** #92 (npm audit sıkı kapı — `braces` yaması çıkınca) ve #71 (eslint 10 Dependabot).
+- **Kontrol edilip kapatılanlar:** blog/haftalik-2-personel-prim (PR #81 main'de), takvim ay görünümü + customer_id
+  stash'i (main'de zaten var; stash eski/gereksiz), Panel performans §9 (Faz 1-5 tamam), kayıt sayfası telefon/seçici
+  genişliği (PR #116 main'de).
