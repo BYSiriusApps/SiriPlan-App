@@ -3093,7 +3093,7 @@
       "eventOnRevise": "Randevu revize edilince",
       "eventOnCancel": "Randevu iptal edilince",
       "reminderOffsetLabel": "Hatırlatma randevudan kaç saat önce gönderilsin?",
-      "reminderOffsetDesc": "Tek bir süre seçebilirsiniz — seçtiğinizde diğerleri pasif olur.",
+      "reminderOffsetDesc": "İşaretli her süre için müşteriye otomatik hatırlatma gider. İstemediğiniz kutunun işaretini kaldırabilirsiniz.",
       "hoursBefore": "{h} saat önce",
       "daysBefore": "{d} gün önce",
       "metaTemplatesLabel": "Meta WhatsApp Mesaj Şablonları",

@@ -3093,7 +3093,7 @@
       "eventOnRevise": "When an appointment is revised",
       "eventOnCancel": "When an appointment is cancelled",
       "reminderOffsetLabel": "How many hours before the appointment should the reminder be sent?",
-      "reminderOffsetDesc": "You can select only one duration — selecting one disables the others.",
+      "reminderOffsetDesc": "A reminder is sent to the customer for every checked option. Uncheck any you don't want.",
       "hoursBefore": "{h} hours before",
       "daysBefore": "{d} day(s) before",
       "metaTemplatesLabel": "Meta WhatsApp Message Templates",

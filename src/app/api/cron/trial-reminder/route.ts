@@ -17,9 +17,40 @@ type OrgRow = {
   name: string;
   email: string | null;
   phone: string | null;
+  locale: string | null;
   plan: string;
   trial_ends_at: string | null;
 };
+
+// 2 gün kala giden tanıtım SMS'i. Türkçe karakter kullanılmaz (GSM-7: tek parça
+// ~160 karakter; Türkçe karakter Unicode'a düşüp 70'lik parçalara böler, ücret artar).
+// SUNUM_PATH: herkese açık sunum (public/sunum.html; proxy dosya uzantılı yolları atlar)
+// (bkz. docs/GELISTIRME-LISTESI.md §11).
+const SUNUM_PATH = "/sunum.html";
+const SUPPORT_WA_PHONE = "0535 503 26 34";
+
+// SMS'te "https://" gereksiz karakter; telefonlar alan adını yine link yapar.
+function shortUrl(url: string): string {
+  return url.replace(/^https?:\/\//, "");
+}
+
+function buildTwoDaySms(orgName: string, appUrl: string): string {
+  return (
+    `SiriPlan: "${orgName}" ucretsiz denemeniz 2 gun sonra bitiyor. ` +
+    `Ozellikler ve sunum: ${shortUrl(appUrl)}${SUNUM_PATH} ` +
+    `Plan secip odeme/abonelik baslatmak icin: ${shortUrl(appUrl)}/auth/plan-sec (verileriniz silinmez). ` +
+    `Destek WhatsApp: ${SUPPORT_WA_PHONE}`
+  );
+}
+
+// Platform SMS hattı yalnızca Türkiye cep numaralarına gönderir
+// (sendPlatformSms yerel 10 haneli 5XXXXXXXXX formatı bekler).
+function isTurkishMobile(phone: string): boolean {
+  const d = phone.replace(/\D/g, "");
+  const local =
+    d.startsWith("90") && d.length === 12 ? d.slice(2) : d.startsWith("0") && d.length === 11 ? d.slice(1) : d;
+  return /^5\d{9}$/.test(local);
+}
 
 export async function POST(req: NextRequest) {
   if (!isCronAuthorized(req.headers.get("authorization"))) {
@@ -38,7 +69,7 @@ export async function POST(req: NextRequest) {
 
   const { data: twoDayOrgs } = await supabase
     .from("organizations")
-    .select("id, name, email, phone, plan, trial_ends_at")
+    .select("id, name, email, phone, locale, plan, trial_ends_at")
     .eq("plan", "trial")
     .is("trial_reminder_2d_sent_at", null)
     .gte("trial_ends_at", twoDayWindowStart)
@@ -47,7 +78,7 @@ export async function POST(req: NextRequest) {
 
   const { data: expiredOrgs } = await supabase
     .from("organizations")
-    .select("id, name, email, phone, plan, trial_ends_at")
+    .select("id, name, email, phone, locale, plan, trial_ends_at")
     .eq("plan", "trial")
     .is("trial_reminder_0d_sent_at", null)
     .gte("trial_ends_at", expiredWindowStart)
@@ -64,12 +95,9 @@ export async function POST(req: NextRequest) {
         await sendTrialEndingEmail({ to: org.email, orgName: org.name, daysLeft: 2 });
       } catch {}
     }
-    if (org.phone) {
+    if (org.phone && (org.locale ?? "tr") === "tr" && isTurkishMobile(org.phone)) {
       try {
-        await sendPlatformSms(
-          org.phone,
-          `SiriPlan: "${org.name}" için 14 gunluk ucretsiz deneme sureniz 2 gun sonra doluyor. Devam etmek icin: ${appUrl}/auth/plan-sec`
-        );
+        await sendPlatformSms(org.phone, buildTwoDaySms(org.name, appUrl));
       } catch {}
     }
     await supabase.from("organizations").update({ trial_reminder_2d_sent_at: now.toISOString() }).eq("id", org.id);
@@ -86,7 +114,7 @@ export async function POST(req: NextRequest) {
       try {
         await sendPlatformSms(
           org.phone,
-          `SiriPlan: "${org.name}" icin ucretsiz deneme sureniz sona erdi. Devam etmek icin: ${appUrl}/auth/plan-sec`
+          `SiriPlan: "${org.name}" icin ucretsiz deneme sureniz sona erdi. Odeme/abonelik baslatmak icin: ${shortUrl(appUrl)}/auth/plan-sec`
         );
       } catch {}
     }

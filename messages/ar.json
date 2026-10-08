@@ -3089,7 +3089,7 @@
       "eventOnRevise": "عند تعديل موعد",
       "eventOnCancel": "عند إلغاء موعد",
       "reminderOffsetLabel": "قبل كم ساعة من الموعد يُرسَل التذكير؟",
-      "reminderOffsetDesc": "يمكنك اختيار مدة واحدة فقط — اختيار واحدة يعطّل الباقي.",
+      "reminderOffsetDesc": "يُرسل تذكير للعميل عن كل خيار محدد. ألغِ تحديد ما لا تريده.",
       "hoursBefore": "قبل {h} ساعة",
       "daysBefore": "قبل {d} يوم",
       "metaTemplatesLabel": "قوالب رسائل Meta واتساب",

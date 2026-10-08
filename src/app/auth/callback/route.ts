@@ -62,6 +62,8 @@ export async function GET(req: NextRequest) {
           // Çoğu işletme sahibi internet/sosyal medyadan gelen randevuların otomatik
           // onaylanmasını istemiyor — ilk kayıtta kapalı, dileyen ayarlardan açar.
           has_auto_booking: false,
+          // WhatsApp hatırlatma: 2 saat + 1 gün önce, varsayılan işaretli.
+          wa_reminder_offsets_hours: [2, 24],
         })
         .select("id")
         .single();
@@ -71,7 +73,7 @@ export async function GET(req: NextRequest) {
         const newSlug = slug + "-" + Math.random().toString(36).slice(2, 4);
         const { data: org2 } = await admin
           .from("organizations")
-          .insert({ slug: newSlug, name: salonName, type, phone: phone || null, email: user.email!, plan: "trial", subscription_status: "active", trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), ...TRIAL_PLAN_LIMITS, has_auto_booking: false })
+          .insert({ slug: newSlug, name: salonName, type, phone: phone || null, email: user.email!, plan: "trial", subscription_status: "active", trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), ...TRIAL_PLAN_LIMITS, has_auto_booking: false, wa_reminder_offsets_hours: [2, 24] })
           .select("id").single();
         if (org2) {
           await admin.from("org_members").insert({ org_id: org2.id, user_id: user.id, role: "owner" });

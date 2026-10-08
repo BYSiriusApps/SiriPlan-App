@@ -3089,7 +3089,7 @@
       "eventOnRevise": "При изменении записи",
       "eventOnCancel": "При отмене записи",
       "reminderOffsetLabel": "За сколько часов до записи отправлять напоминание?",
-      "reminderOffsetDesc": "Можно выбрать только один вариант — выбор одного отключает остальные.",
+      "reminderOffsetDesc": "Клиент получит напоминание по каждому отмеченному варианту. Снимите отметку с ненужных.",
       "hoursBefore": "за {h} ч",
       "daysBefore": "за {d} дн.",
       "metaTemplatesLabel": "Шаблоны сообщений Meta WhatsApp",
