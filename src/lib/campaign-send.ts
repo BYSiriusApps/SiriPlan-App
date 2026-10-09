@@ -2,6 +2,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveCampaignRecipients, renderCampaignMessage } from "@/lib/campaign-segment";
 import { sendSms } from "@/lib/sms";
 import { optOutFooter } from "@/lib/marketing-opt-out";
+import { campaignRecipientLimit, monthlyCampaignWaLimit } from "@/lib/entitlements";
+import { consumePlanUsage, getPlanUsage, releasePlanUsage } from "@/lib/plan-usage";
+import { campaignLang, getCampaignWaConfig, sendCampaignTemplate } from "@/lib/campaign-wa-template";
 import { getOffer, isOfferExpired, offerTermsLine } from "@/lib/campaign-offer";
 
 /**
@@ -64,7 +67,7 @@ export async function sendCampaignNow(
 
   const { data: org } = await supabase
     .from("organizations")
-    .select("name, wa_token, wa_phone_number_id")
+    .select("name, wa_token, wa_phone_number_id, plan, trial_ends_at")
     .eq("id", campaign.org_id)
     .single();
 
@@ -75,6 +78,7 @@ export async function sendCampaignNow(
   // yüzden her 5 dakikada yeniden denenmesin diye başarısız işaretlenir.
   const offer = getOffer(campaign);
   let offerLine = "";
+  let serviceNames: string[] = [];
   if (offer) {
     if (isOfferExpired(offer)) {
       if (campaign.status === "scheduled") {
@@ -82,7 +86,6 @@ export async function sendCampaignNow(
       }
       return { ok: false, error: "İndirimin son geçerlilik tarihi geçmiş — yeni bir kampanya oluşturun" };
     }
-    let serviceNames: string[] = [];
     if (offer.service_ids) {
       const { data: svc } = await supabase
         .from("services")
@@ -94,7 +97,9 @@ export async function sendCampaignNow(
     offerLine = "\n\n" + offerTermsLine(offer, serviceNames);
   }
 
-  const recipients = await resolveCampaignRecipients(supabase, campaign.org_id, campaign.segment_json);
+  // Üst sınırın 1 fazlası çekilir: sınır aşımı sessizce kırpılmak yerine fark edilsin.
+  const recipientLimit = campaignRecipientLimit(org);
+  const recipients = await resolveCampaignRecipients(supabase, campaign.org_id, campaign.segment_json, recipientLimit + 1);
 
   if (recipients.length === 0) {
     await supabase
@@ -104,8 +109,39 @@ export async function sendCampaignNow(
     return { ok: false, error: "Bu segmentte kampanya bildirimi onaylı müşteri bulunamadı" };
   }
 
+  // Alıcı üst sınırı: aşılırsa HİÇBİR mesaj gönderilmez (kısmi gönderim yok).
+  // Planlı kampanya her 5 dakikada yeniden denenmesin diye başarısız işaretlenir.
+  if (recipients.length > recipientLimit) {
+    if (campaign.status === "scheduled") {
+      await supabase.from("campaigns").update({ status: "failed", sent_count: 0 }).eq("id", campaignId);
+    }
+    return {
+      ok: false,
+      error: `Bu segmentte ${recipients.length} alıcı var; tek kampanyada en fazla ${recipientLimit} alıcıya gönderilebilir. Segmenti daraltıp kampanyayı bölün.`,
+    };
+  }
+
   const channel = campaign.channel === "sms" ? "sms" : "whatsapp";
   const waConfigured = !!(org.wa_token && org.wa_phone_number_id);
+
+  // Ayrı kampanya numarası tanımlıysa WhatsApp kampanyaları onaylı MARKETING
+  // şablonuyla o numaradan gider (soğuk müşteriye serbest metin Meta'ca reddedilir).
+  // Tanımlı değilse yukarıdaki eski akış aynen sürer.
+  const campaignWa = channel === "whatsapp" ? getCampaignWaConfig() : null;
+  const waQuota = monthlyCampaignWaLimit(org);
+  let waQuotaExhausted = false;
+  if (campaignWa) {
+    const used = await getPlanUsage(campaign.org_id, "campaign_wa_message");
+    if (used + recipients.length > waQuota) {
+      if (campaign.status === "scheduled") {
+        await supabase.from("campaigns").update({ status: "failed", sent_count: 0 }).eq("id", campaignId);
+      }
+      return {
+        ok: false,
+        error: `Bu ayki WhatsApp kampanya mesaj hakkınız yetersiz (kalan ${Math.max(0, waQuota - used)}, gerekli ${recipients.length}). SMS kanalını kullanın veya segmenti daraltın.`,
+      };
+    }
+  }
 
   const logs: { campaign_id: string; customer_id: string; phone: string; status: string; error_msg: string | null }[] = [];
   let sentCount = 0;
@@ -132,6 +168,42 @@ export async function sendCampaignNow(
         logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: `SMS gönderilemedi: ${result.reason}` });
       } else {
         logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: result.detail || result.error });
+      }
+    } else if (campaignWa) {
+      // Hak, Meta'ya gitmeden önce atomik tüketilir; gitmezse geri verilir.
+      if (waQuotaExhausted) {
+        logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: "Aylık WhatsApp kampanya mesaj hakkı doldu" });
+        continue;
+      }
+      const usage = await consumePlanUsage(campaign.org_id, "campaign_wa_message", waQuota);
+      if (usage === "exceeded") {
+        waQuotaExhausted = true;
+        logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: "Aylık WhatsApp kampanya mesaj hakkı doldu" });
+        continue;
+      }
+      const result = await sendCampaignTemplate(
+        campaignWa,
+        normalizePhone(c.phone),
+        campaignLang(c.preferred_language),
+        offer
+          ? { kind: "discount", customerName: c.full_name, orgName: org.name, offer, serviceNames }
+          : {
+              kind: "announcement",
+              customerName: c.full_name,
+              orgName: org.name,
+              message: renderCampaignMessage(campaign.message_template, {
+                customerName: c.full_name,
+                orgName: org.name,
+                lastVisitAt: c.last_visit_at,
+              }),
+            }
+      );
+      if (result.ok) {
+        sentCount++;
+        logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "sent", error_msg: null });
+      } else {
+        if (usage === "ok") await releasePlanUsage(campaign.org_id, "campaign_wa_message");
+        logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: result.error });
       }
     } else {
       if (!waConfigured) {

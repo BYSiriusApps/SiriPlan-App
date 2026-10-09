@@ -4,7 +4,7 @@ import { verifyMetaSignature, safeCompare } from "@/lib/webhook-signature";
 import { hit } from "@/lib/rate-limit";
 import { sanitizeUserMessage } from "@/lib/ai-input";
 import { generateAIReply } from "@/lib/ai-reply";
-import { isMarketingOptOut, recordMarketingOptOut } from "@/lib/marketing-opt-out";
+import { isMarketingOptOut, recordMarketingOptOut, recordMarketingOptOutAllOrgs } from "@/lib/marketing-opt-out";
 
 export const runtime = "nodejs";
 
@@ -105,6 +105,27 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = await createAdminClient();
+
+    // Ortak KAMPANYA numarasına gelen mesaj (salon hesabı değil): yalnızca RET
+    // işlenir, başka hiçbir otomatik yanıt/AI akışı çalışmaz. İmza ve gönderen
+    // tavanı yukarıda zaten uygulandı.
+    const campaignPhoneId = process.env.WHATSAPP_CAMPAIGN_PHONE_ID;
+    if (campaignPhoneId && phoneNumberId === campaignPhoneId) {
+      const campaignToken = process.env.WHATSAPP_CAMPAIGN_TOKEN;
+      if (campaignToken && isMarketingOptOut(messageText)) {
+        await recordMarketingOptOutAllOrgs(supabase, {
+          phone: senderPhone.replace(/^90/, "0"),
+          messageSnapshot: messageText,
+        });
+        await sendWAMessage(
+          senderPhone,
+          `Talebiniz alındı. Bu numaraya artık tanıtım ve kampanya mesajı gönderilmeyecek. Randevu onay ve hatırlatmaları devam eder.`,
+          campaignToken,
+          campaignPhoneId
+        );
+      }
+      return NextResponse.json({ ok: true });
+    }
 
     // Find which org this phone number belongs to
     const { data: org } = await supabase

@@ -116,6 +116,37 @@ export function monthlyCampaignLimit(org: EntitlementOrg | null | undefined): nu
   return paidPlan(org) === "starter" ? PLAN_USAGE_LIMITS.starter.campaigns : null;
 }
 
+/**
+ * Tek bir kampanyanın alıcı üst sınırı. Toplu gönderim işletmenin kendi
+ * WhatsApp/SMS hattından gittiği için, çok geniş bir listeye tek seferde
+ * yüklenip numaranın kalite puanını düşürmesi (kısıtlanma/ban) ve gönderimin
+ * sunucu süre sınırına takılması engellenir. Sınırı aşan segment gönderilmez;
+ * işletme segmenti daraltıp birkaç kampanyaya böler.
+ */
+// Gönderim tek istekte SIRALI yapıldığı için (bkz. campaign-send.ts) tavan, mevcut sessiz
+// kırpma sınırıyla (500) aynı tutulur: daha yüksek bir sınır sunucu süre sınırına takılıp
+// gönderimi yarıda bırakabilir. Artırmak için önce gönderimin kuyruğa/parçalara alınması gerekir.
+export const CAMPAIGN_RECIPIENT_LIMITS = { starter: 500, default: 500 } as const;
+
+export function campaignRecipientLimit(org: EntitlementOrg | null | undefined): number {
+  return paidPlan(org) === "starter"
+    ? CAMPAIGN_RECIPIENT_LIMITS.starter
+    : CAMPAIGN_RECIPIENT_LIMITS.default;
+}
+
+/**
+ * SiriPlan'ın AYRI kampanya numarasından (WHATSAPP_CAMPAIGN_*) gönderilen
+ * pazarlama şablon mesajı için aylık işletme kotası. Meta ücreti SiriPlan'a
+ * ait olduğundan sınırsız bırakılmaz; kendi hesabından gönderen akış etkilenmez.
+ */
+export const CAMPAIGN_WA_MONTHLY_LIMITS = { starter: 500, default: 3000 } as const;
+
+export function monthlyCampaignWaLimit(org: EntitlementOrg | null | undefined): number {
+  return paidPlan(org) === "starter"
+    ? CAMPAIGN_WA_MONTHLY_LIMITS.starter
+    : CAMPAIGN_WA_MONTHLY_LIMITS.default;
+}
+
 /** Tek kullanıcılı plan mı? (Mini: ek personel/kullanıcı daveti yok.) */
 export function isSingleUserPlan(org: EntitlementOrg | null | undefined): boolean {
   return paidPlan(org) === "mini";
