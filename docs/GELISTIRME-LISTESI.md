@@ -717,3 +717,17 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
 - **TAMAMLANDI — SMS paketi müşteri kaydı (güvenlik incelemesi, 9 Eki):** `api/stripe/sms-pack/route.ts` içinde
   `stripe_customer_id` yazımı artık admin client ile yapılıyor (yetki kontrolü owner/manager önceden var). Satın alma
   mobilde zaten kapalı (buton `!mobileApp` + API `isMobileApp()` 403).
+
+## 15. Mesafeli satış paketi (10 Eki 2026) — kodda HAZIR, hukuki/idari teyit BEKLİYOR
+
+**Eklenenler:** `/mesafeli-satis-sozlesmesi`, `/on-bilgilendirme-formu`, `/iade-iptal-politikasi` (TR esas, EN çeviri; RU/AR İngilizce + "Türkçe esastır" notu; metinler `src/lib/legal/distance-sales.ts`, satıcı bilgileri `src/lib/legal/seller.ts`). Footer + sitemap + llms.txt bağlantıları. Ödeme öncesi İKİ zorunlu onay kutusu (`PurchaseConsent`): (1) sözleşme+ön bilgilendirme+iade politikası, (2) hizmetin hemen başlaması / cayma hakkı kaybı. Uygulandığı yerler: `/auth/plan-sec`, `/auth/kayit` (satın alma niyetli), SMS paketi, ek paketler. Sunucu da zorunlu tutar (`CONSENT_REQUIRED` 400) ve onayı Stripe metadata (`consent_version`, `consent_at`) + `audit_logs` (`consent.distance_sales`: sürüm, zaman, IP, tarayıcı, plan, session id) olarak kaydeder. Migration gerekmez. Kullanım Koşulları madde 4'e yeni belgelere atıf eklendi. `CONSENT_VERSION` metin değişince artırılmalı.
+
+**Metinde YURT DIŞI SATICI + KDV:** madde 5 — satıcı İngiltere'de yerleşik, Türkiye KDV'si eklenmez, yurt dışından hizmet alımında doğan KDV/vergiler alıcıya aittir.
+
+**Açık / kullanıcı-muhasebeci kararı (avukat öncesi bile netleşmeli):**
+- Kayıtlı tam adres (`SELLER.registeredAddress` boş → "talep üzerine bildirilir"). Ön bilgilendirmede satıcı adresi zorunlu tutulur; Companies House adresi yazılmalı.
+- KDV gerçeği: fiyatlar fiilen KDV hariç mi/dahil mi, Türkiye'de KDV mükellefiyeti/temsilci var mı, yurt dışı fatura/makbuz yeterli mi — madde 4-5 bu varsayıma göre yazıldı (muhasebeci teyidi).
+- Stripe Dashboard: Support email → info@bysirius.com (Settings → Business → Public details); makbuz/fatura e-posta ayarları. (İsteğe bağlı: Terms of service URL tanımlanırsa `consent_collection.terms_of_service=required` açılabilir — URL tanımsızken eklenirse ödeme kırılır, EKLENMEDİ.)
+- Mevcut aboneler için geriye dönük onay alınmadı; yenilemede yeni onay gerekmez ama plan yükseltme (`change-plan`) için onay kutusu istenirse eklenmeli.
+- Tüketici hakem heyeti/mahkeme parasal sınırları metne yazılmadı (her yıl değişir); cayma bildirimi muhatabı info@.
+- Avukat incelemesi ileride yapılacak: cayma istisnası (anında ifa) ifadesi, sorumluluk sınırı, tüketici/ticari ayrımı, UK Ltd ile Türk tüketicisine satış yapısı.
