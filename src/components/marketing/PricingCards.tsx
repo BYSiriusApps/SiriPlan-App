@@ -105,15 +105,15 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
           return (
             <Card
               key={plan.key}
-              className={`relative min-w-0 overflow-x-hidden overflow-y-visible ${isFull ? "flex flex-col" : ""} ${
+              className={`relative min-w-0 overflow-visible ${isFull ? "flex flex-col" : ""} ${
                 plan.highlight
-                  ? "border-primary shadow-lg shadow-primary/10 md:-translate-y-2 z-10"
+                  ? "border-primary ring-2 ring-primary shadow-xl shadow-primary/20 md:-translate-y-2 z-10"
                   : "border-border"
               }`}
             >
               {plan.highlight && (
-                <div className={`absolute ${isFull ? "-top-3.5" : "-top-3"} left-1/2 -translate-x-1/2`}>
-                  <Badge className={`bg-primary text-primary-foreground text-xs px-3 ${isFull ? "shadow-md" : ""}`}>
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap">
+                  <Badge className={`bg-primary text-primary-foreground text-xs font-semibold px-3.5 py-1 h-auto shadow-md`}>
                     {t("pricing.mostPopular")}
                   </Badge>
                 </div>
