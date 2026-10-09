@@ -25,6 +25,7 @@ const sellerTr = [
   `Unvan: ${SELLER.legalName}`,
   `Kuruluş yeri / sicil: ${SELLER.jurisdiction.tr} — Companies House No: ${SELLER.registrationNo}`,
   `Adres: ${addr.tr}`,
+  `Türkiye: ${SELLER.liaisonOffice.tr}`,
   `E-posta: ${SELLER.email} · Telefon / WhatsApp: ${SELLER.phone}`,
   `İnternet sitesi: ${SELLER.website}`,
 ];
@@ -32,6 +33,7 @@ const sellerEn = [
   `Name: ${SELLER.legalName}`,
   `Registered in: ${SELLER.jurisdiction.en} — Companies House No: ${SELLER.registrationNo}`,
   `Address: ${addr.en}`,
+  `Türkiye: ${SELLER.liaisonOffice.en}`,
   `Email: ${SELLER.email} · Phone / WhatsApp: ${SELLER.phone}`,
   `Website: ${SELLER.website}`,
 ];
@@ -80,10 +82,10 @@ const contractTr: LegalDoc = {
     {
       h: "5. Satıcı'nın Yurt Dışında Yerleşik Olması ve Vergiler (KDV)",
       p: [
-        "Satıcı, İngiltere ve Galler'de kayıtlı bir şirkettir ve Türkiye'de yerleşik değildir. Sipariş sırasında gösterilen tutara, Satıcı tarafından Türkiye KDV'si (veya başka bir Türkiye vergisi) eklenmez; Satıcı'nın Türkiye'de KDV mükellefiyeti bulunmamaktadır.",
-        "Alıcı'nın Türkiye'de yerleşik olması hâlinde; bu hizmetin yurt dışından alınmasından doğan KDV (3065 sayılı KDV Kanunu kapsamında yurt dışından alınan hizmetlerde sorumlu sıfatıyla beyan dahil), damga vergisi, dijital hizmet vergisi ve benzeri vergi, harç ve mali yükümlülükler ile bunların beyanı ve ödenmesi, yürürlükteki mevzuat uyarınca Alıcı'ya aittir. Ticari Alıcılar, giderlerini ve vergisel yükümlülüklerini kendi muhasebe/mali müşavirleriyle değerlendirmekle yükümlüdür.",
-        "Alıcı'nın bulunduğu ülkenin mevzuatı uyarınca Satıcı'nın bir vergi tahsil etmesi zorunlu hâle gelirse, Satıcı bu vergiyi sipariş ekranında ayrıca göstererek veya mevzuatın izin verdiği şekilde ücrete ekleyerek tahsil etme ve sonraki dönemlere yansıtma hakkını saklı tutar; bu durumda Alıcı önceden bilgilendirilir.",
-        "Satıcı'nın yurt dışında yerleşik olması nedeniyle düzenlenen belgeler, Türkiye'de düzenlenen KDV'li e-fatura/e-arşiv fatura yerine geçmez; bu belgelerin Alıcı'nın muhasebesindeki değerlendirmesi Alıcı'ya aittir.",
+        "Satıcı, İngiltere ve Galler'de kayıtlı bir şirkettir; Türkiye'de yerleşik değildir ve Türkiye'de vergi temsilcisi bulunmamaktadır.",
+        "Sipariş/ödeme ekranında gösterilen fiyatlar, uygulanabilir KDV ve diğer vergiler dâhil (vergi dâhil) toplam tutarlardır; gösterilen tutar dışında ayrıca vergi veya ek bedel talep edilmez.",
+        "Satıcı yurt dışında yerleşik olduğundan, ödeme karşılığında Stripe üzerinden düzenlenen elektronik fatura/makbuz (invoice/receipt), Türkiye'de düzenlenen KDV'li e-fatura veya e-arşiv fatura yerine geçmez. Alıcı'nın bulunduğu ülke mevzuatı uyarınca kendisine ayrıca beyan, kayıt veya ödeme yükümlülüğü doğuyorsa (ör. Ticari Alıcı'nın giderlerinin muhasebeleştirilmesi veya yurt dışından hizmet alımına ilişkin beyanlar), bunların değerlendirilmesi Alıcı'ya aittir; Satıcı vergi danışmanlığı sunmaz.",
+        "Mevzuat değişikliği nedeniyle Satıcı'nın ek vergi tahsil etmesi zorunlu hâle gelirse, bu vergi yalnızca sonraki dönem(ler)e yansıtılır, Alıcı'ya önceden bildirilir ve Alıcı yenilemeden önce aboneliğini iptal edebilir.",
       ],
     },
     {
@@ -188,10 +190,10 @@ const contractEn: LegalDoc = {
     {
       h: "5. Seller Established Abroad and Taxes (VAT)",
       p: [
-        "The Seller is a company registered in England and Wales and is not established in Türkiye. The Seller does not add Turkish VAT (or any other Turkish tax) to the amount shown at checkout; the Seller is not a registered VAT taxpayer in Türkiye.",
-        "If the Buyer is established in Türkiye, VAT arising from the purchase of this service from abroad (including declaration as the liable party for services obtained from abroad under Turkish VAT Law No. 3065), stamp duty, digital services tax and similar taxes, duties and financial obligations, and their declaration and payment, are the Buyer's responsibility under applicable law. Business Buyers should assess expenses and tax obligations with their own accountants.",
-        "If the law of the Buyer's country makes it mandatory for the Seller to collect a tax, the Seller reserves the right to show it separately at checkout or add it to the price as permitted by law and to apply it to future periods; the Buyer will be informed in advance.",
-        "Documents issued by a Seller established abroad do not replace Turkish VAT e-invoices/e-archive invoices; their treatment in the Buyer's books is the Buyer's responsibility.",
+        "The Seller is a company registered in England and Wales; it is not established in Türkiye and has no tax representative in Türkiye.",
+        "The prices shown at checkout/payment are total amounts inclusive of applicable VAT and other taxes (tax-inclusive); no additional tax or fee is charged beyond the amount shown.",
+        "Because the Seller is established abroad, the electronic invoice/receipt issued through Stripe for each payment does not replace a Turkish VAT e-invoice or e-archive invoice. If, under the law of the Buyer's country, the Buyer has further declaration, registration or payment obligations (e.g. a Business Buyer's bookkeeping of expenses or declarations on services obtained from abroad), assessing them is the Buyer's responsibility; the Seller does not provide tax advice.",
+        "If, due to a change in law, the Seller is required to collect an additional tax, it will be applied only to subsequent period(s), notified to the Buyer in advance, and the Buyer may cancel before renewal.",
       ],
     },
     {
@@ -275,7 +277,7 @@ const preinfoTr: LegalDoc = {
       h: "3. Toplam Fiyat, Ödeme Şekli ve Ek Maliyetler",
       p: [
         "Sipariş ekranında/ödeme sayfasında gösterilen tutar, seçtiğiniz plan ve dönem (aylık veya yıllık) için peşin tahsil edilecek toplam bedeldir; TRY, USD veya EUR cinsinden gösterilir.",
-        "Satıcı yurt dışında yerleşik olduğundan gösterilen tutara Türkiye KDV'si eklenmez; Türkiye'de yerleşik Alıcı'ya düşebilecek KDV ve diğer vergiler Alıcı'ya aittir (Mesafeli Satış Sözleşmesi, madde 5).",
+        "Gösterilen fiyatlara uygulanabilir KDV ve diğer vergiler dâhildir; gösterilen tutar dışında ayrıca vergi tahsil edilmez. Satıcı yurt dışında (İngiltere) yerleşiktir ve Türkiye'de vergi temsilcisi yoktur; Stripe makbuzu/faturası Türkiye'de düzenlenen e-faturanın yerine geçmez (Mesafeli Satış Sözleşmesi, madde 5).",
         "Ödeme kredi/banka kartıyla Stripe üzerinden alınır. Ödeme yurt dışı üye işyeri hesabından yapıldığından kartınızın bankası komisyon, kur farkı veya yurt dışı işlem bedeli uygulayabilir (banka tarafından belirlenir, Satıcı'ya ait değildir).",
       ],
     },
@@ -334,7 +336,7 @@ const preinfoEn: LegalDoc = {
       h: "3. Total Price, Payment and Additional Costs",
       p: [
         "The amount shown at checkout is the total fee charged in advance for the plan and period (monthly or yearly) you selected, displayed in TRY, USD or EUR.",
-        "Because the Seller is established abroad, Turkish VAT is not added to the displayed amount; VAT and other taxes that may fall on a Buyer established in Türkiye are the Buyer's responsibility (Distance Sales Agreement, Article 5).",
+        "Displayed prices include applicable VAT and other taxes; no further tax is charged beyond the amount shown. The Seller is established abroad (United Kingdom) and has no tax representative in Türkiye; the Stripe receipt/invoice does not replace a Turkish e-invoice (Distance Sales Agreement, Article 5).",
         "Payment is taken by credit/debit card through Stripe. As payment is processed through a merchant account outside Türkiye, your card issuer may charge commission, exchange-rate or foreign-transaction fees (set by the bank, not by the Seller).",
       ],
     },
