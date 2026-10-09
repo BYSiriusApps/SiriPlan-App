@@ -53,6 +53,7 @@ import { DEFAULT_KVKK_NOTICE_TEMPLATE, renderKvkkNotice } from "@/lib/kvkk";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
 import { CURRENCIES } from "@/lib/currency";
 import QRCode from "qrcode";
+import { PushToggle } from "@/components/dashboard/PushToggle";
 
 // Website modu örneği için sabit bir demo organizasyona bağlanır. Tek bir
 // spesifik satıra (slug) doğrudan gömmek yerine ortam değişkeninden okunur:
@@ -798,10 +799,7 @@ export default function AyarlarPage() {
             <span>{t("settingsPage.inAppChannelLabel")}</span>
             <Checkbox checked={!inAppSoundMuted} onCheckedChange={(c) => setNotificationSoundMuted(!c)} />
           </label>
-          <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-dashed border-border text-sm text-muted-foreground">
-            <span>{t("settingsPage.webPushChannelLabel")}</span>
-            <Checkbox checked disabled />
-          </div>
+          <PushToggle />
         </div>
       </SectionCard>
 

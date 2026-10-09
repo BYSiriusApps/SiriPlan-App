@@ -11,6 +11,7 @@ import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
 import { sendInternalTemplate } from "@/lib/wa-templates/internal-send";
 import type { WaInternalPurpose } from "@/lib/wa-templates/internal-registry";
 import { formatApptDateTime } from "@/lib/wa-templates/send";
+import { sendPushToOrg } from "@/lib/web-push";
 
 interface AppointmentForNotify {
   id: string;
@@ -267,6 +268,14 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
       }
     }
 
+    // Web Push (paralel, hata fırlatmaz) — mevcut kanalların davranışı değişmez.
+    tasks.push(
+      sendPushToOrg(
+        appt.org_id,
+        { title: "✅ Randevu Onaylandı", body: `${appt.customer_name} · ${serviceName} · ${waDate} ${waTime}`, url: "/dashboard/takvim", tag: `appt-${appt.id}` },
+        staffTargetId
+      )
+    );
     await Promise.allSettled(tasks);
   } catch {
     // Bildirim hatası randevu akışını engellememeli
@@ -298,25 +307,32 @@ export async function notifyLowStock(
       `Kalan: ${item.current_stock} ${item.unit} (uyarı sınırı: ${item.min_stock_alert})\n\n` +
       `Stok girişi yapmayı unutmayın.`;
 
-    await dispatch(
-      {
-        telegram_chat_id: (orgRow as { telegram_chat_id?: string | null }).telegram_chat_id,
-        telegram_enabled: orgCh.telegram,
-        whatsapp_number: (orgRow as { whatsapp_number?: string | null }).whatsapp_number,
-        whatsapp_enabled: orgCh.whatsapp,
-        label: "salon",
-      },
-      message,
-      {
-        purpose: "kritik_stok",
-        params: {
-          business_name: (orgRow as { name?: string }).name ?? "",
-          item_name: item.name,
-          current_stock: String(item.current_stock),
-          unit: item.unit,
+    await Promise.allSettled([
+      dispatch(
+        {
+          telegram_chat_id: (orgRow as { telegram_chat_id?: string | null }).telegram_chat_id,
+          telegram_enabled: orgCh.telegram,
+          whatsapp_number: (orgRow as { whatsapp_number?: string | null }).whatsapp_number,
+          whatsapp_enabled: orgCh.whatsapp,
+          label: "salon",
         },
-      }
-    );
+        message,
+        {
+          purpose: "kritik_stok",
+          params: {
+            business_name: (orgRow as { name?: string }).name ?? "",
+            item_name: item.name,
+            current_stock: String(item.current_stock),
+            unit: item.unit,
+          },
+        }
+      ),
+      sendPushToOrg(orgId, {
+        title: "⚠️ Kritik Stok Uyarısı",
+        body: `${item.name} · Kalan: ${item.current_stock} ${item.unit}`,
+        url: "/dashboard/stok",
+      }),
+    ]);
   } catch {
     // Bildirim hatası stok akışını engellememeli
   }
@@ -429,6 +445,17 @@ export async function notifyProposalResponse(p: ProposalResponseForNotify): Prom
         tasks.push(dispatch(rCopy, message));
       }
     }
+    tasks.push(
+      sendPushToOrg(
+        p.org_id,
+        {
+          title: p.accepted ? "✅ Öneri Kabul Edildi" : "❌ Öneri Reddedildi",
+          body: `${p.customer_name} · ${dateLabel}`,
+          url: p.accepted ? "/dashboard/takvim" : "/dashboard/bekleyen-istekler",
+        },
+        staffTargetId
+      )
+    );
     await Promise.allSettled(tasks);
   } catch {
     // Bildirim hatası akışı engellememeli
@@ -549,6 +576,13 @@ export async function notifyAppointmentRequest(
         tasks.push(dispatch(rCopy, message, { purpose: "yeni_talep", params: waTemplateParams }));
       }
     }
+    tasks.push(
+      sendPushToOrg(
+        req.org_id,
+        { title: "📋 Yeni Randevu Talebi", body: `${req.customer_name} · ${serviceName} · ${waDate} ${waTime}`, url: "/dashboard/bekleyen-istekler", tag: `req-${req.id}` },
+        staffTargetId
+      )
+    );
     await Promise.allSettled(tasks);
   } catch {
     // Bildirim hatası akışı engellememeli

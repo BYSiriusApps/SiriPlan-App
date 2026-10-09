@@ -771,7 +771,7 @@
   "privacyPage": {
     "metaDescription": "SiriPlan privacy policy — learn how we process your personal data.",
     "pageTitle": "Privacy Policy",
-    "lastUpdated": "Last updated: August 2026",
+    "lastUpdated": "Last updated: October 2026",
     "translationNote": "This is an English translation for your convenience. In case of any discrepancy, the Turkish original governs.",
     "s1Title": "1. Data Controller",
     "s1P1": "This privacy policy applies to the <strong>SiriPlan</strong> platform operated by <strong>BY Sirius Group Ai and Technology Co Ltd.</strong> (the \"Company\", \"we\", \"us\"). The Company acts as the data controller under Law No. 6698 on the Protection of Personal Data (KVKK).",
@@ -783,7 +783,8 @@
       "Business name, address, and industry information",
       "Appointment history and customer records",
       "Payment and billing information (card details are not stored; processed by Stripe)",
-      "IP address, browser type, and usage statistics"
+      "IP address, browser type, and usage statistics",
+      "When push notifications are enabled, your device's notification endpoint and keys"
     ],
     "s3Title": "3. Purposes of Processing",
     "s3Items": [
@@ -791,7 +792,8 @@
       "Processing subscriptions and payments",
       "Providing customer support and technical assistance",
       "Security, fraud prevention, and fulfilling legal obligations",
-      "Product development and improving service quality"
+      "Product development and improving service quality",
+      "Sending push notifications (new bookings, requests, etc.) only to the device that enabled them; this data is deleted when you turn notifications off"
     ],
     "s4Title": "4. Data Security",
     "s4P": "Your data is protected with SSL/TLS encryption. Our server infrastructure complies with industry-standard security protocols. Your payment information is never stored on our servers; all payment transactions are processed through PCI-DSS compliant Stripe infrastructure.",
@@ -1875,6 +1877,13 @@
       "on": "Notification sound on",
       "off": "Notification sound off",
       "toggleAria": "Toggle new appointment notification sound"
+    },
+    "webPush": {
+      "label": "Phone / Browser Notification (arrives even when the app is closed)",
+      "onHint": "Notifications are on for this device. New bookings and requests arrive even when the app is closed.",
+      "unsupported": "This browser/device does not support push notifications. (On iPhone, add the app to the Home Screen.)",
+      "denied": "Notification permission is blocked. Allow notifications for this site in your browser/phone settings.",
+      "error": "Could not save the notification setting, please try again."
     },
     "customers": "Customers",
     "staff": "Staff",
