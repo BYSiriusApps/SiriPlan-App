@@ -46,13 +46,13 @@ const BRAND_LOGO_URL = "https://siriplan.com/icons/icon-mark.png";
 
 function baseLayout(content: string, orgName: string, locale?: string | null, brand?: EmailBrand) {
   const S = emailStrings(locale);
-  const accent = brand ? BRAND_BLUE : "#e11d48";
-  const headerBg = brand ? "#0b2a6f" : "#e11d48";
-  const headerGradient = brand ? "linear-gradient(135deg,#0b2a6f 0%,#1d4ed8 100%)" : "linear-gradient(135deg,#e11d48 0%,#a21caf 100%)";
+  // Tüm e-postalar aynı marka görünümünü kullanır (lacivert şerit + altın alt çizgi + logo);
+  // auth e-postalarıyla (api/auth/email-hook) aynı palet.
+  const accent = BRAND_BLUE;
+  const headerBg = "#0c2050";
+  const headerGradient = "linear-gradient(135deg,#123a86 0%,#0a1a40 100%)";
   const brandName = brand === "siriusplan" ? "SiriusPlan" : "SiriPlan";
-  const logo = brand
-    ? `<img src="${BRAND_LOGO_URL}" width="56" height="56" alt="${brandName}" style="display:block;margin:0 auto 10px;border-radius:14px;border:0;" />`
-    : "";
+  const logo = `<img src="${BRAND_LOGO_URL}" width="56" height="56" alt="${brandName}" style="display:inline-block;vertical-align:middle;border-radius:14px;border:0;" />`;
   return `<!DOCTYPE html>
 <html lang="${S.htmlLang}"${S.rtl ? ' dir="rtl"' : ''}>
 <head>
@@ -67,9 +67,9 @@ function baseLayout(content: string, orgName: string, locale?: string | null, br
         <table role="presentation" width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
           <!-- Header -->
           <tr>
-            <td bgcolor="${headerBg}" style="background:${headerGradient};padding:28px 32px;text-align:center;">
-              ${logo}<span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">${brandName}</span>
-              <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.8);">${esc(orgName)}</p>
+            <td bgcolor="${headerBg}" style="background-color:${headerBg};background:${headerGradient};padding:28px 32px;text-align:center;border-bottom:4px solid #d4a63c;">
+              ${logo}<span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;vertical-align:middle;margin-left:12px;">${brandName}</span>
+              <p style="margin:10px 0 0;font-size:12px;color:#e7c98a;">${esc(orgName)}</p>
             </td>
           </tr>
           <!-- Body -->
@@ -174,7 +174,7 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
   if (!emailEnabled()) return;
 
   const brandName = data.brand === "siriusplan" ? "SiriusPlan" : "SiriPlan";
-  const accent = data.brand ? BRAND_BLUE : "#e11d48";
+  const accent = BRAND_BLUE;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
 
   const content = `
@@ -197,7 +197,7 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
     </table>
 
     <a href="${appUrl}/dashboard"
-       style="display:inline-block;padding:12px 28px;background:${accent};color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+       style="display:inline-block;padding:12px 28px;background:#0c2050;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       Dashboard'a Git →
     </a>
 
@@ -239,12 +239,12 @@ export async function sendStaffInviteEmail(data: {
     </p>
 
     <a href="${data.inviteUrl}"
-       style="display:inline-block;padding:12px 28px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+       style="display:inline-block;padding:12px 28px;background:#0c2050;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       Daveti Görüntüle →
     </a>
 
     <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
-      Bu davet bağlantısı 24 saat geçerlidir ve yalnızca bir kez kullanılabilir. Sorularınız için <a href="mailto:info@bysirius.com" style="color:#e11d48;text-decoration:none;">info@bysirius.com</a> adresinden ulaşabilirsiniz.
+      Bu davet bağlantısı 24 saat geçerlidir ve yalnızca bir kez kullanılabilir. Sorularınız için <a href="mailto:info@bysirius.com" style="color:#1d4ed8;text-decoration:none;">info@bysirius.com</a> adresinden ulaşabilirsiniz.
     </p>
   `;
 
@@ -290,7 +290,7 @@ export async function sendBirthdayEmail(data: {
     </table>
 
     <a href="${data.bookingUrl}"
-       style="display:inline-block;padding:12px 28px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+       style="display:inline-block;padding:12px 28px;background:#0c2050;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       ${S.birthdayCta}
     </a>
 
@@ -338,12 +338,12 @@ export async function sendTrialEndingEmail(data: {
     </p>
 
     <a href="${upgradeLink}"
-       style="display:inline-block;padding:12px 28px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+       style="display:inline-block;padding:12px 28px;background:#0c2050;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       siriplan.com'da Plan Seç →
     </a>
 
     <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
-      Sorularınız için <a href="mailto:info@bysirius.com" style="color:#e11d48;text-decoration:none;">info@bysirius.com</a> adresinden veya
+      Sorularınız için <a href="mailto:info@bysirius.com" style="color:#1d4ed8;text-decoration:none;">info@bysirius.com</a> adresinden veya
       <a href="https://wa.me/905355032634" style="color:#25D366;text-decoration:none;">WhatsApp</a> üzerinden ulaşabilirsiniz.<br/>
       İyi çalışmalar! ✨
     </p>
@@ -411,7 +411,7 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
       ${locationLink ? `
       <tr><td style="padding:6px 0;">
         <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelLocation}</span>
-        <a href="${locationLink}" style="font-size:15px;font-weight:600;color:#e11d48;text-decoration:none;">${data.orgAddress ? esc(data.orgAddress) : S.viewOnMap}</a>
+        <a href="${locationLink}" style="font-size:15px;font-weight:600;color:#1d4ed8;text-decoration:none;">${data.orgAddress ? esc(data.orgAddress) : S.viewOnMap}</a>
       </td></tr>
       ` : data.orgAddress ? `
       <tr><td style="padding:6px 0;">
@@ -422,7 +422,7 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
     </table>
 
     ${detailLink ? `
-    <a href="${detailLink}" style="display:inline-block;padding:10px 24px;background:#e11d48;color:#ffffff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:12px;margin-right:8px;">
+    <a href="${detailLink}" style="display:inline-block;padding:10px 24px;background:#0c2050;color:#ffffff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:12px;margin-right:8px;">
       ${S.detailButton}
     </a>
     ` : ""}
@@ -489,7 +489,7 @@ export async function sendContactMessageEmail(data: {
       ` : ""}
     </table>
 
-    <div style="white-space:pre-wrap;font-size:14px;color:#374151;line-height:1.6;padding:16px;border-left:3px solid #e11d48;background:#fff1f2;border-radius:0 8px 8px 0;">${esc(data.message)}</div>
+    <div style="white-space:pre-wrap;font-size:14px;color:#374151;line-height:1.6;padding:16px;border-left:3px solid #d4a63c;background:#fffbeb;border-radius:0 8px 8px 0;">${esc(data.message)}</div>
 
     ${data.flags?.length ? `
     <p style="margin:20px 0 0;font-size:12px;color:#b45309;background:#fffbeb;border-radius:8px;padding:12px;">

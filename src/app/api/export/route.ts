@@ -34,7 +34,7 @@ function renderReportShell(opts: {
   const { origin, orgName, salonLogoUrl, title, subtitle, body } = opts;
   const headerLogo = salonLogoUrl
     ? `<img class="logo" src="${escapeHtml(salonLogoUrl)}" alt="${escapeHtml(orgName)}">`
-    : `<img class="logo" src="${origin}/brand/logo-full.png" alt="SiriPlan">`;
+    : `<img class="logo" src="${origin}/icons/icon-mark.png" alt="SiriPlan">`;
   const today = new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
 
   return `<!DOCTYPE html>
