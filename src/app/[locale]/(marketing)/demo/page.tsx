@@ -24,6 +24,20 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const videoJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  name: "SiriPlan Demo",
+  description:
+    "SiriPlan canlı uygulama tanıtımı: takvim, müşteri, personel, stok, kampanya, paket, gelir-gider ve raporlar.",
+  thumbnailUrl: "https://siriplan.com/video/siriplan-demo-poster.jpg",
+  contentUrl: "https://siriplan.com/video/siriplan-demo.mp4",
+  uploadDate: "2026-10-10",
+  duration: "PT1M9S",
+  inLanguage: "tr",
+  publisher: { "@id": "https://siriplan.com/#organization" },
+};
+
 export default async function DemoPage() {
   const t = await getTranslations();
 
@@ -44,20 +58,23 @@ export default async function DemoPage() {
           </p>
         </div>
 
-        {/* Demo video placeholder */}
+        {/* Demo video — uygulama ekran kayıtları + altyazı (public/video) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
+        />
         <div className="max-w-3xl mx-auto mb-16">
-          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-fuchsia-500/10 border border-border aspect-video flex items-center justify-center shadow-xl">
-            <div className="text-center">
-              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 backdrop-blur">
-                <Play className="w-8 h-8 text-primary ml-1" />
-              </div>
-              <p className="text-lg font-semibold">{t("demoPage.videoTitle")}</p>
-              <p className="text-sm text-muted-foreground mt-1">{t("demoPage.videoComingSoon")}</p>
-            </div>
-            {/* Decorative dots */}
-            <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <div className="absolute top-4 right-8 w-2 h-2 rounded-full bg-yellow-500" />
-            <div className="absolute top-4 right-12 w-2 h-2 rounded-full bg-green-500" />
+          <div className="relative rounded-2xl overflow-hidden border border-border aspect-video shadow-xl bg-black">
+            <video
+              className="absolute inset-0 w-full h-full"
+              controls
+              playsInline
+              preload="metadata"
+              poster="/video/siriplan-demo-poster.jpg"
+              aria-label={t("demoPage.videoTitle")}
+            >
+              <source src="/video/siriplan-demo.mp4" type="video/mp4" />
+            </video>
           </div>
         </div>
 
