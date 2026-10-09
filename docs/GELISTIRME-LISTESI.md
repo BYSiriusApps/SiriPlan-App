@@ -708,3 +708,6 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
   kart altındaki tasarruf parantezi kaldırıldı; "1 yıl sabit fiyat garantisi" satırı eklendi. Tüm site/doküman
   metinlerindeki eski Business fiyatı (₺4.752 / ₺46.760) temizlendi.
 - **TAMAMLANDI — SMS kontörü:** `20261010_sms_credits.sql` migration'ı canlıda ÇALIŞTIRILDI (kullanıcı teyidi).
+- **TAMAMLANDI — SMS paketi müşteri kaydı (güvenlik incelemesi, 9 Eki):** `api/stripe/sms-pack/route.ts` içinde
+  `stripe_customer_id` yazımı artık admin client ile yapılıyor (yetki kontrolü owner/manager önceden var). Satın alma
+  mobilde zaten kapalı (buton `!mobileApp` + API `isMobileApp()` 403).

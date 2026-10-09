@@ -3,7 +3,7 @@ import type Stripe from "stripe";
 import { getLocale } from "next-intl/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getStripe } from "@/lib/stripe/config";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
 import { SMS_PACK_CREDITS } from "@/lib/sms-credits";
@@ -60,7 +60,9 @@ export async function POST(req: Request) {
       metadata: { org_id: member.org_id, user_id: user.id },
     });
     customerId = customer.id;
-    await supabase.from("organizations").update({ stripe_customer_id: customerId }).eq("id", member.org_id);
+    // Yetki kontrolü yukarıda (owner/manager) yapıldı; yazım sunucu yetkisiyle.
+    const admin = await createAdminClient();
+    await admin.from("organizations").update({ stripe_customer_id: customerId }).eq("id", member.org_id);
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
