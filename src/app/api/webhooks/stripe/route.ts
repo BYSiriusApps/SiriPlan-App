@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe, type PlanKey } from "@/lib/stripe/config";
 import { applyPlanToOrg, planFromPriceId } from "@/lib/stripe/apply-plan";
+import { addonFromSubscription, syncAddonSubscription } from "@/lib/stripe/addons";
+import { syncBranchesFromParent } from "@/lib/branches";
 
 export const dynamic = "force-dynamic";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -78,6 +80,13 @@ export async function POST(req: NextRequest) {
         }
         break;
       }
+      // Ek paket (AI Asistan / Ek Şube) aboneliği: plan aboneliği DEĞİLDİR.
+      // Aşağıdaki kod stripe_subscription_id'yi ezerdi → plan değiştirme/iptal
+      // akışı yanlış aboneliğe bakardı. Durum customer.subscription.* olaylarında
+      // yazılır; burada yalnızca plan mantığından uzak tutulur.
+      if (session.mode === "subscription" && session.metadata?.kind === "addon") {
+        break;
+      }
       const customerId = session.customer as string | null;
       const subscriptionId = session.subscription as string | null;
       if (customerId && subscriptionId) {
@@ -96,8 +105,31 @@ export async function POST(req: NextRequest) {
       break;
     }
 
+    case "customer.subscription.created":
     case "customer.subscription.updated": {
       const sub = event.data.object as Stripe.Subscription;
+      // Ek paket aboneliği plan mantığına (applyPlanToOrg / subscription_status) ASLA girmez.
+      if (addonFromSubscription(sub)) {
+        const { data: addonOrg } = await supabase
+          .from("organizations")
+          .select("id")
+          .eq("stripe_customer_id", sub.customer as string)
+          .single();
+        if (addonOrg) {
+          try {
+            await syncAddonSubscription(addonOrg.id, sub);
+            await syncBranchesFromParent(addonOrg.id);
+          } catch (err) {
+            console.error("[stripe-webhook] ek paket eşitlenemedi:", err);
+            return NextResponse.json({ error: "addon_sync_failed" }, { status: 500 });
+          }
+          await writeAuditLog(addonOrg.id, "addon.updated", { status: sub.status, event: event.id });
+        }
+        break;
+      }
+      // `created` olayı yalnızca ek paketler için işlenir; plan abonelikleri eskisi
+      // gibi checkout.completed + updated ile yönetilir (davranış değişmesin).
+      if (event.type === "customer.subscription.created") break;
       const { data: org } = await supabase
         .from("organizations")
         .select("id")
@@ -125,6 +157,25 @@ export async function POST(req: NextRequest) {
 
     case "customer.subscription.deleted": {
       const sub = event.data.object as Stripe.Subscription;
+      // Ek paket iptali: planı ASLA sıfırlamaz (aşağıdaki blok trial'a düşürür).
+      if (addonFromSubscription(sub)) {
+        const { data: addonOrg } = await supabase
+          .from("organizations")
+          .select("id")
+          .eq("stripe_customer_id", sub.customer as string)
+          .single();
+        if (addonOrg) {
+          try {
+            await syncAddonSubscription(addonOrg.id, sub, true);
+            await syncBranchesFromParent(addonOrg.id);
+          } catch (err) {
+            console.error("[stripe-webhook] ek paket kapatılamadı:", err);
+            return NextResponse.json({ error: "addon_sync_failed" }, { status: 500 });
+          }
+          await writeAuditLog(addonOrg.id, "addon.canceled", { event: event.id });
+        }
+        break;
+      }
       const { data: org } = await supabase
         .from("organizations")
         .select("id")
@@ -141,6 +192,7 @@ export async function POST(req: NextRequest) {
           feature_whitelabel: false,
           feature_website: false,
         }).eq("id", org.id);
+        await syncBranchesFromParent(org.id);
         await writeAuditLog(org.id, "subscription.canceled", { event: event.id });
       }
       break;

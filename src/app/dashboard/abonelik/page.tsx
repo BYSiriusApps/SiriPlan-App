@@ -14,6 +14,7 @@ import { ManageBillingButton } from "@/components/dashboard/ManageBillingButton"
 import { CancelSubscriptionButton } from "@/components/dashboard/CancelSubscriptionButton";
 import { ChangePlanButton } from "@/components/dashboard/ChangePlanButton";
 import { BuySmsPackButton } from "@/components/dashboard/BuySmsPackButton";
+import { AddonsPanel } from "@/components/dashboard/AddonsPanel";
 import { getSmsCredits } from "@/lib/sms-credits";
 import Link from "next/link";
 
@@ -32,9 +33,9 @@ const PLAN_DETAILS = {
 export default async function AbonelikPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sms_pack?: string }>;
+  searchParams: Promise<{ sms_pack?: string; addon?: string }>;
 }) {
-  const { sms_pack: smsPackParam } = await searchParams;
+  const { sms_pack: smsPackParam, addon: addonParam } = await searchParams;
   const smsPackStatus = smsPackParam === "success" || smsPackParam === "canceled" ? smsPackParam : undefined;
   const t = await getTranslations();
   const locale = await getLocale();
@@ -312,6 +313,16 @@ export default async function AbonelikPage({
           </CardContent>
         </Card>
       )}
+
+      <AddonsPanel
+        orgId={member.org_id}
+        role={member.role}
+        plan={org.plan}
+        subscriptionStatus={org.subscription_status}
+        hasSubscription={!!org.stripe_subscription_id}
+        mobileApp={mobileApp}
+        returnStatus={addonParam === "success" || addonParam === "canceled" ? addonParam : undefined}
+      />
 
       {org.plan === "trial" && !mobileApp && (
         <p className="text-xs text-center text-muted-foreground">
