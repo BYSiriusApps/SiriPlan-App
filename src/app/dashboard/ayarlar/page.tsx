@@ -803,197 +803,6 @@ export default function AyarlarPage() {
         </div>
       </SectionCard>
 
-      {/* Otomatik randevu mesajı */}
-      <SectionCard
-        icon={MessageCircle}
-        iconClassName="text-green-600"
-        title={t("settingsPage.autoMessageTitle")}
-        description={t("settingsPage.autoMessageDesc")}
-        dataTour="auto-message"
-      >
-        <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
-          <p className="text-xs text-amber-700 dark:text-amber-400">
-            {t("settingsPage.autoMessageWarning")}
-          </p>
-        </div>
-
-        <div className="flex border-b border-border mb-3 overflow-x-auto whitespace-nowrap">
-          {(
-            [
-              { key: "onay", label: t("settingsPage.tabOnay") },
-              { key: "iptal", label: t("settingsPage.tabIptal") },
-              { key: "revize", label: t("settingsPage.tabRevize") },
-              { key: "hatirlatma", label: t("settingsPage.tabHatirlatma") },
-            ] as const
-          ).map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setManualTab(tab.key)}
-              className={`px-3 py-2 text-xs font-semibold border-b-2 transition-colors ${
-                manualTab === tab.key
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <p className="mb-3 text-xs leading-relaxed text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg p-2.5">
-          {t("settingsPage.templatePromoWarning")}
-        </p>
-
-        {manualTab === "onay" && (
-          <div className="space-y-3">
-            <div className="flex gap-1.5 flex-wrap items-center">
-              <span className="text-xs text-muted-foreground">{t("settingsPage.templatePickLabel")}</span>
-              {APPOINTMENT_TEMPLATE_PRESETS.map((preset) => (
-                <button
-                  key={preset.key}
-                  type="button"
-                  onClick={() => {
-                    const cur = (org.settings_json ?? {}) as Record<string, unknown>;
-                    setField("settings_json", { ...cur, wa_appointment_template: preset.text });
-                  }}
-                  className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                >
-                  {preset.label}
-                </button>
-              ))}
-            </div>
-            <textarea
-              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
-              value={
-                ((org.settings_json as Record<string, unknown> | null)?.wa_appointment_template as string | undefined) ??
-                DEFAULT_WA_TEMPLATE
-              }
-              onChange={(e) => {
-                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
-                setField("settings_json", { ...cur, wa_appointment_template: e.target.value });
-              }}
-              placeholder={DEFAULT_WA_TEMPLATE}
-            />
-          </div>
-        )}
-
-        {manualTab === "iptal" && (
-          <div className="space-y-3">
-            <textarea
-              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
-              value={
-                ((org.settings_json as Record<string, unknown> | null)?.wa_cancellation_template as string | undefined) ??
-                DEFAULT_WA_CANCEL_TEMPLATE
-              }
-              onChange={(e) => {
-                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
-                setField("settings_json", { ...cur, wa_cancellation_template: e.target.value });
-              }}
-              placeholder={DEFAULT_WA_CANCEL_TEMPLATE}
-            />
-          </div>
-        )}
-
-        {manualTab === "revize" && (
-          <div className="space-y-3">
-            <textarea
-              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
-              value={
-                ((org.settings_json as Record<string, unknown> | null)?.wa_revize_template as string | undefined) ??
-                DEFAULT_WA_REVIZE_TEMPLATE
-              }
-              onChange={(e) => {
-                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
-                setField("settings_json", { ...cur, wa_revize_template: e.target.value });
-              }}
-              placeholder={DEFAULT_WA_REVIZE_TEMPLATE}
-            />
-          </div>
-        )}
-
-        {manualTab === "hatirlatma" && (
-          <div className="space-y-3">
-            <textarea
-              className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
-              value={
-                ((org.settings_json as Record<string, unknown> | null)?.wa_reminder_template as string | undefined) ??
-                DEFAULT_WA_REMINDER_TEMPLATE
-              }
-              onChange={(e) => {
-                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
-                setField("settings_json", { ...cur, wa_reminder_template: e.target.value });
-              }}
-              placeholder={DEFAULT_WA_REMINDER_TEMPLATE}
-            />
-          </div>
-        )}
-
-        <div className="flex gap-1.5 flex-wrap items-center">
-          <span className="text-xs text-muted-foreground">{t("settingsPage.variablesLabel")}</span>
-          {WA_TEMPLATE_VARS.map((v) => (
-            <button
-              key={v.key}
-              type="button"
-              title={t(`settingsPage.waVar.${v.key.replace(/[{}]/g, "")}`)}
-              onClick={() => {
-                const cur = (org.settings_json ?? {}) as Record<string, unknown>;
-                let currentVal = "";
-                let targetKey = "";
-
-                if (manualTab === "onay") {
-                  currentVal = (cur.wa_appointment_template as string | undefined) ?? DEFAULT_WA_TEMPLATE;
-                  targetKey = "wa_appointment_template";
-                } else if (manualTab === "iptal") {
-                  currentVal = (cur.wa_cancellation_template as string | undefined) ?? DEFAULT_WA_CANCEL_TEMPLATE;
-                  targetKey = "wa_cancellation_template";
-                } else if (manualTab === "revize") {
-                  currentVal = (cur.wa_revize_template as string | undefined) ?? DEFAULT_WA_REVIZE_TEMPLATE;
-                  targetKey = "wa_revize_template";
-                } else if (manualTab === "hatirlatma") {
-                  currentVal = (cur.wa_reminder_template as string | undefined) ?? DEFAULT_WA_REMINDER_TEMPLATE;
-                  targetKey = "wa_reminder_template";
-                }
-
-                setField("settings_json", { ...cur, [targetKey]: currentVal + " " + v.key });
-              }}
-              className="text-xs px-2 py-1 rounded bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
-            >
-              {v.key}
-            </button>
-          ))}
-        </div>
-
-        <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50">
-          <p className="text-[11px] font-medium text-green-700 dark:text-green-400 mb-1">{t("settingsPage.previewLabel")}</p>
-          <p className="text-xs text-muted-foreground italic">
-            {renderWaTemplate(
-              manualTab === "onay"
-                ? ((org.settings_json as Record<string, unknown> | null)?.wa_appointment_template as string | undefined)
-                : manualTab === "iptal"
-                ? ((org.settings_json as Record<string, unknown> | null)?.wa_cancellation_template as string | undefined)
-                : manualTab === "revize"
-                ? ((org.settings_json as Record<string, unknown> | null)?.wa_revize_template as string | undefined)
-                : ((org.settings_json as Record<string, unknown> | null)?.wa_reminder_template as string | undefined),
-              {
-                musteri: t("settingsPage.sampleCustomerName"),
-                salon: org.name || orgNameFallback,
-                appointmentAt: manualTab === "revize" ? "2026-07-20T18:00" : "2026-07-20T15:00",
-                hizmet: t("settingsPage.sampleServiceName"),
-                personel: t("settingsPage.sampleStaffName"),
-              },
-              manualTab === "onay"
-                ? DEFAULT_WA_TEMPLATE
-                : manualTab === "iptal"
-                ? DEFAULT_WA_CANCEL_TEMPLATE
-                : manualTab === "revize"
-                ? DEFAULT_WA_REVIZE_TEMPLATE
-                : DEFAULT_WA_REMINDER_TEMPLATE
-            )}
-          </p>
-        </div>
-      </SectionCard>
-
       {/* Online randevu — otomatik onay */}
       <SectionCard
         icon={CalendarCheck}
@@ -1079,6 +888,12 @@ export default function AyarlarPage() {
         dataTour="whatsapp-notif"
       >
         <div className="space-y-4">
+          <div className="flex items-start gap-2.5 rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-900/50 dark:bg-green-950/20">
+            <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+            <p className="text-xs font-medium leading-relaxed text-green-800 dark:text-green-300">
+              {t("settingsPage.waAutoBanner")}
+            </p>
+          </div>
           <div className="flex items-start gap-3 p-3 rounded-lg border border-border">
             <Checkbox
               id="whatsapp_notifications_enabled"
@@ -1271,6 +1086,205 @@ export default function AyarlarPage() {
         </div>
       </SectionCard>
 
+      {/* Manuel WhatsApp mesaj metni — varsayılan KAPALI/gizli; otomatik mesajlar ön planda kalsın diye
+          "WhatsApp Bildirimleri" kartının altında ince bir çizgi olarak durur. */}
+      <details data-tour="auto-message" className="group scroll-mt-24 rounded-xl border border-dashed border-border px-4 py-2.5">
+        <summary className="flex cursor-pointer select-none list-none items-center gap-2 text-xs text-muted-foreground hover:text-foreground">
+          <ChevronRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90" />
+          {t("settingsPage.manualWaSummary")}
+        </summary>
+        <div className="mt-3">
+        <SectionCard
+          icon={MessageCircle}
+          iconClassName="text-green-600"
+          title={t("settingsPage.autoMessageTitle")}
+          description={t("settingsPage.autoMessageDesc")}
+        >
+          <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
+            <p className="text-xs text-amber-700 dark:text-amber-400">
+              {t("settingsPage.autoMessageWarning")}
+            </p>
+          </div>
+
+          <div className="flex border-b border-border mb-3 overflow-x-auto whitespace-nowrap">
+            {(
+              [
+                { key: "onay", label: t("settingsPage.tabOnay") },
+                { key: "iptal", label: t("settingsPage.tabIptal") },
+                { key: "revize", label: t("settingsPage.tabRevize") },
+                { key: "hatirlatma", label: t("settingsPage.tabHatirlatma") },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setManualTab(tab.key)}
+                className={`px-3 py-2 text-xs font-semibold border-b-2 transition-colors ${
+                  manualTab === tab.key
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <p className="mb-3 text-xs leading-relaxed text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg p-2.5">
+            {t("settingsPage.templatePromoWarning")}
+          </p>
+
+          {manualTab === "onay" && (
+            <div className="space-y-3">
+              <div className="flex gap-1.5 flex-wrap items-center">
+                <span className="text-xs text-muted-foreground">{t("settingsPage.templatePickLabel")}</span>
+                {APPOINTMENT_TEMPLATE_PRESETS.map((preset) => (
+                  <button
+                    key={preset.key}
+                    type="button"
+                    onClick={() => {
+                      const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                      setField("settings_json", { ...cur, wa_appointment_template: preset.text });
+                    }}
+                    className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
+                value={
+                  ((org.settings_json as Record<string, unknown> | null)?.wa_appointment_template as string | undefined) ??
+                  DEFAULT_WA_TEMPLATE
+                }
+                onChange={(e) => {
+                  const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                  setField("settings_json", { ...cur, wa_appointment_template: e.target.value });
+                }}
+                placeholder={DEFAULT_WA_TEMPLATE}
+              />
+            </div>
+          )}
+
+          {manualTab === "iptal" && (
+            <div className="space-y-3">
+              <textarea
+                className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
+                value={
+                  ((org.settings_json as Record<string, unknown> | null)?.wa_cancellation_template as string | undefined) ??
+                  DEFAULT_WA_CANCEL_TEMPLATE
+                }
+                onChange={(e) => {
+                  const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                  setField("settings_json", { ...cur, wa_cancellation_template: e.target.value });
+                }}
+                placeholder={DEFAULT_WA_CANCEL_TEMPLATE}
+              />
+            </div>
+          )}
+
+          {manualTab === "revize" && (
+            <div className="space-y-3">
+              <textarea
+                className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
+                value={
+                  ((org.settings_json as Record<string, unknown> | null)?.wa_revize_template as string | undefined) ??
+                  DEFAULT_WA_REVIZE_TEMPLATE
+                }
+                onChange={(e) => {
+                  const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                  setField("settings_json", { ...cur, wa_revize_template: e.target.value });
+                }}
+                placeholder={DEFAULT_WA_REVIZE_TEMPLATE}
+              />
+            </div>
+          )}
+
+          {manualTab === "hatirlatma" && (
+            <div className="space-y-3">
+              <textarea
+                className="w-full text-sm border border-border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
+                value={
+                  ((org.settings_json as Record<string, unknown> | null)?.wa_reminder_template as string | undefined) ??
+                  DEFAULT_WA_REMINDER_TEMPLATE
+                }
+                onChange={(e) => {
+                  const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                  setField("settings_json", { ...cur, wa_reminder_template: e.target.value });
+                }}
+                placeholder={DEFAULT_WA_REMINDER_TEMPLATE}
+              />
+            </div>
+          )}
+
+          <div className="flex gap-1.5 flex-wrap items-center">
+            <span className="text-xs text-muted-foreground">{t("settingsPage.variablesLabel")}</span>
+            {WA_TEMPLATE_VARS.map((v) => (
+              <button
+                key={v.key}
+                type="button"
+                title={t(`settingsPage.waVar.${v.key.replace(/[{}]/g, "")}`)}
+                onClick={() => {
+                  const cur = (org.settings_json ?? {}) as Record<string, unknown>;
+                  let currentVal = "";
+                  let targetKey = "";
+
+                  if (manualTab === "onay") {
+                    currentVal = (cur.wa_appointment_template as string | undefined) ?? DEFAULT_WA_TEMPLATE;
+                    targetKey = "wa_appointment_template";
+                  } else if (manualTab === "iptal") {
+                    currentVal = (cur.wa_cancellation_template as string | undefined) ?? DEFAULT_WA_CANCEL_TEMPLATE;
+                    targetKey = "wa_cancellation_template";
+                  } else if (manualTab === "revize") {
+                    currentVal = (cur.wa_revize_template as string | undefined) ?? DEFAULT_WA_REVIZE_TEMPLATE;
+                    targetKey = "wa_revize_template";
+                  } else if (manualTab === "hatirlatma") {
+                    currentVal = (cur.wa_reminder_template as string | undefined) ?? DEFAULT_WA_REMINDER_TEMPLATE;
+                    targetKey = "wa_reminder_template";
+                  }
+
+                  setField("settings_json", { ...cur, [targetKey]: currentVal + " " + v.key });
+                }}
+                className="text-xs px-2 py-1 rounded bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                {v.key}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/50">
+            <p className="text-[11px] font-medium text-green-700 dark:text-green-400 mb-1">{t("settingsPage.previewLabel")}</p>
+            <p className="text-xs text-muted-foreground italic">
+              {renderWaTemplate(
+                manualTab === "onay"
+                  ? ((org.settings_json as Record<string, unknown> | null)?.wa_appointment_template as string | undefined)
+                  : manualTab === "iptal"
+                  ? ((org.settings_json as Record<string, unknown> | null)?.wa_cancellation_template as string | undefined)
+                  : manualTab === "revize"
+                  ? ((org.settings_json as Record<string, unknown> | null)?.wa_revize_template as string | undefined)
+                  : ((org.settings_json as Record<string, unknown> | null)?.wa_reminder_template as string | undefined),
+                {
+                  musteri: t("settingsPage.sampleCustomerName"),
+                  salon: org.name || orgNameFallback,
+                  appointmentAt: manualTab === "revize" ? "2026-07-20T18:00" : "2026-07-20T15:00",
+                  hizmet: t("settingsPage.sampleServiceName"),
+                  personel: t("settingsPage.sampleStaffName"),
+                },
+                manualTab === "onay"
+                  ? DEFAULT_WA_TEMPLATE
+                  : manualTab === "iptal"
+                  ? DEFAULT_WA_CANCEL_TEMPLATE
+                  : manualTab === "revize"
+                  ? DEFAULT_WA_REVIZE_TEMPLATE
+                  : DEFAULT_WA_REMINDER_TEMPLATE
+              )}
+            </p>
+          </div>
+        </SectionCard>
+        </div>
+      </details>
+
       {/* SMS Bildirimleri */}
       <SectionCard
         icon={MessageSquareText}
@@ -1298,10 +1312,13 @@ export default function AyarlarPage() {
             <Label>{t("settingsPage.smsProviderLabel")}</Label>
             <Select
               value={org.sms_provider ?? ""}
-              onValueChange={(v) => setField("sms_provider", v || null)}
+              onValueChange={(v) => setField("sms_provider", !v || v === "none" ? null : v)}
             >
               <SelectTrigger className="mt-1"><SelectValue placeholder={t("settingsPage.smsProviderPlaceholder")} /></SelectTrigger>
-              <SelectContent>
+              {/* alignItemWithTrigger kapalı: seçili öğe tetikleyicinin üstüne hizalanınca liste yukarı kayıp
+                  ilk seçenek (Netgsm) görünmez oluyordu. */}
+              <SelectContent alignItemWithTrigger={false}>
+                <SelectItem value="none">{t("settingsPage.smsProviderNone")}</SelectItem>
                 {SMS_PROVIDER_VALUES.map((v) => (
                   <SelectItem key={v} value={v}>{SMS_PROVIDER_LABELS[v]}</SelectItem>
                 ))}
@@ -1346,6 +1363,11 @@ export default function AyarlarPage() {
           <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 text-xs text-muted-foreground space-y-1">
             <p className="font-medium text-blue-700 dark:text-blue-400">{t("settingsPage.smsCostTitle")}</p>
             <p>{t("settingsPage.smsCostText")}</p>
+            {!mobileApp && (
+              <Link href="/dashboard/abonelik" className="inline-block pt-0.5 font-medium text-primary hover:underline">
+                {t("settingsPage.smsBuyPackLink")}
+              </Link>
+            )}
           </div>
         </div>
       </SectionCard>

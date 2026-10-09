@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Globe } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+// Windows bayrak emojilerini göstermez (TR/GB harfleri çıkar) — ana sayfadaki
+// gibi yerel SVG bayraklar kullanılır.
+import { FlagIcon } from "@/components/marketing/FlagIcon";
 
-const LOCALES = [
-  { code: "tr", label: "TR", name: "Türkçe", flag: "🇹🇷" },
-  { code: "en", label: "EN", name: "English", flag: "🇬🇧" },
-  { code: "ar", label: "AR", name: "العربية", flag: "🇸🇦" },
-  { code: "ru", label: "RU", name: "Русский", flag: "🇷🇺" },
+const LOCALES: { code: "tr" | "en" | "ar" | "ru"; label: string; name: string }[] = [
+  { code: "tr", label: "TR", name: "Türkçe" },
+  { code: "en", label: "EN", name: "English" },
+  { code: "ar", label: "AR", name: "العربية" },
+  { code: "ru", label: "RU", name: "Русский" },
 ];
 
 interface LanguagePickerProps {
@@ -46,33 +49,34 @@ export function LanguagePicker({ variant = "dark" }: LanguagePickerProps) {
 
   const buttonClass =
     variant === "muted"
-      ? "flex items-center gap-1 px-1.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all text-[11px] font-medium"
-      : "flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/40 transition-all text-[11px] font-medium";
+      ? "flex items-center gap-1.5 px-1.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all text-[11px] font-semibold"
+      : "flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/40 transition-all text-[11px] font-semibold";
 
   return (
     <div className="relative">
       <button onClick={() => setOpen((o) => !o)} title="Dil Seç / Language" className={buttonClass}>
-        <Globe className="h-3.5 w-3.5" />
-        <span>{currentLocale.flag} {currentLocale.label}</span>
+        <FlagIcon code={currentLocale.code} className="h-5 w-5" />
+        <span>{currentLocale.label}</span>
+        <ChevronDown className="h-3 w-3 opacity-60" />
       </button>
 
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 rounded-xl shadow-xl overflow-hidden bg-popover border border-border"
-            style={{ minWidth: "140px" }}
-          >
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 min-w-[160px] rounded-xl border border-border bg-popover p-1 shadow-xl">
             {LOCALES.map((loc) => (
               <button
                 key={loc.code}
                 onClick={() => switchLang(loc.code)}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] text-popover-foreground/70 hover:bg-accent hover:text-popover-foreground transition-colors text-left"
-                style={current === loc.code ? { background: "var(--accent)", color: "var(--popover-foreground)" } : {}}
+                className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-colors ${
+                  current === loc.code
+                    ? "bg-accent text-popover-foreground"
+                    : "text-popover-foreground/70 hover:bg-accent/60 hover:text-popover-foreground"
+                }`}
               >
-                <span className="text-base">{loc.flag}</span>
+                <FlagIcon code={loc.code} className="h-5 w-5" />
                 <span>{loc.name}</span>
-                {current === loc.code && <span className="ml-auto text-[10px] text-primary">✓</span>}
+                {current === loc.code && <span className="ml-auto text-xs text-primary">✓</span>}
               </button>
             ))}
           </div>

@@ -19,10 +19,15 @@ Temel bilgiler:
 
 Ana özellikler:
 - Çok kanallı randevu (Web, WhatsApp, Instagram, QR kod)
-- AI WhatsApp/Instagram asistanı (7/24 otomatik yanıt)
-- Müşteri skoru sistemi (0-100 sadakat puanı)
+- AI WhatsApp/Instagram asistanı (7/24 otomatik yanıt): YALNIZCA Business planında (ya da AI WhatsApp Paketi eklentisiyle) bulunur; Mini, Starter ve Pro'da yoktur
+- Randevu onay, hatırlatma, iptal ve revize WhatsApp mesajları SiriPlan'ın kendi hattından müşteriye OTOMATİK gider; işletmenin mesaj göndermesi gerekmez (elle WhatsApp gönderimi yalnızca isteğe bağlıdır)
+- SMS bildirimi iki yolla yapılır: Abonelik sayfasından SiriPlan SMS kontörü (1.000 SMS'lik paket; gönderdikçe azalır, bitince yenisi alınır, süre sınırı yok, sağlayıcı hesabı gerekmez) ya da işletmenin kendi SMS sağlayıcısı (Netgsm, VatanSMS, İletimerkezi)
+- Randevu dilimi 15, 30 veya 60 dakika seçilebilir; yeni hesaplarda varsayılan 30 dakikadır. Yeni hesaplarda online randevu otomatik onayı kapalı gelir, ayarlardan açılır
+- Panel açılışı (Genel Bakış ya da Takvim) ve panel renk teması kullanıcı tarafından seçilebilir; takvim son bakılan görünümle açılır
+- Panel Türkçe/İngilizce/Rusça/Arapça; mobil uygulama (App Store / Google Play) uygulama içinden ödeme almaz, abonelik web üzerinden yönetilir
+- Müşteri skoru sistemi (0-100 sadakat puanı, Pro ve üzeri)
 - Haftanın Elemanı gamification sistemi
-- Kampanya modülü (toplu WhatsApp/SMS gönderimi)
+- Kampanya modülü (toplu WhatsApp/SMS gönderimi; Starter'da ayda 1 kampanya, Pro ve üzerinde sınırsız)
 - Gerçek zamanlı ciro dashboard
 - Rapor export: CSV (tüm planlar), PDF (Pro ve üzeri)
 - KVKK uyumlu veri saklama
@@ -106,10 +111,10 @@ function getStaticResponse(message: string, uiLocale: string | undefined, curren
   }
   if (msg.includes("whatsapp") || msg.includes("ai") || msg.includes("asistan") || msg.includes("assistant") || msg.includes("ассистент") || msg.includes("مساعد")) {
     return {
-      tr: "SiriPlan'ın AI asistanı WhatsApp ve Instagram DM'lerinizi 7/24 yanıtlar — randevu alır, fiyat sorusu yanıtlar, ön ödeme toplar. Pro planla aktif olur.",
-      en: "SiriPlan's AI assistant replies to your WhatsApp and Instagram DMs 24/7 — books appointments, answers pricing questions, collects deposits. Included with the Pro plan.",
-      ru: "AI-ассистент SiriPlan отвечает на ваши сообщения в WhatsApp и Instagram 24/7 — записывает на приём, отвечает на вопросы о ценах, принимает предоплату. Доступен в тарифе Pro.",
-      ar: "يرد مساعد الذكاء الاصطناعي في SiriPlan على رسائل WhatsApp وInstagram على مدار الساعة — يحجز المواعيد، يجيب عن أسئلة الأسعار، ويجمع الدفعات المقدمة. متوفر في خطة Pro.",
+      tr: "SiriPlan'ın AI asistanı WhatsApp ve Instagram DM'lerinizi 7/24 yanıtlar — randevu alır, fiyat sorusu yanıtlar, ön ödeme toplar. Business planında (veya AI WhatsApp Paketi eklentisiyle) aktif olur.",
+      en: "SiriPlan's AI assistant replies to your WhatsApp and Instagram DMs 24/7 — books appointments, answers pricing questions, collects deposits. Included with the Business plan (or the AI WhatsApp add-on).",
+      ru: "AI-ассистент SiriPlan отвечает на ваши сообщения в WhatsApp и Instagram 24/7 — записывает на приём, отвечает на вопросы о ценах, принимает предоплату. Доступен в тарифе Business (или с дополнением «AI WhatsApp»).",
+      ar: "يرد مساعد الذكاء الاصطناعي في SiriPlan على رسائل WhatsApp وInstagram على مدار الساعة — يحجز المواعيد، يجيب عن أسئلة الأسعار، ويجمع الدفعات المقدمة. متوفر في خطة Business (أو مع الباقة الإضافية AI WhatsApp).",
     }[lang];
   }
   if (msg.includes("sektör") || msg.includes("sector") || msg.includes("kuaför") || msg.includes("berber") || msg.includes("spa") || msg.includes("отрасл") || msg.includes("قطاع")) {

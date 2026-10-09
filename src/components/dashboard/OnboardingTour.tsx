@@ -23,7 +23,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { GlassCard3D } from "@/components/ui/GlassCard3D";
 import { Button } from "@/components/ui/button";
-import { Compass, X, ChevronLeft, ChevronRight, Sparkles, BookOpen } from "lucide-react";
+import { Compass, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Sparkles, BookOpen } from "lucide-react";
 
 const LS_KEY = "siriplan_onboarding_tour_done";
 /**
@@ -48,8 +48,8 @@ function tourParamActive(): boolean {
  * Sıra ÖNEMLİ — ayarlar sayfasındaki data-tour öznitelikleriyle eşleşir ve
  * sayfadaki GÖRSEL sırayla aynı olmalı (aksi halde tur adımlar arası
  * yukarı-aşağı zıplar). Sayfa akışı: temel bilgiler → randevu linki →
- * entegrasyonlar/Telegram → otomatik mesajlar → online randevu ayarları
- * (randevu dilimi) → WhatsApp bildirimleri → çalışma saatleri.
+ * entegrasyonlar/Telegram → online randevu ayarları (randevu dilimi) →
+ * otomatik WhatsApp mesajları → (gizli) manuel WhatsApp metni → çalışma saatleri.
  */
 type Step = { key: string; target?: string };
 
@@ -59,9 +59,9 @@ const STEPS: Step[] = [
   { key: "basicInfo", target: "basic-info" },
   { key: "bookingLink", target: "booking-link" },
   { key: "integrations", target: "integrations" },
-  { key: "autoMessage", target: "auto-message" },
   { key: "onlineBooking", target: "online-booking" },
   { key: "whatsappNotif", target: "whatsapp-notif" },
+  { key: "autoMessage", target: "auto-message" },
   { key: "workingHours", target: "working-hours" },
   { key: "staffPermissions", target: "staff-permissions" },
   { key: "done" },
@@ -204,6 +204,8 @@ export function OnboardingTour({
   const [active, setActive] = useState(false);
   const [idx, setIdx] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
+  // Küçültülmüş balon: dar ekranda alanı kapatıyorsa kullanıcı balonu daraltıp formu doldurabilir.
+  const [collapsed, setCollapsed] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const [bubblePos, setBubblePos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
@@ -260,7 +262,8 @@ export function OnboardingTour({
     const el = step?.target
       ? document.querySelector<HTMLElement>(`[data-tour="${step.target}"]`)
       : null;
-    if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+    setCollapsed(false);
+    if (el) el.scrollIntoView({ block: "start", behavior: "smooth" });
     // scrollIntoView animasyonu bitene kadar birkaç kez yeniden ölç
     measure();
     const timers = [80, 200, 400, 650].map((ms) => window.setTimeout(measure, ms));
@@ -301,15 +304,32 @@ export function OnboardingTour({
       return;
     }
 
-    const spaceBelow = vh - (rect.top + rect.height);
-    const placeBelow = spaceBelow > bh + margin || spaceBelow > rect.top;
-    const top = placeBelow
-      ? Math.min(vh - bh - margin, rect.top + rect.height + margin)
-      : Math.max(margin, rect.top - bh - margin);
-    let left = rect.left + rect.width / 2 - bw / 2;
-    left = Math.max(margin, Math.min(vw - bw - margin, left));
+    // Balon, işaretlenen alanın ÜSTÜNÜ kapatmamalı (kullanıcı balon açıkken
+    // alanları dolduruyor). Sıra: sağ yan boşluk → sol yan boşluk → alanın
+    // altı/üstü (sığıyorsa) → hiçbiri sığmazsa ekranın altına yaslan; orada da
+    // balon küçültülebilir (bkz. collapsed).
+    const rectRight = rect.left + rect.width;
+    const clampTop = (t: number) => Math.max(margin, Math.min(vh - bh - margin, t));
+    let top: number;
+    let left: number;
+    if (vw - rectRight >= bw + margin * 2) {
+      left = rectRight + margin + 6;
+      top = clampTop(rect.top);
+    } else if (rect.left >= bw + margin * 2) {
+      left = rect.left - bw - margin - 6;
+      top = clampTop(rect.top);
+    } else if (vh - (rect.top + rect.height) >= bh + margin * 2) {
+      top = rect.top + rect.height + margin;
+      left = Math.max(margin, Math.min(vw - bw - margin, rect.left + rect.width / 2 - bw / 2));
+    } else if (rect.top >= bh + margin * 2) {
+      top = rect.top - bh - margin;
+      left = Math.max(margin, Math.min(vw - bw - margin, rect.left + rect.width / 2 - bw / 2));
+    } else {
+      top = vh - bh - margin;
+      left = Math.max(margin, vw - bw - margin);
+    }
     setBubblePos({ top, left });
-  }, [active, rect, idx]);
+  }, [active, rect, idx, collapsed]);
 
   // Klavye — ok/Enter yalnızca odak bir form alanında DEĞİLKEN (kullanıcı balon
   // açıkken alanları doldurabildiği için ok tuşları imleci oynatmalı, turu değil).
@@ -368,15 +388,27 @@ export function OnboardingTour({
             <Compass className="h-3 w-3" />
             {t("stepCounter", { current: idx + 1, total })}
           </span>
-          <button
-            onClick={finish}
-            aria-label={t("skip")}
-            className="-mr-1 -mt-0.5 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="-mr-1 -mt-0.5 flex items-center gap-0.5">
+            <button
+              onClick={() => setCollapsed((c) => !c)}
+              aria-label={collapsed ? t("expand") : t("collapse")}
+              title={collapsed ? t("expand") : t("collapse")}
+              className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+            >
+              {collapsed ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
+            <button
+              onClick={finish}
+              aria-label={t("skip")}
+              className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
+        {collapsed && <div className="pb-2.5" />}
 
+        {!collapsed && (<>
         <div className="px-4 pb-3 pt-2">
           <p className="font-heading text-sm font-bold text-foreground">{t(`${step.key}Title`)}</p>
           <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{t(`${step.key}Body`)}</p>
@@ -418,6 +450,7 @@ export function OnboardingTour({
             </Button>
           </div>
         </div>
+        </>)}
       </div>
     </div>
   );

@@ -55,6 +55,8 @@ Panele giriş yaptığınızda karşınıza çıkan Ana Sayfa (Dashboard) widget
 - **Widget'ları Sürükle-Bırak**: Sağ üstteki **"Kişiselleştir"** butonuna basarak widget kartlarının yerlerini sürükleyip değiştirebilirsiniz.
 - **Kartları Göster / Gizle**: İhtiyacınız olmayan kartları göz ikonuna basarak gizleyebilir, sık kullandıklarınızı ön plana çıkarabilirsiniz.
 - **Kişiye Özel Hafıza**: Yapılan görünüm tercihleri her kullanıcının kendi hesabına özel kaydedilir (bir uzmanın gizlediği kart yöneticinin ekranını etkilemez).
+- **Açılış Sayfası**: Hesabım → Kişiselleştirme'den panele girdiğinizde ilk **Genel Bakış**'ın mı yoksa **Takvim**'in mi (son baktığınız görünümle) açılacağını seçebilirsiniz (bu cihazda geçerlidir).
+- **Renk Teması**: Sol menünün altındaki palet simgesinden panelin renk temasını istediğiniz zaman değiştirebilirsiniz.
 
 ---
 
@@ -101,7 +103,8 @@ Ekibinizdeki her uzman için ayrı takvim ve yetki tanımlayabilirsiniz:
 - İlk kullanımda tarayıcı mikrofon izni ister; **"İzin Ver"** deyin. İzin engelliyse ekrandaki adımlarla açabilirsiniz. *(Chrome / Safari güncel sürüm gerekir.)*
 
 ### Takvimi Özelleştirme ve Filtreleme:
-- **Tarih Bazında Görünüm**: Takviminizi **Gün**, **Hafta** veya **Ay** bazında görüntüleyebilirsiniz.
+- **Tarih Bazında Görünüm**: Takviminizi **Gün**, **Hafta**, **Personel** veya **Ay** bazında görüntüleyebilirsiniz. Takvime tekrar girdiğinizde **en son baktığınız görünüm** açılır.
+- **Randevu dilimi**: Ayarlar → Online Randevu Ayarları'ndan 15, 30 veya 60 dakika seçilir; yeni hesaplarda varsayılan **30 dakikadır**.
 - **Personel Bazında Görünüm**: Personel filtresini kullanarak tüm uzmanları yan yana sütunlar halinde kıyaslayabilir veya sadece seçtiğiniz tek bir personelin programına odaklanabilirsiniz.
 
 ### Randevu Durumları:
@@ -148,13 +151,15 @@ Müşterilerinizin 7/24 online randevu alabileceği ve salonunuzu inceleyebilece
 
 Müşterilerinizin randevuyu unutmasını engellemenin en pratik yolu!
 
-1. **Ayarlar → Bildirimler** bölümüne gidin.
-2. **Bildirim Kanalları**: WhatsApp, SMS veya Telegram entegrasyonunu aktif edin.
+1. **Ayarlar → Otomatik WhatsApp Mesajları** kartına gidin. Randevu onayı, hatırlatma, iptal ve revize mesajları müşterilerinize **SiriPlan tarafından otomatik gönderilir — sizin mesaj yazmanıza ya da göndermenize gerek yoktur.**
+2. **Hangi olaylarda mesaj gitsin**: Randevu oluşturulunca / revize edilince / iptal edilince kutucuklarından istediğinizi kapatabilirsiniz.
 3. **Otomatik Mesaj Türleri**:
    - **Randevu Oluşturuldu**: Randevu alındığı an anında teyit mesajı gider.
-   - **Randevu Hatırlatma**: Randevudan **2 saat önce** veya **1 gün önce** otomatik hatırlatıcı gönderir.
+   - **Randevu Hatırlatma**: Randevudan **2 saat önce** veya **1 gün önce** (işaretlediğiniz sürelerde) otomatik hatırlatıcı gönderir.
    - **İptal / Değişiklik**: Randevu saati değiştiğinde müşteriye bilgi verir.
-4. **Mesaj Tonu**: *Sıcak, Resmi veya Kısa* stillerden salon konseptinize uygun olanı seçin.
+4. **Şablon Varyantı**: Mesaj metinleri Meta tarafından onaylıdır ve burada düzenlenemez; her mesaj türü için kartta varyantı (Standart / Varyant 2 vb.) seçersiniz, önizleme altında görünür.
+5. **SMS (isteğe bağlı)**: **Ayarlar → SMS Bildirimleri** kutusunu açın. İki yol vardır: **Ayarlar → Abonelik** sayfasından SiriPlan SMS kontörü satın almak (1.000 SMS'lik paket; gönderdikçe azalır, bitince yenisini alırsınız, süre sınırı yok; hesap açmanız gerekmez) ya da kendi sağlayıcınızı (Netgsm, VatanSMS, İletimerkezi) bağlamak. Sağlayıcı bağlıysa SMS onun hesabından gider ve kontör düşmez.
+6. **Elle WhatsApp mesajı (isteğe bağlı)**: Çoğu işletmenin buna ihtiyacı yoktur. Kendi WhatsApp'ınızdan elle mesaj göndermek isterseniz Ayarlar'da kartın altındaki ince çizgiye tıklayıp metinleri düzenleyin. Otomatik mesajlarla birlikte açık tutarsanız müşteri aynı bilgiyi iki kez alabilir.
 
 ---
 
@@ -203,6 +208,7 @@ SiriPlan aboneliği ve faturalandırması SiriPlan hesabınıza bağlıdır ve u
 - **Şeffaf Planlar**:
   - **Mini**, **Starter**, **Pro** ve **Business** planlarının tamamı sabit ve şeffaf yapıdadır.
   - **Mini (aylık ₺399)** tek kişilik işletmeler içindir: 1 personel (ek personel daveti yok), ayda 200 randevu ve 200 müşteri WhatsApp mesajı, randevu linki, stok/barkod, paket takibi, gelir-gider & KDV. WhatsApp hakkınızın %80'ine ve %100'üne ulaşınca bildirim alırsınız. Deneme bitince sesli asistan ve kampanya gibi Pro araçları Mini'de kapanır; ihtiyaç olursa Ayarlar → Abonelik'ten plan yükseltebilirsiniz.
+  - **SMS Kontörü (isteğe bağlı):** Kendi SMS sağlayıcınızı bağlamadan SMS göndermek için Ayarlar → Abonelik sayfasından 1.000 SMS'lik kontör paketi alabilirsiniz (gönderdikçe azalır, bitince yenisini alırsınız; süre sınırı yok; bakiye aynı sayfada görünür). Kendi sağlayıcınız bağlıysa SMS onun hesabından gider ve kontör düşmez. Mobil uygulamada satın alma yüzeyi gösterilmez.
   - **Mobil uygulama:** [App Store](https://apps.apple.com/app/siriusplan/id6815322807) (SiriusPlan) ve [Google Play](https://play.google.com/store/apps/details?id=com.siriplan.app) üzerinden indirebilirsiniz; ayrıca tarayıcıdan "Ana Ekrana Ekle" ile de kurabilirsiniz.
   - **"Teklif Al" bekleme dönemi yoktur.** Her yeni hesap tüm özelliklerle **14 gün ücretsiz deneme** ile başlar.
 - **Plan Bilgileriniz**:

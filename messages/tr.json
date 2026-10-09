@@ -246,8 +246,8 @@
     },
     "sms": {
       "name": "SMS Paketi",
-      "desc": "1.000 SMS kontörü, tek seferlik, süre sınırı yok. Kendi SMS hesabınıza gerek kalmadan gönderin",
-      "price": "$19/ay"
+      "desc": "1.000 SMS'lik kontör; gönderdikçe azalır, bitince yenisini alırsınız, süre sınırı yok. Kendi SMS hesabınıza gerek kalmadan gönderin",
+      "price": "$19 · 1.000 SMS"
     },
     "multiBranch": {
       "name": "Ek Şube Paketi",
@@ -488,7 +488,7 @@
       "sms": {
         "name": "SMS Bildirimleri",
         "category": "Mesajlaşma",
-        "desc": "WhatsApp kullanmayan müşterilere SMS hatırlatma ve onay mesajı gönderin. Kendi Netgsm, VatanSMS veya İletimerkezi hesabınızla bağlanır."
+        "desc": "WhatsApp kullanmayan müşterilere SMS hatırlatma ve onay mesajı gönderin. SiriPlan SMS kontörüyle (1.000 SMS'lik paket; gönderdikçe azalır) ya da kendi Netgsm, VatanSMS veya İletimerkezi hesabınızla çalışır."
       },
       "qr": {
         "name": "QR Kod",
@@ -652,7 +652,7 @@
           },
           "q2": {
             "q": "WhatsApp hatırlatması nasıl çalışıyor?",
-            "a": "Randevu öncesi belirlenen saatlerde (24 saat, 2 saat önce gibi) müşteriye WhatsApp mesajı gönderilir. Gelmeme (no-show) oranınızı %60'a kadar azaltır."
+            "a": "Randevu onayı, hatırlatma, iptal ve değişiklik mesajları müşteriye SiriPlan tarafından otomatik gönderilir; sizin ayrıca mesaj atmanız gerekmez. Hatırlatma randevudan seçtiğiniz saatlerde (24 saat, 2 saat önce gibi) gider ve gelmeme (no-show) oranınızı %60'a kadar azaltır. SMS için SiriPlan SMS kontörü satın alabilir ya da kendi SMS sağlayıcınızı bağlayabilirsiniz."
           },
           "q3": {
             "q": "Müşteri skoru sistemi ne işe yarar?",
@@ -669,7 +669,7 @@
         "items": {
           "q1": {
             "q": "AI ve Sesli Asistan ne yapıyor?",
-            "a": "Panoda Türkçe konuşarak saniyeler içinde randevu oluşturma ve stok güncelleme yapabilir. Ayrıca WhatsApp ve Instagram DM mesajlarına 7/24 otomatik yanıt verir."
+            "a": "Sesli asistan, panoda Türkçe konuşarak saniyeler içinde randevu oluşturma ve stok güncelleme yapar (Pro ve üzeri). AI WhatsApp/Instagram asistanı ise gelen mesajlara 7/24 otomatik yanıt verir; Business planında ya da AI WhatsApp Paketi ile kullanılır."
           },
           "q2": {
             "q": "AI asistanı yanlış bilgi verebilir mi?",
@@ -1153,7 +1153,7 @@
       "q2": "Mevcut sistemdeki verilerimi taşıyabilir miyim?",
       "a2": "Evet. Kullandığınız randevu yazılımından ve Excel'den tek tıkla veri aktarımı yapabilirsiniz. Ekibimizin yapacağı Profesyonel Veri Göçü hizmeti de mevcuttur.",
       "q3": "WhatsApp AI asistanı nasıl çalışıyor?",
-      "a3": "Müşterilerinizin WhatsApp mesajlarını 7/24 anlık olarak yanıtlar. Randevu soruları, fiyat bilgisi ve yönlendirmeyi otomatik yapar. Siz sadece hizmetinize odaklanın.",
+      "a3": "Müşterilerinizin WhatsApp mesajlarını 7/24 anlık olarak yanıtlar. Randevu soruları, fiyat bilgisi ve yönlendirmeyi otomatik yapar. Business planında ya da AI WhatsApp Paketi ile kullanılır; siz sadece hizmetinize odaklanın.",
       "q4": "Birden fazla şube yönetebilir miyim?",
       "a4": "Business planında 5 şubeye kadar tek ekrandan yönetilir. Starter veya Pro planına Ek Şube Paketi eklenerek genişletilebilir.",
       "q5": "KVKK uyumlu mu?",
@@ -1269,7 +1269,9 @@
       "stepCounter": "{current} / {total}",
       "ariaLabel": "Kurulum turu",
       "introTitle": "Ayarlar sayfasındasınız",
-      "introBody": "Bu sayfadaki her bölüm ya randevu sayfanızı ya da müşterilerinize giden mesajları besler. Kısaca gezelim; sonra alanları doldurup en alttan Kaydet'e basın.",
+      "expand": "Balonu aç",
+      "collapse": "Balonu küçült",
+      "introBody": "Bu sayfadaki her bölüm ya randevu sayfanızı ya da müşterilerinize giden mesajları besler. Kısaca gezelim; sonra alanları doldurup en alttan Kaydet'e basın. İpucu: panelin rengini sol menünün altındaki renk (palet) simgesinden istediğiniz zaman değiştirebilirsiniz.",
       "basicInfoTitle": "Temel Bilgiler",
       "basicInfoBody": "İşletme adı, telefon ve adres. Adres/konum bilgisi randevu onay ve hatırlatma mesajlarında yer alır — boş bırakırsanız mesajlarda harita/konum linki hiç görünmez. Logo, randevu sayfanızda ve e-postalarda çıkar. Saat dilimini doğru seçin; tüm randevu saatleri buna göre hesaplanır.",
       "bookingLinkTitle": "Randevu Linki & Online Randevu",
@@ -1278,12 +1280,12 @@
       "workingHoursBody": "Haftalık açılış/kapanış saatleriniz. Online randevu slotları YALNIZCA bu aralıkta gösterilir. Bir günü kapalı bırakırsanız o gün internetten randevu alınamaz.",
       "integrationsTitle": "Entegrasyonlar & Telegram",
       "integrationsBody": "Instagram/TikTok kullanıcı adlarınız randevu sayfanızda ikon olarak görünür. Telegram bildirimi için: Telegram uygulamasında aramaya @siriplan_bot yazın, botu açıp 'Başlat / Start' düğmesine basın — bot size bir Chat ID numarası verir. Bu numarayı Telegram alanına yapıştırıp kaydedin; artık yeni veya iptal edilen her randevuda telefonunuza anında bildirim düşer.",
-      "autoMessageTitle": "Otomatik Mesajlar",
-      "autoMessageBody": "Randevu onay, iptal, değişiklik ve hatırlatma mesajlarının metni. Her sekmeyi (onay / iptal / revize / hatırlatma) ayrı düzenlersiniz. {musteri}, {salon}, {tarih} gibi değişkenler otomatik dolar. Hazır şablonlardan birini seçebilir veya kendi metninizi yazabilirsiniz — boş bırakırsanız varsayılan metin gönderilir.",
+      "autoMessageTitle": "Elle WhatsApp mesajı (isteğe bağlı)",
+      "autoMessageBody": "Çoğu işletmenin buna ihtiyacı yoktur; mesajlar zaten otomatik gider. Kendi WhatsApp'ınızdan elle mesaj göndermek isterseniz bu çizgiye tıklayıp metinleri düzenleyebilirsiniz.",
       "onlineBookingTitle": "Online Randevu Ayarları & Randevu Aralığı",
-      "onlineBookingBody": "Randevu dilimi aralığını buradan seçersiniz: müşteriler randevu sayfanızda saatleri 15, 30 veya 60 dakikalık adımlarla görür — hizmet sürenize göre ayarlayın. Randevuların otomatik onaylanması tüm planlarda ve varsayılan olarak açıktır; kutuyu kapatırsanız her talebi siz onaylarsınız ve size bildirim gelir.",
-      "whatsappNotifTitle": "WhatsApp Bildirimleri",
-      "whatsappNotifBody": "Otomatik WhatsApp mesajlarını açıp kapatır ve hatırlatmanın randevudan kaç saat önce gideceğini belirlersiniz. Kapalıyken müşterileriniz hiçbir otomatik WhatsApp mesajı almaz. SMS bildirimleri için kendi SMS sağlayıcı bilgilerinizi girmeniz gerekir.",
+      "onlineBookingBody": "Randevu dilimi aralığını buradan seçersiniz: müşteriler randevu sayfanızda saatleri 15, 30 veya 60 dakikalık adımlarla görür — yeni hesaplarda varsayılan 30 dakikadır, hizmet sürenize göre değiştirebilirsiniz. Randevuların otomatik onaylanması tüm planlarda kullanılabilir ancak yeni hesaplarda kapalı gelir: kapalıyken her talebi siz onaylarsınız ve size bildirim gelir; açarsanız randevular beklemeden onaylanır.",
+      "whatsappNotifTitle": "Otomatik WhatsApp Mesajları",
+      "whatsappNotifBody": "Randevu onay, hatırlatma, iptal ve revize mesajları müşterilerinize OTOMATİK gider — siz göndermezsiniz. Burada hangi olaylarda mesaj gideceğini ve hatırlatmanın randevudan kaç saat önce çıkacağını seçersiniz. Kapalıyken müşteri otomatik WhatsApp mesajı almaz. SMS için aşağıdaki SMS bölümüne bakın.",
       "staffPermissionsTitle": "Personel Yetkileri",
       "staffPermissionsBody": "Buradan her personelin panelde neleri görüp yapabileceğini ayarlarsınız (müşteri telefonları, raporlar, randevu iptali vb.). Davet gönderirken de rol (Personel / Yönetici) + ince ayar seçersiniz. Personel kendi yetkilerini Hesabım sayfasında görebilir ama değiştiremez.",
       "doneTitle": "Hazırsınız!",
@@ -1363,7 +1365,7 @@
       "changeToPlan": "{plan} Planına Geç",
       "manageBilling": "Fatura & Ödeme Yöntemini Yönet",
       "smsPackTitle": "SMS Kontörü",
-      "smsPackDesc": "Kendi SMS hesabınızı bağlamadan, müşterilerinize SMS gönderin. Tek seferlik 1.000 SMS, süre sınırı yok.",
+      "smsPackDesc": "Kendi SMS hesabınızı bağlamadan, müşterilerinize SMS gönderin. 1.000 SMS'lik paket: gönderdikçe azalır, bitince yenisini alabilirsiniz. Süre sınırı yok.",
       "smsPackBalance": "Kalan SMS",
       "smsPackBuy": "1.000 SMS Kontörü Satın Al",
       "smsPackHint": "Kontör, Ayarlar'da SMS bildirimleri açıkken ve kendi SMS sağlayıcınız bağlı değilken kullanılır.",
@@ -1977,6 +1979,10 @@
             {
               "label": "Renk Teması Seçimi:",
               "desc": "Sidebar'ın alt kısmındaki palet ikonundan işletmenize uygun bir renk teması seçin — Pembe Rose, Klasik Mavi, Okyanus Mavisi, Doğa Yeşili, Gece Modu, Turuncu Gün Batımı ve Gece Yarısı Mor arasından. Tercihiniz bu cihazda hatırlanır."
+            },
+            {
+              "label": "Açılış Sayfası:",
+              "desc": "Hesabım → Kişiselleştirme bölümünden panele girdiğinizde ilk Genel Bakış'ın mı yoksa Takvim'in mi açılacağını seçebilirsiniz. Takvim seçiliyse en son baktığınız görünümle (Gün, Hafta, Personel veya Ay) açılır. Bu tercih bulunduğunuz cihazda geçerlidir."
             }
           ]
         },
@@ -2011,7 +2017,7 @@
             },
             {
               "heading": "Takvimi Özelleştirme ve Filtreleme:",
-              "text": "Takviminizi Gün, Hafta veya Ay bazında görüntüleyebilirsiniz. Personel filtresini kullanarak tüm uzmanları yan yana sütunlar halinde kıyaslayabilir veya tek bir personelin programına odaklanabilirsiniz."
+              "text": "Takviminizi Gün, Hafta, Personel veya Ay bazında görüntüleyebilirsiniz; takvime tekrar girdiğinizde en son baktığınız görünüm açılır. Personel görünümünde tüm uzmanları yan yana sütunlar halinde kıyaslayabilir veya filtreyle tek bir personelin programına odaklanabilirsiniz. Randevu dilimi (15, 30 veya 60 dk) Ayarlar'dan seçilir; yeni hesaplarda varsayılan 30 dakikadır."
             },
             {
               "heading": "Randevu Durumları ve Yetkiler:",
@@ -2060,16 +2066,24 @@
           "intro": "Müşterilerinizin randevuyu unutmasını engellemenin en pratik yolu!",
           "items": [
             {
-              "label": "Ayarlar → Bildirimler:",
-              "desc": "bölümüne gidip WhatsApp, SMS veya Telegram entegrasyonunu aktif edin."
+              "label": "Otomatik WhatsApp Mesajları:",
+              "desc": "Randevu onayı, hatırlatma, iptal ve revize mesajları müşterinize SiriPlan tarafından otomatik gönderilir — siz yazmaz, göndermezsiniz. Ayarlar → \"Otomatik WhatsApp Mesajları\" kartından hangi olaylarda gideceğini seçersiniz."
             },
             {
-              "label": "Otomatik Mesaj Türleri:",
-              "desc": "Randevu Oluşturuldu, Hatırlatma (randevudan 2 saat veya 1 gün önce) ve İptal/Değişiklik bildirimleri otomatik olarak gider."
+              "label": "Hatırlatma Zamanı ve Şablon:",
+              "desc": "Hatırlatma randevudan 2 saat veya 1 gün önce (işaretlediğiniz sürelerde) gider. Metinler Meta onaylıdır, düzenlenemez; her mesaj türü için kartta Standart ya da Varyant seçip önizlemeyi görebilirsiniz."
             },
             {
-              "label": "Mesaj Tonu:",
-              "desc": "Sıcak, Resmi veya Kısa stillerden salon konseptinize uygun olanı seçin."
+              "label": "SMS (isteğe bağlı):",
+              "desc": "İki yol vardır: Ayarlar → Abonelik sayfasından SiriPlan SMS kontörü (1.000 SMS'lik paket; gönderdikçe azalır, süre sınırı yok, hesap açmanız gerekmez) satın alın ya da kendi sağlayıcınızı (Netgsm, VatanSMS, İletimerkezi) bağlayın. Sağlayıcı bağlıysa SMS onun hesabından gider ve kontör düşmez."
+            },
+            {
+              "label": "Elle WhatsApp (isteğe bağlı):",
+              "desc": "Çoğu işletmenin buna ihtiyacı yoktur. Kendi WhatsApp'ınızdan elle mesaj göndermek isterseniz Ayarlar'da kartın altındaki ince çizgiye tıklayıp açın. Otomatik mesajlarla birlikte açık tutarsanız müşteri aynı bilgiyi iki kez alabilir."
+            },
+            {
+              "label": "WhatsApp Business Bağlantısı (Kampanyalar İçin):",
+              "desc": "Yalnızca Kampanyalar modülünden gönderdiğiniz pazarlama mesajları ve gelen mesajlara otomatik yanıt içindir; randevu mesajları için gerekmez."
             }
           ]
         },
@@ -2112,7 +2126,8 @@
             "Planlar: Mini, Starter, Pro ve Business planlarının tamamı sabit ve şeffaf yapıdadır; teklif alma / temsilci bekleme adımı yoktur. Her yeni hesap 14 gün ücretsiz deneme ile başlar.",
             "Plan bilgileriniz: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.",
             "Aboneliğiniz SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir. Plan yükseltme, yenileme veya faturalandırmayla ilgili sorularınız için destek ekibimizle iletişime geçin: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Plan farkları: Mini — 1 personel, ayda 200 randevu ve 200 WhatsApp mesajı, randevu linki, müşteri kaydı, stok/barkod, paket takibi, gelir-gider ve KDV, CSV export. Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, bekleme listesi, gelir-gider ve KDV, WhatsApp hatırlatma, sadakat kartı, ayda 1 kampanya, CSV export. Pro — sınırsız personel, sesli asistan, website modu, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar."
+            "Plan farkları: Mini — 1 personel, ayda 200 randevu ve 200 WhatsApp mesajı, randevu linki, müşteri kaydı, stok/barkod, paket takibi, gelir-gider ve KDV, CSV export. Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, bekleme listesi, gelir-gider ve KDV, WhatsApp hatırlatma, sadakat kartı, ayda 1 kampanya, CSV export. Pro — sınırsız personel, sesli asistan, website modu, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar.",
+            "SMS kontörü: Kendi SMS hesabınızı bağlamadan SMS göndermek için Ayarlar → Abonelik sayfasından 1.000 SMS'lik kontör paketi satın alabilirsiniz (gönderdikçe azalır, bitince yenisini alırsınız; süre sınırı yok; kalan bakiye aynı sayfada görünür). Kendi sağlayıcınız bağlıysa SMS onun hesabından gider ve kontör düşmez. Mobil uygulamada satın alma yüzeyi gösterilmez."
           ]
         },
         "sadakat": {
@@ -2193,6 +2208,18 @@
             {
               "q": "Telefonumdaki uygulamada ödeme/plan yükseltme neden yok?",
               "a": "Abonelik mağazalardan bağımsız web üzerinden yönetilir. Plan işlemleri için siriplan.com veya info@bysirius.com."
+            },
+            {
+              "q": "Randevu mesajlarını ben mi göndereceğim?",
+              "a": "Hayır. Onay, hatırlatma, iptal ve revize mesajları müşterinize SiriPlan tarafından otomatik gönderilir. Elle gönderim yalnızca isteğe bağlıdır."
+            },
+            {
+              "q": "SMS göndermek için ne yapmalıyım?",
+              "a": "Abonelik sayfasından SiriPlan SMS kontörü alın (hesap açmanız gerekmez) ya da Ayarlar'dan kendi SMS sağlayıcınızı bağlayın; ardından \"SMS bildirimleri açık\" kutusunu işaretleyin."
+            },
+            {
+              "q": "Panel açıldığında Takvim görünsün istiyorum.",
+              "a": "Hesabım → Kişiselleştirme → Panel açılış sayfası'ndan Takvim'i seçin; takvim en son baktığınız görünümle açılır."
             }
           ]
         },
@@ -2362,6 +2389,10 @@
       "permsDesc": "Bu yetkileri işletme sahibi belirler. Değişiklik gerekiyorsa işletme sahibine başvurun.",
       "personalizeTitle": "Paneli Kişiselleştir",
       "personalizeDesc": "Yalnızca size açık bölümler için geçerlidir.",
+      "startPageCalendar": "Takvim (son baktığınız görünümle)",
+      "startPageOverview": "Genel Bakış",
+      "startPageDesc": "Panele girdiğinizde ilk hangi sayfa açılsın? (Bu cihazda geçerlidir.)",
+      "startPageTitle": "Panel açılış sayfası",
       "widgetsLink": "Ana sayfa özet kutularını düzenle",
       "themeHint": "Açık/koyu tema: kenar menüdeki tema anahtarından",
       "restartTour": "Tanıtım turunu yeniden başlat"
@@ -3002,7 +3033,7 @@
       "integrationsTitle": "Sosyal Medya & Entegrasyonlar",
       "autoMessageTitle": "Manuel WhatsApp Mesaj Metni",
       "onlineBookingSettingsTitle": "Online Randevu Ayarları",
-      "whatsappNotifTitle": "WhatsApp Bildirim Ayarları",
+      "whatsappNotifTitle": "Otomatik WhatsApp Mesajları",
       "smsNotifTitle": "SMS Bildirimleri",
       "kvkkTitle": "KVKK / Yasal Bildirim",
       "workingHoursTitle": "Çalışma Saatleri",
@@ -3073,7 +3104,7 @@
       "inAppChannelLabel": "Uygulama İçi Bildirim (sesli, bu cihazda)",
       "webPushChannelLabel": "Telefon Bildirimi — Yakında",
       "autoMessageDesc": "Randevu ekranlarındaki (Yeni Randevu / Hızlı Randevu) 'Müşteriye WhatsApp mesajı gönder' kutusu işaretlendiğinde ve randevu detayındaki 'Manuel Mesaj Gönder' butonunda kendi WhatsApp'ınızdan elle gönderdiğiniz metinler bunlardır. Tarih ve saat her randevuda otomatik doldurulur.",
-      "autoMessageWarning": "Bu kanal Meta'ya bağlı DEĞİLDİR — mesaj kendi telefonunuzdaki WhatsApp'tan açılır, siz gönderirsiniz; bu yüzden metni dilediğiniz gibi düzenleyebilirsiniz. Aşağıdaki \"WhatsApp Bildirim Ayarları\" bölümündeki Meta otomatik mesajlardan farklı bir kanaldır — ikisi birlikte açıksa müşteri aynı bilgiyi iki kez alabilir, birini kapalı tutmanız önerilir. Meta otomatik mesajlarını tamamen kapatırsanız, bu manuel kanal devreye alacağınız tek bildirim yolu olur.",
+      "autoMessageWarning": "Bu kanal Meta'ya bağlı DEĞİLDİR — mesaj kendi telefonunuzdaki WhatsApp'tan açılır, siz gönderirsiniz; bu yüzden metni dilediğiniz gibi düzenleyebilirsiniz. Yukarıdaki otomatik WhatsApp mesajlarından farklı bir kanaldır — ikisi birlikte açıksa müşteri aynı bilgiyi iki kez alabilir. Otomatik mesajları tamamen kapatırsanız, bu manuel kanal tek bildirim yolunuz olur.",
       "tabOnay": "Randevu Onay",
       "tabIptal": "Randevu İptal",
       "tabRevize": "Randevu Güncelleme",
@@ -3090,20 +3121,20 @@
       "presetKisaText": "{musteri}, {salon} - {tarih} {saat} randevunuz onaylandı.",
       "presetResmiText": "Sayın {musteri}, {salon} nezdinde {tarih} tarihinde saat {saat} için randevunuz kayıt altına alınmıştır. Bilginize sunarız.",
       "presetHizmetliText": "Merhaba {musteri}, {hizmet} hizmeti için {tarih} {saat} randevunuz {personel} ile {salon}'da oluşturuldu. Bekliyoruz!",
-      "onlineBookingDesc": "Randevu linkinizden (/r/...) gelen randevular varsayılan olarak otomatik onaylanır, takvime düşer ve müşteriye onay mesajı gider.",
+      "onlineBookingDesc": "Randevu linkinizden (/r/...) gelen randevular, otomatik onay açıksa doğrudan takvime düşer ve müşteriye onay mesajı gider; kapalıysa siz onaylayana kadar Bekleyen İstekler'de durur.",
       "autoConfirmLabel": "Online randevuları otomatik onayla",
       "autoConfirmDesc": "Tüm planlarda kullanılabilir, varsayılan olarak kapalıdır: randevu linkinizden gelen randevular siz onaylayana kadar \"bekliyor\" kuyruğunda tutulur ve her yeni talepte size bildirim gelir. Açarsanız randevular beklemeden onaylanır, takvime düşer ve müşteriye WhatsApp onay mesajı gider.",
       "autoConfirmFreeText": "Randevu linkinizden gelen randevular otomatik onaylanıp takvime düşer.",
       "slotIntervalLabel": "Randevu Dilimi Aralığı",
       "slotIntervalDesc": "Ziyaretçilerin randevu seçerken göreceği saat aralıkları (15 dakika, 30 dakika veya saat başı).",
       "slotIntervalPlaceholder": "Dilim seçin",
-      "slot15": "15 dakika (Varsayılan)",
-      "slot30": "30 dakika",
+      "slot15": "15 dakika",
+      "slot30": "30 dakika (yeni hesaplarda varsayılan)",
       "slot60": "60 dakika (Saat başı)",
       "currencyLabel": "Para Birimi",
       "currencyDesc": "Stok, gelir-gider, maaş hesaplama ve komisyon ekranlarında kullanılacak para birimi (yurt dışı veya döviz ödemesi yapan müşterileriniz varsa).",
       "currencyPlaceholder": "Para birimi seçin",
-      "whatsappNotifDesc": "Randevu saatine yaklaşırken otomatik gönderilen hatırlatma ve iptal mesajlarının altına eklenen özel not.",
+      "whatsappNotifDesc": "Randevu onayı, hatırlatma, iptal ve değişiklik mesajları müşterilerinize SiriPlan tarafından otomatik gönderilir. Sizin mesaj yazmanıza ya da göndermenize gerek yoktur.",
       "autoWhatsappReminderLabel": "Otomatik WhatsApp hatırlatmaları açık",
       "autoWhatsappReminderDesc": "Kapatırsanız aşağıda seçili süre için giden otomatik hatırlatma mesajları gönderilmez.",
       "metaEventsLabel": "Meta üzerinden hangi işlemlerde otomatik WhatsApp mesajı gönderilsin?",
@@ -3124,11 +3155,11 @@
       "templateStandard": "Standart",
       "templateVariant": "Varyant {n}",
       "metaTemplatesFootnote": "Bu şablonların metni Meta WhatsApp Business panelinizde önceden onaylı olduğu için burada düzenlenemez — yalnızca hangi varyantın kullanılacağını seçebilirsiniz. Yukarıdaki önizlemeler gönderilecek parametrelerin (isim, tarih, saat vb.) yaklaşık bir örneğidir; birebir metin Meta panelinizdeki onaylı şablona göre değişebilir.",
-      "smsNotifDesc": "Randevu onayı, hatırlatma ve iptal bildirimlerini SMS ile de gönderebilirsiniz. Bunun için bir SMS sağlayıcısında (Netgsm, VatanSMS veya İletimerkezi) hesap açıp API bilgilerinizi buraya girmeniz gerekir.",
+      "smsNotifDesc": "Randevu onayı, hatırlatma ve iptal bildirimlerini SMS ile de gönderebilirsiniz. İki yol var: Abonelik sayfasından SiriPlan SMS kontörü satın alabilirsiniz (hesap açmanız gerekmez) ya da kendi SMS sağlayıcınızı (Netgsm, VatanSMS veya İletimerkezi) bağlayabilirsiniz. Sağlayıcı bağlıysa SMS'ler onun hesabından gider ve kontör düşmez.",
       "smsEnabledLabel": "SMS bildirimleri açık",
       "smsEnabledDesc": "Kapalıyken randevu detayındaki \"SMS Gönder\" butonları çalışmaz.",
-      "smsProviderLabel": "SMS Sağlayıcısı",
-      "smsProviderPlaceholder": "Sağlayıcı seçin",
+      "smsProviderLabel": "SMS Sağlayıcısı (isteğe bağlı)",
+      "smsProviderPlaceholder": "Seçin — ya da boş bırakıp SiriPlan kontörünü kullanın",
       "smsProviderUserCode": "Kullanıcı Kodu",
       "smsProviderPassword": "Şifre / API Şifresi",
       "smsProviderApiId": "API ID",
@@ -3139,8 +3170,12 @@
       "smsSenderPlaceholder": "Operatörce onaylı marka başlığınız",
       "smsSenderHint": "Sağlayıcı panelinizden operatöre onaylattığınız başlık — onaysız gönderimde SMS reddedilir.",
       "smsCostTitle": "Maliyet hakkında",
-      "smsCostText": "SMS başına yaklaşık 0,08–0,20 TL arası (paket boyutuna göre) — sağlayıcı sitesinden kredi paketi satın almanız gerekir, aylık sabit ücret yoktur.",
-      "waBusinessConnTitle": "WhatsApp Business Bağlantısı",
+      "smsBuyPackLink": "SiriPlan SMS kontörü satın al / bakiyeyi gör →",
+      "smsProviderNone": "Kendi sağlayıcım yok (SiriPlan SMS kontörü)",
+      "manualWaSummary": "İsteğe bağlı: kendi WhatsApp'ınızdan elle mesaj göndermek isterseniz (çoğu işletmenin buna ihtiyacı yok)",
+      "waAutoBanner": "Mesajlar otomatik gider: müşteri randevu aldığında, randevusu değiştiğinde ya da yaklaştığında WhatsApp mesajı kendiliğinden ulaşır. Siz göndermezsiniz.",
+      "smsCostText": "Kendi sağlayıcınızda SMS başına yaklaşık 0,08–0,20 TL (paket boyutuna göre), aylık sabit ücret yok; kredi paketini sağlayıcı sitesinden alırsınız. SiriPlan kontörü ise 1.000 SMS'lik pakettir; gönderdikçe azalır, bitince yenisini alırsınız, süre sınırı yoktur ve Abonelik sayfasından alınır.",
+      "waBusinessConnTitle": "WhatsApp Business Bağlantısı (Kampanyalar İçin)",
       "waBusinessConnDesc": "Randevu onay/hatırlatma/iptal mesajları SiriPlan'ın kendi WhatsApp hattından otomatik gider, bunun için bir şey yapmanıza gerek yok. Aşağıdaki bağlantı yalnızca Kampanyalar modülünden gönderdiğiniz pazarlama mesajlarının ve gelen mesajlara otomatik yanıtın kendi WhatsApp Business numaranızdan gitmesi içindir.",
       "waAccessTokenLabel": "Kalıcı Erişim Belirteci (Access Token)",
       "waPhoneNumberIdLabel": "Telefon Numarası Kimliği (Phone Number ID)",

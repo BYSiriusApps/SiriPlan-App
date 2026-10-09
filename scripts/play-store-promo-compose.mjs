@@ -12,7 +12,7 @@ const RAW_DIR = path.resolve(process.env.PROMO_RAW_DIR || "docs/play-store/_prom
 const OUT_DIR = path.resolve("docs/play-store/screenshots/telefon");
 
 const SLIDES = [
-  { num: "01", slug: "anasayfa", tag: "GENEL BAKIŞ", title: "Salonunuzun Tüm Yönetimi<br>Tek Ekranda", sub: "Aktif randevular, bugünün takvimi ve hızlı işlemler bir arada." },
+  { num: "01", slug: "anasayfa", tag: "GENEL BAKIŞ", title: "Salonunuzun Tüm Yönetimi<br>Tek Ekranda", sub: "Bugünün cirosu, randevular ve onay bekleyen talepler tek bakışta." },
   { num: "02", slug: "takvim", tag: "TAKVİM", title: "Personelin Günü<br>Tek Bakışta", sub: "Gün, hafta ve personel görünümüyle randevular anında netleşir." },
   { num: "10", slug: "randevular", tag: "RANDEVULAR", title: "Randevular<br>Kontrolünüzde", sub: "Bekleyen, onaylanan, tamamlanan — durumu tek dokunuşla yönetin." },
   { num: "04", slug: "musteriler", tag: "MÜŞTERİLER", title: "Müşterilerinizi Tanıyın,<br>Sadık Tutun", sub: "Skor, harcama ve ziyaret geçmişi hepsi bir arada." },

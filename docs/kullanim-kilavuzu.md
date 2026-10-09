@@ -42,6 +42,8 @@ Panele giriş yapan her kullanıcı, işletmenin günlük özetini gösteren bir
 
 - **Kişiselleştir Butonu**: Ekranın sağ üstündeki **Kişiselleştir** butonu ile widget kartları sürükle-bırak yöntemiyle yeniden sıralanabilir, istenmeyen widget'lar göz ikonu ile gizlenebilir.
 - **Kullanıcıya Özel Hafıza**: Tercihler kullanıcı bazında saklanır.
+- **Açılış Sayfası**: Hesabım → Kişiselleştirme'den panele girişte önce **Genel Bakış**'ın mı yoksa **Takvim**'in mi (son baktığınız görünümle) açılacağı seçilir (cihaza özel).
+- **Renk Teması**: Sol menünün altındaki palet simgesinden panel rengi istendiği zaman değiştirilir.
 
 Standart widget'lar: Active Appointments, Daily Calendar, WhatsApp Assistant, Campaigns Star, New Customers, Reports Summary, Income-Expense, Quick Actions, Revenue Summary, Staff Today, Services Summary.
 
@@ -54,7 +56,8 @@ Standart widget'lar: Active Appointments, Daily Calendar, WhatsApp Assistant, Ca
   - **Fill-if-empty**: önceden dolan alanlar korunur, eksikler sarı işaretlenir; "Eksikleri sesle ekle" ile tamamlanır.
   - **Telefon opsiyonel**: söylenmezse ve müşteri kayıtlıysa addan otomatik çekilir; değilse randevu numarasız kaydedilip sonra tamamlanabilir.
 - **Görünüm ve Filtreleme Özelleştirme**:
-  - **Tarih Bazında**: Günü (`day`), Haftayı (`week`), Ayı (`month`) seçerek görünüm ayarlanabilir.
+  - **Tarih Bazında**: Günü (`day`), Haftayı (`week`), Personel görünümünü (`staff`) veya Ayı (`month`) seçerek görünüm ayarlanabilir. Takvime tekrar girildiğinde **en son bakılan görünüm** açılır (çerez `sp_cal_view`).
+  - **Randevu dilimi**: Ayarlar'dan 15 / 30 / 60 dk seçilir; yeni hesaplarda varsayılan **30 dk** (`booking_slot_minutes`).
   - **Personel Bazında**: Personel filtresi veya "Personel Görünümü" (`staff`) ile uzmanlar yan yana sütunlar halinde kıyaslanabilir. Personel rolündeki kullanıcılar yalnızca kendi takvimini görebilir.
 - **Randevu Durumları**: Bekliyor, Onaylandı, Tamamlandı, İptal, Gelmedi (No-Show).
 - **Önemli**: Bir randevunun geliri Gelir-Gider tablosuna yalnızca "Tamamlandı" olarak işaretlendiğinde yansır; Bekliyor/Onaylandı durumundaki randevular Gelir-Gider hesaplamalarında yer almaz.
@@ -121,7 +124,12 @@ Günlük/dönemsel ciro, gider, randevu sayısı ve personel/hizmet bazlı perfo
 
 ## 14. Ayarlar
 
-Genel bilgiler, logo/banner yükleme, WhatsApp/SMS/Telegram bildirim şablonları, yetkilendirme ve abonelik yönetimi.
+Genel bilgiler, logo/banner yükleme, WhatsApp/SMS/Telegram bildirimleri, yetkilendirme ve abonelik yönetimi.
+
+- **Otomatik WhatsApp Mesajları**: Onay/hatırlatma/iptal/revize mesajları müşteriye SiriPlan hattından (Meta onaylı şablonla) **otomatik** gider; işletmenin göndermesi gerekmez. Kartta olaylar, hatırlatma süreleri ve şablon varyantı seçilir.
+- **Elle WhatsApp metni (isteğe bağlı)**: Kartın altında kapalı ince bir satırdır; yalnızca kendi WhatsApp'ından elle mesaj göndermek isteyenler içindir (otomatikle birlikte açıksa müşteri iki kez alabilir).
+- **SMS**: İki yol — Abonelik sayfasından SiriPlan SMS kontörü (1.000 SMS'lik paket; gönderdikçe azalır, bitince yenisi alınır) ya da kendi sağlayıcı (Netgsm / VatanSMS / İletimerkezi). Sağlayıcı bağlıysa kontör düşmez; bağlı değilse ve kontör varsa platform hesabından gider (`sendSms`).
+- **WhatsApp Business Bağlantısı (Kampanyalar İçin)**: Yalnızca Kampanyalar modülünden pazarlama mesajı ve gelen mesaja otomatik yanıt içindir; randevu mesajları için gerekmez.
 
 - **Instagram & Facebook Messenger Bağlantısı**: Sayfa Erişim Belirteci ve Sayfa Kimliği girilince Instagram DM ve Facebook Messenger'a gelen mesajlara AI otomatik yanıt verir (WhatsApp'takiyle aynı `feature_ai` mantığı). Salon sahibinin Meta tarafında yapması gereken adımlar için bkz. [`docs/sosyal-medya/meta-otomasyon-kilavuzu.md`](sosyal-medya/meta-otomasyon-kilavuzu.md). TikTok'ta otomasyon desteklenmez, yalnızca profil linki gösterilir.
 
@@ -131,6 +139,7 @@ Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olar
 
 ## 16. Abonelik ve Plan Yönetimi
 
+- 💬 **SMS Kontörü**: Kendi SMS hesabını bağlamak istemeyenler Ayarlar → Abonelik'ten 1.000 SMS'lik paket satın alır (gönderdikçe azalır, bitince yenisi alınır; süre sınırı yok). Native uygulamada satın alma yüzeyi gösterilmez, bakiye görünür.
 - 🧾 **Şeffaf Planlar**: Mini, Starter, Pro ve Business planları sabit ve şeffaf yapıdadır. **Mini** (aylık ₺399): tek kişilik işletmeler için; 1 personel (ek personel daveti yok), ayda 200 randevu ve 200 müşteri WhatsApp mesajı, randevu linki, stok/barkod, paket takibi, gelir-gider & KDV. WhatsApp hakkının %80 ve %100'ünde sahibe bildirim gelir ve panelde şerit görünür. Deneme bitince Pro araçları (sesli asistan, kampanya vb.) Mini'de kapanır. "Teklif Al" bekleme adımı bulunmaz; her yeni hesap 14 gün ücretsiz deneme ile başlar.
 - ⚙️ **Plan Bilgileriniz**: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.
 - ✉️ **Destek**: Abonelik SiriPlan hesabınıza bağlıdır. Plan yükseltme, yenileme veya faturalandırma sorularınız için info@bysirius.com (WhatsApp +90 535 503 26 34).
