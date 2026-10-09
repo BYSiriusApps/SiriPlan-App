@@ -149,7 +149,13 @@ uyarısı geri gelmiyor mu izlenmeli.
 
 ## 3. Web push bildirimleri (gerçek tarayıcı/telefon push'u — panel KAPALIYKEN de gelir)
 
-**Durum (22 Eyl 2026):** Hâlâ başlanmadı. Bunun YERİNE aynı gün, panel AÇIKKEN
+**Durum (9 Eki 2026): KOD YAZILDI (dal `feat/web-push`), canlıya alınmadı.** Kalan: `20261011_push_subscriptions.sql`
+migration'ı + Vercel'e `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` env'leri + gerçek cihaz testi
+(masaüstü Chrome, Android TWA). Dosyalar: `src/lib/web-push.ts`, `src/app/api/push/subscribe`, `public/sw.js`,
+`src/components/dashboard/PushToggle.tsx` (Ayarlar > bildirim kanalları), `notify.ts` (4 olay). iOS (Ana Ekran PWA) sonraki faz.
+Aşağıdaki "Hâlâ başlanmadı" notu eski durumdur.
+
+**Eski durum (22 Eyl 2026):** Hâlâ başlanmadı. Bunun YERİNE aynı gün, panel AÇIKKEN
 sesli+canlı uyarı kısmı ayrı bir iş olarak TAMAMLANDI: `LiveNotifications`
 bileşeni (Supabase realtime ile `appointments`/`appointment_requests` INSERT
 dinler → `notification-sound.ts` ile iki tonlu ses çalar + `sonner` toast
