@@ -87,6 +87,14 @@ const nextConfig: NextConfig = {
         destination: "https://siriplan.com/:path*",
         permanent: true,
       },
+      {
+        // Paylaşılabilir kısa adres: /sunum → statik müşteri sunumu. Redirect, proxy'den
+        // (ve onun nonce'lu CSP'sinden) ÖNCE çalışır; sunum.html satır içi stil/script
+        // kullandığı için proxy üzerinden sunulmamalı. Geçici (307): adres ileride değişebilir.
+        source: "/sunum",
+        destination: "/sunum.html",
+        permanent: false,
+      },
     ];
   },
   async headers() {
