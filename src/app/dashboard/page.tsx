@@ -1,6 +1,7 @@
 import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
+import { cookies, headers } from "next/headers";
 import {
   format,
   differenceInCalendarDays,
@@ -82,9 +83,10 @@ export const revalidate = 0;
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ donem?: string | string[] }>;
+  searchParams?: Promise<{ donem?: string | string[]; tour?: string | string[] }>;
 }) {
-  const donemParam = (await searchParams)?.donem;
+  const sp = await searchParams;
+  const donemParam = sp?.donem;
   const period: SummaryPeriod = donemParam === "hafta" || donemParam === "ay" ? donemParam : "bugun";
   const t = await getTranslations("dashboard");
   const locale = await getLocale();
@@ -98,6 +100,21 @@ export default async function DashboardPage({
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
   const orgId = member.org_id;
+
+  // Açılış sayfası tercihi (Hesabım → "Panel açılış sayfası", çerez: sp_home=calendar).
+  // YALNIZCA panele dışarıdan/girişten gelindiğinde (Referer yok ya da panel dışı)
+  // takvime yönlendirilir; panel içindeki "Genel Bakış" bağlantıları normal çalışır.
+  // Kurulum turu (?tour) ve dönem seçimi (?donem) etkilenmez.
+  if (!sp?.tour && !sp?.donem && (await cookies()).get("sp_home")?.value === "calendar") {
+    const referer = (await headers()).get("referer") ?? "";
+    let internal = false;
+    try {
+      internal = !!referer && new URL(referer).pathname.startsWith("/dashboard");
+    } catch {
+      /* bozuk Referer — dışarıdan say */
+    }
+    if (!internal) redirect("/dashboard/takvim");
+  }
   const orgName = (member as { org_id: string; organizations?: { name?: string } }).organizations?.name ?? t("homePage.yourBusiness");
 
   // Saat dilimi üyelik sorgusuyla birlikte geliyor (bkz. active-org.ts

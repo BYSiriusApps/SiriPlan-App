@@ -241,6 +241,9 @@ export async function POST(req: NextRequest) {
     has_auto_booking: false,
     // WhatsApp hatırlatma: 2 saat + 1 gün önce, varsayılan işaretli.
     wa_reminder_offsets_hours: [2, 24],
+    // Randevu dilimi: tüm sektörlerde ilk kayıtta 30 dk (kullanıcı Ayarlar'dan
+    // değiştirebilir). Yalnızca YENİ kayıtlar — mevcut işletmelere dokunulmaz.
+    settings_json: { booking_slot_minutes: 30 },
   };
 
   // signup_ip ve tax_number kolonları henüz uygulanmamış olabilir (migration

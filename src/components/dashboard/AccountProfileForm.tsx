@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Loader2, Save, ShieldCheck, Check, X, Palette, LayoutGrid, Compass } from "lucide-react";
@@ -45,6 +45,20 @@ export function AccountProfileForm({ initial, role, orgName, email, permissionsJ
   const tp = useTranslations("dashboard.permissions");
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
+  // Panel açılış sayfası: bu cihaza özel çerez (sunucu /dashboard'da okur).
+  const [startPage, setStartPage] = useState<"overview" | "calendar">("overview");
+  useEffect(() => {
+    // Hidrasyon uyuşmazlığı olmasın diye çerez mount sonrası okunur.
+    if (/(?:^|; )sp_home=calendar/.test(document.cookie)) setStartPage("calendar");
+  }, []);
+  function changeStartPage(v: "overview" | "calendar") {
+    setStartPage(v);
+    try {
+      document.cookie = `sp_home=${v}; path=/; max-age=31536000; SameSite=Lax`;
+    } catch {
+      /* yok say */
+    }
+  }
 
   const roleLabel =
     role === "owner" ? t("roleOwner") : role === "manager" ? t("roleManager") : t("roleStaff");
@@ -173,6 +187,27 @@ export function AccountProfileForm({ initial, role, orgName, email, permissionsJ
 
       <Section icon={Palette} title={t("personalizeTitle")}>
         <p className="text-xs text-muted-foreground -mt-1">{t("personalizeDesc")}</p>
+        <div className="rounded-lg border border-border p-2.5">
+          <p className="text-sm font-medium">{t("startPageTitle")}</p>
+          <p className="text-[11px] text-muted-foreground mb-2">{t("startPageDesc")}</p>
+          <div className="grid grid-cols-2 gap-2">
+            {(["overview", "calendar"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => changeStartPage(v)}
+                aria-pressed={startPage === v}
+                className={`rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${
+                  startPage === v
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:bg-accent/50"
+                }`}
+              >
+                {v === "overview" ? t("startPageOverview") : t("startPageCalendar")}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="flex flex-col gap-2">
           <Link
             href="/dashboard"

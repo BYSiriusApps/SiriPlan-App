@@ -1,6 +1,7 @@
 import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   format, startOfWeek, endOfWeek, addDays, addMonths,
@@ -40,9 +41,15 @@ export default async function TakvimPage({
   // önce zincire fazladan bir seri gidiş-dönüş ekliyordu.
   const orgTimeZone = member.organizations?.timezone || "Europe/Istanbul";
 
-  const view: CalendarView = ["day", "week", "month", "staff"].includes(params.view ?? "")
+  // Görünüm ?view= ile gelmediyse kullanıcının SON baktığı görünüm (çerez sp_cal_view,
+  // UnifiedCalendar yazar) kullanılır; hiçbiri yoksa personel görünümü.
+  const VIEWS = ["day", "week", "month", "staff"];
+  const savedView = (await cookies()).get("sp_cal_view")?.value ?? "";
+  const view: CalendarView = VIEWS.includes(params.view ?? "")
     ? (params.view as CalendarView)
-    : "staff";
+    : VIEWS.includes(savedView)
+      ? (savedView as CalendarView)
+      : "staff";
   // Bozuk ?date= değeri Invalid Date → format() çöker; sıkı doğrula.
   // "Bugün" sunucunun (UTC) değil, Türkiye saatinin tarihine göre belirlenir —
   // aksi halde gece yarısından sonra TR'de "bugün" iken sunucuda hâlâ "dün"

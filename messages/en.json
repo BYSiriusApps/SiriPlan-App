@@ -246,8 +246,8 @@
     },
     "sms": {
       "name": "SMS Package",
-      "desc": "1,000 SMS credits, one-time, no expiry. Send without your own SMS account",
-      "price": "$19/mo"
+      "desc": "A 1,000-SMS credit pack that goes down as you send; buy a new one when it runs out. No expiry. Send without your own SMS account",
+      "price": "$19 · 1,000 SMS"
     },
     "multiBranch": {
       "name": "Additional Branch Package",
@@ -488,7 +488,7 @@
       "sms": {
         "name": "SMS Notifications",
         "category": "Messaging",
-        "desc": "Send SMS reminders and confirmations to customers who don't use WhatsApp. Connects with your own Netgsm, VatanSMS, or İletimerkezi account."
+        "desc": "Send SMS reminders and confirmations to customers who don't use WhatsApp. Works with SiriPlan SMS credits (a 1,000-SMS pack that goes down as you send) or your own Netgsm, VatanSMS or İletimerkezi account."
       },
       "qr": {
         "name": "QR Code",
@@ -652,7 +652,7 @@
           },
           "q2": {
             "q": "How does the WhatsApp reminder work?",
-            "a": "A WhatsApp message is sent to the customer at set times before the appointment (e.g. 24 hours, 2 hours before). It reduces your no-show rate by up to 60%."
+            "a": "Appointment confirmation, reminder, cancellation and change messages are sent to the customer automatically by SiriPlan — you don't need to message anyone yourself. Reminders go out at the times you choose (such as 24 hours or 2 hours before) and can cut no-shows by up to 60%. For SMS you can buy SiriPlan SMS credits or connect your own SMS provider."
           },
           "q3": {
             "q": "What does the customer score system do?",
@@ -669,7 +669,7 @@
         "items": {
           "q1": {
             "q": "What does the AI assistant do?",
-            "a": "It reads WhatsApp and Instagram DMs 24/7, answers pricing and booking questions, and books appointments on the customer's behalf. Your business keeps running while you sleep."
+            "a": "The voice assistant creates appointments and updates stock in seconds by speaking in the panel (Pro and above). The AI WhatsApp/Instagram assistant answers incoming messages 24/7 automatically; it is included in the Business plan or available with the AI WhatsApp add-on."
           },
           "q2": {
             "q": "Can the AI assistant give wrong information?",
@@ -1153,7 +1153,7 @@
       "q2": "Can I migrate my data from my existing system?",
       "a2": "Yes. You can transfer data from your current appointment software or Excel in one click. Professional Data Migration service performed by our team is also available.",
       "q3": "How does the WhatsApp AI assistant work?",
-      "a3": "It instantly responds to your customers' WhatsApp messages 24/7. Appointment questions, pricing info, and directions are handled automatically. You just focus on your service.",
+      "a3": "It replies to your customers' WhatsApp messages instantly, 24/7, handling appointment questions, pricing info and routing automatically. Included in the Business plan or available with the AI WhatsApp add-on — you just focus on your service.",
       "q4": "Can I manage multiple branches?",
       "a4": "In the Business plan, up to 5 branches are managed from a single screen. The Starter or Pro plan can be expanded by adding the Extra Branch Package.",
       "q5": "Is it KVKK compliant?",
@@ -1269,7 +1269,9 @@
       "stepCounter": "{current} / {total}",
       "ariaLabel": "Setup tour",
       "introTitle": "You're on the Settings page",
-      "introBody": "Every section here feeds either your booking page or the messages sent to your customers. Let's take a quick look; then fill in the fields and press Save at the bottom.",
+      "expand": "Expand",
+      "collapse": "Minimize",
+      "introBody": "Every section on this page feeds either your booking page or the messages sent to your customers. Let's take a quick look; then fill in the fields and press Save at the bottom. Tip: you can change the panel's theme colour any time with the colour (palette) icon at the bottom of the left menu.",
       "basicInfoTitle": "Basic Info",
       "basicInfoBody": "Business name, phone and address. The address/location appears in booking confirmation and reminder messages — if you leave it blank, no map/location link shows in messages. Your logo appears on your booking page and in emails. Set the correct time zone; all appointment times are calculated from it.",
       "bookingLinkTitle": "Booking Link & Online Booking",
@@ -1278,12 +1280,12 @@
       "workingHoursBody": "Your weekly opening/closing times. Online booking slots are shown ONLY within this range. If you leave a day closed, no online bookings can be made that day.",
       "integrationsTitle": "Integrations & Telegram",
       "integrationsBody": "Your Instagram/TikTok handles appear as icons on your booking page. For Telegram notifications: search @siriplan_bot in the Telegram app, open the bot and press 'Start' — the bot gives you a Chat ID number. Paste that number into the Telegram field and save; from then on you get an instant phone notification for every new or cancelled appointment.",
-      "autoMessageTitle": "Automatic Messages",
-      "autoMessageBody": "The text of your booking confirmation, cancellation, change and reminder messages. You edit each tab (confirm / cancel / revise / reminder) separately. Variables like {musteri}, {salon}, {tarih} are filled in automatically. Pick a ready template or write your own — if left blank, the default text is sent.",
+      "autoMessageTitle": "Manual WhatsApp message (optional)",
+      "autoMessageBody": "Most businesses don't need this; messages already go out automatically. If you want to send a message by hand from your own WhatsApp, click this line and edit the texts.",
       "onlineBookingTitle": "Online Booking Settings & Slot Interval",
-      "onlineBookingBody": "Set the appointment slot interval here: customers see times in 15, 30 or 60-minute steps on your booking page — match it to your service length. Automatic confirmation of bookings is on by default on every plan; turn the checkbox off and you approve each request yourself and get a notification.",
-      "whatsappNotifTitle": "WhatsApp Notifications",
-      "whatsappNotifBody": "Turn automatic WhatsApp messages on or off and set how many hours before the appointment the reminder goes out. While off, your customers receive no automatic WhatsApp messages. For SMS notifications you need to enter your own SMS provider details.",
+      "onlineBookingBody": "Here you choose the appointment slot interval: customers see times in 15, 30 or 60-minute steps on your booking page — the default for new accounts is 30 minutes, change it to suit your service durations. Auto-confirmation is available on all plans but is off for new accounts: while off you approve every request yourself and get a notification; turn it on and appointments are confirmed without waiting.",
+      "whatsappNotifTitle": "Automatic WhatsApp Messages",
+      "whatsappNotifBody": "Appointment confirmation, reminder, cancellation and revision messages go to your customers AUTOMATICALLY — you don't send them. Here you choose which events trigger a message and how many hours before the appointment the reminder goes out. When off, customers get no automatic WhatsApp messages. For SMS, see the SMS section below.",
       "staffPermissionsTitle": "Staff Permissions",
       "staffPermissionsBody": "Here you set what each staff member can see and do in the panel (customer phone numbers, reports, cancelling appointments, etc.). When sending an invite you also pick a role (Staff / Manager) plus fine-tuning. Staff can view their own permissions on the My Account page but cannot change them.",
       "doneTitle": "You're ready!",
@@ -1363,7 +1365,7 @@
       "changeToPlan": "Switch to {plan}",
       "manageBilling": "Manage Billing & Payment Method",
       "smsPackTitle": "SMS Credits",
-      "smsPackDesc": "Send SMS to your customers without connecting your own SMS account. One-time 1,000 SMS, no expiry.",
+      "smsPackDesc": "Send SMS to your customers without connecting your own SMS account. A 1,000-SMS pack that goes down as you send; buy a new one when it runs out. No expiry.",
       "smsPackBalance": "SMS remaining",
       "smsPackBuy": "Buy 1,000 SMS Credits",
       "smsPackHint": "Credits are used when SMS notifications are enabled in Settings and you have no SMS provider of your own connected.",
@@ -1977,6 +1979,10 @@
             {
               "label": "Colour Theme:",
               "desc": "Pick a colour theme that fits your business from the palette icon at the bottom of the sidebar — Rose Pink, Classic Blue, Ocean Blue, Nature Green, Night Mode, Sunset Orange, and Midnight Purple. Your choice is remembered on this device."
+            },
+            {
+              "label": "Start page:",
+              "desc": "In My Account → Personalize you can choose whether the Overview or the Calendar opens first when you enter the panel. If Calendar is selected, it opens in the view you used last (Day, Week, Staff or Month). This preference applies on the device you are using."
             }
           ]
         },
@@ -2011,7 +2017,7 @@
             },
             {
               "heading": "Customize & Filter Calendar:",
-              "text": "View calendar by Day, Week, or Month. Compare all staff columns side-by-side or focus on a single staff member's schedule."
+              "text": "You can view your calendar by Day, Week, Staff or Month; when you come back, the view you used last opens. In the Staff view you can compare all specialists side by side, or use the filter to focus on a single person's schedule. The appointment slot (15, 30 or 60 min) is chosen in Settings; the default for new accounts is 30 minutes."
             },
             {
               "heading": "Appointment Statuses & Permissions:",
@@ -2060,16 +2066,24 @@
           "intro": "The most practical way to prevent client no-shows!",
           "items": [
             {
-              "label": "Settings → Notifications:",
-              "desc": "Activate WhatsApp, SMS, or Telegram integrations."
+              "label": "Automatic WhatsApp Messages:",
+              "desc": "Appointment confirmation, reminder, cancellation and revision messages are sent to your customer automatically by SiriPlan — you don't write or send anything. In Settings → \"Automatic WhatsApp Messages\" you choose which events trigger a message."
             },
             {
-              "label": "Auto Message Types:",
-              "desc": "Booking Confirmation, Reminders (2h or 1d before), and Cancellations/Changes send automatically."
+              "label": "Reminder Timing and Template:",
+              "desc": "Reminders go out 2 hours or 1 day before the appointment (whichever you tick). The texts are approved by Meta and cannot be edited; for each message type you can pick Standard or a Variant in the card and see the preview."
             },
             {
-              "label": "Message Tone:",
-              "desc": "Choose Warm, Formal, or Short styles depending on your salon's concept."
+              "label": "SMS (optional):",
+              "desc": "There are two ways: buy SiriPlan SMS credits on the Settings → Subscription page (a 1,000-SMS pack that goes down as you send, no expiry, no provider account needed) or connect your own provider (Netgsm, VatanSMS, İletimerkezi). If a provider is connected, SMS are sent from its account and no credits are used."
+            },
+            {
+              "label": "Manual WhatsApp (optional):",
+              "desc": "Most businesses don't need this. If you want to send a message by hand from your own WhatsApp, click the thin line below the card in Settings to open it. If you keep it on together with the automatic messages, a customer may receive the same information twice."
+            },
+            {
+              "label": "WhatsApp Business Connection (For Campaigns):",
+              "desc": "Only for marketing messages sent from the Campaigns module and automatic replies to incoming messages; it is not needed for appointment messages."
             }
           ]
         },
@@ -2112,7 +2126,8 @@
             "Plans: Mini, Starter, Pro, and Business plans are fixed and transparent. No requests for quote or waiting for agents. Every account starts with a 14-day free trial.",
             "Plan Details: View your current plan, limits, and billing history under Settings → Subscription.",
             "Your subscription is linked to SiriPlan and managed independently of app stores. For questions about upgrades or billing, contact support: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Plan differences: Mini — 1 staff, 200 appointments and 200 WhatsApp messages per month, booking link, customer records, stock/barcode, packages, income-expense & VAT, CSV export. Starter — 1 branch, 8 staff, unlimited appointments, booking link, stock/barcode, packages, waitlist, income-expense & VAT, WhatsApp reminders, loyalty card, 1 campaign per month, CSV export. Pro — unlimited staff, voice assistant, website mode, PDF reports, campaigns, customer score and Employee of the Week. Business — up to 5 branches, all Pro features, AI WhatsApp/IG assistant and custom integrations."
+            "Plan differences: Mini — 1 staff, 200 appointments and 200 WhatsApp messages per month, booking link, customer records, stock/barcode, packages, income-expense & VAT, CSV export. Starter — 1 branch, 8 staff, unlimited appointments, booking link, stock/barcode, packages, waitlist, income-expense & VAT, WhatsApp reminders, loyalty card, 1 campaign per month, CSV export. Pro — unlimited staff, voice assistant, website mode, PDF reports, campaigns, customer score and Employee of the Week. Business — up to 5 branches, all Pro features, AI WhatsApp/IG assistant and custom integrations.",
+            "SMS credits: To send SMS without connecting your own SMS account, you can buy a pack of 1,000 SMS credits that goes down as you send (buy a new one when it runs out) on the Settings → Subscription page (no expiry; the remaining balance is shown on the same page). If your own provider is connected, SMS are sent from its account and no credits are used. The purchase option is not shown in the mobile app."
           ]
         },
         "sadakat": {
@@ -2193,6 +2208,18 @@
             {
               "q": "Why is there no payment / upgrade in the phone app?",
               "a": "Subscriptions are managed on the web, independent of app stores. Contact siriplan.com or info@bysirius.com for plan changes."
+            },
+            {
+              "q": "Do I have to send the appointment messages myself?",
+              "a": "No. Confirmation, reminder, cancellation and revision messages are sent to your customer automatically by SiriPlan. Manual sending is only optional."
+            },
+            {
+              "q": "What do I need to send SMS?",
+              "a": "Buy SiriPlan SMS credits on the Subscription page (no provider account needed) or connect your own SMS provider in Settings; then tick \"SMS notifications enabled\"."
+            },
+            {
+              "q": "I want the Calendar to open when I enter the panel.",
+              "a": "Choose Calendar under My Account → Personalize → Start page; the calendar opens in the view you used last."
             }
           ]
         },
@@ -2362,6 +2389,10 @@
       "permsDesc": "These permissions are set by the business owner. Contact them if you need a change.",
       "personalizeTitle": "Personalize the Panel",
       "personalizeDesc": "Applies only to the sections available to you.",
+      "startPageCalendar": "Calendar (in the view you last used)",
+      "startPageOverview": "Overview",
+      "startPageDesc": "Which page should open first when you enter the panel? (Applies on this device.)",
+      "startPageTitle": "Start page",
       "widgetsLink": "Edit home dashboard tiles",
       "themeHint": "Light/dark theme: use the theme switch in the side menu",
       "restartTour": "Restart the intro tour"
@@ -3002,7 +3033,7 @@
       "integrationsTitle": "Social Media & Integrations",
       "autoMessageTitle": "Manual WhatsApp Message Text",
       "onlineBookingSettingsTitle": "Online Booking Settings",
-      "whatsappNotifTitle": "WhatsApp Notification Settings",
+      "whatsappNotifTitle": "Automatic WhatsApp Messages",
       "smsNotifTitle": "SMS Notifications",
       "kvkkTitle": "Privacy / Legal Notice",
       "workingHoursTitle": "Working Hours",
@@ -3073,7 +3104,7 @@
       "inAppChannelLabel": "In-App Notification (sound, this device)",
       "webPushChannelLabel": "Phone Notification — Coming soon",
       "autoMessageDesc": "These are the texts you send manually from your own WhatsApp when the 'Send WhatsApp message to customer' box is checked on the appointment screens (New Appointment / Quick Appointment) and via the 'Send Manual Message' button in appointment details. Date and time are filled in automatically for each appointment.",
-      "autoMessageWarning": "This channel is NOT connected to Meta — the message opens in the WhatsApp on your own phone and you send it, so you can edit the text however you like. It is a different channel from the Meta automatic messages in the \"WhatsApp Notification Settings\" section below — if both are on, the customer may receive the same information twice, so keeping one off is recommended. If you turn Meta automatic messages off entirely, this manual channel becomes your only notification method.",
+      "autoMessageWarning": "This channel is NOT connected to Meta — the message opens in WhatsApp on your own phone and you send it yourself, so you can edit the text freely. It is a different channel from the automatic WhatsApp messages above — if both are on, the customer may receive the same information twice. If you turn the automatic messages off completely, this manual channel becomes your only way to notify.",
       "tabOnay": "Appointment Confirmation",
       "tabIptal": "Appointment Cancellation",
       "tabRevize": "Appointment Update",
@@ -3090,20 +3121,20 @@
       "presetKisaText": "{musteri}, your {salon} appointment on {tarih} {saat} is confirmed.",
       "presetResmiText": "Dear {musteri}, your appointment at {salon} on {tarih} at {saat} has been recorded. For your information.",
       "presetHizmetliText": "Hi {musteri}, your {hizmet} appointment on {tarih} {saat} with {personel} at {salon} has been created. We're expecting you!",
-      "onlineBookingDesc": "Appointments from your booking link (/r/...) are auto-confirmed by default, added to the calendar, and a confirmation message is sent to the customer.",
+      "onlineBookingDesc": "Appointments from your booking link (/r/...) go straight to the calendar and the customer gets a confirmation message when auto-confirm is on; when it is off they wait in Pending Requests until you approve them.",
       "autoConfirmLabel": "Auto-confirm online appointments",
       "autoConfirmDesc": "Available on every plan, off by default: appointments from your booking link are held in a \"pending\" queue until you approve them, and you get a notification for every new request. Turn it on and appointments are confirmed immediately, added to the calendar, and the customer gets a WhatsApp confirmation message.",
       "autoConfirmFreeText": "Appointments from your booking link are auto-confirmed and added to the calendar.",
       "slotIntervalLabel": "Appointment Slot Interval",
       "slotIntervalDesc": "The time intervals visitors see when choosing an appointment (15 minutes, 30 minutes or hourly).",
       "slotIntervalPlaceholder": "Select interval",
-      "slot15": "15 minutes (Default)",
-      "slot30": "30 minutes",
+      "slot15": "15 minutes",
+      "slot30": "30 minutes (default for new accounts)",
       "slot60": "60 minutes (Hourly)",
       "currencyLabel": "Currency",
       "currencyDesc": "The currency used in the inventory, income & expenses, payroll and commission screens (if you have customers paying abroad or in foreign currency).",
       "currencyPlaceholder": "Select currency",
-      "whatsappNotifDesc": "A custom note appended to the reminder and cancellation messages sent automatically as the appointment time approaches.",
+      "whatsappNotifDesc": "Appointment confirmation, reminder, cancellation and change messages are sent to your customers automatically by SiriPlan. You don't need to write or send anything.",
       "autoWhatsappReminderLabel": "Automatic WhatsApp reminders on",
       "autoWhatsappReminderDesc": "If you turn this off, automatic reminder messages for the duration selected below are not sent.",
       "metaEventsLabel": "For which events should an automatic WhatsApp message be sent via Meta?",
@@ -3124,11 +3155,11 @@
       "templateStandard": "Standard",
       "templateVariant": "Variant {n}",
       "metaTemplatesFootnote": "The text of these templates is pre-approved in your Meta WhatsApp Business panel, so it can't be edited here — you can only choose which variant is used. The previews above are an approximate example of the parameters that will be sent (name, date, time, etc.); the exact text depends on the approved template in your Meta panel.",
-      "smsNotifDesc": "You can also send appointment confirmation, reminder and cancellation notifications by SMS. To do so, open an account with an SMS provider (Netgsm, VatanSMS or İletimerkezi) and enter your API details here.",
+      "smsNotifDesc": "You can also send appointment confirmation, reminder and cancellation notices by SMS. There are two ways: buy SiriPlan SMS credits on the Subscription page (no account needed), or connect your own SMS provider (Netgsm, VatanSMS or İletimerkezi). If a provider is connected, SMS are sent from its account and no credits are used.",
       "smsEnabledLabel": "SMS notifications on",
       "smsEnabledDesc": "When off, the \"Send SMS\" buttons in appointment details don't work.",
-      "smsProviderLabel": "SMS Provider",
-      "smsProviderPlaceholder": "Select provider",
+      "smsProviderLabel": "SMS Provider (optional)",
+      "smsProviderPlaceholder": "Select one — or leave empty to use SiriPlan credits",
       "smsProviderUserCode": "User Code",
       "smsProviderPassword": "Password / API Password",
       "smsProviderApiId": "API ID",
@@ -3139,8 +3170,12 @@
       "smsSenderPlaceholder": "Your operator-approved brand header",
       "smsSenderHint": "The header you had approved by the operator from your provider panel — SMS is rejected if sent without approval.",
       "smsCostTitle": "About cost",
-      "smsCostText": "Roughly 0.08–0.20 TRY per SMS (depending on package size) — you need to buy a credit package from the provider's site; there is no fixed monthly fee.",
-      "waBusinessConnTitle": "WhatsApp Business Connection",
+      "smsBuyPackLink": "Buy SiriPlan SMS credits / view balance →",
+      "smsProviderNone": "No provider of my own (SiriPlan SMS credits)",
+      "manualWaSummary": "Optional: if you want to send a message by hand from your own WhatsApp (most businesses don't need this)",
+      "waAutoBanner": "Messages go out automatically: when a customer books, when an appointment changes or is coming up, the WhatsApp message reaches them on its own. You don't send anything.",
+      "smsCostText": "With your own provider it's roughly 0.08–0.20 TRY per SMS (depending on pack size) with no monthly fee; you buy the credit pack on the provider's site. SiriPlan credits come in packs of 1,000 SMS that go down as you send, with no expiry (buy a new pack when it runs out), bought on the Subscription page.",
+      "waBusinessConnTitle": "WhatsApp Business Connection (For Campaigns)",
       "waBusinessConnDesc": "Appointment confirmation/reminder/cancellation messages are sent automatically from SiriPlan's own WhatsApp line — you don't need to do anything for that. The connection below is only so that marketing messages sent from the Campaigns module and automatic replies to incoming messages go from your own WhatsApp Business number.",
       "waAccessTokenLabel": "Permanent Access Token",
       "waPhoneNumberIdLabel": "Phone Number ID",

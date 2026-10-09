@@ -9,7 +9,7 @@
   @page { size: 1280px 720px; margin: 0; }
   :root{
     --p:#C2185B; --p2:#7C3AED; --ink:#1B1530; --muted:#5F5A73; --bg:#FBF8FC; --card:#fff; --line:#E9E2F0;
-    --grad:linear-gradient(135deg,#C2185B,#7C3AED);
+    --grad:linear-gradient(135deg,#C2185B,#7C3AED); --wa:#25D366;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html,body{background:#ddd;}
@@ -23,13 +23,14 @@
   h2{font-size:40px;line-height:1.15;font-weight:800;margin-bottom:22px;}
   .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
   .lead{font-size:21px;line-height:1.55;color:var(--muted);max-width:640px;}
+  .hook{margin-top:22px;display:inline-block;padding:11px 20px;border-radius:14px;background:var(--grad);color:#fff;font-weight:800;font-size:18px;}
   .row{display:flex;gap:56px;align-items:center;height:100%;}
   .col{flex:1;min-width:0;}
   ul.ck{list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:6px;}
   ul.ck li{font-size:20px;line-height:1.4;color:var(--muted);padding-left:34px;position:relative;}
   ul.ck li b{color:var(--ink);}
   ul.ck li::before{content:"✓";position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--grad);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;}
-  .phone{flex:0 0 auto;width:262px;height:566px;border-radius:34px;overflow:hidden;border:7px solid #1B1530;box-shadow:0 30px 60px -18px rgba(60,20,90,.45);background:#fff;}
+  .phone{flex:0 0 auto;width:262px;height:566px;border-radius:34px;overflow:hidden;border:7px solid #1B1530;box-shadow:0 30px 60px -18px rgba(60,20,90,.45);background:#fff;position:relative;}
   .phone img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;}
   .grid{display:grid;gap:18px;}
   .g3{grid-template-columns:repeat(3,1fr);} .g2{grid-template-columns:repeat(2,1fr);} .g4{grid-template-columns:repeat(4,1fr);}
@@ -38,14 +39,48 @@
   .card .em{font-size:32px;margin-bottom:10px;display:block;}
   .pillrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;}
   .pill{padding:9px 18px;border-radius:999px;background:#fff;border:1px solid var(--line);font-weight:700;font-size:16px;}
+  .hap{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;}
+  .hap span{padding:12px 20px;border-radius:999px;background:#fff;border:1px solid var(--line);font-weight:700;font-size:19px;box-shadow:0 6px 18px -12px rgba(60,20,90,.35);}
+  .hap span.hot{background:var(--grad);color:#fff;border-color:transparent;}
   .num{font-size:54px;font-weight:800;}
   .foot{position:absolute;left:80px;right:80px;bottom:26px;display:flex;justify-content:space-between;font-size:13px;color:#9a93b0;}
-  .plan{position:relative;} .plan .price{font-size:40px;font-weight:800;margin:6px 0 2px;} .plan .per{font-size:14px;color:var(--muted);margin-bottom:12px;}
+  .plan{position:relative;} .plan .price{font-size:38px;font-weight:800;margin:6px 0 2px;} .plan .per{font-size:14px;color:var(--muted);margin-bottom:12px;}
   .plan ul{list-style:none;display:flex;flex-direction:column;gap:7px;} .plan li{font-size:15px;color:var(--muted);padding-left:20px;position:relative;line-height:1.35;}
   .plan li::before{content:"•";position:absolute;left:4px;color:var(--p);font-weight:800;}
   .plan.hot{border:2px solid var(--p);} .tag{position:absolute;top:-13px;right:18px;background:var(--grad);color:#fff;font-size:12px;font-weight:800;padding:5px 12px;border-radius:999px;}
   .cover{background:radial-gradient(900px 500px at 10% 0%,rgba(194,24,91,.22),transparent 60%),radial-gradient(800px 500px at 100% 100%,rgba(124,58,237,.28),transparent 60%),#FBF8FC;}
   .cta{display:inline-block;background:var(--grad);color:#fff;font-weight:800;font-size:22px;padding:16px 34px;border-radius:14px;margin-top:22px;}
+
+  /* —— çizimli ekran maketleri (ekran görüntüsü olmayan özellikler için) —— */
+  .mock{flex:0 0 auto;width:330px;border-radius:30px;background:#fff;border:7px solid #1B1530;box-shadow:0 30px 60px -18px rgba(60,20,90,.45);overflow:hidden;}
+  .mock .bar{background:var(--grad);color:#fff;padding:16px 18px;font-weight:800;font-size:17px;}
+  .mock .bar small{display:block;font-weight:600;opacity:.85;font-size:12px;margin-top:2px;}
+  .mock .body{padding:16px;display:flex;flex-direction:column;gap:10px;background:#FBF8FC;}
+  .chat{background:#E7F5EC;}
+  .bub{background:#fff;border-radius:6px 16px 16px 16px;padding:11px 13px;font-size:14px;line-height:1.4;color:#222;box-shadow:0 2px 6px -3px rgba(0,0,0,.25);max-width:92%;}
+  .bub .t{display:block;text-align:right;font-size:11px;color:#8a8a8a;margin-top:4px;}
+  .auto{align-self:center;font-size:12px;font-weight:800;color:#0b6b3a;background:#CFEFDC;padding:5px 12px;border-radius:999px;}
+  .step{display:flex;gap:8px;} .step i{flex:1;font-style:normal;text-align:center;font-size:12px;font-weight:700;padding:8px 4px;border-radius:10px;background:#fff;border:1px solid var(--line);color:var(--muted);}
+  .step i.on{background:var(--grad);color:#fff;border-color:transparent;}
+  .slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;} .slots b{text-align:center;padding:9px 0;border-radius:10px;background:#fff;border:1px solid var(--line);font-size:14px;}
+  .slots b.sel{background:var(--grad);color:#fff;border-color:transparent;}
+  .link{font-size:13px;font-weight:700;background:#fff;border:1px dashed var(--p);color:var(--p);padding:8px 10px;border-radius:10px;text-align:center;}
+  .big{font-size:46px;font-weight:800;line-height:1;} .kv{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--muted);}
+  .mic{width:86px;height:86px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:40px;margin:6px auto;box-shadow:0 0 0 12px rgba(194,24,91,.12),0 0 0 26px rgba(124,58,237,.08);}
+  .say{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.4;font-style:italic;color:var(--ink);}
+  .fill{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;} .fill b{color:var(--ink);}
+  .sw{display:flex;gap:10px;flex-wrap:wrap;} .sw i{width:46px;height:46px;border-radius:50%;box-shadow:inset 0 0 0 3px rgba(255,255,255,.7),0 6px 14px -6px rgba(0,0,0,.4);display:block;}
+  .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;} .seg b{text-align:center;padding:11px 6px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:14px;color:var(--muted);} .seg b.on{border-color:var(--p);background:rgba(194,24,91,.08);color:var(--p);}
+  .path{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;} .path .n{flex:0 0 34px;height:34px;border-radius:50%;background:var(--grad);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .path h4{font-size:17px;margin-bottom:3px;} .path p{font-size:14px;line-height:1.45;color:var(--muted);}
+  .brand{display:flex;align-items:center;gap:22px;}
+  .brand img{width:150px;height:150px;border-radius:34px;box-shadow:0 18px 40px -16px rgba(30,40,90,.55);display:block;}
+  .brand span{font-size:76px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+  .brand span em{font-style:normal;font-weight:500;color:var(--muted);}
+  .brand span b{color:oklch(0.52 0.16 345);}
+  .brand.sm{gap:12px;} .brand.sm img{width:44px;height:44px;border-radius:12px;box-shadow:0 6px 14px -8px rgba(30,40,90,.5);} .brand.sm span{font-size:28px;}
+  .phone video{width:100%;height:100%;object-fit:cover;object-position:top;display:block;background:#fff;}
+  .flags{display:flex;gap:8px;flex-wrap:wrap;} .flags span{font-size:13px;font-weight:800;padding:7px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);}
 </style>
 </head>
 <body>
@@ -55,11 +90,11 @@
   <div style="display:flex;align-items:center;gap:56px;">
     <div style="flex:1;">
       <div class="eyebrow">Salonlar için randevu &amp; işletme yönetimi</div>
-      <h1>Salonunuzu <span class="grad">tek panelden</span> yönetin</h1>
-      <p class="lead" style="margin-top:20px;">Randevu, müşteri, personel, stok ve kasa; WhatsApp, SMS, e-posta ve Telegram bildirimleriyle otomatik çalışır.</p>
+      <h1>İşletmenizi <span class="grad">akıllıca</span> yönetin</h1>
+      <p class="lead" style="margin-top:20px;"><b>Sınırsız randevu, sıfır karmaşa.</b> Randevu, müşteri, personel, stok ve kasa tek panelde; mesajlar siz uğraşmadan kendiliğinden gider.</p>
       <div class="pillrow"><span class="pill">4 dil: TR · EN · RU · AR</span><span class="pill">14 gün ücretsiz</span><span class="pill">Kredi kartı gerekmez</span></div>
     </div>
-    <img src="sunum/logo-full.png" style="width:330px;height:330px;object-fit:contain;" alt="SiriPlan" />
+    <div class="brand" style="flex-direction:column;gap:26px;"><img src="icons/icon-mark.png" style="width:260px;height:260px;border-radius:58px;" alt="SiriPlan" /><span style="font-size:70px;">Siri<em>(us)</em><b>Plan</b></span></div>
   </div>
   <div class="foot"><span>siriplan.com</span><span>SiriPlan · BySirius</span></div>
 </section>
@@ -74,24 +109,53 @@
     <div class="card"><span class="em">🙈</span><h3>Gelmeyen müşteri</h3><p>Hatırlatma yapılmadığı için boş kalan koltuklar.</p></div>
     <div class="card"><span class="em">🧾</span><h3>Dağınık kasa</h3><p>Stok, maaş ve gelir-gider için ayrı ayrı tablolar.</p></div>
   </div>
+  <span class="hook" style="align-self:flex-start;">Kağıt-kalem karmaşasına, unutulan randevulara ve boş koltuklara son.</span>
   <div class="foot"><span>siriplan.com</span><span>2</span></div>
 </section>
 
-<!-- 3 Çözüm -->
+<!-- 3 Her şey tek yerde (özet hap özellikler) -->
 <section class="slide">
-  <div class="eyebrow">SiriPlan</div>
+  <div class="eyebrow">SiriPlan · her şey tek yerde</div>
   <h2>Randevu bazlı çalışan <span class="grad">her işletme</span> için</h2>
-  <p class="lead">Kuaför, berber, güzellik merkezi, spa, nail salon, estetik klinik, makyaj &amp; dövme stüdyosu ve diyetisyenler…</p>
-  <div class="grid g4" style="margin-top:30px;">
-    <div class="card"><h3>📅 Takvim</h3><p>Personel renkli, kompakt tablo görünümü.</p></div>
-    <div class="card"><h3>💬 Bildirim</h3><p>Onay, hatırlatma ve iptal mesajları otomatik.</p></div>
-    <div class="card"><h3>👥 Müşteri</h3><p>Geçmiş, sadakat puanı, skor ve paketler.</p></div>
-    <div class="card"><h3>💰 Kasa</h3><p>Gelir-gider, maaş, komisyon ve raporlar.</p></div>
+  <p class="lead" style="margin-bottom:20px;">Kuaför, berber, güzellik merkezi, spa, nail salon, estetik klinik, makyaj &amp; dövme stüdyosu, diyetisyen, kaş &amp; kirpik…</p>
+  <div class="hap">
+    <span class="hot">📅 7/24 online randevu</span>
+    <span class="hot">💬 Otomatik WhatsApp</span>
+    <span class="hot">📲 SMS kontörü</span>
+    <span>🎤 Sesli asistan</span>
+    <span>📦 Barkodlu stok</span>
+    <span>🎟️ Paket / seans takibi</span>
+    <span>⭐ Sadakat &amp; müşteri skoru</span>
+    <span>📣 Kampanyalar</span>
+    <span>💰 Gelir-gider &amp; KDV</span>
+    <span>👥 Personel, maaş &amp; prim</span>
+    <span>🎨 7 renk teması</span>
+    <span>🌍 TR · EN · RU · AR</span>
+    <span>📱 iOS &amp; Android</span>
   </div>
+  <span class="hook" style="align-self:flex-start;">Rakiplerinizden bir adım önde.</span>
   <div class="foot"><span>siriplan.com</span><span>3</span></div>
 </section>
 
-<!-- 4 Online randevu -->
+<!-- 4 Canlı panel -->
+<section class="slide">
+  <div class="row">
+    <div class="phone"><video src="sunum/n-genel-bakis.mp4" poster="sunum/n-genel-bakis-poster.png" autoplay muted loop playsinline></video></div>
+    <div class="col">
+      <div class="eyebrow">Genel bakış · canlı demo kaydı</div>
+      <h2>Salonunuz <span class="grad">tek bakışta</span></h2>
+      <ul class="ck">
+        <li><b>Özet şeridi:</b> Bugün / Bu Hafta / Bu Ay seçimiyle gelir, gider, net kazanç, randevu, müşteri ve stok bir bakışta</li>
+        <li>Aktif randevular, bugünün takvimi ve <b>onay bekleyen talepler</b> aynı sayfada; kritik stok uyarısı üstte</li>
+        <li><b>Kampanya &amp; performans:</b> haftanın yıldızı, verimlilik ve kampanya durumu</li>
+        <li><b>Kişiselleştir</b> ile kartları sürükleyin; panel açılışını Genel Bakış ya da Takvim yapın</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>siriplan.com</span><span>4</span></div>
+</section>
+
+<!-- 5 Online randevu -->
 <section class="slide">
   <div class="row">
     <div class="col">
@@ -101,69 +165,148 @@
         <li><b>siriplan.com/r/salon-adiniz</b> — Instagram bio, WhatsApp durumu, kartvizit; her yere tek link</li>
         <li>Müşteri hizmet → personel → saat seçer, <b>uygulama indirmeden</b> randevu alır</li>
         <li>Otomatik onay açık ya da <b>talepleri siz onaylayın</b>; uygun değilse <b>"Yeni Saat Öner"</b></li>
-        <li>Logo, kapak ve galeri ile salonunuzun vitrini</li>
+        <li>Logo, kapak ve galeri ile salonunuzun vitrini; QR kodla kapınızda</li>
       </ul>
     </div>
-    <div class="phone"><img src="sunum/01-anasayfa.png" alt="" /></div>
-  </div>
-  <div class="foot"><span>siriplan.com</span><span>4</span></div>
-</section>
-
-<!-- 5 Takvim -->
-<section class="slide">
-  <div class="row">
-    <div class="phone"><img src="sunum/04-takvim.png" alt="" /></div>
-    <div class="col">
-      <div class="eyebrow">Takvim &amp; personel</div>
-      <h2>Tüm ekip <span class="grad">tek ekranda</span></h2>
-      <ul class="ck">
-        <li>Gün / hafta / ay; her personel kendi renginde, <b>15 dakikalık</b> hassasiyet</li>
-        <li><b>Kompakt tablo görünümü</b> ve personel grup filtresi (Saç, Tırnak, Cilt…)</li>
-        <li>Tek dokunuşla randevu; çakışma kontrolü</li>
-        <li>Rol ve yetkiler: sahip, yönetici, personel — herkes yalnızca yetkisi kadarını görür</li>
-      </ul>
+    <div class="mock">
+      <div class="bar">Güzellik Salonu Aylin<small>Online randevu · 7/24 açık</small></div>
+      <div class="body">
+        <div class="link">siriplan.com/r/salon-adiniz</div>
+        <div class="step"><i class="on">1 Hizmet</i><i class="on">2 Personel</i><i class="on">3 Saat</i></div>
+        <div class="kv"><span>Saç Boyama · Selin</span><b style="color:var(--ink)">Cuma 28 Eki</b></div>
+        <div class="slots"><b>10:00</b><b>10:30</b><b class="sel">11:00</b><b>11:30</b><b>13:00</b><b>13:30</b></div>
+        <div style="text-align:center;background:var(--grad);color:#fff;font-weight:800;padding:12px;border-radius:12px;">Randevumu Al</div>
+      </div>
     </div>
   </div>
   <div class="foot"><span>siriplan.com</span><span>5</span></div>
 </section>
 
-<!-- 6 Bildirim -->
+<!-- 6 Takvim -->
 <section class="slide">
   <div class="row">
+    <div class="phone"><img src="sunum/n-02-takvim.png" alt="" /></div>
     <div class="col">
-      <div class="eyebrow">Otomatik bildirimler</div>
-      <h2>Müşteri unutmaz, <span class="grad">siz kaçırmazsınız</span></h2>
+      <div class="eyebrow">Takvim &amp; personel</div>
+      <h2>Tüm ekip <span class="grad">tek ekranda</span></h2>
       <ul class="ck">
-        <li>Randevu onayı, <b>hatırlatma</b>, değişiklik ve iptal mesajları müşteriye <b>WhatsApp, SMS ve e-posta</b> ile gider</li>
-        <li>Yeni randevu/talep olunca siz ve personel <b>Telegram, WhatsApp veya uygulama içi sesli uyarı</b> alırsınız</li>
-        <li>Mesaj tonu: sıcak, kısa veya resmi</li>
-        <li>Müşteri diline göre TR / EN / RU / AR şablonlar</li>
+        <li><b>Gün · Personel · Hafta · Ay</b> görünümü — takvime döndüğünüzde en son baktığınız görünüm açılır</li>
+        <li>Her personel kendi renginde; <b>15, 30 veya 60 dk</b> randevu dilimi (yeni hesaplarda 30 dk)</li>
+        <li>Tek dokunuşla randevu, <b>çakışma kontrolü</b>; kompakt tablo ve personel grup filtresi</li>
+        <li>Rol ve yetkiler: herkes yalnızca yetkisi kadarını görür</li>
       </ul>
     </div>
-    <div class="phone"><img src="sunum/07-kampanyalar.png" alt="" /></div>
   </div>
   <div class="foot"><span>siriplan.com</span><span>6</span></div>
 </section>
 
-<!-- 7 Müşteri -->
+<!-- 7 Otomatik mesajlar -->
 <section class="slide">
   <div class="row">
-    <div class="phone"><img src="sunum/10-musteriler.png" alt="" /></div>
+    <div class="col">
+      <div class="eyebrow">Otomatik bildirimler</div>
+      <h2>Siz göndermezsiniz, <span class="grad">kendiliğinden gider</span></h2>
+      <ul class="ck">
+        <li>Onay, <b>hatırlatma</b>, değişiklik ve iptal mesajları müşteriye <b>WhatsApp</b> ile <b>otomatik</b> ulaşır — SiriPlan hattından</li>
+        <li>Hatırlatma saatini siz seçersiniz (<b>1 gün</b> / <b>2 saat önce</b>); metinler Meta onaylı</li>
+        <li>Yeni randevu/talepte siz ve personel <b>Telegram, WhatsApp veya sesli uyarı</b> alırsınız</li>
+        <li>Müşterinin diline göre TR / EN / RU / AR</li>
+      </ul>
+      <span class="hook">Gelmeme (no-show) oranınızı %60'a kadar azaltın.</span>
+    </div>
+    <div class="mock">
+      <div class="bar" style="background:#075E54;">WhatsApp · Güzellik Salonu Aylin<small>SiriPlan hattından otomatik</small></div>
+      <div class="body chat">
+        <div class="bub">Merhaba Ayşe Hanım 👋 Randevunuz onaylandı.<br><b>Cuma 28 Eki · 14:30</b> · Saç Boyama<span class="t">12:04 ✓✓</span></div>
+        <div class="auto">✓ Otomatik gönderildi — siz yazmadınız</div>
+        <div class="bub">Hatırlatma: randevunuza 2 saat kaldı ⏰ Görüşmek üzere!<span class="t">12:30 ✓✓</span></div>
+        <div class="bub">Randevunuz iptal edildi. Yeni saat için bize yazabilirsiniz.<span class="t">✓✓</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>siriplan.com</span><span>7</span></div>
+</section>
+
+<!-- 8 SMS kontörü -->
+<section class="slide">
+  <div class="row">
+    <div class="mock">
+      <div class="bar">SMS Kontörü<small>Abonelik sayfası</small></div>
+      <div class="body">
+        <div class="kv"><span>Kalan SMS</span><span class="big grad">1.000</span></div>
+        <div class="kv"><span>Paket</span><b style="color:var(--ink)">Kullandıkça azalır · süre sınırı yok</b></div>
+        <div style="text-align:center;background:var(--grad);color:#fff;font-weight:800;padding:13px;border-radius:12px;">1.000 SMS Kontörü Satın Al</div>
+        <div class="say" style="font-style:normal;font-size:13px;">Kendi SMS hesabınızı bağlamadan müşterilerinize SMS gönderin.</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="eyebrow">SMS bildirimleri</div>
+      <h2>WhatsApp kullanmayana da <span class="grad">ulaşın</span></h2>
+      <div class="grid" style="gap:12px;margin-top:4px;">
+        <div class="path"><div class="n">1</div><div><h4>SiriPlan SMS kontörü</h4><p><b>1.000 SMS'lik</b> paket: her SMS'te 1 kontör azalır, bitince yenisini alırsınız. Süre sınırı yok, hesap açmanız gerekmez.</p></div></div>
+        <div class="path"><div class="n">2</div><div><h4>Kendi sağlayıcınız</h4><p>Netgsm, VatanSMS veya İletimerkezi hesabınızı bağlayın; bu durumda kontör düşmez.</p></div></div>
+      </div>
+      <span class="hook">Ayarlar'da tek kutucukla açın, gerisi otomatik.</span>
+    </div>
+  </div>
+  <div class="foot"><span>siriplan.com</span><span>8</span></div>
+</section>
+
+<!-- 9 Müşteri -->
+<section class="slide">
+  <div class="row">
+    <div class="phone"><img src="sunum/n-04-musteriler.png" alt="" /></div>
     <div class="col">
       <div class="eyebrow">Müşteri yönetimi</div>
       <h2>Müşteriniz <span class="grad">sizinle kalsın</span></h2>
       <ul class="ck">
         <li>Geçmiş randevular, notlar ve özet şeridi: toplam, bu ay gelen, ortalama ciro</li>
         <li><b>Riskli / uzaklaşan</b> müşterileri tek filtreyle bulun, "Randevu Ver" ile geri kazanın</li>
-        <li><b>Sadakat puanı</b> ve <b>seans paketleri</b> (kalan seans otomatik düşer)</li>
-        <li>Toplu <b>WhatsApp kampanyaları</b> ve doğum günü mesajları (Pro)</li>
+        <li><b>Sadakat puanı</b> ve <b>müşteri skoru</b> (0-100) — değerli müşterinizi tanıyın</li>
+        <li>Mevcut listenizi <b>Excel'den tek tıkla</b> aktarın; veri kaybı yaşanmaz</li>
       </ul>
     </div>
   </div>
-  <div class="foot"><span>siriplan.com</span><span>7</span></div>
+  <div class="foot"><span>siriplan.com</span><span>9</span></div>
 </section>
 
-<!-- 8 Stok -->
+<!-- 10 Paketler -->
+<section class="slide">
+  <div class="row">
+    <div class="col">
+      <div class="eyebrow">Paket &amp; seans takibi</div>
+      <h2>Peşin satılan seanslar <span class="grad">kendini takip eder</span></h2>
+      <ul class="ck">
+        <li>"10 seans cilt bakımı" gibi paketleri müşteri bazında tanımlayın</li>
+        <li>Randevu <b>Tamamlandı</b> olunca seans <b>otomatik düşer</b>; elle sayma yok</li>
+        <li>Aktif paket, kalan seans ve <b>peşin bakiye</b> tek ekranda</li>
+        <li>Starter dahil <b>tüm planlarda</b></li>
+      </ul>
+    </div>
+    <div class="phone"><img src="sunum/n-09-paketler.png" alt="" /></div>
+  </div>
+  <div class="foot"><span>siriplan.com</span><span>10</span></div>
+</section>
+
+<!-- 11 Kampanyalar -->
+<section class="slide">
+  <div class="row">
+    <div class="phone"><img src="sunum/n-08-kampanyalar.png" alt="" /></div>
+    <div class="col">
+      <div class="eyebrow">Kampanyalar</div>
+      <h2>Boş koltuğu <span class="grad">doldurun</span></h2>
+      <ul class="ck">
+        <li><b>Doğum günü</b> mesajı her gün otomatik; <b>"Sizi özledik"</b> ile 60+ gündür gelmeyenleri geri çağırın</li>
+        <li>Kendi segmentinizi oluşturun, toplu mesaj gönderin</li>
+        <li><b>İndirimli kampanya:</b> son geçerlilik tarihli, müşteriye özel, tek kullanımlık hak</li>
+        <li>Pro'da sınırsız; Starter'da ayda 1 kampanya</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>siriplan.com</span><span>11</span></div>
+</section>
+
+<!-- 12 Stok -->
 <section class="slide">
   <div class="row">
     <div class="col">
@@ -173,86 +316,158 @@
         <li>Mal alımı, kullanım/satış ve sayım; <b>toplam stok değeri</b> otomatik</li>
         <li>Telefon kamerasıyla <b>barkod okutup</b> saniyeler içinde satış</li>
         <li><b>Kritik stok uyarısı</b> panelde, Telegram ve WhatsApp'ta</li>
-        <li>Starter dahil <b>tüm planlarda</b></li>
+        <li>Mini dahil <b>tüm planlarda</b></li>
       </ul>
     </div>
-    <div class="phone"><img src="sunum/02-stok.png" alt="" /></div>
+    <div class="phone"><img src="sunum/n-07-stok.png" alt="" /></div>
   </div>
-  <div class="foot"><span>siriplan.com</span><span>8</span></div>
+  <div class="foot"><span>siriplan.com</span><span>12</span></div>
 </section>
 
-<!-- 9 Sesli -->
+<!-- 13 Sesli -->
 <section class="slide">
   <div class="row">
-    <div class="phone"><img src="sunum/09-randevular.png" alt="" /></div>
+    <div class="mock">
+      <div class="bar">Yeni Randevu<small>🎤 Dinleniyor…</small></div>
+      <div class="body">
+        <div class="mic">🎤</div>
+        <div class="say">"Ayşe hanıma yarın saat üçte saç boyama"</div>
+        <div class="fill"><span>Müşteri</span><b>Ayşe Yıldız</b></div>
+        <div class="fill"><span>Hizmet</span><b>Saç Boyama</b></div>
+        <div class="fill"><span>Tarih · Saat</span><b>Yarın · 15:00</b></div>
+        <div style="text-align:center;background:var(--grad);color:#fff;font-weight:800;padding:12px;border-radius:12px;">Onayla</div>
+      </div>
+    </div>
     <div class="col">
       <div class="eyebrow">Sesli asistan · Pro</div>
       <h2>Konuşun, <span class="grad">randevu hazır</span></h2>
       <ul class="ck">
-        <li>"Ayşe hanıma yarın saat üçte saç boyama" — form kendiliğinden dolar</li>
-        <li><b>"Onayla"</b> demeniz yeterli; eller serbest</li>
+        <li>Form kendiliğinden dolar; <b>"Onayla"</b> demeniz yeterli — eller serbest</li>
         <li>Kayıtlı müşterinin telefonu otomatik gelir</li>
+        <li>Eksik alanlar işaretlenir, <b>"Eksikleri sesle ekle"</b> ile tamamlanır</li>
         <li>Stok girişi de sesle yapılabilir</li>
       </ul>
     </div>
   </div>
-  <div class="foot"><span>siriplan.com</span><span>9</span></div>
+  <div class="foot"><span>siriplan.com</span><span>13</span></div>
 </section>
 
-<!-- 10 Kasa -->
+<!-- 14 Personel -->
+<section class="slide">
+  <div class="row">
+    <div class="phone"><img src="sunum/n-06-personel.png" alt="" /></div>
+    <div class="col">
+      <div class="eyebrow">Personel &amp; yetkiler</div>
+      <h2>Ekibiniz <span class="grad">düzen içinde</span></h2>
+      <ul class="ck">
+        <li>Davet bağlantısıyla personel ekleyin; herkesin <b>kendi takvimi ve rengi</b> olur</li>
+        <li><b>Maaş + komisyon + bahşiş</b> tek tıkla hesaplanır, gider olarak kasaya işlenir</li>
+        <li>Yetki kutucuklarıyla neyi göreceğini siz belirleyin: ciro, müşteri telefonu, raporlar…</li>
+        <li>Kapanmış randevuyu yalnızca sahip/yönetici geri açar; <b>durum geçmişi</b> tutulur</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>siriplan.com</span><span>14</span></div>
+</section>
+
+<!-- 15 Kasa -->
 <section class="slide">
   <div class="row">
     <div class="col">
-      <div class="eyebrow">Gelir-gider &amp; raporlar</div>
+      <div class="eyebrow">Gelir-gider</div>
       <h2>Kasanızı <span class="grad">net görün</span></h2>
       <ul class="ck">
         <li>Tamamlanan randevular gelire, kira/malzeme/fatura giderlere işlenir; <b>KDV</b> hesabı dahil</li>
-        <li>Personel <b>maaş + komisyon + bahşiş</b> tek tıkla hesaplanır</li>
         <li>Profesyonel <b>adisyon/fiş</b>: yazdır veya PDF</li>
-        <li>Personel/hizmet bazlı raporlar, Excel/CSV aktarım, mevcut verinizi içe aktarma</li>
+        <li>Nakit, kart, havale — ödeme yöntemine göre ayrım</li>
+        <li>İndirimli kampanyada müşterinin <b>gerçekten ödediği tutar</b> yazılır</li>
       </ul>
     </div>
-    <div class="phone"><img src="sunum/03-gelirgider.png" alt="" /></div>
+    <div class="phone"><img src="sunum/n-11-gelirgider.png" alt="" /></div>
   </div>
-  <div class="foot"><span>siriplan.com</span><span>10</span></div>
+  <div class="foot"><span>siriplan.com</span><span>15</span></div>
 </section>
 
-<!-- 11 Güven & Mobil -->
+<!-- 16 Raporlar -->
+<section class="slide">
+  <div class="row">
+    <div class="phone"><img src="sunum/n-12-raporlar.png" alt="" /></div>
+    <div class="col">
+      <div class="eyebrow">Raporlar</div>
+      <h2>Rakamlar <span class="grad">cebinizde</span></h2>
+      <ul class="ck">
+        <li><b>Gün sonu özeti:</b> randevu, tamamlanan, ciro, gider ve yeni müşteri — PDF olarak indirin (Pro)</li>
+        <li>Günlük, aylık ve yıllık ciro; personel ve hizmet bazlı performans</li>
+        <li><b>No-show</b> (gelmeyen) takibi</li>
+        <li>Verileriniz sizindir: JSON, Excel veya CSV olarak istediğiniz an indirin</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>siriplan.com</span><span>16</span></div>
+</section>
+
+<!-- 17 Kişiselleştirme -->
+<section class="slide">
+  <div class="eyebrow">Panel sizin gibi görünsün</div>
+  <h2>Renginizi, <span class="grad">açılış sayfanızı</span>, dilinizi seçin</h2>
+  <div class="grid g3" style="margin-top:8px;">
+    <div class="card">
+      <span class="em">🎨</span><h3>7 renk teması</h3>
+      <p style="margin-bottom:14px;">Sol menünün altındaki palet simgesinden istediğiniz an değiştirin.</p>
+      <div class="sw"><i style="background:#f43f5e"></i><i style="background:#2563eb"></i><i style="background:#0d9488"></i><i style="background:#047857"></i><i style="background:#f97316"></i><i style="background:#1e293b"></i><i style="background:#7c3aed"></i></div>
+    </div>
+    <div class="card">
+      <span class="em">🏠</span><h3>Açılış sayfası</h3>
+      <p style="margin-bottom:14px;">Panel açılınca ilk neyi görmek istersiniz?</p>
+      <div class="seg"><b class="on">Genel Bakış</b><b>Takvim<br><small>son görünümle</small></b></div>
+    </div>
+    <div class="card">
+      <span class="em">🌍</span><h3>4 dilli panel</h3>
+      <p style="margin-bottom:14px;">Müşteri bildirimleri de müşterinin dilinde gider.</p>
+      <div class="flags"><span>Türkçe</span><span>English</span><span>Русский</span><span>العربية</span></div>
+    </div>
+  </div>
+  <span class="hook" style="align-self:flex-start;">İlk gün balonlu kurulum turu elinizden tutar.</span>
+  <div class="foot"><span>siriplan.com</span><span>17</span></div>
+</section>
+
+<!-- 18 Güven & Mobil -->
 <section class="slide">
   <div class="eyebrow">Güven &amp; erişim</div>
   <h2>Verileriniz <span class="grad">güvende</span>, panel <span class="grad">cebinizde</span></h2>
   <div class="grid g3" style="margin-top:14px;">
     <div class="card"><span class="em">🔒</span><h3>Kiracı izolasyonu &amp; KVKK</h3><p>Her işletmenin verisi birbirinden ayrıdır; yetki bazlı erişim ve KVKK uyumlu saklama.</p></div>
-    <div class="card"><span class="em">📱</span><h3>Google Play &amp; App Store</h3><p>Mobil uygulama ya da Ana Ekrana Ekle ile telefonunuzda uygulama gibi kullanın.</p></div>
-    <div class="card"><span class="em">🌍</span><h3>4 dilli panel</h3><p>Türkçe, İngilizce, Rusça ve Arapça; müşteri bildirimleri de dilinde gider.</p></div>
+    <div class="card"><span class="em">📱</span><h3>Google Play &amp; App Store</h3><p>Mobil uygulama ya da Ana Ekrana Ekle ile telefonunuzda uygulama gibi kullanın. Uygulama içinde ödeme yoktur; abonelik web'den yönetilir.</p></div>
+    <div class="card"><span class="em">🔔</span><h3>Anında haberdar olun</h3><p>Yeni randevuda panelde sesli uyarı, Telegram ve WhatsApp bildirimi.</p></div>
   </div>
-  <div class="foot"><span>siriplan.com</span><span>11</span></div>
+  <div class="foot"><span>siriplan.com</span><span>18</span></div>
 </section>
 
-<!-- 12 Planlar -->
+<!-- 19 Planlar -->
 <section class="slide">
   <div class="eyebrow">Şeffaf fiyat</div>
   <h2>Size uygun <span class="grad">plan</span></h2>
   <div class="grid g4" style="margin-top:8px;">
     <div class="card plan"><h3>Mini</h3><div class="price">₺399</div><div class="per">/ay · yıllık ₺3.926</div>
-      <ul><li>1 personel, ayda 200 randevu</li><li>Randevu linki, müşteri kaydı</li><li>Stok, paket, gelir-gider</li><li>Ayda 200 WhatsApp mesajı</li></ul></div>
+      <ul><li>Tek kişilik · 1 personel</li><li>Ayda 200 randevu &amp; 200 WhatsApp</li><li>Randevu linki, stok/barkod</li><li>Paket takibi, gelir-gider &amp; KDV</li></ul></div>
     <div class="card plan"><h3>Starter</h3><div class="price">₺1.199</div><div class="per">/ay · yıllık ₺11.798</div>
-      <ul><li>1 şube, 8 personel, sınırsız randevu</li><li>WhatsApp hatırlatma, bekleme listesi</li><li>Stok/barkod, paket takibi</li><li>Gelir-gider &amp; KDV, sadakat kartı</li></ul></div>
+      <ul><li>1 şube, 8 personel, sınırsız randevu</li><li>WhatsApp hatırlatma, bekleme listesi</li><li>Stok/barkod, paket takibi</li><li>Sadakat kartı, ayda 1 kampanya</li></ul></div>
     <div class="card plan hot"><span class="tag">En çok tercih edilen</span><h3>Pro</h3><div class="price">₺1.799</div><div class="per">/ay · yıllık ₺17.702</div>
-      <ul><li>Sınırsız personel</li><li>Sesli asistan, kampanya modülü</li><li>Website modu</li><li>Müşteri skoru, PDF rapor</li></ul></div>
+      <ul><li>Sınırsız personel</li><li>Sesli asistan, sınırsız kampanya</li><li>Website modu, PDF rapor</li><li>Müşteri skoru, Haftanın Elemanı</li></ul></div>
     <div class="card plan"><h3>Business</h3><div class="price">₺4.699</div><div class="per">/ay · yıllık ₺46.238</div>
       <ul><li>5 şubeye kadar</li><li>Tüm Pro özellikleri</li><li>AI WhatsApp/IG asistanı</li><li>Özel entegrasyonlar</li></ul></div>
   </div>
-  <p style="margin-top:16px;font-size:15px;color:var(--muted);">Yıllık ödemede yaklaşık %18 tasarruf · Abonelik: siriplan.com/auth/plan-sec · İstediğiniz zaman iptal · Fiyatlar TL cinsinden aylık ücrettir; yurt dışı için USD/EUR fiyatlar sitede.</p>
-  <div class="foot"><span>siriplan.com</span><span>12</span></div>
+  <p style="margin-top:16px;font-size:15px;color:var(--muted);line-height:1.5;"><b style="color:var(--ink)">Ek paketler:</b> SMS kontörü — 1.000 SMS'lik paket, kullandıkça azalır, bitince yenisi alınır · AI WhatsApp Paketi · Ek Şube Paketi. &nbsp;Yıllık ödemede yaklaşık %18 tasarruf · 1 yıl sabit fiyat garantisi · İstediğiniz zaman iptal · Fiyatlar TL cinsinden aylık ücrettir; yurt dışı için USD/EUR fiyatlar sitede.</p>
+  <div class="foot"><span>siriplan.com</span><span>19</span></div>
 </section>
 
-<!-- 13 Başlayın -->
+<!-- 20 Başlayın -->
 <section class="slide cover" style="align-items:center;text-align:center;">
+  <div class="brand sm" style="margin-bottom:18px;"><img src="icons/icon-mark.png" alt="SiriPlan" /><span>Siri<em>(us)</em><b>Plan</b></span></div>
   <div class="eyebrow">Hemen başlayın</div>
   <h1>14 gün <span class="grad">ücretsiz deneyin</span></h1>
   <p class="lead" style="margin:18px auto 0;">Kredi kartı gerekmez. Deneme boyunca Pro seviyesindeki tüm araçlar açıktır; kurulumda yanınızdayız.</p>
-  <a class="cta" href="/auth/plan-sec" style="text-decoration:none;">Plan seç &amp; abone ol → siriplan.com/auth/plan-sec</a>
+  <div class="cta">siriplan.com</div>
   <div class="pillrow" style="justify-content:center;margin-top:26px;">
     <span class="pill">📧 info@bysirius.com</span><span class="pill">💬 WhatsApp +90 535 503 26 34</span>
   </div>

@@ -192,6 +192,14 @@ export function UnifiedCalendar({
   // Telefonda (dar ekran) gün/personel görünümü saat satırı daha alçak: 10-12
   // saatlik mesai kaydırmadan tek ekrana sığsın. Geniş ekranda eski değer.
   const [narrow, setNarrow] = useState(false);
+  // Son bakılan görünümü hatırla (gün/hafta/personel/ay) — takvim sayfası ?view= yoksa çerezden okur.
+  useEffect(() => {
+    try {
+      document.cookie = `sp_cal_view=${view}; path=/; max-age=31536000; SameSite=Lax`;
+    } catch {
+      /* çerez yazılamazsa sessizce geç */
+    }
+  }, [view]);
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 639px)");
     const apply = () => setNarrow(mq.matches);
