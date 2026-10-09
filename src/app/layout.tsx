@@ -202,6 +202,14 @@ export default async function RootLayout({
                         ),
                       }),
                   description: "AI destekli randevu ve işletme yönetim platformu",
+                  featureList: [
+                    "Online appointment booking page",
+                    "Calendar, staff and service management",
+                    "Customer records and package/session tracking",
+                    "WhatsApp, SMS and Telegram reminders",
+                    "Inventory, income-expense and reports",
+                  ],
+                  inLanguage: ["tr", "en", "ru", "ar"],
                   url: "https://siriplan.com",
                 },
                 {
@@ -209,7 +217,7 @@ export default async function RootLayout({
                   "@id": "https://siriplan.com/#website",
                   url: "https://siriplan.com",
                   name: "SiriPlan",
-                  inLanguage: ["tr", "en"],
+                  inLanguage: ["tr", "en", "ru", "ar"],
                   potentialAction: {
                     "@type": "SearchAction",
                     target: "https://siriplan.com/blog?q={search_term_string}",
