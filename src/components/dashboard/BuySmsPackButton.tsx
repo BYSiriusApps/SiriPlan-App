@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { PurchaseConsent, EMPTY_CONSENT, isConsentComplete, type PurchaseConsentValue } from "@/components/legal/PurchaseConsent";
 
 /**
  * 1.000 SMS'lik tek seferlik kontör paketi için Stripe Checkout'u açar.
@@ -25,6 +27,9 @@ export function BuySmsPackButton({
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const tConsent = useTranslations("purchaseConsent");
+  const [consent, setConsent] = useState<PurchaseConsentValue>(EMPTY_CONSENT);
+  const [consentWarn, setConsentWarn] = useState(false);
 
   useEffect(() => {
     if (returnStatus === "success") toast.success(successText);
@@ -35,9 +40,19 @@ export function BuySmsPackButton({
   }, []);
 
   async function handleClick() {
+    // Mesafeli satış: ödeme öncesi iki açık onay zorunlu.
+    if (!isConsentComplete(consent)) {
+      setConsentWarn(true);
+      toast.error(tConsent("missing"));
+      return;
+    }
     setLoading(true);
     try {
-      const res = await fetch("/api/stripe/sms-pack", { method: "POST" });
+      const res = await fetch("/api/stripe/sms-pack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ consent }),
+      });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) {
         toast.error(data.error ?? errorText);
@@ -52,6 +67,13 @@ export function BuySmsPackButton({
   }
 
   return (
+    <div className="space-y-3">
+      <PurchaseConsent
+        idPrefix="pc-sms"
+        value={consent}
+        highlight={consentWarn && !isConsentComplete(consent)}
+        onChange={(v) => { setConsent(v); if (isConsentComplete(v)) setConsentWarn(false); }}
+      />
     <button
       type="button"
       onClick={handleClick}
@@ -61,5 +83,6 @@ export function BuySmsPackButton({
       {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
       {label}
     </button>
+    </div>
   );
 }

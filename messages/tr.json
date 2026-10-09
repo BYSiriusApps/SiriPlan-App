@@ -868,7 +868,7 @@
       "Platformu kullanımınızdan veya yüklediğiniz içeriklerden doğan; üçüncü kişilerin (kendi müşterileriniz dâhil) talepleri, idari para cezaları ve yargılama giderleri dâhil her türlü zarar ve talebe karşı Şirket'i tazmin etmeyi kabul edersiniz."
     ],
     "s4Title": "4. Ücretlendirme ve Abonelik",
-    "s4P": "Abonelik ücretleri seçilen plana göre aylık veya yıllık olarak peşin tahsil edilir. Yıllık planda %18 indirim uygulanır. Ücretsiz deneme süresi, hizmeti satın almadan önce değerlendirmeniz içindir. Aboneliğinizi istediğiniz zaman iptal edebilirsiniz; iptal sonraki yenilemeyi durdurur ve mevcut dönem sonuna kadar erişiminiz sürer. Yürürlükteki mevzuatın zorunlu kıldığı hâller dışında, başlamış abonelik dönemlerine ilişkin ücretler iade edilmez. Sorularınız için info@bysirius.com.",
+    "s4P": "Abonelik ücretleri seçilen plana göre aylık veya yıllık olarak peşin tahsil edilir. Yıllık planda %18 indirim uygulanır. Ücretsiz deneme süresi, hizmeti satın almadan önce değerlendirmeniz içindir. Aboneliğinizi istediğiniz zaman iptal edebilirsiniz; iptal sonraki yenilemeyi durdurur ve mevcut dönem sonuna kadar erişiminiz sürer. Yürürlükteki mevzuatın zorunlu kıldığı hâller dışında, başlamış abonelik dönemlerine ilişkin ücretler iade edilmez. Sorularınız için info@bysirius.com. Mesafeli satış, cayma hakkı ve iadeye ilişkin ayrıntılar için Mesafeli Satış Sözleşmesi, Ön Bilgilendirme Formu ve İade ve İptal Politikası geçerlidir; bu belgelerle bu madde arasında çelişki varsa tüketiciler bakımından tüketici lehine olan hüküm uygulanır.",
     "s5Title": "5. Hizmet Kesintileri ve Sorumluluk Sınırları",
     "s5P": "Platform %99,9 uptime hedefiyle çalışır; ancak bakım veya teknik nedenlerle kısa süreli kesintiler yaşanabilir. BY Sirius Group Ai and Technology Co Ltd., dolaylı, arızi veya sonuçta ortaya çıkan zararlardan sorumlu tutulamaz. Sorumluluğumuz, ilgili ay içinde ödediğiniz abonelik ücretiyle sınırlıdır.",
     "s6Title": "6. Fikri Mülkiyet",
@@ -1107,6 +1107,16 @@
     "downloadOn": "İNDİRİN",
     "comingSoon": "YAKINDA"
   },
+  "legalDocs": {
+    "note": ""
+  },
+  "purchaseConsent": {
+    "title": "Satın almadan önce onaylayın",
+    "distanceLabel": "<contractLink>Mesafeli Satış Sözleşmesi</contractLink>'ni, <preinfoLink>Ön Bilgilendirme Formu</preinfoLink>'nu ve <refundLink>İade ve İptal Politikası</refundLink>'nı okudum, anladım ve kabul ediyorum; siparişimin ödeme yükümlülüğü doğurduğunu biliyorum.",
+    "immediateLabel": "Hizmetin ödemenin ardından hemen başlamasını talep ediyorum. Hizmetin elektronik ortamda anında ifa edilen bir hizmet olduğunu ve (tüketici isem) ifa başladıktan sonra cayma hakkımı kaybedeceğimi kabul ediyorum.",
+    "vatNote": "Satıcı yurt dışında (İngiltere) yerleşiktir; gösterilen tutara Türkiye KDV'si eklenmez. Türkiye'de yerleşik alıcılara düşebilecek KDV ve diğer vergiler alıcıya aittir (Sözleşme madde 5).",
+    "missing": "Devam etmek için sözleşme onayını ve hizmetin hemen başlaması onayını işaretleyin."
+  },
   "footer": {
     "appDownloadTitle": "Mobil uygulama",
     "tagline": "Güzellik sektörünün akıllı yönetim platformu",
@@ -1133,7 +1143,10 @@
     "security": "Güvenlik",
     "cookieSettings": "Çerez ayarları",
     "companyReg": "İngiltere ve Galler'de kayıtlı şirket · Companies House No. 17142392",
-    "ipCopyright": "Fikri Mülkiyet & AI Telif Hakları"
+    "ipCopyright": "Fikri Mülkiyet & AI Telif Hakları",
+    "distanceSales": "Mesafeli Satış Sözleşmesi",
+    "preinfo": "Ön Bilgilendirme Formu",
+    "refund": "İade ve İptal"
   },
   "home": {
     "breadcrumbLabel": "Ana Sayfa",

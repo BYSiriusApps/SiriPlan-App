@@ -42,6 +42,9 @@ Sektöre özel sayfalar / industry pages: https://siriplan.com/kategori/{sektor}
 - Kullanım Koşulları: https://siriplan.com/kosullar
 - Çerez Politikası: https://siriplan.com/cerezler
 - KVKK Aydınlatma Metni: https://siriplan.com/kvkk
+- Mesafeli Satış Sözleşmesi: https://siriplan.com/mesafeli-satis-sozlesmesi
+- Ön Bilgilendirme Formu: https://siriplan.com/on-bilgilendirme-formu
+- İade ve İptal Politikası: https://siriplan.com/iade-iptal-politikasi
 - Güvenlik: https://siriplan.com/guvenlik
 
 ## Not

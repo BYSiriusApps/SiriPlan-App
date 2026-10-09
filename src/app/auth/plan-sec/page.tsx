@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
 import { formatPrice, DEFAULT_PRICING, type PricingCurrency } from "@/lib/pricing";
+import { useTranslations } from "next-intl";
+import { PurchaseConsent, EMPTY_CONSENT, isConsentComplete, type PurchaseConsentValue } from "@/components/legal/PurchaseConsent";
 
 const SUPPORT_EMAIL = "info@bysirius.com";
 const SUPPORT_PHONE = "+905355032634";
@@ -97,6 +99,9 @@ export default function PlanSecPage() {
   const [currency, setCurrency] = useState<PricingCurrency>("TRY");
   const [pricing, setPricing] = useState(DEFAULT_PRICING);
   const [loading, setLoading] = useState<string | null>(null);
+  const tConsent = useTranslations("purchaseConsent");
+  const [consent, setConsent] = useState<PurchaseConsentValue>(EMPTY_CONSENT);
+  const [consentWarn, setConsentWarn] = useState(false);
   const [trialLoading, setTrialLoading] = useState(false);
   // null = bilinmiyor (henüz yüklenmedi), true = deneme aktif, false = süresi dolmuş
   const [trialActive, setTrialActive] = useState<boolean | null>(null);
@@ -142,12 +147,19 @@ export default function PlanSecPage() {
   }, []);
 
   async function handleSelect(planKey: string) {
+    // Mesafeli satış: iki açık onay işaretlenmeden ödeme sayfası açılmaz.
+    if (!isConsentComplete(consent)) {
+      setConsentWarn(true);
+      toast.error(tConsent("missing"));
+      document.getElementById("pc-box")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     setLoading(planKey);
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planKey, annual }),
+        body: JSON.stringify({ plan: planKey, annual, consent }),
       });
       const data = await res.json();
       if (data.url) {
@@ -298,6 +310,14 @@ export default function PlanSecPage() {
               <Badge variant="secondary" className={`text-[10px] ${annual ? "bg-white/20 text-primary-foreground" : ""}`}>%18 tasarruf</Badge>
             </button>
           </div>
+        </div>
+
+        <div className="max-w-2xl mx-auto mb-8">
+          <PurchaseConsent
+            value={consent}
+            highlight={consentWarn && !isConsentComplete(consent)}
+            onChange={(v) => { setConsent(v); if (isConsentComplete(v)) setConsentWarn(false); }}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 md:gap-7 mb-10 items-stretch">

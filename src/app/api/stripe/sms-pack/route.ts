@@ -7,6 +7,7 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
 import { SMS_PACK_CREDITS } from "@/lib/sms-credits";
+import { CONSENT_VERSION } from "@/lib/legal/seller";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  // Mesafeli satış: ödeme öncesi iki açık onay zorunlu (bkz. api/stripe/checkout).
+  const body = (await req.json().catch(() => ({}))) as { consent?: { distanceSales?: boolean; immediateStart?: boolean } };
+  if (body?.consent?.distanceSales !== true || body?.consent?.immediateStart !== true) {
+    return NextResponse.json(
+      { error: "Ödemeye geçmeden önce Mesafeli Satış Sözleşmesi ve hizmetin hemen başlaması onaylarını işaretlemeniz gerekir.", code: "CONSENT_REQUIRED" },
+      { status: 400 }
+    );
+  }
+  const consentAt = new Date().toISOString();
+
   const priceId = process.env.STRIPE_PRICE_SMS_PACK || "";
   if (!priceId) {
     return NextResponse.json({ error: "SMS paketi için fiyat tanımlı değil" }, { status: 500 });
@@ -77,7 +88,7 @@ export async function POST(req: Request) {
     success_url: `${appUrl}/dashboard/abonelik?sms_pack=success`,
     cancel_url: `${appUrl}/dashboard/abonelik?sms_pack=canceled`,
     // Webhook org'u bu alandan okur (oturum nesnesinde top-level metadata bulunur).
-    metadata: { kind: "sms_pack", org_id: member.org_id, credits: String(SMS_PACK_CREDITS) },
+    metadata: { kind: "sms_pack", org_id: member.org_id, credits: String(SMS_PACK_CREDITS), consent_version: CONSENT_VERSION, consent_at: consentAt },
     locale: STRIPE_LOCALE[locale] ?? "auto",
   };
 
@@ -92,6 +103,30 @@ export async function POST(req: Request) {
     if (!/currency/i.test(message)) throw err;
     console.error(`[stripe] SMS paketi ${visitorCurrency.toUpperCase()} ile açılamadı, varsayılan para birimine düşülüyor: ${message}`);
     session = await stripe.checkout.sessions.create(params);
+  }
+
+  // Onay kaydı (ispat). Hata ödemeyi engellemez.
+  try {
+    const admin = await createAdminClient();
+    await admin.from("audit_logs").insert({
+      org_id: member.org_id,
+      action: "consent.distance_sales",
+      table_name: "organizations",
+      new_data: {
+        version: CONSENT_VERSION,
+        at: consentAt,
+        user_id: user.id,
+        kind: "sms_pack",
+        currency: visitorCurrency,
+        checkout_session_id: session.id,
+        distance_sales: true,
+        immediate_start: true,
+        ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+        user_agent: req.headers.get("user-agent")?.slice(0, 300) ?? null,
+      },
+    });
+  } catch (err) {
+    console.error("[stripe] SMS paketi onay kaydı yazılamadı:", err);
   }
 
   return NextResponse.json({ url: session.url });

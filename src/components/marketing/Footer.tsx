@@ -41,6 +41,8 @@ export async function Footer() {
   const legalLinks = [
     { key: "privacy", href: "/gizlilik" },
     { key: "terms",   href: "/kosullar" },
+    { key: "distanceSales", href: "/mesafeli-satis-sozlesmesi" },
+    { key: "refund", href: "/iade-iptal-politikasi" },
     { key: "cookie",  href: "/cerezler" },
     { key: "kvkk",    href: "/kvkk"     },
     { key: "security", href: "/guvenlik" },
