@@ -509,7 +509,7 @@ export default function AyarlarPage() {
             <Label>{t("settingsPage.businessTypeLabel")}</Label>
             <Select value={org.type || ""} onValueChange={(v) => setField("type", v)}>
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
+              <SelectContent alignItemWithTrigger={false}>
                 {BUSINESS_TYPE_VALUES.map((val) => (
                   <SelectItem key={val} value={val}>{t(`settingsPage.${BUSINESS_TYPE_LABEL_KEYS[val]}`)}</SelectItem>
                 ))}
@@ -557,7 +557,7 @@ export default function AyarlarPage() {
             <Label>{t("settingsPage.languageLabel")}</Label>
             <Select value={org.locale || "tr"} onValueChange={(v) => setField("locale", v)}>
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>
+              <SelectContent alignItemWithTrigger={false}>
                 <SelectItem value="tr">🇹🇷 Türkçe</SelectItem>
                 <SelectItem value="en">🇬🇧 English</SelectItem>
                 <SelectItem value="ru">🇷🇺 Русский</SelectItem>
@@ -570,7 +570,7 @@ export default function AyarlarPage() {
           <Label>{t("settingsPage.timezoneLabel")}</Label>
           <Select value={org.timezone || "Europe/Istanbul"} onValueChange={(v) => setField("timezone", v ?? "Europe/Istanbul")}>
             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-            <SelectContent>
+            <SelectContent alignItemWithTrigger={false}>
               {TIMEZONE_OPTIONS.map((tz) => (
                 <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
               ))}
@@ -844,7 +844,7 @@ export default function AyarlarPage() {
             <SelectTrigger className="w-full sm:w-64">
               <SelectValue placeholder={t("settingsPage.slotIntervalPlaceholder")} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent alignItemWithTrigger={false}>
               <SelectItem value="15">{t("settingsPage.slot15")}</SelectItem>
               <SelectItem value="30">{t("settingsPage.slot30")}</SelectItem>
               <SelectItem value="60">{t("settingsPage.slot60")}</SelectItem>
@@ -870,7 +870,7 @@ export default function AyarlarPage() {
                 {(value: string) => CURRENCIES.find((c) => c.value === value)?.label || t("settingsPage.currencyPlaceholder")}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent alignItemWithTrigger={false}>
               {CURRENCIES.map((c) => (
                 <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
               ))}

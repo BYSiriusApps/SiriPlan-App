@@ -44,7 +44,7 @@ SiriPlan çoklu kullanıcı ve rol mimarisini destekler:
 - **Personel Girişi (İşletme Altında Çalışan Uzmanlar)**:
   - Yönetici, **Personel → Davet Et** butonunu kullanarak personeline bir davet bağlantısı (`/auth/davet?token=...`) gönderir ya da personelin telefon numarasını sisteme tanımlar.
   - Personel kendi e-postası veya telefon numarası ile sisteme giriş yapar.
-  - **İşletme Altında Çalışma**: Personel sisteme girdiğinde otomatik olarak bağlı olduğu işletmenin paneline yönlendirilir. Personel rolündeki kullanıcılar yalnızca kendi randevularını ve müşteri takvimini görür; işletme cirosu, gelir-gider ve hassas ayarları görmeleri engellenir.
+  - **İşletme Altında Çalışma**: Personel sisteme girdiğinde otomatik olarak bağlı olduğu işletmenin paneline yönlendirilir. Personel rolündeki kullanıcılar varsayılan olarak yalnızca kendi randevularını görür (işletme sahibi **Ayarlar → Personel Yetkileri → "Tüm randevuları görsün"** kutusunu açarsa tüm salon takvimini de görebilirler); işletme cirosu, gelir-gider ve hassas ayarları görmeleri engellenir.
 
 ---
 
@@ -82,7 +82,7 @@ Ekibinizdeki her uzman için ayrı takvim ve yetki tanımlayabilirsiniz:
 3. Personelin adını, telefonunu, çalışma günlerini ve **takvimde görünecek rengini** seçin.
 4. **Yetki Rolü Belirleyin**:
    - *Yönetici*: Tüm yetkilere sahiptir.
-   - *Personel*: Sadece kendi randevularını görebilir.
+   - *Personel*: Varsayılan olarak yalnızca kendi randevularını görür. Tüm salon takvimini görmesini istiyorsanız **Ayarlar → Personel Yetkileri → "Tüm randevuları görsün"** kutusunu açabilirsiniz.
 5. **Maaş & Komisyon Tanımı**: Personel detay sayfasından **Taban Maaş** ve **% Komisyon Oranı** belirleyin.
 
 ---
@@ -209,7 +209,7 @@ SiriPlan aboneliği ve faturalandırması SiriPlan hesabınıza bağlıdır ve u
   - **Mini**, **Starter**, **Pro** ve **Business** planlarının tamamı sabit ve şeffaf yapıdadır.
   - **Mini (aylık ₺399)** tek kişilik işletmeler içindir: 1 personel (ek personel daveti yok), ayda 200 randevu ve 200 müşteri WhatsApp mesajı, randevu linki, stok/barkod, paket takibi, gelir-gider & KDV. WhatsApp hakkınızın %80'ine ve %100'üne ulaşınca bildirim alırsınız. Deneme bitince sesli asistan ve kampanya gibi Pro araçları Mini'de kapanır; ihtiyaç olursa Ayarlar → Abonelik'ten plan yükseltebilirsiniz.
   - **SMS Kontörü (isteğe bağlı):** Kendi SMS sağlayıcınızı bağlamadan SMS göndermek için Ayarlar → Abonelik sayfasından 1.000 SMS'lik kontör paketi alabilirsiniz (gönderdikçe azalır, bitince yenisini alırsınız; süre sınırı yok; bakiye aynı sayfada görünür). Kendi sağlayıcınız bağlıysa SMS onun hesabından gider ve kontör düşmez. Mobil uygulamada satın alma yüzeyi gösterilmez.
-  - **Mobil uygulama:** [App Store](https://apps.apple.com/app/siriusplan/id6815322807) (SiriusPlan) ve [Google Play](https://play.google.com/store/apps/details?id=com.siriplan.app) üzerinden indirebilirsiniz; ayrıca tarayıcıdan "Ana Ekrana Ekle" ile de kurabilirsiniz.
+  - **Mobil uygulama:** [App Store](https://apps.apple.com/app/siriusplan/id6815322807) (iOS'ta **"SiriusPlan"** adıyla yayındadır; Apple'ın uygulama adlandırma kuralları nedeniyle farklı bir ad kullanılmıştır, uygulama aynıdır) ve [Google Play](https://play.google.com/store/apps/details?id=com.siriplan.app) üzerinden indirebilirsiniz; ayrıca tarayıcıdan "Ana Ekrana Ekle" ile de kurabilirsiniz.
   - **"Teklif Al" bekleme dönemi yoktur.** Her yeni hesap tüm özelliklerle **14 gün ücretsiz deneme** ile başlar.
 - **Plan Bilgileriniz**:
   - Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi **Ayarlar → Abonelik** sayfasından görüntüleyebilirsiniz.
@@ -228,7 +228,7 @@ SiriPlan aboneliği ve faturalandırması SiriPlan hesabınıza bağlıdır ve u
 ## 14. Gelir-Gider Takibi & Personel Maaş Hesaplama
 
 - **Gelir-Gider Kasa Takibi**: **Gelir-Gider** sekmesinden kira, malzeme alımı, çay-kahve masrafları ve faturaları kaydederek günlük net karınızı görün.
-- **Randevu geliri ne zaman kasaya yansır**: Bir randevunun geliri Gelir-Gider tablosuna yalnızca "Tamamlandı" olarak işaretlendiğinde işlenir; hizmet verilse bile randevu "Tamamlandı" yapılmadığı sürece Gelir-Gider hesaplamalarında yer almaz.
+- **Randevu geliri ne zaman kasaya yansır**: **Randevuyu mutlaka "Tamamlandı" butonuna basarak kapatmalısınız.** **"Tamamlandı" işaretlenmeyen randevu gelire ve ciroya yansımaz**; hizmet verilmiş olsa bile Gelir-Gider, Raporlar ve personel cirosu hesaplarına dahil edilmez.
 - **Personel Maaş & Komisyon Hesaplama**:
   - **Personel → Maaş Hesapla** sayfasına gidin.
   - Ay ve personel seçin. Sistem otomatik olarak **Taban Maaş + (Yapılan Ciro × Komisyon %) + Bahşişler** formülüyle toplam ödemeyi çıkarır.
