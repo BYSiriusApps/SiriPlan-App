@@ -11,7 +11,7 @@ export const PRICING_BY_CURRENCY: Record<PricingCurrency, Record<PlanKey, PlanPr
   TRY: {
     mini: { monthly: 399, annual: 3926 },
     starter: { monthly: 1199, annual: 11798 },
-    pro: { monthly: 1799, annual: 17702 },
+    pro: { monthly: 1699, annual: 16718 },
     business: { monthly: 4699, annual: 46238 },
   },
   USD: {
