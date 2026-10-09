@@ -3,6 +3,7 @@ import { getActiveMember } from "@/lib/active-org";
 import { getStripe } from "@/lib/stripe/config";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
+import { setAddonsCancelAtPeriodEnd } from "@/lib/stripe/addons";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +54,9 @@ export async function POST(req: NextRequest) {
     const sub = await stripe.subscriptions.update(org.stripe_subscription_id, {
       cancel_at_period_end: !resume,
     });
+
+    // Ek paketler (AI Asistan / Ek Şube) planla birlikte iptal edilir/geri alınır.
+    await setAddonsCancelAtPeriodEnd(member.org_id, !resume);
 
     const admin = await createAdminClient();
     await admin.from("audit_logs").insert({
