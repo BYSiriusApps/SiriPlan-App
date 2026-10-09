@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveCampaignRecipients, renderCampaignMessage } from "@/lib/campaign-segment";
 import { sendSms } from "@/lib/sms";
 import { optOutFooter } from "@/lib/marketing-opt-out";
+import { campaignRecipientLimit } from "@/lib/entitlements";
 import { getOffer, isOfferExpired, offerTermsLine } from "@/lib/campaign-offer";
 
 /**
@@ -64,7 +65,7 @@ export async function sendCampaignNow(
 
   const { data: org } = await supabase
     .from("organizations")
-    .select("name, wa_token, wa_phone_number_id")
+    .select("name, wa_token, wa_phone_number_id, plan, trial_ends_at")
     .eq("id", campaign.org_id)
     .single();
 
@@ -102,6 +103,19 @@ export async function sendCampaignNow(
       .update({ status: "failed", sent_count: 0, sent_at: new Date().toISOString() })
       .eq("id", campaignId);
     return { ok: false, error: "Bu segmentte kampanya bildirimi onaylı müşteri bulunamadı" };
+  }
+
+  // Alıcı üst sınırı: aşılırsa HİÇBİR mesaj gönderilmez (kısmi gönderim yok).
+  // Planlı kampanya her 5 dakikada yeniden denenmesin diye başarısız işaretlenir.
+  const recipientLimit = campaignRecipientLimit(org);
+  if (recipients.length > recipientLimit) {
+    if (campaign.status === "scheduled") {
+      await supabase.from("campaigns").update({ status: "failed", sent_count: 0 }).eq("id", campaignId);
+    }
+    return {
+      ok: false,
+      error: `Bu segmentte ${recipients.length} alıcı var; tek kampanyada en fazla ${recipientLimit} alıcıya gönderilebilir. Segmenti daraltıp kampanyayı bölün.`,
+    };
   }
 
   const channel = campaign.channel === "sms" ? "sms" : "whatsapp";

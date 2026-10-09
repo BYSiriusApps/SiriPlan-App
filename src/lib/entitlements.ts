@@ -116,6 +116,21 @@ export function monthlyCampaignLimit(org: EntitlementOrg | null | undefined): nu
   return paidPlan(org) === "starter" ? PLAN_USAGE_LIMITS.starter.campaigns : null;
 }
 
+/**
+ * Tek bir kampanyanın alıcı üst sınırı. Toplu gönderim işletmenin kendi
+ * WhatsApp/SMS hattından gittiği için, çok geniş bir listeye tek seferde
+ * yüklenip numaranın kalite puanını düşürmesi (kısıtlanma/ban) ve gönderimin
+ * sunucu süre sınırına takılması engellenir. Sınırı aşan segment gönderilmez;
+ * işletme segmenti daraltıp birkaç kampanyaya böler.
+ */
+export const CAMPAIGN_RECIPIENT_LIMITS = { starter: 500, default: 2000 } as const;
+
+export function campaignRecipientLimit(org: EntitlementOrg | null | undefined): number {
+  return paidPlan(org) === "starter"
+    ? CAMPAIGN_RECIPIENT_LIMITS.starter
+    : CAMPAIGN_RECIPIENT_LIMITS.default;
+}
+
 /** Tek kullanıcılı plan mı? (Mini: ek personel/kullanıcı daveti yok.) */
 export function isSingleUserPlan(org: EntitlementOrg | null | undefined): boolean {
   return paidPlan(org) === "mini";
