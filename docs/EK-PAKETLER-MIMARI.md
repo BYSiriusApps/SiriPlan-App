@@ -6,10 +6,12 @@ Durum: **Faz 1 (altyapı) kodda, env'ler boşken tamamen devre dışı.** Faz 2 
 
 Mevcut: Mini 399₺/14$/13€ · Starter 1199₺/29$/26€ · Pro 1699₺/39$/33€ · Business 4699₺/99$/84€ (yıllık ≈ 9,84 ay).
 
-| Paket | Aylık TRY | Aylık USD | Aylık EUR | Yıllık TRY | Yıllık USD | Yıllık EUR |
-|---|---|---|---|---|---|---|
-| **Ek Şube** (şube başı, adet) | 799 | 19 | 17 | 7.862 | 187 | 167 |
-| **AI Asistan** (WA + IG/Messenger) | 999 | 24 | 21 | 9.830 | 236 | 207 |
+| Paket | Aylık TRY | Aylık USD | Aylık EUR |
+|---|---|---|---|
+| **Ek Şube** (şube başı, adet) | 1.000 | 24 | 20 |
+| **AI Asistan** (WA + IG/Messenger) | 2.500 | 49 | 45 |
+
+> Güncel (10 Eki 2026): Stripe'daki canlı Price'larla birebir aynı; yalnızca aylık satılır (yıllık Price yok). Aşağıdaki gerekçe ilk fiyat önerisine aittir.
 
 Gerekçe:
 - **Ek şube $19:** Tam Starter ($29) fiyatı olsaydı zincir işletme her şubeye ayrı hesap açardı. Pro + 3 ek şube = $96, Business ($99; AI + API + 5 şube dahil) ile neredeyse eşit: 4+ şubede Business doğal yükseltme olur.
