@@ -242,17 +242,17 @@
     "whatsappAI": {
       "name": "AI WhatsApp Package",
       "desc": "Advanced AI assistant, sentiment analysis, smart suggestions",
-      "price": "$29/mo"
+      "price": "$49/mo"
     },
     "sms": {
       "name": "SMS Package",
       "desc": "A 1,000-SMS credit pack that goes down as you send; buy a new one when it runs out. No expiry. Send without your own SMS account",
-      "price": "$19 · 1,000 SMS"
+      "price": "$55 · 1,000 SMS"
     },
     "multiBranch": {
       "name": "Additional Branch Package",
       "desc": "Add extra branches to Starter/Pro",
-      "price": "$29/branch/mo"
+      "price": "$24/branch/mo"
     },
     "request": {
       "cta": "Get Info",

@@ -242,17 +242,17 @@
     "whatsappAI": {
       "name": "AI WhatsApp Paketi",
       "desc": "Gelişmiş AI asistanı, duygu analizi, akıllı öneriler",
-      "price": "$29/ay"
+      "price": "$49/ay"
     },
     "sms": {
       "name": "SMS Paketi",
       "desc": "1.000 SMS'lik kontör; gönderdikçe azalır, bitince yenisini alırsınız, süre sınırı yok. Kendi SMS hesabınıza gerek kalmadan gönderin",
-      "price": "$19 · 1.000 SMS"
+      "price": "$55 · 1.000 SMS"
     },
     "multiBranch": {
       "name": "Ek Şube Paketi",
       "desc": "Starter/Pro'ya ek şube ekleyin",
-      "price": "$29/şube/ay"
+      "price": "$24/şube/ay"
     },
     "request": {
       "cta": "Bilgi Al",
