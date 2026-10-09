@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { geminiFetch, hasGeminiKey } from "@/lib/llm";
 import { getActiveMember } from "@/lib/active-org";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { parseVoiceBooking, dedupeAdjacentWords } from "@/lib/voice-parse";
@@ -179,16 +180,12 @@ export async function POST(req: NextRequest) {
     const localParse = () =>
       parseVoiceBooking(transcript, staffList || [], servicesList || [], { timezone });
 
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (apiKey) {
+    if (hasGeminiKey()) {
       // Direct call to Gemini REST API with Function Declarations
-      const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+      // Ana Gemini modeli düşerse yedek modele geçer (bkz. lib/llm.ts); hâlâ başarısızsa
+      // aşağıdaki `geminiRes.ok` dalı atlanır ve yerel ayrıştırıcı devreye girer.
+      const geminiRes = await geminiFetch(
+          {
             contents: [
               {
                 role: "user",
@@ -245,8 +242,7 @@ Lütfen uygun aracı (tool call) çağır veya kullanıcıya cevap ver.`,
                 ],
               },
             ],
-          }),
-        }
+          }
       );
 
       if (geminiRes.ok) {

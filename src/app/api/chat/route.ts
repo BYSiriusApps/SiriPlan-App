@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { generateText, hasLlmProvider } from "@/lib/llm";
 import { limitByIp } from "@/lib/rate-limit";
 import { sanitizeUserMessage, wrapAsUserData } from "@/lib/ai-input";
 import { pricingSummaryForAssistant, getPricingCurrencyFromHeaders, type PricingCurrency } from "@/lib/pricing";
@@ -210,37 +211,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ response: getStaticResponse(message, uiLocale, currency) });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    const isPlaceholder = !apiKey || apiKey.includes("placeholder") || apiKey === "your-gemini-api-key-here";
-
-    if (isPlaceholder) {
+    if (!hasLlmProvider()) {
       // Use static keyword-based fallback
       const response = getStaticResponse(message, uiLocale, currency);
       return NextResponse.json({ response });
     }
 
-    // Gemini API call — mesajın yanına arayüzde seçili dili de etiketleyerek
-    // gönderiyoruz; SYSTEM_PROMPT'taki DİL KURALI mesajın dili belirsizse bunu kullanır.
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: buildSystemPrompt(currency) }] },
-          contents: [{ role: "user", parts: [{ text: `<arayuz_dili>${uiLocale}</arayuz_dili>\n${wrapAsUserData(safeMessage)}` }] }],
-          generationConfig: { maxOutputTokens: 300 },
-        }),
-      }
-    );
-
-    if (!geminiResponse.ok) {
-      const fallback = getStaticResponse(message, uiLocale, currency);
-      return NextResponse.json({ response: fallback });
+    // Ana model → yedek model → (varsa) Claude (bkz. lib/llm.ts). Mesajın yanına
+    // arayüzde seçili dili de etiketliyoruz; SYSTEM_PROMPT'taki DİL KURALI mesajın
+    // dili belirsizse bunu kullanır. Hepsi başarısızsa statik yanıta düşülür.
+    let response: string;
+    try {
+      response = await generateText({
+        system: buildSystemPrompt(currency),
+        user: `<arayuz_dili>${uiLocale}</arayuz_dili>
+${wrapAsUserData(safeMessage)}`,
+        maxTokens: 300,
+      });
+    } catch {
+      response = getStaticResponse(message, uiLocale, currency);
     }
-
-    const data = await geminiResponse.json();
-    const response = data.candidates?.[0]?.content?.parts?.[0]?.text ?? getStaticResponse(message, uiLocale, currency);
 
     return NextResponse.json({ response });
   } catch {
