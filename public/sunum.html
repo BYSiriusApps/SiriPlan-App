@@ -95,19 +95,21 @@
   .flags{display:flex;gap:8px;flex-wrap:wrap;} .flags span{font-size:13px;font-weight:800;padding:7px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);}
 
   /* —— saf CSS döngüler (JS/video yok: iOS düşük güç modunda da çalışır) —— */
-  .phone .shot{position:absolute;inset:0;opacity:0;animation:shotcyc 18s infinite;animation-delay:calc(var(--i)*3s);}
-  .phone .shot:first-child{opacity:1;}
-  @keyframes shotcyc{0%{opacity:0}4%{opacity:1}16.7%{opacity:1}20.7%{opacity:0}100%{opacity:0}}
-  .flow{position:absolute;left:10px;right:10px;bottom:14px;height:86px;}
+  .phone .base{position:absolute;inset:0;z-index:0;}
+  .phone .shot{position:absolute;inset:0;opacity:0;z-index:0;animation:shotcyc 18s infinite;animation-delay:calc(var(--i)*3s);}
+  .phone .shot img{position:absolute;inset:0;}
+  .phone .shot b{position:absolute;left:50%;transform:translateX(-50%);bottom:68px;background:rgba(27,21,48,.9);color:#fff;font-size:13px;font-weight:800;padding:7px 15px;border-radius:999px;white-space:nowrap;box-shadow:0 8px 18px -8px rgba(0,0,0,.6);}
+  @keyframes shotcyc{0%{opacity:0;z-index:3}4%{opacity:1;z-index:3}16.6%{opacity:1;z-index:3}16.7%{opacity:1;z-index:1}20.8%{opacity:1;z-index:1}20.9%{opacity:0;z-index:0}100%{opacity:0;z-index:0}}
+  .flow{position:absolute;left:10px;right:10px;bottom:14px;height:98px;}
   .flow .st{position:absolute;inset:0;opacity:0;border-radius:16px;padding:11px 13px;background:#fff;border:1px solid var(--line);box-shadow:0 12px 26px -8px rgba(30,20,60,.55);animation:flowcyc 9s infinite;}
   .flow .st:nth-child(2){animation-delay:3s;} .flow .st:nth-child(3){animation-delay:6s;}
   @keyframes flowcyc{0%{opacity:0;transform:translateY(14px)}6%,30%{opacity:1;transform:none}36%,100%{opacity:0;transform:translateY(-6px)}}
-  .flow .tt{font-weight:800;font-size:14px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:6px;}
+  .flow .tt{font-weight:800;font-size:13.5px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:6px;}
   .flow .sub{font-size:12px;line-height:1.35;color:var(--muted);margin-top:4px;}
   .flow .bd{font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap;}
   .bd.w{background:#FFF1D6;color:#9a5b00;} .bd.o{background:#D9F3E3;color:#0b6b3a;} .bd.d{background:rgba(124,58,237,.14);color:#5b21b6;}
   a.pill{text-decoration:none;color:inherit;cursor:pointer;} a.pill:hover{border-color:var(--p);}
-  @media (prefers-reduced-motion:reduce){.phone .shot,.flow .st{animation:none;} .flow .st:first-child{opacity:1;}}
+  @media (prefers-reduced-motion:reduce){.phone .shot,.flow .st{animation:none;} .phone .shot{display:none;} .flow .st:first-child{opacity:1;}}
   /* —— mobil / dar ekran: slaytlar alt alta, kayan okunabilir sayfalar —— */
   @media (max-width:820px){
     html,body{background:#ddd;}
@@ -190,7 +192,7 @@
 <!-- 4 Canlı panel -->
 <section class="slide">
   <div class="row">
-    <div class="phone"><img class="shot" style="--i:0" src="sunum/n-01-anasayfa.png" alt="" /><img class="shot" style="--i:1" src="sunum/n-02-takvim.png" alt="" /><img class="shot" style="--i:2" src="sunum/n-04-musteriler.png" alt="" /><img class="shot" style="--i:3" src="sunum/n-07-stok.png" alt="" /><img class="shot" style="--i:4" src="sunum/n-11-gelirgider.png" alt="" /><img class="shot" style="--i:5" src="sunum/n-12-raporlar.png" alt="" /></div>
+    <div class="phone"><img class="base" src="sunum/n-01-anasayfa.png" alt="" /><div class="shot" style="--i:0"><img src="sunum/n-01-anasayfa.png" alt="" /><b>Genel Bakış</b></div><div class="shot" style="--i:1"><img src="sunum/n-02-takvim.png" alt="" /><b>Takvim</b></div><div class="shot" style="--i:2"><img src="sunum/n-04-musteriler.png" alt="" /><b>Müşteriler</b></div><div class="shot" style="--i:3"><img src="sunum/n-07-stok.png" alt="" /><b>Stok</b></div><div class="shot" style="--i:4"><img src="sunum/n-11-gelirgider.png" alt="" /><b>Gelir-Gider</b></div><div class="shot" style="--i:5"><img src="sunum/n-12-raporlar.png" alt="" /><b>Raporlar</b></div></div>
     <div class="col">
       <div class="eyebrow">Genel bakış · canlı demo ekranları</div>
       <h2>Salonunuz <span class="grad">tek bakışta</span></h2>
@@ -311,7 +313,7 @@
 <!-- 9 Müşteri -->
 <section class="slide">
   <div class="row">
-    <div class="phone"><img src="sunum/n-04-musteriler.png" alt="" /></div>
+    <div class="phone"><img src="sunum/n-04-musteriler.png" alt="" /><div class="flow" aria-hidden="true"><div class="st"><div class="tt"><span>🔎 Riskli müşteri bulundu</span><span class="bd w">Riskli</span></div><div class="sub">60+ gündür gelmeyenler tek filtrede</div></div><div class="st"><div class="tt"><span>📅 "Randevu Ver" ile geri kazanın</span><span class="bd o">Geri çağır</span></div><div class="sub">Tek dokunuşla yeni randevu açılır</div></div><div class="st"><div class="tt"><span>⭐ Sadakat puanı & skor</span><span class="bd d">0-100</span></div><div class="sub">Değerli müşterinizi tanıyın</div></div></div></div>
     <div class="col">
       <div class="eyebrow">Müşteri yönetimi</div>
       <h2>Müşteriniz <span class="grad">sizinle kalsın</span></h2>
@@ -339,7 +341,7 @@
         <li>Starter dahil <b>tüm planlarda</b></li>
       </ul>
     </div>
-    <div class="phone"><img src="sunum/n-09-paketler.png" alt="" /></div>
+    <div class="phone"><img src="sunum/n-09-paketler.png" alt="" /><div class="flow" aria-hidden="true"><div class="st"><div class="tt"><span>🎟️ 10 seanslık paket satıldı</span><span class="bd w">Peşin</span></div><div class="sub">Müşteri bazında tanımlanır</div></div><div class="st"><div class="tt"><span>✅ Randevu tamamlandı</span><span class="bd o">9 kaldı</span></div><div class="sub">Seans kendiliğinden düştü</div></div><div class="st"><div class="tt"><span>💳 Kalan seans & bakiye</span><span class="bd d">Aktif</span></div><div class="sub">Hepsi tek ekranda</div></div></div></div>
   </div>
   <div class="foot"><span><a href="https://siriplan.com" target="_blank" rel="noopener">siriplan.com</a></span><span>10</span></div>
 </section>
@@ -347,7 +349,7 @@
 <!-- 11 Kampanyalar -->
 <section class="slide">
   <div class="row">
-    <div class="phone"><img src="sunum/n-08-kampanyalar.png" alt="" /></div>
+    <div class="phone"><img src="sunum/n-08-kampanyalar.png" alt="" /><div class="flow" aria-hidden="true"><div class="st"><div class="tt"><span>🎂 Doğum günü mesajı gitti</span><span class="bd o">Otomatik</span></div><div class="sub">Her gün kendiliğinden gönderilir</div></div><div class="st"><div class="tt"><span>💌 "Sizi özledik" mesajı</span><span class="bd w">Geri çağır</span></div><div class="sub">60+ gündür gelmeyenlere</div></div><div class="st"><div class="tt"><span>🏷️ İndirimli kampanya</span><span class="bd d">Tek kullanımlık</span></div><div class="sub">Son geçerlilik tarihli, müşteriye özel</div></div></div></div>
     <div class="col">
       <div class="eyebrow">Kampanyalar</div>
       <h2>Boş koltuğu <span class="grad">doldurun</span></h2>
@@ -375,7 +377,7 @@
         <li>Mini dahil <b>tüm planlarda</b></li>
       </ul>
     </div>
-    <div class="phone"><img src="sunum/n-07-stok.png" alt="" /></div>
+    <div class="phone"><img src="sunum/n-07-stok.png" alt="" /><div class="flow" aria-hidden="true"><div class="st"><div class="tt"><span>📷 Barkod okutuldu</span><span class="bd o">Satış</span></div><div class="sub">Telefon kamerasıyla saniyeler içinde</div></div><div class="st"><div class="tt"><span>⚠️ Kritik stok uyarısı</span><span class="bd w">Uyarı</span></div><div class="sub">Panel, Telegram ve WhatsApp'ta</div></div><div class="st"><div class="tt"><span>📦 Toplam stok değeri</span><span class="bd d">Güncel</span></div><div class="sub">Mal alımı ve sayımla otomatik</div></div></div></div>
   </div>
   <div class="foot"><span><a href="https://siriplan.com" target="_blank" rel="noopener">siriplan.com</a></span><span>12</span></div>
 </section>
@@ -411,7 +413,7 @@
 <!-- 14 Personel -->
 <section class="slide">
   <div class="row">
-    <div class="phone"><img src="sunum/n-06-personel.png" alt="" /></div>
+    <div class="phone"><img src="sunum/n-06-personel.png" alt="" /><div class="flow" aria-hidden="true"><div class="st"><div class="tt"><span>💌 Davet bağlantısı gönderildi</span><span class="bd w">Davet</span></div><div class="sub">Personel kendi takvimi ve rengiyle eklenir</div></div><div class="st"><div class="tt"><span>💰 Maaş + komisyon + bahşiş</span><span class="bd o">Hesaplandı</span></div><div class="sub">Gider olarak kasaya işlenir</div></div><div class="st"><div class="tt"><span>🔐 Yetki kutucukları</span><span class="bd d">Yetki</span></div><div class="sub">Ciro, telefon, rapor: siz belirlersiniz</div></div></div></div>
     <div class="col">
       <div class="eyebrow">Personel &amp; yetkiler</div>
       <h2>Ekibiniz <span class="grad">düzen içinde</span></h2>
@@ -439,7 +441,7 @@
         <li>İndirimli kampanyada müşterinin <b>gerçekten ödediği tutar</b> yazılır</li>
       </ul>
     </div>
-    <div class="phone"><img src="sunum/n-11-gelirgider.png" alt="" /></div>
+    <div class="phone"><img src="sunum/n-11-gelirgider.png" alt="" /><div class="flow" aria-hidden="true"><div class="st"><div class="tt"><span>✅ Randevu tamamlandı</span><span class="bd o">Gelir</span></div><div class="sub">Tutar gelire işlendi</div></div><div class="st"><div class="tt"><span>🧾 Adisyon / fiş hazır</span><span class="bd d">PDF</span></div><div class="sub">Yazdırın ya da PDF alın</div></div><div class="st"><div class="tt"><span>📉 Fatura gideri eklendi</span><span class="bd w">Gider</span></div><div class="sub">KDV hesabı dahil</div></div></div></div>
   </div>
   <div class="foot"><span><a href="https://siriplan.com" target="_blank" rel="noopener">siriplan.com</a></span><span>15</span></div>
 </section>
@@ -447,7 +449,7 @@
 <!-- 16 Raporlar -->
 <section class="slide">
   <div class="row">
-    <div class="phone"><img src="sunum/n-12-raporlar.png" alt="" /></div>
+    <div class="phone"><img src="sunum/n-12-raporlar.png" alt="" /><div class="flow" aria-hidden="true"><div class="st"><div class="tt"><span>📄 Gün sonu özeti</span><span class="bd d">PDF</span></div><div class="sub">Tek dokunuşla indirin</div></div><div class="st"><div class="tt"><span>📊 Personel & hizmet performansı</span><span class="bd o">Rapor</span></div><div class="sub">Günlük, aylık, yıllık ciro</div></div><div class="st"><div class="tt"><span>🚫 Gelmeyen (no-show) takibi</span><span class="bd w">Takip</span></div><div class="sub">Oranınızı görün, azaltın</div></div></div></div>
     <div class="col">
       <div class="eyebrow">Raporlar</div>
       <h2>Rakamlar <span class="grad">cebinizde</span></h2>
