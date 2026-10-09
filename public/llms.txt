@@ -1,31 +1,50 @@
-# Siriplan
+# SiriPlan
 
-> Siriplan, randevulu hizmet veren işletmeler (kuaför, berber, güzellik salonu, spa, nail studio, estetik merkezi, diş kliniği, pet kuaför vb.) için online randevu, müşteri ve işletme yönetim platformudur. BY Sirius Group AI and Technology Co. Ltd. tarafından geliştirilir.
+> SiriPlan is an online appointment booking and business management platform for appointment-based service businesses (hair salons, barbers, beauty salons, spas, nail studios, aesthetic clinics, dental clinics, pet groomers and similar). Available on the web, iOS and Android. Developed by BY Sirius Group AI and Technology Co. Ltd.
+>
+> Siriplan, randevulu hizmet veren işletmeler (kuaför, berber, güzellik salonu, spa, nail studio, estetik merkezi, diş kliniği, pet kuaför vb.) için online randevu, müşteri ve işletme yönetim platformudur. Web, iOS ve Android'de kullanılabilir.
 
-## Sayfalar
+## Ne yapar / What it does
 
-- Ana sayfa: https://siriplan.com
-- Özellikler: https://siriplan.com/ozellikler
-- Fiyatlandırma: https://siriplan.com/fiyatlar
-- Entegrasyonlar: https://siriplan.com/entegrasyonlar
-- Hakkımızda: https://siriplan.com/hakkimizda
+- Online randevu sayfası: müşteriler işletmenin kendi linkinden 7/24 randevu alır / customers book 24/7 from the business's own booking link.
+- Takvim, personel ve hizmet yönetimi / calendar, staff and service management.
+- Müşteri kayıtları, paket ve seans takibi / customer records, package and session tracking.
+- WhatsApp, SMS ve Telegram ile randevu onayı ve hatırlatma bildirimleri / appointment confirmations and reminders via WhatsApp, SMS and Telegram.
+- Stok (barkod desteği), gelir-gider ve raporlar / inventory (barcode support), income-expense and reports.
+- Kampanyalar ve bekleme listesi, sesli asistan (planlara göre) / campaigns, waitlist and voice assistant (depending on plan).
+- Diller / languages: Türkçe, English, Русский, العربية.
+- Planlar / plans: Mini, Starter, Pro, Business; 14 gün ücretsiz deneme (Business hariç) / 14-day free trial (except Business). Güncel fiyatlar / current prices: https://siriplan.com/fiyatlar
+
+## Sayfalar / Pages
+
+- Ana sayfa / Home: https://siriplan.com
+- Özellikler / Features: https://siriplan.com/ozellikler
+- Fiyatlandırma / Pricing: https://siriplan.com/fiyatlar
+- Entegrasyonlar / Integrations: https://siriplan.com/entegrasyonlar
+- Hakkımızda / About: https://siriplan.com/hakkimizda
 - Blog: https://siriplan.com/blog
-- İletişim: https://siriplan.com/iletisim
-- SSS: https://siriplan.com/sss
+- İletişim / Contact: https://siriplan.com/iletisim
+- SSS / FAQ: https://siriplan.com/sss
+- Uygulamayı indir / Download the app: https://siriplan.com/indir
 
-## Sektörler
+## Sektörler / Industries
 
-Sektöre özel sayfalar: https://siriplan.com/kategori/{sektor}
+Sektöre özel sayfalar / industry pages: https://siriplan.com/kategori/{sektor}
 
-## İletişim
+## İletişim / Contact
 
-- E-posta: info@bysirius.com
+- E-posta / Email: info@bysirius.com
 - Web: https://bysirius.com
 
-## Yasal
+## Yasal / Legal
 
 - Gizlilik Politikası: https://siriplan.com/gizlilik
 - Kullanım Koşulları: https://siriplan.com/kosullar
 - Çerez Politikası: https://siriplan.com/cerezler
 - KVKK Aydınlatma Metni: https://siriplan.com/kvkk
 - Güvenlik: https://siriplan.com/guvenlik
+
+## Not
+
+Panel (/dashboard), giriş (/auth) ve API (/api) yolları herkese açık içerik değildir ve botlar için kapalıdır; işletme ve müşteri verileri yalnızca yetkili kullanıcılara gösterilir.
+The dashboard, auth and API paths are private and disallowed for crawlers; business and customer data is only shown to authorized users.
