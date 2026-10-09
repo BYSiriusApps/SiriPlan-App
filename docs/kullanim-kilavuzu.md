@@ -58,9 +58,9 @@ Standart widget'lar: Active Appointments, Daily Calendar, WhatsApp Assistant, Ca
 - **Görünüm ve Filtreleme Özelleştirme**:
   - **Tarih Bazında**: Günü (`day`), Haftayı (`week`), Personel görünümünü (`staff`) veya Ayı (`month`) seçerek görünüm ayarlanabilir. Takvime tekrar girildiğinde **en son bakılan görünüm** açılır (çerez `sp_cal_view`).
   - **Randevu dilimi**: Ayarlar'dan 15 / 30 / 60 dk seçilir; yeni hesaplarda varsayılan **30 dk** (`booking_slot_minutes`).
-  - **Personel Bazında**: Personel filtresi veya "Personel Görünümü" (`staff`) ile uzmanlar yan yana sütunlar halinde kıyaslanabilir. Personel rolündeki kullanıcılar yalnızca kendi takvimini görebilir.
+  - **Personel Bazında**: Personel filtresi veya "Personel Görünümü" (`staff`) ile uzmanlar yan yana sütunlar halinde kıyaslanabilir. Personel rolündeki kullanıcılar varsayılan olarak yalnızca kendi takvimini görür; sahip **Ayarlar → Personel Yetkileri → "Tüm randevuları görsün"** kutusunu açarsa tüm salon takvimini de görebilirler.
 - **Randevu Durumları**: Bekliyor, Onaylandı, Tamamlandı, İptal, Gelmedi (No-Show).
-- **Önemli**: Bir randevunun geliri Gelir-Gider tablosuna yalnızca "Tamamlandı" olarak işaretlendiğinde yansır; Bekliyor/Onaylandı durumundaki randevular Gelir-Gider hesaplamalarında yer almaz.
+- **Önemli**: **Randevuyu mutlaka "Tamamlandı" butonuyla kapatın** — bir randevunun geliri Gelir-Gider tablosuna yalnızca "Tamamlandı" olarak işaretlendiğinde yansır; Bekliyor/Onaylandı durumundaki randevular Gelir-Gider hesaplamalarında yer almaz.
 
 ## 5. Adisyon Oluşturma & Fiş Dökümü
 
@@ -118,7 +118,7 @@ Günlük/dönemsel ciro, gider, randevu sayısı ve personel/hizmet bazlı perfo
 ## 13. Gelir-Gider & Maaş Hesaplama
 
 - Manuel gelir ve gider kayıtları tutulur.
-- Randevu gelirleri kasaya yalnızca randevu "Tamamlandı" olarak işaretlendiğinde yansır — hizmet verilip "Tamamlandı" işaretlenmeyen randevular Gelir-Gider hesaplamalarına hiç dahil edilmez.
+- **Randevuyu mutlaka "Tamamlandı" butonuna basarak kapatın.** Randevu gelirleri kasaya yalnızca "Tamamlandı" işaretlendiğinde yansır — **"Tamamlandı" işaretlenmeyen randevu gelire ve ciroya yansımaz**, hizmet verilmiş olsa bile Gelir-Gider hesaplarına dahil edilmez.
 - **Maaş Hesapla**: Taban Maaş + (Ciro × Komisyon %) + Bahşiş formülü ile tek tıkla gider olarak kaydedilir.
 - **KDV Hesaplama**: Ayarlar → KDV Hesaplama'dan oranınızı girip özelliği açabilirsiniz (yeni işletmelerde varsayılan olarak açıktır). Yasal oran değiştiğinde aynı ekrandan güncellenir — sabit kodlanmış bir oran kullanılmaz. Açıkken "Tahmini KDV" kartı hem bu sayfada hem de Raporlar'da, o ayki gelirin KDV dahil olduğu varsayılarak hesaplanır.
 
@@ -153,7 +153,7 @@ Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olar
 - **Sesli Asistan (Pro):** Basılı tutup konuşarak randevu/stok girişi; "onayla / düzelt / eksikleri ekle".
 - **Takvim:** Excel tarzı kompakt görünüm ve personel grup çipleri.
 - **Müşteriler:** Özet şeridi, hızlı filtreler (Son 30 Gün, Riskli/Uzaklaşan), "Randevu Ver", müşteri skoru (Pro).
-- **Mobil:** [App Store](https://apps.apple.com/app/siriusplan/id6815322807) (SiriusPlan) / [Google Play](https://play.google.com/store/apps/details?id=com.siriplan.app) uygulaması veya Ana Ekrana Ekle (Ayarlar → "Uygulamayı Telefona Ekle" kartında doğrudan mağaza bağlantıları da vardır).
+- **Mobil:** [App Store](https://apps.apple.com/app/siriusplan/id6815322807) (iOS'ta Apple'ın isim kuralları nedeniyle **"SiriusPlan"** adıyla yayındadır) / [Google Play](https://play.google.com/store/apps/details?id=com.siriplan.app) uygulaması veya Ana Ekrana Ekle (Ayarlar → "Uygulamayı Telefona Ekle" kartında doğrudan mağaza bağlantıları da vardır).
 - **Deneme süresi** boyunca Pro seviyesi araçlar açıktır.
 
 ## 17. Sık Sorulan Sorular
@@ -161,7 +161,7 @@ Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olar
 - Telegram randevu bildirimleri nasıl açılır? (Telegram'da `@siriplan_bot` botuna `/start` yazıp alınan Chat ID paneldeki alana kaydedilir).
 - Business planı için teklif almak gerekir mi? (Hayır, Business dahil tüm planlar şeffaf yapıdadır; teklif alma adımı yoktur).
 - Planımı ve fatura geçmişimi nereden görürüm? (Ayarlar → Abonelik sayfasından; plan sorularınız için info@bysirius.com).
-- Personeller kendi telefonlarıyla girebilir mi? (Evet, personel hesabı yetkisine göre sadece kendi alanını görür).
+- Personeller kendi telefonlarıyla girebilir mi? (Evet, personel hesabı yetkisine göre varsayılan olarak sadece kendi alanını görür; "Tüm randevuları görsün" kutusu açıksa tüm salon takvimini de görür).
 
 ## 18. Panel İçi Yardım Asistanı
 
