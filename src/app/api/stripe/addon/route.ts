@@ -7,6 +7,7 @@ import { ADDONS, getOrgAddons, type AddonKey } from "@/lib/stripe/addons";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
+import { CONSENT_VERSION } from "@/lib/legal/seller";
 
 export const dynamic = "force-dynamic";
 
@@ -39,11 +40,24 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = (await req.json().catch(() => null)) as { addon?: string; annual?: boolean; quantity?: number } | null;
+  const body = (await req.json().catch(() => null)) as {
+    addon?: string;
+    annual?: boolean;
+    quantity?: number;
+    consent?: { distanceSales?: boolean; immediateStart?: boolean };
+  } | null;
   const addonKey = body?.addon as AddonKey | undefined;
   if (!addonKey || !(addonKey in ADDONS)) {
     return NextResponse.json({ error: "Geçersiz paket." }, { status: 400 });
   }
+  // Mesafeli satış: ödeme öncesi iki açık onay zorunlu (bkz. api/stripe/checkout).
+  if (body?.consent?.distanceSales !== true || body?.consent?.immediateStart !== true) {
+    return NextResponse.json(
+      { error: "Ödemeye geçmeden önce Mesafeli Satış Sözleşmesi ve hizmetin hemen başlaması onaylarını işaretlemeniz gerekir.", code: "CONSENT_REQUIRED" },
+      { status: 400 }
+    );
+  }
+  const consentAt = new Date().toISOString();
   const addon = ADDONS[addonKey];
   const priceId = body?.annual ? addon.annual : addon.monthly;
   if (!priceId) {
@@ -95,7 +109,7 @@ export async function POST(req: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const visitorCurrency = getPricingCurrencyFromHeaders(req.headers).toLowerCase();
   const locale = await getLocale();
-  const meta = { kind: "addon", addon: addonKey, org_id: member.org_id };
+  const meta = { kind: "addon", addon: addonKey, org_id: member.org_id, consent_version: CONSENT_VERSION, consent_at: consentAt };
 
   const params: Stripe.Checkout.SessionCreateParams = {
     customer: customerId,
@@ -139,6 +153,26 @@ export async function POST(req: NextRequest) {
       action: "addon.checkout_started",
       table_name: "organizations",
       new_data: { addon: addonKey, quantity, annual: !!body?.annual, user_id: user.id },
+    });
+    await admin.from("audit_logs").insert({
+      org_id: member.org_id,
+      action: "consent.distance_sales",
+      table_name: "organizations",
+      new_data: {
+        version: CONSENT_VERSION,
+        at: consentAt,
+        user_id: user.id,
+        kind: "addon",
+        addon: addonKey,
+        quantity,
+        interval: body?.annual ? "year" : "month",
+        currency: visitorCurrency,
+        checkout_session_id: session.id,
+        distance_sales: true,
+        immediate_start: true,
+        ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+        user_agent: req.headers.get("user-agent")?.slice(0, 300) ?? null,
+      },
     });
   } catch {
     // denetim kaydı ödeme akışını engellemez

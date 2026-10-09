@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
+import { PurchaseConsent, EMPTY_CONSENT, isConsentComplete, type PurchaseConsentValue } from "@/components/legal/PurchaseConsent";
 
 /**
  * Ek paket satın alma (Stripe Checkout). Yalnızca WEB'de render edilir
@@ -35,6 +37,9 @@ export function BuyAddonButtons({
   const [loading, setLoading] = useState<"monthly" | "annual" | null>(null);
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
+  const tConsent = useTranslations("purchaseConsent");
+  const [consent, setConsent] = useState<PurchaseConsentValue>(EMPTY_CONSENT);
+  const [consentWarn, setConsentWarn] = useState(false);
 
   useEffect(() => {
     // returnStatus yalnızca sayfadaki İLK satın alma bileşenine geçirilir (çift toast olmasın).
@@ -45,12 +50,18 @@ export function BuyAddonButtons({
   }, []);
 
   async function buy(annual: boolean) {
+    // Mesafeli satış: iki açık onay işaretlenmeden ödeme sayfası açılmaz.
+    if (!isConsentComplete(consent)) {
+      setConsentWarn(true);
+      toast.error(tConsent("missing"));
+      return;
+    }
     setLoading(annual ? "annual" : "monthly");
     try {
       const res = await fetch("/api/stripe/addon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ addon, annual, quantity: withQuantity ? quantity : 1 }),
+        body: JSON.stringify({ addon, annual, quantity: withQuantity ? quantity : 1, consent }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) {
@@ -81,6 +92,12 @@ export function BuyAddonButtons({
           />
         </label>
       )}
+      <PurchaseConsent
+        idPrefix={`pc-addon-${addon}`}
+        value={consent}
+        highlight={consentWarn && !isConsentComplete(consent)}
+        onChange={(v) => { setConsent(v); if (isConsentComplete(v)) setConsentWarn(false); }}
+      />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <button
           type="button"

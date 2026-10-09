@@ -3,11 +3,12 @@ import type Stripe from "stripe";
 import { getLocale } from "next-intl/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getStripe, PLANS, type PlanKey } from "@/lib/stripe/config";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
 import { activeStaffBlockingPlan, staffBlockingMessage } from "@/lib/stripe/plan-guard";
 import { isBranchOrg } from "@/lib/branches";
+import { CONSENT_VERSION } from "@/lib/legal/seller";
 
 export const dynamic = "force-dynamic";
 
@@ -48,9 +49,28 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { plan, annual } = await req.json() as { plan: PlanKey; annual: boolean };
+  const { plan, annual, consent } = await req.json() as {
+    plan: PlanKey;
+    annual: boolean;
+    consent?: { distanceSales?: boolean; immediateStart?: boolean };
+  };
   const planConfig = PLANS[plan];
   if (!planConfig) return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+
+  // Mesafeli satış: ödeme öncesi iki açık onay zorunludur (sözleşme + ön bilgilendirme
+  // formu okundu/kabul; hizmetin hemen başlaması / cayma hakkı bilgilendirmesi).
+  // UI atlansa bile sunucu tarafında da uygulanır; onay kaydı aşağıda Stripe
+  // metadata'sına ve audit_logs'a yazılır.
+  if (consent?.distanceSales !== true || consent?.immediateStart !== true) {
+    return NextResponse.json(
+      {
+        error: "Ödemeye geçmeden önce Mesafeli Satış Sözleşmesi ve hizmetin hemen başlaması onaylarını işaretlemeniz gerekir. Sayfayı yenileyip tekrar deneyin.",
+        code: "CONSENT_REQUIRED",
+      },
+      { status: 400 }
+    );
+  }
+  const consentAt = new Date().toISOString();
 
   const member = await getActiveMember(supabase);
 
@@ -135,9 +155,10 @@ export async function POST(req: NextRequest) {
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${appUrl}/dashboard?subscription=success&plan=${plan}`,
     cancel_url: `${appUrl}/auth/plan-sec?canceled=1`,
+    metadata: { org_id: member.org_id, plan, consent_version: CONSENT_VERSION, consent_at: consentAt },
     subscription_data: {
       ...(hasAlreadyHadTrial ? {} : { trial_period_days: 14 }),
-      metadata: { org_id: member.org_id, plan },
+      metadata: { org_id: member.org_id, plan, consent_version: CONSENT_VERSION, consent_at: consentAt },
     },
     allow_promotion_codes: true,
     locale: STRIPE_LOCALE[locale] ?? "auto",
@@ -173,6 +194,31 @@ export async function POST(req: NextRequest) {
         `Stripe'ta ${priceId} fiyatına currency_options ekleyin. Hata: ${message}`
     );
     session = await stripe.checkout.sessions.create(params);
+  }
+
+  // Onay kaydı (ispat): sürüm, zaman, IP, tarayıcı, plan. Hata ödemeyi engellemez.
+  try {
+    const admin = await createAdminClient();
+    await admin.from("audit_logs").insert({
+      org_id: member.org_id,
+      action: "consent.distance_sales",
+      table_name: "organizations",
+      new_data: {
+        version: CONSENT_VERSION,
+        at: consentAt,
+        user_id: user.id,
+        plan,
+        interval: annual ? "year" : "month",
+        currency: visitorCurrency,
+        checkout_session_id: session.id,
+        distance_sales: true,
+        immediate_start: true,
+        ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+        user_agent: req.headers.get("user-agent")?.slice(0, 300) ?? null,
+      },
+    });
+  } catch (err) {
+    console.error("[stripe] onay kaydı yazılamadı:", err);
   }
 
   return NextResponse.json({ url: session.url });

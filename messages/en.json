@@ -868,7 +868,7 @@
       "You agree to indemnify the Company against any and all claims and damages — including claims by third parties (including your own customers), administrative fines and legal costs — arising from your use of the platform or the content you upload."
     ],
     "s4Title": "4. Pricing and Subscription",
-    "s4P": "Subscription fees are charged in advance, monthly or annually, according to the selected plan. Annual plans receive an 18% discount. The free trial is provided so that you can evaluate the service before purchasing. You may cancel your subscription at any time; cancellation stops the next renewal and your access continues until the end of the current period. Except where mandatorily required by applicable law, fees for subscription periods that have already begun are non-refundable. Questions: support@bysirius.com.",
+    "s4P": "Subscription fees are charged in advance, monthly or annually, according to the selected plan. Annual plans receive an 18% discount. The free trial is provided so that you can evaluate the service before purchasing. You may cancel your subscription at any time; cancellation stops the next renewal and your access continues until the end of the current period. Except where mandatorily required by applicable law, fees for subscription periods that have already begun are non-refundable. Questions: info@bysirius.com. For distance sales, withdrawal and refunds, the Distance Sales Agreement, the Pre-Contract Information Form and the Refund & Cancellation Policy apply; for consumers, in case of conflict between those documents and this article, the provision more favourable to the consumer applies.",
     "s5Title": "5. Service Interruptions and Limitation of Liability",
     "s5P": "The platform operates with a 99.9% uptime target; however, brief interruptions may occur due to maintenance or technical reasons. BY Sirius Group Ai and Technology Co Ltd. shall not be liable for indirect, incidental, or consequential damages. Our liability is limited to the subscription fee you paid in the relevant month.",
     "s6Title": "6. Intellectual Property",
@@ -1107,6 +1107,16 @@
     "downloadOn": "DOWNLOAD ON THE",
     "comingSoon": "COMING SOON"
   },
+  "legalDocs": {
+    "note": "This is a convenience translation; the Turkish text is authoritative."
+  },
+  "purchaseConsent": {
+    "title": "Confirm before you buy",
+    "distanceLabel": "I have read, understood and accept the <contractLink>Distance Sales Agreement</contractLink>, the <preinfoLink>Pre-Contract Information Form</preinfoLink> and the <refundLink>Refund & Cancellation Policy</refundLink>; I understand that my order creates an obligation to pay.",
+    "immediateLabel": "I request that the service starts immediately after payment. I acknowledge that the service is performed instantly in electronic form and (if I am a consumer) that I will lose my right of withdrawal once performance begins.",
+    "vatNote": "Displayed prices include applicable VAT and other taxes. The seller is established abroad (United Kingdom) and has no tax representative in Türkiye; the Stripe receipt does not replace a Turkish e-invoice (Agreement Article 5).",
+    "missing": "Tick both the agreement consent and the immediate-start consent to continue."
+  },
   "footer": {
     "appDownloadTitle": "Mobile app",
     "tagline": "The smart management platform for the beauty industry",
@@ -1133,7 +1143,10 @@
     "security": "Security",
     "cookieSettings": "Cookie settings",
     "companyReg": "Company registered in England and Wales · Companies House No. 17142392",
-    "ipCopyright": "Intellectual Property & AI Copyright"
+    "ipCopyright": "Intellectual Property & AI Copyright",
+    "distanceSales": "Distance Sales Agreement",
+    "preinfo": "Pre-Contract Information",
+    "refund": "Refunds & Cancellation"
   },
   "home": {
     "breadcrumbLabel": "Home",

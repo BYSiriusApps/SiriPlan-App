@@ -21,6 +21,7 @@ import { TIMEZONE_OPTIONS } from "@/lib/timezones";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_MAX_LENGTH } from "@/lib/tax-number";
 import { useIsMobileApp, useIsIOSNativeApp } from "@/lib/use-mobile-app";
 import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-shared";
+import { PurchaseConsent, EMPTY_CONSENT, isConsentComplete, type PurchaseConsentValue } from "@/components/legal/PurchaseConsent";
 
 function StepHeading({ n, children }: { n: number; children: React.ReactNode }) {
   return (
@@ -182,6 +183,9 @@ export default function KayitPage() {
   // window.location kullanılıyor — plan-sec sayfasındaki aynı desen (Suspense
   // sınırı gerektirmiyor).
   const [purchaseIntent, setPurchaseIntent] = useState<{ plan: PurchasePlanKey; annual: boolean } | null>(null);
+  const tConsent = useTranslations("purchaseConsent");
+  const [purchaseConsent, setPurchaseConsent] = useState<PurchaseConsentValue>(EMPTY_CONSENT);
+  const [purchaseConsentWarn, setPurchaseConsentWarn] = useState(false);
 
   useEffect(() => {
     // Native'de ödeme niyeti yok sayılır (3.1.1) — kayıt normal "ücretsiz deneme" akışına düşer.
@@ -274,6 +278,15 @@ export default function KayitPage() {
     }
     setKvkkError(false);
 
+    // Doğrudan satın alma niyetiyle gelindiyse (ödeme sayfasına yönlenecek):
+    // mesafeli satış onayları hesap açılmadan önce zorunludur.
+    if (purchaseIntent && !isConsentComplete(purchaseConsent)) {
+      setPurchaseConsentWarn(true);
+      toast.error(tConsent("missing"));
+      document.getElementById("pc-kayit-box")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -337,7 +350,7 @@ export default function KayitPage() {
           const checkoutRes = await fetch("/api/stripe/checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ plan: purchaseIntent.plan, annual: purchaseIntent.annual }),
+            body: JSON.stringify({ plan: purchaseIntent.plan, annual: purchaseIntent.annual, consent: purchaseConsent }),
           });
           const checkoutData = await checkoutRes.json();
           if (checkoutRes.ok && checkoutData.url) {
@@ -671,6 +684,15 @@ export default function KayitPage() {
               </p>
             )}
           </div>
+
+          {purchaseIntent && !isNativeApp && (
+            <PurchaseConsent
+              idPrefix="pc-kayit"
+              value={purchaseConsent}
+              highlight={purchaseConsentWarn && !isConsentComplete(purchaseConsent)}
+              onChange={(v) => { setPurchaseConsent(v); if (isConsentComplete(v)) setPurchaseConsentWarn(false); }}
+            />
+          )}
 
           <Button type="submit" className="indir-shine relative h-12 w-full overflow-hidden text-base font-bold shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}

@@ -717,3 +717,15 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
 - **TAMAMLANDI — SMS paketi müşteri kaydı (güvenlik incelemesi, 9 Eki):** `api/stripe/sms-pack/route.ts` içinde
   `stripe_customer_id` yazımı artık admin client ile yapılıyor (yetki kontrolü owner/manager önceden var). Satın alma
   mobilde zaten kapalı (buton `!mobileApp` + API `isMobileApp()` 403).
+
+## 15. Mesafeli satış paketi (10 Eki 2026) — kodda HAZIR, hukuki/idari teyit BEKLİYOR
+
+**Eklenenler:** `/mesafeli-satis-sozlesmesi`, `/on-bilgilendirme-formu`, `/iade-iptal-politikasi` (TR esas, EN çeviri; RU/AR İngilizce + "Türkçe esastır" notu; metinler `src/lib/legal/distance-sales.ts`, satıcı bilgileri `src/lib/legal/seller.ts`). Footer + sitemap + llms.txt bağlantıları. Ödeme öncesi İKİ zorunlu onay kutusu (`PurchaseConsent`): (1) sözleşme+ön bilgilendirme+iade politikası, (2) hizmetin hemen başlaması / cayma hakkı kaybı. Uygulandığı yerler: `/auth/plan-sec`, `/auth/kayit` (satın alma niyetli), SMS paketi, ek paketler. Sunucu da zorunlu tutar (`CONSENT_REQUIRED` 400) ve onayı Stripe metadata (`consent_version`, `consent_at`) + `audit_logs` (`consent.distance_sales`: sürüm, zaman, IP, tarayıcı, plan, session id) olarak kaydeder. Migration gerekmez. Kullanım Koşulları madde 4'e yeni belgelere atıf eklendi. `CONSENT_VERSION` metin değişince artırılmalı.
+
+**Yurt dışı satıcı + KDV (madde 5) — kullanıcı teyidi 10 Eki:** fiyatlar KDV DAHİL (Stripe price'ta tax behavior = inclusive), Türkiye'de vergi temsilcisi YOK; metin buna göre ("vergi dahil, ek vergi tahsil edilmez; Stripe makbuzu Türkiye e-faturasının yerine geçmez; alıcının kendi ülkesindeki ek yükümlülükleri alıcıya ait"). Kayıtlı adres bysirius.com/iletisim'den alındı (71-75 Shelton Street, Covent Garden, London WC2H 9JQ); İstanbul (Kağıthane) irtibat ofisi yalnızca ilçe olarak belirtildi. Stripe Dashboard support e-postası info@ yapıldı (kullanıcı).
+
+**Açık:**
+- Stripe Tax: price'larda "inclusive" seçili ama Türkiye'de vergi kaydı/temsilci olmadığı için fiilen KDV'nin kime ödendiği muhasebeci tarafından netleştirilmeli (metin bunu iddia etmiyor, yalnızca "vergi dahil" diyor).
+- Mevcut aktif abone yok (kullanıcı teyidi: yalnızca kendi test/demo hesapları) — geriye dönük onay gerekmez. Plan yükseltmede (`change-plan`) yeni onay kutusu YOK (ilk satın almada alınan onay geçerli kabul edildi).
+- Tüketici hakem heyeti/mahkeme parasal sınırları metne yazılmadı (her yıl değişir); cayma bildirimi muhatabı info@.
+- Avukat incelemesi ileride yapılacak: cayma istisnası (anında ifa) ifadesi, sorumluluk sınırı, tüketici/ticari ayrımı, UK Ltd ile Türk tüketicisine satış yapısı.
