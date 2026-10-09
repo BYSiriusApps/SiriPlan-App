@@ -64,7 +64,9 @@ export async function GET(req: NextRequest) {
       subscription_details: {
         items: [{ id: currentItem.id, price: targetPriceId }],
         proration_behavior: "always_invoice",
-        ...(isUpgrade ? { billing_cycle_anchor: "now" as const } : {}),
+        // Stripe denemesindeki (trialing) abonelikte anchor "now" HATA verir
+        // (trial_end anchor'dan sonra olamaz); deneme sürerken plan değişir, ücret deneme sonunda.
+        ...(isUpgrade && sub.status !== "trialing" ? { billing_cycle_anchor: "now" as const } : {}),
       },
     });
 
