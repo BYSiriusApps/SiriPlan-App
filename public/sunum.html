@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex, follow" />
 <title>SiriPlan — Müşteri Sunumu</title>
+<meta name="description" content="SiriPlan: salonlar için randevu ve işletme yönetimi. 14 gün ücretsiz deneyin." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="SiriPlan — Müşteri Sunumu" />
+<meta property="og:description" content="Randevu, müşteri, personel, stok ve kasa tek panelde. 14 gün ücretsiz." />
+<meta property="og:url" content="https://siriplan.com/sunum.html" />
+<meta property="og:image" content="https://siriplan.com/og-image.png" />
 <style>
   @page { size: 1280px 720px; margin: 0; }
   :root{
@@ -84,14 +90,52 @@
   .brand span b{color:oklch(0.52 0.16 345);}
   .brand.sm{gap:12px;} .brand.sm img{width:44px;height:44px;border-radius:12px;box-shadow:0 6px 14px -8px rgba(30,40,90,.5);} .brand.sm span{font-size:28px;}
   .phone video{width:100%;height:100%;object-fit:cover;object-position:top;display:block;background:#fff;}
+  .ph{position:absolute;border-radius:28px;overflow:hidden;box-shadow:0 30px 60px -18px rgba(60,20,90,.45);border:6px solid #fff;} .ph img{width:100%;height:100%;object-fit:cover;display:block;}
+  .ph .cap{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 12px;background:linear-gradient(transparent,rgba(27,21,48,.78));color:#fff;font-weight:800;font-size:15px;line-height:1.25;text-align:center;}
   .flags{display:flex;gap:8px;flex-wrap:wrap;} .flags span{font-size:13px;font-weight:800;padding:7px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);}
+
+  /* —— saf CSS döngüler (JS/video yok: iOS düşük güç modunda da çalışır) —— */
+  .phone .shot{position:absolute;inset:0;opacity:0;animation:shotcyc 18s infinite;animation-delay:calc(var(--i)*3s);}
+  .phone .shot:first-child{opacity:1;}
+  @keyframes shotcyc{0%{opacity:0}4%{opacity:1}16.7%{opacity:1}20.7%{opacity:0}100%{opacity:0}}
+  .flow{position:absolute;left:10px;right:10px;bottom:14px;height:86px;}
+  .flow .st{position:absolute;inset:0;opacity:0;border-radius:16px;padding:11px 13px;background:#fff;border:1px solid var(--line);box-shadow:0 12px 26px -8px rgba(30,20,60,.55);animation:flowcyc 9s infinite;}
+  .flow .st:nth-child(2){animation-delay:3s;} .flow .st:nth-child(3){animation-delay:6s;}
+  @keyframes flowcyc{0%{opacity:0;transform:translateY(14px)}6%,30%{opacity:1;transform:none}36%,100%{opacity:0;transform:translateY(-6px)}}
+  .flow .tt{font-weight:800;font-size:14px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:6px;}
+  .flow .sub{font-size:12px;line-height:1.35;color:var(--muted);margin-top:4px;}
+  .flow .bd{font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .bd.w{background:#FFF1D6;color:#9a5b00;} .bd.o{background:#D9F3E3;color:#0b6b3a;} .bd.d{background:rgba(124,58,237,.14);color:#5b21b6;}
+  a.pill{text-decoration:none;color:inherit;cursor:pointer;} a.pill:hover{border-color:var(--p);}
+  @media (prefers-reduced-motion:reduce){.phone .shot,.flow .st{animation:none;} .flow .st:first-child{opacity:1;}}
+  /* —— mobil / dar ekran: slaytlar alt alta, kayan okunabilir sayfalar —— */
+  @media (max-width:820px){
+    html,body{background:#ddd;}
+    .slide{width:100%;height:auto;padding:36px 20px 28px;justify-content:flex-start;margin:0 0 8px;}
+    h1{font-size:34px;} h2{font-size:27px;margin-bottom:16px;} .eyebrow{font-size:12px;margin-bottom:10px;}
+    .lead{font-size:17px;max-width:none !important;}
+    .hook{font-size:15px;align-self:stretch !important;margin-top:20px;}
+    .pill{font-size:14px;padding:8px 14px;} .hap span{font-size:15px;padding:9px 14px;} .hap{max-width:none !important;}
+    ul.ck li{font-size:17px;}
+    .row{flex-direction:column;gap:26px;height:auto;align-items:stretch;}
+    .covrow{flex-direction:column !important;gap:28px !important;}
+    .covrow .brand{flex-direction:row !important;gap:16px !important;} .covrow .brand img{width:96px !important;height:96px !important;border-radius:24px !important;} .covrow .brand span{font-size:38px !important;}
+    .phone{width:240px;height:520px;margin:0 auto;}
+    .mock{width:100%;max-width:340px;margin:0 auto;}
+    .grid{gap:14px;} .g2,.g3,.g4{grid-template-columns:1fr;}
+    .ph{position:relative !important;left:auto !important;right:auto !important;top:auto !important;width:100% !important;height:240px !important;margin:0 0 20px;}
+    .foot{position:static;margin-top:22px;font-size:12px;}
+    .cta{font-size:19px;padding:14px 28px;} .stores .store{flex:1 1 200px;justify-content:center;}
+    .plan .price{font-size:34px;}
+  }
+  @media print{.slide{zoom:1 !important;margin:0 !important;}}
 </style>
 </head>
 <body>
 
 <!-- 1 Kapak -->
 <section class="slide cover">
-  <div style="display:flex;align-items:center;gap:56px;">
+  <div class="covrow" style="display:flex;align-items:center;gap:56px;">
     <div style="flex:1;">
       <div class="eyebrow">Salonlar için randevu &amp; işletme yönetimi</div>
       <h1>İşletmenizi <span class="grad">akıllıca</span> yönetin</h1>
@@ -122,8 +166,9 @@
 <section class="slide">
   <div class="eyebrow">SiriPlan · her şey tek yerde</div>
   <h2>Randevu bazlı çalışan <span class="grad">her işletme</span> için</h2>
-  <p class="lead" style="margin-bottom:20px;">Kuaför, berber, güzellik merkezi, spa, nail salon, estetik klinik, makyaj &amp; dövme stüdyosu, diyetisyen, kaş &amp; kirpik…</p>
-  <div class="hap">
+  <div class="ph" style="right:70px;top:84px;width:290px;height:470px;"><img src="sectors/kuafor.jpg" alt="" /><div class="cap">Müşteriniz gülümsesin,<br>siz işinize odaklanın</div></div>
+  <p class="lead" style="margin-bottom:20px;max-width:780px;">Kuaför, berber, güzellik merkezi, spa, nail salon, estetik klinik, makyaj &amp; dövme stüdyosu, diyetisyen, kaş &amp; kirpik…</p>
+  <div class="hap" style="max-width:780px;">
     <span class="hot">📅 7/24 online randevu</span>
     <span class="hot">💬 Otomatik WhatsApp</span>
     <span class="hot">📲 SMS kontörü</span>
@@ -145,9 +190,9 @@
 <!-- 4 Canlı panel -->
 <section class="slide">
   <div class="row">
-    <div class="phone"><video src="sunum/n-genel-bakis.mp4" poster="sunum/n-genel-bakis-poster.png" autoplay muted loop playsinline></video></div>
+    <div class="phone"><img class="shot" style="--i:0" src="sunum/n-01-anasayfa.png" alt="" /><img class="shot" style="--i:1" src="sunum/n-02-takvim.png" alt="" /><img class="shot" style="--i:2" src="sunum/n-04-musteriler.png" alt="" /><img class="shot" style="--i:3" src="sunum/n-07-stok.png" alt="" /><img class="shot" style="--i:4" src="sunum/n-11-gelirgider.png" alt="" /><img class="shot" style="--i:5" src="sunum/n-12-raporlar.png" alt="" /></div>
     <div class="col">
-      <div class="eyebrow">Genel bakış · canlı demo kaydı</div>
+      <div class="eyebrow">Genel bakış · canlı demo ekranları</div>
       <h2>Salonunuz <span class="grad">tek bakışta</span></h2>
       <ul class="ck">
         <li><b>Özet şeridi:</b> Bugün / Bu Hafta / Bu Ay seçimiyle gelir, gider, net kazanç, randevu, müşteri ve stok bir bakışta</li>
@@ -190,7 +235,12 @@
 <!-- 6 Takvim -->
 <section class="slide">
   <div class="row">
-    <div class="phone"><img src="sunum/n-02-takvim.png" alt="" /></div>
+    <div class="phone"><img src="sunum/n-02-takvim.png" alt="" />
+      <div class="flow" aria-hidden="true">
+        <div class="st"><div class="tt"><span>➕ Randevu oluşturuldu</span><span class="bd w">Bekliyor</span></div><div class="sub">Ayşe Y. · Saç Boyama · Cuma 14:30</div></div>
+        <div class="st"><div class="tt"><span>✅ Onaylandı</span><span class="bd o">Onaylı</span></div><div class="sub">Müşteriye WhatsApp onayı kendiliğinden gitti</div></div>
+        <div class="st"><div class="tt"><span>🏁 Tamamlandı</span><span class="bd d">Kasada</span></div><div class="sub">Tutar gelire işlendi, seans/stok düştü</div></div>
+      </div></div>
     <div class="col">
       <div class="eyebrow">Takvim &amp; personel</div>
       <h2>Tüm ekip <span class="grad">tek ekranda</span></h2>
@@ -199,6 +249,7 @@
         <li>Her personel kendi renginde; <b>15, 30 veya 60 dk</b> randevu dilimi (yeni hesaplarda 30 dk)</li>
         <li>Tek dokunuşla randevu, <b>çakışma kontrolü</b>; kompakt tablo ve personel grup filtresi</li>
         <li>Rol ve yetkiler: herkes yalnızca yetkisi kadarını görür</li>
+        <li><b>Oluşturuldu → Onaylandı → Tamamlandı:</b> her adım müşteriye ve kasaya kendiliğinden yansır</li>
       </ul>
     </div>
   </div>
@@ -468,6 +519,8 @@
 
 <!-- 20 Başlayın -->
 <section class="slide cover" style="align-items:center;text-align:center;">
+  <div class="ph" style="left:56px;top:150px;width:220px;height:330px;"><img src="sectors/berber.jpg" alt="" /><div class="cap">Dolu randevu defteri</div></div>
+  <div class="ph" style="right:56px;top:150px;width:220px;height:330px;"><img src="sectors/spa.jpg" alt="" /><div class="cap">Huzurlu müşteriler</div></div>
   <div class="brand sm" style="margin-bottom:18px;"><img src="icons/icon-mark-square.png" alt="SiriPlan" /><span>Siri<em>(us)</em><b>Plan</b></span></div>
   <div class="eyebrow">Hemen başlayın</div>
   <h1>14 gün <span class="grad">ücretsiz deneyin</span></h1>
@@ -475,7 +528,7 @@
   <a class="cta" href="https://siriplan.com" target="_blank" rel="noopener">siriplan.com</a>
   <div class="stores" style="justify-content:center;"><a class="store" href="https://apps.apple.com/app/siriusplan/id6815322807" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="26" height="26" fill="#fff" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.97-3.46-1.07-1.57-2.74-1.78-3.34-1.8-1.42-.14-2.77.84-3.49.84-.72 0-1.83-.82-3.01-.8-1.55.02-2.98.9-3.78 2.29-1.61 2.8-.41 6.94 1.16 9.21.77 1.11 1.68 2.36 2.88 2.31 1.16-.05 1.6-.75 3-.75 1.4 0 1.8.75 3.02.73 1.25-.02 2.04-1.13 2.8-2.25.88-1.29 1.24-2.54 1.26-2.6-.03-.01-2.42-.93-2.45-3.72zM14.1 5.8c.64-.78 1.07-1.85.95-2.93-.92.04-2.04.61-2.7 1.39-.59.69-1.11 1.79-.97 2.84 1.03.08 2.07-.52 2.72-1.3z"/></svg><span><small>App Store'dan indirin</small><b>SiriusPlan</b></span></a><a class="store" href="https://play.google.com/store/apps/details?id=com.siriplan.app" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#00D4FF" d="M3.6 2.3c-.3.3-.4.8-.4 1.3v16.8c0 .5.1 1 .4 1.3l.1.1 9.4-9.4v-.2L3.7 2.2z"/><path fill="#FFCE00" d="M16.2 15.3l-3.1-3.1v-.2l3.1-3.1.1.1 3.7 2.1c1 .6 1 1.6 0 2.2l-3.7 2.1z"/><path fill="#FF3A44" d="M16.3 15.2L13.1 12 3.6 21.5c.4.4.9.4 1.6.1l11.1-6.4"/><path fill="#00F076" d="M16.3 8.8L5.2 2.4c-.7-.4-1.2-.3-1.6.1L13.1 12z"/></svg><span><small>Google Play'den indirin</small><b>SiriPlan</b></span></a></div>
   <div class="pillrow" style="justify-content:center;margin-top:26px;">
-    <span class="pill">📧 info@bysirius.com</span><span class="pill">💬 WhatsApp +90 535 503 26 34</span>
+    <a class="pill" href="mailto:info@bysirius.com?subject=SiriPlan%20hakk%C4%B1nda%20bilgi">📧 info@bysirius.com</a><a class="pill" href="https://wa.me/905355032634?text=Merhaba%2C%20SiriPlan%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener">💬 WhatsApp +90 535 503 26 34</a>
   </div>
   <div class="foot"><span><a href="https://siriplan.com" target="_blank" rel="noopener">siriplan.com</a></span><span>SiriPlan · BySirius</span></div>
 </section>
@@ -483,9 +536,15 @@
 <script>
 (function(){
   function fit(){
-    var z=Math.min(1,window.innerWidth/1280);
+    var w=window.innerWidth,h=window.innerHeight;
+    var mobile=w<=820;
+    var z=mobile?1:Math.max(.25,Math.min(1,w/1280,h/720));
     var slides=document.querySelectorAll('.slide');
-    for(var i=0;i<slides.length;i++){slides[i].style.zoom=z;slides[i].style.marginBottom=z<1?'8px':'0';}
+    for(var i=0;i<slides.length;i++){
+      var s=slides[i];
+      s.style.zoom=z;
+      s.style.margin=mobile?'':(z<1?'0 auto 8px':'0 auto');
+    }
   }
   fit();window.addEventListener('resize',fit);
 })();
