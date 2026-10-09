@@ -11,16 +11,19 @@ export interface CampaignRecipient {
   full_name: string;
   phone: string;
   last_visit_at: string | null;
+  preferred_language?: string | null;
 }
 
 export async function resolveCampaignRecipients(
   supabase: SupabaseClient,
   orgId: string,
-  segmentJson: Record<string, unknown> | null | undefined
+  segmentJson: Record<string, unknown> | null | undefined,
+  /** Döndürülecek en fazla alıcı; varsayılan 500 (önizleme/liste davranışı değişmez). */
+  max = 500
 ): Promise<CampaignRecipient[]> {
   let query = supabase
     .from("customers")
-    .select("id, full_name, phone, last_visit_at")
+    .select("id, full_name, phone, last_visit_at, preferred_language")
     .eq("org_id", orgId);
 
   const seg = (segmentJson ?? {}) as Record<string, unknown>;
@@ -52,7 +55,7 @@ export async function resolveCampaignRecipients(
   // KVKK: yalnızca kampanya bildirimi onayı olan müşterilere gönderilir
   query = query.eq("marketing_consent", true);
 
-  const { data } = await query.limit(500);
+  const { data } = await query.limit(max);
   return (data ?? []) as CampaignRecipient[];
 }
 

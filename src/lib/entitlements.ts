@@ -131,6 +131,19 @@ export function campaignRecipientLimit(org: EntitlementOrg | null | undefined): 
     : CAMPAIGN_RECIPIENT_LIMITS.default;
 }
 
+/**
+ * SiriPlan'ın AYRI kampanya numarasından (WHATSAPP_CAMPAIGN_*) gönderilen
+ * pazarlama şablon mesajı için aylık işletme kotası. Meta ücreti SiriPlan'a
+ * ait olduğundan sınırsız bırakılmaz; kendi hesabından gönderen akış etkilenmez.
+ */
+export const CAMPAIGN_WA_MONTHLY_LIMITS = { starter: 500, default: 3000 } as const;
+
+export function monthlyCampaignWaLimit(org: EntitlementOrg | null | undefined): number {
+  return paidPlan(org) === "starter"
+    ? CAMPAIGN_WA_MONTHLY_LIMITS.starter
+    : CAMPAIGN_WA_MONTHLY_LIMITS.default;
+}
+
 /** Tek kullanıcılı plan mı? (Mini: ek personel/kullanıcı daveti yok.) */
 export function isSingleUserPlan(org: EntitlementOrg | null | undefined): boolean {
   return paidPlan(org) === "mini";

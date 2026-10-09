@@ -101,6 +101,30 @@ export async function recordMarketingOptOut(
   return { ok: true, affected: customerIds.length };
 }
 
+/**
+ * Ortak kampanya numarasına gelen RET: mesajı hangi salonun gönderdiği
+ * bilinmediğinden (tüm salonlar aynı numarayı kullanır) telefonun TÜM
+ * salonlardaki pazarlama onayı geri çekilir. Yalnızca pazarlamayı kısıtlar;
+ * işlemsel bildirimlere dokunmaz.
+ */
+export async function recordMarketingOptOutAllOrgs(
+  supabase: SupabaseClient,
+  params: { phone: string; messageSnapshot?: string }
+): Promise<{ orgs: number }> {
+  if (!params.phone) return { orgs: 0 };
+  const { data } = await supabase.from("customers").select("org_id").eq("phone", params.phone);
+  const orgIds = [...new Set((data ?? []).map((r: { org_id: string }) => r.org_id))];
+  for (const orgId of orgIds) {
+    await recordMarketingOptOut(supabase, {
+      orgId,
+      phone: params.phone,
+      source: "whatsapp_reply",
+      messageSnapshot: params.messageSnapshot,
+    });
+  }
+  return { orgs: orgIds.length };
+}
+
 /** Ticari iletinin (kampanya / doğum günü) altına eklenecek zorunlu ret satırı. */
 export function optOutFooter(channel: "whatsapp" | "sms" | "email", locale?: string | null): string {
   const l = (locale ?? "tr").slice(0, 2);
