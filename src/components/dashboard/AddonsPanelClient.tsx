@@ -24,7 +24,7 @@ export function BuyAddonButtons({
 }: {
   addon: "ai_assistant" | "extra_branch";
   monthlyLabel: string;
-  annualLabel: string;
+  annualLabel?: string;
   quantityLabel?: string;
   errorText: string;
   successText: string;
@@ -91,15 +91,17 @@ export function BuyAddonButtons({
           {loading === "monthly" && <Loader2 className="h-4 w-4 animate-spin" />}
           {monthlyLabel}
         </button>
-        <button
-          type="button"
-          onClick={() => buy(true)}
-          disabled={loading !== null}
-          className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-sm font-semibold hover:bg-accent transition-colors disabled:opacity-60"
-        >
-          {loading === "annual" && <Loader2 className="h-4 w-4 animate-spin" />}
-          {annualLabel}
-        </button>
+        {annualLabel && (
+          <button
+            type="button"
+            onClick={() => buy(true)}
+            disabled={loading !== null}
+            className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-sm font-semibold hover:bg-accent transition-colors disabled:opacity-60"
+          >
+            {loading === "annual" && <Loader2 className="h-4 w-4 animate-spin" />}
+            {annualLabel}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { Bot, Building2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getOrgAddons } from "@/lib/stripe/addons";
+import { ADDONS, getOrgAddons } from "@/lib/stripe/addons";
 import { getBranchInfo } from "@/lib/branches";
 import { ADDON_PRICING_BY_CURRENCY, formatPrice, getPricingCurrencyFromHeaders } from "@/lib/pricing";
 import { AddBranchForm, BuyAddonButtons } from "@/components/dashboard/AddonsPanelClient";
@@ -67,7 +67,8 @@ export async function AddonsPanel({
   const prices = ADDON_PRICING_BY_CURRENCY[currency];
   const buyLabels = (key: "ai_assistant" | "extra_branch") => ({
     monthlyLabel: t("addonBuyMonthly", { price: formatPrice(prices[key].monthly, currency) }),
-    annualLabel: t("addonBuyAnnual", { price: formatPrice(prices[key].annual, currency) }),
+    // Yıllık Price tanımlı değilse yıllık buton gösterilmez (şu an yalnızca aylık satılır).
+    annualLabel: ADDONS[key].annual ? t("addonBuyAnnual", { price: formatPrice(prices[key].monthly * 12, currency) }) : undefined,
     errorText: t("addonError"),
     successText: t("addonSuccess"),
     canceledText: t("addonCanceled"),

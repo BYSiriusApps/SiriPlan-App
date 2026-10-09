@@ -33,18 +33,18 @@ export const PRICING_BY_CURRENCY: Record<PricingCurrency, Record<PlanKey, PlanPr
  * Stripe Price'larındaki currency_options ile BİREBİR aynı olmalı.
  */
 export type AddonPriceKey = "extra_branch" | "ai_assistant";
-export const ADDON_PRICING_BY_CURRENCY: Record<PricingCurrency, Record<AddonPriceKey, PlanPricing>> = {
+export const ADDON_PRICING_BY_CURRENCY: Record<PricingCurrency, Record<AddonPriceKey, { monthly: number }>> = {
   TRY: {
-    extra_branch: { monthly: 799, annual: 7862 },
-    ai_assistant: { monthly: 999, annual: 9830 },
+    extra_branch: { monthly: 1000 },
+    ai_assistant: { monthly: 2500 },
   },
   USD: {
-    extra_branch: { monthly: 19, annual: 187 },
-    ai_assistant: { monthly: 24, annual: 236 },
+    extra_branch: { monthly: 24 },
+    ai_assistant: { monthly: 49 },
   },
   EUR: {
-    extra_branch: { monthly: 17, annual: 167 },
-    ai_assistant: { monthly: 21, annual: 207 },
+    extra_branch: { monthly: 20 },
+    ai_assistant: { monthly: 45 },
   },
 };
 

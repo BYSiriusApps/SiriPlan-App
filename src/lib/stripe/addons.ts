@@ -14,14 +14,14 @@ import { createAdminClient } from "@/lib/supabase/server";
 export const ADDONS = {
   ai_assistant: {
     name: "AI Asistan (WhatsApp + Instagram)",
-    monthly: process.env.STRIPE_PRICE_AI_MONTHLY || "",
+    monthly: process.env.STRIPE_PRICE_AIASSISTANT || process.env.STRIPE_PRICE_AI_MONTHLY || "",
     annual: process.env.STRIPE_PRICE_AI_ANNUAL || "",
     /** Business planı AI'yı zaten içerir; Mini tek kişilik/kısıtlı plandır. */
     eligiblePlans: ["starter", "pro"],
   },
   extra_branch: {
     name: "Ek Şube",
-    monthly: process.env.STRIPE_PRICE_BRANCH_MONTHLY || "",
+    monthly: process.env.STRIPE_PRICE_BRANCH || process.env.STRIPE_PRICE_BRANCH_MONTHLY || "",
     annual: process.env.STRIPE_PRICE_BRANCH_ANNUAL || "",
     eligiblePlans: ["starter", "pro", "business"],
   },
