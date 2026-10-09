@@ -123,7 +123,10 @@ export function monthlyCampaignLimit(org: EntitlementOrg | null | undefined): nu
  * sunucu süre sınırına takılması engellenir. Sınırı aşan segment gönderilmez;
  * işletme segmenti daraltıp birkaç kampanyaya böler.
  */
-export const CAMPAIGN_RECIPIENT_LIMITS = { starter: 500, default: 2000 } as const;
+// Gönderim tek istekte SIRALI yapıldığı için (bkz. campaign-send.ts) tavan, mevcut sessiz
+// kırpma sınırıyla (500) aynı tutulur: daha yüksek bir sınır sunucu süre sınırına takılıp
+// gönderimi yarıda bırakabilir. Artırmak için önce gönderimin kuyruğa/parçalara alınması gerekir.
+export const CAMPAIGN_RECIPIENT_LIMITS = { starter: 500, default: 500 } as const;
 
 export function campaignRecipientLimit(org: EntitlementOrg | null | undefined): number {
   return paidPlan(org) === "starter"
