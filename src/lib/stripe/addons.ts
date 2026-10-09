@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/server";
+import { getStripe } from "@/lib/stripe/config";
 
 /**
  * Ek paketler (plan aboneliğinden AYRI Stripe aboneliği olarak satılır).
@@ -129,6 +130,46 @@ export async function syncAddonSubscription(orgId: string, sub: Stripe.Subscript
   if (error) throw new Error(`org_addons yazılamadı: ${error.message}`);
 
   if (info.addon === "ai_assistant") await recomputeFeatureAi(orgId);
+}
+
+/**
+ * Plan iptal/iptal-geri-al ile birlikte ek paket aboneliklerini de aynı yöne çeker
+ * (`cancel_at_period_end`): plan bitince paketler faturalanmaya devam etmesin.
+ * En iyi çaba — plan iptalini ASLA engellemez/başarısız kılmaz.
+ */
+export async function setAddonsCancelAtPeriodEnd(orgId: string, cancel: boolean): Promise<void> {
+  try {
+    const a = await getOrgAddons(orgId);
+    const stripe = getStripe();
+    for (const id of [a.ai_subscription_id, a.branch_subscription_id]) {
+      if (!id) continue;
+      try {
+        await stripe.subscriptions.update(id, { cancel_at_period_end: cancel });
+      } catch (err) {
+        console.error("[addons] paket aboneliği güncellenemedi:", id, err instanceof Error ? err.message : err);
+      }
+    }
+  } catch {
+    // paket bilgisi okunamadı → plan akışı etkilenmesin
+  }
+}
+
+/** Hesap silinirken ek paket aboneliklerini hemen iptal eder (en iyi çaba). */
+export async function cancelAddonsNow(orgId: string): Promise<void> {
+  try {
+    const a = await getOrgAddons(orgId);
+    const stripe = getStripe();
+    for (const id of [a.ai_subscription_id, a.branch_subscription_id]) {
+      if (!id) continue;
+      try {
+        await stripe.subscriptions.cancel(id);
+      } catch {
+        // zaten iptal edilmiş olabilir
+      }
+    }
+  } catch {
+    // yoksay
+  }
 }
 
 /**

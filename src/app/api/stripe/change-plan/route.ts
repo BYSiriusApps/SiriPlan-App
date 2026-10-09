@@ -101,7 +101,8 @@ export async function POST(req: NextRequest) {
     updated = await stripe.subscriptions.update(org.stripe_subscription_id, {
       items: [{ id: currentItem.id, price: targetPriceId }],
       proration_behavior: "always_invoice",
-      ...(isUpgrade ? { billing_cycle_anchor: "now" as const } : {}),
+      // Stripe denemesindeki (trialing) abonelikte anchor "now" HATA verir; önizlemeyle (change-plan/preview) aynı kural.
+      ...(isUpgrade && sub.status !== "trialing" ? { billing_cycle_anchor: "now" as const } : {}),
       payment_behavior: "error_if_incomplete",
       // Kullanıcı planını yükseltiyorsa aboneliğe devam etmek istediği açıktır —
       // daha önce "dönem sonunda iptal" işaretlenmişse burada geri alınır.

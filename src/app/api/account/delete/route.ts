@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { getStripe } from "@/lib/stripe/config";
+import { cancelAddonsNow } from "@/lib/stripe/addons";
 
 // Onay metni kullanıcının panel diline göre değişebilir — dört dilin tümü kabul edilir.
 const CONFIRM_PHRASES = ["HESABIMI SİL", "DELETE MY ACCOUNT", "УДАЛИТЬ АККАУНТ", "حذف حسابي"];
@@ -49,6 +50,9 @@ export async function POST(req: NextRequest) {
       // abonelik zaten iptal edilmiş/bulunamıyor olabilir — yoksay
     }
   }
+
+  // Ek paket abonelikleri (AI Asistan / Ek Şube) de hemen iptal edilir (en iyi çaba).
+  await cancelAddonsNow(orgId);
 
   // Müşteri kayıtlarındaki kişisel tanımlayıcıları anonimleştir (kayıtlar silinmiyor)
   await admin
