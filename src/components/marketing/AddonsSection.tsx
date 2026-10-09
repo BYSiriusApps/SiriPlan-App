@@ -126,8 +126,11 @@ export function AddonsSection() {
               style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
             />
             <div className="space-y-1.5">
-              <Label>{t("addons.request.nameLabel")}</Label>
+              <Label htmlFor="addon-name">{t("addons.request.nameLabel")}</Label>
               <Input
+                id="addon-name"
+                name="name"
+                autoComplete="name"
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 required
@@ -135,9 +138,13 @@ export function AddonsSection() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>{t("addons.request.emailLabel")}</Label>
+              <Label htmlFor="addon-email">{t("addons.request.emailLabel")}</Label>
               <Input
+                id="addon-email"
+                name="email"
                 type="email"
+                inputMode="email"
+                autoComplete="email"
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 required
@@ -145,23 +152,30 @@ export function AddonsSection() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>
+              <Label htmlFor="addon-phone">
                 {t("addons.request.phoneLabel")}{" "}
                 <span className="text-xs font-normal text-muted-foreground">{t("addons.request.optional")}</span>
               </Label>
               <Input
+                id="addon-phone"
+                name="tel"
                 type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 value={form.phone}
                 onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                 maxLength={30}
               />
             </div>
             <div className="space-y-1.5">
-              <Label>
+              <Label htmlFor="addon-message">
                 {t("addons.request.messageLabel")}{" "}
                 <span className="text-xs font-normal text-muted-foreground">{t("addons.request.optional")}</span>
               </Label>
               <Textarea
+                id="addon-message"
+                name="message"
+                autoComplete="off"
                 value={form.message}
                 onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
                 maxLength={500}

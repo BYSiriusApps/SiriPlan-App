@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
 import { activeStaffBlockingPlan, staffBlockingMessage } from "@/lib/stripe/plan-guard";
+import { isBranchOrg } from "@/lib/branches";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +77,15 @@ export async function POST(req: NextRequest) {
         error: "Zaten aktif bir aboneliğiniz var. Plan değiştirmek için abonelik sayfasını kullanın.",
         code: "ALREADY_SUBSCRIBED",
       },
+      { status: 409 }
+    );
+  }
+
+  // Şube (Ek Şube paketi) ana işletmenin aboneliğine bağlıdır; kendi aboneliğini
+  // açıp ikinci kez ücretlendirilmesin.
+  if (await isBranchOrg(member.org_id)) {
+    return NextResponse.json(
+      { error: "Bu şube ana işletmenin aboneliğine bağlı. Plan işlemleri ana işletmeden yapılır.", code: "BRANCH_ORG" },
       { status: 409 }
     );
   }

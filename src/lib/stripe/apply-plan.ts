@@ -1,5 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { PLANS, type PlanKey } from "./config";
+import { getOrgAddons } from "./addons";
+import { syncBranchesFromParent } from "@/lib/branches";
 
 /** Webhook ve change-plan endpoint'i arasında paylaşılan tek plan-uygulama mantığı — ikisi ayrı kopya tutarsa zamanla birbirinden sapar. */
 export async function applyPlanToOrg(orgId: string, plan: PlanKey | "trial", subscriptionStatus?: string) {
@@ -12,13 +14,19 @@ export async function applyPlanToOrg(orgId: string, plan: PlanKey | "trial", sub
     return;
   }
   const planConfig = PLANS[plan];
+  // AI Asistan ek paketi (org_addons) plan değişiminde silinmesin: plan AI içermese
+  // bile paket açıksa feature_ai true kalır. Ek paket yoksa sonuç eskisiyle aynı.
+  const { ai_assistant: aiAddon } = await getOrgAddons(orgId);
   await supabase.from("organizations").update({
     plan,
     subscription_status: subscriptionStatus ?? "active",
     max_staff: planConfig.max_staff,
     max_appointments_monthly: planConfig.max_appointments_monthly,
     ...planConfig.features,
+    feature_ai: planConfig.features.feature_ai || aiAddon,
   }).eq("id", orgId);
+  // Şubeler (Ek Şube paketi) ana işletmenin planını miras alır. Şube yoksa no-op, asla fırlatmaz.
+  await syncBranchesFromParent(orgId);
 }
 
 /**

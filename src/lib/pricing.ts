@@ -28,6 +28,26 @@ export const PRICING_BY_CURRENCY: Record<PricingCurrency, Record<PlanKey, PlanPr
   },
 } as const;
 
+/**
+ * Ek paket fiyatları (docs/EK-PAKETLER-MIMARI.md). Ek Şube: şube başına.
+ * Stripe Price'larındaki currency_options ile BİREBİR aynı olmalı.
+ */
+export type AddonPriceKey = "extra_branch" | "ai_assistant";
+export const ADDON_PRICING_BY_CURRENCY: Record<PricingCurrency, Record<AddonPriceKey, PlanPricing>> = {
+  TRY: {
+    extra_branch: { monthly: 799, annual: 7862 },
+    ai_assistant: { monthly: 999, annual: 9830 },
+  },
+  USD: {
+    extra_branch: { monthly: 19, annual: 187 },
+    ai_assistant: { monthly: 24, annual: 236 },
+  },
+  EUR: {
+    extra_branch: { monthly: 17, annual: 167 },
+    ai_assistant: { monthly: 21, annual: 207 },
+  },
+};
+
 /** Mini aylık fiyatın indirim öncesi (üstü çizili) değeri; yalnızca eski fiyatı bilinen para birimleri. */
 export const MINI_LIST_PRICE: Partial<Record<PricingCurrency, number>> = { TRY: 499 };
 
