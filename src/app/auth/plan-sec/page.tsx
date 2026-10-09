@@ -153,7 +153,9 @@ export default function PlanSecPage() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        toast.error("Bir hata oluştu.");
+        // Sunucu anlaşılır bir neden döndürdüyse (ör. Mini için personel sınırı,
+        // zaten aktif abonelik) onu göster; yoksa genel mesaj.
+        toast.error(typeof data?.error === "string" && data.error ? data.error : "Bir hata oluştu.");
       }
     } catch {
       toast.error("Bağlantı hatası.");

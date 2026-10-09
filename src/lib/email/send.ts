@@ -52,7 +52,7 @@ function baseLayout(content: string, orgName: string, locale?: string | null, br
   const headerBg = "#0c2050";
   const headerGradient = "linear-gradient(135deg,#123a86 0%,#0a1a40 100%)";
   const brandName = brand === "siriusplan" ? "SiriusPlan" : "SiriPlan";
-  const logo = `<img src="${BRAND_LOGO_URL}" width="56" height="56" alt="${brandName}" style="display:inline-block;vertical-align:middle;border-radius:14px;border:0;" />`;
+  const logo = `<img src="${BRAND_LOGO_URL}" width="68" height="68" alt="${brandName}" style="display:inline-block;vertical-align:middle;border-radius:16px;border:0;" />`;
   return `<!DOCTYPE html>
 <html lang="${S.htmlLang}"${S.rtl ? ' dir="rtl"' : ''}>
 <head>
@@ -64,24 +64,24 @@ function baseLayout(content: string, orgName: string, locale?: string | null, br
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f5;padding:32px 16px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
+        <table role="presentation" width="100%" style="max-width:620px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
           <!-- Header -->
           <tr>
-            <td bgcolor="${headerBg}" style="background-color:${headerBg};background:${headerGradient};padding:28px 32px;text-align:center;border-bottom:4px solid #d4a63c;">
-              ${logo}<span style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;vertical-align:middle;margin-left:12px;">${brandName}</span>
-              <p style="margin:10px 0 0;font-size:12px;color:#e7c98a;">${esc(orgName)}</p>
+            <td bgcolor="${headerBg}" style="background-color:${headerBg};background:${headerGradient};padding:34px 32px;text-align:center;border-bottom:5px solid #d4a63c;">
+              ${logo}<span style="font-size:30px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;vertical-align:middle;margin-left:12px;">${brandName}</span>
+              ${orgName && orgName !== brandName ? `<p style="margin:12px 0 0;font-size:16px;color:#e7c98a;">${esc(orgName)}</p>` : ""}
             </td>
           </tr>
           <!-- Body -->
           <tr>
-            <td style="padding:32px;">
+            <td style="padding:40px 36px;font-size:18px;line-height:1.65;color:#374151;">
               ${content}
             </td>
           </tr>
           <!-- Footer -->
           <tr>
-            <td style="background:#f9fafb;padding:20px 32px;text-align:center;border-top:1px solid #e5e7eb;">
-              <p style="margin:0;font-size:11px;color:#9ca3af;">
+            <td style="background:#f4f7fc;padding:26px 32px;text-align:center;border-top:1px solid #e5e7eb;">
+              <p style="margin:0;font-size:14px;color:#9ca3af;">
                 ${esc(S.footerNote(orgName))}<br/>
                 <a href="https://siriplan.com" style="color:${accent};text-decoration:none;">siriplan.com</a>
                 &nbsp;·&nbsp;
@@ -125,38 +125,38 @@ export async function sendConfirmationEmail(data: AppointmentEmailData) {
     : null;
 
   const content = `
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">${S.confirmTitle}</h2>
-    <p style="margin:0 0 24px;font-size:15px;color:#6b7280;">${S.confirmIntro(esc(data.customerName))}</p>
+    <h2 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:#0c2050;line-height:1.25;">${S.confirmTitle}</h2>
+    <p style="margin:0 0 24px;font-size:18px;color:#6b7280;">${S.confirmIntro(esc(data.customerName))}</p>
 
-    <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;">
+    <table role="presentation" width="100%" style="background:#f4f7fc;border:1px solid #e3e7ef;border-radius:16px;padding:24px;margin-bottom:28px;">
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelDate}</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt, tz, loc)}</span>
+        <span style="font-size:15px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelDate}</span>
+        <span style="font-size:18px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt, tz, loc)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelTime}</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt, tz, loc)}</span>
+        <span style="font-size:15px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelTime}</span>
+        <span style="font-size:18px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt, tz, loc)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelService}</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.serviceName)}</span>
+        <span style="font-size:15px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelService}</span>
+        <span style="font-size:18px;font-weight:600;color:#111827;">${esc(data.serviceName)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelStaff}</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.staffName)}</span>
+        <span style="font-size:15px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelStaff}</span>
+        <span style="font-size:18px;font-weight:600;color:#111827;">${esc(data.staffName)}</span>
       </td></tr>
     </table>
 
     ${cancelLink ? `
-    <p style="margin:0 0 16px;font-size:13px;color:#6b7280;">
+    <p style="margin:0 0 16px;font-size:16px;color:#6b7280;">
       ${S.confirmCancelHint}
     </p>
-    <a href="${cancelLink}" style="display:inline-block;padding:10px 24px;background:#fee2e2;color:#dc2626;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+    <a href="${cancelLink}" style="display:inline-block;padding:15px 32px;background:#fee2e2;color:#dc2626;border-radius:12px;font-size:16px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       ${S.cancelButton}
     </a>
     ` : ""}
 
-    <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
+    <p style="margin:20px 0 0;font-size:16px;color:#6b7280;">
       ${S.confirmQuestions(esc(data.orgName))}<br/>
       ${S.confirmClosing}
     </p>
@@ -178,30 +178,30 @@ export async function sendWelcomeEmail(data: { to: string; salonName: string; ow
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://siriplan.com";
 
   const content = `
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Hoş Geldiniz! 🎉</h2>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
+    <h2 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:#0c2050;line-height:1.25;">Hoş Geldiniz! 🎉</h2>
+    <p style="margin:0 0 20px;font-size:18px;color:#6b7280;">
       Merhaba <strong>${esc(data.ownerName)}</strong>, <strong>${esc(data.salonName)}</strong> adına ${brandName}'a hoş geldiniz!
     </p>
 
-    <p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">
+    <p style="margin:0 0 16px;font-size:17px;color:#374151;line-height:1.6;">
       14 günlük ücretsiz deneme süreniz başladı. Bu sürede Pro planın tüm özelliklerini keşfedebilirsiniz.
     </p>
 
-    <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;">
+    <table role="presentation" width="100%" style="background:#f4f7fc;border:1px solid #e3e7ef;border-radius:16px;padding:24px;margin-bottom:28px;">
       <tr><td style="padding:6px 0;">
-        <span style="font-size:13px;font-weight:600;color:#111827;">✅ Yapabileceğiniz ilk adımlar:</span>
+        <span style="font-size:16px;font-weight:600;color:#111827;">✅ Yapabileceğiniz ilk adımlar:</span>
       </td></tr>
-      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">• Hizmetlerinizi ve personellerinizi tanımlayın</td></tr>
-      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">• WhatsApp randevu linkini müşterilerinizle paylaşın</td></tr>
-      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">• Mevcut verilerinizi Excel'den aktarın</td></tr>
+      <tr><td style="padding:4px 0;font-size:16px;color:#6b7280;">• Hizmetlerinizi ve personellerinizi tanımlayın</td></tr>
+      <tr><td style="padding:4px 0;font-size:16px;color:#6b7280;">• WhatsApp randevu linkini müşterilerinizle paylaşın</td></tr>
+      <tr><td style="padding:4px 0;font-size:16px;color:#6b7280;">• Mevcut verilerinizi Excel'den aktarın</td></tr>
     </table>
 
     <a href="${appUrl}/dashboard"
-       style="display:inline-block;padding:12px 28px;background:#0c2050;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+       style="display:inline-block;padding:17px 38px;background:#0c2050;color:#ffffff;border-radius:12px;font-size:17px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       Dashboard'a Git →
     </a>
 
-    <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
+    <p style="margin:20px 0 0;font-size:16px;color:#6b7280;">
       Herhangi bir sorunuz için <a href="mailto:info@bysirius.com" style="color:${accent};text-decoration:none;">info@bysirius.com</a> adresinden veya
       <a href="https://wa.me/905355032634" style="color:#25D366;text-decoration:none;">WhatsApp</a> üzerinden ulaşabilirsiniz.<br/>
       İyi çalışmalar! ✨
@@ -229,21 +229,21 @@ export async function sendStaffInviteEmail(data: {
   const roleLabel = data.role === "manager" ? "Yönetici" : "Personel";
 
   const content = `
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">🎉 İşletmeye Davet Edildiniz</h2>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
+    <h2 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:#0c2050;line-height:1.25;">🎉 İşletmeye Davet Edildiniz</h2>
+    <p style="margin:0 0 20px;font-size:18px;color:#6b7280;">
       <strong>${esc(data.orgName)}</strong> sizi SiriPlan üzerinde <strong>${roleLabel.toLowerCase()}</strong> olarak davet etti.
     </p>
 
-    <p style="margin:0 0 16px;font-size:14px;color:#374151;line-height:1.6;">
+    <p style="margin:0 0 16px;font-size:17px;color:#374151;line-height:1.6;">
       Katılmak için aşağıdaki bağlantıya tıklayın — hesabınız yoksa orada birkaç adımda oluşturabilirsiniz.
     </p>
 
     <a href="${data.inviteUrl}"
-       style="display:inline-block;padding:12px 28px;background:#0c2050;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+       style="display:inline-block;padding:17px 38px;background:#0c2050;color:#ffffff;border-radius:12px;font-size:17px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       Daveti Görüntüle →
     </a>
 
-    <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
+    <p style="margin:20px 0 0;font-size:16px;color:#6b7280;">
       Bu davet bağlantısı 24 saat geçerlidir ve yalnızca bir kez kullanılabilir. Sorularınız için <a href="mailto:info@bysirius.com" style="color:#1d4ed8;text-decoration:none;">info@bysirius.com</a> adresinden ulaşabilirsiniz.
     </p>
   `;
@@ -278,27 +278,27 @@ export async function sendBirthdayEmail(data: {
   const S = emailStrings(data.locale);
 
   const content = `
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">${S.birthdayTitle}</h2>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
+    <h2 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:#0c2050;line-height:1.25;">${S.birthdayTitle}</h2>
+    <p style="margin:0 0 20px;font-size:18px;color:#6b7280;">
       ${S.birthdayIntro(esc(data.customerName), esc(data.orgName))}
     </p>
 
     <table role="presentation" width="100%" style="background:#fdf2f8;border-radius:12px;padding:20px;margin-bottom:24px;">
       <tr><td style="padding:6px 0;text-align:center;">
-        <span style="font-size:15px;font-weight:600;color:#be185d;">${S.birthdayOffer}</span>
+        <span style="font-size:18px;font-weight:600;color:#be185d;">${S.birthdayOffer}</span>
       </td></tr>
     </table>
 
     <a href="${data.bookingUrl}"
-       style="display:inline-block;padding:12px 28px;background:#0c2050;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+       style="display:inline-block;padding:17px 38px;background:#0c2050;color:#ffffff;border-radius:12px;font-size:17px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       ${S.birthdayCta}
     </a>
 
-    <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
+    <p style="margin:20px 0 0;font-size:16px;color:#6b7280;">
       ${S.birthdayClosing}
     </p>
 
-    <p style="margin:16px 0 0;font-size:11px;color:#9ca3af;">
+    <p style="margin:16px 0 0;font-size:14px;color:#9ca3af;">
       ${esc(S.birthdayOptOut)}
     </p>
   `;
@@ -324,25 +324,25 @@ export async function sendTrialEndingEmail(data: {
   const isToday = data.daysLeft <= 0;
 
   const content = `
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">
+    <h2 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:#0c2050;line-height:1.25;">
       ${isToday ? "⏳ Ücretsiz Deneme Süreniz Bugün Sona Eriyor" : "⏳ Ücretsiz Deneme Süreniz 2 Gün Sonra Sona Eriyor"}
     </h2>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">
+    <p style="margin:0 0 20px;font-size:18px;color:#6b7280;">
       Merhaba ${data.ownerName ? `<strong>${esc(data.ownerName)}</strong>, ` : ""}<strong>${esc(data.orgName)}</strong> için 14 günlük ücretsiz deneme süreniz
       ${isToday ? "bugün doluyor." : "2 gün içinde dolacak."}
     </p>
 
-    <p style="margin:0 0 20px;font-size:14px;color:#374151;line-height:1.6;">
+    <p style="margin:0 0 20px;font-size:17px;color:#374151;line-height:1.6;">
       Randevu takviminize, müşteri kayıtlarınıza ve tüm verilerinize erişiminizin kesintisiz devam etmesi için
       bir plan seçmeniz yeterli — verileriniz güvende, hiçbir şey silinmiyor.
     </p>
 
     <a href="${upgradeLink}"
-       style="display:inline-block;padding:12px 28px;background:#0c2050;color:#ffffff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+       style="display:inline-block;padding:17px 38px;background:#0c2050;color:#ffffff;border-radius:12px;font-size:17px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       siriplan.com'da Plan Seç →
     </a>
 
-    <p style="margin:20px 0 0;font-size:13px;color:#6b7280;">
+    <p style="margin:20px 0 0;font-size:16px;color:#6b7280;">
       Sorularınız için <a href="mailto:info@bysirius.com" style="color:#1d4ed8;text-decoration:none;">info@bysirius.com</a> adresinden veya
       <a href="https://wa.me/905355032634" style="color:#25D366;text-decoration:none;">WhatsApp</a> üzerinden ulaşabilirsiniz.<br/>
       İyi çalışmalar! ✨
@@ -379,10 +379,10 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
   const isToday = hoursAway <= 12;
 
   const content = `
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">
+    <h2 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:#0c2050;line-height:1.25;">
       ${isImminent ? S.reminderTitleImminent : S.reminderTitle}
     </h2>
-    <p style="margin:0 0 24px;font-size:15px;color:#6b7280;">
+    <p style="margin:0 0 24px;font-size:18px;color:#6b7280;">
       ${isImminent
         ? S.reminderIntroImminent(esc(data.customerName), hoursAway)
         : isToday
@@ -391,48 +391,48 @@ export async function sendReminderEmail(data: AppointmentEmailData, hoursAway: n
       }
     </p>
 
-    <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;">
+    <table role="presentation" width="100%" style="background:#f4f7fc;border:1px solid #e3e7ef;border-radius:16px;padding:24px;margin-bottom:28px;">
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelDate}</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt, tz, loc)}</span>
+        <span style="font-size:15px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelDate}</span>
+        <span style="font-size:18px;font-weight:600;color:#111827;">${formatTR(data.appointmentAt, tz, loc)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelTime}</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt, tz, loc)}</span>
+        <span style="font-size:15px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelTime}</span>
+        <span style="font-size:18px;font-weight:600;color:#111827;">${formatTime(data.appointmentAt, tz, loc)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelService}</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.serviceName)}</span>
+        <span style="font-size:15px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelService}</span>
+        <span style="font-size:18px;font-weight:600;color:#111827;">${esc(data.serviceName)}</span>
       </td></tr>
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelStaff}</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.staffName)}</span>
+        <span style="font-size:15px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelStaff}</span>
+        <span style="font-size:18px;font-weight:600;color:#111827;">${esc(data.staffName)}</span>
       </td></tr>
       ${locationLink ? `
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelLocation}</span>
-        <a href="${locationLink}" style="font-size:15px;font-weight:600;color:#1d4ed8;text-decoration:none;">${data.orgAddress ? esc(data.orgAddress) : S.viewOnMap}</a>
+        <span style="font-size:15px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelLocation}</span>
+        <a href="${locationLink}" style="font-size:18px;font-weight:600;color:#1d4ed8;text-decoration:none;">${data.orgAddress ? esc(data.orgAddress) : S.viewOnMap}</a>
       </td></tr>
       ` : data.orgAddress ? `
       <tr><td style="padding:6px 0;">
-        <span style="font-size:12px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelLocation}</span>
-        <span style="font-size:15px;font-weight:600;color:#111827;">${esc(data.orgAddress)}</span>
+        <span style="font-size:15px;color:#9ca3af;display:block;margin-bottom:2px;">${S.labelLocation}</span>
+        <span style="font-size:18px;font-weight:600;color:#111827;">${esc(data.orgAddress)}</span>
       </td></tr>
       ` : ""}
     </table>
 
     ${detailLink ? `
-    <a href="${detailLink}" style="display:inline-block;padding:10px 24px;background:#0c2050;color:#ffffff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:12px;margin-right:8px;">
+    <a href="${detailLink}" style="display:inline-block;padding:15px 32px;background:#0c2050;color:#ffffff;border-radius:12px;font-size:16px;font-weight:600;text-decoration:none;margin-bottom:12px;margin-right:8px;">
       ${S.detailButton}
     </a>
     ` : ""}
     ${cancelLink ? `
-    <a href="${cancelLink}" style="display:inline-block;padding:10px 24px;background:#fee2e2;color:#dc2626;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:20px;">
+    <a href="${cancelLink}" style="display:inline-block;padding:15px 32px;background:#fee2e2;color:#dc2626;border-radius:12px;font-size:16px;font-weight:600;text-decoration:none;margin-bottom:20px;">
       ${S.cancelButton}
     </a>
     ` : ""}
 
-    <p style="margin:16px 0 0;font-size:13px;color:#6b7280;">
+    <p style="margin:16px 0 0;font-size:16px;color:#6b7280;">
       ${S.reminderClosing}
     </p>
   `;
@@ -469,30 +469,30 @@ export async function sendContactMessageEmail(data: {
   const to = process.env.CONTACT_NOTIFY_EMAIL ?? "info@bysirius.com";
 
   const content = `
-    <h2 style="margin:0 0 8px;font-size:20px;font-weight:700;color:#111827;">Yeni İletişim Mesajı</h2>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">siriplan.com/iletisim formundan gönderildi.</p>
+    <h2 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:#0c2050;line-height:1.25;">Yeni İletişim Mesajı</h2>
+    <p style="margin:0 0 20px;font-size:18px;color:#6b7280;">siriplan.com/iletisim formundan gönderildi.</p>
 
     <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:20px;">
-      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">Ad Soyad</td>
-          <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:600;">${esc(data.name)}</td></tr>
-      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">E-posta</td>
-          <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:600;">${esc(data.email)}</td></tr>
+      <tr><td style="padding:4px 0;font-size:16px;color:#6b7280;">Ad Soyad</td>
+          <td style="padding:4px 0;font-size:16px;color:#111827;font-weight:600;">${esc(data.name)}</td></tr>
+      <tr><td style="padding:4px 0;font-size:16px;color:#6b7280;">E-posta</td>
+          <td style="padding:4px 0;font-size:16px;color:#111827;font-weight:600;">${esc(data.email)}</td></tr>
       ${data.phone ? `
-      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">Telefon</td>
-          <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:600;">${esc(data.phone)}</td></tr>
+      <tr><td style="padding:4px 0;font-size:16px;color:#6b7280;">Telefon</td>
+          <td style="padding:4px 0;font-size:16px;color:#111827;font-weight:600;">${esc(data.phone)}</td></tr>
       ` : ""}
-      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">Konu</td>
-          <td style="padding:4px 0;font-size:13px;color:#111827;font-weight:600;">${esc(data.subject)}</td></tr>
+      <tr><td style="padding:4px 0;font-size:16px;color:#6b7280;">Konu</td>
+          <td style="padding:4px 0;font-size:16px;color:#111827;font-weight:600;">${esc(data.subject)}</td></tr>
       ${data.ip ? `
-      <tr><td style="padding:4px 0;font-size:13px;color:#6b7280;">IP</td>
-          <td style="padding:4px 0;font-size:13px;color:#111827;">${esc(data.ip)}</td></tr>
+      <tr><td style="padding:4px 0;font-size:16px;color:#6b7280;">IP</td>
+          <td style="padding:4px 0;font-size:16px;color:#111827;">${esc(data.ip)}</td></tr>
       ` : ""}
     </table>
 
-    <div style="white-space:pre-wrap;font-size:14px;color:#374151;line-height:1.6;padding:16px;border-left:3px solid #d4a63c;background:#fffbeb;border-radius:0 8px 8px 0;">${esc(data.message)}</div>
+    <div style="white-space:pre-wrap;font-size:17px;color:#374151;line-height:1.6;padding:16px;border-left:3px solid #d4a63c;background:#fffbeb;border-radius:0 8px 8px 0;">${esc(data.message)}</div>
 
     ${data.flags?.length ? `
-    <p style="margin:20px 0 0;font-size:12px;color:#b45309;background:#fffbeb;border-radius:8px;padding:12px;">
+    <p style="margin:20px 0 0;font-size:15px;color:#b45309;background:#fffbeb;border-radius:8px;padding:12px;">
       ⚠️ Şüpheli sinyaller: ${esc(data.flags.join(", "))} — yanıtlamadan önce göz atın.
     </p>
     ` : ""}
