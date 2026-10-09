@@ -678,7 +678,7 @@ parametre yön izolasyonu eklendi; `/api/import` hizmet içe aktarma düzeltildi
 - Herkese açık sunum: `public/sunum.html` (+ `public/sunum/*.png`) → `siriplan.com/sunum.html`.
   `docs/musteri-sunumu/musteri-sunumu.html`'den türetildi: eski ekran görüntüsü adları güncel dosyalara
   eşlendi, mobil ölçekleme + noindex eklendi, fiyat slaytı güncel 4 plana (Mini ₺399 / Starter ₺1.199 /
-  Pro ₺1.799 / Business ₺4.699) çevrildi, son slayt "Plan seç & abone ol" butonu (`/auth/plan-sec`).
+  Pro ₺1.699 / Business ₺4.699) çevrildi, son slayt "Plan seç & abone ol" butonu (`/auth/plan-sec`).
   Dosya uzantılı yollar `proxy.ts` matcher'ı dışında → proxy'ye dokunulmadı. Fiyatlar değişirse HTML elle güncellenmeli.
 - SMS metni (2 gün kala, ~242 karakter, 2 parça): ödeme/abonelik linki açıkça belirtildi, `https://` kısaltıldı;
   bitiş günü SMS'i de "Odeme/abonelik baslatmak icin" ifadesine çevrildi.
