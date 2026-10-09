@@ -771,7 +771,7 @@
   "privacyPage": {
     "metaDescription": "SiriPlan gizlilik politikası — kişisel verilerinizi nasıl işlediğimizi öğrenin.",
     "pageTitle": "Gizlilik Politikası",
-    "lastUpdated": "Son güncelleme: Ağustos 2026",
+    "lastUpdated": "Son güncelleme: Ekim 2026",
     "translationNote": "",
     "s1Title": "1. Veri Sorumlusu",
     "s1P1": "Bu gizlilik politikası, <strong>BY Sirius Group Ai & Technology Co Ltd.</strong> (\"Şirket\", \"biz\", \"bize\") tarafından işletilen <strong>SiriPlan</strong> platformu için geçerlidir. Şirket, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında veri sorumlusu sıfatını taşımaktadır.",
@@ -783,7 +783,8 @@
       "İşletme adı, adresi ve sektör bilgisi",
       "Randevu geçmişi ve müşteri kayıtları",
       "Ödeme ve fatura bilgileri (kart detayları saklanmaz; Stripe tarafından işlenir)",
-      "IP adresi, tarayıcı türü ve kullanım istatistikleri"
+      "IP adresi, tarayıcı türü ve kullanım istatistikleri",
+      "Anlık bildirim (Web Push) açıldığında cihazınızın bildirim adresi ve anahtarları"
     ],
     "s3Title": "3. Verilerin İşlenme Amaçları",
     "s3Items": [
@@ -791,7 +792,8 @@
       "Abonelik ve ödeme işlemlerinin gerçekleştirilmesi",
       "Müşteri desteği ve teknik yardım sağlanması",
       "Güvenlik, dolandırıcılık önleme ve yasal yükümlülüklerin yerine getirilmesi",
-      "Ürün geliştirme ve hizmet kalitesinin artırılması"
+      "Ürün geliştirme ve hizmet kalitesinin artırılması",
+      "Anlık bildirimlerin (yeni randevu, talep vb.) yalnızca bildirimi açan cihaza gönderilmesi; bildirimi kapattığınızda bu veriler silinir"
     ],
     "s4Title": "4. Veri Güvenliği",
     "s4P": "Verileriniz SSL/TLS şifrelemesi ile korunur. Sunucu altyapımız endüstri standardı güvenlik protokollerine uymaktadır. Ödeme bilgileriniz hiçbir zaman sunucularımızda saklanmaz; tüm ödeme işlemleri PCI-DSS uyumlu Stripe altyapısı üzerinden gerçekleşir.",
@@ -1867,6 +1869,13 @@
       "on": "Bildirim sesi açık",
       "off": "Bildirim sesi kapalı",
       "toggleAria": "Yeni randevu bildirim sesini aç/kapat"
+    },
+    "webPush": {
+      "label": "Telefon / Tarayıcı Bildirimi (uygulama kapalıyken de gelir)",
+      "onHint": "Bu cihazda bildirim açık. Yeni randevu ve talepler uygulama kapalıyken de gelir.",
+      "unsupported": "Bu tarayıcı/cihaz anlık bildirimi desteklemiyor. (iPhone için uygulamayı Ana Ekrana ekleyin.)",
+      "denied": "Bildirim izni engellenmiş. Tarayıcı/telefon ayarlarından bu site için bildirimlere izin verin.",
+      "error": "Bildirim ayarı kaydedilemedi, lütfen tekrar deneyin."
     },
     "customers": "Müşteriler",
     "staff": "Personel",
