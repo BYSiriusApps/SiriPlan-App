@@ -14,6 +14,17 @@ function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
   return out;
 }
 
+/**
+ * Service worker'ı hazır döndürür. Kök layout kaydı yalnızca "load" olayına bağlıyor;
+ * script sayfa yüklendikten sonra çalışırsa olay kaçıyor ve kayıt hiç olmuyor —
+ * o durumda `ready` sonsuza kadar bekler. register() idempotenttir (zaten kayıtlıysa
+ * mevcut kaydı döndürür), bu yüzden burada her zaman çağırmak güvenlidir.
+ */
+async function getReadyRegistration(): Promise<ServiceWorkerRegistration> {
+  await navigator.serviceWorker.register("/sw.js");
+  return navigator.serviceWorker.ready;
+}
+
 type State = "loading" | "unsupported" | "denied" | "off" | "on";
 
 /**
@@ -44,7 +55,7 @@ export function PushToggle() {
           if (!cancelled) setState("denied");
           return;
         }
-        const reg = await navigator.serviceWorker.ready;
+        const reg = await getReadyRegistration();
         const sub = await reg.pushManager.getSubscription();
         if (!cancelled) setState(sub && Notification.permission === "granted" ? "on" : "off");
       } catch {
@@ -63,7 +74,7 @@ export function PushToggle() {
       setState(perm === "denied" ? "denied" : "off");
       return;
     }
-    const reg = await navigator.serviceWorker.ready;
+    const reg = await getReadyRegistration();
     const sub =
       (await reg.pushManager.getSubscription()) ??
       (await reg.pushManager.subscribe({
@@ -84,7 +95,7 @@ export function PushToggle() {
   }
 
   async function disable() {
-    const reg = await navigator.serviceWorker.ready;
+    const reg = await getReadyRegistration();
     const sub = await reg.pushManager.getSubscription();
     if (sub) {
       await fetch("/api/push/subscribe", {
