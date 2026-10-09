@@ -82,7 +82,9 @@ export default async function TakvimPage({
     prevDate = addMonths(baseDate, -1);
     nextDate = addMonths(baseDate, 1);
   } else {
-    gridStart = startOfWeek(baseDate, { weekStartsOn: 1 });
+    // Haftalık görünüm seçilen günden (Hafta sekmesine basınca BUGÜN) başlayan 7 gündür;
+    // pazartesiye geri sarılmaz, böylece güncel gün hep ilk sütunda görünür.
+    gridStart = baseDate;
     gridEnd = addDays(gridStart, 6);
     label = `${format(gridStart, "d MMM", { locale: dateFnsLocale })} – ${format(gridEnd, "d MMM yyyy", { locale: dateFnsLocale })}`;
     prevDate = addDays(gridStart, -7);

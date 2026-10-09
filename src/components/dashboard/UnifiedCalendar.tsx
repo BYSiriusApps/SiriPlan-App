@@ -1202,7 +1202,7 @@ export function UnifiedCalendar({
             {([["day", t("day")], ["staff", "👥 Personel"], ["week", t("week")], ["month", t("month")]] as const).map(([v, l]) => (
               <Link
                 key={v}
-                href={`/dashboard/takvim?view=${v}&date=${viewDate}`}
+                href={`/dashboard/takvim?view=${v}&date=${v === "week" ? today : viewDate}`}
                 className={cn(
                   "px-3.5 py-1.5 rounded-full text-sm font-bold transition-all active:scale-95",
                   view === v ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-accent text-muted-foreground"
