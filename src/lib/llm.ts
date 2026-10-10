@@ -149,6 +149,28 @@ export async function generateText(opts: { system: string; user: string; maxToke
   const viaGemini = await geminiText(opts.system, opts.user, opts.maxTokens);
   if (viaGemini) return viaGemini;
   const viaClaude = await claudeText(opts.system, opts.user, opts.maxTokens);
-  if (viaClaude) return viaClaude;
+  if (viaClaude) {
+    notifyLlmDegraded("Gemini yanıt vermedi, Claude yedeği devrede");
+    return viaClaude;
+  }
+  notifyLlmDegraded("Gemini ve Claude yanıt vermedi — yapay zeka özellikleri statik yanıta düşüyor");
   throw new Error("LLM yanıt üretemedi");
+}
+
+// Sağlayıcı düştüğünde yöneticiye e-posta (sunucusuz örnek başına 3 saatte en çok 1). Asla fırlatmaz,
+// yanıt akışını beklemez.
+let lastLlmAlertAt = 0;
+function notifyLlmDegraded(reason: string): void {
+  const now = Date.now();
+  if (now - lastLlmAlertAt < 3 * 60 * 60 * 1000) return;
+  lastLlmAlertAt = now;
+  const models = geminiModels().join(", ");
+  import("@/lib/email/send")
+    .then((m) =>
+      m.sendOpsAlertEmail(
+        "Yapay zeka sağlayıcı uyarısı",
+        `${reason}.\n\nGemini modelleri: ${models}\nVercel loglarında "[llm]" satırlarına bakın; model adı GEMINI_MODEL / GEMINI_FALLBACK_MODEL env ile değiştirilebilir.`,
+      ),
+    )
+    .catch(() => {});
 }

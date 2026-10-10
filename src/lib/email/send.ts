@@ -506,3 +506,22 @@ export async function sendContactMessageEmail(data: {
     html: baseLayout(content, "SiriPlan"),
   });
 }
+
+/**
+ * Operasyonel uyarı (ör. yapay zeka sağlayıcısı düştü). Yalnızca düz metin;
+ * alıcı CONTACT_NOTIFY_EMAIL (varsayılan info@bysirius.com). Hata fırlatmaz.
+ */
+export async function sendOpsAlertEmail(subject: string, text: string): Promise<void> {
+  try {
+    if (!emailEnabled()) return;
+    const to = process.env.CONTACT_NOTIFY_EMAIL ?? "info@bysirius.com";
+    await getResend().emails.send({
+      from: `SiriPlan Uyarı <${FROM}>`,
+      to,
+      subject: `[SiriPlan] ${subject}`.slice(0, 200),
+      text: String(text).slice(0, 2000),
+    });
+  } catch (err) {
+    console.error("[ops-alert] e-posta gönderilemedi:", err instanceof Error ? err.message : err);
+  }
+}
