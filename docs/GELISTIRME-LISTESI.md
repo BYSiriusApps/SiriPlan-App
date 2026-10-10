@@ -722,3 +722,18 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
 - [ ] **AI cevabı:** Business ya da AI Asistan paketli (feature_ai açık) bir işletmenin WhatsApp veya Instagram hattına test mesajı at. Beklenen: gerçek AI yanıtı gelir (sabit "Ekibimiz size dönecek" mesajı DEĞİL). Gelmezse Vercel loglarında `[llm] Gemini ... HTTP` satırlarına bak; `GEMINI_MODEL` env ile model değiştirilebilir (PR #149, `src/lib/llm.ts`).
 - [ ] **Şube hesabı:** Ek Şube hakkı olan bir hesapta şubeyi aç, şubedeyken `/dashboard/abonelik` sayfasını web'de aç. Beklenen: plan/ödeme düğmeleri yok, "Ana işletmeye geç ve planı yönet" düğmesi var ve tıklayınca ana işletmeye geçip abonelik sayfası açılır (PR #150). Native uygulamada bu düğme/satın alma yüzeyi görünmemeli.
 - [ ] **Deneme hesabında Pro önizlemesi:** Stripe 14 günlük denemedeki (trialing) bir Starter/Mini hesabında Pro'ya yükseltme önizlemesini aç. Beklenen: tutar hatasız gelir ("Tutar hesaplanamadı" çıkmaz); yükseltince plan değişir, ücret deneme sonunda alınır (PR #148). Denemede olmayan (ödeyen) hesapta önizleme eskisi gibi çalışmalı.
+
+
+## 17. Yapay zeka sağlayıcıları, Business denemesi ve açık testler (10 Eki 2026)
+
+**Yapıldı:** Gizlilik Politikası §5 ve KVKK aktarım metni (TR/EN/RU/AR) artık yapay zeka sağlayıcılarını (Google Gemini; yedek: Anthropic Claude) ve hangi verinin gittiğini söylüyor (PR #164). Entegrasyon kartı adı "OpenAI / Claude AI" → "Gemini / Claude AI". `ANTHROPIC_API_KEY` oluşturuldu (SiriPlan, Default workspace, **30.09.2027'de biter** — takvime yaz) ve `.env.local` + Vercel'e girildi. Business'ta 14 günlük Stripe denemesi YOK (karar: AI asistan kurulup Instagram/WhatsApp'a bağlanıyor); `api/stripe/checkout` artık Business için `trial_period_days` vermiyor, site metinleri zaten yalnızca Mini/Starter/Pro diyor.
+
+**TEST EDİLECEK:**
+- [ ] **Claude yedeği gerçek anahtarla:** Anthropic Console'da kredi **$0** — önce $5–10 yükle. Sonra `GEMINI_MODEL` ve `GEMINI_FALLBACK_MODEL` env'ini geçici olarak var olmayan bir adla ayarlayıp (ya da yerelde) bir AI yanıtı/site sohbet botu denemesi yap; yanıtın Claude'dan geldiğini doğrula, sonra env'i geri al. Şu ana kadar yalnızca sahte fetch ile doğrulandı.
+- [ ] **Gemini ücretli faturalama:** anahtar ücretsiz katmanda değil, faturalama hesabına bağlı olmalı (girdilerin model geliştirmede kullanılmaması için).
+- [ ] **Stripe webhook + ek paket uçtan uca (test modu):** `stripe listen`, `STRIPE_WEBHOOK_SECRET`; plan yükselt/düşür + AI Asistan/Ek Şube satın alma; DB (`organizations.plan`, `org_addons`, `org_branches`) + abonelik ekranı kontrol. Business checkout'ta artık deneme olmadığını da bu testte doğrula (Stripe oturumunda "trial" görünmemeli).
+
+**MAĞAZALAR İÇİN KONTROL EDİLECEK (ayrı sohbet, yeni build GEREKMEZ):**
+- [ ] App Store Connect → App Privacy: sohbet/mesaj içeriği ve ses üçüncü taraf AI sağlayıcılara gidiyor; "User Content" (Other User Content) verisi toplanıyor ve üçüncü tarafla paylaşılıyor olarak işaretli mi? Gemini için zaten doğruysa Claude yedeği ek değişiklik gerektirmez.
+- [ ] Google Play → Data safety: "Messages" ve "Audio" verilerinin üçüncü taraflarla paylaşıldığı beyan edilmiş mi? Aynı mantık.
+- [ ] Mağaza gizlilik URL'si siriplan.com/gizlilik (güncellendi) — başka yerde kopya gizlilik metni varsa (store listing, e-posta imzası) orayı da güncelle.
