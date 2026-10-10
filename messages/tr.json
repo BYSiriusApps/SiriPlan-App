@@ -497,7 +497,7 @@
         "desc": "Salonunuzun kapısına veya kartvizite QR kod yapıştırın, müşteriler direkt randevu alsın."
       },
       "ai": {
-        "name": "OpenAI / Claude AI",
+        "name": "Gemini / Claude AI",
         "category": "Yapay Zeka",
         "desc": "WhatsApp, Instagram ve panel içi AI asistanı için güçlü dil modeli altyapısı."
       }
@@ -751,7 +751,7 @@
       "Açık rızanız dahilinde pazarlama iletişimi (KVKK m. 5/1)"
     ],
     "transferTitle": "Verilerin Aktarılması",
-    "transferP": "Kişisel verileriniz; barındırma ve veritabanı altyapısı, uygulama dağıtımı, kod deposu, e-posta gönderimi, ödeme (Stripe) ve mesajlaşma (WhatsApp/SMS) hizmet sağlayıcıları ile KVKK'nın 8. ve 9. maddeleri kapsamında, veri işleme sözleşmeleri çerçevesinde paylaşılabilir. Bu sağlayıcıların bir kısmı yurt dışında (AB veya ABD) yerleşiktir; yurt dışı aktarımlar uygun güvenceler sağlanarak gerçekleştirilir.",
+    "transferP": "Kişisel verileriniz; barındırma ve veritabanı altyapısı, uygulama dağıtımı, kod deposu, e-posta gönderimi, ödeme (Stripe), mesajlaşma (WhatsApp/SMS) ve yapay zeka (dil modeli; Google Gemini, yedek olarak Anthropic Claude) hizmet sağlayıcıları ile KVKK'nın 8. ve 9. maddeleri kapsamında, veri işleme sözleşmeleri çerçevesinde paylaşılabilir. Bu sağlayıcıların bir kısmı yurt dışında (AB veya ABD) yerleşiktir; yurt dışı aktarımlar uygun güvenceler sağlanarak gerçekleştirilir.",
     "rightsTitle": "KVKK Madde 11 Kapsamındaki Haklarınız",
     "rightsItems": [
       "Kişisel verilerinizin işlenip işlenmediğini öğrenme",
@@ -799,7 +799,7 @@
     "s4Title": "4. Veri Güvenliği",
     "s4P": "Verileriniz SSL/TLS şifrelemesi ile korunur. Sunucu altyapımız endüstri standardı güvenlik protokollerine uymaktadır. Ödeme bilgileriniz hiçbir zaman sunucularımızda saklanmaz; tüm ödeme işlemleri PCI-DSS uyumlu Stripe altyapısı üzerinden gerçekleşir.",
     "s5Title": "5. Üçüncü Taraf Paylaşımı",
-    "s5P": "Kişisel verileriniz, hizmetin sunulması için gerekli olduğu ölçüde ve veri işleme sözleşmeleri çerçevesinde şu kategorilerdeki hizmet sağlayıcılarla paylaşılabilir: barındırma ve veritabanı altyapısı, uygulama dağıtımı, kod deposu ve sürüm yönetimi, e-posta gönderimi, ödeme (Stripe) ve mesajlaşma (WhatsApp/SMS). Bu sağlayıcıların bir kısmı Türkiye dışında (AB veya ABD) yerleşiktir; aktarım, KVKK'nın 9. maddesi kapsamında uygun güvenceler ve sözleşmesel yükümlülükler çerçevesinde yapılır. Verileriniz üçüncü taraflara satılmaz veya pazarlama amacıyla paylaşılmaz.",
+    "s5P": "Kişisel verileriniz, hizmetin sunulması için gerekli olduğu ölçüde ve veri işleme sözleşmeleri çerçevesinde şu kategorilerdeki hizmet sağlayıcılarla paylaşılabilir: barındırma ve veritabanı altyapısı, uygulama dağıtımı, kod deposu ve sürüm yönetimi, e-posta gönderimi, ödeme (Stripe), mesajlaşma (WhatsApp/SMS) ve yapay zeka (dil modeli) hizmetleri (Google Gemini; yedek olarak Anthropic Claude). Yapay zeka özellikleri (AI asistan yanıtları, site sohbet botu, sesli randevu) kullanıldığında, yanıtı üretmek için ilgili yazışma metni ve yanıt için gereken işletme bilgileri bu sağlayıcılara iletilir. Bu sağlayıcıların bir kısmı Türkiye dışında (AB veya ABD) yerleşiktir; aktarım, KVKK'nın 9. maddesi kapsamında uygun güvenceler ve sözleşmesel yükümlülükler çerçevesinde yapılır. Verileriniz üçüncü taraflara satılmaz veya pazarlama amacıyla paylaşılmaz.",
     "s6Title": "6. Haklarınız",
     "s6Intro": "KVKK Madde 11 kapsamında aşağıdaki haklara sahipsiniz:",
     "s6Items": [
