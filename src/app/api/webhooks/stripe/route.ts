@@ -100,6 +100,28 @@ export async function POST(req: NextRequest) {
             stripe_subscription_id: subscriptionId,
           }).eq("id", org.id);
           await writeAuditLog(org.id, "subscription.activated", { event: event.id });
+          // İlk fatura $0 ise (%100 indirim kuponu vb.) abonelik doğrudan "active"
+          // doğar ve ardından customer.subscription.updated olayı GELMEZ (yukarıdaki
+          // not: created olayı plan için işlenmez) — plan hiç uygulanmazdı: Stripe'ta
+          // abonelik aktif, panelde plan hâlâ "trial" kalırdı. Bu yüzden, tam şu an
+          // ödenmiş/aktif bir abonelikte plan burada da uygulanır. Normal kart
+          // ödemesinde updated olayı aynı sonucu yazar (idempotent). "trialing"
+          // (kartlı deneme) davranışı DEĞİŞMEZ: onlar eskisi gibi updated ile işlenir.
+          try {
+            const sub = await stripe.subscriptions.retrieve(subscriptionId);
+            if (sub.status === "active" && !addonFromSubscription(sub)) {
+              const priceId = sub.items?.data?.[0]?.price?.id;
+              const plan = (sub.metadata?.plan as PlanKey | undefined) || planFromPriceId(priceId);
+              if (plan) {
+                await applyPlanToOrg(org.id, plan, sub.status);
+                await writeAuditLog(org.id, "subscription.plan_applied_on_checkout", { plan, status: sub.status, event: event.id });
+              }
+            }
+          } catch (err) {
+            console.error("[stripe-webhook] checkout sonrası plan uygulanamadı:", err);
+            // 500 → Stripe olayı yeniden dener; ödenmiş abonelik plansız kalmasın.
+            return NextResponse.json({ error: "plan_apply_failed" }, { status: 500 });
+          }
         }
       }
       break;
