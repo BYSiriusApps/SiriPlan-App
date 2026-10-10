@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateText, hasLlmProvider } from "@/lib/llm";
 import { limitByIp } from "@/lib/rate-limit";
 import { sanitizeUserMessage, wrapAsUserData } from "@/lib/ai-input";
-import { pricingSummaryForAssistant, getPricingCurrencyFromHeaders, type PricingCurrency } from "@/lib/pricing";
+import { pricingSummaryForAssistant, addonsSummaryForAssistant, getPricingCurrencyFromHeaders, type PricingCurrency } from "@/lib/pricing";
 
 // Fiyatlar tek kaynaktan (lib/pricing.ts) okunur — elle yazılmış rakam eskiyip yanlış fiyat söylüyordu.
 
@@ -15,6 +15,7 @@ Temel bilgiler:
 - Platform: siriplan.com
 - Destek: info@bysirius.com | WhatsApp: +90 535 503 26 34
 - Fiyatlar (güncel, aylık ve yıllık): ${pricingSummaryForAssistant("tr", [currency])}. Mini tek kişiliktir: 1 personel, ayda 200 randevu ve 200 WhatsApp mesajı. Yıllık ödemede yaklaşık %18 indirim vardır.
+- Ek paketler (yalnızca aylık; yalnızca ödenen Starter/Pro/Business aboneleri web panelinde Abonelik → Ek Paketler bölümünden alabilir): ${addonsSummaryForAssistant("tr", [currency])}. AI Asistan paketi bu planlara AI WhatsApp/Instagram asistanını ekler; Ek Şube ek bir şube açar. Mobil uygulamadan satın alınamaz.
 - 14 gün ücretsiz deneme, kredi kartı gerekmez
 - Desteklenen sektörler: Kuaför, Berber, Güzellik Salonu, SPA & Masaj, Nail Salon, Estetik Klinik, Makyaj Stüdyosu, Tattoo Studio, Diyetisyen, Kaş & Kirpik
 
@@ -96,10 +97,10 @@ function getStaticResponse(message: string, uiLocale: string | undefined, curren
 
   if (msg.includes("fiyat") || msg.includes("ücret") || msg.includes("price") || msg.includes("cost") || msg.includes("стоит") || msg.includes("цена") || msg.includes("سعر") || msg.includes("تكلفة")) {
     return {
-      tr: `SiriPlan 4 plan sunuyor (aylık, yıllık parantezde): ${pricingSummaryForAssistant("tr")}. Mini tek kişiliktir (1 personel, ayda 200 randevu, 200 WhatsApp mesajı). Mini, Starter ve Pro 14 gün ücretsiz deneme ile başlar, kredi kartı gerekmez. Detaylar için siriplan.com/fiyatlar`,
-      en: `SiriPlan offers 4 plans (monthly, yearly in brackets): ${pricingSummaryForAssistant("en")}. Mini is for solo professionals (1 staff, 200 appointments and 200 WhatsApp messages a month). Mini, Starter and Pro start with a 14-day free trial, no credit card required. Details: siriplan.com/fiyatlar`,
-      ru: `SiriPlan предлагает 4 тарифа (в месяц, за год в скобках): ${pricingSummaryForAssistant("ru")}. Mini — для одиночных мастеров (1 сотрудник, 200 записей и 200 сообщений WhatsApp в месяц). Mini, Starter и Pro начинаются с 14-дневной бесплатной пробной версии, карта не нужна. Подробнее: siriplan.com/fiyatlar`,
-      ar: `يقدم SiriPlan 4 خطط (شهريًا، والسنوي بين قوسين): ${pricingSummaryForAssistant("ar")}. خطة Mini للعاملين بمفردهم (موظف واحد، 200 موعد و200 رسالة WhatsApp شهريًا). تبدأ Mini وStarter وPro بتجربة مجانية 14 يومًا دون بطاقة ائتمان. التفاصيل: siriplan.com/fiyatlar`,
+      tr: `SiriPlan 4 plan sunuyor (aylık, yıllık parantezde): ${pricingSummaryForAssistant("tr")}. Mini tek kişiliktir (1 personel, ayda 200 randevu, 200 WhatsApp mesajı). Mini, Starter ve Pro 14 gün ücretsiz deneme ile başlar, kredi kartı gerekmez. Ek paketler (yalnızca aylık, ödenen Starter/Pro/Business aboneleri web panelinden alır): ${addonsSummaryForAssistant("tr")}. Detaylar için siriplan.com/fiyatlar`,
+      en: `SiriPlan offers 4 plans (monthly, yearly in brackets): ${pricingSummaryForAssistant("en")}. Mini is for solo professionals (1 staff, 200 appointments and 200 WhatsApp messages a month). Mini, Starter and Pro start with a 14-day free trial, no credit card required. Add-ons (monthly only; paid Starter/Pro/Business subscribers can buy them in the web dashboard): ${addonsSummaryForAssistant("en")}. Details: siriplan.com/fiyatlar`,
+      ru: `SiriPlan предлагает 4 тарифа (в месяц, за год в скобках): ${pricingSummaryForAssistant("ru")}. Mini — для одиночных мастеров (1 сотрудник, 200 записей и 200 сообщений WhatsApp в месяц). Mini, Starter и Pro начинаются с 14-дневной бесплатной пробной версии, карта не нужна. Доп. пакеты (только помесячно; оплаченные подписчики Starter/Pro/Business покупают их в веб-панели): ${addonsSummaryForAssistant("ru")}. Подробнее: siriplan.com/fiyatlar`,
+      ar: `يقدم SiriPlan 4 خطط (شهريًا، والسنوي بين قوسين): ${pricingSummaryForAssistant("ar")}. خطة Mini للعاملين بمفردهم (موظف واحد، 200 موعد و200 رسالة WhatsApp شهريًا). تبدأ Mini وStarter وPro بتجربة مجانية 14 يومًا دون بطاقة ائتمان. الباقات الإضافية (شهريًا فقط؛ يمكن لمشتركي Starter وPro وBusiness المدفوعين شراؤها من لوحة الويب): ${addonsSummaryForAssistant("ar")}. التفاصيل: siriplan.com/fiyatlar`,
     }[lang];
   }
   if (msg.includes("deneme") || msg.includes("ücretsiz") || msg.includes("free") || msg.includes("trial") || msg.includes("бесплат") || msg.includes("пробн") || msg.includes("مجان") || msg.includes("تجريب")) {

@@ -145,3 +145,29 @@ export function pricingSummaryForAssistant(
     })
     .join("; ");
 }
+
+/**
+ * Ek paketlerin (AI WhatsApp/Instagram Asistanı, Ek Şube) güncel fiyat özeti.
+ * Yalnızca AYLIK satılır; yalnızca ödenen Starter/Pro/Business aboneleri web
+ * panelinden (Abonelik → Ek Paketler) alabilir. Fiyat tek kaynaktan
+ * (ADDON_PRICING_BY_CURRENCY) üretilir.
+ */
+const ADDON_NAMES = {
+  tr: { ai: "AI WhatsApp/Instagram Asistanı", branch: "Ek Şube (şube başına)" },
+  en: { ai: "AI WhatsApp/Instagram Assistant", branch: "Extra Branch (per branch)" },
+  ru: { ai: "AI-ассистент WhatsApp/Instagram", branch: "Доп. филиал (за каждый)" },
+  ar: { ai: "مساعد AI لواتساب/إنستغرام", branch: "فرع إضافي (لكل فرع)" },
+} as const;
+
+export function addonsSummaryForAssistant(
+  lang: keyof typeof ASSISTANT_UNITS = "tr",
+  currencies: readonly PricingCurrency[] = PRICING_CURRENCIES,
+): string {
+  const u = ASSISTANT_UNITS[lang];
+  const n = ADDON_NAMES[lang];
+  const line = (name: string, key: AddonPriceKey) =>
+    `${name}: ${currencies
+      .map((cur) => `${formatPrice(ADDON_PRICING_BY_CURRENCY[cur][key].monthly, cur)}${u.perMonth}`)
+      .join(" · ")}`;
+  return `${line(n.ai, "ai_assistant")}; ${line(n.branch, "extra_branch")}`;
+}
