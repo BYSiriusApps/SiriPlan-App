@@ -10,11 +10,13 @@
  */
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { AlertTriangle, CalendarClock, MessageCircle } from "lucide-react";
 import { useDashboardBadges } from "@/components/dashboard/DashboardBadgeContext";
 import { useIsMobileApp } from "@/lib/use-mobile-app";
 
 export function DashboardBanners({ role }: { role: string }) {
+  const t = useTranslations("dashboardBanners");
   const { pendingApprovalsCount, lowStockCount, waQuota } = useDashboardBadges();
   const isNativeApp = useIsMobileApp();
   // Mini plan: aylık müşteri WhatsApp mesajı hakkının %80'i dolunca uyar (yalnızca sahip/yönetici).
@@ -32,12 +34,12 @@ export function DashboardBanners({ role }: { role: string }) {
           <span className="flex items-center gap-1.5">
             <MessageCircle className="h-4 w-4 shrink-0" />
             {waQuotaFull
-              ? `Bu ayki WhatsApp mesaj hakkınız doldu (${waQuota.used}/${waQuota.limit}) — müşterilere otomatik onay/hatırlatma mesajı yeni aya kadar gönderilmiyor.`
-              : `Bu ayki WhatsApp mesaj hakkınızın %80'i kullanıldı (${waQuota.used}/${waQuota.limit}).`}
+              ? t("waFull", { used: waQuota.used, limit: waQuota.limit })
+              : t("waWarn", { used: waQuota.used, limit: waQuota.limit })}
           </span>
           {!isNativeApp && (
             <Link href="/dashboard/abonelik" className="underline hover:opacity-80 transition-opacity shrink-0 font-bold">
-              Planı Yükselt →
+              {t("upgrade")}
             </Link>
           )}
         </div>
@@ -46,13 +48,13 @@ export function DashboardBanners({ role }: { role: string }) {
         <div className="bg-rose-600 hover:bg-rose-700 transition-colors text-white px-4 py-2.5 text-xs font-semibold flex items-center justify-between gap-4 border-b border-rose-700">
           <span className="flex items-center gap-1.5">
             <CalendarClock className="h-4 w-4 shrink-0" />
-            {pendingApptCount} randevu onayınızı bekliyor — dış kaynaktan gelen talepler.
+            {t("pending", { count: pendingApptCount })}
           </span>
           <Link
             href="/dashboard/bekleyen-istekler"
             className="underline hover:text-rose-100 transition-colors shrink-0 font-bold"
           >
-            Onayla →
+            {t("approve")}
           </Link>
         </div>
       )}
@@ -60,13 +62,13 @@ export function DashboardBanners({ role }: { role: string }) {
         <div className="bg-amber-500 hover:bg-amber-600 transition-colors text-white px-4 py-2.5 text-xs font-semibold flex items-center justify-between gap-4 border-b border-amber-600">
           <span className="flex items-center gap-1.5">
             <AlertTriangle className="h-4 w-4 shrink-0" />
-            Kritik Stok Uyarısı: {lowStockCount} adet ürünün stoku belirlenen kritik seviyenin altına düşmüştür!
+            {t("lowStock", { count: lowStockCount })}
           </span>
           <Link
             href="/dashboard/stok"
             className="underline hover:text-amber-100 transition-colors shrink-0 font-bold"
           >
-            Stok Yönetimine Git →
+            {t("goStock")}
           </Link>
         </div>
       )}

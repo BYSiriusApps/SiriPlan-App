@@ -24,6 +24,11 @@ const DEMO_PASSWORD = process.env.SCREENSHOT_DEMO_PASSWORD || "Sahip!2026Demo";
 // olarak dışarıda: bunlar bizim marka adımız.
 const BANNED = /whatsapp|instagram|telegram|facebook|tiktok|android|google|\bwa\b|siri(?!us|plan)/gi;
 
+// SCREENSHOT_LANG=en → panel İngilizce'ye çevrilip görseller "-en" klasörlerine
+// yazılır (App Store İngilizce yerelleştirmesi için). Varsayılan: tr.
+const LANG = process.env.SCREENSHOT_LANG === "en" ? "en" : "tr";
+const DIR_SUFFIX = LANG === "en" ? "-en" : "";
+
 const IPHONE_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1 SiriPlanApp";
 const IPAD_UA =
@@ -36,7 +41,7 @@ const DEVICES = [
     // boyutunu istiyor (Media Manager ekranında görülen kabul listesi):
     // 1242x2688, 2688x1242, 1284x2778 veya 2778x1284. En yüksek çözünürlüklü
     // seçeneği (1284x2778) kullanıyoruz.
-    outDir: path.resolve("docs/app-store/screenshots-iphone-1284x2778"),
+    outDir: path.resolve("docs/app-store/screenshots-iphone-1284x2778" + DIR_SUFFIX),
     prefix: "app-store",
     width: 1284,
     height: 2778,
@@ -47,7 +52,7 @@ const DEVICES = [
   },
   {
     key: "ipad",
-    outDir: path.resolve("docs/app-store/screenshots-ipad-2064x2752"),
+    outDir: path.resolve("docs/app-store/screenshots-ipad-2064x2752" + DIR_SUFFIX),
     prefix: "app-store-ipad",
     width: 2064,
     height: 2752,
@@ -72,12 +77,12 @@ const PAGES = [
       const isPersonelView = () =>
         page.evaluate(() => {
           const t = document.body.innerText;
-          return /\bSAAT\b/.test(t) && (t.match(/\b\d+ randevu\b/g) || []).length >= 2;
+          return /\b(SAAT|TIME)\b/.test(t) && (t.match(/\b\d+ (randevu|appointments?)\b/gi) || []).length >= 2;
         });
       for (let attempt = 1; attempt <= 4; attempt++) {
         await page.waitForTimeout(1500);
         if (!(await isPersonelView())) {
-          await page.getByRole("button", { name: /Personel/ }).first().click();
+          await page.getByRole("button", { name: /Personel|Staff/ }).first().click();
           await page.waitForTimeout(1000);
         }
         if (await isPersonelView()) {
@@ -119,23 +124,29 @@ async function login(page) {
   await dismissCookieBanner(page);
   await page.fill("#email", DEMO_EMAIL);
   await page.fill("#password", DEMO_PASSWORD);
-  await page.getByRole("button", { name: "Giriş Yap" }).click();
+  await page.getByRole("button", { name: /Giriş Yap|Sign in|Log in/i }).click();
   await page.waitForURL(/\/dashboard/, { timeout: 20000 });
   await page.waitForTimeout(1000);
 
-  // Demo hesabın kayıtlı paneldili İngilizce olabiliyor; dil hesap kaydına
-  // (preferred_language) bağlı, sade çerez enjeksiyonu yeterli olmuyor.
-  // Gerçek kullanıcı akışını taklit et: Hesabım sayfasında dili Türkçe'ye
-  // çevirip kaydet — bu hem DB'yi hem NEXT_LOCALE çerezini günceller.
+  await setPanelLanguage(page, LANG);
+}
+
+// Demo hesabın kayıtlı paneldili hesap kaydına (preferred_language) bağlı,
+// sade çerez enjeksiyonu yeterli olmuyor. Gerçek kullanıcı akışını taklit et:
+// Hesabım sayfasında dili seçip kaydet — bu hem DB'yi hem NEXT_LOCALE
+// çerezini günceller.
+async function setPanelLanguage(page, lang) {
   await page.goto(`${BASE_URL}/dashboard/hesabim`, { waitUntil: "load" });
   await dismissCookieBanner(page);
   const combobox = page.getByRole("combobox").last();
   if (await combobox.count()) {
     await combobox.click();
     await page.waitForTimeout(300);
-    const trOption = page.getByRole("option", { name: /Türkçe/i }).first();
-    if (await trOption.count()) {
-      await trOption.click();
+    const option = page
+      .getByRole("option", { name: lang === "en" ? /English/i : /Türkçe/i })
+      .first();
+    if (await option.count()) {
+      await option.click();
       await page.waitForTimeout(300);
       const saveButton = page.getByRole("button", { name: /Kaydet|Save/i }).first();
       if (await saveButton.count()) {
@@ -143,7 +154,7 @@ async function login(page) {
         // Form dil değişince ~600ms sonra kendi kendine reload ediyor; o
         // navigasyonun bitmesini bekle, yoksa hemen ardından gelen goto()
         // ile yarışıp ERR_ABORTED veriyor.
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(3500);
         await page.waitForLoadState("load", { timeout: 15000 }).catch(() => {});
         await page.waitForTimeout(500);
       }
@@ -157,7 +168,7 @@ async function captureDevice(browser, device) {
     viewport: device.viewport,
     deviceScaleFactor: device.deviceScaleFactor,
     userAgent: device.userAgent,
-    locale: "tr-TR",
+    locale: LANG === "en" ? "en-US" : "tr-TR",
   });
   const page = await context.newPage();
   await login(page);
@@ -200,6 +211,8 @@ async function captureDevice(browser, device) {
     console.log(`  ✓ ${filename}`);
   }
 
+  // Demo hesap (App Review'da kullanılıyor) İngilizce'de kalmasın: Türkçe'ye geri al.
+  if (LANG === "en") await setPanelLanguage(page, "tr");
   await context.close();
 }
 

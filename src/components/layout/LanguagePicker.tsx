@@ -63,7 +63,9 @@ export function LanguagePicker({ variant = "dark" }: LanguagePickerProps) {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 min-w-[160px] rounded-xl border border-border bg-popover p-1 shadow-xl">
+          {/* Mobil menüde ("muted") seçici sol kenarda durur; ortalanınca liste ekranın
+              soldan dışına taşıp yalnızca bayrak/ilk harfler görünüyordu → sola hizala. */}
+          <div className={`absolute bottom-10 z-50 min-w-[160px] rounded-xl border border-border bg-popover p-1 shadow-xl ${variant === "muted" ? "left-0" : "left-1/2 -translate-x-1/2"}`}>
             {LOCALES.map((loc) => (
               <button
                 key={loc.code}
