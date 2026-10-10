@@ -69,7 +69,8 @@ const PAGES = [
   {
     num: "02",
     slug: "takvim",
-    path: "/dashboard/takvim?date=2026-09-24&view=staff", // dolu bir gün (9 randevu, 5 personel)
+    // Bugün (demo hesapta her gün güncel randevu var; eski sabit 2026-09-24 günü artık boş)
+    path: `/dashboard/takvim?date=${new Date().toISOString().slice(0, 10)}&view=staff`,
     // Personel bazlı takvim (sütunlar = personel). Görünüm tercihi hesaba göre
     // değişebildiği için her çalıştırmada AÇIKÇA seçilir ve doğrulanır; doğrulanamazsa
     // dosya yazılmaz (yanlış görünümde görsel çıkmasın).
@@ -89,7 +90,8 @@ const PAGES = [
           // Randevu verisi istemci tarafında geç yüklenir (İngilizce çekimde sütunlar
           // "0 appointments" ile boş çıkmıştı) → en az bir sütunda randevu görünene dek bekle.
           await page.waitForFunction(
-            () => /\b[1-9]\d* (randevu|appointments?)\b/i.test(document.body.innerText),
+            // satır başı-sonu: üstteki "3 randevu onayınızı bekliyor" şeridi eşleşmesin
+            () => /^[1-9]\d* (randevu|appointments?)$/im.test(document.body.innerText),
             null,
             { timeout: 20000 },
           );
@@ -136,7 +138,14 @@ async function login(page) {
   await page.waitForURL(/\/dashboard/, { timeout: 20000 });
   await page.waitForTimeout(1000);
 
-  await setPanelLanguage(page, LANG);
+  // Dil geçişi bazen tutmuyor (tam çekimde panel Türkçe kalmıştı) → çerezi doğrula, 3 kez dene.
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await setPanelLanguage(page, LANG);
+    const loc = (await page.context().cookies()).find((c) => c.name === "NEXT_LOCALE")?.value;
+    if (loc === LANG) return;
+    console.warn(`  [dil] deneme ${attempt}: NEXT_LOCALE=${loc} (beklenen ${LANG})`);
+  }
+  throw new Error(`Panel dili ${LANG} yapılamadı`);
 }
 
 // Demo hesabın kayıtlı paneldili hesap kaydına (preferred_language) bağlı,
@@ -146,6 +155,7 @@ async function login(page) {
 async function setPanelLanguage(page, lang) {
   await page.goto(`${BASE_URL}/dashboard/hesabim`, { waitUntil: "load" });
   await dismissCookieBanner(page);
+  await page.waitForTimeout(1500); // hidrasyon bitmeden seçim yapılırsa kayıt tutmuyor
   const combobox = page.getByRole("combobox").last();
   if (await combobox.count()) {
     await combobox.click();
@@ -155,7 +165,7 @@ async function setPanelLanguage(page, lang) {
       .first();
     if (await option.count()) {
       await option.click();
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(800);
       const saveButton = page.getByRole("button", { name: /Kaydet|Save/i }).first();
       if (await saveButton.count()) {
         await saveButton.click();
