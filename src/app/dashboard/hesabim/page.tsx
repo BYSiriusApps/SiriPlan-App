@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { AccountProfileForm } from "@/components/dashboard/AccountProfileForm";
+import { PushToggle } from "@/components/dashboard/PushToggle";
 
 export default async function HesabimPage() {
   const user = await getSessionUser();
@@ -68,6 +69,11 @@ export default async function HesabimPage() {
         email={user.email ?? "—"}
         permissionsJson={member.permissions_json}
       />
+
+      {/* Her rol (personel dahil) kendi cihazı için push bildirimini buradan açar. */}
+      <div className="rounded-xl border border-border bg-card p-4">
+        <PushToggle />
+      </div>
     </div>
   );
 }
