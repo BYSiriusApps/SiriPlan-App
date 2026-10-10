@@ -1932,7 +1932,7 @@
     "webPush": {
       "label": "Phone / Browser Notification (arrives even when the app is closed)",
       "onHint": "Notifications are on for this device. New bookings and requests arrive even when the app is closed.",
-      "unsupported": "This browser/device does not support push notifications. (On iPhone, add the app to the Home Screen.)",
+      "unsupported": "This browser/device does not support push notifications. (On iPhone in a browser, add the app to the Home Screen; in the App Store app, notifications work directly.)",
       "denied": "Notification permission is blocked. Allow notifications for this site in your browser/phone settings.",
       "error": "Could not save the notification setting, please try again.",
       "promptTitle": "Turn on notifications",
@@ -2150,7 +2150,7 @@
             "For WhatsApp notifications, fill in the \"WhatsApp Number\" field in Settings (business-wide) or Staff → [name]. Note: per Meta's rules it only delivers if this number has messaged your business within the last 24 hours — connect Telegram too so you never miss one.",
             "While the panel is open (desktop or phone), a sound and notification fire automatically for new appointments/requests; toggle the sound from the bell icon in the sidebar/menu.",
             "Choose which channels you want to be notified on using the checkboxes in Settings → Integrations or the Staff detail page — every channel starts on, turn off any you don't want.",
-            "Phone notifications (arrive even when the app is closed): tick \"Phone / Browser Notification\" on the My Account page (Settings for owners and managers) and allow notifications. It is enabled per device; you can also turn it on with one tap from the \"Turn on notifications\" card on the panel home page.",
+            "Phone notifications (arrive even when the app is closed): tick \"Phone / Browser Notification\" on the My Account page (Settings for owners and managers) and allow notifications. It is enabled per device; you can also turn it on with one tap from the \"Turn on notifications\" card on the panel home page. It works the same way in the iPhone (App Store) and Android store apps; tap \"Allow\" in the permission prompt.",
             "Who gets what: owners and managers receive all booking, request and stock notifications; staff only receive the bookings and requests assigned to them. The phone number given at sign-up is set automatically as the WhatsApp notification number."
           ]
         },
@@ -2399,7 +2399,7 @@
           "items": [
             {
               "label": "App stores:",
-              "desc": "Download from Google Play (Android) or the App Store (iPhone) and sign in with your existing email/phone and password."
+              "desc": "Download from Google Play (Android) or the App Store (iPhone) and sign in with your existing email/phone and password. If you don't have an account yet, tap \"Kayıt olun\" (Sign up) on the sign-in screen to start a 14-day free trial inside the app (there is no payment in the app)."
             },
             {
               "label": "Add to Home Screen:",

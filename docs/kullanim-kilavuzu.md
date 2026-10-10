@@ -85,7 +85,7 @@ Randevu bildirimlerini anında Telegram'dan almak için:
 2. Botun ürettiği özel **Chat ID** numarası kopyalanır.
 3. SiriPlan panelinde **Ayarlar → Bildirimler / Entegrasyonlar → Telegram Bildirimleri (Chat ID)** alanına yapıştırıp kaydedilir. (Personeller de kendi Chat ID'lerini Personel detayından ekleyebilir).
 
-**Telefon bildirimi (uygulama kapalıyken de gelir):** Ayarlar → Bildirim Kanalları'ndaki (personel için Hesabım'daki) **"Telefon / Tarayıcı Bildirimi"** kutusunu işaretleyip izin verin; her cihazda ayrı açılır. Salon sahibi ve yöneticiler tüm randevu, talep ve stok bildirimlerini; personel yalnızca kendisine atananları alır. Hesap açarken verilen telefon WhatsApp bildirim numarası olarak otomatik tanımlanır.
+**Telefon bildirimi (uygulama kapalıyken de gelir):** Ayarlar → Bildirim Kanalları'ndaki (personel için Hesabım'daki) **"Telefon / Tarayıcı Bildirimi"** kutusunu işaretleyip izin verin; her cihazda ayrı açılır. iPhone (App Store) ve Android mağaza uygulamalarında da aynı kutuyla çalışır; uygulama içinden "Kayıt olun" ile 14 günlük ücretsiz deneme de başlatılabilir (uygulamada ödeme yoktur). Salon sahibi ve yöneticiler tüm randevu, talep ve stok bildirimlerini; personel yalnızca kendisine atananları alır. Hesap açarken verilen telefon WhatsApp bildirim numarası olarak otomatik tanımlanır.
 
 ## 8. Müşteri Yönetimi
 
