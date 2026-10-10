@@ -147,48 +147,10 @@ uyarısı geri gelmiyor mu izlenmeli.
 
 ---
 
-## 3. Web push bildirimleri (gerçek tarayıcı/telefon push'u — panel KAPALIYKEN de gelir)
+## 3. ✅ Web push bildirimleri — TAMAMLANDI (10 Eki 2026)
 
-**Durum (9 Eki 2026): KOD YAZILDI (dal `feat/web-push`), canlıya alınmadı.** Kalan: `20261011_push_subscriptions.sql`
-migration'ı + Vercel'e `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` env'leri + gerçek cihaz testi
-(masaüstü Chrome, Android TWA). Dosyalar: `src/lib/web-push.ts`, `src/app/api/push/subscribe`, `public/sw.js`,
-`src/components/dashboard/PushToggle.tsx` (Ayarlar > bildirim kanalları), `notify.ts` (4 olay). iOS (Ana Ekran PWA) sonraki faz.
-Aşağıdaki "Hâlâ başlanmadı" notu eski durumdur.
-
-**Eski durum (22 Eyl 2026):** Hâlâ başlanmadı. Bunun YERİNE aynı gün, panel AÇIKKEN
-sesli+canlı uyarı kısmı ayrı bir iş olarak TAMAMLANDI: `LiveNotifications`
-bileşeni (Supabase realtime ile `appointments`/`appointment_requests` INSERT
-dinler → `notification-sound.ts` ile iki tonlu ses çalar + `sonner` toast
-gösterir + sekme arka plandaysa `Notification` API ile OS bildirimi de dener +
-`router.refresh()` ile üstteki şeritleri/rozetleri canlı günceller). Sidebar/
-mobil menüde ses aç-kapa zil ikonu (`NotificationSoundToggle`) eklendi.
-Bu, kullanıcı panel/sekme AÇIKKEN sesi kaçırma sorununu çözer; panel tamamen
-KAPALIYKEN (uygulama arka planda/kapalı) bildirim almak hâlâ aşağıdaki gerçek
-Web Push kurulumunu gerektiriyor — bu madde o yüzden hâlâ açık.
-
-**Mevcut durum:** `public/sw.js` sadece PWA kurulabilirlik kriteri için var, `push`
-event listener'ı yok. VAPID/`web-push` paketi, `Notification`/`PushManager` kullanımı
-hiçbir yerde yok. Native tarafta da (Android TWA, PWABuilder ile üretiliyor — bu
-repoda `android/` kaynak kodu yok) FCM entegrasyonu yok.
-
-**Neden işe yarar:** Android TWA gerçek Chrome sekmesi çalıştırdığı için Web Push API
-(VAPID) teorik olarak native uygulamada da (Chrome'un kendi bildirim sistemi
-üzerinden) çalışır — ayrı bir Firebase/FCM kurulumuna gerek kalmadan.
-
-**Kapsam (kurulacaklarsa):**
-- VAPID anahtar çifti üretimi + `web-push` (veya eşdeğeri) paketinin eklenmesi.
-- `public/sw.js`'e `push` + `notificationclick` event listener'ı.
-- İzin isteme UI'ı (panelde "Bildirimlere izin ver" — muhtemelen Ayarlar sayfası).
-- `push_subscriptions` tablosu (kullanıcı/org bazlı, çoklu cihaz desteği).
-- `src/lib/notify.ts`'e üçüncü bir `dispatch` kanalı (Telegram + WhatsApp'ın yanına).
-- Test: gerçek bir cihazda (Android TWA + masaüstü Chrome) bildirim gelip
-  tıklanınca doğru sayfaya (`/dashboard/bekleyen-istekler` vb.) gittiğini doğrulamak.
-
-**İlgili dosya (bugün tamamlanan ses/canlı kısım):** `src/components/dashboard/LiveNotifications.tsx`,
-`src/components/dashboard/NotificationSoundToggle.tsx`, `src/lib/notification-sound.ts`,
-`src/app/dashboard/layout.tsx`, `src/components/dashboard/Sidebar.tsx`,
-`src/components/dashboard/MobileSideMenu.tsx`. Gerçek Web Push kurulacağında
-`public/sw.js`, `public/manifest.json`, `src/lib/notify.ts` de buna eklenecek.
+Canlıda; masaüstü Chrome ve Android uygulaması (TWA) gerçek cihazda doğrulandı, yeni AAB gerekmedi. Owner/yönetici tüm bildirimleri, personel yalnızca kendine atananları alır. Dosyalar: `src/lib/web-push.ts`, `src/app/api/push/subscribe`, `public/sw.js`, `PushToggle`, `PushPrompt`, `notify.ts`.
+**Kalan (isteğe bağlı):** iOS (Safari Ana Ekran PWA veya APNs) sonraki faz; eski personele WhatsApp numarası otomatik atanmadı.
 
 ---
 
