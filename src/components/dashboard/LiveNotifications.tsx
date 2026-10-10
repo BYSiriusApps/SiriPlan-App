@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { playNotificationChime } from "@/lib/notification-sound";
+import { bindNotificationSoundUnlock, playNotificationChime } from "@/lib/notification-sound";
 import { useDashboardBadgeRefetch } from "@/components/dashboard/DashboardBadgeContext";
 
 /**
@@ -45,6 +45,10 @@ export function LiveNotifications({ orgId }: { orgId: string }) {
   useEffect(() => {
     pathnameRef.current = pathname;
   }, [pathname]);
+
+  useEffect(() => {
+    bindNotificationSoundUnlock();
+  }, []);
 
   // Mobilde sekme arka plana alınınca WebSocket kopabiliyor; aradaki realtime
   // olaylar kaçırılıyor ("geç güncelleme" şikayeti). Sekme/pencere öne

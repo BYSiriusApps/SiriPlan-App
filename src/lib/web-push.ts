@@ -61,7 +61,10 @@ export async function sendPushToOrg(
   try {
     const webpush = await getWebPush();
     const fcmOn = isFcmConfigured();
-    if (!webpush && !fcmOn) return;
+    if (!webpush && !fcmOn) {
+      console.warn("[web-push] VAPID/FCM yapılandırılmamış, push gönderilmedi");
+      return;
+    }
 
     const supabase = await createAdminClient();
 
@@ -125,6 +128,7 @@ async function sendWebPush(
         } catch (err) {
           const code = (err as { statusCode?: number }).statusCode;
           if (code === 404 || code === 410) dead.push(s.endpoint);
+          else console.error("[web-push] gönderim hatası", code ?? "", (err as Error)?.message ?? "");
         }
       })
     );
