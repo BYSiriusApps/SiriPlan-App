@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { limitByIp } from "@/lib/rate-limit";
 import { isMobileApp } from "@/lib/mobile-app";
-import { pricingSummaryForAssistant, getPricingCurrencyFromHeaders, type PricingCurrency } from "@/lib/pricing";
+import { pricingSummaryForAssistant, addonsSummaryForAssistant, getPricingCurrencyFromHeaders, type PricingCurrency } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -11,6 +11,7 @@ const CONTACT_LINE = "📧 info@bysirius.com veya 💬 WhatsApp: +90 535 503 26 
 // Fiyat metni modül düzeyinde sabit olduğundan yer tutucu bırakılır; yanıt
 // anında ziyaretçinin para birimiyle doldurulur (diğer para birimleri verilmez).
 const PRICES_TOKEN = "__PRICES__";
+const ADDONS_TOKEN = "__ADDONS__";
 
 /**
  * Panel içi yardım asistanının bilgi tabanı — tamamen statik (LLM/API anahtarı gerekmez).
@@ -224,6 +225,7 @@ const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: strin
     answer:
       "Planlarımız Mini, Starter, Pro ve Business olarak 14 gün ücretsiz deneme ile başlar; deneme boyunca Pro seviyesindeki araçlar (sesli asistan, kampanya, website modu, müşteri skoru, PDF rapor) açıktır. Mini: tek kişilik, 1 personel (ek personel daveti yok), ayda 200 randevu ve 200 müşteri WhatsApp mesajı (%80 ve %100'de sahibe bildirim gelir), randevu linki, stok/barkod, paket takibi, gelir-gider & KDV; Pro araçları (sesli asistan, kampanya vb.) deneme sonrası kapalıdır. Starter: 1 şube, 8 personel, stok/barkod, paket takibi, bekleme listesi, gelir-gider & KDV, WhatsApp hatırlatma, ayda 1 kampanya. Pro: sınırsız personel + yukarıdaki araçlar. Business: 5 şubeye kadar + AI WhatsApp/IG asistanı. " +
       "Güncel fiyatlar (aylık, yıllık parantezde): " + PRICES_TOKEN + ". Yıllık ödemede yaklaşık %18 indirim vardır. " +
+      "Ek paketler (yalnızca aylık; ödenen Starter/Pro/Business aboneleri Ayarlar → Abonelik → Ek Paketler bölümünden alır): " + ADDONS_TOKEN + ". " +
       "Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görebilirsiniz. " +
       "Aboneliğiniz SiriPlan hesabınıza bağlıdır; plan yükseltme, yenileme veya faturalandırma sorularınız için: " + CONTACT_LINE,
   },
@@ -337,7 +339,7 @@ function getStaticResponse(message: string, mobileApp: boolean, lang: string, cu
       const mainAns = entry.answer;
       const nativeAns = entry.nativeAnswer;
       // If language is not turkish, we provide an automatic english translation note or format, but we'll return the response as is
-      return (mobileApp && nativeAns ? nativeAns : mainAns).replace(PRICES_TOKEN, pricingSummaryForAssistant("tr", [currency]));
+      return (mobileApp && nativeAns ? nativeAns : mainAns).replace(PRICES_TOKEN, pricingSummaryForAssistant("tr", [currency])).replace(ADDONS_TOKEN, addonsSummaryForAssistant("tr", [currency]));
     }
   }
 
