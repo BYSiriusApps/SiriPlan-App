@@ -1270,6 +1270,16 @@
     }
   },
   "dashboard": {
+    "menuLabel": "Menu",
+    "calendarHourColumn": "TIME",
+    "bookingLinkTitle": "Customer Booking Link",
+    "bookingLinkCopy": "Copy",
+    "bookingLinkCopied": "Link copied!",
+    "bookingLinkCopyFailed": "Could not copy",
+    "bookingLinkShare": "Share",
+    "bookingLinkShareText": "Book an appointment online: {link}",
+    "menuAiTitle": "AI Assistant",
+    "menuAiSubtitle": "Answers your questions and helps out",
     "tour": {
       "welcomeTitle": "Let's set things up together",
       "welcomeBody": "Take a few minutes to configure your business details, booking link and automatic messages — so your customers get a smooth experience from day one.",

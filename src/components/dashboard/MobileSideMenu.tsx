@@ -75,16 +75,16 @@ export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan }: 
     try {
       await navigator.clipboard.writeText(bookingLink);
       setCopied(true);
-      toast.success("Link kopyalandı!");
+      toast.success(t("bookingLinkCopied"));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Kopyalanamadı");
+      toast.error(t("bookingLinkCopyFailed"));
     }
   }
 
   function shareOnWhatsApp() {
     if (!bookingLink) return;
-    const text = `Online randevu almak için: ${bookingLink}`;
+    const text = t("bookingLinkShareText", { link: bookingLink });
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
   }
 
@@ -93,7 +93,7 @@ export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan }: 
       <SheetTrigger render={
         <button
           className="relative flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-medium text-muted-foreground transition-colors"
-          aria-label="Menü"
+          aria-label={t("menuLabel")}
         />
       }>
         <span className="relative">
@@ -104,12 +104,12 @@ export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan }: 
             </span>
           )}
         </span>
-        <span>Menü</span>
+        <span>{t("menuLabel")}</span>
       </SheetTrigger>
 
       <SheetContent side="left" className="overflow-y-auto p-0">
         <SheetHeader className="px-5 pt-6 pb-4 border-b sticky top-0 bg-background z-10">
-          <SheetTitle>Menü</SheetTitle>
+          <SheetTitle>{t("menuLabel")}</SheetTitle>
         </SheetHeader>
 
         <div className="px-4 py-4 space-y-5">
@@ -122,8 +122,8 @@ export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan }: 
               <Bot className="h-5 w-5" />
             </div>
             <div className="text-left min-w-0">
-              <p className="text-sm font-semibold">AI Asistan</p>
-              <p className="text-xs text-muted-foreground">Sorularınızı yanıtlar, yardımcı olur</p>
+              <p className="text-sm font-semibold">{t("menuAiTitle")}</p>
+              <p className="text-xs text-muted-foreground">{t("menuAiSubtitle")}</p>
             </div>
           </button>
 
@@ -132,17 +132,17 @@ export function MobileSideMenu({ role, permissionsJson = null, orgSlug, plan }: 
             <div className="p-3 rounded-xl border border-border space-y-2">
               <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
                 <Link2 className="h-3.5 w-3.5" />
-                Müşteri Randevu Linki
+                {t("bookingLinkTitle")}
               </p>
               <p className="text-xs text-muted-foreground break-all">{bookingLink}</p>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" className="flex-1 gap-1.5 text-xs h-8" onClick={copyLink}>
                   {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                  Kopyala
+                  {t("bookingLinkCopy")}
                 </Button>
                 <Button size="sm" variant="outline" className="flex-1 gap-1.5 text-xs h-8" onClick={shareOnWhatsApp}>
                   <MessageCircle className="h-3.5 w-3.5" />
-                  Paylaş
+                  {t("bookingLinkShare")}
                 </Button>
               </div>
             </div>

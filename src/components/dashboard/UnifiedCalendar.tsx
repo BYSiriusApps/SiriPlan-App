@@ -1055,7 +1055,7 @@ export function UnifiedCalendar({
   const hourRail = (
     <div className={cn("border-r bg-muted/20", (view === "week" || view === "staff") && "sticky left-0 z-20 shadow-[2px_0_6px_-1px_rgba(0,0,0,0.08)]")}>
       <div className={cn("border-b bg-muted/20 flex items-center justify-center text-[9px] font-bold text-muted-foreground tracking-wide", view === "staff" ? "h-14" : "h-10")}>
-        {(view === "week" || view === "staff") && "SAAT"}
+        {(view === "week" || view === "staff") && t("calendarHourColumn")}
       </div>
       {hours.map((h, hi) => (
         <div
@@ -1199,7 +1199,7 @@ export function UnifiedCalendar({
       <div className="space-y-2.5">
         <div className="flex items-center justify-center sm:justify-start">
           <div className="flex items-center gap-1 rounded-full bg-muted/70 p-1 shadow-inner">
-            {([["day", t("day")], ["staff", "👥 Personel"], ["week", t("week")], ["month", t("month")]] as const).map(([v, l]) => (
+            {([["day", t("day")], ["staff", `👥 ${t("staff")}`], ["week", t("week")], ["month", t("month")]] as const).map(([v, l]) => (
               <Link
                 key={v}
                 href={`/dashboard/takvim?view=${v}&date=${v === "week" ? today : viewDate}`}
