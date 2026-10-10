@@ -173,6 +173,16 @@ Salonunuza yeni bir randevu düştüğünde, ertelendiğinde veya iptal edildiğ
    - SiriPlan panelinde **Ayarlar → Bildirimler (veya Sosyal Medya & Entegrasyonlar)** alanındaki **"Telegram Chat ID"** kutusuna kopyaladığınız numarayı yapıştırıp **Kaydet** butonuna basın.
    - *(İsteğe Bağlı)* Personelleriniz de kendi Telegram Chat ID'lerini **Personel → Detay** sayfasından ekleyerek sadece kendilerine ait randevu bildirimlerini kendi Telegram hesaplarına alabilirler.
 
+
+### Telefon Bildirimi (uygulama kapalıyken de gelir)
+
+Yeni randevu, talep, öneri yanıtı ve kritik stok uyarıları telefonunuza veya bilgisayarınıza, panel kapalıyken bile anında düşer:
+
+1. **Açın**: Salon sahibi ve yöneticiler **Ayarlar → Bildirim Kanalları**'ndaki **"Telefon / Tarayıcı Bildirimi"** kutusunu, personel **Hesabım** sayfasındaki aynı kutuyu işaretler. Panelin ana sayfasında çıkan **"Bildirimleri aç"** kartı da aynı işi tek dokunuşla yapar.
+2. **İzin verin**: Çıkan pencerede **"İzin ver"** deyin. Her cihazda (telefon, bilgisayar) ayrı ayrı açılır.
+3. **Kim ne alır**: Salon sahibi ve yöneticiler tüm randevu, talep, öneri yanıtı ve kritik stok bildirimlerini; personel **yalnızca kendisine atanan** randevu ve talepleri alır.
+4. **Varsayılanlar**: Hesap açarken (veya personel eklerken) girilen telefon numarası, **WhatsApp bildirim numarası** olarak otomatik tanımlanır ve kanal açık gelir; Telegram, botu başlatıp Chat ID kaydedildiğinde açılır. İstemediğiniz kanalı kutucuklarla kapatabilirsiniz.
+5. **Gelmiyorsa**: Kutunun işaretli olduğunu ve tarayıcı/telefon ayarlarında SiriPlan için bildirim izninin kapalı olmadığını kontrol edin. iPhone'da önce uygulamayı **Ana Ekrana ekleyin**.
 ---
 
 ## 11. Toplu WhatsApp Kampanyaları
@@ -245,6 +255,9 @@ SiriPlan aboneliği ve faturalandırması SiriPlan hesabınıza bağlıdır ve u
 ---
 
 ## 16. Sık Sorulan Sorular (SSS)
+
+**Telefonuma bildirim gelmesi için ne yapmalıyım?**
+Ayarlar → Bildirim Kanalları'ndaki (personel için Hesabım'daki) "Telefon / Tarayıcı Bildirimi" kutusunu işaretleyip izin verin; her cihazda ayrı açılır. Sahip ve yöneticiler tüm bildirimleri, personel yalnızca kendisine atananları alır.
 
 **Telegram randevu bildirimlerini nasıl açabilirim?**
 Telegram'da `@siriplan_bot` hesabına mesaj atıp `/start` basın. Size verilen Chat ID numarasını Ayarlar sekmesindeki Telegram alanına yapıştırın.

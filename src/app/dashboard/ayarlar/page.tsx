@@ -799,7 +799,9 @@ export default function AyarlarPage() {
             <span>{t("settingsPage.inAppChannelLabel")}</span>
             <Checkbox checked={!inAppSoundMuted} onCheckedChange={(c) => setNotificationSoundMuted(!c)} />
           </label>
-          <PushToggle />
+          <div data-tour="push-notif" className="scroll-mt-24">
+            <PushToggle />
+          </div>
         </div>
       </SectionCard>
 

@@ -1299,6 +1299,8 @@
       "onlineBookingBody": "Here you choose the appointment slot interval: customers see times in 15, 30 or 60-minute steps on your booking page — the default for new accounts is 30 minutes, change it to suit your service durations. Auto-confirmation is available on all plans but is off for new accounts: while off you approve every request yourself and get a notification; turn it on and appointments are confirmed without waiting.",
       "whatsappNotifTitle": "Automatic WhatsApp Messages",
       "whatsappNotifBody": "Appointment confirmation, reminder, cancellation and revision messages go to your customers AUTOMATICALLY — you don't send them. Here you choose which events trigger a message and how many hours before the appointment the reminder goes out. When off, customers get no automatic WhatsApp messages. For SMS, see the SMS section below.",
+      "pushNotifTitle": "Phone Notifications",
+      "pushNotifBody": "Get new bookings and requests on your phone even when the app is closed: tick the box and allow notifications. It is enabled per device. Owners and managers receive all notifications; staff only receive the ones assigned to them.",
       "staffPermissionsTitle": "Staff Permissions",
       "staffPermissionsBody": "Here you set what each staff member can see and do in the panel (customer phone numbers, reports, cancelling appointments, etc.). When sending an invite you also pick a role (Staff / Manager) plus fine-tuning. Staff can view their own permissions on the My Account page but cannot change them.",
       "doneTitle": "You're ready!",
@@ -1313,7 +1315,7 @@
       "staffPermsTitle": "Your permissions",
       "staffPermsBody": "The business owner decides what you can see and do in the panel. If you can't see a section or perform an action, that permission is off — you can view your full permission list on the 'My Account' page. Contact the owner for changes.",
       "staffAccountTitle": "My Account",
-      "staffAccountBody": "Update your name, phone and panel language on the 'My Account' page. To change your password, use the 'Forgot password' link on the login screen.",
+      "staffAccountBody": "Update your name, phone and panel language on the 'My Account' page. To change your password, use the 'Forgot password' link on the login screen. You also turn on phone notifications here: new bookings and requests reach your phone even when the app is closed (only the ones assigned to you).",
       "staffDoneTitle": "You're ready!",
       "staffDoneBody": "Check the User Guide for anything you get stuck on. You can restart this tour any time from the My Account page."
     },
@@ -1921,7 +1923,11 @@
       "onHint": "Notifications are on for this device. New bookings and requests arrive even when the app is closed.",
       "unsupported": "This browser/device does not support push notifications. (On iPhone, add the app to the Home Screen.)",
       "denied": "Notification permission is blocked. Allow notifications for this site in your browser/phone settings.",
-      "error": "Could not save the notification setting, please try again."
+      "error": "Could not save the notification setting, please try again.",
+      "promptTitle": "Turn on notifications",
+      "promptBody": "Get new bookings and requests on your phone even when the app is closed.",
+      "promptEnable": "Turn on",
+      "promptDismiss": "Dismiss"
     },
     "customers": "Customers",
     "staff": "Staff",
@@ -2132,7 +2138,9 @@
             "Paste it in the \"Telegram Chat ID\" field in Settings → Notifications on your SiriPlan panel.",
             "For WhatsApp notifications, fill in the \"WhatsApp Number\" field in Settings (business-wide) or Staff → [name]. Note: per Meta's rules it only delivers if this number has messaged your business within the last 24 hours — connect Telegram too so you never miss one.",
             "While the panel is open (desktop or phone), a sound and notification fire automatically for new appointments/requests; toggle the sound from the bell icon in the sidebar/menu.",
-            "Choose which channels you want to be notified on using the checkboxes in Settings → Integrations or the Staff detail page — every channel starts on, turn off any you don't want."
+            "Choose which channels you want to be notified on using the checkboxes in Settings → Integrations or the Staff detail page — every channel starts on, turn off any you don't want.",
+            "Phone notifications (arrive even when the app is closed): tick \"Phone / Browser Notification\" on the My Account page (Settings for owners and managers) and allow notifications. It is enabled per device; you can also turn it on with one tap from the \"Turn on notifications\" card on the panel home page.",
+            "Who gets what: owners and managers receive all booking, request and stock notifications; staff only receive the bookings and requests assigned to them. The phone number given at sign-up is set automatically as the WhatsApp notification number."
           ]
         },
         "kampanya": {

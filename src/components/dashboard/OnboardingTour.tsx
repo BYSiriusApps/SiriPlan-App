@@ -61,6 +61,7 @@ const STEPS: Step[] = [
   { key: "integrations", target: "integrations" },
   { key: "onlineBooking", target: "online-booking" },
   { key: "whatsappNotif", target: "whatsapp-notif" },
+  { key: "pushNotif", target: "push-notif" },
   { key: "autoMessage", target: "auto-message" },
   { key: "workingHours", target: "working-hours" },
   { key: "staffPermissions", target: "staff-permissions" },

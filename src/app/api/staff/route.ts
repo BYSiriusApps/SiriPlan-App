@@ -108,6 +108,9 @@ export async function POST(req: NextRequest) {
     full_name,
     role: role || "Uzman",
     phone: phone || null,
+    // Yeni personelin telefonu varsayılan WhatsApp bildirim numarası olur (kanal
+    // varsayılan açık; kişi Ayarlar/Personel sayfasından değiştirebilir/kapatabilir).
+    whatsapp_number: phone || null,
     email: email || null,
     commission_rate: clampedRate,
     base_salary: Math.max(0, parseFloat(base_salary) || 0),

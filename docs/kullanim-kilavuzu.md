@@ -85,6 +85,8 @@ Randevu bildirimlerini anında Telegram'dan almak için:
 2. Botun ürettiği özel **Chat ID** numarası kopyalanır.
 3. SiriPlan panelinde **Ayarlar → Bildirimler / Entegrasyonlar → Telegram Bildirimleri (Chat ID)** alanına yapıştırıp kaydedilir. (Personeller de kendi Chat ID'lerini Personel detayından ekleyebilir).
 
+**Telefon bildirimi (uygulama kapalıyken de gelir):** Ayarlar → Bildirim Kanalları'ndaki (personel için Hesabım'daki) **"Telefon / Tarayıcı Bildirimi"** kutusunu işaretleyip izin verin; her cihazda ayrı açılır. Salon sahibi ve yöneticiler tüm randevu, talep ve stok bildirimlerini; personel yalnızca kendisine atananları alır. Hesap açarken verilen telefon WhatsApp bildirim numarası olarak otomatik tanımlanır.
+
 ## 8. Müşteri Yönetimi
 
 Müşteri kayıtları, geçmiş randevular, özel notlar ve sadakat puanı takibi yapılır.
@@ -158,6 +160,7 @@ Excel/CSV dosyası ile toplu müşteri aktarımı ve verilerin JSON/CSV/PDF olar
 
 ## 17. Sık Sorulan Sorular
 
+- Telefona (uygulama kapalıyken) bildirim nasıl gelir? (Ayarlar/Hesabım'daki "Telefon / Tarayıcı Bildirimi" kutusu işaretlenip izin verilir; personel yalnızca kendine atananları alır).
 - Telegram randevu bildirimleri nasıl açılır? (Telegram'da `@siriplan_bot` botuna `/start` yazıp alınan Chat ID paneldeki alana kaydedilir).
 - Business planı için teklif almak gerekir mi? (Hayır, Business dahil tüm planlar şeffaf yapıdadır; teklif alma adımı yoktur).
 - Planımı ve fatura geçmişimi nereden görürüm? (Ayarlar → Abonelik sayfasından; plan sorularınız için info@bysirius.com).
