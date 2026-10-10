@@ -1,6 +1,8 @@
 // Tarayıcı tarafı Web Push yardımcıları — PushToggle (Ayarlar/Hesabım) ve
 // PushPrompt (ilk giriş kartı) ortak kullanır. Yalnızca istemcide çağrılır.
 
+import { disableNativePush, enableNativePush, isNativeIOSPush } from "./native-push";
+
 export const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
 
 function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
@@ -12,6 +14,8 @@ function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
 }
 
 export function isPushSupported(): boolean {
+  // iOS uygulaması (WKWebView) Web Push yerine kabuk köprüsü + FCM kullanır.
+  if (isNativeIOSPush()) return true;
   return (
     !!VAPID_PUBLIC_KEY &&
     typeof navigator !== "undefined" &&
@@ -43,6 +47,7 @@ export async function getCurrentSubscription(): Promise<PushSubscription | null>
  * Dönüş: "on" | "denied" | "off" (izin penceresi kapatıldı). Hata fırlatabilir.
  */
 export async function enablePush(): Promise<"on" | "denied" | "off"> {
+  if (isNativeIOSPush()) return enableNativePush();
   const perm = await Notification.requestPermission();
   if (perm !== "granted") return perm === "denied" ? "denied" : "off";
   const reg = await getReadyRegistration();
@@ -66,6 +71,7 @@ export async function enablePush(): Promise<"on" | "denied" | "off"> {
 }
 
 export async function disablePush(): Promise<void> {
+  if (isNativeIOSPush()) return disableNativePush();
   const sub = await getCurrentSubscription();
   if (sub) {
     await fetch("/api/push/subscribe", {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
+import { isNativeIOSPush, nativePushState } from "@/lib/native-push";
 import { disablePush, enablePush, getCurrentSubscription, isPushSupported } from "@/lib/push-client";
 
 type State = "loading" | "unsupported" | "denied" | "off" | "on";
@@ -24,6 +25,11 @@ export function PushToggle() {
       try {
         if (!isPushSupported()) {
           if (!cancelled) setState("unsupported");
+          return;
+        }
+        if (isNativeIOSPush()) {
+          const ns = await nativePushState();
+          if (!cancelled) setState(ns);
           return;
         }
         if (Notification.permission === "denied") {

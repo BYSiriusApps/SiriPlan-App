@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Bell, X } from "lucide-react";
+import { isNativeIOSPush, nativePushState } from "@/lib/native-push";
 import { enablePush, getCurrentSubscription, isPushSupported } from "@/lib/push-client";
 
 const DISMISS_KEY = "sp_push_prompt_dismissed";
@@ -26,13 +27,16 @@ export function PushPrompt() {
     let cancelled = false;
     (async () => {
       try {
-        if (!isPushSupported() || Notification.permission !== "default") return;
+        if (!isPushSupported()) return;
+        const native = isNativeIOSPush();
+        // iOS uygulamasında izin/kayıt durumu kabuktan sorulur (Notification API yok).
+        if (native ? (await nativePushState()) !== "off" : Notification.permission !== "default") return;
         try {
           if (localStorage.getItem(DISMISS_KEY)) return;
         } catch {
           /* depolama yoksa kart yine de gösterilebilir */
         }
-        const sub = await getCurrentSubscription();
+        const sub = native ? null : await getCurrentSubscription();
         if (!cancelled && !sub) setShow(true);
       } catch {
         /* desteklenmiyorsa kart hiç görünmez */

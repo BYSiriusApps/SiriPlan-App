@@ -16,6 +16,7 @@ import { RouteTransition } from "@/components/dashboard/RouteTransition";
 import { Toaster } from "@/components/ui/sonner";
 import { LiveNotifications } from "@/components/dashboard/LiveNotifications";
 import { PushPrompt } from "@/components/dashboard/PushPrompt";
+import { NativePushBridge } from "@/components/dashboard/NativePushBridge";
 import { OfferChoiceHost } from "@/components/dashboard/OfferChoiceHost";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -101,6 +102,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Toaster position="top-right" richColors />
           <LiveNotifications orgId={org.id} />
           <PushPrompt />
+          <NativePushBridge />
           <OfferChoiceHost />
         </div>
        </DashboardBadgeProvider>
