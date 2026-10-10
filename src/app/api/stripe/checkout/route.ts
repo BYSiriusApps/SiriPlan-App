@@ -157,7 +157,9 @@ export async function POST(req: NextRequest) {
     cancel_url: `${appUrl}/auth/plan-sec?canceled=1`,
     metadata: { org_id: member.org_id, plan, consent_version: CONSENT_VERSION, consent_at: consentAt },
     subscription_data: {
-      ...(hasAlreadyHadTrial ? {} : { trial_period_days: 14 }),
+      // Business'ta Stripe denemesi YOK (AI asistan kurulumu/bağlantısı yapılıyor); site metinleri
+      // de denemeyi yalnızca Mini/Starter/Pro için söylüyor.
+      ...(hasAlreadyHadTrial || plan === "business" ? {} : { trial_period_days: 14 }),
       metadata: { org_id: member.org_id, plan, consent_version: CONSENT_VERSION, consent_at: consentAt },
     },
     allow_promotion_codes: true,
