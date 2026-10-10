@@ -159,9 +159,15 @@ export async function sendFcm(tokens: string[], msg: FcmMessage): Promise<string
     const wif = loadWif();
     const acc = wif ? null : loadAccount();
     const projectId = wif ? wif.projectId : acc?.project_id;
-    if (!projectId) return dead;
+    if (!projectId) {
+      console.warn("[fcm] proje kimliği yok");
+      return dead;
+    }
     const accessToken = wif ? await getWifAccessToken(wif) : await getAccessToken(acc!);
-    if (!accessToken) return dead;
+    if (!accessToken) {
+      console.error("[fcm] erişim jetonu alınamadı (WIF/servis hesabı)");
+      return dead;
+    }
 
     await Promise.allSettled(
       tokens.map(async (token) => {
@@ -182,6 +188,8 @@ export async function sendFcm(tokens: string[], msg: FcmMessage): Promise<string
             }),
             signal: AbortSignal.timeout(5000),
           });
+          if (res.ok) console.log("[fcm] gönderildi");
+          else console.error("[fcm] gönderim reddedildi", res.status, (await res.clone().text().catch(() => "")).slice(0, 300));
           if (res.status === 404) {
             dead.push(token); // UNREGISTERED
           } else if (res.status === 400) {
