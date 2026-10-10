@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ADDONS, getOrgAddons } from "@/lib/stripe/addons";
 import { getBranchInfo } from "@/lib/branches";
 import { ADDON_PRICING_BY_CURRENCY, formatPrice, getPricingCurrencyFromHeaders } from "@/lib/pricing";
-import { AddBranchForm, BuyAddonButtons } from "@/components/dashboard/AddonsPanelClient";
+import { AddBranchForm, BuyAddonButtons, SwitchToParentButton } from "@/components/dashboard/AddonsPanelClient";
 
 const AI_ELIGIBLE = ["starter", "pro"];
 const BRANCH_ELIGIBLE = ["starter", "pro", "business"];
@@ -48,8 +48,12 @@ export async function AddonsPanel({
             {t("branchLinkedTitle")}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">{t("branchLinkedDesc", { parent: info.parent.name })}</p>
+          {/* Plan yükseltme/ödeme web'de ana işletmeden yapılır; native uygulamada satın alma yüzeyi yok. */}
+          {!mobileApp && (
+            <SwitchToParentButton parentId={info.parent.id} label={t("branchGoParent")} errorText={t("addonError")} />
+          )}
         </CardContent>
       </Card>
     );

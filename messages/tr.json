@@ -1404,6 +1404,7 @@
       "addonBranchMoreHint": "Şube hakkınızı artırmak için \"Fatura & Ödeme Yöntemini Yönet\" bölümünü kullanın veya bizimle iletişime geçin.",
       "branchLinkedTitle": "Şube",
       "branchLinkedDesc": "Bu şube \"{parent}\" işletmesinin aboneliğine bağlıdır. Plan ve ödeme işlemleri ana işletmeden yapılır.",
+      "branchGoParent": "Ana işletmeye geç ve planı yönet",
       "smsPackSuccess": "Ödemeniz alındı. Kontörünüz birkaç saniye içinde hesabınıza yüklenir.",
       "smsPackCanceled": "Ödeme tamamlanmadı.",
       "smsPackError": "Ödeme sayfası açılamadı.",

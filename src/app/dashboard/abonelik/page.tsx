@@ -15,6 +15,7 @@ import { CancelSubscriptionButton } from "@/components/dashboard/CancelSubscript
 import { ChangePlanButton } from "@/components/dashboard/ChangePlanButton";
 import { BuySmsPackButton } from "@/components/dashboard/BuySmsPackButton";
 import { AddonsPanel } from "@/components/dashboard/AddonsPanel";
+import { getBranchInfo } from "@/lib/branches";
 import { getSmsCredits } from "@/lib/sms-credits";
 import Link from "next/link";
 
@@ -47,6 +48,9 @@ export default async function AbonelikPage({
   if (!member) redirect("/auth/kayit");
 
   const mobileApp = await isMobileApp();
+  // Şube (Ek Şube paketi) ana işletmenin aboneliğine bağlıdır: plan/ödeme düğmeleri yerine
+  // AddonsPanel'deki "ana işletmeye geç" kullanılır (şubeden Checkout açılamaz, bkz. api/stripe/checkout).
+  const isBranch = !!(await getBranchInfo(member.org_id)).parent;
 
   const org = (member as unknown as { org_id: string; organizations: Record<string, unknown> }).organizations as {
     plan: string; subscription_status: string; trial_ends_at?: string;
@@ -197,7 +201,7 @@ export default async function AbonelikPage({
         </CardContent>
       </Card>
 
-      {mobileApp ? (
+      {isBranch ? null : mobileApp ? (
         <div className="space-y-2">
           <a
             href={`mailto:${SUPPORT_EMAIL}`}

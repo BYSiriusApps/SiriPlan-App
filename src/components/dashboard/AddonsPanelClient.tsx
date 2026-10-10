@@ -197,3 +197,42 @@ export function AddBranchForm({
     </form>
   );
 }
+
+/** Şube hesabından ana işletmeye geçer (üyelik /api/org/switch'te doğrulanır); plan işlemleri orada yapılır. */
+export function SwitchToParentButton({ parentId, label, errorText }: { parentId: string; label: string; errorText: string }) {
+  const [loading, setLoading] = useState(false);
+
+  async function go() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/org/switch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ org_id: parentId }),
+      });
+      if (!res.ok) {
+        toast.error(errorText);
+        setLoading(false);
+        return;
+      }
+      // Tam yenileme: aktif işletme çerezi değişti, sunucu verisi baştan okunmalı.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.href = "/dashboard/abonelik";
+    } catch {
+      toast.error(errorText);
+      setLoading(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={go}
+      disabled={loading}
+      className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+    >
+      {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+      {label}
+    </button>
+  );
+}
