@@ -56,3 +56,17 @@ Play Console tarafı kontrol edildi: Veri güvenliği formu uygun (kullanıcı a
 - Apple "Review of your SiriusPlan (iOS) submission is complete" e-postası geldi (17:18): sürüm 1.0 (build 3) dağıtıma uygun,
   otomatik yayın açık. Mağaza: https://apps.apple.com/app/siriusplan/id6815322807
 - App Store süreci KAPANDI. Kalan küçük işler: GELISTIRME-LISTESI.md §11.
+
+## GÜNCELLEME — 10 Ekim 2026: SÜRÜM 1.1 (build 4) TASLAK — GÖNDERİLMEYECEK, iOS PUSH BEKLİYOR
+- siriplan-ios: `src/SiriPlan.xcodeproj/project.pbxproj` içinde `CURRENT_PROJECT_VERSION` 3→4 (Debug+Release, her blokta 2'şer satır),
+  `MARKETING_VERSION` 1→1.1. Codemagic #13 ile build 4 TestFlight'a işlendi ("1.1 (4)").
+- App Store Connect: iOS App Version 1.1 **Prepare for Submission** (taslak). Türkçe + English (U.S.) metinleri, görseller
+  (iPhone için 1206×2622 / 1179×2556 yeniden boyutlu set; iPad 2064×2752) ve Notes ("In-app registration…" metni) girildi. **Add for Review'a BASILMADI.**
+- Neden bekliyor: iOS kabuğu WKWebView → Web Push desteklemez. Kabukta `FirebaseApp.configure()` / `registerForRemoteNotifications()` yorum satırında,
+  `GoogleService-Info.plist` PWABuilder boş şablonu (API_KEY 0000…, BUNDLE_ID com.microsoft.pwabuilder-ios). `Entitlements.plist`'te `aps-environment=production` var,
+  `Info.plist`'te `UIBackgroundModes: remote-notification` var. Yani: Firebase iOS uygulaması + APNs anahtarı (.p8) + kabuk kodu + sunucuda cihaz-token tablosu/endpoint
+  ve `sendPushToOrg` içinde FCM gönderimi gerekiyor. Push bitince build 5 çıkar; taslakta build 4 yerine 5 seçilir; What's New'e push satırı geri eklenir.
+- What's New (TR/EN) hazır; push satırı yalnızca push çalışınca eklenecek.
+- Demo hesap (`sahip.demo@siriplan.com`) kayıtlı dili **Türkçe** (10 Eki doğrulandı). Ekran görüntüsü betiği: `SCREENSHOT_LANG=en node scripts/app-store-screenshots-capture.mjs`
+  — çıkışta dili Türkçe'ye geri alır; İngilizce çekimden sonra mutlaka kontrol et.
+- İngilizce görseller: `screenshots-iphone-1284x2778-en/`, `screenshots-ipad-2064x2752-en/` (1206/1179 boyutlular 1284'ten yeniden boyutlanır, repoda tutulmadı).
