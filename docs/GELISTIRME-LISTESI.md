@@ -717,6 +717,16 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
 - **TAMAMLANDI — SMS paketi müşteri kaydı (güvenlik incelemesi, 9 Eki):** `api/stripe/sms-pack/route.ts` içinde
   `stripe_customer_id` yazımı artık admin client ile yapılıyor (yetki kontrolü owner/manager önceden var). Satın alma
   mobilde zaten kapalı (buton `!mobileApp` + API `isMobileApp()` 403).
+- **TAMAMLANDI — Stripe plan geçişi testi (9 Eki 2026):** test modunda 31 geçiş (Mini/Starter/Pro/Business, aylık
+  TRY+USD, yıllık, zincir) 31/31 başarılı; önizleme tutarı = tahsil edilen tutar. `STRIPE_PRICE_*` değerleri
+  doğrulandı (kullanıcı teyidi). Yerel `tsc`'deki 4 Stripe tip hatası (billing_cycle_anchor, payment_method_types)
+  yalnızca SDK v23 tip uyuşmazlığı — API düz `"now"` biçimini kabul ediyor, `{type:"now"}` biçimini REDDEDİYOR;
+  bu yüzden kod bilerek değiştirilmedi (`ignoreBuildErrors: true`). Stripe `apiVersion` yükseltilirse yeniden test et.
+- **YAPILACAK — Stripe webhook + DB uçtan uca testi:** plan geçişinde webhook (`customer.subscription.updated`),
+  `applyPlanToOrg` ile organizations.plan yazımı ve panelde/abonelik sayfasında plan gösterimi canlıda uçtan uca
+  denenmedi. Yöntem: Stripe CLI ile yerel webhook'u TEST moduna bağla (`stripe listen`), test org'unda yükselt/düşür,
+  DB + ekranı kontrol et. (Canlı anahtarla deneme YAPMA — bkz. §7.)
+
 
 ## 15. Mesafeli satış paketi (10 Eki 2026) — kodda HAZIR, hukuki/idari teyit BEKLİYOR
 
@@ -729,3 +739,19 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
 - Mevcut aktif abone yok (kullanıcı teyidi: yalnızca kendi test/demo hesapları) — geriye dönük onay gerekmez. Plan yükseltmede (`change-plan`) yeni onay kutusu YOK (ilk satın almada alınan onay geçerli kabul edildi).
 - Tüketici hakem heyeti/mahkeme parasal sınırları metne yazılmadı (her yıl değişir); cayma bildirimi muhatabı info@.
 - Avukat incelemesi ileride yapılacak: cayma istisnası (anında ifa) ifadesi, sorumluluk sınırı, tüketici/ticari ayrımı, UK Ltd ile Türk tüketicisine satış yapısı.
+
+## 16. Ek paketler (AI Asistan, Ek Şube) ve AI model katmanı (10 Eki 2026)
+
+**Canlıda (PR #144, #145, #148, #150):** yalnızca **aylık** satılıyor — AI Asistan 2.500 TL / 49 USD / 45 EUR, Ek Şube 1.000 TL / 24 USD / 20 EUR (env: `STRIPE_PRICE_AIASSISTANT`, `STRIPE_PRICE_BRANCH`). Plan aboneliğinden ayrı Stripe aboneliği; durum `org_addons`, şubeler `org_branches`. Canlı webhook `customer.subscription.created` dahil 5 olayı dinliyor (10 Eki'de doğrulandı).
+
+**Karar — satın alma yüzeyi:** Fiyatlar sayfasında yalnızca "Bilgi Al" formu (satın al butonu YOK). Satın alma yalnızca web panelinde `/dashboard/abonelik` → "Ek Paketler" alanında; yalnızca ödenen Starter/Pro/Business aboneleri alabilir (abone olmayan satın alamaz). Native uygulamada (App Store/Play) hiçbir satın alma yüzeyi/fiyat/şube açma formu yok. Şube hesabında plan işlemleri yerine "Ana işletmeye geç ve planı yönet" düğmesi (web).
+
+**Bilinçli olarak yapılmayanlar (AKSİYON ALINMAYACAK — kullanıcı kararı):**
+- Yıllık fiyat: AI Asistan ve Ek Şube için Stripe'ta yıllık Price yok (aksiyon alınmayacak). `STRIPE_PRICE_AI_ANNUAL` / `STRIPE_PRICE_BRANCH_ANNUAL` boş kaldıkça yıllık buton görünmez; ileride istenirse Stripe'ta yıllık Price + env yeterli (etiket aylık×12 gösterir; indirim istenirse `AddonsPanel.tsx` + `pricing.ts`).
+- AI için aylık yanıt sınırı (~1.000) YOK (aksiyon alınmayacak; gerekirse admin panelinden elle yönetilir). Ölçüm: ~320 giriş + ~70 çıkış token/yanıt; 10.000 mesaj/ay ≈ $2,8 (Gemini 3.5 Flash-Lite).
+- Admin panelinden elle plan değişimi `feature_ai`'yi doğrudan yazar ve AI paketini ezebilir (aksiyon alınmayacak; elle düzeltilir).
+
+**Açık (ileride):**
+- Sohbet botu fiyat özeti (`pricingSummaryForAssistant`) ek paketleri içermiyor.
+- Gerçek satın alma uçtan uca (Checkout → webhook → paket etkinleşmesi) denenmedi; anahtar canlı mod, önce Stripe test modu (bkz. §7).
+- **AI model katmanı (PR #149):** `gemini-2.0-flash` Google'da kapandığı için AI yanıt / site sohbet botu / sesli randevu düşmüştü; artık `src/lib/llm.ts`: `gemini-3.5-flash-lite` → `gemini-3.1-flash-lite` → (anahtar varsa) Claude `claude-haiku-5-5`. Model adları env ile değişir (`GEMINI_MODEL`, `GEMINI_FALLBACK_MODEL`, `CLAUDE_FALLBACK_MODEL`). **Claude yedeği için `ANTHROPIC_API_KEY` hem `.env.local` hem Vercel'e girilecek** (Gemini için ek anahtar yok). Girmeden ÖNCE gizlilik metni + App Store/Play veri beyanlarına Anthropic (alt işleyici) eklenmeli; girince bir kez canlı test et (Claude yolu yalnızca sahte fetch ile doğrulandı).
