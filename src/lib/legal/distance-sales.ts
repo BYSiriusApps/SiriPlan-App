@@ -17,15 +17,14 @@ export type LegalDocKey = "contract" | "preinfo" | "refund";
 export type LegalLang = "tr" | "en";
 
 const addr = {
-  tr: SELLER.registeredAddress || "Kayıtlı adres talep üzerine bildirilir (İngiltere ve Galler'de kayıtlı şirket; operasyon ofisi Türkiye'dedir)",
-  en: SELLER.registeredAddress || "Registered address is provided on request (company registered in England and Wales; operations office in Türkiye)",
+  tr: SELLER.registeredAddress || "Kayıtlı adres talep üzerine bildirilir",
+  en: SELLER.registeredAddress || "Registered address is provided on request",
 };
 
 const sellerTr = [
   `Unvan: ${SELLER.legalName}`,
   `Kuruluş yeri / sicil: ${SELLER.jurisdiction.tr} — Companies House No: ${SELLER.registrationNo}`,
   `Adres: ${addr.tr}`,
-  `Türkiye: ${SELLER.liaisonOffice.tr}`,
   `E-posta: ${SELLER.email} · Telefon / WhatsApp: ${SELLER.phone}`,
   `İnternet sitesi: ${SELLER.website}`,
 ];
@@ -33,7 +32,6 @@ const sellerEn = [
   `Name: ${SELLER.legalName}`,
   `Registered in: ${SELLER.jurisdiction.en} — Companies House No: ${SELLER.registrationNo}`,
   `Address: ${addr.en}`,
-  `Türkiye: ${SELLER.liaisonOffice.en}`,
   `Email: ${SELLER.email} · Phone / WhatsApp: ${SELLER.phone}`,
   `Website: ${SELLER.website}`,
 ];

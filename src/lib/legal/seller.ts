@@ -13,10 +13,8 @@ export const SELLER = {
   legalName: "BY Sirius Group Ai and Technology Co Ltd.",
   jurisdiction: { tr: "İngiltere ve Galler", en: "England and Wales" },
   registrationNo: "17142392",
-  // Kayıtlı adres (bysirius.com/iletisim ile aynı). Türkiye'de İstanbul (Kağıthane)
-  // irtibat ofisi vardır; sokak adresi yayımlanmadığı için yalnızca ilçe belirtilir.
+  // Kayıtlı adres (bysirius.com/iletisim ile aynı).
   registeredAddress: "71-75 Shelton Street, Covent Garden, London, WC2H 9JQ, United Kingdom",
-  liaisonOffice: { tr: "İstanbul irtibat ofisi (Kağıthane)", en: "Istanbul liaison office (Kağıthane)" },
   email: "info@bysirius.com",
   phone: "+90 535 503 26 34",
   website: "https://siriplan.com",
