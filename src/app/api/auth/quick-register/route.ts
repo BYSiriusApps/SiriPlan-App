@@ -228,6 +228,8 @@ export async function POST(req: NextRequest) {
     name: salonName,
     type: safeBusinessType,
     phone: phone || null,
+    // Kayıtta verilen telefon varsayılan WhatsApp bildirim numarasıdır (kanal varsayılan açık).
+    whatsapp_number: phone || null,
     email,
     plan: "trial",
     subscription_status: "active",

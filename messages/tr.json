@@ -1299,6 +1299,8 @@
       "onlineBookingBody": "Randevu dilimi aralığını buradan seçersiniz: müşteriler randevu sayfanızda saatleri 15, 30 veya 60 dakikalık adımlarla görür — yeni hesaplarda varsayılan 30 dakikadır, hizmet sürenize göre değiştirebilirsiniz. Randevuların otomatik onaylanması tüm planlarda kullanılabilir ancak yeni hesaplarda kapalı gelir: kapalıyken her talebi siz onaylarsınız ve size bildirim gelir; açarsanız randevular beklemeden onaylanır.",
       "whatsappNotifTitle": "Otomatik WhatsApp Mesajları",
       "whatsappNotifBody": "Randevu onay, hatırlatma, iptal ve revize mesajları müşterilerinize OTOMATİK gider — siz göndermezsiniz. Burada hangi olaylarda mesaj gideceğini ve hatırlatmanın randevudan kaç saat önce çıkacağını seçersiniz. Kapalıyken müşteri otomatik WhatsApp mesajı almaz. SMS için aşağıdaki SMS bölümüne bakın.",
+      "pushNotifTitle": "Telefon Bildirimi",
+      "pushNotifBody": "Yeni randevu ve talepler uygulama kapalıyken de telefonunuza gelsin: kutuyu işaretleyip izin verin. Her cihazda ayrı açılır. Salon sahibi ve yöneticiler tüm bildirimleri, personel yalnızca kendine atananları alır.",
       "staffPermissionsTitle": "Personel Yetkileri",
       "staffPermissionsBody": "Buradan her personelin panelde neleri görüp yapabileceğini ayarlarsınız (müşteri telefonları, raporlar, randevu iptali vb.). Davet gönderirken de rol (Personel / Yönetici) + ince ayar seçersiniz. Personel kendi yetkilerini Hesabım sayfasında görebilir ama değiştiremez.",
       "doneTitle": "Hazırsınız!",
@@ -1313,7 +1315,7 @@
       "staffPermsTitle": "Yetkileriniz",
       "staffPermsBody": "Panelde neleri görüp yapabileceğinizi işletme sahibi belirler. Bir bölümü göremiyorsanız veya bir işlemi yapamıyorsanız yetkiniz kapalı demektir — 'Hesabım' sayfasında tam yetki listenizi görebilirsiniz. Değişiklik için işletme sahibine başvurun.",
       "staffAccountTitle": "Hesabım",
-      "staffAccountBody": "Adınızı, telefonunuzu ve panel dilinizi 'Hesabım' sayfasından güncellersiniz. Şifre değişikliği için giriş ekranındaki 'Şifremi unuttum' bağlantısını kullanın.",
+      "staffAccountBody": "Adınızı, telefonunuzu ve panel dilinizi 'Hesabım' sayfasından güncellersiniz. Şifre değişikliği için giriş ekranındaki 'Şifremi unuttum' bağlantısını kullanın. Telefon bildirimini de buradan açarsınız: yeni randevu ve talepler uygulama kapalıyken telefonunuza gelir (yalnızca size atananlar).",
       "staffDoneTitle": "Hazırsınız!",
       "staffDoneBody": "Takıldığınız her konu için Kullanım Kılavuzu'na göz atabilir, bu turu Hesabım sayfasından yeniden başlatabilirsiniz."
     },
@@ -1921,7 +1923,11 @@
       "onHint": "Bu cihazda bildirim açık. Yeni randevu ve talepler uygulama kapalıyken de gelir.",
       "unsupported": "Bu tarayıcı/cihaz anlık bildirimi desteklemiyor. (iPhone için uygulamayı Ana Ekrana ekleyin.)",
       "denied": "Bildirim izni engellenmiş. Tarayıcı/telefon ayarlarından bu site için bildirimlere izin verin.",
-      "error": "Bildirim ayarı kaydedilemedi, lütfen tekrar deneyin."
+      "error": "Bildirim ayarı kaydedilemedi, lütfen tekrar deneyin.",
+      "promptTitle": "Bildirimleri aç",
+      "promptBody": "Yeni randevu ve talepler uygulama kapalıyken de telefonuna gelsin.",
+      "promptEnable": "Aç",
+      "promptDismiss": "Kapat"
     },
     "customers": "Müşteriler",
     "staff": "Personel",
@@ -2132,7 +2138,9 @@
             "SiriPlan panelinde Ayarlar → Bildirimler alanındaki \"Telegram Chat ID\" kutusuna yapıştırıp kaydedin.",
             "WhatsApp bildirimi için Ayarlar (salon geneli) veya Personel → [isim] sayfasındaki \"WhatsApp Numarası\" alanını doldurun. Not: Meta kuralı gereği yalnızca bu numaradan işletmenize son 24 saat içinde yazılmışsa iletilir — hiç kaçırmamak için Telegram'ı da bağlayın.",
             "Panel açıkken (bilgisayar veya telefon fark etmez) yeni randevu/talep geldiğinde otomatik sesli uyarı ve bildirim çalar; sesi Sidebar/menüdeki zil ikonundan açıp kapatabilirsiniz.",
-            "Hangi kanaldan bildirim almak istediğinizi Ayarlar → Entegrasyonlar veya Personel detay sayfasındaki kutucuklarla seçin — hepsi başta açık gelir, istemediğinizi kapatabilirsiniz."
+            "Hangi kanaldan bildirim almak istediğinizi Ayarlar → Entegrasyonlar veya Personel detay sayfasındaki kutucuklarla seçin — hepsi başta açık gelir, istemediğinizi kapatabilirsiniz.",
+            "Telefon bildirimi (uygulama kapalıyken de gelir): Hesabım sayfasındaki (sahip ve yöneticiler için Ayarlar'daki) \"Telefon / Tarayıcı Bildirimi\" kutusunu işaretleyip izin verin. Her cihazda ayrı açılır; panelin ana sayfasındaki \"Bildirimleri aç\" kartıyla da tek dokunuşta açabilirsiniz.",
+            "Kim hangi bildirimi alır: salon sahibi ve yöneticiler tüm randevu, talep ve stok bildirimlerini; personel yalnızca kendisine atanan randevu ve talepleri alır. Hesap açarken verilen telefon numarası, WhatsApp bildirim numarası olarak otomatik tanımlanır."
           ]
         },
         "kampanya": {

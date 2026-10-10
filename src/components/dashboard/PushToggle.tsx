@@ -3,27 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
-
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
-
-function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
-  const padding = "=".repeat((4 - (base64.length % 4)) % 4);
-  const raw = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
-  const out = new Uint8Array(new ArrayBuffer(raw.length));
-  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
-  return out;
-}
-
-/**
- * Service worker'ı hazır döndürür. Kök layout kaydı yalnızca "load" olayına bağlıyor;
- * script sayfa yüklendikten sonra çalışırsa olay kaçıyor ve kayıt hiç olmuyor —
- * o durumda `ready` sonsuza kadar bekler. register() idempotenttir (zaten kayıtlıysa
- * mevcut kaydı döndürür), bu yüzden burada her zaman çağırmak güvenlidir.
- */
-async function getReadyRegistration(): Promise<ServiceWorkerRegistration> {
-  await navigator.serviceWorker.register("/sw.js");
-  return navigator.serviceWorker.ready;
-}
+import { disablePush, enablePush, getCurrentSubscription, isPushSupported } from "@/lib/push-client";
 
 type State = "loading" | "unsupported" | "denied" | "off" | "on";
 
@@ -42,12 +22,7 @@ export function PushToggle() {
     let cancelled = false;
     async function init() {
       try {
-        if (
-          !VAPID_PUBLIC_KEY ||
-          !("serviceWorker" in navigator) ||
-          !("PushManager" in window) ||
-          !("Notification" in window)
-        ) {
+        if (!isPushSupported()) {
           if (!cancelled) setState("unsupported");
           return;
         }
@@ -55,8 +30,7 @@ export function PushToggle() {
           if (!cancelled) setState("denied");
           return;
         }
-        const reg = await getReadyRegistration();
-        const sub = await reg.pushManager.getSubscription();
+        const sub = await getCurrentSubscription();
         if (!cancelled) setState(sub && Notification.permission === "granted" ? "on" : "off");
       } catch {
         if (!cancelled) setState("unsupported");
@@ -68,53 +42,17 @@ export function PushToggle() {
     };
   }, []);
 
-  async function enable() {
-    const perm = await Notification.requestPermission();
-    if (perm !== "granted") {
-      setState(perm === "denied" ? "denied" : "off");
-      return;
-    }
-    const reg = await getReadyRegistration();
-    const sub =
-      (await reg.pushManager.getSubscription()) ??
-      (await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-      }));
-    const res = await fetch("/api/push/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subscription: sub.toJSON() }),
-    });
-    if (!res.ok) {
-      // Sunucuya kaydolmayan abonelik işe yaramaz — tarayıcıda da bırakma.
-      await sub.unsubscribe().catch(() => {});
-      throw new Error("subscribe failed");
-    }
-    setState("on");
-  }
-
-  async function disable() {
-    const reg = await getReadyRegistration();
-    const sub = await reg.pushManager.getSubscription();
-    if (sub) {
-      await fetch("/api/push/subscribe", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint: sub.endpoint }),
-      }).catch(() => {});
-      await sub.unsubscribe().catch(() => {});
-    }
-    setState("off");
-  }
-
   async function onToggle(checked: boolean) {
     if (busy) return;
     setBusy(true);
     setError(false);
     try {
-      if (checked) await enable();
-      else await disable();
+      if (checked) {
+        setState(await enablePush());
+      } else {
+        await disablePush();
+        setState("off");
+      }
     } catch {
       setError(true);
     } finally {

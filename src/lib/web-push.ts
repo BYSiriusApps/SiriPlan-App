@@ -4,8 +4,9 @@
 //  - Hiçbir zaman fırlatmaz: push sorunu randevu/bildirim akışını ASLA bozmaz.
 //  - VAPID anahtarları yoksa ya da tablo henüz yoksa sessizce hiçbir şey yapmaz.
 //  - Alıcılar org_members üyeliğinden çözülür (org_id sunucuda doğrulanmış
-//    akıştan gelir): yalnızca o işletmenin SAHİBİ (+ varsa atanan personelin
-//    kullanıcısı) bildirim alır — başka kiracıya asla gitmez.
+//    akıştan gelir) — başka kiracıya asla gitmez:
+//      * sahip ve yönetici: işletmenin TÜM bildirimleri (randevu, talep, stok…)
+//      * personel: yalnızca KENDİNE atanan randevu/talep bildirimleri
 //  - Gönderim süresi sınırlıdır (timeout) ki yavaş bir push servisi isteği tutmasın.
 import { createAdminClient } from "@/lib/supabase/server";
 
@@ -24,7 +25,6 @@ interface SubRow {
   auth: string;
 }
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 let configured = false;
 
 async function getWebPush() {
@@ -48,8 +48,9 @@ function safeUrl(url?: string): string {
 }
 
 /**
- * İşletmenin sahip(ler)ine ve (verildiyse) atanan personele web push gönderir.
- * `assignedStaffId`: org_members.staff_id ile eşleşen personel kaydı.
+ * İşletmenin sahip ve yöneticilerine, ayrıca (verildiyse) atanan personele web push gönderir.
+ * `assignedStaffId`: org_members.staff_id ile eşleşen personel kaydı; verilmezse
+ * (ör. stok uyarısı) personele hiçbir şey gitmez.
  */
 export async function sendPushToOrg(
   orgId: string,
@@ -62,13 +63,22 @@ export async function sendPushToOrg(
 
     const supabase = await createAdminClient();
 
-    let q = supabase.from("org_members").select("user_id").eq("org_id", orgId);
-    // staff_id filtre dizgesine girdiği için biçimi UUID olarak doğrulanır.
-    q = assignedStaffId && UUID_RE.test(assignedStaffId)
-      ? q.or(`role.eq.owner,staff_id.eq.${assignedStaffId}`)
-      : q.eq("role", "owner");
-    const { data: members } = await q;
-    const userIds = Array.from(new Set((members ?? []).map((m: { user_id: string }) => m.user_id)));
+    const { data: members } = await supabase
+      .from("org_members")
+      .select("user_id, role, staff_id")
+      .eq("org_id", orgId);
+    const userIds = Array.from(
+      new Set(
+        (members ?? [])
+          .filter(
+            (m: { user_id: string; role: string; staff_id: string | null }) =>
+              m.role === "owner" ||
+              m.role === "manager" ||
+              (!!assignedStaffId && m.staff_id === assignedStaffId)
+          )
+          .map((m: { user_id: string }) => m.user_id)
+      )
+    );
     if (userIds.length === 0) return;
 
     const { data: subs } = await supabase
