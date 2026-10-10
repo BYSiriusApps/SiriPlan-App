@@ -109,7 +109,19 @@
   .flow .bd{font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap;}
   .bd.w{background:#FFF1D6;color:#9a5b00;} .bd.o{background:#D9F3E3;color:#0b6b3a;} .bd.d{background:rgba(124,58,237,.14);color:#5b21b6;}
   a.pill{text-decoration:none;color:inherit;cursor:pointer;} a.pill:hover{border-color:var(--p);}
-  @media (prefers-reduced-motion:reduce){.phone .shot,.flow .st{animation:none;} .phone .shot{display:none;} .flow .st:first-child{opacity:1;}}
+  /* —— kilit ekranı: bildirimler sırayla kayarak gelir (saf CSS) —— */
+  .lock{flex:0 0 auto;width:262px;height:566px;border-radius:34px;overflow:hidden;border:7px solid #1B1530;box-shadow:0 30px 60px -18px rgba(60,20,90,.45);background:linear-gradient(165deg,#2b1450 0%,#C2185B 58%,#7C3AED 100%);position:relative;color:#fff;}
+  .lock .lk-time{text-align:center;font-size:60px;font-weight:300;line-height:1;margin-top:44px;letter-spacing:-.02em;}
+  .lock .lk-date{text-align:center;font-size:14px;opacity:.92;margin-top:8px;}
+  .lock .nt{position:absolute;left:10px;right:10px;height:84px;border-radius:18px;padding:9px 12px;background:rgba(255,255,255,.94);color:var(--ink);box-shadow:0 12px 26px -10px rgba(20,10,50,.6);opacity:0;}
+  .lock .nt .nh{display:flex;align-items:center;gap:7px;font-size:11px;color:#6b6685;} .lock .nt .nh img{width:18px;height:18px;border-radius:5px;display:block;} .lock .nt .nh b{font-weight:800;color:#3b3552;} .lock .nt .nh i{margin-left:auto;font-style:normal;}
+  .lock .nt .nb{margin-top:6px;} .lock .nt .nb b{display:block;font-size:13.5px;font-weight:800;line-height:1.25;} .lock .nt .nb span{display:block;font-size:12px;color:var(--muted);line-height:1.3;margin-top:2px;}
+  .lock .n1{top:136px;animation:nt1 14s infinite;} .lock .n2{top:228px;animation:nt2 14s infinite;} .lock .n3{top:320px;animation:nt3 14s infinite;} .lock .n4{top:412px;animation:nt4 14s infinite;}
+  @keyframes nt1{0%{opacity:0;transform:translateX(70px)}5%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+  @keyframes nt2{0%,18%{opacity:0;transform:translateX(70px)}23%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+  @keyframes nt3{0%,36%{opacity:0;transform:translateX(70px)}41%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+  @keyframes nt4{0%,54%{opacity:0;transform:translateX(70px)}59%,90%{opacity:1;transform:none}96%,100%{opacity:0;transform:none}}
+  @media (prefers-reduced-motion:reduce){.phone .shot,.flow .st,.lock .nt{animation:none;} .phone .shot{display:none;} .flow .st:first-child{opacity:1;} .lock .nt{opacity:1;}}
   /* —— mobil / dar ekran: slaytlar alt alta, kayan okunabilir sayfalar —— */
   @media (max-width:820px){
     html,body{background:#ddd;}
@@ -122,7 +134,8 @@
     .row{flex-direction:column;gap:26px;height:auto;align-items:stretch;}
     .covrow{flex-direction:column !important;gap:28px !important;}
     .covrow .brand{flex-direction:row !important;gap:16px !important;} .covrow .brand img{width:96px !important;height:96px !important;border-radius:24px !important;} .covrow .brand span{font-size:38px !important;}
-    .phone{width:240px;height:520px;margin:0 auto;}
+    .phone,.lock{width:240px;height:520px;margin:0 auto;}
+    .lock .lk-time{font-size:50px;margin-top:34px;} .lock .n1{top:116px;} .lock .n2{top:204px;} .lock .n3{top:292px;} .lock .n4{top:380px;} .lock .nt{height:80px;}
     .mock{width:100%;max-width:340px;margin:0 auto;}
     .grid{gap:14px;} .g2,.g3,.g4{grid-template-columns:1fr;}
     .ph{position:relative !important;left:auto !important;right:auto !important;top:auto !important;width:100% !important;height:240px !important;margin:0 0 20px;}
@@ -130,7 +143,7 @@
     .cta{font-size:19px;padding:14px 28px;} .stores .store{flex:1 1 200px;justify-content:center;}
     .plan .price{font-size:34px;}
   }
-  @media print{.slide{zoom:1 !important;margin:0 !important;}}
+  @media print{.slide{zoom:1 !important;margin:0 !important;} .lock .nt{opacity:1 !important;animation:none !important;transform:none !important;}}
 </style>
 </head>
 <body>
@@ -173,8 +186,9 @@
   <div class="hap" style="max-width:780px;">
     <span class="hot">📅 7/24 online randevu</span>
     <span class="hot">💬 Otomatik WhatsApp</span>
-    <span class="hot">📲 SMS kontörü</span>
+    <span class="hot">🔔 Telefona anlık bildirim</span>
     <span>🎤 Sesli asistan</span>
+    <span>📲 SMS (isteğe bağlı)</span>
     <span>📦 Barkodlu stok</span>
     <span>🎟️ Paket / seans takibi</span>
     <span>⭐ Sadakat &amp; müşteri skoru</span>
@@ -267,8 +281,8 @@
       <ul class="ck">
         <li>Onay, <b>hatırlatma</b>, değişiklik ve iptal mesajları müşteriye <b>WhatsApp</b> ile <b>otomatik</b> ulaşır — SiriPlan hattından</li>
         <li>Hatırlatma saatini siz seçersiniz (<b>1 gün</b> / <b>2 saat önce</b>); metinler Meta onaylı</li>
-        <li>Yeni randevu/talepte siz ve personel <b>Telegram, WhatsApp veya sesli uyarı</b> alırsınız</li>
-        <li>Müşterinin diline göre TR / EN / RU / AR</li>
+        <li>Yeni randevu/talepte siz ve personel <b>telefon bildirimi, Telegram, WhatsApp veya sesli uyarı</b> alırsınız</li>
+        <li>Müşterinin diline göre TR / EN / RU / AR; WhatsApp kullanmayanlara isteğe bağlı SMS</li>
       </ul>
       <span class="hook">Gelmeme (no-show) oranınızı %60'a kadar azaltın.</span>
     </div>
@@ -285,26 +299,26 @@
   <div class="foot"><span><a href="https://siriplan.com" target="_blank" rel="noopener">siriplan.com</a></span><span>7</span></div>
 </section>
 
-<!-- 8 SMS kontörü -->
+<!-- 8 Telefon bildirimleri (kayan bildirim kartları) -->
 <section class="slide">
   <div class="row">
-    <div class="mock">
-      <div class="bar">SMS Kontörü<small>Abonelik sayfası</small></div>
-      <div class="body">
-        <div class="kv"><span>Kalan SMS</span><span class="big grad">1.000</span></div>
-        <div class="kv"><span>Paket</span><b style="color:var(--ink)">Kullandıkça azalır · süre sınırı yok</b></div>
-        <div style="text-align:center;background:var(--grad);color:#fff;font-weight:800;padding:13px;border-radius:12px;">1.000 SMS Kontörü Satın Al</div>
-        <div class="say" style="font-style:normal;font-size:13px;">Kendi SMS hesabınızı bağlamadan müşterilerinize SMS gönderin.</div>
-      </div>
+    <div class="lock" aria-hidden="true">
+      <div class="lk-time">09:41</div><div class="lk-date">Cuma, 28 Ekim</div>
+      <div class="nt n1"><div class="nh"><img src="icons/icon-mark-square.png" alt=""><b>SiriPlan</b><i>şimdi</i></div><div class="nb"><b>🆕 Yeni randevu talebi</b><span>Ayşe Y. · Saç Boyama · Cuma 14:30</span></div></div>
+      <div class="nt n2"><div class="nh"><img src="icons/icon-mark-square.png" alt=""><b>SiriPlan</b><i>2 dk önce</i></div><div class="nb"><b>✅ Randevu onaylandı</b><span>Selin · Cilt Bakımı · Cuma 16:00</span></div></div>
+      <div class="nt n3"><div class="nh"><img src="icons/icon-mark-square.png" alt=""><b>SiriPlan</b><i>5 dk önce</i></div><div class="nb"><b>⚠️ Kritik stok uyarısı</b><span>Saç boyası · 2 adet kaldı</span></div></div>
+      <div class="nt n4"><div class="nh"><img src="icons/icon-mark-square.png" alt=""><b>SiriPlan</b><i>12 dk önce</i></div><div class="nb"><b>❌ Randevu iptal edildi</b><span>Deniz K. · Manikür · Cuma 11:30</span></div></div>
     </div>
     <div class="col">
-      <div class="eyebrow">SMS bildirimleri</div>
-      <h2>WhatsApp kullanmayana da <span class="grad">ulaşın</span></h2>
-      <div class="grid" style="gap:12px;margin-top:4px;">
-        <div class="path"><div class="n">1</div><div><h4>SiriPlan SMS kontörü</h4><p><b>1.000 SMS'lik</b> paket: her SMS'te 1 kontör azalır, bitince yenisini alırsınız. Süre sınırı yok, hesap açmanız gerekmez.</p></div></div>
-        <div class="path"><div class="n">2</div><div><h4>Kendi sağlayıcınız</h4><p>Netgsm, VatanSMS veya İletimerkezi hesabınızı bağlayın; bu durumda kontör düşmez.</p></div></div>
-      </div>
-      <span class="hook">Ayarlar'da tek kutucukla açın, gerisi otomatik.</span>
+      <div class="eyebrow">Anlık bildirimler</div>
+      <h2>Telefonunuz çalar, <span class="grad">anında haberiniz olur</span></h2>
+      <ul class="ck">
+        <li>Yeni randevu, talep, iptal ve <b>kritik stok</b> uyarısı telefonunuza düşer — uygulama <b>kapalıyken</b> de</li>
+        <li><b>iPhone ve Android uygulamasında</b> ve bilgisayar tarayıcısında; Hesabım/Ayarlar'daki tek kutuyla açılır</li>
+        <li><b>Sahip ve yöneticiler</b> hepsini, <b>personel</b> yalnızca kendine atananları alır</li>
+        <li>İsterseniz yanında <b>WhatsApp</b> ve <b>Telegram</b> bildirimleri de açık kalır</li>
+      </ul>
+      <span class="hook">Randevuyu kaçırmayın: haber doğrudan cebinize gelir.</span>
     </div>
   </div>
   <div class="foot"><span><a href="https://siriplan.com" target="_blank" rel="noopener">siriplan.com</a></span><span>8</span></div>
@@ -495,8 +509,8 @@
   <h2>Verileriniz <span class="grad">güvende</span>, panel <span class="grad">cebinizde</span></h2>
   <div class="grid g3" style="margin-top:14px;">
     <div class="card"><span class="em">🔒</span><h3>Kiracı izolasyonu &amp; KVKK</h3><p>Her işletmenin verisi birbirinden ayrıdır; yetki bazlı erişim ve KVKK uyumlu saklama.</p></div>
-    <div class="card"><span class="em">📱</span><h3>Google Play &amp; App Store</h3><p>iOS'ta <a href="https://apps.apple.com/app/siriusplan/id6815322807" target="_blank" rel="noopener"><b>SiriusPlan</b></a>, Android'de <a href="https://play.google.com/store/apps/details?id=com.siriplan.app" target="_blank" rel="noopener"><b>SiriPlan</b></a> adıyla. Mobil uygulama ya da Ana Ekrana Ekle ile telefonunuzda uygulama gibi kullanın. Uygulama içinde ödeme yoktur; abonelik web'den yönetilir.</p></div>
-    <div class="card"><span class="em">🔔</span><h3>Anında haberdar olun</h3><p>Yeni randevuda panelde sesli uyarı, telefon (uygulama kapalıyken), Telegram ve WhatsApp bildirimi.</p></div>
+    <div class="card"><span class="em">📱</span><h3>Google Play &amp; App Store</h3><p>iOS'ta <a href="https://apps.apple.com/app/siriusplan/id6815322807" target="_blank" rel="noopener"><b>SiriusPlan</b></a>, Android'de <a href="https://play.google.com/store/apps/details?id=com.siriplan.app" target="_blank" rel="noopener"><b>SiriPlan</b></a> adıyla. Mobil uygulama ya da Ana Ekrana Ekle ile telefonunuzda uygulama gibi kullanın. Uygulama içinden 14 günlük ücretsiz denemeyi başlatabilirsiniz; uygulamada ödeme ve plan seçimi yoktur, abonelik web'den yönetilir.</p></div>
+    <div class="card"><span class="em">🔔</span><h3>Anında haberdar olun</h3><p>Yeni randevuda panelde sesli uyarı; iPhone ve Android uygulamasında telefon bildirimi (uygulama kapalıyken de); isteğe bağlı Telegram ve WhatsApp.</p></div>
   </div>
   <div class="foot"><span><a href="https://siriplan.com" target="_blank" rel="noopener">siriplan.com</a></span><span>18</span></div>
 </section>
@@ -515,7 +529,7 @@
     <div class="card plan"><h3>Business</h3><div class="price">₺4.699</div><div class="per">/ay · yıllık ₺46.238</div>
       <ul><li>5 şubeye kadar</li><li>Tüm Pro özellikleri</li><li>AI WhatsApp/IG asistanı</li><li>Özel entegrasyonlar</li></ul></div>
   </div>
-  <p style="margin-top:16px;font-size:15px;color:var(--muted);line-height:1.5;"><b style="color:var(--ink)">Ek paketler:</b> SMS kontörü — 1.000 SMS'lik paket, kullandıkça azalır, bitince yenisi alınır · AI WhatsApp Paketi · Ek Şube Paketi. &nbsp;Yıllık ödemede yaklaşık %18 tasarruf · 1 yıl sabit fiyat garantisi · İstediğiniz zaman iptal · Fiyatlar TL cinsinden aylık ücrettir; yurt dışı için USD/EUR fiyatlar sitede.</p>
+  <p style="margin-top:16px;font-size:15px;color:var(--muted);line-height:1.5;"><b style="color:var(--ink)">İsteğe bağlı ek paketler:</b> AI WhatsApp Paketi · Ek Şube Paketi · SMS kontörü. &nbsp;Yıllık ödemede yaklaşık %18 tasarruf · 1 yıl sabit fiyat garantisi · İstediğiniz zaman iptal · Fiyatlar TL cinsinden aylık ücrettir; yurt dışı için USD/EUR fiyatlar sitede.</p>
   <div class="foot"><span><a href="https://siriplan.com" target="_blank" rel="noopener">siriplan.com</a></span><span>19</span></div>
 </section>
 

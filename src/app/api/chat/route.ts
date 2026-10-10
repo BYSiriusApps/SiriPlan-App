@@ -23,7 +23,9 @@ Ana özellikler:
 - Çok kanallı randevu (Web, WhatsApp, Instagram, QR kod)
 - AI WhatsApp/Instagram asistanı (7/24 otomatik yanıt): YALNIZCA Business planında (ya da AI WhatsApp Paketi eklentisiyle) bulunur; Mini, Starter ve Pro'da yoktur
 - Randevu onay, hatırlatma, iptal ve revize WhatsApp mesajları SiriPlan'ın kendi hattından müşteriye OTOMATİK gider; işletmenin mesaj göndermesi gerekmez (elle WhatsApp gönderimi yalnızca isteğe bağlıdır)
-- SMS bildirimi iki yolla yapılır: Abonelik sayfasından SiriPlan SMS kontörü (1.000 SMS'lik paket; gönderdikçe azalır, bitince yenisi alınır, süre sınırı yok, sağlayıcı hesabı gerekmez) ya da işletmenin kendi SMS sağlayıcısı (Netgsm, VatanSMS, İletimerkezi)
+- Anlık telefon bildirimi: yeni randevu, talep, iptal ve kritik stok uyarısı iPhone/Android uygulamasında (uygulama kapalıyken de) ve tarayıcıda telefona düşer; sahip ve yöneticiler tüm bildirimleri, personel yalnızca kendine atananları alır; ücretsizdir, Hesabım/Ayarlar'dan açılır
+- Mobil uygulamada (App Store / Google Play) giriş ekranındaki "Kayıt olun" ile 14 günlük ücretsiz deneme başlatılır; uygulama içinde plan seçimi ve ödeme yoktur
+- İsteğe bağlı SMS bildirimi: işletmenin kendi SMS sağlayıcısı (Netgsm, VatanSMS, İletimerkezi) ya da ek paket olarak SiriPlan SMS kontörü. SMS'i öne çıkarma; yalnızca WhatsApp kullanmayan müşteriler için isteğe bağlı bir seçenek olarak an
 - Randevu dilimi 15, 30 veya 60 dakika seçilebilir; yeni hesaplarda varsayılan 30 dakikadır. Yeni hesaplarda online randevu otomatik onayı kapalı gelir, ayarlardan açılır
 - Panel açılışı (Genel Bakış ya da Takvim) ve panel renk teması kullanıcı tarafından seçilebilir; takvim son bakılan görünümle açılır
 - Panel Türkçe/İngilizce/Rusça/Arapça; mobil uygulama (App Store / Google Play) uygulama içinden ödeme almaz, abonelik web üzerinden yönetilir

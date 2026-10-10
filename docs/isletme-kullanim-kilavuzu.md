@@ -182,7 +182,7 @@ Yeni randevu, talep, öneri yanıtı ve kritik stok uyarıları telefonunuza vey
 2. **İzin verin**: Çıkan pencerede **"İzin ver"** deyin. Her cihazda (telefon, bilgisayar) ayrı ayrı açılır.
 3. **Kim ne alır**: Salon sahibi ve yöneticiler tüm randevu, talep, öneri yanıtı ve kritik stok bildirimlerini; personel **yalnızca kendisine atanan** randevu ve talepleri alır.
 4. **Varsayılanlar**: Hesap açarken (veya personel eklerken) girilen telefon numarası, **WhatsApp bildirim numarası** olarak otomatik tanımlanır ve kanal açık gelir; Telegram, botu başlatıp Chat ID kaydedildiğinde açılır. İstemediğiniz kanalı kutucuklarla kapatabilirsiniz.
-5. **Gelmiyorsa**: Kutunun işaretli olduğunu ve tarayıcı/telefon ayarlarında SiriPlan için bildirim izninin kapalı olmadığını kontrol edin. iPhone'da önce uygulamayı **Ana Ekrana ekleyin**.
+5. **Gelmiyorsa**: Kutunun işaretli olduğunu ve tarayıcı/telefon ayarlarında SiriPlan için bildirim izninin kapalı olmadığını kontrol edin. App Store ve Google Play uygulamalarında bildirim doğrudan çalışır (izin penceresinde "İzin ver" deyin; telefonun Ayarlar → Bildirimler bölümünde bildirim ve sesin açık, Sessiz mod/Odaklanma'nın kapalı olduğunu da kontrol edin). iPhone'da tarayıcıdan (Safari) kullanıyorsanız önce siteyi **Ana Ekrana ekleyin**.
 ---
 
 ## 11. Toplu WhatsApp Kampanyaları

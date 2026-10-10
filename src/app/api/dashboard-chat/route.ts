@@ -30,12 +30,19 @@ const ADDONS_TOKEN = "__ADDONS__";
 const KNOWLEDGE_BASE: { keywords: string[]; answer: string; nativeAnswer?: string }[] = [
   {
     keywords: ["telefon bildirimi", "telefon bildirim", "anlık bildirim", "bildirimleri aç", "bildirim izni", "bildirim gelmiyor", "uygulama kapalıyken", "web push", "push bildirim"],
+    nativeAnswer:
+      "Telefon bildirimi (uygulama kapalıyken de gelir) şöyle açılır:\n" +
+      "1. Salon sahibi ve yöneticiler: Ayarlar → Bildirim Kanalları'ndaki \"Telefon / Tarayıcı Bildirimi\" kutusunu işaretleyin. Personel: Hesabım sayfasındaki aynı kutuyu işaretleyin. (Ana sayfadaki \"Bildirimleri aç\" kartı da aynı işi tek dokunuşla yapar.)\n" +
+      "2. Çıkan izin penceresinde \"İzin ver\"e basın. Her telefonda ayrı ayrı açmanız gerekir; kutuyu kapatırsanız bu telefona bildirim gelmez.\n" +
+      "Kim ne alır: salon sahibi ve yöneticiler tüm randevu, talep, öneri yanıtı ve kritik stok bildirimlerini; personel yalnızca kendisine atanan randevu ve talepleri alır.\n" +
+      "Bildirim gelmiyorsa: kutunun işaretli olduğunu; telefonun Ayarlar → Bildirimler bölümünde bu uygulama için bildirim ve sesin açık olduğunu; Sessiz mod veya Odaklanma/Rahatsız Etmeyin'in kapalı olduğunu kontrol edin.\n" +
+      "WhatsApp ve Telegram bildirimleri ayrı kanallardır: WhatsApp, hesap açarken verdiğiniz telefona varsayılan olarak açık gelir; Telegram için botu başlatıp Chat ID'yi kaydetmeniz gerekir.",
     answer:
       "Telefon bildirimi (uygulama/panel kapalıyken de gelir) şöyle açılır:\n" +
       "1. Salon sahibi ve yöneticiler: Ayarlar → Bildirim Kanalları'ndaki \"Telefon / Tarayıcı Bildirimi\" kutusunu işaretleyin. Personel: Hesabım sayfasındaki aynı kutuyu işaretleyin. (Panelin ana sayfasındaki \"Bildirimleri aç\" kartı da aynı işi tek dokunuşla yapar.)\n" +
       "2. Çıkan izin penceresinde \"İzin ver\"e basın. Her cihazda (telefon, bilgisayar) ayrı ayrı açmanız gerekir.\n" +
       "Kim ne alır: salon sahibi ve yöneticiler tüm randevu, talep, öneri yanıtı ve kritik stok bildirimlerini; personel yalnızca kendisine atanan randevu ve talepleri alır.\n" +
-      "Bildirim gelmiyorsa: kutunun işaretli olduğunu, tarayıcı/telefon ayarlarında SiriPlan için bildirim izninin kapalı olmadığını kontrol edin. iPhone'da önce uygulamayı Ana Ekrana ekleyin.\n" +
+      "Bildirim gelmiyorsa: kutunun işaretli olduğunu, tarayıcı/telefon ayarlarında SiriPlan için bildirim izninin kapalı olmadığını kontrol edin. App Store veya Google Play uygulamasında doğrudan çalışır; iPhone'da tarayıcıdan (Safari) kullanıyorsanız önce siteyi Ana Ekrana ekleyin.\n" +
       "WhatsApp ve Telegram bildirimleri ayrı kanallardır: WhatsApp, hesap açarken verdiğiniz telefona varsayılan olarak açık gelir; Telegram için botu başlatıp Chat ID'yi kaydetmeniz gerekir.",
   },
   {

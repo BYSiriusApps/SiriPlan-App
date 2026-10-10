@@ -1932,7 +1932,7 @@
     "webPush": {
       "label": "Telefon / Tarayıcı Bildirimi (uygulama kapalıyken de gelir)",
       "onHint": "Bu cihazda bildirim açık. Yeni randevu ve talepler uygulama kapalıyken de gelir.",
-      "unsupported": "Bu tarayıcı/cihaz anlık bildirimi desteklemiyor. (iPhone için uygulamayı Ana Ekrana ekleyin.)",
+      "unsupported": "Bu tarayıcı/cihaz anlık bildirimi desteklemiyor. (iPhone'da tarayıcıdan kullanıyorsanız Ana Ekrana ekleyin; App Store uygulamasında bildirim doğrudan açılır.)",
       "denied": "Bildirim izni engellenmiş. Tarayıcı/telefon ayarlarından bu site için bildirimlere izin verin.",
       "error": "Bildirim ayarı kaydedilemedi, lütfen tekrar deneyin.",
       "promptTitle": "Bildirimleri aç",
@@ -2150,7 +2150,7 @@
             "WhatsApp bildirimi için Ayarlar (salon geneli) veya Personel → [isim] sayfasındaki \"WhatsApp Numarası\" alanını doldurun. Not: Meta kuralı gereği yalnızca bu numaradan işletmenize son 24 saat içinde yazılmışsa iletilir — hiç kaçırmamak için Telegram'ı da bağlayın.",
             "Panel açıkken (bilgisayar veya telefon fark etmez) yeni randevu/talep geldiğinde otomatik sesli uyarı ve bildirim çalar; sesi Sidebar/menüdeki zil ikonundan açıp kapatabilirsiniz.",
             "Hangi kanaldan bildirim almak istediğinizi Ayarlar → Entegrasyonlar veya Personel detay sayfasındaki kutucuklarla seçin — hepsi başta açık gelir, istemediğinizi kapatabilirsiniz.",
-            "Telefon bildirimi (uygulama kapalıyken de gelir): Hesabım sayfasındaki (sahip ve yöneticiler için Ayarlar'daki) \"Telefon / Tarayıcı Bildirimi\" kutusunu işaretleyip izin verin. Her cihazda ayrı açılır; panelin ana sayfasındaki \"Bildirimleri aç\" kartıyla da tek dokunuşta açabilirsiniz.",
+            "Telefon bildirimi (uygulama kapalıyken de gelir): Hesabım sayfasındaki (sahip ve yöneticiler için Ayarlar'daki) \"Telefon / Tarayıcı Bildirimi\" kutusunu işaretleyip izin verin. Her cihazda ayrı açılır; panelin ana sayfasındaki \"Bildirimleri aç\" kartıyla da tek dokunuşta açabilirsiniz. iPhone (App Store) ve Android mağaza uygulamalarında da aynı kutuyla açılır; çıkan izin penceresinde \"İzin ver\"e basın.",
             "Kim hangi bildirimi alır: salon sahibi ve yöneticiler tüm randevu, talep ve stok bildirimlerini; personel yalnızca kendisine atanan randevu ve talepleri alır. Hesap açarken verilen telefon numarası, WhatsApp bildirim numarası olarak otomatik tanımlanır."
           ]
         },
@@ -2399,7 +2399,7 @@
           "items": [
             {
               "label": "Uygulama Mağazaları:",
-              "desc": "Android'de Google Play, iPhone'da App Store üzerinden indirip mevcut e-posta/telefon ve şifrenizle giriş yapın."
+              "desc": "Android'de Google Play, iPhone'da App Store üzerinden indirip mevcut e-posta/telefon ve şifrenizle giriş yapın. Hesabınız yoksa giriş ekranındaki \"Kayıt olun\" bağlantısıyla uygulama içinden 14 günlük ücretsiz denemeyi başlatabilirsiniz (uygulamada ödeme yoktur)."
             },
             {
               "label": "Ana Ekrana Ekle:",
