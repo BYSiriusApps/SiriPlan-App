@@ -23,7 +23,8 @@ self.addEventListener("push", (event) => {
   const options = {
     body: typeof data.body === "string" ? data.body : "",
     icon: "/icons/icon-192x192.png",
-    badge: "/icons/icon-192x192.png",
+    // Android rozeti yalnızca alfa kanalını kullanır: renkli/opak ikon beyaz kare olur.
+    badge: "/icons/badge-96x96.png",
     tag: typeof data.tag === "string" ? data.tag : undefined,
     data: { url: typeof data.url === "string" ? data.url : "/dashboard" },
   };
