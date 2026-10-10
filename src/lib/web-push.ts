@@ -84,6 +84,7 @@ export async function sendPushToOrg(
           .map((m: { user_id: string }) => m.user_id)
       )
     );
+    console.log(`[web-push] org=${orgId} üye=${(members ?? []).length} alıcı=${userIds.length} başlık=${payload.title}`);
     if (userIds.length === 0) return;
 
     const title = payload.title.slice(0, 120);
@@ -96,7 +97,8 @@ export async function sendPushToOrg(
       webpush ? sendWebPush(supabase, webpush, userIds, JSON.stringify({ title, body: text, url, tag: payload.tag })) : null,
       fcmOn ? sendIosPush(supabase, userIds, { title, body: text, url, tag: payload.tag }) : null,
     ]);
-  } catch {
+  } catch (err) {
+    console.error("[web-push] sendPushToOrg hata", (err as Error)?.message ?? err);
     // Push hatası ana akışı engellememeli
   }
 }
@@ -114,6 +116,7 @@ async function sendWebPush(
       .from("push_subscriptions")
       .select("endpoint, p256dh, auth")
       .in("user_id", userIds);
+    console.log(`[web-push] abonelik=${subs?.length ?? 0}`);
     if (!subs || subs.length === 0) return;
 
     const dead: string[] = [];
@@ -125,9 +128,13 @@ async function sendWebPush(
             body,
             { TTL: 60 * 60 * 12, timeout: 5000 }
           );
+          console.log("[web-push] gönderildi");
         } catch (err) {
           const code = (err as { statusCode?: number }).statusCode;
-          if (code === 404 || code === 410) dead.push(s.endpoint);
+          if (code === 404 || code === 410) {
+            dead.push(s.endpoint);
+            console.warn("[web-push] abonelik geçersiz, silinecek", code);
+          }
           else console.error("[web-push] gönderim hatası", code ?? "", (err as Error)?.message ?? "");
         }
       })
@@ -136,7 +143,8 @@ async function sendWebPush(
     if (dead.length > 0) {
       await supabase.from("push_subscriptions").delete().in("endpoint", dead);
     }
-  } catch {
+  } catch (err) {
+    console.error("[web-push] sendWebPush hata", (err as Error)?.message ?? err);
     /* Web Push hatası FCM'i ya da ana akışı engellememeli */
   }
 }
