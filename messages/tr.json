@@ -1114,7 +1114,7 @@
     "title": "Satın almadan önce onaylayın",
     "distanceLabel": "<contractLink>Mesafeli Satış Sözleşmesi</contractLink>'ni, <preinfoLink>Ön Bilgilendirme Formu</preinfoLink>'nu ve <refundLink>İade ve İptal Politikası</refundLink>'nı okudum, anladım ve kabul ediyorum; siparişimin ödeme yükümlülüğü doğurduğunu biliyorum.",
     "immediateLabel": "Hizmetin ödemenin ardından hemen başlamasını talep ediyorum. Hizmetin elektronik ortamda anında ifa edilen bir hizmet olduğunu ve (tüketici isem) ifa başladıktan sonra cayma hakkımı kaybedeceğimi kabul ediyorum.",
-    "vatNote": "Gösterilen fiyatlara uygulanabilir KDV ve diğer vergiler dâhildir. Satıcı yurt dışında (İngiltere) yerleşiktir ve Türkiye'de vergi temsilcisi yoktur; Stripe makbuzu Türkiye'de düzenlenen e-faturanın yerine geçmez (Sözleşme madde 5).",
+    "vatNote": "Gösterilen fiyatlar toplam ve nihai tutardır; ayrıca vergi eklenmez. Satıcı İngiltere KDV (VAT) kayıt eşiğinin altında olduğundan KDV/VAT tahsil etmez; Stripe makbuzu Türkiye'de düzenlenen e-faturanın yerine geçmez (Sözleşme madde 5).",
     "missing": "Devam etmek için sözleşme onayını ve hizmetin hemen başlaması onayını işaretleyin."
   },
   "footer": {

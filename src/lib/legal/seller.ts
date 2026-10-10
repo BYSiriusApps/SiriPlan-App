@@ -7,7 +7,7 @@
  * böylece hangi sürümün onaylandığı kayıtlarda (Stripe metadata + audit_logs)
  * ayırt edilebilir.
  */
-export const CONSENT_VERSION = "2026-10-10";
+export const CONSENT_VERSION = "2026-10-10.2";
 
 export const SELLER = {
   legalName: "BY Sirius Group Ai and Technology Co Ltd.",

@@ -1114,7 +1114,7 @@
     "title": "Confirm before you buy",
     "distanceLabel": "I have read, understood and accept the <contractLink>Distance Sales Agreement</contractLink>, the <preinfoLink>Pre-Contract Information Form</preinfoLink> and the <refundLink>Refund & Cancellation Policy</refundLink>; I understand that my order creates an obligation to pay.",
     "immediateLabel": "I request that the service starts immediately after payment. I acknowledge that the service is performed instantly in electronic form and (if I am a consumer) that I will lose my right of withdrawal once performance begins.",
-    "vatNote": "Displayed prices include applicable VAT and other taxes. The seller is established abroad (United Kingdom) and has no tax representative in Türkiye; the Stripe receipt does not replace a Turkish e-invoice (Agreement Article 5).",
+    "vatNote": "Displayed prices are total and final amounts; no tax is added. The seller is below the UK VAT registration threshold and does not charge VAT; the Stripe receipt does not replace a Turkish e-invoice (Agreement Article 5).",
     "missing": "Tick both the agreement consent and the immediate-start consent to continue."
   },
   "footer": {
