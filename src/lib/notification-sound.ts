@@ -29,13 +29,44 @@ export function onNotificationSoundMuteChange(cb: (muted: boolean) => void): () 
   return () => window.removeEventListener(CHANGE_EVENT, handler);
 }
 
+// iOS (Safari/WKWebView) kullanıcı dokunuşu olmadan açılan AudioContext'i
+// "suspended" bırakır → realtime olayında çalınan ding hiç duyulmaz. Bu yüzden
+// tek bir ortak context tutulur ve ilk dokunuş/tıklamada açılır (unlock);
+// sonraki sesler aynı context'i kullanır. Android/masaüstünde davranış aynı.
+let sharedCtx: AudioContext | null = null;
+let unlockBound = false;
+
+function getAudioCtx(): AudioContext | null {
+  const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!AudioCtx) return null;
+  if (!sharedCtx || sharedCtx.state === "closed") sharedCtx = new AudioCtx();
+  return sharedCtx;
+}
+
+/** İlk kullanıcı etkileşiminde ses motorunu açar (iOS autoplay kısıtı). Birden çok kez çağrılabilir. */
+export function bindNotificationSoundUnlock(): void {
+  if (unlockBound || typeof window === "undefined") return;
+  unlockBound = true;
+  const unlock = () => {
+    try {
+      const ctx = getAudioCtx();
+      if (ctx && ctx.state === "suspended") void ctx.resume();
+    } catch {
+      // yoksay
+    }
+  };
+  for (const ev of ["pointerdown", "touchend", "keydown"] as const) {
+    window.addEventListener(ev, unlock, { passive: true });
+  }
+}
+
 /** İki tonlu kısa "ding" — kritik stok/yeni randevu gibi anlık uyarılar için. */
 export function playNotificationChime(): void {
   if (isNotificationSoundMuted()) return;
   try {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === "suspended") void ctx.resume();
     const now = ctx.currentTime;
     [880, 1175].forEach((freq, i) => {
       const osc = ctx.createOscillator();
@@ -50,7 +81,6 @@ export function playNotificationChime(): void {
       osc.start(start);
       osc.stop(start + 0.3);
     });
-    setTimeout(() => ctx.close().catch(() => {}), 700);
   } catch {
     // Ses çalınamazsa (autoplay kısıtı, tarayıcı desteği) sessizce atla —
     // toast/bildirim yine de görünür kalır.
