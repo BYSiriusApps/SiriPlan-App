@@ -82,7 +82,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
 
           {/* Main content — add bottom padding on mobile for nav bar */}
-          <main className="dashboard-shell flex-1 overflow-auto pb-16 md:pb-0">
+          <main className="dashboard-shell min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-16 md:pb-0">
             {subscriptionLock.locked && subscriptionLock.reason && (
               <SubscriptionLockBanner reason={subscriptionLock.reason} mobileApp={mobileApp} />
             )}
