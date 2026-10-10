@@ -86,6 +86,14 @@ const PAGES = [
           await page.waitForTimeout(1000);
         }
         if (await isPersonelView()) {
+          // Randevu verisi istemci tarafında geç yüklenir (İngilizce çekimde sütunlar
+          // "0 appointments" ile boş çıkmıştı) → en az bir sütunda randevu görünene dek bekle.
+          await page.waitForFunction(
+            () => /\b[1-9]\d* (randevu|appointments?)\b/i.test(document.body.innerText),
+            null,
+            { timeout: 20000 },
+          );
+          await page.waitForTimeout(800);
           await page.mouse.move(0, 0); // hover vurgusu görüntüye girmesin
           await page.waitForTimeout(300);
           return;

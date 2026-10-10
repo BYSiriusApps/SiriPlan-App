@@ -1270,6 +1270,16 @@
     }
   },
   "dashboard": {
+    "menuLabel": "Menü",
+    "calendarHourColumn": "SAAT",
+    "bookingLinkTitle": "Müşteri Randevu Linki",
+    "bookingLinkCopy": "Kopyala",
+    "bookingLinkCopied": "Link kopyalandı!",
+    "bookingLinkCopyFailed": "Kopyalanamadı",
+    "bookingLinkShare": "Paylaş",
+    "bookingLinkShareText": "Online randevu almak için: {link}",
+    "menuAiTitle": "AI Asistan",
+    "menuAiSubtitle": "Sorularınızı yanıtlar, yardımcı olur",
     "tour": {
       "welcomeTitle": "Kuruluma birlikte başlayalım",
       "welcomeBody": "Birkaç dakikada işletme bilgilerinizi, randevu linkinizi ve otomatik mesajları ayarlayın — müşterileriniz ilk günden düzgün bir deneyim yaşasın.",

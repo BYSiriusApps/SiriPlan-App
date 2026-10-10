@@ -1270,6 +1270,16 @@
     }
   },
   "dashboard": {
+    "menuLabel": "Меню",
+    "calendarHourColumn": "ВРЕМЯ",
+    "bookingLinkTitle": "Ссылка для записи клиентов",
+    "bookingLinkCopy": "Копировать",
+    "bookingLinkCopied": "Ссылка скопирована!",
+    "bookingLinkCopyFailed": "Не удалось скопировать",
+    "bookingLinkShare": "Поделиться",
+    "bookingLinkShareText": "Онлайн-запись: {link}",
+    "menuAiTitle": "ИИ-ассистент",
+    "menuAiSubtitle": "Отвечает на вопросы и помогает",
     "tour": {
       "welcomeTitle": "Давайте настроим всё вместе",
       "welcomeBody": "Уделите несколько минут настройке данных бизнеса, ссылки для записи и автоматических сообщений — чтобы клиенты с первого дня получали удобный сервис.",

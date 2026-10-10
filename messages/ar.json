@@ -1270,6 +1270,16 @@
     }
   },
   "dashboard": {
+    "menuLabel": "القائمة",
+    "calendarHourColumn": "الوقت",
+    "bookingLinkTitle": "رابط حجز العملاء",
+    "bookingLinkCopy": "نسخ",
+    "bookingLinkCopied": "تم نسخ الرابط!",
+    "bookingLinkCopyFailed": "تعذر النسخ",
+    "bookingLinkShare": "مشاركة",
+    "bookingLinkShareText": "للحجز عبر الإنترنت: {link}",
+    "menuAiTitle": "مساعد الذكاء الاصطناعي",
+    "menuAiSubtitle": "يجيب عن أسئلتك ويساعدك",
     "tour": {
       "welcomeTitle": "لنبدأ الإعداد معًا",
       "welcomeBody": "خصّص بضع دقائق لضبط بيانات نشاطك ورابط الحجز والرسائل التلقائية — حتى يحصل عملاؤك على تجربة سلسة من اليوم الأول.",
