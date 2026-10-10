@@ -785,7 +785,7 @@
       "Appointment history and customer records",
       "Payment and billing information (card details are not stored; processed by Stripe)",
       "IP address, browser type, and usage statistics",
-      "When push notifications are enabled, your device's notification endpoint and keys"
+      "When push notifications are enabled, your device's notification endpoint and keys (web), or, in the iOS app, your device's notification token and Firebase installation ID"
     ],
     "s3Title": "3. Purposes of Processing",
     "s3Items": [
@@ -799,7 +799,7 @@
     "s4Title": "4. Data Security",
     "s4P": "Your data is protected with SSL/TLS encryption. Our server infrastructure complies with industry-standard security protocols. Your payment information is never stored on our servers; all payment transactions are processed through PCI-DSS compliant Stripe infrastructure.",
     "s5Title": "5. Third-Party Sharing",
-    "s5P": "Your personal data may be shared, only to the extent necessary to provide the service and under data processing agreements, with service providers in the following categories: hosting and database infrastructure, application deployment, code repository and version control, email delivery, payments (Stripe), messaging (WhatsApp/SMS) and AI language-model services (Google Gemini; Anthropic Claude as a fallback). When AI features (AI assistant replies, the website chat bot, voice booking) are used, the relevant message text and the business details needed for the reply are sent to these providers to generate the response. Some of these providers are located outside Türkiye (in the EU or the US); transfers are made with appropriate safeguards and contractual obligations in accordance with Article 9 of the KVKK. Your data is not sold to third parties or shared for marketing purposes.",
+    "s5P": "Your personal data may be shared, only to the extent necessary to provide the service and under data processing agreements, with service providers in the following categories: hosting and database infrastructure, application deployment, code repository and version control, email delivery, payments (Stripe), messaging (WhatsApp/SMS), push notifications (Apple Push Notification service, Google Firebase Cloud Messaging) and AI language-model services (Google Gemini; Anthropic Claude as a fallback). When AI features (AI assistant replies, the website chat bot, voice booking) are used, the relevant message text and the business details needed for the reply are sent to these providers to generate the response. Some of these providers are located outside Türkiye (in the EU or the US); transfers are made with appropriate safeguards and contractual obligations in accordance with Article 9 of the KVKK. Your data is not sold to third parties or shared for marketing purposes.",
     "s6Title": "6. Your Rights",
     "s6Intro": "Under Article 11 of KVKK, you have the following rights:",
     "s6Items": [
