@@ -14,6 +14,7 @@
 - Kampanyalar ve bekleme listesi, sesli asistan (planlara göre) / campaigns, waitlist and voice assistant (depending on plan).
 - Diller / languages: Türkçe, English, Русский, العربية.
 - Planlar / plans: Mini, Starter, Pro, Business; 14 gün ücretsiz deneme (Business hariç) / 14-day free trial (except Business). Güncel fiyatlar / current prices: https://siriplan.com/fiyatlar
+- Ek paketler / add-ons (yalnızca aylık, ödenen Starter/Pro/Business aboneleri web panelinden alır / monthly only, for paid Starter/Pro/Business subscribers via the web dashboard): AI WhatsApp/Instagram Asistanı (AI assistant), Ek Şube (extra branch). Fiyatlar / prices: https://siriplan.com/fiyatlar
 
 ## Sayfalar / Pages
 
