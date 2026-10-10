@@ -1,4 +1,4 @@
-// Web Push gönderimi (VAPID). Yalnızca sunucuda, service_role ile çalışır.
+// Web Push gönderimi (VAPID) + iOS uygulaması için FCM. Yalnızca sunucuda, service_role ile çalışır.
 //
 // İLKELER:
 //  - Hiçbir zaman fırlatmaz: push sorunu randevu/bildirim akışını ASLA bozmaz.
@@ -9,6 +9,7 @@
 //      * personel: yalnızca KENDİNE atanan randevu/talep bildirimleri
 //  - Gönderim süresi sınırlıdır (timeout) ki yavaş bir push servisi isteği tutmasın.
 import { createAdminClient } from "@/lib/supabase/server";
+import { isFcmConfigured, sendFcm, type FcmMessage } from "@/lib/fcm";
 
 export interface PushPayload {
   title: string;
@@ -59,7 +60,8 @@ export async function sendPushToOrg(
 ): Promise<void> {
   try {
     const webpush = await getWebPush();
-    if (!webpush) return;
+    const fcmOn = isFcmConfigured();
+    if (!webpush && !fcmOn) return;
 
     const supabase = await createAdminClient();
 
@@ -81,18 +83,35 @@ export async function sendPushToOrg(
     );
     if (userIds.length === 0) return;
 
+    const title = payload.title.slice(0, 120);
+    const text = payload.body.slice(0, 300);
+    const url = safeUrl(payload.url);
+
+    // Web Push (Android/Chrome) ve FCM (iOS uygulaması) birbirinden bağımsız çalışır;
+    // biri başarısız olursa ya da yapılandırılmamışsa diğerini etkilemez.
+    await Promise.allSettled([
+      webpush ? sendWebPush(supabase, webpush, userIds, JSON.stringify({ title, body: text, url, tag: payload.tag })) : null,
+      fcmOn ? sendIosPush(supabase, userIds, { title, body: text, url, tag: payload.tag }) : null,
+    ]);
+  } catch {
+    // Push hatası ana akışı engellememeli
+  }
+}
+
+type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
+
+async function sendWebPush(
+  supabase: AdminClient,
+  webpush: NonNullable<Awaited<ReturnType<typeof getWebPush>>>,
+  userIds: string[],
+  body: string
+): Promise<void> {
+  try {
     const { data: subs } = await supabase
       .from("push_subscriptions")
       .select("endpoint, p256dh, auth")
       .in("user_id", userIds);
     if (!subs || subs.length === 0) return;
-
-    const body = JSON.stringify({
-      title: payload.title.slice(0, 120),
-      body: payload.body.slice(0, 300),
-      url: safeUrl(payload.url),
-      tag: payload.tag,
-    });
 
     const dead: string[] = [];
     await Promise.allSettled(
@@ -114,6 +133,21 @@ export async function sendPushToOrg(
       await supabase.from("push_subscriptions").delete().in("endpoint", dead);
     }
   } catch {
-    // Push hatası ana akışı engellememeli
+    /* Web Push hatası FCM'i ya da ana akışı engellememeli */
+  }
+}
+
+/** iOS uygulaması cihazlarına FCM ile gönderir (aynı alıcı kümesi: userIds). */
+async function sendIosPush(supabase: AdminClient, userIds: string[], msg: FcmMessage): Promise<void> {
+  try {
+    const { data: rows } = await supabase.from("push_device_tokens").select("token").in("user_id", userIds);
+    const tokens = (rows ?? []).map((r: { token: string }) => r.token);
+    if (tokens.length === 0) return;
+    const dead = await sendFcm(tokens, msg);
+    if (dead.length > 0) {
+      await supabase.from("push_device_tokens").delete().in("token", dead);
+    }
+  } catch {
+    /* iOS push hatası Web Push'u ya da ana akışı engellememeli */
   }
 }

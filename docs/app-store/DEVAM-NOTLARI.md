@@ -70,3 +70,11 @@ Play Console tarafı kontrol edildi: Veri güvenliği formu uygun (kullanıcı a
 - Demo hesap (`sahip.demo@siriplan.com`) kayıtlı dili **Türkçe** (10 Eki doğrulandı). Ekran görüntüsü betiği: `SCREENSHOT_LANG=en node scripts/app-store-screenshots-capture.mjs`
   — çıkışta dili Türkçe'ye geri alır; İngilizce çekimden sonra mutlaka kontrol et.
 - İngilizce görseller: `screenshots-iphone-1284x2778-en/`, `screenshots-ipad-2064x2752-en/` (1206/1179 boyutlular 1284'ten yeniden boyutlanır, repoda tutulmadı).
+
+## GÜNCELLEME — 10 Ekim 2026: iOS PUSH (FCM + APNs) KODU HAZIR — Firebase/APNs adımları kullanıcıda
+- Sunucu: migration `20261014_push_device_tokens.sql` (yalnızca service_role), `POST/DELETE /api/push/device` (oturumlu, user_id oturumdan),
+  `src/lib/fcm.ts` (HTTP v1, ek bağımlılık yok), `sendPushToOrg` aynı alıcı kümesine hem Web Push hem FCM gönderir (owner+manager hepsi, personel kendine atananlar).
+- Vercel env: `FIREBASE_SERVICE_ACCOUNT_JSON` (servis hesabı JSON'u ya da base64'ü). Yoksa FCM sessizce kapalı.
+- Web: `native-push.ts` + `NativePushBridge` (dokunma → sayfa, token yenileme); PushToggle/PushPrompt iOS uygulamasında köprüyü kullanır.
+- iOS kabuğu: siriplan-ios PR #1 (build 5). Gerçek `GoogleService-Info.plist` (com.siriplan.app) konmadan Firebase başlatılmaz → push kapalı kalır (güvenli).
+- Sıra: migration → env → plist → iOS PR merge → Codemagic → TestFlight cihaz testi → ASC taslakta build 5 + What's New push satırı.
