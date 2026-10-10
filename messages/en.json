@@ -1404,6 +1404,7 @@
       "addonBranchMoreHint": "To add more branch slots use \"Manage Billing & Payment Method\" or contact us.",
       "branchLinkedTitle": "Branch",
       "branchLinkedDesc": "This branch is linked to the subscription of \"{parent}\". Plan and billing are managed from the main business.",
+      "branchGoParent": "Go to the main business and manage the plan",
       "smsPackSuccess": "Payment received. Your credits will be added to your account within a few seconds.",
       "smsPackCanceled": "Payment was not completed.",
       "smsPackError": "Could not open the payment page.",
