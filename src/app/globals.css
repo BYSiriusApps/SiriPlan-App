@@ -204,6 +204,16 @@
   html {
     @apply font-sans;
   }
+  /* iOS (Safari/WKWebView) taşan bir öğe yüzünden sayfayı sağa-sola
+     kaydırılabilir bırakır ve alt menü/ana ekran ekrana sığmaz; Android Chrome
+     bunu kendiliğinden kırpar. `clip` (hidden değil) sticky/fixed öğeleri
+     bozmaz ve kaydırma kabı oluşturmaz. Tablolar/şeritler kendi
+     overflow-x-auto kaplarında kaydırılmaya devam eder. */
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
   /* RTL support for Arabic */
   [dir="rtl"] {
     direction: rtl;
