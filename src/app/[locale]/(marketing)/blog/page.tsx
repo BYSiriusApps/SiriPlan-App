@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getTranslations } from "next-intl/server";
@@ -23,6 +24,18 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Büyüme": "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
   "Ciro": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   "Personel Yönetimi": "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
+};
+
+const POST_IMAGES: Record<string, string> = {
+  "randevu-doluluk-orani-artirma": "/blog/randevu-doluluk-orani-artirma.png",
+  "whatsapp-ai-asistan-kurulum": "/blog/whatsapp-ai-asistan-kurulum.png",
+  "sadakat-programi-musteri-kaybi-onleme": "/blog/sadakat-programi-musteri-kaybi-onleme.png",
+  "kvkk-guzellik-salonlari-rehber": "/blog/kvkk-guzellik-salonlari-rehber.png",
+  "instagram-otomatik-randevu-kurulum": "/blog/instagram-otomatik-randevu-kurulum.png",
+  "kdv-komisyon-raporlama-otomasyonu": "/blog/kdv-komisyon-raporlama-otomasyonu.png",
+  "randevu-no-show-azaltma": "/blog/randevu-no-show-azaltma.png",
+  "salon-personel-prim-maas-hesaplama": "/blog/salon-personel-prim-maas-hesaplama.png",
+  "randevu-bekleme-listesi-bos-saat-doldurma": "/blog/randevu-bekleme-listesi-bos-saat-doldurma.png",
 };
 
 export default async function BlogPage() {
@@ -49,32 +62,40 @@ export default async function BlogPage() {
 
       {/* Posts */}
       <section className="py-16">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="grid gap-8">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
               <Link
-                key={post.title}
+                key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="group flex flex-col sm:flex-row gap-6 p-6 bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-md transition-all cursor-pointer"
+                className="group flex flex-col overflow-hidden bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${CATEGORY_COLORS[post.category] || "bg-muted text-muted-foreground"}`}>
-                      {post.category}
-                    </span>
-                    <span className="text-xs text-muted-foreground">{post.date}</span>
-                    <span className="text-xs text-muted-foreground">·</span>
-                    <span className="text-xs text-muted-foreground">{post.readTime} {t("readTimeSuffix")}</span>
+                <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                  <Image
+                    src={POST_IMAGES[post.slug] ?? "/sectors/guzellik.jpg"}
+                    alt={post.title}
+                    fill
+                    sizes="(min-width: 1024px) 384px, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <span className={`absolute top-3 left-3 text-sm font-semibold px-3 py-1 rounded-full ${CATEGORY_COLORS[post.category] || "bg-muted text-muted-foreground"}`}>
+                    {post.category}
+                  </span>
+                </div>
+                <div className="flex flex-col flex-1 p-5">
+                  <div className="flex items-center gap-2 mb-3 text-sm font-medium text-foreground/70">
+                    <span>{post.date}</span>
+                    <span>·</span>
+                    <span>{post.readTime} {t("readTimeSuffix")}</span>
                   </div>
-                  <h2 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors leading-snug">
+                  <h2 className="font-bold text-xl mb-3 group-hover:text-primary transition-colors leading-snug line-clamp-3">
                     {post.title}
                   </h2>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-base text-foreground/80 leading-relaxed line-clamp-3">
                     {post.excerpt}
                   </p>
-                </div>
-                <div className="flex items-center sm:items-end shrink-0">
-                  <span className="flex items-center gap-1 text-xs text-primary font-medium group-hover:gap-2 transition-all">
+                  <span className="mt-auto pt-5 flex items-center gap-1 text-sm text-primary font-semibold group-hover:gap-2 transition-all">
                     {t("readMore")} <ArrowRight className="w-3 h-3" />
                   </span>
                 </div>
