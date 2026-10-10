@@ -81,9 +81,9 @@ const contractTr: LegalDoc = {
       h: "5. Satıcı'nın Yurt Dışında Yerleşik Olması ve Vergiler (KDV)",
       p: [
         "Satıcı, İngiltere ve Galler'de kayıtlı bir şirkettir; Türkiye'de yerleşik değildir ve Türkiye'de vergi temsilcisi bulunmamaktadır.",
-        "Sipariş/ödeme ekranında gösterilen fiyatlar, uygulanabilir KDV ve diğer vergiler dâhil (vergi dâhil) toplam tutarlardır; gösterilen tutar dışında ayrıca vergi veya ek bedel talep edilmez.",
+        "Gösterilen fiyatlar toplam ve nihai tutarlardır; gösterilen tutar dışında ayrıca vergi veya ek bedel talep edilmez. Satıcı, İngiltere KDV (VAT) kayıt eşiğinin altında olduğundan şu anda KDV/VAT tahsil etmemekte ve faturalarda KDV/VAT tutarı göstermemektedir.",
         "Satıcı yurt dışında yerleşik olduğundan, ödeme karşılığında Stripe üzerinden düzenlenen elektronik fatura/makbuz (invoice/receipt), Türkiye'de düzenlenen KDV'li e-fatura veya e-arşiv fatura yerine geçmez. Alıcı'nın bulunduğu ülke mevzuatı uyarınca kendisine ayrıca beyan, kayıt veya ödeme yükümlülüğü doğuyorsa (ör. Ticari Alıcı'nın giderlerinin muhasebeleştirilmesi veya yurt dışından hizmet alımına ilişkin beyanlar), bunların değerlendirilmesi Alıcı'ya aittir; Satıcı vergi danışmanlığı sunmaz.",
-        "Mevzuat değişikliği nedeniyle Satıcı'nın ek vergi tahsil etmesi zorunlu hâle gelirse, bu vergi yalnızca sonraki dönem(ler)e yansıtılır, Alıcı'ya önceden bildirilir ve Alıcı yenilemeden önce aboneliğini iptal edebilir.",
+        "Fiyat değişiklikleri yalnızca 6. maddedeki bildirim usulüne göre ve sonraki dönemler için yapılır; Satıcı'nın ileride vergi mevzuatı nedeniyle kayıt yaptırması, Alıcı'nın ödediği dönem tutarını geriye dönük olarak değiştirmez.",
       ],
     },
     {
@@ -189,9 +189,9 @@ const contractEn: LegalDoc = {
       h: "5. Seller Established Abroad and Taxes (VAT)",
       p: [
         "The Seller is a company registered in England and Wales; it is not established in Türkiye and has no tax representative in Türkiye.",
-        "The prices shown at checkout/payment are total amounts inclusive of applicable VAT and other taxes (tax-inclusive); no additional tax or fee is charged beyond the amount shown.",
+        "The prices shown are total and final amounts; no additional tax or fee is charged beyond the amount shown. As the Seller is below the UK VAT registration threshold, it currently does not charge VAT and does not show a VAT amount on invoices.",
         "Because the Seller is established abroad, the electronic invoice/receipt issued through Stripe for each payment does not replace a Turkish VAT e-invoice or e-archive invoice. If, under the law of the Buyer's country, the Buyer has further declaration, registration or payment obligations (e.g. a Business Buyer's bookkeeping of expenses or declarations on services obtained from abroad), assessing them is the Buyer's responsibility; the Seller does not provide tax advice.",
-        "If, due to a change in law, the Seller is required to collect an additional tax, it will be applied only to subsequent period(s), notified to the Buyer in advance, and the Buyer may cancel before renewal.",
+        "Price changes are made only under the notice procedure in Article 6 and only for subsequent periods; a later tax registration of the Seller does not retroactively change the amount the Buyer paid for a period.",
       ],
     },
     {
@@ -275,7 +275,7 @@ const preinfoTr: LegalDoc = {
       h: "3. Toplam Fiyat, Ödeme Şekli ve Ek Maliyetler",
       p: [
         "Sipariş ekranında/ödeme sayfasında gösterilen tutar, seçtiğiniz plan ve dönem (aylık veya yıllık) için peşin tahsil edilecek toplam bedeldir; TRY, USD veya EUR cinsinden gösterilir.",
-        "Gösterilen fiyatlara uygulanabilir KDV ve diğer vergiler dâhildir; gösterilen tutar dışında ayrıca vergi tahsil edilmez. Satıcı yurt dışında (İngiltere) yerleşiktir ve Türkiye'de vergi temsilcisi yoktur; Stripe makbuzu/faturası Türkiye'de düzenlenen e-faturanın yerine geçmez (Mesafeli Satış Sözleşmesi, madde 5).",
+        "Gösterilen fiyatlar toplam ve nihai tutardır; ayrıca vergi eklenmez. Satıcı yurt dışında (İngiltere) yerleşiktir, Türkiye'de vergi temsilcisi yoktur ve İngiltere KDV (VAT) kayıt eşiğinin altında olduğundan KDV/VAT tahsil etmez; Stripe makbuzu/faturası Türkiye'de düzenlenen e-faturanın yerine geçmez (Mesafeli Satış Sözleşmesi, madde 5).",
         "Ödeme kredi/banka kartıyla Stripe üzerinden alınır. Ödeme yurt dışı üye işyeri hesabından yapıldığından kartınızın bankası komisyon, kur farkı veya yurt dışı işlem bedeli uygulayabilir (banka tarafından belirlenir, Satıcı'ya ait değildir).",
       ],
     },
@@ -334,7 +334,7 @@ const preinfoEn: LegalDoc = {
       h: "3. Total Price, Payment and Additional Costs",
       p: [
         "The amount shown at checkout is the total fee charged in advance for the plan and period (monthly or yearly) you selected, displayed in TRY, USD or EUR.",
-        "Displayed prices include applicable VAT and other taxes; no further tax is charged beyond the amount shown. The Seller is established abroad (United Kingdom) and has no tax representative in Türkiye; the Stripe receipt/invoice does not replace a Turkish e-invoice (Distance Sales Agreement, Article 5).",
+        "Displayed prices are total and final amounts; no further tax is added. The Seller is established abroad (United Kingdom), has no tax representative in Türkiye and, being below the UK VAT registration threshold, does not charge VAT; the Stripe receipt/invoice does not replace a Turkish e-invoice (Distance Sales Agreement, Article 5).",
         "Payment is taken by credit/debit card through Stripe. As payment is processed through a merchant account outside Türkiye, your card issuer may charge commission, exchange-rate or foreign-transaction fees (set by the bank, not by the Seller).",
       ],
     },
