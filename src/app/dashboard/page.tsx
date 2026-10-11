@@ -6,7 +6,7 @@ import {
   format,
   differenceInCalendarDays,
 } from "date-fns";
-import { tr, enUS, ru, ar } from "date-fns/locale";
+import { tr, enUS, ru, ar, de, es } from "date-fns/locale";
 import {
   Calendar, MessageCircle, Megaphone, Star, ChevronRight, Plus,
   BarChart3, Wallet, Users, Scissors, Package, AlertTriangle,
@@ -32,7 +32,7 @@ import { numberLocaleOf } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { DashboardSummary, type SummaryPeriod } from "@/components/dashboard/DashboardSummary";
 
-const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar, de, es } as const;
 
 /** "2026-08-19" → "2026-08-20" (delta gün) — takvim aritmetiği UTC'de yapılır, sunucunun yerel saat diliminden bağımsız (bkz. dashboard/randevular/page.tsx nextDayStr). */
 function addDaysStr(day: string, delta: number): string {

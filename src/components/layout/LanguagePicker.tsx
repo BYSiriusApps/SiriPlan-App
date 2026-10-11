@@ -8,11 +8,13 @@ import { createClient } from "@/lib/supabase/client";
 // gibi yerel SVG bayraklar kullanılır.
 import { FlagIcon } from "@/components/marketing/FlagIcon";
 
-const LOCALES: { code: "tr" | "en" | "ar" | "ru"; label: string; name: string }[] = [
+const LOCALES: { code: "tr" | "en" | "ar" | "ru" | "de" | "es"; label: string; name: string }[] = [
   { code: "tr", label: "TR", name: "Türkçe" },
   { code: "en", label: "EN", name: "English" },
   { code: "ar", label: "AR", name: "العربية" },
   { code: "ru", label: "RU", name: "Русский" },
+  { code: "de", label: "DE", name: "Deutsch" },
+  { code: "es", label: "ES", name: "Español" },
 ];
 
 interface LanguagePickerProps {

@@ -36,6 +36,9 @@ export interface WaTemplateDef {
   metaNameRu?: string | null;
   /** Arapça (dil kodu "ar") karşılığı — Meta onayı bekleniyorsa null. */
   metaNameAr?: string | null;
+  /** Almanca (de) / İspanyolca (es) — Meta onayı gelene kadar KULLANILMAZ: WA_TEMPLATES_DE_ES=1 olmadan gönderim bu adları hiç denemez (bkz. send.ts). */
+  metaNameDe?: string | null;
+  metaNameEs?: string | null;
   /** {{1}}..{{n}} sırasıyla gövde parametrelerinin kaynağı. */
   bodyParamOrder: WaParamSource[];
   /** Şablonun altında dinamik URL butonu var mı? (TR/EN aynı davranışı paylaşır.) */
@@ -51,6 +54,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     metaNameEn: "appointment_confirmation_1",
     metaNameRu: "appointment_confirmation_ru_2",
     metaNameAr: "appointment_confirmation_ar_2",
+    metaNameDe: "appointment_confirmation_de_1",
+    metaNameEs: "appointment_confirmation_es_1",
     bodyParamOrder: ["customer_name", "business_name", "date", "time", "business_phone", "location_link"],
     // Meta'da onaylı "randevu_onayi_1" şablonunun BUTON bileşeni YOK. Buraya
     // dinamik URL butonu parametresi eklemek Meta'yı (#132018) hatasıyla
@@ -74,6 +79,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     metaNameEn: "appointment_cancelled",
     metaNameRu: "appointment_cancelled_ru_2",
     metaNameAr: "appointment_cancelled_ar_2",
+    metaNameDe: "appointment_cancelled_de_1",
+    metaNameEs: "appointment_cancelled_es_1",
     bodyParamOrder: ["customer_name", "business_name", "date", "time"],
   },
   // iptal_v1/iptal_v2 KALDIRILDI (14 Eyl): Meta'daki onaylı "randevu_iptali_1"
@@ -94,6 +101,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     metaNameEn: "appointment_rescheduled",
     metaNameRu: "appointment_rescheduled_ru_2",
     metaNameAr: "appointment_rescheduled_ar_2",
+    metaNameDe: "appointment_rescheduled_de_1",
+    metaNameEs: "appointment_rescheduled_es_1",
     bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
     // "randevu_revize" şablonunda statik URL butonu var ama parametre KABUL
     // ETMİYOR ("does not require parameters"). Buton parametresi göndermek
@@ -119,6 +128,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     metaNameEn: "appointment_reminder_1",
     metaNameRu: "appointment_reminder_ru_2",
     metaNameAr: "appointment_reminder_ar_2",
+    metaNameDe: "appointment_reminder_de_1",
+    metaNameEs: "appointment_reminder_es_1",
     bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
   hatirlatma_v1: {
@@ -129,6 +140,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     metaNameEn: "appointment_reminder_1",
     metaNameRu: "appointment_reminder_ru_2",
     metaNameAr: "appointment_reminder_ar_2",
+    metaNameDe: "appointment_reminder_de_1",
+    metaNameEs: "appointment_reminder_es_1",
     bodyParamOrder: ["customer_name", "business_name", "remaining_time", "date", "time", "business_phone", "location_link"],
   },
   hatirlatma_v2: {
@@ -160,6 +173,8 @@ export const WA_TEMPLATES: Record<string, WaTemplateDef> = {
     metaNameEn: "new_time_proposal",
     metaNameRu: "new_time_proposal_ru_2",
     metaNameAr: "new_time_proposal_ar_2",
+    metaNameDe: "new_time_proposal_de_1",
+    metaNameEs: "new_time_proposal_es_1",
     bodyParamOrder: ["customer_name", "business_name", "new_date", "new_time"],
     hasUrlButton: true,
   },

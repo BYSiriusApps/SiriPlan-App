@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
+import { tm } from "@/lib/toast-i18n";
 
 const DAYS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
@@ -57,7 +58,7 @@ export default function PersonelYeniPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.full_name.trim()) return toast.error("İsim zorunlu");
+    if (!form.full_name.trim()) return toast.error(tm("nameRequired"));
 
     setLoading(true);
     const res = await fetch("/api/staff", {
@@ -72,7 +73,7 @@ export default function PersonelYeniPage() {
     setLoading(false);
 
     if (res.ok) {
-      toast.success("Personel eklendi");
+      toast.success(tm("staffAdded"));
       router.push("/dashboard/personel");
       router.refresh();
     } else {

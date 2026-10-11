@@ -12,7 +12,7 @@ import type { CampaignOffer } from "@/lib/campaign-offer";
  * düşürmesin diye numaralar ayrı tutulur.
  */
 
-export type CampaignLang = "tr" | "en" | "ru" | "ar";
+export type CampaignLang = "tr" | "en" | "ru" | "ar" | "de" | "es";
 export type CampaignTemplateKind = "announcement" | "discount";
 
 export interface CampaignWaConfig {
@@ -27,6 +27,9 @@ export function getCampaignWaConfig(): CampaignWaConfig | null {
 }
 
 export function campaignLang(preferred: string | null | undefined): CampaignLang {
+  // de/es: Meta onaylı kampanya şablonları onaylanana kadar (WA_TEMPLATES_DE_ES=1 yokken) var olmayan
+  // şablon adıyla gönderim hata verirdi; bu yüzden mevcut en yakın dil olan İngilizceye düşer.
+  if (preferred === "de" || preferred === "es") return process.env.WA_TEMPLATES_DE_ES === "1" ? preferred : "en";
   return preferred === "en" || preferred === "ru" || preferred === "ar" ? preferred : "tr";
 }
 
@@ -37,12 +40,16 @@ const TEMPLATE_NAMES: Record<CampaignTemplateKind, Record<CampaignLang, string>>
     en: "campaign_announcement_1",
     ru: "campaign_announcement_ru_1",
     ar: "campaign_announcement_ar_1",
+    de: "campaign_announcement_de_1",
+    es: "campaign_announcement_es_1",
   },
   discount: {
     tr: "kampanya_indirim_1",
     en: "campaign_discount_1",
     ru: "campaign_discount_ru_1",
     ar: "campaign_discount_ar_1",
+    de: "campaign_discount_de_1",
+    es: "campaign_discount_es_1",
   },
 };
 
@@ -54,7 +61,7 @@ function cleanParam(value: string, maxLen: number): string {
 }
 
 function numberLocale(lang: CampaignLang): string {
-  return lang === "tr" ? "tr-TR" : lang === "ru" ? "ru-RU" : "en-US";
+  return lang === "tr" ? "tr-TR" : lang === "ru" ? "ru-RU" : lang === "de" ? "de-DE" : lang === "es" ? "es-ES" : "en-US";
 }
 
 function fmtNumber(n: number, lang: CampaignLang): string {
@@ -69,6 +76,8 @@ export function discountSummary(offer: CampaignOffer, serviceNames: string[], la
     lang === "en" ? (pct ? `${v}% off` : `${v} ₺ off`)
     : lang === "ru" ? (pct ? `скидка ${v}%` : `скидка ${v} ₺`)
     : lang === "ar" ? (pct ? `خصم ${v}%` : `خصم ${v} ₺`)
+    : lang === "de" ? (pct ? `${v} % Rabatt` : `${v} ₺ Rabatt`)
+    : lang === "es" ? (pct ? `${v} % de descuento` : `${v} ₺ de descuento`)
     : pct ? `%${v} indirim` : `${v} ₺ indirim`;
 
   const extras: string[] = [];
@@ -79,6 +88,8 @@ export function discountSummary(offer: CampaignOffer, serviceNames: string[], la
       lang === "en" ? `min. ${m} ₺`
       : lang === "ru" ? `от ${m} ₺`
       : lang === "ar" ? `الحد الأدنى ${m} ₺`
+      : lang === "de" ? `ab ${m} ₺`
+      : lang === "es" ? `mínimo ${m} ₺`
       : `en az ${m} ₺ işlemlerde`
     );
   }
@@ -92,6 +103,8 @@ export function discountValidity(validUntil: string, lang: CampaignLang): string
   return lang === "en" ? `until ${date}`
     : lang === "ru" ? `до ${date}`
     : lang === "ar" ? `حتى ${date}`
+    : lang === "de" ? `bis ${date}`
+    : lang === "es" ? `hasta el ${date}`
     : `${date} tarihine kadar`;
 }
 

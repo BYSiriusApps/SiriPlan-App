@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { maskPhone } from "@/lib/phone";
 import type { Campaign } from "@/types/database";
+import { tm } from "@/lib/toast-i18n";
 import { getOffer, formatDiscount, formatOfferDate } from "@/lib/campaign-offer";
 import {
   ArrowLeft,
@@ -79,7 +80,7 @@ export default function KampanyaDetayClient({
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setSendResult({ sent: data.sent_count ?? 0, failed: data.failed_count ?? 0 });
-        toast.success(`Kampanya gönderildi: ${data.sent_count ?? 0} kişiye ulaştı`);
+        toast.success(tm("campaignSent", { n: data.sent_count ?? 0 }));
         router.refresh();
       } else {
         const msg = data.error || "Kampanya gönderilemedi, bilinmeyen bir hata oluştu";

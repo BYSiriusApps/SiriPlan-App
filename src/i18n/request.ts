@@ -61,6 +61,8 @@ const MESSAGE_LOADERS = {
   en: () => import("../../messages/en.json"),
   ru: () => import("../../messages/ru.json"),
   ar: () => import("../../messages/ar.json"),
+  de: () => import("../../messages/de.json"),
+  es: () => import("../../messages/es.json"),
 } satisfies Record<Locale, () => Promise<{ default: unknown }>>;
 
 export default getRequestConfig(async ({ requestLocale }) => {

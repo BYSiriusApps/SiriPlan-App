@@ -17,6 +17,7 @@ import { useMicAccess } from "@/components/dashboard/useMicAccess";
 import { useVoiceConfirmCommand } from "@/components/dashboard/useVoiceConfirmCommand";
 import { usePlan } from "@/components/dashboard/PlanContext";
 import { parseVoiceCustomer } from "@/lib/voice-customer-parse";
+import { tm as tt } from "@/lib/toast-i18n";
 
 /** Sesli özet kutusundaki bir satır — boşsa ve eksik işaretliyse amber gösterir. */
 function VoiceRow({
@@ -82,8 +83,8 @@ export default function MusteriYeniPage() {
   }
 
   async function submitCustomer() {
-    if (!form.full_name.trim()) { toast.error("İsim zorunlu"); return false; }
-    if (!form.phone.trim()) { toast.error("Telefon zorunlu"); return false; }
+    if (!form.full_name.trim()) { toast.error(tt("nameRequired")); return false; }
+    if (!form.phone.trim()) { toast.error(tt("phoneRequired")); return false; }
 
     setLoading(true);
     const res = await fetch("/api/customers", {
@@ -102,7 +103,7 @@ export default function MusteriYeniPage() {
     setLoading(false);
 
     if (res.ok) {
-      toast.success("Müşteri eklendi");
+      toast.success(tt("customerAdded"));
       router.push("/dashboard/musteriler");
       router.refresh();
       return true;

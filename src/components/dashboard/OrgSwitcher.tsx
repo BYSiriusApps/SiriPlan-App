@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { tm } from "@/lib/toast-i18n";
 
 const ROLE_LABELS: Record<string, string> = {
   owner: "İşletme Sahibi",
@@ -53,7 +54,7 @@ export function OrgSwitcher({ activeOrgId, memberships }: Props) {
         setSwitching(null);
       }
     } catch {
-      toast.error("Bağlantı hatası");
+      toast.error(tm("conn"));
       setSwitching(null);
     }
   }

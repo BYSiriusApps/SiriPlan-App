@@ -9,6 +9,7 @@ import { Camera, Loader2, Plus, ShieldAlert, Trash2, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { uploadImage } from "@/lib/upload-image";
 import { hasVisualResultFeature } from "@/lib/customer-fields/visual-sectors";
+import { tm } from "@/lib/toast-i18n";
 
 interface Photo {
   id: string;
@@ -54,7 +55,7 @@ export default function CustomerBeforeAfterPhotos({ customerId, businessType }: 
       const res = await fetch(`/api/customers/${customerId}/photos/${photoId}`, { method: "DELETE" });
       if (!res.ok) throw new Error((await res.json()).error || "Silinemedi");
       setPhotos((prev) => prev.filter((p) => p.id !== photoId));
-      toast.success("Fotoğraf silindi");
+      toast.success(tm("photoDeleted"));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -164,11 +165,11 @@ function AddPhotoForm({
 
   async function handleSave() {
     if (!beforeFile || !afterFile) {
-      toast.error("Önce ve sonra fotoğraflarının ikisini de seçin");
+      toast.error(tm("photosBoth"));
       return;
     }
     if (!consent) {
-      toast.error("Devam etmek için müşteri rızası onayını işaretleyin");
+      toast.error(tm("photoConsent"));
       return;
     }
     setSaving(true);
@@ -189,7 +190,7 @@ function AddPhotoForm({
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error || "Kaydedilemedi");
-      toast.success("Fotoğraflar eklendi");
+      toast.success(tm("photosAdded"));
       onSaved();
     } catch (e) {
       toast.error((e as Error).message);

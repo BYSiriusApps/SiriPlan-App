@@ -11,6 +11,7 @@ import { isMobileAppUserAgent, hasMobileAppCookie } from "@/lib/mobile-app-share
 import { formatPrice, DEFAULT_PRICING, type PricingCurrency } from "@/lib/pricing";
 import { useTranslations } from "next-intl";
 import { PurchaseConsent, EMPTY_CONSENT, isConsentComplete, type PurchaseConsentValue } from "@/components/legal/PurchaseConsent";
+import { tm } from "@/lib/toast-i18n";
 
 const SUPPORT_EMAIL = "info@bysirius.com";
 const SUPPORT_PHONE = "+905355032634";
@@ -170,7 +171,7 @@ export default function PlanSecPage() {
         toast.error(typeof data?.error === "string" && data.error ? data.error : "Bir hata oluştu.");
       }
     } catch {
-      toast.error("Bağlantı hatası.");
+      toast.error(tm("conn"));
     }
     setLoading(null);
   }
@@ -189,7 +190,7 @@ export default function PlanSecPage() {
           d.org?.trial_ends_at &&
           new Date(d.org.trial_ends_at) > new Date();
         if (!paid && !trialOk) {
-          toast.error("Ücretsiz deneme süreniz doldu. Devam etmek için bir plan seçmeniz gerekiyor.");
+          toast.error(tm("trialExpired"));
           setTrialLoading(false);
           return;
         }

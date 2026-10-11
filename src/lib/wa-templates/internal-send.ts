@@ -67,7 +67,14 @@ export async function sendInternalTemplate(
     }
   }
 
-  if (locale === "en" && def.metaNameEn) {
+  const deEsLive = process.env.WA_TEMPLATES_DE_ES === "1";
+  if (deEsLive && locale === "de" && def.metaNameDe) {
+    if (await attempt(def.metaNameDe, "de")) return true;
+  }
+  if (deEsLive && locale === "es" && def.metaNameEs) {
+    if (await attempt(def.metaNameEs, "es")) return true;
+  }
+  if ((locale === "en" || locale === "de" || locale === "es") && def.metaNameEn) {
     if (await attempt(def.metaNameEn, "en")) return true;
   }
   if (locale === "ru" && def.metaNameRu) {

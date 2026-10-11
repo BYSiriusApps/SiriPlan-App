@@ -114,7 +114,15 @@ export async function sendPurposeTemplate({
     .eq("org_id", orgId)
     .eq("phone", toStoredPhoneFormat(toPhone))
     .maybeSingle();
-  const preferEnglish = customerRow?.preferred_language === "en" && !!def.metaNameEn;
+  // de/es: kendi Meta şablonları onaylanana kadar İngilizce denenir; o da yoksa
+  // aşağıdaki attempt() zinciri Türkçe'ye düşer (mevcut güvenli davranış).
+  const prefLang = customerRow?.preferred_language;
+  const preferEnglish = (prefLang === "en" || prefLang === "de" || prefLang === "es") && !!def.metaNameEn;
+  // de/es şablonları Meta'da onaylandıktan sonra WA_TEMPLATES_DE_ES=1 ile açılır; kapalıyken
+  // bu dallar hiç çalışmaz ve davranış (en → tr düşüşü) birebir aynı kalır.
+  const deEsLive = process.env.WA_TEMPLATES_DE_ES === "1";
+  const preferGerman = deEsLive && prefLang === "de" && !!def.metaNameDe;
+  const preferSpanish = deEsLive && prefLang === "es" && !!def.metaNameEs;
   const preferRussian = customerRow?.preferred_language === "ru" && !!def.metaNameRu;
   const preferArabic = customerRow?.preferred_language === "ar" && !!def.metaNameAr;
 
@@ -287,6 +295,14 @@ export async function sendPurposeTemplate({
   // İngilizce onaylı değilse/reddedilirse Türkçe'ye (zaten onaylı) düş —
   // müşteri hiçbir mesaj almadan kalmasın.
   async function sendWithLocaleFallback(): Promise<SendPurposeTemplateResult> {
+    if (preferGerman) {
+      const deResult = await attempt(def!.metaNameDe!, "de");
+      if ("sent" in deResult) return deResult;
+    }
+    if (preferSpanish) {
+      const esResult = await attempt(def!.metaNameEs!, "es");
+      if ("sent" in esResult) return esResult;
+    }
     if (preferEnglish) {
       const enResult = await attempt(def!.metaNameEn!, "en");
       if ("sent" in enResult) return enResult;

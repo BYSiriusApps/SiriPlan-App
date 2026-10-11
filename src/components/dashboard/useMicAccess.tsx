@@ -19,6 +19,8 @@ const SPEECH_LANGS: Record<string, string> = {
   en: "en-US",
   ru: "ru-RU",
   ar: "ar-SA",
+  de: "de-DE",
+  es: "es-ES",
 };
 
 export function speechLangFor(locale: string): string {

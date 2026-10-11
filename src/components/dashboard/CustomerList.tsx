@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 import { Users, Phone, Star, Calendar, Megaphone, MegaphoneOff, ShieldCheck, ShieldOff, MessageCircle, MessageSquare, Search, X, ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, Loader2, CalendarPlus } from "lucide-react";
 import { useIsIOSNativeApp } from "@/lib/use-mobile-app";
 import { format } from "date-fns";
-import { tr, enUS, ru, ar } from "date-fns/locale";
+import { tr, enUS, ru, ar, de, es } from "date-fns/locale";
 
-const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar, de, es } as const;
 import { toast } from "sonner";
 import {
   Dialog,

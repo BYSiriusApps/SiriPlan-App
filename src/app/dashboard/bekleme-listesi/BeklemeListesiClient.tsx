@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { ListPlus, Plus, Trash2, Loader2, Clock, Bell, CalendarPlus, Users, Check, CalendarClock, Pencil, X, MessageCircle, Globe } from "lucide-react";
 import { InstagramIcon } from "@/components/icons/brand-icons";
 import { maskPhone } from "@/lib/phone";
+import { tm } from "@/lib/toast-i18n";
 
 export type PendingAppt = {
   id: string;
@@ -192,7 +193,7 @@ export function BeklemeListesiClient({
     setRequestBusyId(null);
     if (res.ok) {
       setPendingRequests((prev) => prev.filter((r) => r.id !== id));
-      toast.success("Randevu onaylandı");
+      toast.success(tm("apptApproved"));
       // Liste burada local state ile güncelleniyor ama üstteki şeritler ve
       // Sidebar/MobileNav rozeti (dashboard/layout.tsx) ayrı bir server
       // sorgusu — router.refresh() olmadan eski sayıyı göstermeye devam eder.
@@ -213,7 +214,7 @@ export function BeklemeListesiClient({
     setRequestBusyId(null);
     if (res.ok) {
       setPendingRequests((prev) => prev.filter((r) => r.id !== id));
-      toast.success("Talep reddedildi");
+      toast.success(tm("requestRejected"));
       router.refresh();
     } else {
       const e = await res.json().catch(() => ({}));
@@ -241,7 +242,7 @@ export function BeklemeListesiClient({
         prev.map((r) => (r.id === id ? { ...r, proposed_status: "pending", proposed_appointment_at: iso } : r))
       );
       setRequestEditingId(null);
-      toast.success("Yeni saat önerildi, müşteri cevabı bekleniyor");
+      toast.success(tm("newTimeProposed"));
     } else {
       const e = await res.json().catch(() => ({}));
       toast.error(e.error || "Öneri gönderilemedi");
@@ -292,7 +293,7 @@ export function BeklemeListesiClient({
         prev.map((a) => (a.id === id ? { ...a, proposed_status: "pending", proposed_appointment_at: iso } : a))
       );
       setEditingApptId(null);
-      toast.success("Yeni saat önerildi, müşteri cevabı bekleniyor");
+      toast.success(tm("newTimeProposed"));
     } else {
       const e = await res.json().catch(() => ({}));
       toast.error(e.error || "Öneri gönderilemedi");
@@ -309,7 +310,7 @@ export function BeklemeListesiClient({
     setCancelingId(null);
     if (res.ok) {
       setPendingAppts((prev) => prev.filter((a) => a.id !== id));
-      toast.success("Randevu talebi iptal edildi");
+      toast.success(tm("requestCancelled"));
       router.refresh();
     } else {
       const e = await res.json().catch(() => ({}));
@@ -321,7 +322,7 @@ export function BeklemeListesiClient({
 
   async function handleSave() {
     if (!form.customer_name || !form.customer_phone) {
-      toast.error("Ad ve telefon zorunlu");
+      toast.error(tm("nameAndPhoneRequired"));
       return;
     }
     setSaving(true);
@@ -340,7 +341,7 @@ export function BeklemeListesiClient({
     });
     setSaving(false);
     if (res.ok) {
-      toast.success("Bekleme listesine eklendi");
+      toast.success(tm("addedToWaitlist"));
       setShowForm(false);
       setForm(EMPTY_FORM);
       fetchData();
@@ -357,20 +358,20 @@ export function BeklemeListesiClient({
       body: JSON.stringify({ status }),
     });
     if (res.ok) {
-      toast.success("Durum güncellendi");
+      toast.success(tm("statusUpdated"));
       fetchData();
     } else {
-      toast.error("Güncellenemedi");
+      toast.error(tm("updateFailed"));
     }
   }
 
   async function handleDelete(id: string) {
     const res = await fetch(`/api/waitlist/${id}`, { method: "DELETE" });
     if (res.ok) {
-      toast.success("Kayıt silindi");
+      toast.success(tm("recordDeleted"));
       fetchData();
     } else {
-      toast.error("Silinemedi");
+      toast.error(tm("deleteFailed"));
     }
   }
 

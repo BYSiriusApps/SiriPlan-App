@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Download, Upload, FileText, CheckCircle2, Loader2, ArrowRight, Sheet, Printer } from "lucide-react";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { tm } from "@/lib/toast-i18n";
 
 const IMPORT_SOURCES = [
   { id: "salonappy", name: "Randevu Programı", icon: "💆", color: "border-orange-200 dark:border-orange-800" },
@@ -50,15 +51,15 @@ export default function VeriGocuPage() {
         : `musteriler-${today}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success("Veriler indirildi!");
+      toast.success(tm("downloaded"));
     } catch {
-      toast.error("İndirme başarısız.");
+      toast.error(tm("downloadFailed"));
     }
     setExporting(null);
   }
 
   async function handleImport(file: File) {
-    if (!selectedSource) { toast.error("Lütfen kaynak seçin."); return; }
+    if (!selectedSource) { toast.error(tm("pickSource")); return; }
     setImporting(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -71,19 +72,19 @@ export default function VeriGocuPage() {
         // Zaten kayıtlı olanlar "aktarılmadı" değil "mükerrer" — kullanıcı 0
         // kayıt gördüğünde dosyasında mı yoksa sistemde mi sorun var bilmeli.
         const parts: string[] = [];
-        if (data.duplicates) parts.push(`${data.duplicates} kayıt zaten mevcuttu`);
-        if (data.skipped) parts.push(`${data.skipped} satır atlandı`);
+        if (data.duplicates) parts.push(tm("dupExisted", { n: data.duplicates }));
+        if (data.skipped) parts.push(tm("rowsSkipped", { n: data.skipped }));
         const detail = parts.length ? ` (${parts.join(", ")})` : "";
         if (data.imported > 0) {
-          toast.success(`${data.imported} kayıt başarıyla aktarıldı!${detail}`);
+          toast.success(tm("imported", { n: data.imported, detail }));
         } else {
-          toast.info(`Yeni kayıt eklenmedi.${detail}`);
+          toast.info(tm("nothingImported", { detail }));
         }
       } else {
-        toast.error(data.error || "İçe aktarma başarısız.");
+        toast.error(data.error || tm("importFailed"));
       }
     } catch {
-      toast.error("Bağlantı hatası.");
+      toast.error(tm("conn"));
     }
     setImporting(false);
   }

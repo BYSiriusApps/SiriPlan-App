@@ -16,6 +16,8 @@ const STRIPE_LOCALE: Record<string, Stripe.Checkout.SessionCreateParams.Locale> 
   en: "en",
   ru: "ru",
   ar: "en",
+  de: "de",
+  es: "es",
 };
 
 const MAX_BRANCH_QUANTITY = 20;

@@ -190,7 +190,87 @@ const ar: AuthEmailStrings = {
   },
 };
 
-const TABLE: Record<AuthEmailLocale, AuthEmailStrings> = { tr, en, ru, ar };
+const de: AuthEmailStrings = {
+  htmlLang: "de", rtl: false,
+  brandTagline: "Salon- &amp; Terminverwaltung",
+  footerSentBy: "Diese E-Mail wurde von SiriPlan gesendet.",
+  actions: {
+    recovery: {
+      subject: "SiriPlan — Ihr Link zum Zurücksetzen des Passworts",
+      heading: "Passwort zurücksetzen",
+      greeting: (email) => `Wir haben eine Anfrage zum Zurücksetzen des Passworts für Ihr SiriPlan-Konto (<strong>${email}</strong>) erhalten. Klicken Sie auf die Schaltfläche unten, um ein neues Passwort festzulegen.`,
+      button: "Neues Passwort festlegen →",
+      linkHint: "Falls die Schaltfläche nicht funktioniert, fügen Sie diesen Link in Ihren Browser ein:",
+      expiry: "Dieser Link ist 1 Stunde gültig und kann nur einmal verwendet werden. Wenn Sie dies nicht angefordert haben, können Sie diese E-Mail ignorieren – Ihr Passwort bleibt unverändert.",
+    },
+    signup: {
+      subject: "SiriPlan — Bestätigen Sie Ihr Konto",
+      heading: "E-Mail-Adresse bestätigen",
+      greeting: (email) => `Klicken Sie auf die Schaltfläche unten, um Ihr SiriPlan-Konto (<strong>${email}</strong>) zu aktivieren.`,
+      button: "Mein Konto bestätigen →",
+      linkHint: "Falls die Schaltfläche nicht funktioniert, fügen Sie diesen Link in Ihren Browser ein:",
+      expiry: "Dieser Link ist 24 Stunden gültig. Wenn Sie dieses Konto nicht erstellt haben, können Sie diese E-Mail ignorieren.",
+    },
+    invite: {
+      subject: "SiriPlan — Ihre Einladung ist da",
+      heading: "Sie wurden zu SiriPlan eingeladen",
+      greeting: (email) => `Für <strong>${email}</strong> wurde eine Einladung zu SiriPlan erstellt. Klicken Sie auf die Schaltfläche unten, um beizutreten.`,
+      button: "Einladung annehmen →",
+      linkHint: "Falls die Schaltfläche nicht funktioniert, fügen Sie diesen Link in Ihren Browser ein:",
+      expiry: "Dieser Link ist nur begrenzte Zeit gültig. Wenn Sie diese Einladung nicht erwartet haben, können Sie diese E-Mail ignorieren.",
+    },
+    email_change: {
+      subject: "SiriPlan — E-Mail-Änderung bestätigen",
+      heading: "Neue E-Mail-Adresse bestätigen",
+      greeting: (email) => `Klicken Sie auf die Schaltfläche unten, um die E-Mail-Adresse Ihres SiriPlan-Kontos auf <strong>${email}</strong> zu ändern.`,
+      button: "Meine E-Mail bestätigen →",
+      linkHint: "Falls die Schaltfläche nicht funktioniert, fügen Sie diesen Link in Ihren Browser ein:",
+      expiry: "Dieser Link ist 24 Stunden gültig. Wenn Sie diese Änderung nicht angefordert haben, kontaktieren Sie uns bitte zum Schutz Ihres Kontos: info@bysirius.com",
+    },
+  },
+};
+
+const es: AuthEmailStrings = {
+  htmlLang: "es", rtl: false,
+  brandTagline: "Gestión de salones y citas",
+  footerSentBy: "Este correo fue enviado por SiriPlan.",
+  actions: {
+    recovery: {
+      subject: "SiriPlan — Tu enlace para restablecer la contraseña",
+      heading: "Restablece tu contraseña",
+      greeting: (email) => `Recibimos una solicitud para restablecer la contraseña de tu cuenta de SiriPlan (<strong>${email}</strong>). Haz clic en el botón de abajo para crear una nueva contraseña.`,
+      button: "Crear nueva contraseña →",
+      linkHint: "Si el botón no funciona, pega este enlace en tu navegador:",
+      expiry: "Este enlace es válido durante 1 hora y solo puede usarse una vez. Si no lo solicitaste, puedes ignorar este correo: tu contraseña no cambiará.",
+    },
+    signup: {
+      subject: "SiriPlan — Verifica tu cuenta",
+      heading: "Verifica tu correo electrónico",
+      greeting: (email) => `Haz clic en el botón de abajo para activar tu cuenta de SiriPlan (<strong>${email}</strong>).`,
+      button: "Verificar mi cuenta →",
+      linkHint: "Si el botón no funciona, pega este enlace en tu navegador:",
+      expiry: "Este enlace es válido durante 24 horas. Si no creaste esta cuenta, puedes ignorar este correo.",
+    },
+    invite: {
+      subject: "SiriPlan — Tu invitación está lista",
+      heading: "Te han invitado a SiriPlan",
+      greeting: (email) => `Se creó una invitación a SiriPlan para <strong>${email}</strong>. Haz clic en el botón de abajo para unirte.`,
+      button: "Aceptar invitación →",
+      linkHint: "Si el botón no funciona, pega este enlace en tu navegador:",
+      expiry: "Este enlace es válido por tiempo limitado. Si no esperabas esta invitación, puedes ignorar este correo.",
+    },
+    email_change: {
+      subject: "SiriPlan — Confirma el cambio de correo",
+      heading: "Confirma tu nuevo correo electrónico",
+      greeting: (email) => `Haz clic en el botón de abajo para cambiar el correo de tu cuenta de SiriPlan a <strong>${email}</strong>.`,
+      button: "Confirmar mi correo →",
+      linkHint: "Si el botón no funciona, pega este enlace en tu navegador:",
+      expiry: "Este enlace es válido durante 24 horas. Si no solicitaste este cambio, contáctanos para proteger tu cuenta: info@bysirius.com",
+    },
+  },
+};
+
+const TABLE: Record<AuthEmailLocale, AuthEmailStrings> = { tr, en, ru, ar, de, es };
 
 /** Verilen dilin metinleri; tanınmayan/boş dilde Türkçe döner. */
 export function authEmailStrings(locale?: string | null): AuthEmailStrings {

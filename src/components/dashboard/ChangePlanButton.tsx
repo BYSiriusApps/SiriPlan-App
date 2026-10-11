@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Sparkles, ArrowRightLeft } from "lucide-react";
 import { toast } from "sonner";
 import type { PlanKey } from "@/lib/stripe/config";
+import { tm } from "@/lib/toast-i18n";
 
 type Preview = {
   isUpgrade: boolean;
@@ -57,7 +58,7 @@ export function ChangePlanButton({
       }
       setPreview(data as Preview);
     } catch {
-      toast.error("Bağlantı hatası.");
+      toast.error(tm("conn"));
     } finally {
       setLoading(false);
     }
@@ -76,11 +77,11 @@ export function ChangePlanButton({
         toast.error(data.error || "Plan değişikliği başarısız oldu.");
         return;
       }
-      toast.success(`${planName} plana geçtiniz.`);
+      toast.success(tm("planSwitched", { plan: planName }));
       setPreview(null);
       router.refresh();
     } catch {
-      toast.error("Bağlantı hatası.");
+      toast.error(tm("conn"));
     } finally {
       setLoading(false);
     }

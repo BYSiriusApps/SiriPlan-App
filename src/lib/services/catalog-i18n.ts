@@ -2,7 +2,7 @@
  * Hizmet kataloğunun (bkz. catalog.ts) çok dilli karşılıkları.
  *
  * Katalogdaki Türkçe ad KANONİK ANAHTARDIR — çeviriler burada satır satır
- * [tr, en, ru, ar] biçiminde tutulur. Böylece yeni bir hizmet eklerken tek bir
+ * [tr, en, ru, ar] biçiminde (de/es ayrı dosyada: catalog-i18n-de-es.ts) tutulur. Böylece yeni bir hizmet eklerken tek bir
  * satır yazmak yeterli olur ve Türkçe anahtar üç ayrı yerde tekrarlanmadığı için
  * yazım hatasıyla eşleşmeyen kayıt oluşmaz.
  *
@@ -12,7 +12,9 @@
  * bildirimleri veya hatırlatmaları etkilemez.
  */
 
-export type CatalogLocale = "tr" | "en" | "ru" | "ar";
+export type CatalogLocale = "tr" | "en" | "ru" | "ar" | "de" | "es";
+
+import { CATALOG_DE_ES } from "./catalog-i18n-de-es";
 
 type Row = [tr: string, en: string, ru: string, ar: string];
 
@@ -387,11 +389,19 @@ const SERVICE_ROWS: Row[] = [
   ["Dudak / Labret Piercing", "Lip / Labret Piercing", "Пирсинг губы / лабрет", "ثقب الشفة / لابريت"],
 ];
 
-const LOCALE_INDEX: Record<Exclude<CatalogLocale, "tr">, 1 | 2 | 3> = { en: 1, ru: 2, ar: 3 };
+const LOCALE_INDEX: Record<"en" | "ru" | "ar", 1 | 2 | 3> = { en: 1, ru: 2, ar: 3 };
 
-function buildMap(rows: Row[], index: 1 | 2 | 3): Map<string, string> {
+/** Almanca/İspanyolca karşılık; tabloda yoksa İngilizceye düşer (asla boş/Türkçe değil). */
+function deEsOf(row: Row, locale: "de" | "es"): string {
+  const hit = CATALOG_DE_ES[row[0]];
+  return (hit ? hit[locale === "de" ? 0 : 1] : "") || row[1];
+}
+
+function buildMap(rows: Row[], locale: Exclude<CatalogLocale, "tr">): Map<string, string> {
   const map = new Map<string, string>();
-  for (const row of rows) map.set(row[0], row[index]);
+  for (const row of rows) {
+    map.set(row[0], locale === "de" || locale === "es" ? deEsOf(row, locale) : row[LOCALE_INDEX[locale]]);
+  }
   return map;
 }
 
@@ -401,11 +411,9 @@ const serviceMaps = new Map<string, Map<string, string>>();
 /** Katalog kategori etiketinin verilen dildeki karşılığı — çeviri yoksa Türkçesi döner. */
 export function translateCatalogCategory(label: string, locale: CatalogLocale): string {
   if (locale === "tr") return label;
-  const index = LOCALE_INDEX[locale];
-  if (!index) return label;
   let map = categoryMaps.get(locale);
   if (!map) {
-    map = buildMap(CATEGORY_ROWS, index);
+    map = buildMap(CATEGORY_ROWS, locale);
     categoryMaps.set(locale, map);
   }
   return map.get(label) ?? label;
@@ -414,11 +422,9 @@ export function translateCatalogCategory(label: string, locale: CatalogLocale): 
 /** Katalog hizmet adının verilen dildeki karşılığı — çeviri yoksa Türkçesi döner. */
 export function translateCatalogService(name: string, locale: CatalogLocale): string {
   if (locale === "tr") return name;
-  const index = LOCALE_INDEX[locale];
-  if (!index) return name;
   let map = serviceMaps.get(locale);
   if (!map) {
-    map = buildMap(SERVICE_ROWS, index);
+    map = buildMap(SERVICE_ROWS, locale);
     serviceMaps.set(locale, map);
   }
   return map.get(name) ?? name;
@@ -462,6 +468,16 @@ function getReverseIndex(): Map<string, Row> {
       if (!index.has(key)) index.set(key, row);
     }
   }
+  // Almanca/İspanyolca kayıtlı adlar da aynı satıra çözülsün (yalnızca tabloda
+  // gerçek karşılığı olanlar; İngilizce düşüşü zaten satırda var).
+  for (const row of [...SERVICE_ROWS, ...CATEGORY_ROWS]) {
+    const hit = CATALOG_DE_ES[row[0]];
+    if (!hit) continue;
+    for (const variant of hit) {
+      const key = variant.trim();
+      if (key && !index.has(key)) index.set(key, row);
+    }
+  }
   reverseIndex = index;
   return index;
 }
@@ -470,7 +486,7 @@ export function catalogNameVariants(name: string): NameVariants | null {
   if (!name) return null;
   const row = getReverseIndex().get(name.trim());
   if (!row) return null;
-  return { tr: row[0], en: row[1], ru: row[2], ar: row[3] };
+  return { tr: row[0], en: row[1], ru: row[2], ar: row[3], de: deEsOf(row, "de"), es: deEsOf(row, "es") };
 }
 
 /**

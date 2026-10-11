@@ -24,6 +24,7 @@ import { useMicAccess } from "@/components/dashboard/useMicAccess";
 import { useVoiceConfirmCommand } from "@/components/dashboard/useVoiceConfirmCommand";
 import { usePlan } from "@/components/dashboard/PlanContext";
 import { isInternalBarcode } from "@/lib/barcode";
+import { tm as tt } from "@/lib/toast-i18n";
 
 interface ParsedInventoryCmd {
   action: "add" | "update_stock" | "update_price";
@@ -166,7 +167,7 @@ export default function StokPage() {
         setTransactions(d.transactions || []);
       }
     } catch {
-      toast.error("Stok verileri yüklenemedi");
+      toast.error(tt("stockLoadFailed"));
     } finally {
       setLoading(false);
     }
@@ -351,14 +352,14 @@ export default function StokPage() {
         body: JSON.stringify({ type }),
       });
       if (res.ok) {
-        toast.success("Örnek stok kataloğu eklendi!");
+        toast.success(tt("sampleCatalogAdded"));
         fetchData();
       } else {
         const d = await res.json().catch(() => ({}));
         toast.error(d.error || "Katalog eklenemedi");
       }
     } catch {
-      toast.error("Katalog eklenemedi");
+      toast.error(tt("catalogFailed"));
     } finally {
       setLoadingTemplate(false);
     }
@@ -388,7 +389,7 @@ export default function StokPage() {
 
   async function handleSaveItem() {
     if (!itemForm.name.trim()) {
-      toast.error("Ürün adı zorunludur");
+      toast.error(tt("productNameRequired"));
       return;
     }
     setSavingItem(true);
@@ -419,7 +420,7 @@ export default function StokPage() {
         toast.error(d.error || "Kayıt başarısız");
       }
     } catch {
-      toast.error("Kayıt başarısız");
+      toast.error(tt("saveFailed"));
     } finally {
       setSavingItem(false);
     }
@@ -430,14 +431,14 @@ export default function StokPage() {
     try {
       const res = await fetch(`/api/inventory?id=${id}`, { method: "DELETE" });
       if (res.ok) {
-        toast.success("Ürün silindi");
+        toast.success(tt("productDeleted"));
         fetchData();
         router.refresh();
       } else {
-        toast.error("Ürün silinemedi");
+        toast.error(tt("productDeleteFailed"));
       }
     } catch {
-      toast.error("Ürün silinemedi");
+      toast.error(tt("productDeleteFailed"));
     }
   }
 
@@ -457,7 +458,7 @@ export default function StokPage() {
     if (!txTargetItem) return;
     const qty = Number(txForm.quantity);
     if (!qty || qty <= 0) {
-      toast.error("Geçerli bir miktar girin");
+      toast.error(tt("validQty"));
       return;
     }
     setSavingTx(true);
@@ -475,7 +476,7 @@ export default function StokPage() {
       });
       const d = await res.json().catch(() => ({}));
       if (res.ok) {
-        toast.success("Stok hareketi kaydedildi");
+        toast.success(tt("stockMoveSaved"));
         if (d.lowStock) toast(tb("nowLow", { name: txTargetItem.name }), { icon: "⚠️", duration: 8000 });
         setShowTxModal(false);
         fetchData();
@@ -484,7 +485,7 @@ export default function StokPage() {
         toast.error(d.error || "İşlem başarısız");
       }
     } catch {
-      toast.error("İşlem başarısız");
+      toast.error(tt("opFailed"));
     } finally {
       setSavingTx(false);
     }

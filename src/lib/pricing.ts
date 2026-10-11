@@ -122,6 +122,8 @@ const ASSISTANT_UNITS = {
   en: { perMonth: "/mo", yearly: "yearly" },
   ru: { perMonth: "/мес", yearly: "за год" },
   ar: { perMonth: "/شهر", yearly: "سنويًا" },
+  de: { perMonth: "/Monat", yearly: "jährlich" },
+  es: { perMonth: "/mes", yearly: "anual" },
 } as const;
 
 export function pricingSummaryForAssistant(
@@ -157,6 +159,8 @@ const ADDON_NAMES = {
   en: { ai: "AI WhatsApp/Instagram Assistant", branch: "Extra Branch (per branch)" },
   ru: { ai: "AI-ассистент WhatsApp/Instagram", branch: "Доп. филиал (за каждый)" },
   ar: { ai: "مساعد AI لواتساب/إنستغرام", branch: "فرع إضافي (لكل فرع)" },
+  de: { ai: "KI-Assistent für WhatsApp/Instagram", branch: "Zusätzliche Filiale (pro Filiale)" },
+  es: { ai: "Asistente IA de WhatsApp/Instagram", branch: "Sucursal adicional (por sucursal)" },
 } as const;
 
 export function addonsSummaryForAssistant(

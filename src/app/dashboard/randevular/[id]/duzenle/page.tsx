@@ -14,6 +14,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import type { Staff, Service } from "@/types/database";
 import { DateTimeSlotPicker, toLocalDateTimeValue } from "@/components/dashboard/DateTimeSlotPicker";
 import { CustomerSearchField } from "@/components/dashboard/CustomerSearchField";
+import { tm } from "@/lib/toast-i18n";
 
 export default function RandevuDuzenlePage() {
   const t = useTranslations("dashboard");
@@ -45,7 +46,7 @@ export default function RandevuDuzenlePage() {
     ])
       .then(([apptData, staffData, servicesData, orgData]) => {
         const a = apptData.appointment;
-        if (!a) { toast.error("Randevu bulunamadı"); return; }
+        if (!a) { toast.error(tm("apptNotFound")); return; }
         setForm({
           customer_name: a.customer_name ?? "",
           customer_phone: a.customer_phone ?? "",
@@ -63,14 +64,14 @@ export default function RandevuDuzenlePage() {
         const bookingSlot = Number(settings.booking_slot_minutes);
         if ([15, 30, 60].includes(bookingSlot)) setSlotMinutes(bookingSlot);
       })
-      .catch(() => toast.error("Veriler yüklenemedi"))
+      .catch(() => toast.error(tm("dataLoadFailed")))
       .finally(() => setDataLoading(false));
   }, [id]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.staff_id || !form.service_id || !form.appointment_at) {
-      return toast.error("Personel, hizmet ve tarih/saat zorunlu");
+      return toast.error(tm("apptEditFieldsRequired"));
     }
     setLoading(true);
     const res = await fetch(`/api/appointments/${id}`, {
@@ -83,7 +84,7 @@ export default function RandevuDuzenlePage() {
     });
     setLoading(false);
     if (res.ok) {
-      toast.success("Randevu güncellendi");
+      toast.success(tm("apptUpdated"));
       router.push(`/dashboard/randevular/${id}`);
     } else {
       const err = await res.json();

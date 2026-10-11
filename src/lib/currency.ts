@@ -10,9 +10,9 @@ export const CURRENCIES: { value: ServiceCurrency; label: string }[] = [
 
 // Sayı biçimi (binlik/ondalık ayraç) panelin aktif diline göre değişir — para
 // birimi SEMBOLÜ ise her zaman işletmenin seçtiği currency'den gelir, dilden
-// değil. uiLocale next-intl locale kodu ("tr"/"en"/"ru"/"ar"); verilmezse
+// değil. uiLocale next-intl locale kodu ("tr"/"en"/"ru"/"ar"/"de"/"es"); verilmezse
 // geriye dönük uyumluluk için "tr-TR" varsayılır (müşteriye dönük sayfalar).
-const NUMBER_LOCALE: Record<string, string> = { tr: "tr-TR", en: "en-US", ru: "ru-RU", ar: "ar-SA" };
+const NUMBER_LOCALE: Record<string, string> = { tr: "tr-TR", en: "en-US", ru: "ru-RU", ar: "ar-SA", de: "de-DE", es: "es-ES" };
 export function numberLocaleOf(uiLocale?: string | null) {
   return NUMBER_LOCALE[uiLocale ?? "tr"] ?? "tr-TR";
 }
