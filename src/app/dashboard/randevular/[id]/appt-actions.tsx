@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { format } from "date-fns";
 import { tr, enUS, ru, ar, de, es } from "date-fns/locale";
+import { tm } from "@/lib/toast-i18n";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,7 @@ interface ApptActionsProps {
 }
 
 export default function ApptActions({ appt, viewerRole, viewerStaffId, activePackage = null }: ApptActionsProps) {
+  const tp = useTranslations("panelPages.randevuDetay");
   const router = useRouter();
   const locale = useLocale();
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
@@ -166,12 +168,12 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
       };
       if (body?.discount) {
         toast.success(
-          `Tamamlandı — ${body.discount.campaign} indirimi uygulandı (−₺${body.discount.amount}) · tahsil edilecek ₺${body.discount.final_price}`,
+          tm("completedDiscount", { campaign: body.discount.campaign, amount: body.discount.amount, final: body.discount.final_price }),
           { action: receiptAction }
         );
       } else if (body?.usedPackage && body?.package) {
         toast.success(
-          `Paketten düşüldü — ${body.package.name} · kalan ${body.package.remaining} seans`,
+          tm("packageUsed", { name: body.package.name, n: body.package.remaining }),
           { action: receiptAction }
         );
       } else {
@@ -338,11 +340,10 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
                     />
                     <span className="min-w-0">
                       <span className="text-sm font-medium">
-                        Paketten düş — {activePackage.name}
+                        {tp("deduct_from_package", { name: activePackage.name })}
                       </span>
                       <span className="block text-xs text-muted-foreground mt-0.5">
-                        Kalan {activePackage.remaining} seans. İşaretliyse randevu ücretsiz
-                        (₺0 · ödeme yöntemi &ldquo;paket&rdquo;) kapanır ve bir seans düşülür.
+                        {tp("package_hint", { n: activePackage.remaining })}
                       </span>
                     </span>
                   </label>
@@ -380,7 +381,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
             {/* Manuel WhatsApp mesajları — Meta'ya bağlı değil, kendi WhatsApp'ınızdan gönderilir */}
             {appt.customer_phone && (
               <div className="space-y-1.5 pt-2 border-t">
-                <p className="text-xs font-semibold text-muted-foreground">Manuel WhatsApp Gönder (Kendi Cihazınızdan):</p>
+                <p className="text-xs font-semibold text-muted-foreground">{tp("manuel_whatsapp_gonder_kendi")}</p>
                 <div className="grid grid-cols-2 gap-2">
                   <a
                     href={manualWaHref("onay")}
@@ -389,7 +390,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
                     className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full")}
                   >
                     <MessageCircle className="h-3.5 w-3.5 mr-1" />
-                    Onay Mesajı
+                    {tp("onay_mesaji")}
                   </a>
                   <a
                     href={manualWaHref("hatirlatma")}
@@ -398,7 +399,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
                     className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full")}
                   >
                     <MessageCircle className="h-3.5 w-3.5 mr-1" />
-                    Hatırlatma
+                    {tp("hatirlatma")}
                   </a>
                   <a
                     href={manualWaHref("revize")}
@@ -407,7 +408,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
                     className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full col-span-2")}
                   >
                     <MessageCircle className="h-3.5 w-3.5 mr-1" />
-                    Değişiklik (Güncelleme)
+                    {tp("degisiklik_guncelleme")}
                   </a>
                 </div>
               </div>
@@ -558,7 +559,7 @@ export default function ApptActions({ appt, viewerRole, viewerStaffId, activePac
                 className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full col-span-2 mt-2")}
               >
                 <MessageCircle className="h-3.5 w-3.5 mr-1" />
-                Manuel WhatsApp İptal Mesajı Gönder
+                {tp("manuel_whatsapp_iptal_mesaji")}
               </a>
             )}
           </CardContent>

@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Search, Phone, Star, Loader2, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface CustomerHit {
   id: string;
@@ -29,6 +30,7 @@ interface Props {
  * yazmak yerine var olan müşteriyi bulup seçebilir.
  */
 export function CustomerSearchField({ name, phone, email, onNameChange, onPhoneChange, onEmailChange }: Props) {
+  const tp = useTranslations("panelPages.musteriArama");
   const [results, setResults] = useState<CustomerHit[]>([]);
   const [loading, setLoading] = useState(false);
   const [picked, setPicked] = useState(false);
@@ -68,7 +70,7 @@ export function CustomerSearchField({ name, phone, email, onNameChange, onPhoneC
   if (picked) {
     return (
       <div className="space-y-1">
-        <Label>Müşteri</Label>
+        <Label>{tp("musteri")}</Label>
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-primary bg-primary/5">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{name}</p>
@@ -85,7 +87,7 @@ export function CustomerSearchField({ name, phone, email, onNameChange, onPhoneC
   return (
     <>
       <div className="col-span-2 space-y-1">
-        <Label>Ad Soyad *</Label>
+        <Label>{tp("ad_soyad")}</Label>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           <Input
@@ -95,7 +97,7 @@ export function CustomerSearchField({ name, phone, email, onNameChange, onPhoneC
               onNameChange(e.target.value);
               searchCustomers(e.target.value);
             }}
-            placeholder="Müşteri adı — kayıtlı müşteriler önerilir"
+            placeholder={tp("musteri_adi_kayitli_musteril")}
             required
           />
           {loading && (
@@ -122,7 +124,7 @@ export function CustomerSearchField({ name, phone, email, onNameChange, onPhoneC
                       <Phone className="h-2.5 w-2.5" />{c.phone}
                       {(c.total_visits ?? 0) > 0 && (
                         <span className="ml-1 flex items-center gap-0.5">
-                          <Star className="h-2.5 w-2.5 text-amber-500" />{c.total_visits} ziyaret
+                          <Star className="h-2.5 w-2.5 text-amber-500" />{c.total_visits} {tp("ziyaret")}
                         </span>
                       )}
                     </p>
@@ -136,16 +138,16 @@ export function CustomerSearchField({ name, phone, email, onNameChange, onPhoneC
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <Label>Telefon <span className="text-muted-foreground font-normal">(opsiyonel)</span></Label>
+          <Label>{tp("telefon")} <span className="text-muted-foreground font-normal">{tp("opsiyonel")}</span></Label>
           <Input
             type="tel"
             value={phone}
             onChange={(e) => onPhoneChange(e.target.value)}
-            placeholder="Bilmiyorsanız boş bırakın, sonra tamamlanır"
+            placeholder={tp("bilmiyorsaniz_bos_birakin_so")}
           />
         </div>
         <div className="space-y-1">
-          <Label>E-posta</Label>
+          <Label>{tp("e_posta")}</Label>
           <Input
             type="email"
             value={email}

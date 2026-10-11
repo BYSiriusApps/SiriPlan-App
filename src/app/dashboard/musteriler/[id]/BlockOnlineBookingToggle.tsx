@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2, Ban, CircleSlash } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface Props {
   customerId: string;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function BlockOnlineBookingToggle({ customerId, blocked }: Props) {
+  const tp = useTranslations("panelPages.musteriDetay");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -24,8 +26,8 @@ export default function BlockOnlineBookingToggle({ customerId, blocked }: Props)
         body: JSON.stringify({ online_booking_blocked: !blocked }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "İşlem başarısız");
-      toast.success(blocked ? "Online randevu erişimi tekrar açıldı" : "Online randevu erişimi engellendi");
+      if (!res.ok) throw new Error(data.error || tp("islem_basarisiz"));
+      toast.success(blocked ? tp("online_randevu_erisimi_tekra") : tp("online_randevu_erisimi_engel"));
       router.refresh();
     } catch (e) {
       toast.error((e as Error).message);
@@ -49,7 +51,7 @@ export default function BlockOnlineBookingToggle({ customerId, blocked }: Props)
       ) : (
         <Ban className="h-3 w-3 mr-1" />
       )}
-      {blocked ? "Engeli Kaldır" : "Online Randevudan Engelle"}
+      {blocked ? tp("engeli_kaldir") : tp("online_randevudan_engelle")}
     </Button>
   );
 }

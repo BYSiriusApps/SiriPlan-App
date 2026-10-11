@@ -17,6 +17,7 @@ import { CustomerSearchField } from "@/components/dashboard/CustomerSearchField"
 import { tm } from "@/lib/toast-i18n";
 
 export default function RandevuDuzenlePage() {
+  const tp = useTranslations("panelPages.randevuDuzenle");
   const t = useTranslations("dashboard");
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -88,7 +89,7 @@ export default function RandevuDuzenlePage() {
       router.push(`/dashboard/randevular/${id}`);
     } else {
       const err = await res.json();
-      toast.error(err.error || "Hata oluştu");
+      toast.error(err.error || tp("hata_olustu"));
     }
   }
 
@@ -113,7 +114,7 @@ export default function RandevuDuzenlePage() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-3 pb-3 border-b">
-                <p className="text-sm font-medium text-muted-foreground">Müşteri Bilgileri</p>
+                <p className="text-sm font-medium text-muted-foreground">{tp("musteri_bilgileri")}</p>
                 <CustomerSearchField
                   name={form.customer_name}
                   phone={form.customer_phone}
@@ -125,14 +126,14 @@ export default function RandevuDuzenlePage() {
               </div>
 
               <div className="space-y-3">
-                <p className="text-sm font-medium text-muted-foreground">Randevu Detayları</p>
+                <p className="text-sm font-medium text-muted-foreground">{tp("randevu_detaylari")}</p>
 
                 <div className="space-y-1">
-                  <Label>Personel *</Label>
+                  <Label>{tp("personel")}</Label>
                   <Select value={form.staff_id} onValueChange={(v) => v && setForm((f) => ({ ...f, staff_id: v }))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Personel seçin">
-                        {(value: string) => staff.find((s) => s.id === value)?.full_name || "Personel seçin"}
+                      <SelectValue placeholder={tp("personel_secin")}>
+                        {(value: string) => staff.find((s) => s.id === value)?.full_name || tp("personel_secin")}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -144,17 +145,17 @@ export default function RandevuDuzenlePage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Hizmet *</Label>
+                  <Label>{tp("hizmet")}</Label>
                   <Select value={form.service_id} onValueChange={(v) => v && setForm((f) => ({ ...f, service_id: v }))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Hizmet seçin">
-                        {(value: string) => services.find((s) => s.id === value)?.name || "Hizmet seçin"}
+                      <SelectValue placeholder={tp("hizmet_secin")}>
+                        {(value: string) => services.find((s) => s.id === value)?.name || tp("hizmet_secin")}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {services.map((s) => (
                         <SelectItem key={s.id} value={s.id}>
-                          {s.name} — {s.duration_minutes}dk · ₺{Number(s.price).toLocaleString("tr-TR")}
+                          {s.name} — {s.duration_minutes}{tp("dk")}{Number(s.price).toLocaleString("tr-TR")}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -162,7 +163,7 @@ export default function RandevuDuzenlePage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Tarih & Saat * <span className="text-[10px] text-muted-foreground">({slotMinutes} dk aralıklarla)</span></Label>
+                  <Label>{tp("tarih_saat")} <span className="text-[10px] text-muted-foreground">({slotMinutes} {tp("dk_araliklarla")}</span></Label>
                   <DateTimeSlotPicker
                     value={form.appointment_at}
                     onChange={(v) => setForm((f) => ({ ...f, appointment_at: v }))}
@@ -171,25 +172,25 @@ export default function RandevuDuzenlePage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Kaynak</Label>
+                  <Label>{tp("kaynak")}</Label>
                   <Select value={form.source} onValueChange={(v) => setForm((f) => ({ ...f, source: v ?? "yuzyuze" }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="yuzyuze">Yüz yüze</SelectItem>
-                      <SelectItem value="telefon">Telefon</SelectItem>
-                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                      <SelectItem value="instagram">Instagram</SelectItem>
-                      <SelectItem value="web">Web</SelectItem>
+                      <SelectItem value="yuzyuze">{tp("yuz_yuze")}</SelectItem>
+                      <SelectItem value="telefon">{tp("telefon")}</SelectItem>
+                      <SelectItem value="whatsapp">{tp("whatsapp")}</SelectItem>
+                      <SelectItem value="instagram">{tp("instagram")}</SelectItem>
+                      <SelectItem value="web">{tp("web")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Not</Label>
+                  <Label>{tp("not")}</Label>
                   <Input
                     value={form.note}
                     onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
-                    placeholder="Opsiyonel not..."
+                    placeholder={tp("opsiyonel_not")}
                   />
                 </div>
               </div>

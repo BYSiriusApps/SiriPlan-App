@@ -77,6 +77,7 @@ interface Props {
 
 export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, initialServices }: Props) {
   const t = useTranslations("dashboard");
+  const tp = useTranslations("panelPages.websiteAyarlari");
   const locale = useLocale();
   const [org, setOrg] = useState<Organization>(initialOrg);
   const [categories, setCategories] = useState<ServiceCategory[]>(initialCategories);
@@ -730,7 +731,7 @@ export function WebsiteAyarlariClient({ org: initialOrg, initialCategories, init
             {org.type && GALLERY_HINT_BY_SECTOR[org.type] && (
               <div className="p-2.5 rounded-lg border border-primary/20 bg-primary/5 text-xs text-foreground/80 flex items-start gap-2">
                 <Images className="h-3.5 w-3.5 shrink-0 mt-0.5 text-primary" />
-                <span>{GALLERY_HINT_BY_SECTOR[org.type]}</span>
+                <span>{tp(`gallery_hint_${org.type}`)}</span>
               </div>
             )}
 

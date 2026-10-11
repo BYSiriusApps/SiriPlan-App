@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { getFieldCatalog, type CustomFieldDef } from "@/lib/customer-fields/catalog";
 import type { CustomerMetric } from "@/types/database";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 interface Props {
   customerId: string;
@@ -15,6 +16,7 @@ interface Props {
 }
 
 function MetricBlock({ customerId, def }: { customerId: string; def: CustomFieldDef }) {
+  const tp = useTranslations("panelPages.musteriDetay");
   const [entries, setEntries] = useState<CustomerMetric[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -69,7 +71,7 @@ function MetricBlock({ customerId, def }: { customerId: string; def: CustomField
       </span>
 
       {loading ? (
-        <span className="text-xs text-muted-foreground">Yükleniyor…</span>
+        <span className="text-xs text-muted-foreground">{tp("yukleniyor")}</span>
       ) : latest ? (
         <>
           <span className="font-bold text-sm tabular-nums">
@@ -91,12 +93,12 @@ function MetricBlock({ customerId, def }: { customerId: string; def: CustomField
           )}
           {delta === null && (
             <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground">
-              <Minus className="h-3 w-3" /> tek kayıt
+              <Minus className="h-3 w-3" /> {tp("tek_kayit")}
             </span>
           )}
         </>
       ) : (
-        <span className="text-xs text-muted-foreground">Henüz kayıt yok</span>
+        <span className="text-xs text-muted-foreground">{tp("henuz_kayit_yok")}</span>
       )}
 
       <div className="ml-auto">
@@ -115,7 +117,7 @@ function MetricBlock({ customerId, def }: { customerId: string; def: CustomField
               onClick={submitAdd}
               className="h-7 px-2 text-xs rounded-md bg-primary text-primary-foreground hover:opacity-90"
             >
-              Kaydet
+              {tp("kaydet")}
             </button>
           </div>
         ) : (
@@ -123,7 +125,7 @@ function MetricBlock({ customerId, def }: { customerId: string; def: CustomField
             onClick={() => setAdding(true)}
             className="h-7 px-2 text-xs rounded-md border border-input hover:bg-accent inline-flex items-center gap-1"
           >
-            <Plus className="h-3 w-3" /> Değer Ekle
+            <Plus className="h-3 w-3" /> {tp("deger_ekle")}
           </button>
         )}
       </div>
@@ -132,13 +134,14 @@ function MetricBlock({ customerId, def }: { customerId: string; def: CustomField
 }
 
 export default function CustomerMetrics({ customerId, businessType }: Props) {
+  const tp = useTranslations("panelPages.musteriDetay");
   const trackable = getFieldCatalog(businessType).filter((f) => f.trackHistory);
   if (trackable.length === 0) return null;
 
   return (
     <Card className="kpi-tile border-0 shadow-none">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm">Ölçüm Takibi</CardTitle>
+        <CardTitle className="text-sm">{tp("olcum_takibi")}</CardTitle>
       </CardHeader>
       <CardContent className="divide-y">
         {trackable.map((def) => (

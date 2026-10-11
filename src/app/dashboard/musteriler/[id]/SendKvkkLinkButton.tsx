@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Send, Copy, Check, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 interface Props {
   customerId: string;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function SendKvkkLinkButton({ customerId, phone, hasKvkk = false }: Props) {
+  const tp = useTranslations("panelPages.musteriDetay");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ link: string; waLink: string } | null>(null);
   const [copied, setCopied] = useState(false);
@@ -27,7 +29,7 @@ export default function SendKvkkLinkButton({ customerId, phone, hasKvkk = false 
         body: JSON.stringify({ customer_id: customerId, phone }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Link oluşturulamadı");
+      if (!res.ok) throw new Error(data.error || tp("link_olusturulamadi"));
 
       // Link ekranda da gösteriliyor: window.open bir await'ten SONRA çağrıldığı
       // için tarayıcılar bunu "kullanıcı hareketi olmayan pop-up" sayıp
@@ -55,7 +57,7 @@ export default function SendKvkkLinkButton({ customerId, phone, hasKvkk = false 
     }
   }
 
-  const label = hasKvkk ? "Kampanya İzni Linki Gönder" : "KVKK Onay Linki Gönder";
+  const label = hasKvkk ? tp("kampanya_izni_linki_gonder") : tp("kvkk_onay_linki_gonder");
 
   return (
     <div className="space-y-2">
@@ -75,7 +77,7 @@ export default function SendKvkkLinkButton({ customerId, phone, hasKvkk = false 
               className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-600 text-white text-[11px] font-medium hover:bg-green-700 transition-colors"
             >
               <MessageCircle className="h-3 w-3" />
-              WhatsApp&apos;ta Aç
+              {tp("whatsapp_ta_ac")}
             </a>
             <button
               type="button"
@@ -83,7 +85,7 @@ export default function SendKvkkLinkButton({ customerId, phone, hasKvkk = false 
               className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-border text-[11px] font-medium hover:bg-accent transition-colors"
             >
               {copied ? <Check className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
-              {copied ? "Kopyalandı" : "Linki Kopyala"}
+              {copied ? tp("kopyalandi") : tp("linki_kopyala")}
             </button>
           </div>
         </div>

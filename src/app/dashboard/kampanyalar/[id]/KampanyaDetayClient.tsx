@@ -23,6 +23,9 @@ import {
   Users,
   Megaphone,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { dateFnsLocaleOf } from "@/lib/date-fns-locale";
+import { useLocale } from "next-intl";
 
 export interface CampaignLogRow {
   id: string;
@@ -63,6 +66,8 @@ export default function KampanyaDetayClient({
   canSend: boolean;
   showPhone?: boolean;
 }) {
+  const dfl = dateFnsLocaleOf(useLocale());
+  const tp = useTranslations("panelPages.kampanyaDetay");
   const router = useRouter();
   const searchParams = useSearchParams();
   const offer = getOffer(campaign);
@@ -83,12 +88,12 @@ export default function KampanyaDetayClient({
         toast.success(tm("campaignSent", { n: data.sent_count ?? 0 }));
         router.refresh();
       } else {
-        const msg = data.error || "Kampanya gönderilemedi, bilinmeyen bir hata oluştu";
+        const msg = data.error || tp("kampanya_gonderilemedi_bilin");
         setSendError(msg);
         toast.error(msg);
       }
     } catch {
-      const msg = "Sunucuya ulaşılamadı, internet bağlantınızı kontrol edip tekrar deneyin";
+      const msg = tp("sunucuya_ulasilamadi_interne");
       setSendError(msg);
       toast.error(msg);
     } finally {
@@ -108,14 +113,14 @@ export default function KampanyaDetayClient({
         </Link>
         <h1 className="text-xl font-bold brand-gradient-text flex-1 truncate">{campaign.name}</h1>
         <Badge variant="outline" className={cn("text-xs", statusConf.className)}>
-          {statusConf.label}
+          {tp(`status_${campaign.status in STATUS_CONFIG ? campaign.status : "draft"}`)}
         </Badge>
       </div>
 
       {justCreated && (
         <div className="flex items-start gap-2 p-3 rounded-xl border-2 border-green-200 bg-green-50 dark:border-green-900/50 dark:bg-green-950/20 text-sm text-green-700 dark:text-green-400">
           <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
-          <span>Kampanya taslak olarak oluşturuldu. Aşağıdan gözden geçirip gönderebilirsiniz.</span>
+          <span>{tp("kampanya_taslak_olarak_olust")}</span>
         </div>
       )}
 
@@ -130,8 +135,7 @@ export default function KampanyaDetayClient({
         >
           {sendResult.sent > 0 ? <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" /> : <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />}
           <span>
-            {sendResult.sent} kişiye başarıyla gönderildi
-            {sendResult.failed > 0 ? `, ${sendResult.failed} kişiye gönderilemedi (aşağıdaki listede detaylar var)` : ""}.
+            {sendResult.failed > 0 ? tp("sent_with_failed", { sent: sendResult.sent, failed: sendResult.failed }) : tp("sent_ok", { sent: sendResult.sent })}
           </span>
         </div>
       )}
@@ -146,37 +150,37 @@ export default function KampanyaDetayClient({
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
-            <Megaphone className="h-4 w-4" /> Kampanya Detayları
+            <Megaphone className="h-4 w-4" /> {tp("kampanya_detaylari")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="text-xs text-muted-foreground">Tür</p>
-              <p className="font-medium">{TYPE_LABELS[campaign.type] ?? campaign.type}</p>
+              <p className="text-xs text-muted-foreground">{tp("tur")}</p>
+              <p className="font-medium">{campaign.type in TYPE_LABELS ? tp(`type_${campaign.type}`) : campaign.type}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Kanal</p>
+              <p className="text-xs text-muted-foreground">{tp("kanal")}</p>
               <p className="font-medium">{CHANNEL_LABELS[campaign.channel] ?? campaign.channel}</p>
             </div>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground mb-1">Mesaj Şablonu</p>
+            <p className="text-xs text-muted-foreground mb-1">{tp("mesaj_sablonu")}</p>
             <p className="whitespace-pre-wrap rounded-lg border bg-background p-3">{campaign.message_template}</p>
           </div>
           {offer && (
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-0.5">
-              <p className="text-xs text-muted-foreground">İndirim</p>
-              <p className="font-medium">{formatDiscount(offer)} · {formatOfferDate(offer.valid_until)} tarihine kadar</p>
+              <p className="text-xs text-muted-foreground">{tp("indirim")}</p>
+              <p className="font-medium">{formatDiscount(offer)} · {tp("valid_until", { date: formatOfferDate(offer.valid_until) })}</p>
               <p className="text-xs text-muted-foreground">
-                {offer.service_ids ? `${offer.service_ids.length} hizmetle sınırlı` : "Tüm hizmetlerde geçerli"}
-                {offer.min_amount ? ` · en az ${offer.min_amount} ₺` : ""} · müşteri başına bir kez · randevu tamamlanırken uygulanır
+                {offer.service_ids ? tp("hizmetle_sinirli", { r_service_ids_length: offer.service_ids.length }) : tp("tum_hizmetlerde_gecerli")}
+                {offer.min_amount ? ` · ${tp("min_amount", { amount: offer.min_amount })}` : ""} {tp("musteri_basina_bir_kez")}
               </p>
             </div>
           )}
           {campaign.sent_at && (
             <p className="text-xs text-muted-foreground">
-              Gönderim: {format(new Date(campaign.sent_at), "d MMM yyyy HH:mm", { locale: tr })}
+              {tp("gonderim")} {format(new Date(campaign.sent_at), "d MMM yyyy HH:mm", { locale: dfl })}
             </p>
           )}
         </CardContent>
@@ -186,28 +190,25 @@ export default function KampanyaDetayClient({
         <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Users className="h-4 w-4" /> {campaign.status === "scheduled" ? "Planlandı" : "Gönderime Hazır"}
+              <Users className="h-4 w-4" /> {campaign.status === "scheduled" ? tp("planlandi") : tp("gonderime_hazir")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {campaign.status === "scheduled" && campaign.scheduled_at && (
               <p className="text-sm text-muted-foreground">
-                <strong className="text-foreground">
-                  {format(new Date(campaign.scheduled_at), "d MMM yyyy HH:mm", { locale: tr })}
-                </strong>{" "}
-                tarihinde otomatik gönderilecek. Beklemeden hemen göndermek isterseniz aşağıdaki butonu kullanabilirsiniz.
+                {tp.rich("auto_send_at", { date: format(new Date(campaign.scheduled_at), "d MMM yyyy HH:mm", { locale: dfl }), b: (c) => <strong className="text-foreground">{c}</strong> })}
               </p>
             )}
             <p className="text-sm text-muted-foreground">
-              Bu kampanya şu anda <strong className="text-foreground">{previewCount ?? 0} müşteriye</strong> ({CHANNEL_LABELS[campaign.channel] ?? campaign.channel} ile) gönderilecek.
+              {tp.rich("will_send", { n: previewCount ?? 0, channel: CHANNEL_LABELS[campaign.channel] ?? campaign.channel, b: (c) => <strong className="text-foreground">{c}</strong> })}
             </p>
             {canSend ? (
               <Button onClick={handleSend} disabled={sending || (previewCount ?? 0) === 0} className="w-full">
                 {sending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                Şimdi Gönder
+                {tp("simdi_gonder")}
               </Button>
             ) : (
-              <p className="text-xs text-muted-foreground">Kampanya göndermek için yönetici veya sahip yetkisi gerekir.</p>
+              <p className="text-xs text-muted-foreground">{tp("kampanya_gondermek_icin_yone")}</p>
             )}
           </CardContent>
         </Card>
@@ -217,9 +218,9 @@ export default function KampanyaDetayClient({
         <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm">
-              Gönderim Kaydı
+              {tp("gonderim_kaydi")}
               <span className="ml-2 text-xs font-normal text-muted-foreground">
-                {sentLogs.length} başarılı, {failedLogs.length} başarısız
+                {tp("log_counts", { ok: sentLogs.length, fail: failedLogs.length })}
               </span>
             </CardTitle>
           </CardHeader>
@@ -241,7 +242,7 @@ export default function KampanyaDetayClient({
                         : "bg-red-100 text-red-700 dark:bg-red-900/30"
                     )}
                   >
-                    {l.status === "sent" ? "Gönderildi" : "Başarısız"}
+                    {l.status === "sent" ? tp("gonderildi") : tp("basarisiz_2")}
                   </Badge>
                 </div>
               ))}

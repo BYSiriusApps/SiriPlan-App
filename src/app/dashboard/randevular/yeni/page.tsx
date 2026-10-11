@@ -72,6 +72,7 @@ function VoiceRow({
 }
 
 export default function YeniRandevuPage() {
+  const tp = useTranslations("panelPages.randevuYeni");
   const t = useTranslations("dashboard");
   const tm = useTranslations("dashboard.mic");
   const { requestMic, micDialog, speechLang } = useMicAccess();
@@ -597,7 +598,7 @@ export default function YeniRandevuPage() {
         return true;
       } else {
         const err = await res.json();
-        toast.error(typeof err.error === "string" ? err.error : "Randevu oluşturulamadı");
+        toast.error(typeof err.error === "string" ? err.error : tp("randevu_olusturulamadi"));
         return false;
       }
     } catch {
@@ -772,7 +773,7 @@ export default function YeniRandevuPage() {
 
               {/* Customer */}
               <div className="space-y-3 pb-3 border-b">
-                <p className="text-sm font-medium text-muted-foreground">Müşteri Bilgileri</p>
+                <p className="text-sm font-medium text-muted-foreground">{tp("musteri_bilgileri")}</p>
                 <CustomerSearchField
                   name={form.customer_name}
                   phone={form.customer_phone}
@@ -785,14 +786,14 @@ export default function YeniRandevuPage() {
 
               {/* Appointment Details */}
               <div className="space-y-3">
-                <p className="text-sm font-medium text-muted-foreground">Randevu Detayları</p>
+                <p className="text-sm font-medium text-muted-foreground">{tp("randevu_detaylari")}</p>
 
                 <div className="space-y-1">
-                  <Label>Personel *</Label>
+                  <Label>{tp("personel")}</Label>
                   <Select value={form.staff_id} onValueChange={(v) => v && setForm((f) => ({ ...f, staff_id: v }))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Personel seçin">
-                        {(value: string) => staff.find((s) => s.id === value)?.full_name || "Personel seçin"}
+                      <SelectValue placeholder={tp("personel_secin")}>
+                        {(value: string) => staff.find((s) => s.id === value)?.full_name || tp("personel_secin")}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -805,7 +806,7 @@ export default function YeniRandevuPage() {
 
                 {/* Multi-service picker */}
                 <div className="space-y-2">
-                  <Label>Hizmetler *</Label>
+                  <Label>{tp("hizmetler")}</Label>
 
                   {/* Hızlı hizmet butonları: en sık kullanılan (favori) veya ilk
                       birkaç hizmete tek dokunuşla ekleme — arama kutusunu hiç
@@ -855,7 +856,7 @@ export default function YeniRandevuPage() {
                   {selectedServices.length > 0 && (
                     <div className="flex gap-4 text-xs text-muted-foreground px-1">
                       <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> Toplam: {totalDuration} dk
+                        <Clock className="h-3 w-3" /> {tp("toplam")} {totalDuration} {tp("dk")}
                       </span>
                       <span className="font-medium text-foreground">
                         ₺{totalPrice.toLocaleString("tr-TR")}
@@ -868,7 +869,7 @@ export default function YeniRandevuPage() {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                       <Input
-                        placeholder={selectedServices.length === 0 ? "Hizmet ara veya seç..." : "Başka hizmet ekle..."}
+                        placeholder={selectedServices.length === 0 ? tp("hizmet_ara_veya_sec") : tp("baska_hizmet_ekle")}
                         className="pl-9 pr-9"
                         value={serviceSearch}
                         onChange={(e) => {
@@ -891,13 +892,13 @@ export default function YeniRandevuPage() {
                     {showServiceDropdown && (
                       <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-64 overflow-y-auto">
                         {sortedServices.length === 0 ? (
-                          <p className="text-sm text-muted-foreground text-center py-4">Hizmet bulunamadı</p>
+                          <p className="text-sm text-muted-foreground text-center py-4">{tp("hizmet_bulunamadi")}</p>
                         ) : (
                           <>
                             {!serviceSearch && favoriteServices.length > 0 && (
                               <div className="px-3 pt-2 pb-1">
                                 <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                                  <TrendingUp className="h-3 w-3" /> Son Kullanılanlar
+                                  <TrendingUp className="h-3 w-3" /> {tp("son_kullanilanlar")}
                                 </p>
                               </div>
                             )}
@@ -909,7 +910,7 @@ export default function YeniRandevuPage() {
                                   {showDivider && (
                                     <div className="px-3 pt-2 pb-1 border-t">
                                       <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                                        <Plus className="h-3 w-3" /> Tüm Hizmetler
+                                        <Plus className="h-3 w-3" /> {tp("tum_hizmetler")}
                                       </p>
                                     </div>
                                   )}
@@ -923,7 +924,7 @@ export default function YeniRandevuPage() {
                                       <span className="text-left">{svc.name}</span>
                                     </span>
                                     <span className="text-xs text-muted-foreground shrink-0 ml-2">
-                                      {svc.duration_minutes}dk · ₺{Number(svc.price).toLocaleString("tr-TR")}
+                                      {svc.duration_minutes}{tp("dk_2")}{Number(svc.price).toLocaleString("tr-TR")}
                                     </span>
                                   </button>
                                 </div>
@@ -937,7 +938,7 @@ export default function YeniRandevuPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Tarih & Saat * <span className="text-[10px] text-muted-foreground">({slotMinutes} dk aralıklarla)</span></Label>
+                  <Label>{tp("tarih_saat")} <span className="text-[10px] text-muted-foreground">({slotMinutes} {tp("dk_araliklarla")}</span></Label>
                   <DateTimeSlotPicker
                     value={form.appointment_at}
                     onChange={(v) => setForm((f) => ({ ...f, appointment_at: v }))}
@@ -947,16 +948,16 @@ export default function YeniRandevuPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <Label>Kaynak</Label>
+                  <Label>{tp("kaynak")}</Label>
                   <Select value={form.source} onValueChange={(v) => setForm((f) => ({ ...f, source: v as typeof form.source }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="yuzyuze">Yüz yüze</SelectItem>
-                      <SelectItem value="telefon">Telefon</SelectItem>
-                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                      <SelectItem value="instagram">Instagram</SelectItem>
-                      <SelectItem value="tiktok">TikTok</SelectItem>
-                      <SelectItem value="web">Web</SelectItem>
+                      <SelectItem value="yuzyuze">{tp("yuz_yuze")}</SelectItem>
+                      <SelectItem value="telefon">{tp("telefon")}</SelectItem>
+                      <SelectItem value="whatsapp">{tp("whatsapp")}</SelectItem>
+                      <SelectItem value="instagram">{tp("instagram")}</SelectItem>
+                      <SelectItem value="tiktok">{tp("tiktok")}</SelectItem>
+                      <SelectItem value="web">{tp("web")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -968,15 +969,15 @@ export default function YeniRandevuPage() {
                     checked={kvkkAttested}
                     onChange={(e) => setKvkkAttested(e.target.checked)}
                   />
-                  <span>Müşteri KVKK onayı verdi (sözlü/yazılı olarak yüz yüze/telefonda alındı)</span>
+                  <span>{tp("musteri_kvkk_onayi_verdi")}</span>
                 </label>
 
                 <div className="space-y-1">
-                  <Label>Not</Label>
+                  <Label>{tp("not")}</Label>
                   <Input
                     value={form.note}
                     onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
-                    placeholder="Opsiyonel not..."
+                    placeholder={tp("opsiyonel_not")}
                   />
                 </div>
 
@@ -994,21 +995,19 @@ export default function YeniRandevuPage() {
                   <span className="min-w-0">
                     <span className="text-sm font-medium flex items-center gap-1.5">
                       <MessageCircle className="h-3.5 w-3.5 text-green-600" />
-                      Müşteriye WhatsApp mesajı gönder
+                      {tp("musteriye_whatsapp_mesaji_go")}
                     </span>
                     <span className="block text-xs text-muted-foreground mt-0.5">
-                      Randevu oluşturulunca hazır bilgilendirme metniyle WhatsApp açılır —
-                      göndermek için tek dokunuş yeter. Metni Ayarlar&apos;dan değiştirebilirsiniz.
+                      {tp("randevu_olusturulunca_hazir_")}
                     </span>
                     {metaAutoOnayActive && sendWaMessage && (
                       <span className="block text-[11px] mt-1 text-amber-600 dark:text-amber-500 font-medium">
-                        Meta üzerinden otomatik onay mesajı zaten aktif — bunu da işaretlerseniz müşteri
-                        aynı bilgiyi iki kez alabilir. Kapatmak için Ayarlar → WhatsApp Bildirim Ayarları&apos;na bakın.
+                        {tp("meta_uzerinden_otomatik_onay")}
                       </span>
                     )}
                     {form.customer_name && form.appointment_at && (
                       <span className="block text-[11px] mt-1.5 p-2 rounded-lg bg-background/80 border border-border text-muted-foreground italic">
-                        &quot;{renderWaTemplate(waTemplate, {
+                        {'"'}{renderWaTemplate(waTemplate, {
                           musteri: form.customer_name,
                           salon: orgName || "Salonumuz",
                           appointmentAt: form.appointment_at,
@@ -1016,7 +1015,7 @@ export default function YeniRandevuPage() {
                           personel: staff.find((s) => s.id === form.staff_id)?.full_name,
                           address: orgAddress,
           locationUrl: orgLocationUrl,
-                        })}&quot;
+                        })}{'"'}
                       </span>
                     )}
                   </span>

@@ -135,6 +135,7 @@ function SectionCard({
 }
 
 export default function AyarlarPage() {
+  const tp = useTranslations("panelPages.ayarlarSayfa");
   const t = useTranslations("dashboard");
   const tsp = useTranslations("dashboard.staffPermissions");
   const DELETE_CONFIRM_PHRASE = t("settingsPage.deleteConfirmPhrase");
@@ -473,7 +474,7 @@ export default function AyarlarPage() {
         <div className="flex items-center gap-3">
           {org.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={org.logo_url} alt="Logo" className="w-16 h-16 rounded-xl object-cover border border-border shrink-0" />
+            <img src={org.logo_url} alt={tp("logo")} className="w-16 h-16 rounded-xl object-cover border border-border shrink-0" />
           ) : (
             <div className="w-16 h-16 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-2xl shrink-0">
               {(org.name || "S")[0]}
@@ -558,8 +559,8 @@ export default function AyarlarPage() {
             <Select value={org.locale || "tr"} onValueChange={(v) => setField("locale", v)}>
               <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent alignItemWithTrigger={false}>
-                <SelectItem value="tr">🇹🇷 Türkçe</SelectItem>
-                <SelectItem value="en">🇬🇧 English</SelectItem>
+                <SelectItem value="tr">{tp("turkce")}</SelectItem>
+                <SelectItem value="en">{tp("english")}</SelectItem>
                 <SelectItem value="ru">🇷🇺 Русский</SelectItem>
                 <SelectItem value="ar">🇸🇦 العربية</SelectItem>
               </SelectContent>
@@ -990,8 +991,8 @@ export default function AyarlarPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sicak">randevu_onayi_1 ({t("settingsPage.templateStandard")})</SelectItem>
-                    <SelectItem value="v2">randevu_onayi_2 ({t("settingsPage.templateVariant", { n: "2" })})</SelectItem>
+                    <SelectItem value="sicak">{tp("randevu_onayi_1")}{t("settingsPage.templateStandard")})</SelectItem>
+                    <SelectItem value="v2">{tp("randevu_onayi_2")}{t("settingsPage.templateVariant", { n: "2" })})</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
@@ -1016,7 +1017,7 @@ export default function AyarlarPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sicak">randevu_iptali ({t("settingsPage.templateStandard")})</SelectItem>
+                    <SelectItem value="sicak">{tp("randevu_iptali")}{t("settingsPage.templateStandard")})</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
@@ -1041,9 +1042,9 @@ export default function AyarlarPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sicak">randevu_hatirlatma_1 ({t("settingsPage.templateStandard")})</SelectItem>
-                    <SelectItem value="v1">randevu_hatirlatma_1 ({t("settingsPage.templateVariant", { n: "1" })})</SelectItem>
-                    <SelectItem value="v2">randevu_hatirlatma_2 ({t("settingsPage.templateVariant", { n: "2" })})</SelectItem>
+                    <SelectItem value="sicak">{tp("randevu_hatirlatma_1")}{t("settingsPage.templateStandard")})</SelectItem>
+                    <SelectItem value="v1">{tp("randevu_hatirlatma_1")}{t("settingsPage.templateVariant", { n: "1" })})</SelectItem>
+                    <SelectItem value="v2">{tp("randevu_hatirlatma_2")}{t("settingsPage.templateVariant", { n: "2" })})</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
@@ -1068,7 +1069,7 @@ export default function AyarlarPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="sicak">randevu_revize ({t("settingsPage.templateStandard")})</SelectItem>
+                    <SelectItem value="sicak">{tp("randevu_revize")}{t("settingsPage.templateStandard")})</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic mt-1.5">
@@ -1389,7 +1390,7 @@ export default function AyarlarPage() {
               className="mt-1"
               value={org.wa_token || ""}
               onChange={(e) => setField("wa_token", e.target.value || null)}
-              placeholder="Meta for Developers → WhatsApp → API Setup"
+              placeholder={tp("meta_for_developers_whatsapp")}
             />
           </div>
           <div>
@@ -1423,7 +1424,7 @@ export default function AyarlarPage() {
               className="mt-1"
               value={org.ig_page_access_token || ""}
               onChange={(e) => setField("ig_page_access_token", e.target.value || null)}
-              placeholder="Meta for Developers → Messenger/Instagram → Sayfa Erişim Belirteci"
+              placeholder={tp("meta_for_developers_messenge")}
             />
           </div>
           <div>

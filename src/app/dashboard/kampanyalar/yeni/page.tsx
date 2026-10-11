@@ -13,6 +13,7 @@ import { ArrowLeft, Loader2, Megaphone, Users, Search, X, Check, AlertCircle, Pe
 
 import { maskPhone } from "@/lib/phone";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 interface PickerCustomer {
   id: string;
@@ -46,6 +47,7 @@ const TEMPLATES: Record<string, string> = {
 interface OfferService { id: string; name: string }
 
 export default function YeniKampanyaPage() {
+  const tp = useTranslations("panelPages.kampanyaYeni");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -189,12 +191,12 @@ export default function YeniKampanyaPage() {
         router.push(`/dashboard/kampanyalar/${data.campaign.id}?created=1`);
       } else {
         const err = await res.json().catch(() => ({}));
-        const msg = err.error || "Kampanya oluşturulamadı, bilinmeyen bir hata oluştu";
+        const msg = err.error || tp("kampanya_olusturulamadi_bili");
         setSubmitError(msg);
         toast.error(msg);
       }
     } catch {
-      const msg = "Sunucuya ulaşılamadı, internet bağlantınızı kontrol edip tekrar deneyin";
+      const msg = tp("sunucuya_ulasilamadi_interne");
       setSubmitError(msg);
       toast.error(msg);
     } finally {
@@ -210,7 +212,7 @@ export default function YeniKampanyaPage() {
         <Link href="/dashboard/kampanyalar" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold brand-gradient-text">Yeni Kampanya</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">{tp("yeni_kampanya")}</h1>
       </div>
 
       {submitError && (
@@ -234,8 +236,8 @@ export default function YeniKampanyaPage() {
                   : "border-border hover:border-primary/50"
               }`}
             >
-              <p className="font-medium text-sm">{t.label}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{t.desc}</p>
+              <p className="font-medium text-sm">{tp(`type_${t.value}`)}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{tp(`typeDesc_${t.value}`)}</p>
             </button>
           ))}
         </div>
@@ -243,37 +245,37 @@ export default function YeniKampanyaPage() {
         <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Megaphone className="h-4 w-4" /> Kampanya Detayları
+              <Megaphone className="h-4 w-4" /> {tp("kampanya_detaylari")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1">
-              <Label>Kampanya Adı *</Label>
+              <Label>{tp("kampanya_adi")}</Label>
               <Input
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="örn. Haziran Doğum Günleri"
+                placeholder={tp("orn_haziran_dogum_gunleri")}
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Kanal</Label>
+                <Label>{tp("kanal")}</Label>
                 <Select value={form.channel} onValueChange={(v) => v && setForm((f) => ({ ...f, channel: v }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                    <SelectItem value="sms">SMS</SelectItem>
+                    <SelectItem value="whatsapp">{tp("whatsapp")}</SelectItem>
+                    <SelectItem value="sms">{tp("sms")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {form.type === "inactive" && (
                 <div className="space-y-1">
-                  <Label>İnaktiflik Süresi (gün)</Label>
+                  <Label>{tp("inaktiflik_suresi_gun")}</Label>
                   <Input
                     type="number"
                     min="7"
@@ -286,7 +288,7 @@ export default function YeniKampanyaPage() {
 
               {form.type === "custom" && (
                 <div className="space-y-1">
-                  <Label>Gönderim Tarihi</Label>
+                  <Label>{tp("gonderim_tarihi")}</Label>
                   <Input
                     type="datetime-local"
                     value={form.scheduled_at}
@@ -299,19 +301,19 @@ export default function YeniKampanyaPage() {
             {/* Message template */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Mesaj Şablonu *</Label>
-                <span className="text-xs text-muted-foreground">{form.message_template.length} karakter</span>
+                <Label>{tp("mesaj_sablonu")}</Label>
+                <span className="text-xs text-muted-foreground">{form.message_template.length} {tp("karakter")}</span>
               </div>
               <textarea
                 className="w-full text-sm border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[120px] bg-background"
                 value={form.message_template}
                 onChange={(e) => setForm((f) => ({ ...f, message_template: e.target.value }))}
-                placeholder="Mesaj şablonunuzu yazın..."
+                placeholder={tp("mesaj_sablonunuzu_yazin")}
                 required
               />
               {/* Variable chips */}
               <div className="flex gap-1.5 flex-wrap">
-                <span className="text-xs text-muted-foreground self-center">Değişken ekle:</span>
+                <span className="text-xs text-muted-foreground self-center">{tp("degisken_ekle")}</span>
                 {vars.map((v) => (
                   <button
                     key={v}
@@ -331,7 +333,7 @@ export default function YeniKampanyaPage() {
         <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Percent className="h-4 w-4" /> İndirim (isteğe bağlı)
+              <Percent className="h-4 w-4" /> {tp("indirim_istege_bagli")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -343,10 +345,9 @@ export default function YeniKampanyaPage() {
                 className="mt-0.5 h-4 w-4 rounded accent-primary shrink-0"
               />
               <span className="text-sm">
-                Bu kampanyayla müşterilere süreli indirim hakkı tanımla
+                {tp("bu_kampanyayla_musterilere_s")}
                 <span className="block text-xs text-muted-foreground">
-                  Kapalıysa kampanya yalnızca mesajdır, indirim uygulanmaz. Açıksa her müşteri hakkını en fazla bir kez,
-                  son gün dolmadan kullanabilir; indirim randevu tamamlanırken uygulanır ve ciroya indirimli tutar yansır.
+                  {tp("kapaliysa_kampanya_yalnizca_")}
                 </span>
               </span>
             </label>
@@ -355,20 +356,20 @@ export default function YeniKampanyaPage() {
               <div className="space-y-3 pt-2 border-t">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label>İndirim türü</Label>
+                    <Label>{tp("indirim_turu")}</Label>
                     <Select
                       value={offer.type}
                       onValueChange={(v) => v && setOffer((o) => ({ ...o, type: v as "percent" | "fixed" }))}
                     >
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="percent">Yüzde (%)</SelectItem>
-                        <SelectItem value="fixed">Sabit tutar (₺)</SelectItem>
+                        <SelectItem value="percent">{tp("yuzde")}</SelectItem>
+                        <SelectItem value="fixed">{tp("sabit_tutar")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-1">
-                    <Label>{offer.type === "percent" ? "İndirim oranı (%)" : "İndirim tutarı (₺)"} *</Label>
+                    <Label>{offer.type === "percent" ? tp("indirim_orani") : tp("indirim_tutari")} *</Label>
                     <Input
                       type="number"
                       min="0"
@@ -380,7 +381,7 @@ export default function YeniKampanyaPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label>Son geçerlilik tarihi *</Label>
+                    <Label>{tp("son_gecerlilik_tarihi")}</Label>
                     <Input
                       type="date"
                       value={offer.valid_until}
@@ -388,26 +389,26 @@ export default function YeniKampanyaPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label>Asgari işlem tutarı (₺, opsiyonel)</Label>
+                    <Label>{tp("asgari_islem_tutari_opsiyone")}</Label>
                     <Input
                       type="number"
                       min="0"
                       step="any"
                       value={offer.min_amount}
                       onChange={(e) => setOffer((o) => ({ ...o, min_amount: e.target.value }))}
-                      placeholder="Boş = sınır yok"
+                      placeholder={tp("bos_sinir_yok")}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label>Geçerli hizmetler (opsiyonel)</Label>
+                  <Label>{tp("gecerli_hizmetler_opsiyonel")}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Hiçbiri seçilmezse tüm hizmetlerde geçerli olur.
+                    {tp("hicbiri_secilmezse_tum_hizme")}
                   </p>
                   <div className="max-h-40 overflow-y-auto rounded-lg border divide-y">
                     {services.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-3">Hizmet bulunamadı</p>
+                      <p className="text-sm text-muted-foreground text-center py-3">{tp("hizmet_bulunamadi")}</p>
                     ) : (
                       services.map((s) => {
                         const checked = offerServiceIds.has(s.id);
@@ -443,8 +444,7 @@ export default function YeniKampanyaPage() {
                 </div>
 
                 <p className="text-xs rounded-lg bg-muted/50 px-3 py-2 text-muted-foreground">
-                  Mesajın sonuna otomatik olarak şu bilgiler eklenir: indirim miktarı, geçerli hizmetler, asgari tutar,
-                  son gün, &quot;müşteri başına bir kez&quot; ve &quot;indirim işlem sonrasında salonda uygulanır&quot; notu.
+                  {tp("mesajin_sonuna_otomatik_olar")}
                 </p>
               </div>
             )}
@@ -455,9 +455,9 @@ export default function YeniKampanyaPage() {
         <Card className="kpi-tile border-0 shadow-none">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Users className="h-4 w-4" /> Hedef Müşteriler
+              <Users className="h-4 w-4" /> {tp("hedef_musteriler")}
               <span className="text-xs font-normal text-muted-foreground">
-                ({customers.length} kampanya onaylı)
+                {tp("approved_count", { n: customers.length })}
               </span>
             </CardTitle>
           </CardHeader>
@@ -470,8 +470,8 @@ export default function YeniKampanyaPage() {
                   targetMode === "all" ? "border-primary bg-primary/5" : "border-border text-muted-foreground"
                 }`}
               >
-                Tüm onaylı müşteriler
-                <span className="block text-xs font-normal text-muted-foreground">{customers.length} kişi</span>
+                {tp("tum_onayli_musteriler")}
+                <span className="block text-xs font-normal text-muted-foreground">{customers.length} {tp("kisi")}</span>
               </button>
               <button
                 type="button"
@@ -480,9 +480,9 @@ export default function YeniKampanyaPage() {
                   targetMode === "selected" ? "border-primary bg-primary/5" : "border-border text-muted-foreground"
                 }`}
               >
-                Müşteri seç
+                {tp("musteri_sec")}
                 <span className="block text-xs font-normal text-muted-foreground">
-                  {selectedIds.size > 0 ? `${selectedIds.size} kişi seçildi` : "Listeden filtrele ve seç"}
+                  {selectedIds.size > 0 ? tp("kisi_secildi", { selectedIds_size: selectedIds.size }) : tp("listeden_filtrele_ve_sec")}
                 </span>
               </button>
             </div>
@@ -492,7 +492,7 @@ export default function YeniKampanyaPage() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                   <Input
-                    placeholder="Müşteri filtrele (isim / telefon)..."
+                    placeholder={tp("musteri_filtrele_isim_telefo")}
                     value={custSearch}
                     onChange={(e) => setCustSearch(e.target.value)}
                     className="pl-8 pr-8"
@@ -514,21 +514,21 @@ export default function YeniKampanyaPage() {
                     onClick={() => setSelectedIds(new Set(filteredCustomers.map((c) => c.id)))}
                     className="px-2.5 py-1 rounded-lg border hover:bg-accent transition-colors"
                   >
-                    Görünenleri Seç ({filteredCustomers.length})
+                    {tp("select_visible", { n: filteredCustomers.length })}
                   </button>
                   <button
                     type="button"
                     onClick={() => setSelectedIds(new Set())}
                     className="px-2.5 py-1 rounded-lg border hover:bg-accent transition-colors text-muted-foreground"
                   >
-                    Seçimi Temizle
+                    {tp("secimi_temizle")}
                   </button>
                 </div>
 
                 <div className="max-h-56 overflow-y-auto rounded-lg border divide-y">
                   {filteredCustomers.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-4">
-                      {customers.length === 0 ? "Kampanya onaylı müşteri yok" : "Filtreye uyan müşteri yok"}
+                      {customers.length === 0 ? tp("kampanya_onayli_musteri_yok") : tp("filtreye_uyan_musteri_yok")}
                     </p>
                   ) : (
                     filteredCustomers.map((c) => {
@@ -572,7 +572,7 @@ export default function YeniKampanyaPage() {
             className="mt-0.5 h-4 w-4 rounded accent-orange-600 shrink-0"
           />
           <span className="text-sm text-orange-800 dark:text-orange-300">
-            <strong>KVKK Onayı:</strong> Mesaj göndereceğim müşterilerin ticari elektronik ileti almaya ve kişisel verilerinin bu amaçla işlenmesine açık rıza gösterdiğini onaylıyorum. İşletmem gerekli KVKK metnini müşterilere sunmuş ve onay almıştır.
+            <strong>{tp("kvkk_onayi")}</strong> {tp("mesaj_gonderecegim_musterile")}
           </span>
         </label>
 
@@ -584,14 +584,14 @@ export default function YeniKampanyaPage() {
             className="mt-0.5 h-4 w-4 rounded accent-orange-600 shrink-0"
           />
           <span className="text-sm text-orange-800 dark:text-orange-300">
-            <strong>İYS Beyanı:</strong> 6563 sayılı Kanun uyarınca ticari elektronik ileti gönderen işletme sıfatıyla İleti Yönetim Sistemi&apos;ne (İYS) kayıtlıyım; bu müşterilerin onaylarını İYS&apos;ye yükledim ve ret taleplerini İYS&apos;ye işlerim. SiriPlan yalnızca teknik gönderim altyapısı sağlar; İYS yükümlülükleri bana aittir.{" "}
-            <a href="https://iys.org.tr" target="_blank" rel="noreferrer" className="underline">iys.org.tr</a>
+            <strong>{tp("iys_beyani")}</strong> {tp("6563_sayili_kanun_uyarinca")}{" "}
+            <a href="https://iys.org.tr" target="_blank" rel="noreferrer" className="underline">{tp("iys_org_tr")}</a>
           </span>
         </label>
 
         <Button type="submit" className="w-full" disabled={loading || !kvkkConsent || !iysConsent}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-          Kampanya Oluştur
+          {tp("kampanya_olustur")}
         </Button>
       </form>
     </div>

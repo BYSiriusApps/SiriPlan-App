@@ -69,6 +69,7 @@ const EMPTY_RECURRING = {
 };
 
 export default function GelirGiderPage() {
+  const tp = useTranslations("panelPages.gelirGider");
   const t = useTranslations("dashboard");
   const locale = useLocale();
   const router = useRouter();
@@ -226,8 +227,8 @@ export default function GelirGiderPage() {
     const prevIdx = idx - 1;
     if (prevIdx < 0) return null;
     return [
-      { label: "Gelir", ...compareValue(gelir[idx], gelir[prevIdx]), invert: false },
-      { label: "Gider", ...compareValue(gider[idx], gider[prevIdx]), invert: true },
+      { label: tp("gelir"), ...compareValue(gelir[idx], gelir[prevIdx]), invert: false },
+      { label: tp("gider"), ...compareValue(gider[idx], gider[prevIdx]), invert: true },
       { label: "Net Kâr", ...compareValue(gelir[idx] - gider[idx], gelir[prevIdx] - gider[prevIdx]), invert: false },
     ];
   }, [trendSeries, month, viewMode]);
@@ -261,13 +262,13 @@ export default function GelirGiderPage() {
       body: JSON.stringify(editingEntry ? { id: editingEntry.id, ...form } : form),
     });
     if (res.ok) {
-      toast.success(editingEntry ? "Kayıt güncellendi" : "Kayıt eklendi");
+      toast.success(editingEntry ? tp("kayit_guncellendi") : tp("kayit_eklendi"));
       setShowForm(false);
       setForm(EMPTY_FORM);
       setEditingEntry(null);
       fetchData();
     } else {
-      toast.error(editingEntry ? "Güncellenemedi" : "Kayıt eklenemedi");
+      toast.error(editingEntry ? tp("guncellenemedi") : tp("kayit_eklenemedi"));
     }
     setSaving(false);
   }
@@ -310,7 +311,7 @@ export default function GelirGiderPage() {
       toast.success(tm("recurringAdded", { n: data.inserted, month: months[month - 1], year }));
       fetchData();
     } else {
-      toast.error(data.error ?? "Uygulama başarısız");
+      toast.error(data.error ?? tp("uygulama_basarisiz"));
     }
     setApplyingTemplates(false);
   }
@@ -525,7 +526,7 @@ export default function GelirGiderPage() {
                         <p className="text-sm font-semibold leading-tight">{r.description}</p>
                         <p className="text-xs text-muted-foreground mt-0.5 md:hidden">
                           {categoryLabel(r.type, r.category)}
-                          {!r.is_active && " · Pasif"}
+                          {!r.is_active && tp("pasif")}
                         </p>
                         {r.note && <p className="text-xs text-muted-foreground italic mt-0.5">{r.note}</p>}
                       </div>
@@ -547,7 +548,7 @@ export default function GelirGiderPage() {
                         {r.type === "gelir" ? "+" : "-"}{fmt(Number(r.amount))}
                       </span>
                       <button
-                        title={r.is_active ? "Pasif yap" : "Aktif yap"}
+                        title={r.is_active ? tp("pasif_yap") : tp("aktif_yap")}
                         onClick={() => handleToggleActive(r)}
                         className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
                       >
@@ -557,14 +558,14 @@ export default function GelirGiderPage() {
                         }
                       </button>
                       <button
-                        title="Düzenle"
+                        title={tp("duzenle")}
                         onClick={() => openEditRecurring(r)}
                         className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
                       <button
-                        title="Sil"
+                        title={tp("sil")}
                         onClick={() => handleDeleteRecurring(r.id)}
                         className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
                       >
@@ -774,7 +775,7 @@ export default function GelirGiderPage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Wallet className="h-4 w-4 text-primary" />
-              {year} — Aylık & Kümülatif Özet
+              {year} {tp("aylik_kumulatif_ozet")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -785,13 +786,13 @@ export default function GelirGiderPage() {
             ) : (
               <div className="space-y-1">
                 <div className="hidden md:grid grid-cols-[90px_110px_110px_110px_130px_130px_130px] gap-3 px-3 py-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wide border-b">
-                  <span>Ay</span>
-                  <span className="text-right">Gelir</span>
-                  <span className="text-right">Gider</span>
-                  <span className="text-right">Net</span>
-                  <span className="text-right">Küm. Gelir</span>
-                  <span className="text-right">Küm. Gider</span>
-                  <span className="text-right">Küm. Net</span>
+                  <span>{tp("ay")}</span>
+                  <span className="text-right">{tp("gelir")}</span>
+                  <span className="text-right">{tp("gider")}</span>
+                  <span className="text-right">{tp("net")}</span>
+                  <span className="text-right">{tp("kum_gelir")}</span>
+                  <span className="text-right">{tp("kum_gider")}</span>
+                  <span className="text-right">{tp("kum_net")}</span>
                 </div>
                 {monthlyBreakdown.map((m) => (
                   <div
@@ -810,8 +811,8 @@ export default function GelirGiderPage() {
                       {fmt(m.cumNet)}
                     </span>
                     <div className="md:hidden text-right text-xs space-y-0.5">
-                      <div className={m.net >= 0 ? "text-blue-600" : "text-orange-600"}>Net: {fmt(m.net)}</div>
-                      <div className="text-muted-foreground">Kümülatif: {fmt(m.cumNet)}</div>
+                      <div className={m.net >= 0 ? "text-blue-600" : "text-orange-600"}>{tp("net_2")} {fmt(m.net)}</div>
+                      <div className="text-muted-foreground">{tp("kumulatif")} {fmt(m.cumNet)}</div>
                     </div>
                   </div>
                 ))}
@@ -924,14 +925,14 @@ export default function GelirGiderPage() {
                     {!e.auto && (
                       <>
                         <button
-                          title="Düzenle"
+                          title={tp("duzenle")}
                           onClick={() => openEditEntry(e)}
                           className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
                         <button
-                          title="Sil"
+                          title={tp("sil")}
                           onClick={() => handleDelete(e.id)}
                           className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
                         >

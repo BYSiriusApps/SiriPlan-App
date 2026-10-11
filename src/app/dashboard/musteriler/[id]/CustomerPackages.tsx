@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/currency";
 import type { CustomerPackage } from "@/types/database";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 interface ServiceOpt {
   id: string;
@@ -38,6 +39,7 @@ interface Props {
 const NO_SERVICE = "__none__";
 
 export default function CustomerPackages({ customerId, customerName, services, currency }: Props) {
+  const tp = useTranslations("panelPages.musteriDetay");
   const router = useRouter();
   const [packages, setPackages] = useState<CustomerPackage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,7 +102,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
       });
       const json = await res.json();
       if (!res.ok) {
-        toast.error(json.error ?? "Paket oluşturulamadı");
+        toast.error(json.error ?? tp("paket_olusturulamadi"));
         return;
       }
       toast.success(tm("packageSold"));
@@ -123,10 +125,10 @@ export default function CustomerPackages({ customerId, customerName, services, c
       });
       const json = await res.json();
       if (!res.ok) {
-        toast.error(json.error ?? "İşlem başarısız");
+        toast.error(json.error ?? tp("islem_basarisiz"));
         return;
       }
-      toast.success(revert ? "Seans geri alındı" : `Seans düşüldü — kalan ${json.remaining}`);
+      toast.success(revert ? tp("seans_geri_alindi") : tm("sessionUsed", { n: json.remaining }));
       await load();
       router.refresh();
     } finally {
@@ -141,7 +143,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
       const res = await fetch(`/api/packages/${pkg.id}`, { method: "DELETE" });
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        toast.error(json.error ?? "İptal edilemedi");
+        toast.error(json.error ?? tp("iptal_edilemedi"));
         return;
       }
       toast.success(tm("packageCancelled"));
@@ -157,20 +159,20 @@ export default function CustomerPackages({ customerId, customerName, services, c
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-sm flex items-center gap-1.5">
           <Package className="h-4 w-4 text-violet-500" />
-          Paketler
+          {tp("paketler")}
         </CardTitle>
         <Dialog open={sellOpen} onOpenChange={setSellOpen}>
           <DialogTrigger render={<Button size="sm" variant="outline" className="h-7 gap-1 text-xs" />}>
             <Plus className="h-3.5 w-3.5" />
-            Paket Sat
+            {tp("paket_sat")}
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>{customerName} — Yeni Paket</DialogTitle>
+              <DialogTitle>{customerName} {tp("yeni_paket")}</DialogTitle>
             </DialogHeader>
             <form onSubmit={sell} className="space-y-3">
               <div className="space-y-1">
-                <Label className="text-xs">Hizmet (opsiyonel)</Label>
+                <Label className="text-xs">{tp("hizmet_opsiyonel")}</Label>
                 <Select
                   value={form.service_id}
                   onValueChange={(v) => {
@@ -182,29 +184,29 @@ export default function CustomerPackages({ customerId, customerName, services, c
                     }));
                   }}
                 >
-                  <SelectTrigger><SelectValue placeholder="Hizmete bağlama" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tp("hizmete_baglama")} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={NO_SERVICE}>Hizmete bağlı değil</SelectItem>
+                    <SelectItem value={NO_SERVICE}>{tp("hizmete_bagli_degil")}</SelectItem>
                     {services.map((s) => (
                       <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground">
-                  Hizmet seçilirse o hizmetin randevusu tamamlanınca seans otomatik düşer.
+                  {tp("hizmet_secilirse_o_hizmetin")}
                 </p>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-1 col-span-2">
-                  <Label className="text-xs">Paket adı</Label>
+                  <Label className="text-xs">{tp("paket_adi")}</Label>
                   <Input
                     value={form.name}
                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    placeholder="10 Seans Ağda"
+                    placeholder={tp("10_seans_agda")}
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Seans</Label>
+                  <Label className="text-xs">{tp("seans_2")}</Label>
                   <Input
                     type="number"
                     min="1"
@@ -215,7 +217,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-xs">Ödenen tutar</Label>
+                  <Label className="text-xs">{tp("odenen_tutar")}</Label>
                   <Input
                     type="number"
                     min="0"
@@ -225,20 +227,20 @@ export default function CustomerPackages({ customerId, customerName, services, c
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Ödeme yöntemi</Label>
+                  <Label className="text-xs">{tp("odeme_yontemi")}</Label>
                   <Select value={form.payment_method} onValueChange={(v) => v && setForm((f) => ({ ...f, payment_method: v }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="nakit">Nakit</SelectItem>
-                      <SelectItem value="kart">Kart</SelectItem>
-                      <SelectItem value="havale">Havale</SelectItem>
-                      <SelectItem value="diger">Diğer</SelectItem>
+                      <SelectItem value="nakit">{tp("nakit")}</SelectItem>
+                      <SelectItem value="kart">{tp("kart")}</SelectItem>
+                      <SelectItem value="havale">{tp("havale")}</SelectItem>
+                      <SelectItem value="diger">{tp("diger")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Son kullanma (opsiyonel)</Label>
+                <Label className="text-xs">{tp("son_kullanma_opsiyonel")}</Label>
                 <Input
                   type="date"
                   value={form.expires_at}
@@ -253,16 +255,15 @@ export default function CustomerPackages({ customerId, customerName, services, c
                   className="mt-0.5 h-4 w-4 rounded accent-primary"
                 />
                 <span>
-                  Gelir-Gider&apos;e &ldquo;Paket / Seans Satışı&rdquo; geliri olarak işle.
-                  Paketten düşen randevular ₺0 kapanır, ciro iki kez saymaz.
+                  {tp("gelir_gider_e_paket")}
                 </span>
               </label>
               <div className="flex gap-2 pt-1">
                 <Button type="submit" className="flex-1" disabled={selling}>
                   {selling ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
-                  Paketi Kaydet
+                  {tp("paketi_kaydet")}
                 </Button>
-                <DialogClose render={<Button type="button" variant="outline" />}>Vazgeç</DialogClose>
+                <DialogClose render={<Button type="button" variant="outline" />}>{tp("vazgec")}</DialogClose>
               </div>
             </form>
           </DialogContent>
@@ -275,7 +276,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
           </div>
         ) : active.length === 0 && past.length === 0 ? (
           <p className="text-xs text-muted-foreground text-center py-3">
-            Bu müşteride paket yok. &ldquo;Paket Sat&rdquo; ile peşin seans paketi tanımlayın.
+            {tp("bu_musteride_paket_yok")}
           </p>
         ) : (
           <>
@@ -287,7 +288,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">{pkg.name}</p>
                       <p className="text-[11px] text-muted-foreground">
-                        {pkg.service?.name ?? "Hizmete bağlı değil"}
+                        {pkg.service?.name ?? tp("hizmete_bagli_degil")}
                         {pkg.expires_at ? ` · son ${new Date(pkg.expires_at).toLocaleDateString("tr-TR")}` : ""}
                         {Number(pkg.price_paid) > 0 ? ` · ${formatMoney(Number(pkg.price_paid), currency)}` : ""}
                       </p>
@@ -299,7 +300,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
                         remaining <= 1 ? "border-amber-300 text-amber-700 dark:text-amber-400" : "",
                       )}
                     >
-                      {remaining} / {pkg.total_sessions} kaldı
+                      {remaining} / {pkg.total_sessions} {tp("kaldi")}
                     </Badge>
                   </div>
                   <div className="flex gap-1">
@@ -322,7 +323,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
                       onClick={() => changeSession(pkg, false)}
                     >
                       {busyId === pkg.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Minus className="h-3 w-3" />}
-                      Seans düş
+                      {tp("seans_dus")}
                     </Button>
                     {pkg.used_sessions > 0 && (
                       <Button
@@ -333,7 +334,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
                         onClick={() => changeSession(pkg, true)}
                       >
                         <RotateCcw className="h-3 w-3" />
-                        Geri al
+                        {tp("geri_al")}
                       </Button>
                     )}
                     <Button
@@ -344,7 +345,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
                       onClick={() => cancelPackage(pkg)}
                     >
                       <Ban className="h-3 w-3" />
-                      İptal
+                      {tp("iptal")}
                     </Button>
                   </div>
                 </div>
@@ -353,12 +354,12 @@ export default function CustomerPackages({ customerId, customerName, services, c
 
             {past.length > 0 && (
               <div className="pt-1 space-y-1">
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Geçmiş paketler</p>
+                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">{tp("gecmis_paketler")}</p>
                 {past.map((pkg) => (
                   <div key={pkg.id} className="flex items-center justify-between text-xs text-muted-foreground px-1">
                     <span className="truncate">{pkg.name}</span>
                     <span className="shrink-0">
-                      {pkg.status === "completed" ? "tamamlandı" : pkg.status === "cancelled" ? "iptal" : "süresi doldu"} ·{" "}
+                      {pkg.status === "completed" ? tp("tamamlandi") : pkg.status === "cancelled" ? "iptal" : tp("suresi_doldu")} ·{" "}
                       {pkg.used_sessions}/{pkg.total_sessions}
                     </span>
                   </div>

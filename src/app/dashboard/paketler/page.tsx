@@ -9,10 +9,12 @@ import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/currency";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import type { CustomerPackage } from "@/types/database";
+import { getTranslations } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function PaketlerPage() {
+  const tp = await getTranslations("panelPages.paketler");
   const supabase = await createClient();
   const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
@@ -50,14 +52,14 @@ export default async function PaketlerPage() {
       <div className="flex items-center gap-3">
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-primary/70">
-            Seans Takibi
+            {tp("seans_takibi")}
           </span>
           <h1 className="text-2xl md:text-3xl font-bold brand-gradient-text leading-tight flex items-center gap-2">
             <Package className="h-6 w-6 text-violet-500" />
-            Paketler
+            {tp("paketler")}
           </h1>
           <p className="text-muted-foreground text-sm">
-            Aktif peşin seans paketleri. Randevu tamamlandıkça seans otomatik düşer.
+            {tp("aktif_pesin_seans_paketleri")}
           </p>
         </div>
         <HomeButton />
@@ -65,9 +67,9 @@ export default async function PaketlerPage() {
 
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Aktif paket", value: String(packages.length) },
+          { label: tp("aktif_paket"), value: String(packages.length) },
           { label: "Kalan seans", value: String(totalRemaining) },
-          { label: "Peşin bakiye (yakl.)", value: formatMoney(prepaidValue, currency) },
+          { label: tp("pesin_bakiye_yakl"), value: formatMoney(prepaidValue, currency) },
         ].map((kpi) => (
           <div key={kpi.label} className="kpi-tile p-3 text-center">
             <p className="text-xs text-muted-foreground">{kpi.label}</p>
@@ -81,8 +83,7 @@ export default async function PaketlerPage() {
           <CardContent className="p-3 flex items-start gap-2 text-sm">
             <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
             <span>
-              <strong>{lowOrExpiring.length}</strong> pakette 1 seans kaldı ya da süresi doldu — yenileme
-              için müşteriyle iletişime geçin.
+              <strong>{lowOrExpiring.length}</strong> {tp("pakette_1_seans_kaldi")}
             </span>
           </CardContent>
         </Card>
@@ -92,7 +93,7 @@ export default async function PaketlerPage() {
         <CardContent className="p-0">
           {packages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-10">
-              Aktif paket yok. Müşteri sayfasından &ldquo;Paket Sat&rdquo; ile ekleyin.
+              {tp("aktif_paket_yok_musteri")}
             </p>
           ) : (
             <div className="divide-y divide-border">
@@ -104,10 +105,10 @@ export default async function PaketlerPage() {
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
-                      {p.customer?.full_name ?? "Müşteri"} — {p.name}
+                      {p.customer?.full_name ?? tp("musteri")} — {p.name}
                     </p>
                     <p className="text-[11px] text-muted-foreground truncate">
-                      {p.service?.name ?? "Hizmete bağlı değil"}
+                      {p.service?.name ?? tp("hizmete_bagli_degil")}
                       {p.expires_at ? ` · son ${new Date(p.expires_at).toLocaleDateString("tr-TR")}` : ""}
                     </p>
                   </div>

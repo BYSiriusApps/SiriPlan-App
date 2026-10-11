@@ -2,6 +2,7 @@
 
 import { Phone, Mail, MessageCircle, MessageSquare } from "lucide-react";
 import { useIsIOSNativeApp } from "@/lib/use-mobile-app";
+import { useTranslations } from "next-intl";
 
 /** Telefonu wa.me formatına çevirir: "0532 111 22 33" → "905321112233" */
 export function toWaPhone(phone: string) {
@@ -24,6 +25,7 @@ export function ContactLinks({
   email?: string | null;
   size?: "sm" | "md";
 }) {
+  const tp = useTranslations("panelPages.ortak");
   const icon = size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5";
   // App Store 2.3.10: iOS uygulamasında üçüncü taraf platformu çağrıştıran yeşil
   // sohbet balonu yerine nötr, marka renginde ikon. Bağlantı davranışı aynı.
@@ -45,7 +47,7 @@ export function ContactLinks({
         <>
           <button
             type="button"
-            title="Ara"
+            title={tp("call")}
             className="p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 transition-colors"
             onClick={(e) => go(e, `tel:${phone}`)}
           >
@@ -64,7 +66,7 @@ export function ContactLinks({
       {email && (
         <button
           type="button"
-          title="E-posta gönder"
+          title={tp("send_email")}
           className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-primary transition-colors"
           onClick={(e) => go(e, `mailto:${email}`)}
         >

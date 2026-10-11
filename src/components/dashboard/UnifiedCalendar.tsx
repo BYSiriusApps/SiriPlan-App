@@ -182,6 +182,7 @@ export function UnifiedCalendar({
   hours, orgId, staff, appointments, timeOff, lockedStaffId, slotMinutes,
   userRole, currentStaffId,
 }: Props) {
+  const tp = useTranslations("panelPages.takvim");
   const router = useRouter();
   const t = useTranslations("dashboard");
   const locale = useLocale();
@@ -1118,7 +1119,7 @@ export function UnifiedCalendar({
           <span className="font-extrabold text-lg">{visibleAppointments.length}</span>
         </div>
         <div className="text-right">
-          <span className="text-background/60 text-[10px] block">Tahmini Ciro</span>
+          <span className="text-background/60 text-[10px] block">{tp("tahmini_ciro")}</span>
           <span className="text-background font-extrabold text-lg font-mono">₺{periodRevenue.toLocaleString("tr-TR")}</span>
         </div>
       </div>
@@ -1415,7 +1416,7 @@ export function UnifiedCalendar({
                     </Link>
                     {(closed || offNames.length > 0) && (
                       <div className="px-1 py-0.5 text-[9px] leading-tight text-center truncate bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-b">
-                        {closed ? "Kapalı" : `İzinli: ${offNames.join(", ")}`}
+                        {closed ? tp("kapali") : tp("izinli", { offNames_join: offNames.join(", ") })}
                       </div>
                     )}
                     <div
@@ -1538,7 +1539,7 @@ export function UnifiedCalendar({
                   </div>
                   {isOff && (
                     <div className="px-1 py-0.5 text-[9px] leading-tight text-center bg-red-50 dark:bg-red-950/20 text-red-600 border-b">
-                      İzinli
+                      {tp("izinli_2")}
                     </div>
                   )}
                   <div
@@ -1610,7 +1611,7 @@ export function UnifiedCalendar({
                     </div>
                     {(closed || offNames.length > 0) && (
                       <div className="px-1 py-0.5 text-[10px] leading-tight text-center bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-b">
-                        {closed ? "İşletme bugün kapalı" : `İzinli: ${offNames.join(", ")}`}
+                        {closed ? tp("isletme_bugun_kapali") : tp("izinli", { offNames_join: offNames.join(", ") })}
                       </div>
                     )}
                     <div

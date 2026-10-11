@@ -29,6 +29,7 @@ const MONTHS = [
 ];
 
 export default function MaasHesaplamaPage() {
+  const tp = useTranslations("panelPages.maas");
   const t = useTranslations("dashboard");
   const locale = useLocale();
   const now = new Date();
@@ -144,7 +145,7 @@ export default function MaasHesaplamaPage() {
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
             {MONTHS.map((m, i) => (
-              <SelectItem key={m} value={String(i + 1)}>{m}</SelectItem>
+              <SelectItem key={m} value={String(i + 1)}>{tp(`month_${i}`)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -160,24 +161,24 @@ export default function MaasHesaplamaPage() {
 
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">{MONTHS[month - 1]} {year} Maaş Dökümü</CardTitle>
+          <CardTitle className="text-base">{tp(`month_${month - 1}`)} {year} {tp("maas_dokumu")}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
             <div className="p-8 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
           ) : rows.length === 0 ? (
-            <p className="p-6 text-sm text-muted-foreground">Aktif personel bulunamadı.</p>
+            <p className="p-6 text-sm text-muted-foreground">{tp("aktif_personel_bulunamadi")}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-xs text-muted-foreground">
-                    <th className="p-3 font-medium">Personel</th>
-                    <th className="p-3 font-medium text-right">Taban</th>
-                    <th className="p-3 font-medium text-right">Ciro</th>
-                    <th className="p-3 font-medium text-right">Komisyon</th>
-                    <th className="p-3 font-medium text-right">Bahşiş</th>
-                    <th className="p-3 font-medium text-right">Toplam</th>
+                    <th className="p-3 font-medium">{tp("personel")}</th>
+                    <th className="p-3 font-medium text-right">{tp("taban")}</th>
+                    <th className="p-3 font-medium text-right">{tp("ciro")}</th>
+                    <th className="p-3 font-medium text-right">{tp("komisyon")}</th>
+                    <th className="p-3 font-medium text-right">{tp("bahsis")}</th>
+                    <th className="p-3 font-medium text-right">{tp("toplam")}</th>
                     <th className="p-3 font-medium text-right"></th>
                   </tr>
                 </thead>
@@ -195,7 +196,7 @@ export default function MaasHesaplamaPage() {
                       <td className="p-3 text-right">
                         {savedIds.has(r.staff_id) ? (
                           <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
-                            <CheckCircle2 className="h-3.5 w-3.5" /> Kaydedildi
+                            <CheckCircle2 className="h-3.5 w-3.5" /> {tp("kaydedildi")}
                           </span>
                         ) : (
                           <Button
@@ -205,7 +206,7 @@ export default function MaasHesaplamaPage() {
                             onClick={() => recordAsExpense(r)}
                           >
                             {savingId === r.staff_id ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
-                            Gider Olarak Kaydet
+                            {tp("gider_olarak_kaydet")}
                           </Button>
                         )}
                       </td>
@@ -214,7 +215,7 @@ export default function MaasHesaplamaPage() {
                 </tbody>
                 <tfoot>
                   <tr className="border-t">
-                    <td className="p-3 font-semibold" colSpan={5}>Genel Toplam</td>
+                    <td className="p-3 font-semibold" colSpan={5}>{tp("genel_toplam")}</td>
                     <td className="p-3 text-right font-bold tabular-nums">{fmt(grandTotal)}</td>
                     <td />
                   </tr>
