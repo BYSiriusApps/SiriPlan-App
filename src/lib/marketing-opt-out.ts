@@ -29,6 +29,14 @@ const OPT_OUT_KEYWORDS = new Set([
   "iptal et",
   "istemiyorum",
   "unsubscribe",
+  // Almanca / İspanyolca (yalnızca pazarlamayı kısıtlar — daraltma yönünde)
+  "stopp",
+  "abmelden",
+  "abbestellen",
+  "baja",
+  "darse de baja",
+  "cancelar suscripcion",
+  "cancelar suscripción",
 ]);
 
 export function isMarketingOptOut(text: string | null | undefined): boolean {
@@ -131,13 +139,18 @@ export function optOutFooter(channel: "whatsapp" | "sms" | "email", locale?: str
   if (channel === "sms") {
     // SMS'te karakter maliyeti önemli — kısa tutulur. Sağlayıcı (NetGSM vb.)
     // İYS entegrasyonu üzerinden "RET" yanıtını ayrıca yakalar.
-    return l === "en" ? "\nReply STOP to opt out" : "\nÇıkış: RET yazın";
+    if (l === "en") return "\nReply STOP to opt out";
+    if (l === "de") return "\nAbmelden: STOPP senden";
+    if (l === "es") return "\nBaja: responde BAJA";
+    return "\nÇıkış: RET yazın";
   }
   const map: Record<string, string> = {
     tr: '\n\nBu tanıtım mesajlarını almak istemiyorsanız "RET" yazıp gönderin.',
     en: '\n\nIf you no longer wish to receive these promotional messages, reply "STOP".',
     ru: '\n\nЕсли вы больше не хотите получать рекламные сообщения, ответьте «СТОП».',
     ar: '\n\nإذا لم تعد ترغب في تلقّي هذه الرسائل الترويجية، اكتب «إيقاف».',
+    de: '\n\nWenn Sie diese Werbenachrichten nicht mehr erhalten möchten, antworten Sie mit „STOPP“.',
+    es: '\n\nSi ya no deseas recibir estos mensajes promocionales, responde "BAJA".',
   };
   return map[l] ?? map.tr;
 }

@@ -7,7 +7,7 @@ import {
   format, startOfWeek, endOfWeek, addDays, addMonths,
   startOfMonth, endOfMonth, eachDayOfInterval,
 } from "date-fns";
-import { tr, enUS, ru, ar } from "date-fns/locale";
+import { tr, enUS, ru, ar, de, es } from "date-fns/locale";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,7 @@ import { TakvimHeader } from "@/components/dashboard/TakvimHeader";
 import { getTranslations, getLocale } from "next-intl/server";
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8-20
-const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar, de, es } as const;
 
 export default async function TakvimPage({
   searchParams,

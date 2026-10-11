@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, Mail, Lock, Eye, EyeOff, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobileApp } from "@/lib/use-mobile-app";
+import { tm } from "@/lib/toast-i18n";
 
 // Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (handleDemoLogin) korunuyor.
 const DEMO_ENABLED = false;
@@ -48,13 +49,13 @@ export default function GirisPage() {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        toast.error("Giriş başarısız: " + (err.error || res.statusText));
+        toast.error(tm("loginFailed", { msg: err.error || res.statusText }));
         return false;
       }
       window.location.href = "/dashboard";
       return true;
     } catch {
-      toast.error("Bağlantı hatası — tekrar deneyin");
+      toast.error(tm("connRetry"));
       return false;
     }
   }

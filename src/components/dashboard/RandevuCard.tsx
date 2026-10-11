@@ -5,9 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { format } from "date-fns";
-import { tr, enUS, ru, ar } from "date-fns/locale";
+import { tr, enUS, ru, ar, de, es } from "date-fns/locale";
+import { tm } from "@/lib/toast-i18n";
 
-const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar, de, es } as const;
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -74,7 +75,7 @@ export function RandevuCard({
         },
       });
     } else {
-      toast.success("Durum güncellendi");
+      toast.success(tm("statusUpdated"));
     }
   }
 

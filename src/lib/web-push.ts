@@ -10,6 +10,7 @@
 //  - Gönderim süresi sınırlıdır (timeout) ki yavaş bir push servisi isteği tutmasın.
 import { createAdminClient } from "@/lib/supabase/server";
 import { isFcmConfigured, sendFcm, type FcmMessage } from "@/lib/fcm";
+import { notifyI18nEnabled, pickNotifyLocale, type NotifyLocale } from "@/lib/notify-i18n";
 
 export interface PushPayload {
   title: string;
@@ -19,6 +20,8 @@ export interface PushPayload {
   /** Aynı etiketli bildirimler birbirinin yerine geçer (yığılmayı önler). */
   tag?: string;
 }
+
+type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
 
 interface SubRow {
   endpoint: string;
@@ -87,23 +90,90 @@ export async function sendPushToOrg(
     console.log(`[web-push] org=${orgId} üye=${(members ?? []).length} alıcı=${userIds.length} başlık=${payload.title}`);
     if (userIds.length === 0) return;
 
-    const title = payload.title.slice(0, 120);
-    const text = payload.body.slice(0, 300);
-    const url = safeUrl(payload.url);
-
-    // Web Push (Android/Chrome) ve FCM (iOS uygulaması) birbirinden bağımsız çalışır;
-    // biri başarısız olursa ya da yapılandırılmamışsa diğerini etkilemez.
-    await Promise.allSettled([
-      webpush ? sendWebPush(supabase, webpush, userIds, JSON.stringify({ title, body: text, url, tag: payload.tag })) : null,
-      fcmOn ? sendIosPush(supabase, userIds, { title, body: text, url, tag: payload.tag }) : null,
-    ]);
+    await deliverPush(supabase, webpush, fcmOn, userIds, payload);
   } catch (err) {
     console.error("[web-push] sendPushToOrg hata", (err as Error)?.message ?? err);
     // Push hatası ana akışı engellememeli
   }
 }
 
-type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
+/** Bir alıcı kümesine tek bir yükü gönderir (Web Push + FCM bağımsız çalışır). */
+async function deliverPush(
+  supabase: AdminClient,
+  webpush: Awaited<ReturnType<typeof getWebPush>>,
+  fcmOn: boolean,
+  userIds: string[],
+  payload: PushPayload
+): Promise<void> {
+  const title = payload.title.slice(0, 120);
+  const text = payload.body.slice(0, 300);
+  const url = safeUrl(payload.url);
+
+  // Web Push (Android/Chrome) ve FCM (iOS uygulaması) birbirinden bağımsız çalışır;
+  // biri başarısız olursa ya da yapılandırılmamışsa diğerini etkilemez.
+  await Promise.allSettled([
+    webpush ? sendWebPush(supabase, webpush, userIds, JSON.stringify({ title, body: text, url, tag: payload.tag })) : null,
+    fcmOn ? sendIosPush(supabase, userIds, { title, body: text, url, tag: payload.tag }) : null,
+  ]);
+}
+
+/**
+ * sendPushToOrg'un dile duyarlı sürümü: aynı alıcı kümesi (sahip + yönetici + atanan personel),
+ * aynı kanallar; tek fark metnin her alıcının diline göre üretilmesidir (staff.preferred_language,
+ * yoksa salonun dili). NOTIFY_I18N=1 değilse ya da dil çözümlemesi herhangi bir sebeple başarısız
+ * olursa doğrudan eski yola (Türkçe/tek yük) düşer — push asla engellenmez.
+ */
+export async function sendPushToOrgLocalized(
+  orgId: string,
+  build: (locale: NotifyLocale) => PushPayload,
+  assignedStaffId?: string | null,
+  orgLocale: NotifyLocale = "tr"
+): Promise<void> {
+  if (!notifyI18nEnabled()) return sendPushToOrg(orgId, build("tr"), assignedStaffId);
+  try {
+    const webpush = await getWebPush();
+    const fcmOn = isFcmConfigured();
+    if (!webpush && !fcmOn) {
+      console.warn("[web-push] VAPID/FCM yapılandırılmamış, push gönderilmedi");
+      return;
+    }
+
+    const supabase = await createAdminClient();
+    const { data: members } = await supabase
+      .from("org_members")
+      .select("user_id, role, staff_id")
+      .eq("org_id", orgId);
+    const targets = (members ?? []).filter(
+      (m: { user_id: string; role: string; staff_id: string | null }) =>
+        m.role === "owner" || m.role === "manager" || (!!assignedStaffId && m.staff_id === assignedStaffId)
+    ) as { user_id: string; role: string; staff_id: string | null }[];
+    if (targets.length === 0) return;
+
+    const staffIds = Array.from(new Set(targets.map((t) => t.staff_id).filter((x): x is string => !!x)));
+    const langByStaff = new Map<string, string>();
+    if (staffIds.length > 0) {
+      const { data: staffRows } = await supabase.from("staff").select("id, preferred_language").in("id", staffIds);
+      for (const r of (staffRows ?? []) as { id: string; preferred_language: string | null }[]) {
+        if (r.preferred_language) langByStaff.set(r.id, r.preferred_language);
+      }
+    }
+
+    const groups = new Map<NotifyLocale, Set<string>>();
+    for (const t of targets) {
+      const loc = pickNotifyLocale(t.staff_id ? langByStaff.get(t.staff_id) : null, orgLocale);
+      if (!groups.has(loc)) groups.set(loc, new Set());
+      groups.get(loc)!.add(t.user_id);
+    }
+    console.log(`[web-push] org=${orgId} dil-grupları=${groups.size} alıcı=${targets.length}`);
+
+    await Promise.allSettled(
+      Array.from(groups.entries()).map(([loc, ids]) => deliverPush(supabase, webpush, fcmOn, Array.from(ids), build(loc)))
+    );
+  } catch (err) {
+    console.error("[web-push] sendPushToOrgLocalized hata, eski yola düşülüyor", (err as Error)?.message ?? err);
+    await sendPushToOrg(orgId, build(orgLocale), assignedStaffId);
+  }
+}
 
 async function sendWebPush(
   supabase: AdminClient,

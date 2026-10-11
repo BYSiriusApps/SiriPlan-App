@@ -21,6 +21,7 @@ import { useMicAccess } from "@/components/dashboard/useMicAccess";
 import { useVoiceConfirmCommand } from "@/components/dashboard/useVoiceConfirmCommand";
 import { lookupCustomerBySpokenName } from "@/lib/voice-customer-lookup";
 import { usePlan } from "@/components/dashboard/PlanContext";
+import { tm as tt } from "@/lib/toast-i18n";
 
 const FAVORITES_KEY = "siriplan_fav_services";
 
@@ -194,7 +195,7 @@ export default function YeniRandevuPage() {
           }
         }
       })
-      .catch(() => toast.error("Veriler yüklenemedi"))
+      .catch(() => toast.error(tt("dataLoadFailed")))
       .finally(() => setDataLoading(false));
   }, []);
 
@@ -532,7 +533,7 @@ export default function YeniRandevuPage() {
 
   async function saveAppointment() {
     if (!form.staff_id || selectedServices.length === 0 || !form.appointment_at) {
-      toast.error("Personel, en az bir hizmet ve tarih/saat zorunlu");
+      toast.error(tt("apptFieldsRequired"));
       return false;
     }
 
@@ -565,7 +566,7 @@ export default function YeniRandevuPage() {
       setLoading(false);
 
       if (res.ok) {
-        toast.success("Randevu oluşturuldu");
+        toast.success(tt("apptCreated"));
         if (!form.customer_phone) {
           toast(t("apptNew.noPhoneCreatedWarning"), { icon: "⚠️", duration: 9000 });
         }
@@ -600,7 +601,7 @@ export default function YeniRandevuPage() {
         return false;
       }
     } catch {
-      toast.error("Randevu oluşturulamadı");
+      toast.error(tt("apptCreateFailed"));
       setLoading(false);
       return false;
     }

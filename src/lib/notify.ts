@@ -11,7 +11,8 @@ import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
 import { sendInternalTemplate } from "@/lib/wa-templates/internal-send";
 import type { WaInternalPurpose } from "@/lib/wa-templates/internal-registry";
 import { formatApptDateTime } from "@/lib/wa-templates/send";
-import { sendPushToOrg } from "@/lib/web-push";
+import { sendPushToOrgLocalized } from "@/lib/web-push";
+import { notifyStrings, notifyI18nEnabled, pickNotifyLocale, type NotifyLocale } from "@/lib/notify-i18n";
 
 interface AppointmentForNotify {
   id: string;
@@ -39,6 +40,25 @@ interface Recipient {
   label: string;
 }
 
+type AdminClient = Awaited<ReturnType<typeof createAdminClient>>;
+
+/** NOTIFY_I18N kapalıyken HER ZAMAN "tr" — eski davranış birebir; açıkken salonun dili (hata olursa "tr"). */
+async function orgNotifyLocale(supabase: AdminClient, orgId: string): Promise<NotifyLocale> {
+  if (!notifyI18nEnabled()) return "tr";
+  try {
+    const { data } = await supabase.from("organizations").select("locale").eq("id", orgId).maybeSingle();
+    return pickNotifyLocale((data as { locale?: string | null } | null)?.locale);
+  } catch {
+    return "tr";
+  }
+}
+
+/** Alıcının dili: bayrak kapalıyken "tr"; açıkken kişinin tercihi, yoksa salonun dili. */
+function recipientLocale(r: Recipient, orgLoc: NotifyLocale): NotifyLocale {
+  if (!notifyI18nEnabled()) return "tr";
+  return pickNotifyLocale(r.locale, orgLoc);
+}
+
 /** Personel/sahip kaydındaki notify_channels_json'dan kanal tercihini okur — anahtar yoksa varsayılan AÇIK. */
 function staffChannels(row: { notify_channels_json?: Record<string, unknown> | null } | null | undefined): {
   telegram: boolean;
@@ -58,23 +78,24 @@ function orgChannels(row: { settings_json?: Record<string, unknown> | null } | n
 }
 
 /** Randevunun nereden geldiğini kısa, okunur bir etikete çevirir. */
-function sourceLabel(source?: string | null): string {
+function sourceLabel(source?: string | null, locale: NotifyLocale = "tr"): string {
+  const S = notifyStrings(locale);
   switch (source) {
     case "web":
     case "website":
-      return "🌐 Online Randevu Linki";
+      return S.src.web;
     case "whatsapp":
-      return "💬 WhatsApp";
+      return S.src.whatsapp;
     case "instagram":
-      return "📷 Instagram";
+      return S.src.instagram;
     case "tiktok":
-      return "🎵 TikTok";
+      return S.src.tiktok;
     case "telefon":
-      return "☎️ Telefon";
+      return S.src.phone;
     case "yuzyuze":
-      return "🏠 Yüz Yüze (Panel)";
+      return S.src.walkin;
     default:
-      return "✍️ Manuel (Personel)";
+      return S.src.manual;
   }
 }
 
@@ -83,38 +104,56 @@ function buildMessage(
   serviceName: string,
   staffName: string,
   isRequest = false,
-  timeZone: string = "Europe/Istanbul"
+  timeZone: string = "Europe/Istanbul",
+  locale: NotifyLocale = "tr"
 ): string {
-  const date = new Date(appt.appointment_at).toLocaleString("tr-TR", {
+  const S = notifyStrings(locale);
+  const date = new Date(appt.appointment_at).toLocaleString(S.intl, {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: timeZone,
   });
-  const source = sourceLabel(appt.source);
+  const source = sourceLabel(appt.source, locale);
 
   // Salon sahibi/personele giden bu bildirimde harita/konum linkine gerek yok
   // (kendi işletmelerinin adresini zaten biliyorlar) — konum yalnızca
   // müşteriye giden WhatsApp şablonunda (bkz. wa-templates/send.ts) gösterilir.
   if (isRequest) {
     return (
-      `📋 <b>Yeni Randevu Talebi</b> — ${source}\n\n` +
-      `👤 ${appt.customer_name} (${appt.customer_phone})\n` +
-      `💇 ${serviceName}\n` +
-      `👩‍💼 ${staffName}\n` +
-      `🕐 ${date}\n` +
-      (appt.price ? `💰 ₺${Number(appt.price).toLocaleString("tr-TR")}\n` : "") +
-      (appt.note ? `📝 ${appt.note}\n` : "") +
-      `\nOnaylamak için panele girin.`
+      `📋 <b>${S.requestTitle}</b> — ${source}
+
+` +
+      `👤 ${appt.customer_name} (${appt.customer_phone})
+` +
+      `💇 ${serviceName}
+` +
+      `👩‍💼 ${staffName}
+` +
+      `🕐 ${date}
+` +
+      (appt.price ? `💰 ₺${Number(appt.price).toLocaleString(S.intl)}
+` : "") +
+      (appt.note ? `📝 ${appt.note}
+` : "") +
+      `
+${S.requestFooter}`
     );
   }
 
   return (
-    `✅ <b>Randevu Onaylandı</b> — ${source}\n\n` +
-    `👤 ${appt.customer_name} (${appt.customer_phone})\n` +
-    `💇 ${serviceName}\n` +
-    `👩‍💼 ${staffName}\n` +
-    `🕐 ${date}\n` +
-    (appt.price ? `💰 ₺${Number(appt.price).toLocaleString("tr-TR")}\n` : "") +
+    `✅ <b>${S.confirmedTitle}</b> — ${source}
+
+` +
+    `👤 ${appt.customer_name} (${appt.customer_phone})
+` +
+    `💇 ${serviceName}
+` +
+    `👩‍💼 ${staffName}
+` +
+    `🕐 ${date}
+` +
+    (appt.price ? `💰 ₺${Number(appt.price).toLocaleString(S.intl)}
+` : "") +
     (appt.note ? `📝 ${appt.note}` : "")
   );
 }
@@ -191,7 +230,20 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
     const serviceName = (service as { name: string } | null)?.name ?? "Hizmet";
     const staffName = (staffRow as { full_name: string } | null)?.full_name ?? "Personel";
     const orgForLocation = orgRow as { address?: string | null; location_url?: string | null; timezone?: string | null } | null;
-    const message = buildMessage(appt, serviceName, staffName, false, orgForLocation?.timezone || "Europe/Istanbul");
+    const orgLoc = await orgNotifyLocale(supabase, appt.org_id);
+    const apptTz = orgForLocation?.timezone || "Europe/Istanbul";
+    const rawService = (service as { name: string } | null)?.name;
+    const rawStaff = (staffRow as { full_name: string } | null)?.full_name;
+    const msgCache = new Map<NotifyLocale, string>();
+    const msgFor = (loc: NotifyLocale): string => {
+      let m = msgCache.get(loc);
+      if (m === undefined) {
+        const S = notifyStrings(loc);
+        m = buildMessage(appt, rawService ?? S.serviceFallback, rawStaff ?? S.staffFallback, false, apptTz, loc);
+        msgCache.set(loc, m);
+      }
+      return m;
+    };
     const { date: waDate, time: waTime } = formatApptDateTime(appt.appointment_at, orgForLocation?.timezone || "Europe/Istanbul");
     const waTemplateParams = {
       business_name: (orgRow as { name?: string } | null)?.name ?? "",
@@ -252,7 +304,8 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
     const tasks: Promise<void>[] = [];
 
     for (const r of recipients) {
-      const rCopy: Recipient = { label: r.label, locale: r.locale };
+      const rLoc = recipientLocale(r, orgLoc);
+      const rCopy: Recipient = { label: r.label, locale: notifyI18nEnabled() ? rLoc : r.locale };
       if (r.telegram_chat_id && !seenTg.has(r.telegram_chat_id)) {
         rCopy.telegram_chat_id = r.telegram_chat_id;
         rCopy.telegram_enabled = r.telegram_enabled;
@@ -264,16 +317,17 @@ export async function notifyAppointment(appt: AppointmentForNotify): Promise<voi
         seenWa.add(r.whatsapp_number);
       }
       if (rCopy.telegram_chat_id || rCopy.whatsapp_number) {
-        tasks.push(dispatch(rCopy, message, { purpose: "yeni_randevu", params: waTemplateParams }));
+        tasks.push(dispatch(rCopy, msgFor(rLoc), { purpose: "yeni_randevu", params: waTemplateParams }));
       }
     }
 
     // Web Push (paralel, hata fırlatmaz) — mevcut kanalların davranışı değişmez.
     tasks.push(
-      sendPushToOrg(
+      sendPushToOrgLocalized(
         appt.org_id,
-        { title: "✅ Randevu Onaylandı", body: `${appt.customer_name} · ${serviceName} · ${waDate} ${waTime}`, url: "/dashboard/takvim", tag: `appt-${appt.id}` },
-        staffTargetId
+        (loc) => ({ title: `✅ ${notifyStrings(loc).confirmedTitle}`, body: `${appt.customer_name} · ${serviceName} · ${waDate} ${waTime}`, url: "/dashboard/takvim", tag: `appt-${appt.id}` }),
+        staffTargetId,
+        orgLoc
       )
     );
     await Promise.allSettled(tasks);
@@ -301,11 +355,13 @@ export async function notifyLowStock(
     if (!orgRow) return;
 
     const orgCh = orgChannels(orgRow as { settings_json?: Record<string, unknown> | null });
+    const orgLoc = await orgNotifyLocale(supabase, orgId);
+    const S = notifyStrings(orgLoc);
     const message =
-      `⚠️ <b>Kritik Stok Uyarısı</b>\n\n` +
+      `⚠️ <b>${S.lowStockTitle}</b>\n\n` +
       `📦 ${item.name}\n` +
-      `Kalan: ${item.current_stock} ${item.unit} (uyarı sınırı: ${item.min_stock_alert})\n\n` +
-      `Stok girişi yapmayı unutmayın.`;
+      `${S.lowStockBody(item.current_stock, item.unit, item.min_stock_alert)}\n\n` +
+      S.lowStockFooter;
 
     await Promise.allSettled([
       dispatch(
@@ -314,6 +370,7 @@ export async function notifyLowStock(
           telegram_enabled: orgCh.telegram,
           whatsapp_number: (orgRow as { whatsapp_number?: string | null }).whatsapp_number,
           whatsapp_enabled: orgCh.whatsapp,
+          locale: notifyI18nEnabled() ? orgLoc : undefined,
           label: "salon",
         },
         message,
@@ -327,11 +384,16 @@ export async function notifyLowStock(
           },
         }
       ),
-      sendPushToOrg(orgId, {
-        title: "⚠️ Kritik Stok Uyarısı",
-        body: `${item.name} · Kalan: ${item.current_stock} ${item.unit}`,
-        url: "/dashboard/stok",
-      }),
+      sendPushToOrgLocalized(
+        orgId,
+        (loc) => ({
+          title: `⚠️ ${notifyStrings(loc).lowStockTitle}`,
+          body: notifyStrings(loc).lowStockPush(item.name, item.current_stock, item.unit),
+          url: "/dashboard/stok",
+        }),
+        undefined,
+        orgLoc
+      ),
     ]);
   } catch {
     // Bildirim hatası stok akışını engellememeli
@@ -382,15 +444,27 @@ export async function notifyProposalResponse(p: ProposalResponseForNotify): Prom
     }
 
     const timeZone = (orgRow as { timezone?: string | null } | null)?.timezone || "Europe/Istanbul";
-    const dateLabel = new Date(p.proposed_appointment_at).toLocaleString("tr-TR", {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone,
-    });
+    const orgLoc = await orgNotifyLocale(supabase, p.org_id);
+    const dateLabelFor = (loc: NotifyLocale) =>
+      new Date(p.proposed_appointment_at).toLocaleString(notifyStrings(loc).intl, {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone,
+      });
 
-    const message = p.accepted
-      ? `✅ <b>Öneri Kabul Edildi</b>\n\n👤 ${p.customer_name}\n🕐 Yeni saat: ${dateLabel}\n\nRandevu otomatik onaylandı.`
-      : `❌ <b>Öneri Reddedildi</b>\n\n👤 ${p.customer_name}\n🕐 Önerilen saat: ${dateLabel}\n\nTalep hâlâ bekliyor — farklı bir saat önerin ya da iptal edin.`;
+    const msgCache = new Map<NotifyLocale, string>();
+    const msgFor = (loc: NotifyLocale): string => {
+      let m = msgCache.get(loc);
+      if (m === undefined) {
+        const S = notifyStrings(loc);
+        const dl = dateLabelFor(loc);
+        m = p.accepted
+          ? `✅ <b>${S.acceptedTitle}</b>\n\n👤 ${p.customer_name}\n🕐 ${S.acceptedNewTime} ${dl}\n\n${S.acceptedFooter}`
+          : `❌ <b>${S.declinedTitle}</b>\n\n👤 ${p.customer_name}\n🕐 ${S.declinedProposedTime} ${dl}\n\n${S.declinedFooter}`;
+        msgCache.set(loc, m);
+      }
+      return m;
+    };
 
     const recipients: Recipient[] = [];
     const orgCh = orgChannels(orgRow as { settings_json?: Record<string, unknown> | null } | null);
@@ -430,7 +504,8 @@ export async function notifyProposalResponse(p: ProposalResponseForNotify): Prom
     const seenWa = new Set<string>();
     const tasks: Promise<void>[] = [];
     for (const r of recipients) {
-      const rCopy: Recipient = { label: r.label, locale: r.locale };
+      const rLoc = recipientLocale(r, orgLoc);
+      const rCopy: Recipient = { label: r.label, locale: notifyI18nEnabled() ? rLoc : r.locale };
       if (r.telegram_chat_id && !seenTg.has(r.telegram_chat_id)) {
         rCopy.telegram_chat_id = r.telegram_chat_id;
         rCopy.telegram_enabled = r.telegram_enabled;
@@ -442,18 +517,19 @@ export async function notifyProposalResponse(p: ProposalResponseForNotify): Prom
         seenWa.add(r.whatsapp_number);
       }
       if (rCopy.telegram_chat_id || rCopy.whatsapp_number) {
-        tasks.push(dispatch(rCopy, message));
+        tasks.push(dispatch(rCopy, msgFor(rLoc)));
       }
     }
     tasks.push(
-      sendPushToOrg(
+      sendPushToOrgLocalized(
         p.org_id,
-        {
-          title: p.accepted ? "✅ Öneri Kabul Edildi" : "❌ Öneri Reddedildi",
-          body: `${p.customer_name} · ${dateLabel}`,
+        (loc) => ({
+          title: p.accepted ? `✅ ${notifyStrings(loc).acceptedTitle}` : `❌ ${notifyStrings(loc).declinedTitle}`,
+          body: `${p.customer_name} · ${dateLabelFor(loc)}`,
           url: p.accepted ? "/dashboard/takvim" : "/dashboard/bekleyen-istekler",
-        },
-        staffTargetId
+        }),
+        staffTargetId,
+        orgLoc
       )
     );
     await Promise.allSettled(tasks);
@@ -509,7 +585,20 @@ export async function notifyAppointmentRequest(
     const serviceName = req.serviceName ?? (svcRow as { name?: string } | null)?.name ?? "Hizmet";
     const staffName = req.staffName ?? (stfRow as { full_name?: string } | null)?.full_name ?? "Personel";
     const orgForLocation = orgRow as { address?: string | null; location_url?: string | null; timezone?: string | null } | null;
-    const message = buildMessage(req, serviceName, staffName, true, orgForLocation?.timezone || "Europe/Istanbul");
+    const orgLoc = await orgNotifyLocale(supabase, req.org_id);
+    const reqTz = orgForLocation?.timezone || "Europe/Istanbul";
+    const rawReqService = req.serviceName ?? (svcRow as { name?: string } | null)?.name;
+    const rawReqStaff = req.staffName ?? (stfRow as { full_name?: string } | null)?.full_name;
+    const msgCache = new Map<NotifyLocale, string>();
+    const msgFor = (loc: NotifyLocale): string => {
+      let m = msgCache.get(loc);
+      if (m === undefined) {
+        const S = notifyStrings(loc);
+        m = buildMessage(req, rawReqService ?? S.serviceFallback, rawReqStaff ?? S.staffFallback, true, reqTz, loc);
+        msgCache.set(loc, m);
+      }
+      return m;
+    };
     const { date: waDate, time: waTime } = formatApptDateTime(req.appointment_at, orgForLocation?.timezone || "Europe/Istanbul");
     const waTemplateParams = {
       business_name: (orgRow as { name?: string } | null)?.name ?? "",
@@ -561,7 +650,8 @@ export async function notifyAppointmentRequest(
     const seenWa = new Set<string>();
     const tasks: Promise<void>[] = [];
     for (const r of recipients) {
-      const rCopy: Recipient = { label: r.label, locale: r.locale };
+      const rLoc = recipientLocale(r, orgLoc);
+      const rCopy: Recipient = { label: r.label, locale: notifyI18nEnabled() ? rLoc : r.locale };
       if (r.telegram_chat_id && !seenTg.has(r.telegram_chat_id)) {
         rCopy.telegram_chat_id = r.telegram_chat_id;
         rCopy.telegram_enabled = r.telegram_enabled;
@@ -573,14 +663,15 @@ export async function notifyAppointmentRequest(
         seenWa.add(r.whatsapp_number);
       }
       if (rCopy.telegram_chat_id || rCopy.whatsapp_number) {
-        tasks.push(dispatch(rCopy, message, { purpose: "yeni_talep", params: waTemplateParams }));
+        tasks.push(dispatch(rCopy, msgFor(rLoc), { purpose: "yeni_talep", params: waTemplateParams }));
       }
     }
     tasks.push(
-      sendPushToOrg(
+      sendPushToOrgLocalized(
         req.org_id,
-        { title: "📋 Yeni Randevu Talebi", body: `${req.customer_name} · ${serviceName} · ${waDate} ${waTime}`, url: "/dashboard/bekleyen-istekler", tag: `req-${req.id}` },
-        staffTargetId
+        (loc) => ({ title: `📋 ${notifyStrings(loc).requestTitle}`, body: `${req.customer_name} · ${serviceName} · ${waDate} ${waTime}`, url: "/dashboard/bekleyen-istekler", tag: `req-${req.id}` }),
+        staffTargetId,
+        orgLoc
       )
     );
     await Promise.allSettled(tasks);

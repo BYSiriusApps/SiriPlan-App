@@ -36,6 +36,7 @@ import {
   Mic,
   Smartphone
 } from "lucide-react";
+import { tm } from "@/lib/toast-i18n";
 
 export default function RehberPage() {
   const t = useTranslations("dashboard");
@@ -47,7 +48,7 @@ export default function RehberPage() {
   useEffect(() => {
     const preventCopy = (e: ClipboardEvent) => {
       e.preventDefault();
-      toast.error("SiriPlan kılavuz içerikleri telif hakkı ile korunmaktadır ve kopyalanamaz.", {
+      toast.error(tm("copyProtected"), {
         icon: "🔒"
       });
     };
@@ -66,7 +67,7 @@ export default function RehberPage() {
         (e.ctrlKey && e.key === "c")
       ) {
         e.preventDefault();
-        toast.error("Bu sayfada geliştirici araçları ve kopyalama kısıtlanmıştır.", {
+        toast.error(tm("devToolsBlocked"), {
           icon: "🔒"
         });
       }

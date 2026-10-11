@@ -206,7 +206,79 @@ const ar: EmailStrings = {
   birthdayOptOut: 'إذا لم تعد ترغب في تلقّي هذه الرسائل الترويجية، اكتب «إيقاف» للنشاط التجاري.',
 };
 
-const TABLE: Record<EmailLocale, EmailStrings> = { tr, en, ru, ar };
+const de: EmailStrings = {
+  htmlLang: "de", rtl: false, intlLocale: "de-DE",
+  labelDate: "📅 Datum",
+  labelTime: "🕐 Uhrzeit",
+  labelService: "💇 Leistung",
+  labelStaff: "👤 Fachkraft",
+  labelLocation: "📍 Ort",
+  viewOnMap: "Auf der Karte ansehen",
+  footerNote: (org) => `Diese E-Mail wurde von SiriPlan im Auftrag von ${org} gesendet.`,
+  confirmTitle: "Ihr Termin ist bestätigt ✅",
+  confirmIntro: (name) => `Guten Tag <strong>${name}</strong>, Ihr Termin wurde erfolgreich gebucht.`,
+  confirmCancelHint: "Falls Sie nicht kommen können, stornieren Sie bitte mindestens 2 Stunden vorher:",
+  cancelButton: "Termin stornieren",
+  confirmQuestions: (org) => `Bei Fragen wenden Sie sich bitte an <strong>${org}</strong>.`,
+  confirmClosing: "Einen schönen Tag! ✨",
+  confirmSubject: (date, time) => `Ihr Termin ist bestätigt — ${date} ${time}`,
+  reminderTitleImminent: "⏰ Ihr Termin steht bevor!",
+  reminderTitle: "📅 Terminerinnerung",
+  reminderIntroImminent: (name, h) => `Guten Tag <strong>${name}</strong>, Ihr Termin beginnt in <strong>${h} Std.</strong>!`,
+  reminderIntroToday: (name) => `Guten Tag <strong>${name}</strong>, wir möchten Sie an Ihren heutigen Termin erinnern.`,
+  reminderIntroUpcoming: (name) => `Guten Tag <strong>${name}</strong>, wir möchten Sie an Ihren bevorstehenden Termin erinnern.`,
+  detailButton: "Termindetails ansehen",
+  reminderClosing: "Wir freuen uns auf Sie! ✨",
+  reminderSubjectImminent: (h, org) => `⏰ Ihr Termin beginnt in ${h} Std. — ${org}`,
+  reminderSubject: (date, time, org) => `📅 Vergessen Sie Ihren Termin am ${date} ${time} nicht — ${org}`,
+  birthdayTitle: "🎂 Alles Gute zum Geburtstag!",
+  birthdayIntro: (name, org) => `Liebe/r <strong>${name}</strong>, das gesamte Team von <strong>${org}</strong> wünscht Ihnen einen wunderschönen Tag!`,
+  birthdayOffer: "🎁 10 % Rabatt auf Ihren Besuch in diesem Monat!",
+  birthdayCta: "Jetzt Termin buchen →",
+  birthdayClosing: "Wir freuen uns auf Sie! ✨",
+  birthdaySubject: (name, org) => `🎂 Alles Gute zum Geburtstag, ${name}! — ${org}`,
+  birthdayWhatsApp: (name, org, url) =>
+    `🎂 Alles Gute zum Geburtstag, ${name}!\n\nDas gesamte Team von ${org} denkt an Sie an Ihrem besonderen Tag.\n\nWir freuen uns, Sie zu begrüßen und Ihnen ein gutes Gefühl zu geben. Diesen Monat erhalten Sie 10 % Rabatt auf Ihren Besuch! 🎁\n\nTermin buchen: ${url}`,
+  birthdayOptOut: 'Wenn Sie diese Werbenachrichten nicht mehr erhalten möchten, antworten Sie dem Unternehmen einfach mit „STOPP“.',
+};
+
+const es: EmailStrings = {
+  htmlLang: "es", rtl: false, intlLocale: "es-ES",
+  labelDate: "📅 Fecha",
+  labelTime: "🕐 Hora",
+  labelService: "💇 Servicio",
+  labelStaff: "👤 Profesional",
+  labelLocation: "📍 Ubicación",
+  viewOnMap: "Ver en el mapa",
+  footerNote: (org) => `Este correo fue enviado por SiriPlan en nombre de ${org}.`,
+  confirmTitle: "Tu cita está confirmada ✅",
+  confirmIntro: (name) => `Hola <strong>${name}</strong>, tu cita se ha reservado correctamente.`,
+  confirmCancelHint: "Si no puedes venir, cancela al menos 2 horas antes:",
+  cancelButton: "Cancelar cita",
+  confirmQuestions: (org) => `Si tienes alguna pregunta, contacta con <strong>${org}</strong>.`,
+  confirmClosing: "¡Que tengas un buen día! ✨",
+  confirmSubject: (date, time) => `Tu cita está confirmada — ${date} ${time}`,
+  reminderTitleImminent: "⏰ ¡Tu cita se acerca!",
+  reminderTitle: "📅 Recordatorio de cita",
+  reminderIntroImminent: (name, h) => `Hola <strong>${name}</strong>, ¡tu cita es en <strong>${h} h</strong>!`,
+  reminderIntroToday: (name) => `Hola <strong>${name}</strong>, queremos recordarte tu cita de hoy.`,
+  reminderIntroUpcoming: (name) => `Hola <strong>${name}</strong>, queremos recordarte tu próxima cita.`,
+  detailButton: "Ver detalles de la cita",
+  reminderClosing: "¡Te esperamos! ✨",
+  reminderSubjectImminent: (h, org) => `⏰ Tu cita es en ${h} h — ${org}`,
+  reminderSubject: (date, time, org) => `📅 No olvides tu cita del ${date} ${time} — ${org}`,
+  birthdayTitle: "🎂 ¡Feliz cumpleaños!",
+  birthdayIntro: (name, org) => `Querido/a <strong>${name}</strong>, todo el equipo de <strong>${org}</strong> te desea un día maravilloso.`,
+  birthdayOffer: "🎁 ¡10 % de descuento en tu visita de este mes!",
+  birthdayCta: "Reservar ahora →",
+  birthdayClosing: "¡Estaremos encantados de verte! ✨",
+  birthdaySubject: (name, org) => `🎂 ¡Feliz cumpleaños, ${name}! — ${org}`,
+  birthdayWhatsApp: (name, org, url) =>
+    `🎂 ¡Feliz cumpleaños, ${name}!\n\nTodo el equipo de ${org} está contigo en tu día especial.\n\nNos encantará recibirte y ayudarte a sentirte genial. ¡Este mes tienes un 10 % de descuento en tu visita! 🎁\n\nReserva aquí: ${url}`,
+  birthdayOptOut: 'Si ya no deseas recibir estos mensajes promocionales, responde "BAJA" al negocio.',
+};
+
+const TABLE: Record<EmailLocale, EmailStrings> = { tr, en, ru, ar, de, es };
 
 /** Verilen dilin metinleri; tanınmayan/boş dilde Türkçe döner. */
 export function emailStrings(locale?: string | null): EmailStrings {

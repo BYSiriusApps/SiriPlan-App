@@ -3,10 +3,10 @@ import { getActiveMember } from "@/lib/active-org";
 import { redirect, notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { format } from "date-fns";
-import { tr, enUS, ru, ar } from "date-fns/locale";
+import { tr, enUS, ru, ar, de, es } from "date-fns/locale";
 import { DEFAULT_ORG_TIMEZONE, zonedWallDate } from "@/lib/istanbul-time";
 
-const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar, de, es } as const;
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Lock, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { tm } from "@/lib/toast-i18n";
 
 type Phase = "verifying" | "ready" | "invalid" | "done";
 
@@ -85,11 +86,11 @@ export default function YeniSifrePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (password.length < 8) {
-      toast.error("Şifre en az 8 karakter olmalı.");
+      toast.error(tm("pwMin8"));
       return;
     }
     if (password !== confirm) {
-      toast.error("Şifreler eşleşmiyor.");
+      toast.error(tm("pwMismatch"));
       return;
     }
 
@@ -98,7 +99,7 @@ export default function YeniSifrePage() {
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      toast.error("Şifre güncellenemedi: " + error.message);
+      toast.error(tm("pwUpdateFailed", { msg: error.message }));
     } else {
       setPhase("done");
       setTimeout(() => router.push("/dashboard"), 2000);

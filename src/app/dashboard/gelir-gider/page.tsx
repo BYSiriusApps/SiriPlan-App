@@ -22,6 +22,7 @@ import { formatMoney, CURRENCY_SYMBOL } from "@/lib/currency";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { compareValue, buildMonthlySeries } from "@/lib/report-trends";
 import { usePlan } from "@/components/dashboard/PlanContext";
+import { tm } from "@/lib/toast-i18n";
 
 type Expense = {
   id: string;
@@ -249,7 +250,7 @@ export default function GelirGiderPage() {
 
   async function handleSave() {
     if (!form.amount || !form.description || !form.date) {
-      toast.error("Lütfen zorunlu alanları doldurun");
+      toast.error(tm("fillRequired"));
       return;
     }
     setSaving(true);
@@ -287,15 +288,15 @@ export default function GelirGiderPage() {
 
   async function handleDelete(id: string) {
     const res = await fetch(`/api/expenses?id=${id}`, { method: "DELETE" });
-    if (res.ok) { toast.success("Silindi"); fetchData(); }
-    else toast.error("Silinemedi");
+    if (res.ok) { toast.success(tm("deleted")); fetchData(); }
+    else toast.error(tm("deleteFailed"));
   }
 
   // Apply all active templates to the selected month
   async function handleApplyTemplates() {
     const activeCount = recurring.filter((r) => r.is_active).length;
     if (activeCount === 0) {
-      toast.error("Aktif şablon yok — önce şablon ekleyin");
+      toast.error(tm("noActiveTemplate"));
       return;
     }
     setApplyingTemplates(true);
@@ -306,7 +307,7 @@ export default function GelirGiderPage() {
     });
     const data = await res.json();
     if (res.ok) {
-      toast.success(`${data.inserted} sabit gider ${months[month - 1]} ${year}'e eklendi`);
+      toast.success(tm("recurringAdded", { n: data.inserted, month: months[month - 1], year }));
       fetchData();
     } else {
       toast.error(data.error ?? "Uygulama başarısız");
@@ -316,7 +317,7 @@ export default function GelirGiderPage() {
 
   async function handleSaveRecurring() {
     if (!recurringForm.amount || !recurringForm.description) {
-      toast.error("Tutar ve açıklama zorunlu");
+      toast.error(tm("amountDescRequired"));
       return;
     }
     setSavingRecurring(true);
@@ -328,13 +329,13 @@ export default function GelirGiderPage() {
         body: JSON.stringify({ id: editingRecurring.id, ...recurringForm }),
       });
       if (res.ok) {
-        toast.success("Şablon güncellendi");
+        toast.success(tm("templateUpdated"));
         setShowRecurringForm(false);
         setEditingRecurring(null);
         setRecurringForm(EMPTY_RECURRING);
         fetchRecurring();
       } else {
-        toast.error("Güncellenemedi");
+        toast.error(tm("updateFailed"));
       }
     } else {
       const res = await fetch("/api/recurring-expenses", {
@@ -343,12 +344,12 @@ export default function GelirGiderPage() {
         body: JSON.stringify(recurringForm),
       });
       if (res.ok) {
-        toast.success("Şablon eklendi");
+        toast.success(tm("templateAdded"));
         setShowRecurringForm(false);
         setRecurringForm(EMPTY_RECURRING);
         fetchRecurring();
       } else {
-        toast.error("Eklenemedi");
+        toast.error(tm("addFailed"));
       }
     }
     setSavingRecurring(false);
@@ -365,8 +366,8 @@ export default function GelirGiderPage() {
 
   async function handleDeleteRecurring(id: string) {
     const res = await fetch(`/api/recurring-expenses?id=${id}`, { method: "DELETE" });
-    if (res.ok) { toast.success("Şablon silindi"); fetchRecurring(); }
-    else toast.error("Silinemedi");
+    if (res.ok) { toast.success(tm("templateDeleted")); fetchRecurring(); }
+    else toast.error(tm("deleteFailed"));
   }
 
   function openEditRecurring(r: RecurringExpense) {

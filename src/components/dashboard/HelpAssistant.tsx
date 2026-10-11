@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { X, Send, Bot, Minimize2, LifeBuoy, Mic, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useAiAssistant } from "./AiAssistantContext";
 import { useMicAccess } from "./useMicAccess";
 import { usePlan } from "./PlanContext";
+import { tm as tt } from "@/lib/toast-i18n";
 
 interface Message {
   role: "user" | "assistant";
@@ -18,6 +19,7 @@ interface Message {
 export function HelpAssistant() {
   const router = useRouter();
   const t = useTranslations("dashboard.aiAssistant");
+  const uiLocale = useLocale();
   const tm = useTranslations("dashboard.mic");
   const { requestMic, micDialog, speechLang } = useMicAccess();
   const { proTools } = usePlan(); // sesli girdi Pro+ (API'de 403 ile de korunur)
@@ -76,7 +78,7 @@ export function HelpAssistant() {
         setMessages((prev) => [...prev, { role: "assistant", text: data.response || "Komut işlendi." }]);
 
         if (data.actionTaken === "appointment_created") {
-          toast.success("Randevu oluşturuldu!");
+          toast.success(tt("apptCreated"));
           router.refresh();
         } else if (data.actionTaken === "navigate_quickbook") {
           const p = data.parsed || {};
@@ -132,7 +134,7 @@ export function HelpAssistant() {
       const res = await fetch("/api/dashboard-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed }),
+        body: JSON.stringify({ message: trimmed, locale: uiLocale }),
       });
       const data = await res.json();
       setMessages((prev) => [...prev, { role: "assistant", text: data.response ?? t("errorFallback") }]);
@@ -141,7 +143,7 @@ export function HelpAssistant() {
     } finally {
       setLoading(false);
     }
-  }, [loading, t]);
+  }, [loading, t, uiLocale]);
 
   function handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && !e.shiftKey) {

@@ -21,6 +21,7 @@ import { Package, Plus, Loader2, Minus, RotateCcw, Ban } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/currency";
 import type { CustomerPackage } from "@/types/database";
+import { tm } from "@/lib/toast-i18n";
 
 interface ServiceOpt {
   id: string;
@@ -78,7 +79,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
     e.preventDefault();
     const total = parseInt(form.total_sessions, 10);
     if (!form.name.trim() || !Number.isFinite(total) || total < 1) {
-      toast.error("Paket adı ve seans sayısı gerekli");
+      toast.error(tm("packageFields"));
       return;
     }
     setSelling(true);
@@ -102,7 +103,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
         toast.error(json.error ?? "Paket oluşturulamadı");
         return;
       }
-      toast.success("Paket satıldı");
+      toast.success(tm("packageSold"));
       setSellOpen(false);
       setForm((f) => ({ ...f, name: "", price_paid: "", expires_at: "" }));
       await load();
@@ -143,7 +144,7 @@ export default function CustomerPackages({ customerId, customerName, services, c
         toast.error(json.error ?? "İptal edilemedi");
         return;
       }
-      toast.success("Paket iptal edildi");
+      toast.success(tm("packageCancelled"));
       await load();
       router.refresh();
     } finally {

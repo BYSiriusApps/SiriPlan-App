@@ -12,7 +12,7 @@ import { CONSENT_VERSION } from "@/lib/legal/seller";
 
 export const dynamic = "force-dynamic";
 
-// Stripe Checkout'un desteklediği diller. Arapça Stripe'ta yok — 'auto'ya
+// Stripe Checkout'un desteklediği diller (de/es dahil). Arapça Stripe'ta yok — 'auto'ya
 // bırakılırsa tarayıcı diline göre karar verir (genelde İngilizce'ye düşer).
 // Bizim NEXT_LOCALE çerezimiz kullanıcının sitede seçtiği dili yansıttığı
 // için tarayıcı dilinden daha güvenilir; o yüzden burada açıkça eşleniyor.
@@ -21,6 +21,8 @@ const STRIPE_LOCALE: Record<string, Stripe.Checkout.SessionCreateParams.Locale> 
   en: "en",
   ru: "ru",
   ar: "en",
+  de: "de",
+  es: "es",
 };
 
 // TRY ödemede Stripe sayfasının "Abone ol" düğmesi altında gösterilen not
@@ -31,6 +33,8 @@ const FOREIGN_FEE_NOTE: Record<string, string> = {
   en: "Note: Because payment is processed through our merchant account outside Turkey, your card's bank may deduct a 1-3% fee from the transaction amount. This fee goes to your bank, not to SiriPlan.",
   ru: "Примечание: поскольку платёж проходит через наш зарубежный счёт, банк вашей карты может удержать комиссию 1-3% от суммы операции. Эта комиссия идёт банку, а не SiriPlan.",
   ar: "Note: Because payment is processed through our merchant account outside Turkey, your card's bank may deduct a 1-3% fee from the transaction amount. This fee goes to your bank, not to SiriPlan.",
+  de: "Hinweis: Da die Zahlung über unser Händlerkonto außerhalb der Türkei abgewickelt wird, kann die Bank Ihrer Karte eine Gebühr von 1–3 % des Transaktionsbetrags erheben. Diese Gebühr geht an Ihre Bank, nicht an SiriPlan.",
+  es: "Nota: Como el pago se procesa a través de nuestra cuenta comercial fuera de Turquía, el banco de tu tarjeta puede cobrar una comisión del 1-3 % sobre el importe. Esta comisión corresponde a tu banco, no a SiriPlan.",
 };
 
 export async function POST(req: NextRequest) {

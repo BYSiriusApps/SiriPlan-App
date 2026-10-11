@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CreditCard, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { tm } from "@/lib/toast-i18n";
 
 /** Stripe Customer Portal'ı açar — fatura geçmişi, kart güncelleme, iptal oradan yapılır. */
 export function ManageBillingButton({ label }: { label: string }) {
@@ -20,7 +21,7 @@ export function ManageBillingButton({ label }: { label: string }) {
       }
       window.location.href = data.url;
     } catch {
-      toast.error("Bağlantı hatası — tekrar deneyin.");
+      toast.error(tm("connRetry"));
       setLoading(false);
     }
   }

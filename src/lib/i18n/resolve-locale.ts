@@ -6,7 +6,7 @@
  * importlar İÇERMEZ ki proxy.ts'in Edge/Node çalışma zamanında da
  * kullanılabilsin (bkz. mobile-app-shared.ts'teki aynı gerekçe).
  */
-export const LOCALES = ["tr", "en", "ru", "ar"] as const;
+export const LOCALES = ["tr", "en", "ru", "ar", "de", "es"] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export function isLocale(value: string | null | undefined): value is Locale {
@@ -18,11 +18,17 @@ const AR_COUNTRIES = [
   "SA", "AE", "QA", "KW", "BH", "OM", "YE", "IQ", "JO", "LB", "SY", "PS",
   "EG", "LY", "TN", "DZ", "MA", "MR", "SD", "SO", "DJ", "KM",
 ];
+const DE_COUNTRIES = ["DE", "AT", "CH", "LI"];
+const ES_COUNTRIES = [
+  "ES", "MX", "AR", "CO", "CL", "PE", "VE", "EC", "GT", "CU", "BO", "DO", "HN", "PY", "SV", "NI", "CR", "PA", "UY", "PR", "GQ",
+];
 const EUR_COUNTRIES = ["DE", "FR", "ES", "IT", "NL", "BE", "SE", "NO", "DK", "FI", "PL", "CZ", "PT", "IE", "AT", "CH", "LU", "GR", "RO", "HR", "SK", "HU", "SI", "EE", "LV", "LT", "IS", "AD", "MC", "SM", "VA"];
 
 function localeFromCountry(countryCode: string): Locale {
   const normalized = countryCode.toUpperCase();
   if (normalized === "TR") return "tr";
+  if (DE_COUNTRIES.includes(normalized)) return "de";
+  if (ES_COUNTRIES.includes(normalized)) return "es";
   if (EUR_COUNTRIES.includes(normalized)) return "en";
   if (RU_COUNTRIES.includes(normalized)) return "ru";
   if (AR_COUNTRIES.includes(normalized)) return "ar";

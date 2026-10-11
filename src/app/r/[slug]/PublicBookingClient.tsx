@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { NextIntlClientProvider, useTranslations, type AbstractIntlMessages } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Phone } from "lucide-react";
-import { tr, enUS, ru, ar, type Locale as DateFnsLocale } from "date-fns/locale";
+import { tr, enUS, ru, ar, de, es, type Locale as DateFnsLocale } from "date-fns/locale";
 import type { Service, Staff, Organization, ServiceCategory } from "@/types/database";
 import { isSupportedLanguage, type LanguageCode } from "@/lib/languages";
 import { websiteThemeStyle } from "@/lib/website-palettes";
@@ -32,9 +32,11 @@ const MESSAGE_LOADERS: Record<LanguageCode, () => Promise<{ default: unknown }>>
   en: () => import("../../../../messages/en.json"),
   ru: () => import("../../../../messages/ru.json"),
   ar: () => import("../../../../messages/ar.json"),
+  de: () => import("../../../../messages/de.json"),
+  es: () => import("../../../../messages/es.json"),
 };
 
-const DATE_FNS_LOCALES: Record<LanguageCode, DateFnsLocale> = { tr, en: enUS, ru, ar };
+const DATE_FNS_LOCALES: Record<LanguageCode, DateFnsLocale> = { tr, en: enUS, ru, ar, de, es };
 
 export function PublicBookingClient({ slug }: { slug: string }) {
   // Varsayılan dil salonun kendi tercihine göre değişir (org.locale), müşteri

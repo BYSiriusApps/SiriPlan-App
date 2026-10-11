@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getFieldCatalog, type CustomFieldDef } from "@/lib/customer-fields/catalog";
 import type { CustomerMetric } from "@/types/database";
+import { tm } from "@/lib/toast-i18n";
 
 interface Props {
   customerId: string;
@@ -37,7 +38,7 @@ function MetricBlock({ customerId, def }: { customerId: string; def: CustomField
   async function submitAdd() {
     const value = Number(draft);
     if (!Number.isFinite(value)) {
-      toast.error("Geçerli bir değer girin");
+      toast.error(tm("validValue"));
       return;
     }
     try {

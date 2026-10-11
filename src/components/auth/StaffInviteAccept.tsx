@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, CheckCircle2, XCircle, Users, Mail, Lock, User } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { tm } from "@/lib/toast-i18n";
 
 interface InviteInfo {
   role: string;
@@ -85,7 +86,7 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
       toast.error(data.error ?? "Hata oluştu");
       return;
     }
-    toast.success(`${info?.org_name} işletmesine katıldınız!`);
+    toast.success(tm("joinedOrg", { org: info?.org_name ?? "" }));
     // Sunucuda oturum/üyelik değişti — panelin ilk isteğinde en güncel çerezle
     // gitmesi için sert yönlendirme (bkz. /auth/giris'teki aynı desen).
     window.location.href = "/dashboard";
@@ -94,8 +95,8 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     if (!token) return;
-    if (fullName.trim().length < 2) { toast.error("Ad soyad girin"); return; }
-    if (regPassword.length < 8) { toast.error("Şifre en az 8 karakter olmalı"); return; }
+    if (fullName.trim().length < 2) { toast.error(tm("fullNameRequired")); return; }
+    if (regPassword.length < 8) { toast.error(tm("pwMin8")); return; }
 
     setSubmitting(true);
     const res = await fetch("/api/staff/invite/register", {
@@ -114,7 +115,7 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
       }
       return;
     }
-    toast.success(`${info?.org_name} işletmesine katıldınız!`);
+    toast.success(tm("joinedOrg", { org: info?.org_name ?? "" }));
     window.location.href = data.requiresLogin ? "/auth/giris" : "/dashboard";
   }
 
@@ -128,7 +129,7 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      toast.error("Giriş başarısız: " + (err.error || res.statusText));
+      toast.error(tm("loginFailed", { msg: err.error || res.statusText }));
       setSubmitting(false);
       return;
     }

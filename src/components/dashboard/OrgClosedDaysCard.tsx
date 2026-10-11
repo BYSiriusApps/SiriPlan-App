@@ -9,8 +9,9 @@ import { CalendarX, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocale } from "next-intl";
 import { format } from "date-fns";
-import { tr, enUS, ru, ar } from "date-fns/locale";
+import { tr, enUS, ru, ar, de, es } from "date-fns/locale";
 import type { StaffTimeOff } from "@/types/database";
+import { tm } from "@/lib/toast-i18n";
 
 /** İşletme geneli kapalı gün yönetimi (resmi tatil vb.) — staff_id NULL kayıtlar. */
 export function OrgClosedDaysCard() {
@@ -20,7 +21,7 @@ export function OrgClosedDaysCard() {
   const isRu = locale === "ru";
   const isAr = locale === "ar";
 
-  const dateFnsLocale = isTrLocale ? tr : isRu ? ru : isAr ? ar : enUS;
+  const dateFnsLocale = isTrLocale ? tr : isRu ? ru : isAr ? ar : locale === "de" ? de : locale === "es" ? es : enUS;
 
   const [days, setDays] = useState<StaffTimeOff[]>([]);
   const [form, setForm] = useState({ starts_on: "", ends_on: "", reason: "" });
@@ -36,7 +37,7 @@ export function OrgClosedDaysCard() {
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.starts_on || !form.ends_on) return toast.error("Tarih aralığı zorunlu");
+    if (!form.starts_on || !form.ends_on) return toast.error(tm("dateRangeRequired"));
     setAdding(true);
     const res = await fetch("/api/staff-time-off", {
       method: "POST",
@@ -47,7 +48,7 @@ export function OrgClosedDaysCard() {
     if (res.ok) {
       setForm({ starts_on: "", ends_on: "", reason: "" });
       load();
-      toast.success("Kapalı gün eklendi");
+      toast.success(tm("closedDayAdded"));
     } else {
       const err = await res.json();
       toast.error(err.error || "Eklenemedi");
@@ -57,10 +58,21 @@ export function OrgClosedDaysCard() {
   async function handleDelete(id: string) {
     const res = await fetch(`/api/staff-time-off/${id}`, { method: "DELETE" });
     if (res.ok) setDays((prev) => prev.filter((d) => d.id !== id));
-    else toast.error("Silinemedi");
+    else toast.error(tm("deleteFailed"));
   }
 
+  const DE_ES: Record<string, { de: string; es: string }> = {
+    title: { de: "Betriebsweite Schließtage", es: "Días cerrados de todo el negocio" },
+    desc: { de: "Schließtage, die das gesamte Team betreffen, z. B. gesetzliche Feiertage. An diesen Terminen können keine Online-Termine gebucht werden.", es: "Días cerrados que afectan a todo el personal, como los festivos oficiales. En estas fechas no se pueden reservar citas en línea." },
+    starts: { de: "Beginn", es: "Inicio" },
+    ends: { de: "Ende", es: "Fin" },
+    note: { de: "Notiz (optional)", es: "Nota (opcional)" },
+    placeholder: { de: "Gesetzlicher Feiertag...", es: "Festivo oficial..." },
+    addBtn: { de: "Schließtag hinzufügen", es: "Añadir día cerrado" },
+  };
+
   const tStr = (key: string) => {
+    if (locale === "de" || locale === "es") return DE_ES[key]?.[locale] ?? "";
     if (key === "title") return isTrLocale ? "İşletme Geneli Kapalı Günler" : isEn ? "Business-Wide Closed Days" : isRu ? "Выходные дни предприятия" : "الأيام المغلقة على مستوى العمل";
     if (key === "desc") return isTrLocale ? "Resmi tatil gibi tüm personeli etkileyen kapalı günler. Bu tarihlerde hiçbir personel için online randevu alınamaz." : isEn ? "Closed days affecting all staff, such as official holidays. No online appointments can be booked on these dates." : isRu ? "Выходные дни, затрагивающие весь персонал, например официальные праздники. Онлайн-запись на эти даты невозможна." : "أيام مغلقة تؤثر على جميع الموظفين، مثل العطلات الرسمية. لا يمكن حجز مواعيد عبر الإنترنت في هذه التواريخ.";
     if (key === "starts") return isTrLocale ? "Başlangıç" : isEn ? "Start Date" : isRu ? "Начало" : "البداية";

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send, Copy, Check, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import { tm } from "@/lib/toast-i18n";
 
 interface Props {
   customerId: string;
@@ -35,7 +36,7 @@ export default function SendKvkkLinkButton({ customerId, phone, hasKvkk = false 
       // SMS/e-posta ile göndermek isteyen de buradan alabiliyor.
       setResult({ link: data.link, waLink: data.wa_link });
       window.open(data.wa_link, "_blank", "noopener");
-      toast.success("Onay linki hazırlandı (7 gün geçerli).");
+      toast.success(tm("consentLinkReady"));
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -50,7 +51,7 @@ export default function SendKvkkLinkButton({ customerId, phone, hasKvkk = false 
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Kopyalanamadı — linki elle seçip kopyalayın.");
+      toast.error(tm("copyFailed"));
     }
   }
 

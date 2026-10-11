@@ -20,6 +20,7 @@ import { MessageCircle, Calendar, Clock, Loader2, Check, X, Inbox, Package, Aler
 import { InstagramIcon } from "@/components/icons/brand-icons";
 import { toast } from "sonner";
 import { completeAppointmentRequest } from "@/lib/complete-appointment-client";
+import { tm } from "@/lib/toast-i18n";
 
 interface AppointmentRequest {
   id: string;
@@ -189,7 +190,7 @@ export function BekleyenIsteklerClient({
     setTalepBusyId(null);
     if (res.ok) {
       setTalepAppts((prev) => prev.filter((a) => a.id !== id));
-      toast.success("Randevu talebi iptal edildi");
+      toast.success(tm("requestCancelled"));
       router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
@@ -217,7 +218,7 @@ export function BekleyenIsteklerClient({
         prev.map((a) => (a.id === id ? { ...a, proposed_status: "pending", proposed_appointment_at: iso } : a))
       );
       setTalepEditingId(null);
-      toast.success("Yeni saat önerildi, müşteri cevabı bekleniyor");
+      toast.success(tm("newTimeProposed"));
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || "Öneri gönderilemedi");
@@ -237,7 +238,7 @@ export function BekleyenIsteklerClient({
       setTalepAppts((prev) =>
         prev.map((a) => (a.id === id ? { ...a, staff_id: staffId, staff: { full_name: staffName } } : a))
       );
-      toast.success("Personel değiştirildi");
+      toast.success(tm("staffChanged"));
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || "Personel değiştirilemedi");
@@ -275,7 +276,7 @@ export function BekleyenIsteklerClient({
       setRequests((prev) =>
         prev.map((r) => (r.id === id ? { ...r, staff_id: staffId, staff: { full_name: staffName } } : r))
       );
-      toast.success("Personel değiştirildi");
+      toast.success(tm("staffChanged"));
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || "Personel değiştirilemedi");
@@ -308,7 +309,7 @@ export function BekleyenIsteklerClient({
         prev.map((r) => (r.id === id ? { ...r, proposed_status: "pending", proposed_appointment_at: iso } : r))
       );
       setEditingId(null);
-      toast.success("Yeni saat önerildi, müşteri cevabı bekleniyor");
+      toast.success(tm("newTimeProposed"));
     } else {
       const d = await res.json().catch(() => ({}));
       toast.error(d.error || "Öneri gönderilemedi");

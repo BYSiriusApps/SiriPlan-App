@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
 import { ArrowLeft, Wallet, Loader2, CheckCircle2, Info } from "lucide-react";
 import { formatMoney } from "@/lib/currency";
+import { tm } from "@/lib/toast-i18n";
 
 type PayrollRow = {
   staff_id: string;
@@ -80,7 +81,7 @@ export default function MaasHesaplamaPage() {
         // kontrol başarısızsa eski davranış: buton aktif kalır
       }
     } else {
-      toast.error("Yüklenemedi");
+      toast.error(tm("loadFailed"));
     }
     setLoading(false);
   }, [year, month]);
@@ -106,7 +107,7 @@ export default function MaasHesaplamaPage() {
     });
     setSavingId(null);
     if (res.ok) {
-      toast.success(`${row.full_name} için gider kaydedildi`);
+      toast.success(tm("expenseSaved", { name: row.full_name }));
       setSavedIds((prev) => new Set(prev).add(row.staff_id));
     } else {
       const e = await res.json().catch(() => ({}));

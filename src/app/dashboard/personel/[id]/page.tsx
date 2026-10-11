@@ -21,6 +21,7 @@ import { STATUS_LABELS, STATUS_BADGE_CLASSES } from "@/lib/appointment-status";
 import { StaffInviteDialog, PermissionChecklist } from "@/components/dashboard/StaffInviteDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { tm } from "@/lib/toast-i18n";
 
 const DAYS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
@@ -134,7 +135,7 @@ export default function PersonelDetayPage() {
 
   async function handleAddTimeOff(e: React.FormEvent) {
     e.preventDefault();
-    if (!timeOffForm.starts_on || !timeOffForm.ends_on) return toast.error("Tarih aralığı zorunlu");
+    if (!timeOffForm.starts_on || !timeOffForm.ends_on) return toast.error(tm("dateRangeRequired"));
     setAddingTimeOff(true);
     const res = await fetch("/api/staff-time-off", {
       method: "POST",
@@ -145,7 +146,7 @@ export default function PersonelDetayPage() {
     if (res.ok) {
       setTimeOffForm({ starts_on: "", ends_on: "", reason: "" });
       loadTimeOff();
-      toast.success("İzin eklendi");
+      toast.success(tm("timeOffAdded"));
     } else {
       const err = await res.json();
       toast.error(err.error || "İzin eklenemedi");
@@ -157,7 +158,7 @@ export default function PersonelDetayPage() {
     if (res.ok) {
       setTimeOff((prev) => prev.filter((t) => t.id !== toId));
     } else {
-      toast.error("İzin silinemedi");
+      toast.error(tm("timeOffDeleteFailed"));
     }
   }
 
@@ -220,7 +221,7 @@ export default function PersonelDetayPage() {
     fetch(`/api/staff/${id}`)
       .then((r) => r.json())
       .then(({ staff: s }) => {
-        if (!s) { toast.error("Personel bulunamadı"); router.push("/dashboard/personel"); return; }
+        if (!s) { toast.error(tm("staffNotFound")); router.push("/dashboard/personel"); return; }
         setStaff(s);
         setForm({
           full_name: s.full_name,
@@ -241,7 +242,7 @@ export default function PersonelDetayPage() {
           group_label: s.group_label || "",
         });
       })
-      .catch(() => toast.error("Yüklenemedi"))
+      .catch(() => toast.error(tm("loadFailed")))
       .finally(() => setLoading(false));
   }, [id, router]);
 
@@ -256,7 +257,7 @@ export default function PersonelDetayPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.full_name.trim()) return toast.error("İsim zorunlu");
+    if (!form.full_name.trim()) return toast.error(tm("nameRequired"));
     setSaving(true);
     const res = await fetch(`/api/staff/${id}`, {
       method: "PATCH",
@@ -275,7 +276,7 @@ export default function PersonelDetayPage() {
     });
     setSaving(false);
     if (res.ok) {
-      toast.success("Kaydedildi");
+      toast.success(tm("saved"));
       router.refresh();
     } else {
       const err = await res.json();
@@ -288,7 +289,7 @@ export default function PersonelDetayPage() {
     startTransition(async () => {
       const res = await fetch(`/api/staff/${id}`, { method: "DELETE" });
       if (res.ok) {
-        toast.success("Personel pasife alındı");
+        toast.success(tm("staffDeactivated"));
         router.push("/dashboard/personel");
         router.refresh();
       } else {

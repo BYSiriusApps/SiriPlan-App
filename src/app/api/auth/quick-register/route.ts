@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid body" }, { status: 400 });
 
-  const VALID_LOCALES = new Set(["tr", "en", "ru", "ar"]);
+  const VALID_LOCALES = new Set(["tr", "en", "ru", "ar", "de", "es"]);
   const { email, password, salonName, fullName, phone, businessType, timezone, locale, kvkkConsent, marketingConsent } = body as {
     email: string; password: string; salonName: string;
     fullName: string; phone: string; businessType: string;

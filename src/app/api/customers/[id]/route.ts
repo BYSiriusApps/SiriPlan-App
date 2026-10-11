@@ -72,7 +72,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (
     "preferred_language" in updates &&
     updates.preferred_language !== null &&
-    !["tr", "en", "ru", "ar"].includes(updates.preferred_language as string)
+    !["tr", "en", "ru", "ar", "de", "es"].includes(updates.preferred_language as string)
   ) {
     return NextResponse.json({ error: "Geçersiz dil" }, { status: 400 });
   }

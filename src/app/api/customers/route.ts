@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   if (normalizedPhone.length < 10) {
     return NextResponse.json({ error: "Geçersiz telefon numarası" }, { status: 400 });
   }
-  if (preferred_language && !["tr", "en", "ru", "ar"].includes(preferred_language)) {
+  if (preferred_language && !["tr", "en", "ru", "ar", "de", "es"].includes(preferred_language)) {
     return NextResponse.json({ error: "Geçersiz dil" }, { status: 400 });
   }
 

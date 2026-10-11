@@ -22,6 +22,8 @@ const LOCALES = [
   { code: "en", label: "EN", name: "English" },
   { code: "ru", label: "RU", name: "Русский" },
   { code: "ar", label: "AR", name: "العربية" },
+  { code: "de", label: "DE", name: "Deutsch" },
+  { code: "es", label: "ES", name: "Español" },
 ] as const;
 
 export function Navbar() {

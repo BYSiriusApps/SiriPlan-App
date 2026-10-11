@@ -31,6 +31,9 @@ export interface WaInternalTemplateDef {
   metaNameRu?: string | null;
   /** Arapça (ar) karşılığı — Meta onayı bekleniyorsa null. */
   metaNameAr?: string | null;
+  /** Almanca/İspanyolca — WA_TEMPLATES_DE_ES=1 olmadan denenmez. */
+  metaNameDe?: string | null;
+  metaNameEs?: string | null;
   /** {{1}}..{{n}} sırasıyla gövde parametrelerinin kaynak anahtarları. */
   bodyParamOrder: string[];
 }
@@ -42,6 +45,8 @@ export const WA_INTERNAL_TEMPLATES: Record<WaInternalPurpose, WaInternalTemplate
     metaNameEn: "staff_new_appointment",
     metaNameRu: "staff_new_appointment_ru",
     metaNameAr: "staff_new_appointment_ar",
+    metaNameDe: "staff_new_appointment_de",
+    metaNameEs: "staff_new_appointment_es",
     bodyParamOrder: ["business_name", "customer_name", "service_name", "staff_name", "date", "time"],
   },
   yeni_talep: {
@@ -50,6 +55,8 @@ export const WA_INTERNAL_TEMPLATES: Record<WaInternalPurpose, WaInternalTemplate
     metaNameEn: "staff_new_request",
     metaNameRu: "staff_new_request_ru",
     metaNameAr: "staff_new_request_ar",
+    metaNameDe: "staff_new_request_de",
+    metaNameEs: "staff_new_request_es",
     bodyParamOrder: ["business_name", "customer_name", "service_name", "staff_name", "date", "time"],
   },
   kritik_stok: {

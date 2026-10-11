@@ -45,6 +45,8 @@ const LOCALES = [
   { code: "en", label: "EN", flag: "🇬🇧", name: "English" },
   { code: "ru", label: "RU", flag: "🇷🇺", name: "Русский" },
   { code: "ar", label: "AR", flag: "🇸🇦", name: "العربية" },
+  { code: "de", label: "DE", flag: "🇩🇪", name: "Deutsch" },
+  { code: "es", label: "ES", flag: "🇪🇸", name: "Español" },
 ];
 
 const BUSINESS_TYPE_KEYS = [
@@ -419,7 +421,7 @@ export default function KayitPage() {
                   document.cookie = `NEXT_LOCALE=${l.code};path=/;max-age=31536000;samesite=lax`;
                   router.refresh();
                 }}
-                className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md transition-all ${
+                className={`flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1 text-xs font-medium rounded-md transition-all ${
                   selectedLocale === l.code
                     ? "bg-background shadow-sm text-foreground"
                     : "text-muted-foreground hover:text-foreground"

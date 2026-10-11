@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Loader2, Megaphone, Users, Search, X, Check, AlertCircle, Percent } from "lucide-react";
 
 import { maskPhone } from "@/lib/phone";
+import { tm } from "@/lib/toast-i18n";
 
 interface PickerCustomer {
   id: string;
@@ -135,10 +136,10 @@ export default function YeniKampanyaPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitError(null);
-    if (!form.name.trim()) return toast.error("Kampanya adı zorunlu");
-    if (!form.message_template.trim()) return toast.error("Mesaj şablonu zorunlu");
-    if (!kvkkConsent) return toast.error("KVKK onayı zorunludur. Müşterilerin rızasını doğrulayın.");
-    if (!iysConsent) return toast.error("İYS beyanı zorunludur. Ticari elektronik ileti gönderen işletme İYS'ye kayıtlı olmalı ve onayları İYS'ye yüklemiş olmalıdır.");
+    if (!form.name.trim()) return toast.error(tm("campaignNameRequired"));
+    if (!form.message_template.trim()) return toast.error(tm("messageTemplateRequired"));
+    if (!kvkkConsent) return toast.error(tm("kvkkRequired"));
+    if (!iysConsent) return toast.error(tm("iysRequired"));
 
     const segment: Record<string, unknown> = {};
     if (form.type === "inactive") {
@@ -146,7 +147,7 @@ export default function YeniKampanyaPage() {
     }
     // Elle müşteri seçildiyse kampanya yalnızca onlara gider
     if (targetMode === "selected") {
-      if (selectedIds.size === 0) return toast.error("En az bir müşteri seçin veya 'Tüm onaylı müşteriler'i işaretleyin");
+      if (selectedIds.size === 0) return toast.error(tm("selectCustomer"));
       segment.customer_ids = Array.from(selectedIds);
     }
 
@@ -154,9 +155,9 @@ export default function YeniKampanyaPage() {
     let offerPayload: Record<string, unknown> = {};
     if (offerOn) {
       const v = parseFloat(offer.value);
-      if (!(v > 0)) return toast.error("İndirim değeri 0'dan büyük olmalı");
-      if (offer.type === "percent" && v > 100) return toast.error("Yüzde indirim en fazla 100 olabilir");
-      if (!offer.valid_until) return toast.error("İndirim için son geçerlilik tarihi zorunlu");
+      if (!(v > 0)) return toast.error(tm("discountPositive"));
+      if (offer.type === "percent" && v > 100) return toast.error(tm("percentMax"));
+      if (!offer.valid_until) return toast.error(tm("validUntilRequired"));
       offerPayload = {
         discount_type: offer.type,
         discount_value: v,
@@ -184,7 +185,7 @@ export default function YeniKampanyaPage() {
 
       if (res.ok) {
         const data = await res.json();
-        toast.success("Kampanya oluşturuldu — şimdi gönderebilirsiniz");
+        toast.success(tm("campaignCreated"));
         router.push(`/dashboard/kampanyalar/${data.campaign.id}?created=1`);
       } else {
         const err = await res.json().catch(() => ({}));

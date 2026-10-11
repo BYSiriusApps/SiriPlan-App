@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail, Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { tm } from "@/lib/toast-i18n";
 
 export default function DogrulaPage() {
   const [resending, setResending] = useState(false);
@@ -18,7 +19,7 @@ export default function DogrulaPage() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user?.email) {
-      toast.error("Oturum bulunamadı. Lütfen tekrar kayıt olun.");
+      toast.error(tm("sessionNotFound"));
       setResending(false);
       return;
     }
@@ -30,10 +31,10 @@ export default function DogrulaPage() {
     });
 
     if (error) {
-      toast.error("Gönderilemedi: " + error.message);
+      toast.error(tm("sendFailed", { msg: error.message }));
     } else {
       setSent(true);
-      toast.success("Doğrulama e-postası tekrar gönderildi!");
+      toast.success(tm("verifySent"));
     }
     setResending(false);
   }

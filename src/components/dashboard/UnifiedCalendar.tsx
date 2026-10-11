@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useLayoutEffect, useMemo, useRef } 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { tr, enUS, ru, ar } from "date-fns/locale";
+import { tr, enUS, ru, ar, de, es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import {
   X, CheckCircle2, XCircle, AlertCircle, Loader2, ExternalLink,
@@ -28,7 +28,7 @@ import { completeAppointmentRequest } from "@/lib/complete-appointment-client";
 
 export type CalendarView = "day" | "staff" | "week" | "month";
 
-const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar } as const;
+const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar, de, es } as const;
 // Sabit referans hafta (Pzt→Paz) — ay görünümü başlığındaki gün kısaltmalarını
 // aktif dile göre üretmek için kullanılır, yeni çeviri key'i gerektirmez.
 const WEEKDAY_REF_DATES = [

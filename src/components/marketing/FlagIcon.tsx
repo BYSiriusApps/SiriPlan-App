@@ -1,6 +1,6 @@
 // Windows bayrak emojilerini desteklemez ("TR", "GB" harfleri görünür), bu
 // yüzden bayraklar yerel SVG olarak çizilir — harici istek/CSP gerekmez.
-type Code = "tr" | "en" | "ru" | "ar";
+type Code = "tr" | "en" | "ru" | "ar" | "de" | "es";
 
 export function FlagIcon({ code, className = "h-4 w-4" }: { code: Code; className?: string }) {
   return (
@@ -41,6 +41,19 @@ export function FlagIcon({ code, className = "h-4 w-4" }: { code: Code; classNam
             <rect width="24" height="8" y="0" fill="#fff" />
             <rect width="24" height="8" y="8" fill="#0039A6" />
             <rect width="24" height="8" y="16" fill="#D52B1E" />
+          </>
+        )}
+        {code === "de" && (
+          <>
+            <rect width="24" height="8" y="0" fill="#000" />
+            <rect width="24" height="8" y="8" fill="#DD0000" />
+            <rect width="24" height="8" y="16" fill="#FFCE00" />
+          </>
+        )}
+        {code === "es" && (
+          <>
+            <rect width="24" height="24" fill="#AA151B" />
+            <rect width="24" height="12" y="6" fill="#F1BF00" />
           </>
         )}
         {code === "ar" && (

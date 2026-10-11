@@ -51,7 +51,7 @@ const CreateSchema = z.object({
   marketing_consent: z.boolean().optional(),
   kvkk_notice_snapshot: z.string().optional(),
   kvkk_captured_via: z.enum(["inline_web", "staff_attested"]).optional(),
-  preferred_language: z.enum(["tr", "en", "ru", "ar"]).optional(),
+  preferred_language: z.enum(["tr", "en", "ru", "ar", "de", "es"]).optional(),
   // Bot savunması — istemcideki gizli alan ve form açılış damgası
   // (bkz. lib/bot-guard.ts). Panelden gelen isteklerde bulunmaz, o yüzden
   // opsiyonel; kontrol yalnızca anonim akışta uygulanır.

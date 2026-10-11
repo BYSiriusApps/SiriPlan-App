@@ -8,7 +8,7 @@
  * string index'lenir ve tek harfler basılır.
  *
  * İKİ AYRI KONTROL, İKİSİ DE ŞART:
- *   1. Bu betik — KOD'da çağrılan anahtarları dört dile karşı doğrular.
+ *   1. Bu betik — KOD'da çağrılan anahtarları tüm dillere karşı doğrular.
  *   2. Diller arası parite — tr'yi referans alıp en/ru/ar'da eksik/fazla arar.
  *
  * Parite tek başına YETMEZ: bir anahtar dört dilde birden eksikse parite temiz
@@ -22,7 +22,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const LOCALES = ["tr", "en", "ru", "ar"];
+const LOCALES = ["tr", "en", "ru", "ar", "de", "es"];
 const REFERENCE = "tr";
 
 const msgs = {};

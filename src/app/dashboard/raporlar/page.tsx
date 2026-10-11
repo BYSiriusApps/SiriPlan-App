@@ -64,7 +64,7 @@ export default async function RaporlarPage({
     };
   };
 
-  const INTL_LOCALE: Record<string, string> = { tr: "tr-TR", en: "en-US", ru: "ru-RU", ar: "ar-EG" };
+  const INTL_LOCALE: Record<string, string> = { tr: "tr-TR", en: "en-US", ru: "ru-RU", ar: "ar-EG", de: "de-DE", es: "es-ES" };
   const intlLocale = INTL_LOCALE[locale] ?? "tr-TR";
   const getFormattedDate = (date: Date) =>
     date.toLocaleDateString(intlLocale, { day: "numeric", month: "long", year: "numeric", weekday: "long" });
