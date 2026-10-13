@@ -3509,6 +3509,12 @@
       "bekleyen_istek_yok": "Bekleyen istek yok.",
       "link_requests": "Randevu Linkinden Gelen Talepler ({n})"
     },
+    "cerezBandi": {
+      "deneyiminizi_iyilestirmek_ic": "Deneyiminizi iyileştirmek için analiz çerezleri kullanıyoruz. Detaylar için",
+      "gizlilik_politikasi": "Gizlilik Politikası",
+      "reddet": "Reddet",
+      "kabul_et": "Kabul Et"
+    },
     "gelirGider": {
       "gelir": "Gelir",
       "gider": "Gider",
