@@ -1600,7 +1600,11 @@
         "fri": "Viernes",
         "sat": "Sábado",
         "sun": "Domingo"
-      }
+      },
+      "slotBusy": "Ocupado",
+      "slotTakenNow": "Alguien acaba de elegir esta hora. Elige otra, por favor.",
+      "legendFree": "Disponible",
+      "legendBusy": "Ocupado"
     }
   },
   "dashboard": {
@@ -1725,9 +1729,9 @@
       "changeToPlan": "Cambiar al plan {plan}",
       "manageBilling": "Gestionar facturación y método de pago",
       "smsPackTitle": "Créditos SMS",
-      "smsPackDesc": "Envía SMS a tus clientes sin conectar tu propia cuenta de SMS. Un paquete de 1.000 SMS que se reduce a medida que envías; compra uno nuevo cuando se agote. Sin fecha de caducidad.",
+      "smsPackDesc": "Envía SMS a tus clientes sin conectar tu propia cuenta de SMS. Paquetes de 1.000, 5.000 o 10.000 SMS que se reducen a medida que envías; compra uno nuevo cuando se agote. Sin fecha de caducidad.",
       "smsPackBalance": "SMS restantes",
-      "smsPackBuy": "Comprar 1.000 créditos SMS",
+      "smsPackBuy": "Comprar {count} créditos SMS",
       "smsPackHint": "Los créditos se usan cuando las notificaciones SMS están activadas en Configuración y no tienes un proveedor de SMS propio conectado.",
       "addonsTitle": "Complementos",
       "addonBuyMonthly": "Mensual · {price}",

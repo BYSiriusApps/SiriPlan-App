@@ -5,6 +5,8 @@ import { getPlanUsage } from "@/lib/plan-usage";
 import { isMobileApp } from "@/lib/mobile-app";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { formatPrice, getPricingCurrencyFromHeaders } from "@/lib/pricing";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +19,7 @@ import { BuySmsPackButton } from "@/components/dashboard/BuySmsPackButton";
 import { AddonsPanel } from "@/components/dashboard/AddonsPanel";
 import { getBranchInfo } from "@/lib/branches";
 import { getSmsCredits } from "@/lib/sms-credits";
+import { SMS_PACKS } from "@/lib/sms-packs";
 import Link from "next/link";
 
 const PLAN_ORDER: PlanKey[] = ["mini", "starter", "pro", "business"];
@@ -40,6 +43,8 @@ export default async function AbonelikPage({
   const smsPackStatus = smsPackParam === "success" || smsPackParam === "canceled" ? smsPackParam : undefined;
   const t = await getTranslations();
   const locale = await getLocale();
+  // Checkout (api/stripe/sms-pack) ile aynı para birimi tespiti → etiket ile tahsilat tutarı eşleşir.
+  const smsCurrency = getPricingCurrencyFromHeaders(await headers());
   const supabase = await createClient();
   const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
@@ -305,7 +310,11 @@ export default async function AbonelikPage({
               <>
                 <p className="text-sm text-muted-foreground">{t("dashboard.subscriptionPage.smsPackDesc")}</p>
                 <BuySmsPackButton
-                  label={t("dashboard.subscriptionPage.smsPackBuy")}
+                  packs={SMS_PACKS.map((p) => ({
+                    id: p.id,
+                    label: t("dashboard.subscriptionPage.smsPackBuy", { count: new Intl.NumberFormat(locale).format(p.credits) }),
+                    priceLabel: formatPrice(p.prices[smsCurrency], smsCurrency),
+                  }))}
                   errorText={t("dashboard.subscriptionPage.smsPackError")}
                   successText={t("dashboard.subscriptionPage.smsPackSuccess")}
                   canceledText={t("dashboard.subscriptionPage.smsPackCanceled")}
