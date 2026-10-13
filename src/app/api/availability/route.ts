@@ -154,5 +154,37 @@ export async function GET(req: NextRequest) {
       })
     : available;
 
-  return NextResponse.json({ slots: finalSlots });
+  // Randevu sayfası için EK bilgiler (geriye dönük uyumlu: `slots` aynen kalır):
+  //  - busy: personelin mevcut randevularıyla dolu görünen saatler (kırmızı "Dolu")
+  //  - held: başka bir ziyaretçinin şu an seçmekte olduğu saatler (bu personel)
+  //  - held_any: "Farketmez" seçen başka ziyaretçilerin tuttuğu saatler (saat → adet)
+  // slot_holds tablosu yoksa / hata verirse bunlar boş döner; ana akış etkilenmez.
+  const availableSet = new Set(finalSlots);
+  const todayMinutes = date === todayStr ? istanbulMinutesOfDay(now, timeZone) + 30 : -1;
+  const busy = allSlots.filter((s) => {
+    if (availableSet.has(s)) return false;
+    const [h, m] = s.split(":").map(Number);
+    return h * 60 + m > todayMinutes; // geçmiş saatler "dolu" diye gösterilmez
+  });
+
+  const holder = searchParams.get("holder") || "";
+  const held: string[] = [];
+  const heldAny: Record<string, number> = {};
+  try {
+    const { data: holds } = await supabase
+      .from("slot_holds")
+      .select("slot, staff_id, holder_id")
+      .eq("org_id", orgRow.id)
+      .eq("hold_date", date)
+      .gt("expires_at", new Date().toISOString());
+    for (const h of holds || []) {
+      if (h.holder_id === holder) continue; // kendi kilidimiz bize "dolu" görünmez
+      if (h.staff_id === staffId) held.push(h.slot);
+      else if (h.staff_id === null) heldAny[h.slot] = (heldAny[h.slot] || 0) + 1;
+    }
+  } catch {
+    /* kilit tablosu yok: kilitsiz devam */
+  }
+
+  return NextResponse.json({ slots: finalSlots, busy, held, held_any: heldAny });
 }

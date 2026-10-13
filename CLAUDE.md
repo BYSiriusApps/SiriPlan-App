@@ -24,3 +24,25 @@ Bu depoda yapılan HER değişiklikte, ayrıca hatırlatılmasa bile:
 
 Bu kurallar riskli/belirsiz bir değişiklik yapmadan önce her zaman geçerlidir;
 kullanıcının ayrıca tekrar etmesine gerek yok.
+
+# Test kuralı: demo hesapta bildirim numaraları (her test aşamasında)
+
+Demo org (**Sirius Demo Güzellik Salonu**, slug `sirius-demo-salon`) üzerinde
+randevu onay / revize / iptal / yeni saat önerisi gibi bildirim ve mesaj (WhatsApp,
+SMS, Telegram, push) üreten HER testte, mesajlar gerçek müşteri numaralarına
+değil aşağıdaki test numaralarına gitmelidir:
+
+- **Hesap sahibi (owner) numarası:** `5553287509` (E.164: `+905553287509`)
+- **Personel numarası** (randevuya personel atanmışsa / seçiliyse): `5355032634`
+  (E.164: `+905355032634`)
+
+Uygulama:
+- Teste başlamadan önce demo org sahibinin ve test için seçilen personelin telefon
+  alanını bu numaralara ayarla; test randevusunda müşteri telefonu olarak da bu
+  numaralardan birini kullan. Gerçek görünümlü `05xx` demo müşteri numaralarına
+  asla mesaj tetikleme.
+- Personel seçili değilse yalnızca sahip numarasına gitmeli; personel seçiliyse
+  hem sahip (`5553287509`) hem personel (`5355032634`) bildirimi doğrulanmalı.
+- Bu numaralar yalnızca demo/test org'u içindir; başka kiracıya (organizasyona)
+  dokunma, canlı müşteri verisini değiştirme.
+- Test bitince oluşturulan test randevularını iptal/temizle (müşteri kaydı silinmez).
