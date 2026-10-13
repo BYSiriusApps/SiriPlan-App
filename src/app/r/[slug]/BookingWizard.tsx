@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle2, ChevronRight, ChevronLeft, Calendar, Clock } from "lucide-react";
+import { Loader2, CheckCircle2, ChevronRight, ChevronLeft, Calendar, Clock, Ban } from "lucide-react";
 import { toast } from "sonner";
 import { format, addDays, type Locale as DateFnsLocale } from "date-fns";
 import type { Service, Staff } from "@/types/database";
@@ -19,6 +19,45 @@ import { formatServicePrice } from "@/lib/currency";
 import { isSupportedLanguage, type LanguageCode } from "@/lib/languages";
 import type { SalonData } from "./booking-shared";
 import { buildCategoryGroups } from "./booking-shared";
+
+type AvailResp = { slots?: string[]; busy?: string[]; held?: string[]; held_any?: Record<string, number> };
+
+function makeHolderId(): string {
+  try {
+    return crypto.randomUUID().replace(/-/g, "");
+  } catch {
+    return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+  }
+}
+
+/**
+ * Personel bazlı müsaitlik yanıtlarını tek listeye indirger.
+ * free: tıklanabilir saatler. full: kırmızı "Dolu" gösterilecek saatler
+ * (randevuyla dolu YA DA başka ziyaretçi şu an seçmiş). "Farketmez"de bir saat,
+ * müsait personel sayısı bekleyen "Farketmez" seçimlerinden fazlaysa serbesttir.
+ */
+function mergeAvailability(results: AvailResp[], anyStaff: boolean): { free: string[]; full: string[] } {
+  const known = new Set<string>();
+  const freeCount = new Map<string, number>();
+  let heldAny: Record<string, number> = {};
+  for (const r of results) {
+    const held = new Set(r.held ?? []);
+    for (const s of r.slots ?? []) {
+      known.add(s);
+      if (!held.has(s)) freeCount.set(s, (freeCount.get(s) ?? 0) + 1);
+    }
+    for (const s of r.busy ?? []) known.add(s);
+    if (r.held_any) heldAny = r.held_any;
+  }
+  const free: string[] = [];
+  const full: string[] = [];
+  for (const s of known) {
+    const reserved = anyStaff ? heldAny[s] ?? 0 : 0;
+    if ((freeCount.get(s) ?? 0) > reserved) free.push(s);
+    else full.push(s);
+  }
+  return { free: free.sort(), full: full.sort() };
+}
 
 export function ServiceButton({
   service, index, onSelect, label, displayName,
@@ -103,6 +142,13 @@ export function BookingWizard({
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedSlot, setSelectedSlot] = useState<string>("");
   const [slots, setSlots] = useState<string[]>([]);
+  // Dolu görünen saatler (mevcut randevu YA DA başka ziyaretçinin geçici seçimi): kırmızı, tıklanamaz.
+  const [fullSlots, setFullSlots] = useState<string[]>([]);
+  // Bu ziyaretçinin rastgele kimliği — geçici saat kilidinde "kendi seçimim" ile "başkasının seçimi"ni ayırır.
+  const [holderId] = useState(() => makeHolderId());
+  const holdActive = useRef(false);
+  const selectedSlotRef = useRef("");
+  const slotsReq = useRef(0);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -177,21 +223,126 @@ export function BookingWizard({
   }, [staff, staffServiceMap, selectedService]);
 
   // Müsait saatler — "Farketmez" seçiliyse tüm aday personelin müsaitliği birleştirilir.
-  useEffect(() => {
+  // Dolu saatler (randevu ya da başka ziyaretçinin geçici seçimi) ayrıca döner ve kırmızı gösterilir.
+  const loadSlots = useCallback(async (silent: boolean) => {
     if ((!selectedStaff && !anyStaff) || !selectedService || !selectedDate) return;
-    setLoadingSlots(true);
+    const req = ++slotsReq.current;
+    if (!silent) setLoadingSlots(true);
     const candidateStaff = anyStaff ? eligibleStaff : selectedStaff ? [selectedStaff] : [];
-    Promise.all(
-      candidateStaff.map((s) =>
-        fetch(`/api/availability?slug=${org.slug}&staff_id=${s.id}&service_id=${selectedService.id}&date=${selectedDate}`)
-          .then((r) => r.json())
-          .then((d) => (d.slots as string[] | undefined) || [])
-          .catch(() => [])
-      )
-    )
-      .then((lists) => setSlots(Array.from(new Set(lists.flat())).sort()))
-      .finally(() => setLoadingSlots(false));
-  }, [selectedStaff, anyStaff, eligibleStaff, selectedService, selectedDate, org.slug]);
+    try {
+      const results = await Promise.all(
+        candidateStaff.map((s) =>
+          fetch(`/api/availability?slug=${org.slug}&staff_id=${s.id}&service_id=${selectedService.id}&date=${selectedDate}&holder=${holderId}`)
+            .then((r) => r.json() as Promise<AvailResp>)
+            .catch(() => ({}) as AvailResp)
+        )
+      );
+      if (req !== slotsReq.current) return; // daha yeni bir istek var
+      const { free, full } = mergeAvailability(results, anyStaff);
+      setSlots(free);
+      setFullSlots(full);
+      // Seçili saat bu arada doldu (başkası randevu aldı): seçimi temizle.
+      if (silent && selectedSlotRef.current && !free.includes(selectedSlotRef.current)) {
+        setSelectedSlot("");
+        toast.error(t("slotTakenNow"));
+      }
+    } finally {
+      if (!silent && req === slotsReq.current) setLoadingSlots(false);
+    }
+  }, [selectedStaff, anyStaff, eligibleStaff, selectedService, selectedDate, org.slug, holderId, t]);
+
+  useEffect(() => { selectedSlotRef.current = selectedSlot; }, [selectedSlot]);
+
+  useEffect(() => { void loadSlots(false); }, [loadSlots]);
+
+  // Başkalarının seçimlerini yakın gerçek zamanlı göstermek için saat adımında 10 sn'de bir sessiz yenileme
+  // (sekme arka plandayken durur).
+  useEffect(() => {
+    if (step !== 1 || !selectedDate || done) return;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") void loadSlots(true);
+    }, 10_000);
+    return () => clearInterval(id);
+  }, [step, selectedDate, done, loadSlots]);
+
+  // --- Geçici saat kilidi (soft hold) ---------------------------------------------------
+  // Hata/ağ sorunu olursa kilitsiz devam edilir: randevu alma akışı buna bağımlı değildir.
+  const claimHold = useCallback(async (slot: string): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/public/slot-hold", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug: org.slug,
+          holder_id: holderId,
+          staff_id: anyStaff ? null : selectedStaff?.id ?? null,
+          date: selectedDate,
+          slot,
+        }),
+      });
+      if (res.status === 409) return false;
+      const d = await res.json().catch(() => null);
+      holdActive.current = !!d?.held;
+      return true;
+    } catch {
+      return true;
+    }
+  }, [org.slug, holderId, anyStaff, selectedStaff, selectedDate]);
+
+  const releaseHold = useCallback(() => {
+    if (!holdActive.current) return;
+    holdActive.current = false;
+    fetch("/api/public/slot-hold", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: org.slug, holder_id: holderId, action: "release" }),
+      keepalive: true,
+    }).catch(() => {});
+  }, [org.slug, holderId]);
+
+  async function pickSlot(slot: string) {
+    if (slot === selectedSlot) return;
+    setSelectedSlot(slot);
+    const ok = await claimHold(slot);
+    if (!ok && selectedSlotRef.current === slot) {
+      setSelectedSlot("");
+      toast.error(t("slotTakenNow"));
+      void loadSlots(true);
+    }
+  }
+
+  // Seçim kalktığında (başka saat/personel/tarih, sıfırlama) ya da randevu tamamlanınca kilidi bırak.
+  useEffect(() => { if (!selectedSlot || done) releaseHold(); }, [selectedSlot, done, releaseHold]);
+
+  // Seçili saat için kilidi canlı tut (süre ~4 dk; 90 sn'de bir yenile).
+  useEffect(() => {
+    if (!selectedSlot || done) return;
+    const id = setInterval(() => {
+      void claimHold(selectedSlot).then((ok) => {
+        if (!ok && selectedSlotRef.current === selectedSlot) {
+          setSelectedSlot("");
+          toast.error(t("slotTakenNow"));
+        }
+      });
+    }, 90_000);
+    return () => clearInterval(id);
+  }, [selectedSlot, done, claimHold, t]);
+
+  // Sekme kapanırken / sayfadan çıkarken kilidi bırak.
+  useEffect(() => {
+    const onLeave = () => {
+      if (!holdActive.current) return;
+      holdActive.current = false;
+      try {
+        navigator.sendBeacon(
+          "/api/public/slot-hold",
+          new Blob([JSON.stringify({ slug: org.slug, holder_id: holderId, action: "release" })], { type: "application/json" })
+        );
+      } catch { /* kilit zaten kısa sürede kendiliğinden düşer */ }
+    };
+    window.addEventListener("pagehide", onLeave);
+    return () => { window.removeEventListener("pagehide", onLeave); onLeave(); };
+  }, [org.slug, holderId]);
 
   async function handleSubmit() {
     if (!selectedService || (!selectedStaff && !anyStaff) || !selectedDate || !selectedSlot || !kvkkAccepted) return;
@@ -258,6 +409,7 @@ export function BookingWizard({
     setSelectedDate("");
     setSelectedSlot("");
     setSlots([]);
+    setFullSlots([]);
     setForm({ name: "", phone: "", email: "", note: "", website: "" });
     setKvkkAccepted(false);
     setMarketingAccepted(false);
@@ -551,23 +703,47 @@ export function BookingWizard({
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span className="text-sm">{t("loadingSlots")}</span>
                 </div>
-              ) : slots.length === 0 ? (
+              ) : slots.length === 0 && fullSlots.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-3">{t("noSlotsAvailable")}</p>
               ) : (
-                <div className="grid grid-cols-4 gap-2">
-                  {slots.map((slot) => (
-                    <button
-                      key={slot}
-                      onClick={() => setSelectedSlot(slot)}
-                      className={`py-2.5 rounded-xl border-2 text-sm font-semibold tabular-nums transition-all ${
-                        selectedSlot === slot ? "border-primary text-primary-foreground shadow-md shadow-primary/25 scale-[1.03]" : "border-border bg-card/60 hover:border-primary/50"
-                      }`}
-                      style={selectedSlot === slot ? { background: "linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--accent) 55%, var(--primary)))" } : undefined}
-                    >
-                      {slot}
-                    </button>
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-3 min-[400px]:grid-cols-4 gap-2">
+                    {[...slots.map((x) => ({ x, full: false })), ...fullSlots.map((x) => ({ x, full: true }))]
+                      .sort((p, q) => p.x.localeCompare(q.x))
+                      .map(({ x: slot, full }) =>
+                        full ? (
+                          <button
+                            key={slot}
+                            type="button"
+                            disabled
+                            aria-disabled="true"
+                            aria-label={`${slot} — ${t("slotBusy")}`}
+                            className="py-2 rounded-xl border-2 border-red-200 bg-red-50 text-red-600/80 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400/80 text-sm font-semibold tabular-nums cursor-not-allowed select-none"
+                          >
+                            <span>{slot}</span>
+                            <span className="block text-[10px] font-medium leading-none mt-0.5">{t("slotBusy")}</span>
+                          </button>
+                        ) : (
+                          <button
+                            key={slot}
+                            onClick={() => void pickSlot(slot)}
+                            className={`py-2.5 rounded-xl border-2 text-sm font-semibold tabular-nums transition-all ${
+                              selectedSlot === slot ? "border-primary text-primary-foreground shadow-md shadow-primary/25 scale-[1.03]" : "border-border bg-card/60 hover:border-primary/50"
+                            }`}
+                            style={selectedSlot === slot ? { background: "linear-gradient(135deg, var(--primary), color-mix(in oklch, var(--accent) 55%, var(--primary)))" } : undefined}
+                          >
+                            {slot}
+                          </button>
+                        )
+                      )}
+                  </div>
+                  {fullSlots.length > 0 && (
+                    <div className="flex items-center gap-4 mt-3 text-[11px] text-muted-foreground">
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full border-2 border-border bg-card" />{t("legendFree")}</span>
+                      <span className="flex items-center gap-1.5"><Ban className="h-3 w-3 text-red-500" />{t("legendBusy")}</span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
