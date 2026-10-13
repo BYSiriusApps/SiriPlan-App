@@ -11,10 +11,12 @@ import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 const DAYS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
 export default function PersonelYeniPage() {
+  const tp = useTranslations("panelPages.personelYeni");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -78,7 +80,7 @@ export default function PersonelYeniPage() {
       router.refresh();
     } else {
       const e = await res.json();
-      toast.error(e.error || "Hata oluştu");
+      toast.error(e.error || tp("hata_olustu"));
     }
   }
 
@@ -88,35 +90,35 @@ export default function PersonelYeniPage() {
         <Link href="/dashboard/personel" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-xl font-bold brand-gradient-text">Yeni Personel Ekle</h1>
+        <h1 className="text-xl font-bold brand-gradient-text">{tp("yeni_personel_ekle")}</h1>
       </div>
 
       <Card className="kpi-tile border-0 shadow-none">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Personel Bilgileri</CardTitle>
+          <CardTitle className="text-base">{tp("personel_bilgileri")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2 space-y-1">
-                <Label>Ad Soyad *</Label>
+                <Label>{tp("ad_soyad")}</Label>
                 <Input
                   value={form.full_name}
                   onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
-                  placeholder="Personel adı"
+                  placeholder={tp("personel_adi")}
                   required
                 />
               </div>
               <div className="space-y-1">
-                <Label>Unvan / Rol</Label>
+                <Label>{tp("unvan_rol")}</Label>
                 <Input
                   value={form.role}
                   onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-                  placeholder="Uzman, Asistan..."
+                  placeholder={tp("uzman_asistan")}
                 />
               </div>
               <div className="space-y-1">
-                <Label>Komisyon (%)</Label>
+                <Label>{tp("komisyon")}</Label>
                 <Input
                   type="number"
                   min="0"
@@ -126,7 +128,7 @@ export default function PersonelYeniPage() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Sabit Taban Maaş (₺)</Label>
+                <Label>{tp("sabit_taban_maas")}</Label>
                 <Input
                   type="number"
                   min="0"
@@ -137,12 +139,12 @@ export default function PersonelYeniPage() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Grup</Label>
+                <Label>{tp("grup")}</Label>
                 <Input
                   list="staff-group-suggestions"
                   value={form.group_label}
                   onChange={(e) => setForm((f) => ({ ...f, group_label: e.target.value }))}
-                  placeholder="Makyöz, Kuaför, Grup 1..."
+                  placeholder={tp("makyoz_kuafor_grup_1")}
                 />
                 <datalist id="staff-group-suggestions">
                   {existingGroups.map((g) => (
@@ -150,11 +152,11 @@ export default function PersonelYeniPage() {
                   ))}
                 </datalist>
                 <p className="text-[11px] text-muted-foreground">
-                  Takvimde personeli hızlı filtrelemek için (opsiyonel).
+                  {tp("takvimde_personeli_hizli_fil")}
                 </p>
               </div>
               <div className="space-y-1">
-                <Label>Telefon</Label>
+                <Label>{tp("telefon")}</Label>
                 <Input
                   type="tel"
                   value={form.phone}
@@ -163,7 +165,7 @@ export default function PersonelYeniPage() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>E-posta</Label>
+                <Label>{tp("e_posta")}</Label>
                 <Input
                   type="email"
                   value={form.email}
@@ -172,13 +174,13 @@ export default function PersonelYeniPage() {
                 />
               </div>
               <div className="col-span-2 space-y-1">
-                <Label>Tercih Edilen Dil</Label>
+                <Label>{tp("tercih_edilen_dil")}</Label>
                 <select
                   value={form.preferred_language}
                   onChange={(e) => setForm((f) => ({ ...f, preferred_language: e.target.value }))}
                   className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
                 >
-                  <option value="">Belirtilmedi</option>
+                  <option value="">{tp("belirtilmedi")}</option>
                   {SUPPORTED_LANGUAGES.map((l) => (
                     <option key={l.code} value={l.code}>
                       {l.flag} {l.name}
@@ -186,17 +188,17 @@ export default function PersonelYeniPage() {
                   ))}
                 </select>
                 <p className="text-[11px] text-muted-foreground">
-                  Personel giriş yaptığında panel bu dilde açılır.
+                  {tp("personel_giris_yaptiginda_pa")}
                 </p>
               </div>
             </div>
 
             {/* Working hours */}
             <div className="space-y-2 pt-2 border-t">
-              <Label className="text-sm font-medium">Çalışma Saatleri</Label>
+              <Label className="text-sm font-medium">{tp("calisma_saatleri")}</Label>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Başlangıç</Label>
+                  <Label className="text-xs text-muted-foreground">{tp("baslangic")}</Label>
                   <Input
                     type="time"
                     value={form.start_time}
@@ -204,7 +206,7 @@ export default function PersonelYeniPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Bitiş</Label>
+                  <Label className="text-xs text-muted-foreground">{tp("bitis")}</Label>
                   <Input
                     type="time"
                     value={form.end_time}
@@ -216,7 +218,7 @@ export default function PersonelYeniPage() {
 
             {/* Working days */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Çalışma Günleri</Label>
+              <Label className="text-sm font-medium">{tp("calisma_gunleri")}</Label>
               <div className="flex gap-2">
                 {DAYS.map((day, i) => (
                   <button
@@ -229,7 +231,7 @@ export default function PersonelYeniPage() {
                         : "border-border hover:bg-accent"
                     }`}
                   >
-                    {day}
+                    {tp(`day_${i}`)}
                   </button>
                 ))}
               </div>
@@ -237,7 +239,7 @@ export default function PersonelYeniPage() {
 
             <Button type="submit" className="w-full mt-2" disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Personel Ekle
+              {tp("personel_ekle")}
             </Button>
           </form>
         </CardContent>

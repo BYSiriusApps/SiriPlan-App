@@ -91,6 +91,7 @@ const EMPTY_ITEM = {
 };
 
 export default function StokPage() {
+  const tp = useTranslations("panelPages.stok");
   const router = useRouter();
   const t = useTranslations("dashboard");
   const tm = useTranslations("dashboard.mic");
@@ -411,13 +412,13 @@ export default function StokPage() {
         }),
       });
       if (res.ok) {
-        toast.success(isEdit ? "Ürün güncellendi" : "Yeni ürün eklendi");
+        toast.success(isEdit ? tp("urun_guncellendi") : tp("yeni_urun_eklendi"));
         setShowItemModal(false);
         fetchData();
         router.refresh();
       } else {
         const d = await res.json().catch(() => ({}));
-        toast.error(d.error || "Kayıt başarısız");
+        toast.error(d.error || tp("kayit_basarisiz"));
       }
     } catch {
       toast.error(tt("saveFailed"));
@@ -427,7 +428,7 @@ export default function StokPage() {
   }
 
   async function handleDeleteItem(id: string) {
-    if (!confirm("Bu ürünü silmek istediğinize emin misiniz?")) return;
+    if (!confirm(tp("bu_urunu_silmek_istediginize"))) return;
     try {
       const res = await fetch(`/api/inventory?id=${id}`, { method: "DELETE" });
       if (res.ok) {
@@ -482,7 +483,7 @@ export default function StokPage() {
         fetchData();
         router.refresh();
       } else {
-        toast.error(d.error || "İşlem başarısız");
+        toast.error(d.error || tp("islem_basarisiz"));
       }
     } catch {
       toast.error(tt("opFailed"));
@@ -613,7 +614,7 @@ export default function StokPage() {
         `<img src="${dataUrl}" style="width:220px;height:220px" alt="barcode"/>` +
         `<div style="font-size:15px;font-weight:600;margin-top:8px">${item.name}</div>` +
         `<div style="font-family:monospace;font-size:13px;color:#555;margin-top:2px">${item.barcode}</div>` +
-        `<button onclick="window.print()" style="margin-top:16px;padding:8px 20px;font-size:14px;cursor:pointer">Yazdır</button>` +
+        `<button onclick="window.print()" style="margin-top:16px;padding:8px 20px;font-size:14px;cursor:pointer">${tp("print")}</button>` +
         `</body></html>`
       );
       w.document.close();
@@ -949,7 +950,7 @@ export default function StokPage() {
                               size="sm"
                               variant="ghost"
                               className="h-7 w-7 p-0 text-muted-foreground hover:text-red-600"
-                              title="Sil"
+                              title={tp("sil")}
                               onClick={() => handleDeleteItem(item.id)}
                             >
                               <Trash2 className="h-3.5 w-3.5" />

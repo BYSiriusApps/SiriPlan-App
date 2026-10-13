@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 import { format } from "date-fns";
 import { tr, enUS, ru, ar, de, es } from "date-fns/locale";
 import { DEFAULT_ORG_TIMEZONE, zonedWallDate } from "@/lib/istanbul-time";
+import { getTranslations } from "next-intl/server";
 
 const DATE_FNS_LOCALES = { tr, en: enUS, ru, ar, de, es } as const;
 import type { Appointment, Organization } from "@/types/database";
@@ -23,6 +24,7 @@ export default async function AdisyonPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const tp = await getTranslations("panelPages.randevuDetay");
   const { id } = await params;
   const locale = await getLocale();
   const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof typeof DATE_FNS_LOCALES] ?? tr;
@@ -57,7 +59,7 @@ export default async function AdisyonPage({
   return (
     <div className="p-6 max-w-md mx-auto space-y-4 print:p-0 print:max-w-none">
       <div className="flex items-center justify-between print:hidden">
-        <h1 className="text-lg font-bold">Adisyon</h1>
+        <h1 className="text-lg font-bold">{tp("adisyon")}</h1>
         <PrintButton />
       </div>
 
@@ -76,15 +78,15 @@ export default async function AdisyonPage({
 
         <div className="border-t border-dashed pt-4 text-sm space-y-1.5">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Tarih</span>
+            <span className="text-muted-foreground">{tp("tarih")}</span>
             <span className="tabular-nums">{format(zonedWallDate(new Date(a.appointment_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMMM yyyy, HH:mm", { locale: dateFnsLocale })}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Müşteri</span>
+            <span className="text-muted-foreground">{tp("musteri")}</span>
             <span>{a.customer_name}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Personel</span>
+            <span className="text-muted-foreground">{tp("personel")}</span>
             <span>{a.staff?.full_name ?? "—"}</span>
           </div>
         </div>
@@ -93,8 +95,8 @@ export default async function AdisyonPage({
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-muted-foreground text-left">
-                <th className="font-medium pb-2">Hizmet</th>
-                <th className="font-medium pb-2 text-right">Tutar</th>
+                <th className="font-medium pb-2">{tp("hizmet")}</th>
+                <th className="font-medium pb-2 text-right">{tp("tutar")}</th>
               </tr>
             </thead>
             <tbody className="tabular-nums">
@@ -105,7 +107,7 @@ export default async function AdisyonPage({
                     <td className="py-1 text-right">{formatMoney(Number(a.price) + Number(a.discount_amount), currency, locale)}</td>
                   </tr>
                   <tr>
-                    <td className="py-1 text-muted-foreground">Kampanya indirimi</td>
+                    <td className="py-1 text-muted-foreground">{tp("kampanya_indirimi")}</td>
                     <td className="py-1 text-right">−{formatMoney(Number(a.discount_amount), currency, locale)}</td>
                   </tr>
                 </>
@@ -117,7 +119,7 @@ export default async function AdisyonPage({
               )}
               {Number(a.tip) > 0 && (
                 <tr>
-                  <td className="py-1 text-muted-foreground">Bahşiş</td>
+                  <td className="py-1 text-muted-foreground">{tp("bahsis")}</td>
                   <td className="py-1 text-right">{formatMoney(Number(a.tip), currency, locale)}</td>
                 </tr>
               )}
@@ -126,18 +128,18 @@ export default async function AdisyonPage({
         </div>
 
         <div className="border-t border-dashed pt-4 flex justify-between items-center">
-          <span className="font-semibold">Toplam</span>
+          <span className="font-semibold">{tp("toplam")}</span>
           <span className="font-bold text-lg tabular-nums">{formatMoney(total, currency, locale)}</span>
         </div>
 
         {a.payment_method && (
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Ödeme Yöntemi</span>
-            <span>{PAYMENT_LABELS[a.payment_method] ?? a.payment_method}</span>
+            <span className="text-muted-foreground">{tp("odeme_yontemi")}</span>
+            <span>{a.payment_method in PAYMENT_LABELS ? tp(`pay_${a.payment_method}`) : a.payment_method}</span>
           </div>
         )}
 
-        <p className="text-center text-[11px] text-muted-foreground pt-2">Bizi tercih ettiğiniz için teşekkür ederiz.</p>
+        <p className="text-center text-[11px] text-muted-foreground pt-2">{tp("bizi_tercih_ettiginiz_icin")}</p>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { CookieConsent } from "@/components/analytics/CookieConsent";
 import { CSP_NONCE_HEADER } from "@/lib/csp";
@@ -135,6 +135,13 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
+  const tCookie = await getTranslations("panelPages.cerezBandi");
+  const cookieLabels = {
+    text: tCookie("deneyiminizi_iyilestirmek_ic"),
+    policy: tCookie("gizlilik_politikasi"),
+    reject: tCookie("reddet"),
+    accept: tCookie("kabul_et"),
+  };
   // Panel sayfalarında (bkz. lib/csp.ts) CSP nonce'lu çalışır; buradaki inline
   // script'ler imzalanmazsa tarayıcı onları sessizce engeller. Nonce'suz
   // yollarda (pazarlama, /r/[slug]) başlık boştur ve öznitelik hiç basılmaz —
@@ -246,7 +253,7 @@ export default async function RootLayout({
           `}
         </Script>
         {/* Google Analytics 4 — yalnızca çerez onayından sonra yüklenir, bkz CookieConsent */}
-        <CookieConsent nonce={nonce} mobileApp={mobileApp} />
+        <CookieConsent nonce={nonce} mobileApp={mobileApp} labels={cookieLabels} />
         {/* Vercel Analytics & Speed Insights */}
         <Analytics />
         <SpeedInsights />

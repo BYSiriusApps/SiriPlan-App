@@ -16,6 +16,8 @@ import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { DEFAULT_ORG_TIMEZONE, zonedWallDate } from "@/lib/istanbul-time";
 import type { Campaign } from "@/types/database";
+import { dateFnsLocaleOf } from "@/lib/date-fns-locale";
+import { getLocale } from "next-intl/server";
 
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof CheckCircle2; className: string }> = {
   draft:     { label: "Taslak",    icon: Clock,          className: "bg-gray-100 text-gray-700 dark:bg-gray-900/30" },
@@ -32,6 +34,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default async function KampanyalarPage() {
+  const dfl = dateFnsLocaleOf(await getLocale());
   const t = await getTranslations("dashboard");
   const supabase = await createClient();
   const user = await getSessionUser();
@@ -170,9 +173,9 @@ export default async function KampanyalarPage() {
                 const typeLabel = t(`campaignsPage.types.${c.type}`);
                 const statusLabel = t(`campaignsPage.status.${statusKey}`);
                 const whenLabel = c.sent_at
-                  ? format(zonedWallDate(new Date(c.sent_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMM yyyy HH:mm", { locale: tr })
+                  ? format(zonedWallDate(new Date(c.sent_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMM yyyy HH:mm", { locale: dfl })
                   : c.scheduled_at
-                  ? t("campaignsPage.scheduledLabel", { date: format(zonedWallDate(new Date(c.scheduled_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMM yyyy HH:mm", { locale: tr }) })
+                  ? t("campaignsPage.scheduledLabel", { date: format(zonedWallDate(new Date(c.scheduled_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMM yyyy HH:mm", { locale: dfl }) })
                   : t("campaignsPage.draftLabel");
                 return (
                   <Link key={c.id} href={`/dashboard/kampanyalar/${c.id}`}>

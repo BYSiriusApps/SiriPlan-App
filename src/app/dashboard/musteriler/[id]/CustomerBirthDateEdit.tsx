@@ -12,6 +12,7 @@ interface Props {
 }
 
 export default function CustomerBirthDateEdit({ customerId, birthDate }: Props) {
+  const tp = useTranslations("panelPages.musteriDetay");
   const router = useRouter();
   const t = useTranslations("dashboard");
   const [saving, setSaving] = useState(false);
@@ -25,7 +26,7 @@ export default function CustomerBirthDateEdit({ customerId, birthDate }: Props) 
         body: JSON.stringify({ birth_date: value || null }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "İşlem başarısız");
+      if (!res.ok) throw new Error(data.error || tp("islem_basarisiz"));
       router.refresh();
     } catch (e) {
       toast.error((e as Error).message);

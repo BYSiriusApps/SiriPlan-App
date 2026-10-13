@@ -59,6 +59,7 @@ const CALENDAR_COLORS = [
 ];
 
 export default function PersonelDetayPage() {
+  const tpg = useTranslations("panelPages.personelDetay");
   const t = useTranslations("dashboard.staffPermissions");
   const tp = useTranslations("dashboard.permissions");
   const td = useTranslations("dashboard.staffDetailPage");
@@ -149,7 +150,7 @@ export default function PersonelDetayPage() {
       toast.success(tm("timeOffAdded"));
     } else {
       const err = await res.json();
-      toast.error(err.error || "İzin eklenemedi");
+      toast.error(err.error || tpg("izin_eklenemedi"));
     }
   }
 
@@ -280,12 +281,12 @@ export default function PersonelDetayPage() {
       router.refresh();
     } else {
       const err = await res.json();
-      toast.error(err.error || "Hata oluştu");
+      toast.error(err.error || tpg("hata_olustu"));
     }
   }
 
   async function handleDeactivate() {
-    if (!confirm(`${staff?.full_name} pasife alınacak. Emin misiniz?`)) return;
+    if (!confirm(tm("confirmDeactivate", { name: staff?.full_name ?? "" }))) return;
     startTransition(async () => {
       const res = await fetch(`/api/staff/${id}`, { method: "DELETE" });
       if (res.ok) {
@@ -294,7 +295,7 @@ export default function PersonelDetayPage() {
         router.refresh();
       } else {
         const err = await res.json();
-        toast.error(err.error || "Hata oluştu");
+        toast.error(err.error || tpg("hata_olustu"));
       }
     });
   }
@@ -488,7 +489,7 @@ export default function PersonelDetayPage() {
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">Telegram Chat ID</Label>
+                  <Label className="text-xs text-muted-foreground">{tpg("telegram_chat_id")}</Label>
                   <Input
                     value={form.telegram_chat_id}
                     onChange={(e) => setForm((f) => ({ ...f, telegram_chat_id: e.target.value }))}
@@ -505,7 +506,7 @@ export default function PersonelDetayPage() {
                   ) : null}
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">WhatsApp Numarası</Label>
+                  <Label className="text-xs text-muted-foreground">{tpg("whatsapp_numarasi")}</Label>
                   <Input
                     type="tel"
                     value={form.whatsapp_number}
@@ -542,7 +543,7 @@ export default function PersonelDetayPage() {
                         : "border-border hover:bg-accent"
                     }`}
                   >
-                    {day}
+                    {tp(`day_${i}`)}
                   </button>
                 ))}
               </div>
@@ -663,7 +664,7 @@ export default function PersonelDetayPage() {
                   <Badge key={ss.service_id} variant="secondary" className="text-xs py-1 px-2.5">
                     {ss.services.name}
                     <span className="ml-1.5 text-muted-foreground">
-                      ₺{Number(ss.services.price).toLocaleString("tr-TR")} · {ss.services.duration_minutes}dk
+                      ₺{Number(ss.services.price).toLocaleString("tr-TR")} · {ss.services.duration_minutes}{tpg("dk")}
                     </span>
                   </Badge>
                 ) : null

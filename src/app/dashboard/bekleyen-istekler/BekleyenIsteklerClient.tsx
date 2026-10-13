@@ -21,6 +21,7 @@ import { InstagramIcon } from "@/components/icons/brand-icons";
 import { toast } from "sonner";
 import { completeAppointmentRequest } from "@/lib/complete-appointment-client";
 import { tm } from "@/lib/toast-i18n";
+import { dateFnsLocaleOf } from "@/lib/date-fns-locale";
 
 interface AppointmentRequest {
   id: string;
@@ -111,6 +112,8 @@ export function BekleyenIsteklerClient({
   staffOptions?: StaffOption[];
   canReassignStaff?: boolean;
 }) {
+  const dfl = dateFnsLocaleOf(useLocale());
+  const tpg = useTranslations("panelPages.bekleyenIstekler");
   const t = useTranslations("dashboard");
   const to = useTranslations("dashboard.overdueAppointments");
   const tp = useTranslations("dashboard.missingPhone");
@@ -194,7 +197,7 @@ export function BekleyenIsteklerClient({
       router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
-      toast.error(d.error || "İptal edilemedi");
+      toast.error(d.error || tpg("iptal_edilemedi"));
     }
   }
 
@@ -221,7 +224,7 @@ export function BekleyenIsteklerClient({
       toast.success(tm("newTimeProposed"));
     } else {
       const d = await res.json().catch(() => ({}));
-      toast.error(d.error || "Öneri gönderilemedi");
+      toast.error(d.error || tpg("oneri_gonderilemedi"));
     }
   }
 
@@ -241,7 +244,7 @@ export function BekleyenIsteklerClient({
       toast.success(tm("staffChanged"));
     } else {
       const d = await res.json().catch(() => ({}));
-      toast.error(d.error || "Personel değiştirilemedi");
+      toast.error(d.error || tpg("personel_degistirilemedi"));
     }
   }
 
@@ -255,11 +258,11 @@ export function BekleyenIsteklerClient({
     setBusyId(null);
     if (res.ok) {
       setRequests((prev) => prev.filter((r) => r.id !== id));
-      toast.success(action === "approve" ? "Randevu onaylandı" : "Talep reddedildi");
+      toast.success(action === "approve" ? tpg("randevu_onaylandi") : "Talep reddedildi");
       router.refresh();
     } else {
       const d = await res.json().catch(() => ({}));
-      toast.error(d.error || "İşlem gerçekleştirilemedi");
+      toast.error(d.error || tpg("islem_gerceklestirilemedi"));
     }
   }
 
@@ -279,7 +282,7 @@ export function BekleyenIsteklerClient({
       toast.success(tm("staffChanged"));
     } else {
       const d = await res.json().catch(() => ({}));
-      toast.error(d.error || "Personel değiştirilemedi");
+      toast.error(d.error || tpg("personel_degistirilemedi"));
     }
   }
 
@@ -312,7 +315,7 @@ export function BekleyenIsteklerClient({
       toast.success(tm("newTimeProposed"));
     } else {
       const d = await res.json().catch(() => ({}));
-      toast.error(d.error || "Öneri gönderilemedi");
+      toast.error(d.error || tpg("oneri_gonderilemedi"));
     }
   }
 
@@ -454,7 +457,7 @@ export function BekleyenIsteklerClient({
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {format(new Date(a.appointment_at), "d MMMM yyyy, HH:mm", { locale: tr })}
+                          {format(new Date(a.appointment_at), "d MMMM yyyy, HH:mm", { locale: dfl })}
                         </span>
                         {a.service_name && <span>{a.service_name}</span>}
                         {a.staff_name && <span>· {a.staff_name}</span>}
@@ -524,7 +527,7 @@ export function BekleyenIsteklerClient({
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {format(new Date(a.appointment_at), "d MMMM yyyy, HH:mm", { locale: tr })}
+                          {format(new Date(a.appointment_at), "d MMMM yyyy, HH:mm", { locale: dfl })}
                         </span>
                         {a.service_name && <span>{a.service_name}</span>}
                         {a.staff_name && <span>· {a.staff_name}</span>}
@@ -587,10 +590,10 @@ export function BekleyenIsteklerClient({
             <div>
               <p className="text-sm font-semibold text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
                 <CalendarClock className="h-4 w-4 shrink-0" />
-                Randevu Linkinden Gelen Talepler ({talepAppts.length})
+                {tpg("link_requests", { n: talepAppts.length })}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Otomatik onay kapalı olduğu için bu randevular takvimde &quot;bekliyor&quot; görünüyor, onayınızı bekliyor.
+                {tpg("otomatik_onay_kapali_oldugu")}
               </p>
             </div>
             <div className="space-y-2.5">
@@ -609,7 +612,7 @@ export function BekleyenIsteklerClient({
                               {a.customer_name}
                             </Link>
                             <Badge variant="outline" className="text-[10px] gap-1 bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400">
-                              <Globe className="h-3 w-3" /> Randevu Linki
+                              <Globe className="h-3 w-3" /> {tpg("randevu_linki")}
                             </Badge>
                           </div>
                           {showPhone ? (
@@ -627,7 +630,7 @@ export function BekleyenIsteklerClient({
                           <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              {format(new Date(a.appointment_at), "d MMMM yyyy, EEEE", { locale: tr })}
+                              {format(new Date(a.appointment_at), "d MMMM yyyy, EEEE", { locale: dfl })}
                             </span>
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
@@ -645,8 +648,8 @@ export function BekleyenIsteklerClient({
                                   disabled={talepBusyId === a.id}
                                 >
                                   <SelectTrigger size="sm" className="h-6 text-xs px-2 py-0 w-auto min-w-[7rem] border-none bg-transparent shadow-none hover:bg-muted/60">
-                                    <SelectValue placeholder="Personel seç">
-                                      {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || "Personel seç"}
+                                    <SelectValue placeholder={tpg("personel_sec")}>
+                                      {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || tpg("personel_sec")}
                                     </SelectValue>
                                   </SelectTrigger>
                                   <SelectContent>
@@ -663,10 +666,10 @@ export function BekleyenIsteklerClient({
                             )}
                             {a.price !== null && <span className="text-muted-foreground"> · {formatServicePrice(a.price, undefined, locale)}</span>}
                           </p>
-                          {a.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{a.note}&quot;</p>}
+                          {a.note && <p className="text-xs text-muted-foreground mt-1.5 italic">{'"'}{a.note}{'"'}</p>}
                           {a.proposed_status === "pending" && a.proposed_appointment_at && (
                             <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50">
-                              {t("proposalPendingBadge", { datetime: format(new Date(a.proposed_appointment_at), "d MMM HH:mm", { locale: tr }) })}
+                              {t("proposalPendingBadge", { datetime: format(new Date(a.proposed_appointment_at), "d MMM HH:mm", { locale: dfl }) })}
                             </Badge>
                           )}
                           {a.proposed_status === "rejected" && (
@@ -697,14 +700,14 @@ export function BekleyenIsteklerClient({
                           <div className="flex flex-col gap-2 w-full sm:w-auto sm:shrink-0">
                             {canReassignStaff && !a.staff_id && staffOptions.length > 0 && (
                               <div className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 dark:border-amber-900/50 dark:bg-amber-950/30">
-                                <span className="text-xs text-amber-800 dark:text-amber-400 shrink-0">Personel farketmez —</span>
+                                <span className="text-xs text-amber-800 dark:text-amber-400 shrink-0">{tpg("personel_farketmez")}</span>
                                 <Select
                                   onValueChange={(v: string | null) => v && handleTalepReassign(a.id, v)}
                                   disabled={busy}
                                 >
                                   <SelectTrigger size="sm" className="h-8 text-xs flex-1 min-w-0 bg-background">
-                                    <SelectValue placeholder="Personel ata">
-                                      {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || "Personel ata"}
+                                    <SelectValue placeholder={tpg("personel_ata")}>
+                                      {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || tpg("personel_ata")}
                                     </SelectValue>
                                   </SelectTrigger>
                                   <SelectContent>
@@ -756,7 +759,7 @@ export function BekleyenIsteklerClient({
       {requests.length === 0 && talepAppts.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <Inbox className="h-10 w-10 mx-auto mb-3 opacity-30" />
-          <p>Bekleyen istek yok.</p>
+          <p>{tpg("bekleyen_istek_yok")}</p>
         </div>
       ) : requests.length === 0 ? null : (
         <div className="space-y-2.5">
@@ -795,7 +798,7 @@ export function BekleyenIsteklerClient({
                       <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {format(new Date(r.appointment_at), "d MMMM yyyy, EEEE", { locale: tr })}
+                          {format(new Date(r.appointment_at), "d MMMM yyyy, EEEE", { locale: dfl })}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
@@ -813,8 +816,8 @@ export function BekleyenIsteklerClient({
                               disabled={busyId === r.id}
                             >
                               <SelectTrigger size="sm" className="h-6 text-xs px-2 py-0 w-auto min-w-[7rem] border-none bg-transparent shadow-none hover:bg-muted/60">
-                                <SelectValue placeholder="Personel seç">
-                                  {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || "Personel seç"}
+                                <SelectValue placeholder={tpg("personel_sec")}>
+                                  {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || tpg("personel_sec")}
                                 </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
@@ -831,10 +834,10 @@ export function BekleyenIsteklerClient({
                         )}
                         {r.price !== null && <span className="text-muted-foreground"> · {formatServicePrice(r.price, undefined, locale)}</span>}
                       </p>
-                      {r.note && <p className="text-xs text-muted-foreground mt-1.5 italic">&quot;{r.note}&quot;</p>}
+                      {r.note && <p className="text-xs text-muted-foreground mt-1.5 italic">{'"'}{r.note}{'"'}</p>}
                       {r.proposed_status === "pending" && r.proposed_appointment_at && (
                         <Badge variant="outline" className="mt-2 text-[10px] gap-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50">
-                          {t("proposalPendingBadge", { datetime: format(new Date(r.proposed_appointment_at), "d MMM HH:mm", { locale: tr }) })}
+                          {t("proposalPendingBadge", { datetime: format(new Date(r.proposed_appointment_at), "d MMM HH:mm", { locale: dfl }) })}
                         </Badge>
                       )}
                       {r.proposed_status === "rejected" && (
@@ -865,14 +868,14 @@ export function BekleyenIsteklerClient({
                       <div className="flex flex-col gap-2 w-full sm:w-auto sm:shrink-0">
                         {canReassignStaff && !r.staff_id && staffOptions.length > 0 && (
                           <div className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 dark:border-amber-900/50 dark:bg-amber-950/30">
-                            <span className="text-xs text-amber-800 dark:text-amber-400 shrink-0">Personel farketmez —</span>
+                            <span className="text-xs text-amber-800 dark:text-amber-400 shrink-0">{tpg("personel_farketmez")}</span>
                             <Select
                               onValueChange={(v: string | null) => v && handleReassign(r.id, v)}
                               disabled={busy}
                             >
                               <SelectTrigger size="sm" className="h-8 text-xs flex-1 min-w-0 bg-background">
-                                <SelectValue placeholder="Personel ata">
-                                  {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || "Personel ata"}
+                                <SelectValue placeholder={tpg("personel_ata")}>
+                                  {(value: string) => staffOptions.find((s) => s.id === value)?.full_name || tpg("personel_ata")}
                                 </SelectValue>
                               </SelectTrigger>
                               <SelectContent>

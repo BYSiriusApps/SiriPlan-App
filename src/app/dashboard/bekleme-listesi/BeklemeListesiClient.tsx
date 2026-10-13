@@ -108,6 +108,7 @@ export function BeklemeListesiClient({
   showPhone,
   bookingSlotMinutes,
 }: Props) {
+  const tp = useTranslations("panelPages.beklemeListesi");
   const t = useTranslations("dashboard");
   const router = useRouter();
   const [entries, setEntries] = useState<WaitlistEntry[]>(initialEntries);
@@ -200,7 +201,7 @@ export function BeklemeListesiClient({
       router.refresh();
     } else {
       const e = await res.json().catch(() => ({}));
-      toast.error(e.error || "İşlem gerçekleştirilemedi");
+      toast.error(e.error || tp("islem_gerceklestirilemedi"));
     }
   }
 
@@ -218,7 +219,7 @@ export function BeklemeListesiClient({
       router.refresh();
     } else {
       const e = await res.json().catch(() => ({}));
-      toast.error(e.error || "İşlem gerçekleştirilemedi");
+      toast.error(e.error || tp("islem_gerceklestirilemedi"));
     }
   }
 
@@ -245,7 +246,7 @@ export function BeklemeListesiClient({
       toast.success(tm("newTimeProposed"));
     } else {
       const e = await res.json().catch(() => ({}));
-      toast.error(e.error || "Öneri gönderilemedi");
+      toast.error(e.error || tp("oneri_gonderilemedi"));
     }
   }
 
@@ -296,7 +297,7 @@ export function BeklemeListesiClient({
       toast.success(tm("newTimeProposed"));
     } else {
       const e = await res.json().catch(() => ({}));
-      toast.error(e.error || "Öneri gönderilemedi");
+      toast.error(e.error || tp("oneri_gonderilemedi"));
     }
   }
 
@@ -314,7 +315,7 @@ export function BeklemeListesiClient({
       router.refresh();
     } else {
       const e = await res.json().catch(() => ({}));
-      toast.error(e.error || "İptal edilemedi");
+      toast.error(e.error || tp("iptal_edilemedi"));
     }
   }
 
@@ -529,7 +530,7 @@ export function BeklemeListesiClient({
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-medium leading-tight truncate">{a.customer_name}</p>
                         <Badge variant="outline" className="text-[10px] gap-1">
-                          <Globe className="h-3 w-3" /> Randevu Linki
+                          <Globe className="h-3 w-3" /> {tp("randevu_linki")}
                         </Badge>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
@@ -654,7 +655,7 @@ export function BeklemeListesiClient({
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-medium leading-tight">{e.customer_name}</p>
                       <Badge variant="outline" className={`text-[10px] font-normal ${STATUS_COLOR[e.status]}`}>
-                        {STATUS_LABEL[e.status]}
+                        {e.status in STATUS_LABEL ? tp(`st_${e.status}`) : e.status}
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
@@ -664,7 +665,7 @@ export function BeklemeListesiClient({
                     </p>
                     {e.preferred_dates?.length > 0 && (
                       <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> Tercih: {e.preferred_dates.join(", ")}
+                        <Clock className="h-3 w-3" /> {tp("tercih")} {e.preferred_dates.join(", ")}
                       </p>
                     )}
                   </div>
@@ -675,22 +676,22 @@ export function BeklemeListesiClient({
                         {e.status === "waiting" && (
                           <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8" onClick={() => updateStatus(e.id, "notified")}>
                             <Bell className="h-3.5 w-3.5" />
-                            Bilgilendirdim
+                            {tp("bilgilendirdim")}
                           </Button>
                         )}
                         <Link href={bookingHref(e)}>
                           <Button size="sm" className="gap-1.5 text-xs h-8">
                             <CalendarPlus className="h-3.5 w-3.5" />
-                            Randevu Oluştur
+                            {tp("randevu_olustur")}
                           </Button>
                         </Link>
                         <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8 text-muted-foreground" onClick={() => updateStatus(e.id, "expired")}>
-                          Vazgeçti
+                          {tp("vazgecti")}
                         </Button>
                       </>
                     )}
                     <button
-                      title="Sil"
+                      title={tp("sil")}
                       onClick={() => handleDelete(e.id)}
                       className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-all"
                     >
@@ -711,22 +712,22 @@ export function BeklemeListesiClient({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />
-              Bekleme Listesine Ekle
+              {tp("bekleme_listesine_ekle")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div>
-              <Label>Ad Soyad *</Label>
-              <Input className="mt-1" value={form.customer_name} onChange={(e) => setForm((f) => ({ ...f, customer_name: e.target.value }))} placeholder="Müşteri adı" />
+              <Label>{tp("ad_soyad")}</Label>
+              <Input className="mt-1" value={form.customer_name} onChange={(e) => setForm((f) => ({ ...f, customer_name: e.target.value }))} placeholder={tp("musteri_adi")} />
             </div>
             <div>
-              <Label>Telefon *</Label>
+              <Label>{tp("telefon")}</Label>
               <Input className="mt-1" type="tel" value={form.customer_phone} onChange={(e) => setForm((f) => ({ ...f, customer_phone: e.target.value }))} placeholder="5xx xxx xx xx" />
             </div>
             <div>
-              <Label>Hizmet (opsiyonel)</Label>
+              <Label>{tp("hizmet_opsiyonel")}</Label>
               <Select value={form.service_id} onValueChange={(v) => setForm((f) => ({ ...f, service_id: v ?? "" }))}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Farketmez" /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder={tp("farketmez")} /></SelectTrigger>
                 <SelectContent>
                   {serviceOptions.map((s) => (
                     <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
@@ -735,9 +736,9 @@ export function BeklemeListesiClient({
               </Select>
             </div>
             <div>
-              <Label>Personel (opsiyonel)</Label>
+              <Label>{tp("personel_opsiyonel")}</Label>
               <Select value={form.staff_id} onValueChange={(v) => setForm((f) => ({ ...f, staff_id: v ?? "" }))}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Farketmez" /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder={tp("farketmez")} /></SelectTrigger>
                 <SelectContent>
                   {staffOptions.map((s) => (
                     <SelectItem key={s.id} value={s.id}>{s.full_name}</SelectItem>
@@ -746,14 +747,14 @@ export function BeklemeListesiClient({
               </Select>
             </div>
             <div>
-              <Label>Tercih Edilen Tarih/Saat (opsiyonel)</Label>
-              <Input className="mt-1" value={form.preferred_dates} onChange={(e) => setForm((f) => ({ ...f, preferred_dates: e.target.value }))} placeholder="Örn: Cumartesi öğleden sonra, virgülle ayırın" />
+              <Label>{tp("tercih_edilen_tarih_saat")}</Label>
+              <Input className="mt-1" value={form.preferred_dates} onChange={(e) => setForm((f) => ({ ...f, preferred_dates: e.target.value }))} placeholder={tp("orn_cumartesi_ogleden_sonra")} />
             </div>
             <div className="flex gap-2 pt-2">
-              <Button variant="outline" className="flex-1" onClick={() => setShowForm(false)}>İptal</Button>
+              <Button variant="outline" className="flex-1" onClick={() => setShowForm(false)}>{tp("iptal")}</Button>
               <Button className="flex-1 gap-2" onClick={handleSave} disabled={saving}>
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                Kaydet
+                {tp("kaydet")}
               </Button>
             </div>
           </div>

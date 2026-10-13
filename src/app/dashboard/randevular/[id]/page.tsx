@@ -21,6 +21,7 @@ export default async function ApptDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const tp = await getTranslations("panelPages.randevuDetay");
   const { id } = await params;
   const t = await getTranslations("dashboard");
   const locale = await getLocale();
@@ -108,14 +109,14 @@ export default async function ApptDetailPage({
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="text-muted-foreground text-xs">Müşteri</p>
+              <p className="text-muted-foreground text-xs">{tp("musteri")}</p>
               <p className="font-medium">{a.customer_name}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Phone className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="text-muted-foreground text-xs">Telefon</p>
+              <p className="text-muted-foreground text-xs">{tp("telefon")}</p>
               <a href={`tel:${a.customer_phone}`} className="font-medium text-primary hover:underline">
                 {a.customer_phone}
               </a>
@@ -124,60 +125,59 @@ export default async function ApptDetailPage({
           <div className="flex items-center gap-2">
             <Scissors className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="text-muted-foreground text-xs">Hizmet</p>
+              <p className="text-muted-foreground text-xs">{tp("hizmet")}</p>
               <p className="font-medium">{a.service?.name}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="text-muted-foreground text-xs">Personel</p>
+              <p className="text-muted-foreground text-xs">{tp("personel")}</p>
               <p className="font-medium">{a.staff?.full_name}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="text-muted-foreground text-xs">Süre</p>
-              <p className="font-medium">{a.duration_minutes} dk</p>
+              <p className="text-muted-foreground text-xs">{tp("sure")}</p>
+              <p className="font-medium">{a.duration_minutes} {tp("dk")}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <CreditCard className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="text-muted-foreground text-xs">Ücret</p>
+              <p className="text-muted-foreground text-xs">{tp("ucret")}</p>
               <p className="font-medium">₺{Number(a.price).toLocaleString("tr-TR")}</p>
               {Number(a.discount_amount) > 0 && (
                 <p className="text-xs text-primary">
-                  Kampanya indirimi uygulandı: −₺{Number(a.discount_amount).toLocaleString("tr-TR")}
-                  {" "}(indirimsiz ₺{(Number(a.price) + Number(a.discount_amount)).toLocaleString("tr-TR")})
+                  {tp("campaign_discount_applied", { discount: Number(a.discount_amount).toLocaleString("tr-TR"), original: (Number(a.price) + Number(a.discount_amount)).toLocaleString("tr-TR") })}
                 </p>
               )}
             </div>
           </div>
           {a.tip > 0 && (
             <div className="col-span-2">
-              <p className="text-muted-foreground text-xs">Bahşiş</p>
+              <p className="text-muted-foreground text-xs">{tp("bahsis")}</p>
               <p className="font-medium">₺{Number(a.tip).toLocaleString("tr-TR")}</p>
             </div>
           )}
           {a.payment_method && (
             <div>
-              <p className="text-muted-foreground text-xs">Ödeme Yöntemi</p>
+              <p className="text-muted-foreground text-xs">{tp("odeme_yontemi")}</p>
               <p className="font-medium capitalize">
-                {a.payment_method === "paket" ? "Paketten düşüldü 🎟️" : a.payment_method}
+                {a.payment_method === "paket" ? tp("paketten_dusuldu") : a.payment_method}
               </p>
             </div>
           )}
           {a.source && (
             <div>
-              <p className="text-muted-foreground text-xs">Kaynak</p>
+              <p className="text-muted-foreground text-xs">{tp("kaynak")}</p>
               <p className="font-medium capitalize">{a.source}</p>
             </div>
           )}
           {a.note && (
             <div className="col-span-2">
-              <p className="text-muted-foreground text-xs">Müşteri Notu</p>
+              <p className="text-muted-foreground text-xs">{tp("musteri_notu")}</p>
               <p className="font-medium">{a.note}</p>
             </div>
           )}

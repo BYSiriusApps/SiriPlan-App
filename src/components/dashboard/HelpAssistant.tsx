@@ -75,7 +75,7 @@ export function HelpAssistant() {
           body: JSON.stringify({ transcript }),
         });
         const data = await res.json();
-        setMessages((prev) => [...prev, { role: "assistant", text: data.response || "Komut işlendi." }]);
+        setMessages((prev) => [...prev, { role: "assistant", text: data.response || tt("cmdDone") }]);
 
         if (data.actionTaken === "appointment_created") {
           toast.success(tt("apptCreated"));
@@ -98,13 +98,13 @@ export function HelpAssistant() {
           const qs = qp.toString();
           router.push(`/dashboard/randevular/yeni${qs ? `?${qs}` : ""}`);
         } else if (data.actionTaken === "inventory_updated") {
-          toast.success(data.response || "Stok güncellendi");
+          toast.success(data.response || tt("stockUpdated"));
           router.refresh();
         } else if (data.actionTaken === "navigate_stok") {
           router.push("/dashboard/stok");
         }
       } catch {
-        setMessages((prev) => [...prev, { role: "assistant", text: "Sesli işlem başarısız oldu." }]);
+        setMessages((prev) => [...prev, { role: "assistant", text: tt("voiceFailed") }]);
       } finally {
         setLoading(false);
       }

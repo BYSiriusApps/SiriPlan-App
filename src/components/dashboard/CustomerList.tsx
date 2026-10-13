@@ -84,6 +84,7 @@ interface Props {
  * filtreler; sunucuya gitmez. Filtre temizleme (X) butonu vardır.
  */
 export function CustomerList({ customers, showPhoneButtons, initialKampanya = false, initialQ = "", canDelete = false, businessType = null }: Props) {
+  const tp = useTranslations("panelPages.musteriListe");
   const t = useTranslations("dashboard");
   // App Store 2.3.10: iOS uygulamasında yeşil WhatsApp benzeri ikon yerine nötr ikon (bağlantı aynı).
   const isIOSApp = useIsIOSNativeApp();
@@ -119,7 +120,7 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
     setDeleting(false);
 
     if (!res.ok) {
-      toast.error(data.error ?? "Müşteri silinemedi");
+      toast.error(data.error ?? tp("musteri_silinemedi"));
       return;
     }
 
@@ -127,8 +128,8 @@ export function CustomerList({ customers, showPhoneButtons, initialKampanya = fa
     setDeleteTarget(null);
     toast.success(
       data.mode === "anonymized"
-        ? "Müşterinin kişisel bilgileri silindi. Randevu ve ciro geçmişi raporlar için anonim olarak korundu."
-        : "Müşteri silindi"
+        ? tp("musterinin_kisisel_bilgileri")
+        : tp("musteri_silindi")
     );
     router.refresh();
   }

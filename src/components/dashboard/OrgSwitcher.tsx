@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 const ROLE_LABELS: Record<string, string> = {
   owner: "İşletme Sahibi",
@@ -32,6 +33,7 @@ interface Props {
 }
 
 export function OrgSwitcher({ activeOrgId, memberships }: Props) {
+  const tp = useTranslations("panelPages.orgSwitcher");
   const [switching, setSwitching] = useState<string | null>(null);
 
   if (memberships.length < 2) return null;
@@ -50,7 +52,7 @@ export function OrgSwitcher({ activeOrgId, memberships }: Props) {
         window.location.href = "/dashboard";
       } else {
         const err = await res.json();
-        toast.error(err.error || "İşletme değiştirilemedi");
+        toast.error(err.error || tp("isletme_degistirilemedi"));
         setSwitching(null);
       }
     } catch {
@@ -69,12 +71,12 @@ export function OrgSwitcher({ activeOrgId, memberships }: Props) {
         }
       >
         <Building2 className="h-3.5 w-3.5 shrink-0" />
-        <span className="flex-1 text-left truncate">İşletme Değiştir</span>
+        <span className="flex-1 text-left truncate">{tp("isletme_degistir")}</span>
         <ChevronsUpDown className="h-3 w-3 shrink-0 opacity-50" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-60">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="text-xs">İşletmeleriniz</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-xs">{tp("isletmeleriniz")}</DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {memberships.map((m) => (
@@ -92,7 +94,7 @@ export function OrgSwitcher({ activeOrgId, memberships }: Props) {
             )}
             <div className="min-w-0 flex-1">
               <p className="text-sm truncate">{m.org_name}</p>
-              <p className="text-[10px] text-muted-foreground">{ROLE_LABELS[m.role] ?? m.role}</p>
+              <p className="text-[10px] text-muted-foreground">{m.role in ROLE_LABELS ? tp(`role_${m.role}`) : m.role}</p>
             </div>
           </DropdownMenuItem>
         ))}

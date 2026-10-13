@@ -17,6 +17,7 @@ const IMPORT_SOURCES = [
 ];
 
 export default function VeriGocuPage() {
+  const tp = useTranslations("panelPages.veriGocu");
   const t = useTranslations("dashboard");
   const [importing, setImporting] = useState(false);
   const [exporting, setExporting] = useState<"json" | "csv" | "excel" | "pdf" | null>(null);
@@ -131,7 +132,7 @@ export default function VeriGocuPage() {
               disabled={!!exporting}
             >
               {exporting === "json" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-              JSON ({t("dataMigrationPage.jsonFullData")})
+              {tp("json")}{t("dataMigrationPage.jsonFullData")})
             </Button>
             <Button
               variant="outline"
@@ -140,7 +141,7 @@ export default function VeriGocuPage() {
               disabled={!!exporting}
             >
               {exporting === "csv" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              CSV ({t("dataMigrationPage.csvCustomers")})
+              {tp("csv")}{t("dataMigrationPage.csvCustomers")})
             </Button>
             <Button
               variant="outline"
@@ -149,7 +150,7 @@ export default function VeriGocuPage() {
               disabled={!!exporting}
             >
               {exporting === "excel" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sheet className="h-4 w-4 text-green-600" />}
-              Excel (.xlsx)
+              {tp("excel_xlsx")}
             </Button>
             <Button
               variant="outline"
@@ -158,7 +159,7 @@ export default function VeriGocuPage() {
               disabled={!!exporting}
             >
               {exporting === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4 text-red-500" />}
-              PDF ({t("dataMigrationPage.pdfPrint")})
+              {tp("pdf")}{t("dataMigrationPage.pdfPrint")})
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
@@ -190,7 +191,7 @@ export default function VeriGocuPage() {
               >
                 <div className="text-2xl mb-1">{src.icon}</div>
                 <p className="text-sm font-medium">
-                  {src.id === "salonappy" ? t("dataMigrationPage.sourceBookingApp") : src.id === "arvengo" ? t("dataMigrationPage.sourceOtherSoftware") : "Excel / CSV"}
+                  {src.id === "salonappy" ? t("dataMigrationPage.sourceBookingApp") : src.id === "arvengo" ? t("dataMigrationPage.sourceOtherSoftware") : tp("excel_csv")}
                 </p>
                 {selectedSource === src.id && (
                   <CheckCircle2 className="h-4 w-4 text-primary mx-auto mt-1" />

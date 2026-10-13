@@ -10,6 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { uploadImage } from "@/lib/upload-image";
 import { hasVisualResultFeature } from "@/lib/customer-fields/visual-sectors";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
+import { dateFnsLocaleOf } from "@/lib/date-fns-locale";
+import { useLocale } from "next-intl";
 
 interface Photo {
   id: string;
@@ -25,6 +28,8 @@ interface Props {
 }
 
 export default function CustomerBeforeAfterPhotos({ customerId, businessType }: Props) {
+  const dfl = dateFnsLocaleOf(useLocale());
+  const tp = useTranslations("panelPages.musteriDetay");
   const enabled = hasVisualResultFeature(businessType);
 
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -50,7 +55,7 @@ export default function CustomerBeforeAfterPhotos({ customerId, businessType }: 
   if (!enabled) return null;
 
   async function handleDelete(photoId: string) {
-    if (!confirm("Bu fotoğraf çiftini kalıcı olarak silmek istediğinize emin misiniz?")) return;
+    if (!confirm(tp("bu_fotograf_ciftini_kalici"))) return;
     try {
       const res = await fetch(`/api/customers/${customerId}/photos/${photoId}`, { method: "DELETE" });
       if (!res.ok) throw new Error((await res.json()).error || "Silinemedi");
@@ -65,43 +70,39 @@ export default function CustomerBeforeAfterPhotos({ customerId, businessType }: 
     <Card className="kpi-tile border-0 shadow-none">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm flex items-center gap-1.5">
-          <Camera className="h-4 w-4" /> Önce / Sonra Fotoğrafları
+          <Camera className="h-4 w-4" /> {tp("once_sonra_fotograflari")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-2.5 text-[11px] leading-relaxed text-amber-800 dark:text-amber-300">
           <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
           <span>
-            Bu alan müşterinin görüntüsünü (fotoğraf) içerir — KVKK kapsamında hassas kişisel
-            veri sayılabilir. <strong>Yalnızca müşterinizden bu amaçla açık rıza aldıktan
-            sonra</strong> fotoğraf yükleyin. Fotoğraflar herkese açık web sitenizde
-            gösterilmez, yalnızca panelinizde saklanır; veri sorumlusu olarak saklama ve rıza
-            yükümlülükleri işletmenize aittir.
+            {tp("bu_alan_musterinin_goruntusu")} <strong>{tp("yalnizca_musterinizden_bu_am")}</strong> {tp("fotograf_yukleyin_fotografla")}
           </span>
         </div>
 
         {loading ? (
-          <p className="text-xs text-muted-foreground">Yükleniyor…</p>
+          <p className="text-xs text-muted-foreground">{tp("yukleniyor")}</p>
         ) : photos.length === 0 && !adding ? (
-          <p className="text-xs text-muted-foreground">Henüz fotoğraf eklenmedi.</p>
+          <p className="text-xs text-muted-foreground">{tp("henuz_fotograf_eklenmedi")}</p>
         ) : (
           <div className="space-y-3">
             {photos.map((p) => (
               <div key={p.id} className="rounded-lg border border-border p-2.5">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1 min-w-0">
-                    <p className="text-[10px] font-medium text-muted-foreground">Önce</p>
+                    <p className="text-[10px] font-medium text-muted-foreground">{tp("once")}</p>
                     <div className="relative aspect-square rounded-md overflow-hidden bg-muted">
                       {p.before_url && (
-                        <Image src={p.before_url} alt="Önce" fill sizes="200px" className="object-cover" />
+                        <Image src={p.before_url} alt={tp("once")} fill sizes="200px" className="object-cover" />
                       )}
                     </div>
                   </div>
                   <div className="space-y-1 min-w-0">
-                    <p className="text-[10px] font-medium text-muted-foreground">Sonra</p>
+                    <p className="text-[10px] font-medium text-muted-foreground">{tp("sonra")}</p>
                     <div className="relative aspect-square rounded-md overflow-hidden bg-muted">
                       {p.after_url && (
-                        <Image src={p.after_url} alt="Sonra" fill sizes="200px" className="object-cover" />
+                        <Image src={p.after_url} alt={tp("sonra")} fill sizes="200px" className="object-cover" />
                       )}
                     </div>
                   </div>
@@ -109,14 +110,14 @@ export default function CustomerBeforeAfterPhotos({ customerId, businessType }: 
                 <div className="flex items-center justify-between gap-2 mt-2">
                   <div className="min-w-0">
                     <p className="text-[10px] text-muted-foreground">
-                      {format(new Date(p.taken_at), "d MMM yyyy", { locale: tr })}
+                      {format(new Date(p.taken_at), "d MMM yyyy", { locale: dfl })}
                     </p>
                     {p.note && <p className="text-xs truncate">{p.note}</p>}
                   </div>
                   <button
                     onClick={() => handleDelete(p.id)}
                     className="shrink-0 h-7 w-7 grid place-items-center rounded-md text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
-                    aria-label="Fotoğrafı sil"
+                    aria-label={tp("fotografi_sil")}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -140,7 +141,7 @@ export default function CustomerBeforeAfterPhotos({ customerId, businessType }: 
             onClick={() => setAdding(true)}
             className="w-full h-9 text-xs rounded-md border border-dashed border-input hover:bg-accent inline-flex items-center justify-center gap-1.5"
           >
-            <Plus className="h-3.5 w-3.5" /> Önce/Sonra Fotoğrafı Ekle
+            <Plus className="h-3.5 w-3.5" /> {tp("once_sonra_fotografi_ekle")}
           </button>
         )}
       </CardContent>
@@ -157,6 +158,7 @@ function AddPhotoForm({
   onCancel: () => void;
   onSaved: () => void;
 }) {
+  const tp = useTranslations("panelPages.musteriDetay");
   const [beforeFile, setBeforeFile] = useState<File | null>(null);
   const [afterFile, setAfterFile] = useState<File | null>(null);
   const [note, setNote] = useState("");
@@ -203,7 +205,7 @@ function AddPhotoForm({
     <div className="rounded-lg border border-border p-3 space-y-3">
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-[10px] font-medium text-muted-foreground block mb-1">Önce fotoğrafı</label>
+          <label className="text-[10px] font-medium text-muted-foreground block mb-1">{tp("once_fotografi")}</label>
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp"
@@ -213,7 +215,7 @@ function AddPhotoForm({
           />
         </div>
         <div>
-          <label className="text-[10px] font-medium text-muted-foreground block mb-1">Sonra fotoğrafı</label>
+          <label className="text-[10px] font-medium text-muted-foreground block mb-1">{tp("sonra_fotografi")}</label>
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp"
@@ -228,7 +230,7 @@ function AddPhotoForm({
         type="text"
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        placeholder="Not (opsiyonel)"
+        placeholder={tp("not_opsiyonel")}
         className="w-full h-8 text-xs rounded-md border border-input bg-background px-2.5 focus:outline-none focus:ring-1 focus:ring-ring"
       />
 
@@ -240,8 +242,7 @@ function AddPhotoForm({
           className="mt-0.5 shrink-0"
         />
         <span>
-          Bu fotoğrafları yüklemeden önce müşterimden bu amaçla kullanılacağına dair açık
-          rızasını aldım.
+          {tp("bu_fotograflari_yuklemeden_o")}
         </span>
       </label>
 
@@ -252,14 +253,14 @@ function AddPhotoForm({
           className="h-8 px-3 text-xs rounded-md bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center gap-1.5 disabled:opacity-60"
         >
           {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-          Kaydet
+          {tp("kaydet")}
         </button>
         <button
           onClick={onCancel}
           disabled={saving}
           className="h-8 px-3 text-xs rounded-md border border-input hover:bg-accent inline-flex items-center gap-1.5"
         >
-          <X className="h-3.5 w-3.5" /> Vazgeç
+          <X className="h-3.5 w-3.5" /> {tp("vazgec")}
         </button>
       </div>
     </div>

@@ -22,7 +22,17 @@ function readConsent(): Consent {
  * client-side çalışıyor). Reddedilirse hiçbir analytics script'i
  * enjekte edilmez.
  */
-export function CookieConsent({ nonce, mobileApp = false }: { nonce?: string; mobileApp?: boolean }) {
+// Bu bileşen kök layout'ta, NextIntlClientProvider'ın DIŞINDA durur (useTranslations çalışmaz);
+// metinler sunucu layout'undan hazır gelir. Verilmezse Türkçe (eski metin).
+export interface CookieLabels { text: string; policy: string; reject: string; accept: string }
+const DEFAULT_LABELS: CookieLabels = {
+  text: "Deneyiminizi iyileştirmek için analiz çerezleri kullanıyoruz. Detaylar için",
+  policy: "Gizlilik Politikası",
+  reject: "Reddet",
+  accept: "Kabul Et",
+};
+
+export function CookieConsent({ nonce, mobileApp = false, labels = DEFAULT_LABELS }: { nonce?: string; mobileApp?: boolean; labels?: CookieLabels }) {
   const [consent, setConsent] = useState<Consent>(null);
   const [hydrated, setHydrated] = useState(false);
 
@@ -60,9 +70,9 @@ export function CookieConsent({ nonce, mobileApp = false }: { nonce?: string; mo
         <div className="fixed inset-x-0 bottom-0 z-[60] p-3 sm:p-4">
           <div className="mx-auto max-w-2xl rounded-2xl border border-border bg-popover/95 backdrop-blur-sm p-4 shadow-lg ring-1 ring-foreground/10 flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <p className="text-xs sm:text-sm text-muted-foreground flex-1">
-              Deneyiminizi iyileştirmek için analiz çerezleri kullanıyoruz. Detaylar için{" "}
+              {labels.text}{" "}
               <Link href="/gizlilik" className="underline underline-offset-2 hover:text-foreground">
-                Gizlilik Politikası
+                {labels.policy}
               </Link>
               .
             </p>
@@ -73,14 +83,14 @@ export function CookieConsent({ nonce, mobileApp = false }: { nonce?: string; mo
                 className="flex-1 sm:flex-none rounded-full"
                 onClick={() => choose("rejected")}
               >
-                Reddet
+                {labels.reject}
               </Button>
               <Button
                 size="sm"
                 className="flex-1 sm:flex-none rounded-full"
                 onClick={() => choose("accepted")}
               >
-                Kabul Et
+                {labels.accept}
               </Button>
             </div>
           </div>

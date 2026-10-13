@@ -6,6 +6,7 @@ import { Loader2, Sparkles, ArrowRightLeft } from "lucide-react";
 import { toast } from "sonner";
 import type { PlanKey } from "@/lib/stripe/config";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 type Preview = {
   isUpgrade: boolean;
@@ -43,6 +44,7 @@ export function ChangePlanButton({
   label: string;
   variant?: "primary" | "outline";
 }) {
+  const tp = useTranslations("panelPages.planDegistir");
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState<Preview | null>(null);
   const router = useRouter();
@@ -53,7 +55,7 @@ export function ChangePlanButton({
       const res = await fetch(`/api/stripe/change-plan/preview?plan=${targetPlan}`);
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
-        toast.error(data.error || "Tutar hesaplanamadı.");
+        toast.error(data.error || tp("tutar_hesaplanamadi"));
         return;
       }
       setPreview(data as Preview);
@@ -74,7 +76,7 @@ export function ChangePlanButton({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
-        toast.error(data.error || "Plan değişikliği başarısız oldu.");
+        toast.error(data.error || tp("plan_degisikligi_basarisiz_o"));
         return;
       }
       toast.success(tm("planSwitched", { plan: planName }));
@@ -94,22 +96,23 @@ export function ChangePlanButton({
       : "border border-border hover:bg-accent";
 
   if (preview) {
-    const period = preview.interval === "year" ? "1 yıl" : "1 ay";
+    const isYear = preview.interval === "year";
+    const period = isYear ? tp("period_year") : tp("period_month");
+    const periodAdj = isYear ? tp("period_year_adj") : tp("period_month_adj");
+    const bold = (chunks: React.ReactNode) => <strong>{chunks}</strong>;
     const pays = preview.amountDue > 0;
     return (
       <div className="rounded-xl border border-border p-4 space-y-3 text-sm">
-        <p className="font-semibold">{planName} planına geçiş</p>
+        <p className="font-semibold">{tp("switch_title", { planName })}</p>
         {pays ? (
           <p>
-            Şimdi <strong>{money(preview.amountDue, preview.currency)}</strong> ödeyeceksiniz.
             {preview.isUpgrade
-              ? ` Bu tutar, ${planName} plan ücretinden mevcut planınızın kullanılmayan kısmının düşülmesiyle hesaplanır. Yeni ${period}lık dönem bugünden itibaren başlar ve sonraki yenileme ${period} sonradır.`
-              : " Mevcut fatura dönemi tarihiniz değişmez."}
+              ? tp.rich("pay_now_upgrade", { amount: money(preview.amountDue, preview.currency), planName, period, periodAdj, b: bold })
+              : tp.rich("pay_now_same_cycle", { amount: money(preview.amountDue, preview.currency), b: bold })}
           </p>
         ) : (
           <p>
-            Şimdi ödeme alınmaz. Mevcut planınızın kullanılmayan kısmı ({money(Math.abs(preview.amountDue), preview.currency)}) hesabınıza kredi
-            olarak yazılır ve sonraki faturanızdan düşülür. Fatura dönemi tarihiniz değişmez.
+            {tp("no_charge_credit", { amount: money(Math.abs(preview.amountDue), preview.currency) })}
           </p>
         )}
         <div className="flex gap-2">
@@ -120,7 +123,7 @@ export function ChangePlanButton({
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            Onayla{pays ? ` ve ${money(preview.amountDue, preview.currency)} öde` : ""}
+            {pays ? tp("confirm_and_pay", { amount: money(preview.amountDue, preview.currency) }) : tp("onayla")}
           </button>
           <button
             type="button"
@@ -128,7 +131,7 @@ export function ChangePlanButton({
             disabled={loading}
             className="px-4 py-2.5 rounded-xl border border-border hover:bg-accent disabled:opacity-50"
           >
-            Vazgeç
+            {tp("vazgec")}
           </button>
         </div>
       </div>

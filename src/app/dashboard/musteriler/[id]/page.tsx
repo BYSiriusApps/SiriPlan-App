@@ -23,6 +23,8 @@ import CustomerPackages from "./CustomerPackages";
 import CustomerCustomFields from "./CustomerCustomFields";
 import CustomerMetrics from "./CustomerMetrics";
 import CustomerBeforeAfterPhotos from "./CustomerBeforeAfterPhotos";
+import { dateFnsLocaleOf } from "@/lib/date-fns-locale";
+import { getLocale } from "next-intl/server";
 
 function scoreColor(score: number) {
   if (score >= 70) return "bg-green-100 text-green-800";
@@ -35,6 +37,8 @@ export default async function MusteriDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const dfl = dateFnsLocaleOf(await getLocale());
+  const tp = await getTranslations("panelPages.musteriDetay");
   const { id } = await params;
   const t = await getTranslations("dashboard");
   const supabase = await createClient();
@@ -111,11 +115,11 @@ export default async function MusteriDetailPage({
                     href={`https://wa.me/${c.phone.replace(/\D/g, "").replace(/^0/, "90")}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    title="WhatsApp ile mesaj gönder"
+                    title={tp("whatsapp_ile_mesaj_gonder")}
                     className="ml-auto inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
                   >
                     <MessageCircle className="h-3.5 w-3.5" />
-                    WhatsApp
+                    {tp("whatsapp")}
                   </a>
                 </>
               ) : (
@@ -132,8 +136,8 @@ export default async function MusteriDetailPage({
               <Gift className="h-4 w-4 text-muted-foreground shrink-0" />
               <span className="text-xs text-muted-foreground">
                 {c.birth_date
-                  ? `${format(new Date(c.birth_date), "d MMMM", { locale: tr })} doğumlu`
-                  : "Doğum tarihi belirtilmedi"}
+                  ? tp("dogumlu", { ate_d_MMMM_locale_tr: format(new Date(c.birth_date), "d MMMM", { locale: dfl }) })
+                  : tp("dogum_tarihi_belirtilmedi")}
               </span>
               <div className="ml-auto">
                 <CustomerBirthDateEdit customerId={c.id} birthDate={c.birth_date} />
@@ -159,10 +163,10 @@ export default async function MusteriDetailPage({
               <div className="flex items-center gap-2">
                 <ShieldCheck className={cn("h-4 w-4 shrink-0", c.kvkk_consent ? "text-green-500" : "text-muted-foreground/40")} />
                 <span className={cn("text-xs", c.kvkk_consent ? "text-foreground" : "text-muted-foreground")}>
-                  KVKK onayı{" "}
+                  {tp("kvkk_onayi")}{" "}
                   {c.kvkk_consent
                     ? c.kvkk_consent_at
-                      ? `verildi (${format(new Date(c.kvkk_consent_at), "d MMM yyyy", { locale: tr })})`
+                      ? `verildi (${format(new Date(c.kvkk_consent_at), "d MMM yyyy", { locale: dfl })})`
                       : "verildi"
                     : "yok"}
                 </span>
@@ -174,12 +178,12 @@ export default async function MusteriDetailPage({
                   <MegaphoneOff className="h-4 w-4 shrink-0 text-muted-foreground/40" />
                 )}
                 <span className={cn("text-xs", c.marketing_consent ? "text-green-700 dark:text-green-400 font-medium" : "text-muted-foreground")}>
-                  Kampanya bildirimi{" "}
+                  {tp("kampanya_bildirimi")}{" "}
                   {c.marketing_consent
                     ? c.marketing_consent_at
-                      ? `onaylı (${format(new Date(c.marketing_consent_at), "d MMM yyyy", { locale: tr })})`
-                      : "onaylı"
-                    : "— onay verilmedi"}
+                      ? tp("onayli", { d_MMM_yyyy_locale_tr: format(new Date(c.marketing_consent_at), "d MMM yyyy", { locale: dfl }) })
+                      : tp("onayli_2")
+                    : tp("onay_verilmedi")}
                 </span>
               </div>
               {/* Onay linki, KVKK VEYA kampanya onayı eksik olan her müşteride
@@ -201,7 +205,7 @@ export default async function MusteriDetailPage({
                   <ShieldCheck className="h-4 w-4 shrink-0 text-muted-foreground/40" />
                 )}
                 <span className={cn("text-xs", c.online_booking_blocked ? "text-red-600 font-medium" : "text-muted-foreground")}>
-                  {c.online_booking_blocked ? "Online randevu engelli" : "Online randevu açık"}
+                  {c.online_booking_blocked ? tp("online_randevu_engelli") : tp("online_randevu_acik")}
                 </span>
                 <BlockOnlineBookingToggle customerId={c.id} blocked={!!c.online_booking_blocked} />
               </div>
@@ -216,22 +220,22 @@ export default async function MusteriDetailPage({
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-muted-foreground text-xs">Toplam Ziyaret</p>
+              <p className="text-muted-foreground text-xs">{tp("toplam_ziyaret")}</p>
               <p className="font-bold text-lg tabular-nums">{c.visit_count}</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs">Toplam Harcama</p>
+              <p className="text-muted-foreground text-xs">{tp("toplam_harcama")}</p>
               <p className="font-bold text-lg tabular-nums">₺{Number(c.total_spend).toLocaleString("tr-TR")}</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs">Sadakat Kartı</p>
+              <p className="text-muted-foreground text-xs">{tp("sadakat_karti")}</p>
               <p className="font-bold text-lg tabular-nums">{c.loyalty_punches} / 10</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs">Son Ziyaret</p>
+              <p className="text-muted-foreground text-xs">{tp("son_ziyaret")}</p>
               <p className="font-medium text-sm">
                 {c.last_visit_at
-                  ? format(zonedWallDate(new Date(c.last_visit_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMM yyyy", { locale: tr })
+                  ? format(zonedWallDate(new Date(c.last_visit_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMM yyyy", { locale: dfl })
                   : "—"}
               </p>
             </div>
@@ -255,7 +259,7 @@ export default async function MusteriDetailPage({
             <span className="text-sm font-medium flex items-center gap-1.5">
               <Gift className="h-4 w-4 text-primary" /> {t("customerDetail.loyaltyTitle")}
             </span>
-            <span className="text-xs text-muted-foreground">{c.loyalty_punches}/10 — {c.loyalty_redeems} kullanım</span>
+            <span className="text-xs text-muted-foreground">{c.loyalty_punches}/10 — {c.loyalty_redeems} {tp("kullanim")}</span>
           </div>
           <div className="flex gap-1">
             {Array.from({ length: 10 }).map((_, i) => (
@@ -302,7 +306,7 @@ export default async function MusteriDetailPage({
                 <Link href={`/dashboard/randevular/${appt.id}`} className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="text-center w-14 shrink-0">
                       <p className="text-xs text-muted-foreground">
-                        {format(zonedWallDate(new Date(appt.appointment_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMM yyyy", { locale: tr })}
+                        {format(zonedWallDate(new Date(appt.appointment_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "d MMM yyyy", { locale: dfl })}
                       </p>
                       <p className="text-sm font-bold text-primary tabular-nums">
                         {format(zonedWallDate(new Date(appt.appointment_at), member.organizations?.timezone || DEFAULT_ORG_TIMEZONE), "HH:mm")}

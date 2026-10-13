@@ -63,7 +63,7 @@ export function RandevuCard({
     const data = await res.json().catch(() => ({}));
     setUpdating(false);
     if (!res.ok) {
-      toast.error(data.error ?? "Durum güncellenemedi");
+      toast.error(data.error ?? tm("statusUpdateFailed"));
       return;
     }
     setAppt((a) => ({ ...a, status: newStatus }));

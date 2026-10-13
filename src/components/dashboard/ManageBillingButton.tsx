@@ -15,7 +15,7 @@ export function ManageBillingButton({ label }: { label: string }) {
       const res = await fetch("/api/stripe/portal", { method: "POST" });
       const data = await res.json();
       if (!res.ok || !data.url) {
-        toast.error(data.error ?? "Fatura yönetimi açılamadı.");
+        toast.error(data.error ?? tm("billingOpenFailed"));
         setLoading(false);
         return;
       }

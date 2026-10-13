@@ -10,6 +10,7 @@ import {
   BADGE_COLOR_CLASS,
   type CustomFieldDef,
 } from "@/lib/customer-fields/catalog";
+import { useTranslations } from "next-intl";
 
 interface Props {
   customerId: string;
@@ -38,6 +39,7 @@ function FieldRow({
   value: string | number | undefined;
   onSaved: () => void;
 }) {
+  const tp = useTranslations("panelPages.musteriDetay");
   const [saving, setSaving] = useState(false);
   const [draft, setDraft] = useState(value ?? "");
 
@@ -72,7 +74,7 @@ function FieldRow({
               : "bg-muted text-muted-foreground border-transparent"
           )}
         >
-          <option value="">Belirtilmedi</option>
+          <option value="">{tp("belirtilmedi")}</option>
           {def.options?.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
@@ -106,6 +108,7 @@ function FieldRow({
 }
 
 export default function CustomerCustomFields({ customerId, businessType, customFields }: Props) {
+  const tp = useTranslations("panelPages.musteriDetay");
   const router = useRouter();
   const catalog = getFieldCatalog(businessType);
   // trackHistory alanları ayrı CustomerMetrics kartında gösteriliyor.
@@ -116,7 +119,7 @@ export default function CustomerCustomFields({ customerId, businessType, customF
   return (
     <Card className="kpi-tile border-0 shadow-none">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm">Sektöre Özel Bilgiler</CardTitle>
+        <CardTitle className="text-sm">{tp("sektore_ozel_bilgiler")}</CardTitle>
       </CardHeader>
       <CardContent className="divide-y">
         {fields.map((def) => (

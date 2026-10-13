@@ -32,6 +32,7 @@ function VoiceRow({
 }
 
 export default function MusteriYeniPage() {
+  const tp = useTranslations("panelPages.musteriYeni");
   const t = useTranslations("dashboard");
   const tm = useTranslations("dashboard.mic");
   const { requestMic, micDialog, speechLang } = useMicAccess();
@@ -109,7 +110,7 @@ export default function MusteriYeniPage() {
       return true;
     }
     const data = await res.json();
-    toast.error(data.error || "Hata oluştu");
+    toast.error(data.error || tp("hata_olustu"));
     return false;
   }
 
@@ -390,16 +391,16 @@ export default function MusteriYeniPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2 space-y-1">
-                <Label>Ad Soyad *</Label>
+                <Label>{tp("ad_soyad")}</Label>
                 <Input
                   value={form.full_name}
                   onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
-                  placeholder="Müşteri adı soyadı"
+                  placeholder={tp("musteri_adi_soyadi")}
                   required
                 />
               </div>
               <div className="col-span-2 space-y-1">
-                <Label>Telefon *</Label>
+                <Label>{tp("telefon")}</Label>
                 <Input
                   type="tel"
                   value={form.phone}
@@ -414,16 +415,16 @@ export default function MusteriYeniPage() {
                   <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-400">
                     <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                     <span className="flex-1">
-                      Bu telefon <strong>{dupMatch.full_name}</strong> adına zaten kayıtlı.
+                      {tp.rich("phone_registered", { name: dupMatch.full_name, b: (c) => <strong>{c}</strong> })}
                     </span>
                     <Link href={`/dashboard/musteriler/${dupMatch.id}`} className="underline shrink-0">
-                      Görüntüle →
+                      {tp("goruntule")}
                     </Link>
                   </div>
                 )}
               </div>
               <div className="col-span-2 space-y-1">
-                <Label>E-posta</Label>
+                <Label>{tp("e_posta")}</Label>
                 <Input
                   type="email"
                   value={form.email}
@@ -432,7 +433,7 @@ export default function MusteriYeniPage() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Doğum Tarihi</Label>
+                <Label>{tp("dogum_tarihi")}</Label>
                 <Input
                   type="date"
                   value={form.birth_date}
@@ -440,29 +441,29 @@ export default function MusteriYeniPage() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Cinsiyet</Label>
+                <Label>{tp("cinsiyet")}</Label>
                 <Select
                   value={form.gender}
                   onValueChange={(v) => setForm((f) => ({ ...f, gender: v ?? "" }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Seçin..." />
+                    <SelectValue placeholder={tp("secin")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="kadin">Kadın</SelectItem>
-                    <SelectItem value="erkek">Erkek</SelectItem>
-                    <SelectItem value="diger">Diğer</SelectItem>
+                    <SelectItem value="kadin">{tp("kadin")}</SelectItem>
+                    <SelectItem value="erkek">{tp("erkek")}</SelectItem>
+                    <SelectItem value="diger">{tp("diger")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label>Tercih Edilen Dil</Label>
+                <Label>{tp("tercih_edilen_dil")}</Label>
                 <Select
                   value={form.preferred_language}
                   onValueChange={(v) => setForm((f) => ({ ...f, preferred_language: v ?? "" }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Belirtilmedi" />
+                    <SelectValue placeholder={tp("belirtilmedi")} />
                   </SelectTrigger>
                   <SelectContent>
                     {SUPPORTED_LANGUAGES.map((l) => (
@@ -472,11 +473,11 @@ export default function MusteriYeniPage() {
                 </Select>
               </div>
               <div className="col-span-2 space-y-1">
-                <Label>Notlar</Label>
+                <Label>{tp("notlar")}</Label>
                 <Input
                   value={form.notes}
                   onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-                  placeholder="Özel not veya bilgi..."
+                  placeholder={tp("ozel_not_veya_bilgi")}
                 />
               </div>
             </div>

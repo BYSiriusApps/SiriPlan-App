@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Search, X, Users, UserCog, Scissors, Loader2 } from "lucide-react";
 
 interface Customer { id: string; full_name: string; phone: string | null }
@@ -10,6 +11,7 @@ interface Service { id: string; name: string; price: number; duration_minutes: n
 interface SearchResults { customers: Customer[]; staff: StaffMember[]; services: Service[] }
 
 export function GlobalSearch() {
+  const tp = useTranslations("panelPages.ortak");
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResults | null>(null);
@@ -85,7 +87,7 @@ export function GlobalSearch() {
           ref={inputRef}
           type="text"
           value={query}
-          placeholder="Ara… (Ctrl+K)"
+          placeholder={tp("search_placeholder")}
           className="w-full pl-8 pr-7 py-1.5 text-xs rounded-lg outline-none transition-all bg-sidebar-accent/40 border border-sidebar-border text-sidebar-foreground placeholder:text-sidebar-foreground/40"
           onFocus={() => setOpen(true)}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
