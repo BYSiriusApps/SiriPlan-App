@@ -1,0 +1,4 @@
+/* SiriusPlan - izin açıklamaları (ar). Yalnızca kullanıcıya gösterilen metin; anahtarlar değişmez. */
+"NSMicrophoneUsageDescription" = "يستخدم SiriusPlan الميكروفون فقط عند النقر على زر الصوت لإنشاء موعد أو إضافة مخزون بالكلام بدلاً من الكتابة.";
+"NSLocationWhenInUseUsageDescription" = "يستخدم SiriusPlan موقعك فقط عند النقر على «استخدام موقعي» في إعدادات الموقع، لملء عنوان صالونك ورابط الخريطة في صفحة الحجز العامة.";
+"NSCameraUsageDescription" = "يستخدم SiriusPlan الكاميرا لمسح الباركود للمنتجات في المخزون والمبيعات، ولإرفاق الصور بالخدمات وسجلات العملاء وشعار نشاطك.";
