@@ -11,10 +11,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, Lock, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 type Phase = "verifying" | "ready" | "invalid" | "done";
 
 export default function YeniSifrePage() {
+  const tp = useTranslations("panelPages.yeniSifre");
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("verifying");
   const [password, setPassword] = useState("");
@@ -112,7 +114,7 @@ export default function YeniSifrePage() {
       <Card className="w-full max-w-md shadow-xl border-0 bg-card/80 backdrop-blur-sm">
         <CardContent className="py-12 text-center space-y-3">
           <Loader2 className="h-10 w-10 text-primary mx-auto animate-spin" />
-          <p className="text-muted-foreground text-sm">Bağlantı doğrulanıyor...</p>
+          <p className="text-muted-foreground text-sm">{tp("baglanti_dogrulaniyor")}</p>
         </CardContent>
       </Card>
     );
@@ -123,16 +125,15 @@ export default function YeniSifrePage() {
       <Card className="w-full max-w-md shadow-xl border-0 bg-card/80 backdrop-blur-sm">
         <CardContent className="py-10 text-center space-y-3">
           <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto" />
-          <h2 className="text-lg font-semibold">Bağlantı geçersiz veya süresi dolmuş</h2>
+          <h2 className="text-lg font-semibold">{tp("baglanti_gecersiz_veya_sures")}</h2>
           <p className="text-muted-foreground text-sm">
-            Şifre sıfırlama bağlantıları kısa süre geçerlidir ve yalnızca bir kez kullanılabilir.
-            Yeni bir bağlantı isteyin.
+            {tp("sifre_sifirlama_baglantilari")}
           </p>
           <Link
             href="/auth/sifre-sifirla"
             className="text-primary text-sm font-medium hover:underline block mt-4"
           >
-            Yeni sıfırlama bağlantısı iste
+            {tp("yeni_sifirlama_baglantisi_is")}
           </Link>
         </CardContent>
       </Card>
@@ -144,8 +145,8 @@ export default function YeniSifrePage() {
       <Card className="w-full max-w-md shadow-xl border-0 bg-card/80 backdrop-blur-sm">
         <CardContent className="py-10 text-center space-y-3">
           <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto" />
-          <h2 className="text-lg font-semibold">Şifre Güncellendi</h2>
-          <p className="text-muted-foreground text-sm">Panele yönlendiriliyorsunuz...</p>
+          <h2 className="text-lg font-semibold">{tp("sifre_guncellendi")}</h2>
+          <p className="text-muted-foreground text-sm">{tp("panele_yonlendiriliyorsunuz")}</p>
         </CardContent>
       </Card>
     );
@@ -154,18 +155,18 @@ export default function YeniSifrePage() {
   return (
     <Card className="w-full max-w-md shadow-xl border-0 bg-card/80 backdrop-blur-sm">
       <CardHeader className="text-center pb-2">
-        <CardTitle className="text-2xl">Yeni Şifre Belirle</CardTitle>
-        <CardDescription>En az 8 karakter, güçlü bir şifre seçin</CardDescription>
+        <CardTitle className="text-2xl">{tp("yeni_sifre_belirle")}</CardTitle>
+        <CardDescription>{tp("en_az_8_karakter")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Yeni Şifre</Label>
+            <Label>{tp("yeni_sifre")}</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="password"
-                placeholder="En az 8 karakter"
+                placeholder={tp("en_az_8_karakter_2")}
                 className="pl-9"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -176,12 +177,12 @@ export default function YeniSifrePage() {
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label>Şifre Tekrar</Label>
+            <Label>{tp("sifre_tekrar")}</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="password"
-                placeholder="Şifreyi tekrar girin"
+                placeholder={tp("sifreyi_tekrar_girin")}
                 className="pl-9"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
@@ -193,7 +194,7 @@ export default function YeniSifrePage() {
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Şifreyi Güncelle
+            {tp("sifreyi_guncelle")}
           </Button>
         </form>
       </CardContent>
