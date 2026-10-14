@@ -7,6 +7,7 @@ import { Loader2, CheckCircle2, XCircle, Calendar, Clock, User, Scissors } from 
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { PoweredByBadge } from "@/components/public/PoweredByBadge";
+import { useTranslations } from "next-intl";
 
 type CancelInfo = {
   status: string;
@@ -19,6 +20,7 @@ type CancelInfo = {
 };
 
 export default function CancelAppointmentPage({ params }: { params: Promise<{ token: string }> }) {
+  const tp = useTranslations("panelPages.iptal");
   const { token } = use(params);
 
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,7 @@ export default function CancelAppointmentPage({ params }: { params: Promise<{ to
     fetch(`/api/public/cancel?token=${encodeURIComponent(token)}`)
       .then(async (r) => {
         const d = await r.json();
-        if (!r.ok) throw new Error(d.error || "Randevu bulunamadı.");
+        if (!r.ok) throw new Error(d.error || tp("randevu_bulunamadi"));
         setInfo(d.appointment);
         if (d.appointment.status === "iptal") setCancelled(true);
       })
@@ -48,7 +50,7 @@ export default function CancelAppointmentPage({ params }: { params: Promise<{ to
         body: JSON.stringify({ token }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "İptal işlemi başarısız oldu.");
+      if (!r.ok) throw new Error(d.error || tp("iptal_islemi_basarisiz_oldu"));
       setCancelled(true);
     } catch (e) {
       setError((e as Error).message);
@@ -68,23 +70,23 @@ export default function CancelAppointmentPage({ params }: { params: Promise<{ to
           ) : error ? (
             <div className="text-center py-8 space-y-3">
               <XCircle className="h-12 w-12 text-red-500 mx-auto" />
-              <p className="font-semibold text-lg">Bir sorun oluştu</p>
+              <p className="font-semibold text-lg">{tp("bir_sorun_olustu")}</p>
               <p className="text-sm text-muted-foreground">{error}</p>
             </div>
           ) : cancelled ? (
             <div className="text-center py-8 space-y-3">
               <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto" />
-              <p className="font-semibold text-lg">Randevunuz İptal Edildi</p>
+              <p className="font-semibold text-lg">{tp("randevunuz_iptal_edildi")}</p>
               <p className="text-sm text-muted-foreground">
-                {info?.org_name} bilgilendirildi. Dilediğiniz zaman yeni randevu alabilirsiniz.
+                {info?.org_name} {tp("bilgilendirildi_dilediginiz_")}
               </p>
             </div>
           ) : info ? (
             <>
               <div className="text-center space-y-1">
-                <h1 className="text-xl font-bold">Randevu İptali</h1>
+                <h1 className="text-xl font-bold">{tp("randevu_iptali")}</h1>
                 <p className="text-sm text-muted-foreground">
-                  Merhaba {info.customer_name}, aşağıdaki randevunuzu iptal etmek üzeresiniz.
+                  {tp("merhaba")} {info.customer_name}{tp("asagidaki_randevunuzu_iptal_")}
                 </p>
               </div>
 
@@ -122,11 +124,11 @@ export default function CancelAppointmentPage({ params }: { params: Promise<{ to
                   disabled={submitting}
                 >
                   {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                  Randevuyu İptal Et
+                  {tp("randevuyu_iptal_et")}
                 </Button>
               ) : (
                 <p className="text-center text-sm text-muted-foreground py-2">
-                  Bu randevu artık iptal edilemez. Lütfen {info.org_name} ile iletişime geçin.
+                  {tp("bu_randevu_artik_iptal")} {info.org_name} {tp("ile_iletisime_gecin")}
                 </p>
               )}
             </>

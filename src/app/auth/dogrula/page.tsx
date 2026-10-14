@@ -8,8 +8,10 @@ import { Mail, Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 export default function DogrulaPage() {
+  const tp = useTranslations("panelPages.dogrula");
   const [resending, setResending] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -46,23 +48,22 @@ export default function DogrulaPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <Mail className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">E-postanızı Doğrulayın</CardTitle>
+          <CardTitle className="text-2xl">{tp("e_postanizi_dogrulayin")}</CardTitle>
           <CardDescription className="text-base mt-2">
-            Kayıt olduğunuz e-posta adresine bir doğrulama linki gönderdik.
-            Lütfen gelen kutunuzu kontrol edin ve linke tıklayın.
+            {tp("kayit_oldugunuz_e_posta")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-4">
           <div className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground space-y-2">
-            <p>• Spam/junk klasörünü de kontrol edin</p>
-            <p>• Link 24 saat geçerlidir</p>
-            <p>• Doğrulama yapılmadan sisteme giriş yapılamaz</p>
+            <p>{tp("spam_junk_klasorunu_de")}</p>
+            <p>{tp("link_24_saat_gecerlidir")}</p>
+            <p>{tp("dogrulama_yapilmadan_sisteme")}</p>
           </div>
 
           {sent ? (
             <div className="flex items-center gap-2 text-green-600 bg-green-50 dark:bg-green-950/30 rounded-lg p-3 text-sm">
               <CheckCircle className="h-4 w-4 shrink-0" />
-              Doğrulama e-postası tekrar gönderildi.
+              {tp("dogrulama_e_postasi_tekrar")}
             </div>
           ) : (
             <Button
@@ -72,14 +73,14 @@ export default function DogrulaPage() {
               disabled={resending}
             >
               {resending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              E-postayı Tekrar Gönder
+              {tp("e_postayi_tekrar_gonder")}
             </Button>
           )}
 
           <p className="text-center text-sm text-muted-foreground">
-            Farklı bir hesapla giriş yapmak mı istiyorsunuz?{" "}
+            {tp("farkli_bir_hesapla_giris")}{" "}
             <Link href="/auth/giris" className="text-primary hover:underline font-medium">
-              Giriş sayfası
+              {tp("giris_sayfasi")}
             </Link>
           </p>
         </CardContent>

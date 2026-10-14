@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { formatServicePrice } from "@/lib/currency";
 import { PoweredByBadge } from "@/components/public/PoweredByBadge";
+import { useTranslations } from "next-intl";
 
 type ApptInfo = {
   status: string;
@@ -32,6 +33,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 /** WhatsApp dinamik buton hedefi — Meta onaylı şablonlardaki {{randevu detayı}} linki. */
 export default function AppointmentDetailPage({ params }: { params: Promise<{ token: string }> }) {
+  const tp = useTranslations("panelPages.randevuToken");
   const { token } = use(params);
   const router = useRouter();
 
@@ -43,7 +45,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ to
     fetch(`/api/public/appointment?token=${encodeURIComponent(token)}`)
       .then(async (r) => {
         const d = await r.json();
-        if (!r.ok) throw new Error(d.error || "Randevu bulunamadı.");
+        if (!r.ok) throw new Error(d.error || tp("randevu_bulunamadi"));
         setInfo(d.appointment);
       })
       .catch((e: Error) => setError(e.message))
@@ -61,15 +63,15 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ to
           ) : error ? (
             <div className="text-center py-8 space-y-3">
               <XCircle className="h-12 w-12 text-red-500 mx-auto" />
-              <p className="font-semibold text-lg">Bir sorun oluştu</p>
+              <p className="font-semibold text-lg">{tp("bir_sorun_olustu")}</p>
               <p className="text-sm text-muted-foreground">{error}</p>
             </div>
           ) : info ? (
             <>
               <div className="text-center space-y-1">
-                <h1 className="text-xl font-bold">Randevu Detayı</h1>
-                <p className="text-sm text-muted-foreground">Merhaba {info.customer_name}</p>
-                <Badge variant="secondary">{STATUS_LABELS[info.status] ?? info.status}</Badge>
+                <h1 className="text-xl font-bold">{tp("randevu_detayi")}</h1>
+                <p className="text-sm text-muted-foreground">{tp("merhaba")} {info.customer_name}</p>
+                <Badge variant="secondary">{info.status in STATUS_LABELS ? tp(`st_${info.status}`) : info.status}</Badge>
               </div>
 
               <div className="rounded-xl bg-muted/50 p-4 space-y-3 text-sm">
@@ -111,7 +113,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ to
                         rel="noopener noreferrer"
                         className="text-rose-600 hover:underline"
                       >
-                        {info.org_address || "Konumu Görüntüle"}
+                        {info.org_address || tp("konumu_goruntule")}
                       </a>
                     ) : (
                       <span>{info.org_address}</span>
@@ -127,7 +129,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ to
                   className="w-full"
                   onClick={() => router.push(`/r/iptal/${token}`)}
                 >
-                  Randevuyu İptal Et
+                  {tp("randevuyu_iptal_et")}
                 </Button>
               )}
             </>

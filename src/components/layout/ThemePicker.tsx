@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Check, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 const THEMES = [
   {
@@ -67,6 +68,7 @@ const THEMES = [
 ] as const;
 
 export function ThemePicker() {
+  const tp = useTranslations("panelPages.temaSecici");
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -77,7 +79,7 @@ export function ThemePicker() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label="Renk teması seç"
+        aria-label={tp("renk_temasi_sec")}
         className="inline-flex items-center justify-center w-9 h-9 rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
       >
         {mounted ? (
@@ -93,7 +95,7 @@ export function ThemePicker() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-xs font-medium text-muted-foreground pb-1">
-            Renk Teması
+            {tp("renk_temasi")}
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -114,9 +116,9 @@ export function ThemePicker() {
                 style={{ backgroundColor: t.swatchColor }}
               />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium leading-none">{t.label}</p>
+                <p className="text-sm font-medium leading-none">{tp(`theme_${t.value}`)}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
-                  {t.sectors}
+                  {tp(`theme_${t.value}_sectors`)}
                 </p>
               </div>
               {isActive && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
