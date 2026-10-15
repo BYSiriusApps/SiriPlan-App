@@ -1,0 +1,4 @@
+/* SiriusPlan - izin açıklamaları (es). Yalnızca kullanıcıya gösterilen metin; anahtarlar değişmez. */
+"NSMicrophoneUsageDescription" = "SiriusPlan usa el micrófono solo cuando tocas el botón de voz para crear una cita o añadir inventario hablando en lugar de escribir.";
+"NSLocationWhenInUseUsageDescription" = "SiriusPlan usa tu ubicación solo cuando tocas «Usar mi ubicación» en los ajustes del sitio web, para rellenar la dirección y el enlace del mapa de tu salón en tu página pública de reservas.";
+"NSCameraUsageDescription" = "SiriusPlan usa la cámara para escanear códigos de barras de productos para el inventario y las ventas, y para que puedas adjuntar fotos a servicios, fichas de clientes y al logotipo de tu negocio.";
