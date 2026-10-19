@@ -4,8 +4,8 @@
     "approve": "Aprobar →",
     "lowStock": "Alerta de stock bajo: {count, plural, one {# producto ha} other {# productos han}} caído por debajo del nivel crítico establecido!",
     "goStock": "Ir a Gestión de Stock →",
-    "waFull": "Tu cuota de mensajes de WhatsApp para este mes se ha agotado ({used}/{limit}) — los mensajes automáticos de confirmación/recordatorio a los clientes no se enviarán hasta el próximo mes.",
-    "waWarn": "Se ha utilizado el 80% de tu cuota de mensajes de WhatsApp de este mes ({used}/{limit}).",
+    "waFull": "Tu cuota de mensajes de WhatsApp de este periodo se ha agotado ({used}/{limit}) — los mensajes automáticos de confirmación/recordatorio a los clientes no se enviarán hasta que se renueve (o hasta que compres un paquete de mensajes adicional).",
+    "waWarn": "Se ha utilizado el 80% de tu cuota de mensajes de WhatsApp de este periodo ({used}/{limit}).",
     "upgrade": "Mejorar plan →"
   },
   "homeVisual": {
@@ -239,7 +239,7 @@
       "features": [
         "1 ubicación, 1 miembro del personal",
         "200 citas al mes",
-        "200 mensajes de WhatsApp al mes (confirmaciones + recordatorios)",
+        "400 mensajes de WhatsApp al mes (confirmaciones + recordatorios)",
         "Enlace de reserva personal (siriplan.com/r/tu-salon)",
         "Ficha e historial de clientes",
         "Gestión de inventario y stock (ventas con código de barras)",
@@ -267,7 +267,7 @@
         "Seguimiento de paquetes / sesiones",
         "Lista de espera",
         "Informes de ingresos y gastos y cálculo de IVA",
-        "Recordatorios de WhatsApp",
+        "500 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios)",
         "Sistema de tarjetas de fidelización",
         "1 campaña al mes",
         "Exportación de datos (CSV)",
@@ -285,6 +285,7 @@
       "desc": "Paquete completo para salones en crecimiento",
       "features": [
         "1 ubicación, personal ilimitado",
+        "1.500 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios)",
         "Citas ilimitadas",
         "Asistente de voz para comandos de citas e inventario",
         "Modo Sitio Web — página de reservas personalizable con paleta de colores y fotos por categoría",
@@ -302,6 +303,7 @@
       "desc": "Para negocios con varias ubicaciones",
       "features": [
         "Hasta 5 ubicaciones",
+        "3.000 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios)",
         "Personal ilimitado",
         "Todas las funciones de Pro",
         "Asistente de IA para WhatsApp e IG",
@@ -317,11 +319,6 @@
       "name": "Paquete de WhatsApp con IA",
       "desc": "Asistente de IA avanzado, análisis de sentimiento, sugerencias inteligentes",
       "price": "$49/mes"
-    },
-    "sms": {
-      "name": "Paquete de SMS",
-      "desc": "Un paquete de saldo de 1.000 SMS que disminuye conforme envías; compra uno nuevo cuando se agote. Sin caducidad. Envía sin necesidad de tu propia cuenta de SMS",
-      "price": "$55 · 1.000 SMS"
     },
     "multiBranch": {
       "name": "Paquete de sucursal adicional",
@@ -562,7 +559,7 @@
       "sms": {
         "name": "Notificaciones por SMS",
         "category": "Mensajería",
-        "desc": "Envía recordatorios y confirmaciones por SMS a clientes que no usan WhatsApp. Funciona con los créditos de SMS de SiriPlan (un paquete de 1.000 SMS que disminuye al enviar) o tu propia cuenta de Netgsm, VatanSMS o İletimerkezi."
+        "desc": "Envía recordatorios y confirmaciones por SMS a clientes que no usan WhatsApp. Funciona con tu propia cuenta de Netgsm, VatanSMS o İletimerkezi."
       },
       "qr": {
         "name": "Código QR",
@@ -726,7 +723,7 @@
           },
           "q2": {
             "q": "¿Cómo funciona el recordatorio de WhatsApp?",
-            "a": "Los mensajes de confirmación de cita, recordatorio, cancelación y cambio se envían al cliente de forma automática a través de SiriPlan — no necesitas enviar mensajes manualmente. Los recordatorios se envían en las horas que elijas (como 24 horas o 2 horas antes) y pueden reducir los no presentados hasta en un 60%. Para SMS puedes comprar créditos de SMS de SiriPlan o conectar tu propio proveedor de SMS."
+            "a": "Los mensajes de confirmación de cita, recordatorio, cancelación y cambio se envían al cliente de forma automática a través de SiriPlan — no necesitas enviar mensajes manualmente. Los recordatorios se envían en las horas que elijas (como 24 horas o 2 horas antes) y pueden reducir los no presentados hasta en un 60%. Mensajes de citas de WhatsApp incluidos al mes: Mini 400, Starter 500, Pro 1.500, Business 3.000; el cupo se renueva en la fecha de inicio de su suscripción y, si hace falta, puede comprar un paquete de mensajes adicional."
           },
           "q3": {
             "q": "¿Para qué sirve el sistema de puntuación del cliente?",
@@ -1608,6 +1605,23 @@
     }
   },
   "dashboard": {
+    "waUsage": {
+      "title": "Cupo de mensajes de WhatsApp",
+      "utilityLabel": "Mensajes de citas (este mes)",
+      "renews": "El cupo de su plan se renueva el {date}.",
+      "addonBalance": "Saldo de paquetes adicionales",
+      "campaignBalance": "Créditos de campaña",
+      "noteEnforced": "Los mensajes de confirmación, recordatorio, cancelación y modificación de citas consumen este cupo. Cuando se agota, se usa el saldo de paquetes adicionales; si tampoco hay saldo, no se envían mensajes automáticos de WhatsApp y sus citas se siguen guardando con normalidad.",
+      "noteMetered": "Los mensajes de confirmación, recordatorio, cancelación y modificación de citas consumen este cupo. Cuando se agota el cupo del plan, se usa el saldo de paquetes adicionales.",
+      "campaignNote": "Los mensajes de campaña de WhatsApp no están incluidos en el plan; se envían con créditos de campaña comprados. Las campañas por SMS no se ven afectadas.",
+      "buyUtility": "{count} mensajes de citas adicionales",
+      "buyCampaign": "{count} mensajes de campaña",
+      "buyHint": "Los paquetes adicionales son de pago único, no se reinician cada mes y se acreditan automáticamente tras el pago.",
+      "buyError": "No se pudo abrir la página de pago. Inténtelo de nuevo.",
+      "buySuccess": "Pago recibido. Su saldo se actualizará en breve.",
+      "buyCanceled": "Pago cancelado.",
+      "manageLink": "Comprar paquetes adicionales / detalles"
+    },
     "menuLabel": "Menú",
     "calendarHourColumn": "HORA",
     "bookingLinkTitle": "Enlace de reserva de clientes",
@@ -1728,11 +1742,6 @@
       "upgradeToPro": "Actualizar a Pro",
       "changeToPlan": "Cambiar al plan {plan}",
       "manageBilling": "Gestionar facturación y método de pago",
-      "smsPackTitle": "Créditos SMS",
-      "smsPackDesc": "Envía SMS a tus clientes sin conectar tu propia cuenta de SMS. Paquetes de 1.000, 5.000 o 10.000 SMS que se reducen a medida que envías; compra uno nuevo cuando se agote. Sin fecha de caducidad.",
-      "smsPackBalance": "SMS restantes",
-      "smsPackBuy": "Comprar {count} créditos SMS",
-      "smsPackHint": "Los créditos se usan cuando las notificaciones SMS están activadas en Configuración y no tienes un proveedor de SMS propio conectado.",
       "addonsTitle": "Complementos",
       "addonBuyMonthly": "Mensual · {price}",
       "addonBuyAnnual": "Anual · {price}",
@@ -1756,9 +1765,6 @@
       "branchLinkedTitle": "Sucursal",
       "branchLinkedDesc": "Esta sucursal está vinculada a la suscripción de \"{parent}\". El plan y la facturación se gestionan desde el negocio principal.",
       "branchGoParent": "Ir al negocio principal y gestionar el plan",
-      "smsPackSuccess": "Pago recibido. Tus créditos se añadirán a tu cuenta en unos segundos.",
-      "smsPackCanceled": "El pago no se completó.",
-      "smsPackError": "No se pudo abrir la página de pago.",
       "trialBottomNote": "Todas las funciones Pro son gratuitas durante el periodo de prueba; no se requiere tarjeta de crédito. Puedes comparar Starter y Pro antes de que finalice la prueba y continuar con el plan que más te convenga.",
       "cancelSubscription": "Cancelar suscripción",
       "cancelConfirmTitle": "¿Estás seguro de que deseas cancelar tu suscripción?",
@@ -2458,7 +2464,7 @@
           "items": [
             {
               "label": "Mensajes automáticos de WhatsApp:",
-              "desc": "SiriPlan envía automáticamente a tu cliente confirmaciones de citas, recordatorios, cancelaciones y modificaciones: no escribes ni envías nada. En Configuración → \"Mensajes automáticos de WhatsApp\" eliges qué eventos activan un mensaje."
+              "desc": "SiriPlan envía automáticamente a tu cliente confirmaciones de citas, recordatorios, cancelaciones y modificaciones: no escribes ni envías nada. En Configuración → \"Mensajes automáticos de WhatsApp\" eliges qué eventos activan un mensaje. Cupo mensual incluido: Mini 400 · Starter 500 · Pro 1.500 · Business 3.000; se renueva cada mes en la fecha de inicio de su suscripción y, si se agota, puede comprar un paquete de mensajes adicional (Configuración → Suscripción)."
             },
             {
               "label": "Momento del recordatorio y plantilla:",
@@ -2466,7 +2472,7 @@
             },
             {
               "label": "SMS (opcional):",
-              "desc": "Hay dos opciones: compra créditos de SMS de SiriPlan en la página Configuración → Suscripción (un paquete de 1,000 SMS que disminuye a medida que envías, sin vencimiento, sin necesidad de cuenta de proveedor) o conecta tu propio proveedor (Netgsm, VatanSMS, İletimerkezi). Si hay un proveedor conectado, los SMS se envían desde su cuenta y no se consumen créditos."
+              "desc": "Conecta tu propio proveedor de SMS (Netgsm, VatanSMS, İletimerkezi) en Configuración → Notificaciones SMS; los SMS se envían desde tu cuenta."
             },
             {
               "label": "WhatsApp manual (opcional):",
@@ -2519,8 +2525,7 @@
             "Planes: los planes Mini, Starter, Pro y Business son fijos y transparentes. Sin solicitudes de cotizaciones ni esperas de agentes. Cada cuenta comienza con una prueba gratuita de 14 días.",
             "Detalles del plan: consulta tu plan actual, límites e historial de facturación en Configuración → Suscripción.",
             "Tu suscripción está vinculada a SiriPlan y se gestiona independientemente de las tiendas de aplicaciones. Para preguntas sobre actualizaciones o facturación, contacta a soporte: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Diferencias de planes: Mini — 1 empleado, 200 citas y 200 mensajes de WhatsApp al mes, enlace de reserva, registros de clientes, inventario/código de barras, paquetes, ingresos-gastos e IVA, exportación CSV. Starter — 1 sucursal, 8 empleados, citas ilimitadas, enlace de reserva, inventario/código de barras, paquetes, lista de espera, ingresos-gastos e IVA, recordatorios de WhatsApp, tarjeta de fidelidad, 1 campaña al mes, exportación CSV. Pro — personal ilimitado, asistente de voz, modo sitio web, reportes PDF, campañas, puntuación de clientes y Empleado de la Semana. Business — hasta 5 sucursales, todas las funciones de Pro, asistente de IA para WhatsApp/IG e integraciones personalizadas.",
-            "Créditos de SMS: Para enviar SMS sin conectar tu propia cuenta de SMS, puedes comprar un paquete de 1,000 créditos de SMS que disminuye a medida que envías (compra uno nuevo cuando se agote) en la página Configuración → Suscripción (sin vencimiento; el saldo restante se muestra en la misma página). Si tu propio proveedor está conectado, los SMS se envían desde su cuenta y no se consumen créditos. La opción de compra no se muestra en la aplicación móvil."
+            "Diferencias de planes: Mini — 1 empleado, 200 citas y 400 mensajes de WhatsApp al mes, enlace de reserva, registros de clientes, inventario/código de barras, paquetes, ingresos-gastos e IVA, exportación CSV. Starter — 1 sucursal, 8 empleados, citas ilimitadas, enlace de reserva, inventario/código de barras, paquetes, lista de espera, ingresos-gastos e IVA, 500 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios), tarjeta de fidelidad, 1 campaña al mes, exportación CSV. Pro — personal ilimitado, 1.500 mensajes de WhatsApp al mes incluidos, asistente de voz, modo sitio web, reportes PDF, campañas, puntuación de clientes y Empleado de la Semana. Business — hasta 5 sucursales, 3.000 mensajes de WhatsApp al mes incluidos, todas las funciones de Pro, asistente de IA para WhatsApp/IG e integraciones personalizadas. El cupo de mensajes de citas de WhatsApp se renueva cada mes en el aniversario del inicio de su suscripción; cuando se agota, puede comprar un paquete de mensajes adicional en Configuración → Suscripción. Los mensajes de campaña de WhatsApp no están incluidos en el plan y se envían con créditos de campaña."
           ]
         },
         "sadakat": {
@@ -2608,7 +2613,7 @@
             },
             {
               "q": "¿Qué necesito para enviar SMS?",
-              "a": "Compra créditos de SMS de SiriPlan en la página Suscripción (no se requiere cuenta de proveedor) o conecta tu propio proveedor de SMS en Configuración; luego marca \"Notificaciones SMS activadas\"."
+              "a": "Conecta tu propio proveedor de SMS (Netgsm, VatanSMS o İletimerkezi) en Configuración y marca «Notificaciones SMS activadas»."
             },
             {
               "q": "Quiero que el Calendario se abra al entrar al panel.",
@@ -3548,11 +3553,11 @@
       "templateStandard": "Estándar",
       "templateVariant": "Variante {n}",
       "metaTemplatesFootnote": "El texto de estas plantillas está preaprobado en tu panel de WhatsApp Business de Meta, por lo que no se puede editar aquí — solo puedes elegir qué variante se utiliza. Las vistas previas anteriores son un ejemplo aproximado de los parámetros que se enviarán (nombre, fecha, hora, etc.); el texto exacto depende de la plantilla aprobada en tu panel de Meta.",
-      "smsNotifDesc": "También puedes enviar avisos de confirmación, recordatorio y cancelación de citas por SMS. Hay dos formas: comprar créditos de SMS de SiriPlan en la página de Suscripción (no se requiere cuenta) o conectar tu propio proveedor de SMS (Netgsm, VatanSMS o İletimerkezi). Si se conecta un proveedor, los SMS se envían desde su cuenta y no se consumen créditos.",
+      "smsNotifDesc": "También puedes enviar avisos de confirmación, recordatorio y cancelación de citas por SMS. Para ello conecta tu propio proveedor de SMS (Netgsm, VatanSMS o İletimerkezi); los SMS se envían desde tu cuenta del proveedor.",
       "smsEnabledLabel": "Notificaciones por SMS activas",
       "smsEnabledDesc": "Cuando está desactivado, los botones \"Enviar SMS\" en los detalles de la cita no funcionan.",
       "smsProviderLabel": "Proveedor de SMS (opcional)",
-      "smsProviderPlaceholder": "Selecciona uno — o déjalo vacío para usar créditos de SiriPlan",
+      "smsProviderPlaceholder": "Selecciona un proveedor",
       "smsProviderUserCode": "Código de usuario",
       "smsProviderPassword": "Contraseña / Contraseña API",
       "smsProviderApiId": "ID de API",
@@ -3563,11 +3568,10 @@
       "smsSenderPlaceholder": "Tu encabezado de marca aprobado por el operador",
       "smsSenderHint": "El encabezado que aprobó el operador desde el panel de tu proveedor — el SMS se rechaza si se envía sin aprobación.",
       "smsCostTitle": "Sobre el costo",
-      "smsBuyPackLink": "Comprar créditos de SMS de SiriPlan / ver saldo →",
-      "smsProviderNone": "Sin proveedor propio (créditos SMS de SiriPlan)",
+      "smsProviderNone": "Sin proveedor conectado",
       "manualWaSummary": "Opcional: si deseas enviar un mensaje a mano desde tu propio WhatsApp (la mayoría de las empresas no lo necesitan)",
       "waAutoBanner": "Los mensajes salen automáticamente: cuando un cliente reserva, cuando una cita cambia o se acerca, el mensaje de WhatsApp le llega por sí solo. Tú no envías nada.",
-      "smsCostText": "Con tu propio proveedor es de aproximadamente 0.08–0.20 TRY por SMS (según el tamaño del paquete) sin tarifa mensual; compras el paquete de crédito en el sitio del proveedor. Los créditos de SiriPlan vienen en paquetes de 1,000 SMS que disminuyen a medida que envías, sin vencimiento (compra un nuevo paquete cuando se agote), comprados en la página de Suscripción.",
+      "smsCostText": "Con tu propio proveedor es de aproximadamente 0.08–0.20 TRY por SMS (según el tamaño del paquete) sin tarifa mensual; compras el paquete de crédito en el sitio del proveedor.",
       "waBusinessConnTitle": "Conexión de WhatsApp Business (Para campañas)",
       "waBusinessConnDesc": "Los mensajes de confirmación/recordatorio/cancelación de citas se envían automáticamente desde la propia línea de WhatsApp de SiriPlan — no necesitas hacer nada para eso. La conexión a continuación es solo para que los mensajes de marketing enviados desde el módulo de Campañas y las respuestas automáticas a los mensajes entrantes salgan desde tu propio número de WhatsApp Business.",
       "waAccessTokenLabel": "Token de acceso permanente",
@@ -4207,7 +4211,7 @@
       "plan_mini_desc": "Para profesionales independientes",
       "plan_mini_f0": "1 empleado",
       "plan_mini_f1": "200 citas al mes",
-      "plan_mini_f2": "200 mensajes de WhatsApp al mes (confirmaciones + recordatorios)",
+      "plan_mini_f2": "400 mensajes de WhatsApp al mes (confirmaciones + recordatorios)",
       "plan_mini_f3": "Página de reservas online",
       "plan_mini_f4": "Registro de clientes",
       "plan_mini_f5": "Gestión de inventario (ventas con código de barras)",
@@ -4217,7 +4221,7 @@
       "plan_starter_f0": "8 empleados",
       "plan_starter_f1": "Citas ilimitadas",
       "plan_starter_f2": "Página de reservas online",
-      "plan_starter_f3": "Recordatorios por WhatsApp",
+      "plan_starter_f3": "500 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios)",
       "plan_starter_f4": "Gestión de clientes",
       "plan_starter_f5": "Gestión de inventario (ventas con código de barras)",
       "plan_starter_f6": "Seguimiento de paquetes / sesiones",
@@ -4230,7 +4234,7 @@
       "best_seller": "Más vendido",
       "plan_pro_f0": "Personal ilimitado",
       "plan_pro_f1": "Citas ilimitadas",
-      "plan_pro_f2": "Todas las funciones de Starter",
+      "plan_pro_f2": "Todas las funciones de Starter · 1.500 mensajes de WhatsApp/mes incluidos",
       "plan_pro_f3": "Asistente de voz (comandos de citas y stock)",
       "plan_pro_f4": "Modo sitio web (página de reservas personalizable)",
       "plan_pro_f5": "Exportación de informes a PDF",
@@ -4239,7 +4243,7 @@
       "plan_pro_f8": "Gamificación (Empleado de la semana)",
       "plan_pro_f9": "Migración de datos (desde el sistema actual)",
       "plan_business_desc": "Para cadenas y negocios a gran escala",
-      "plan_business_f0": "Todas las funciones de Pro",
+      "plan_business_f0": "Todas las funciones de Pro · 3.000 mensajes de WhatsApp/mes incluidos",
       "plan_business_f1": "Hasta 5 ubicaciones",
       "plan_business_f2": "Asistente de IA (autorrespuesta WA/IG)",
       "plan_business_f3": "Soporte prioritario",

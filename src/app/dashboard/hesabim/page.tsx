@@ -5,6 +5,8 @@ import { getTranslations } from "next-intl/server";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { AccountProfileForm } from "@/components/dashboard/AccountProfileForm";
 import { PushToggle } from "@/components/dashboard/PushToggle";
+import { WaUsageCard } from "@/components/dashboard/WaUsageCard";
+import { isMobileApp } from "@/lib/mobile-app";
 
 export default async function HesabimPage() {
   const user = await getSessionUser();
@@ -69,6 +71,16 @@ export default async function HesabimPage() {
         email={user.email ?? "—"}
         permissionsJson={member.permissions_json}
       />
+
+      {/* Kalan WhatsApp mesaj hakkı / kampanya kredisi — yalnızca sahip/yönetici (personel işletme kullanımını görmez). */}
+      {(member.role === "owner" || member.role === "manager") && member.organizations && (
+        <WaUsageCard
+          orgId={member.org_id}
+          org={member.organizations}
+          variant="summary"
+          mobileApp={await isMobileApp()}
+        />
+      )}
 
       {/* Her rol (personel dahil) kendi cihazı için push bildirimini buradan açar. */}
       <div className="rounded-xl border border-border bg-card p-4">

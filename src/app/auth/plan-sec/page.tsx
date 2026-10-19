@@ -27,7 +27,7 @@ const PLANS = [
     features: [
       "1 personel",
       "Ayda 200 randevu",
-      "Ayda 200 WhatsApp mesajı (onay + hatırlatma)",
+      "Ayda 400 WhatsApp mesajı (onay + hatırlatma)",
       "Online randevu sayfası",
       "Müşteri kaydı",
       "Stok yönetimi (barkodla satış)",
@@ -46,7 +46,7 @@ const PLANS = [
       "8 personel",
       "Sınırsız randevu",
       "Online randevu sayfası",
-      "WhatsApp hatırlatma",
+      "Ayda 500 WhatsApp mesajı dahil (onay + hatırlatma)",
       "Müşteri yönetimi",
       "Stok yönetimi (barkodla satış)",
       "Paket / seans takibi",
@@ -67,7 +67,7 @@ const PLANS = [
     features: [
       "Sınırsız personel",
       "Sınırsız randevu",
-      "Tüm Starter özellikleri",
+      "Tüm Starter özellikleri · ayda 1.500 WhatsApp mesajı dahil",
       "Sesli asistan (randevu & stok komutları)",
       "Website modu (özelleştirilebilir randevu sayfası)",
       "PDF rapor export",
@@ -86,7 +86,7 @@ const PLANS = [
     highlight: "",
     description: "Zincir ve büyük ölçekli işletmeler için",
     features: [
-      "Tüm Pro özellikleri",
+      "Tüm Pro özellikleri · ayda 3.000 WhatsApp mesajı dahil",
       "5 şubeye kadar",
       "AI asistanı (WA/IG auto-reply)",
       "Öncelikli destek",

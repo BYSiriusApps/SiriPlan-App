@@ -3,7 +3,7 @@ import { sendTelegramMessage } from "@/lib/telegram";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
 
 /**
- * Mini planın aylık müşteri WhatsApp mesajı hakkı dolmadan (%80) ve dolunca (%100)
+ * Planın aylık müşteri WhatsApp mesajı hakkı dolmadan (%80) ve dolunca (%100)
  * salon sahibini bilgilendirir. Mesajlar sınıra ulaşınca müşteriye sessizce
  * gönderilmez; sahibin bunu panelden bakmadan da öğrenmesi için.
  *
@@ -34,12 +34,12 @@ export async function notifyWaQuota(orgId: string, kind: "warn" | "full", used: 
 
     const message =
       kind === "full"
-        ? `⚠️ <b>WhatsApp mesaj hakkınız doldu</b>\n\nBu ayki ${limit} müşteri mesajı hakkınızın tamamı kullanıldı (${used}/${limit}). ` +
-          `Yeni aya kadar müşterilerinize otomatik onay/hatırlatma WhatsApp mesajı gönderilmeyecek; randevularınız normal şekilde kaydedilmeye devam eder.\n\n` +
-          `Daha fazla mesaj için planınızı yükseltebilirsiniz: siriplan.com/dashboard/abonelik`
-        : `⚠️ <b>WhatsApp mesaj hakkınızın %80'i doldu</b>\n\nBu ay ${used}/${limit} müşteri mesajı kullandınız. ` +
-          `Hak dolunca yeni aya kadar otomatik onay/hatırlatma mesajı gönderilmez.\n\n` +
-          `Planınızı yükseltmek için: siriplan.com/dashboard/abonelik`;
+        ? `⚠️ <b>WhatsApp mesaj hakkınız doldu</b>\n\nBu dönemki ${limit} müşteri mesajı hakkınızın tamamı kullanıldı (${used}/${limit}). ` +
+          `Hakkınız abonelik başlangıç tarihinizin aylık yıldönümünde yenilenir; o tarihe kadar (ya da ek mesaj paketi alana kadar) müşterilerinize otomatik onay/hatırlatma WhatsApp mesajı gönderilmeyecek; randevularınız normal şekilde kaydedilmeye devam eder.\n\n` +
+          `Ek mesaj paketi almak ya da planınızı yükseltmek için: siriplan.com/dashboard/abonelik`
+        : `⚠️ <b>WhatsApp mesaj hakkınızın %80'i doldu</b>\n\nBu dönem ${used}/${limit} müşteri mesajı kullandınız. ` +
+          `Hak dolunca (yenilenmeye ya da ek paket alana kadar) otomatik onay/hatırlatma mesajı gönderilmez.\n\n` +
+          `Ek mesaj paketi almak ya da planınızı yükseltmek için: siriplan.com/dashboard/abonelik`;
 
     const tasks: Promise<unknown>[] = [];
     const chatId = (org as { telegram_chat_id?: string | null }).telegram_chat_id;

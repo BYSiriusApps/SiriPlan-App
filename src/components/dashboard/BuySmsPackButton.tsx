@@ -18,6 +18,9 @@ export function BuySmsPackButton({
   successText,
   canceledText,
   returnStatus,
+  endpoint = "/api/stripe/sms-pack",
+  returnPath = "/dashboard/abonelik",
+  idPrefix = "pc-sms",
 }: {
   /** Satın alınabilir paketler; label sunucuda çevrilmiş/biçimlendirilmiş gelir. */
   packs: { id: string; label: string; priceLabel?: string }[];
@@ -25,6 +28,10 @@ export function BuySmsPackButton({
   successText: string;
   canceledText: string;
   returnStatus?: string;
+  /** Checkout ucu; varsayılan SMS kontörü. WhatsApp kredisi için /api/stripe/wa-pack. */
+  endpoint?: string;
+  returnPath?: string;
+  idPrefix?: string;
 }) {
   const [loading, setLoading] = useState<string | null>(null);
   const router = useRouter();
@@ -35,7 +42,7 @@ export function BuySmsPackButton({
   useEffect(() => {
     if (returnStatus === "success") toast.success(successText);
     else if (returnStatus === "canceled") toast.info(canceledText);
-    if (returnStatus) router.replace("/dashboard/abonelik");
+    if (returnStatus) router.replace(returnPath);
     // Yalnızca ilk açılışta (dönüş parametresi varken) bir kez çalışır.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -49,7 +56,7 @@ export function BuySmsPackButton({
     }
     setLoading(packId);
     try {
-      const res = await fetch("/api/stripe/sms-pack", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pack: packId, consent }),
@@ -70,7 +77,7 @@ export function BuySmsPackButton({
   return (
     <div className="space-y-3">
       <PurchaseConsent
-        idPrefix="pc-sms"
+        idPrefix={idPrefix}
         value={consent}
         highlight={consentWarn && !isConsentComplete(consent)}
         onChange={(v) => { setConsent(v); if (isConsentComplete(v)) setConsentWarn(false); }}

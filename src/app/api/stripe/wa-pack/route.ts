@@ -1,0 +1,151 @@
+import { NextResponse } from "next/server";
+import type Stripe from "stripe";
+import { getLocale } from "next-intl/server";
+import { getActiveMember } from "@/lib/active-org";
+import { getStripe } from "@/lib/stripe/config";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { isMobileApp } from "@/lib/mobile-app";
+import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
+import { getWaCreditPack, getWaCreditPackPriceId } from "@/lib/wa-credit-packs";
+import { getEntitlements } from "@/lib/entitlements";
+import { CONSENT_VERSION } from "@/lib/legal/seller";
+
+export const dynamic = "force-dynamic";
+
+const STRIPE_LOCALE: Record<string, Stripe.Checkout.SessionCreateParams.Locale> = {
+  tr: "tr",
+  en: "en",
+  ru: "ru",
+  ar: "en",
+  de: "de",
+  es: "es",
+};
+
+/**
+ * Tek seferlik WhatsApp mesaj kredisi satın alma (ek utility / kampanya). Abonelikten bağımsızdır:
+ * Stripe Checkout `payment` modunda açılır; kredi, ödeme tamamlanınca api/webhooks/stripe
+ * tarafından org'a yüklenir (burada ASLA yüklenmez). Mobil uygulama içinden açılamaz.
+ */
+export async function POST(req: Request) {
+  // Mağaza kurallarına uyum (bkz. api/stripe/checkout): native uygulama içinden
+  // ödeme oturumu asla açılmaz.
+  if (await isMobileApp()) {
+    return NextResponse.json(
+      { error: "Bu işlem mobil uygulama içinden yapılamaz. Lütfen web'den devam edin." },
+      { status: 403 }
+    );
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const member = await getActiveMember(supabase);
+  if (!member) return NextResponse.json({ error: "No organization" }, { status: 404 });
+  // Abonelik sayfasıyla aynı kural: yalnızca sahip/yönetici ödeme başlatabilir.
+  if (member.role !== "owner" && member.role !== "manager") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // Mesafeli satış: ödeme öncesi iki açık onay zorunlu (bkz. api/stripe/checkout).
+  const body = (await req.json().catch(() => ({}))) as { pack?: string; consent?: { distanceSales?: boolean; immediateStart?: boolean } };
+  if (body?.consent?.distanceSales !== true || body?.consent?.immediateStart !== true) {
+    return NextResponse.json(
+      { error: "Ödemeye geçmeden önce Mesafeli Satış Sözleşmesi ve hizmetin hemen başlaması onaylarını işaretlemeniz gerekir.", code: "CONSENT_REQUIRED" },
+      { status: 400 }
+    );
+  }
+  const consentAt = new Date().toISOString();
+
+  // Paket yalnızca sunucudaki katalogdan seçilir; kredi adedi istemciden alınmaz.
+  const pack = getWaCreditPack((body as { pack?: unknown })?.pack);
+  if (!pack) return NextResponse.json({ error: "Geçersiz paket" }, { status: 400 });
+  const priceId = getWaCreditPackPriceId(pack.id);
+  if (!priceId) {
+    return NextResponse.json({ error: "Bu paket için fiyat tanımlı değil" }, { status: 500 });
+  }
+
+  type OrgJoin = {
+    stripe_customer_id?: string | null;
+    name: string;
+    plan?: string | null;
+    trial_ends_at?: string | null;
+    feature_campaigns?: boolean | null;
+  };
+  const org = (member as unknown as { org_id: string; organizations: OrgJoin }).organizations;
+
+  // Kampanya kredisi yalnızca kampanya modülü açık planlarda satılır (aksi halde kullanılamaz).
+  if (pack.kind === "marketing" && !getEntitlements(org).feature_campaigns) {
+    return NextResponse.json({ error: "Kampanya modülü mevcut planınıza dahil değil." }, { status: 403 });
+  }
+
+  const stripe = getStripe();
+  let customerId = org.stripe_customer_id;
+  if (!customerId) {
+    const customer = await stripe.customers.create({
+      email: user.email,
+      name: org.name,
+      metadata: { org_id: member.org_id, user_id: user.id },
+    });
+    customerId = customer.id;
+    // Yetki kontrolü yukarıda (owner/manager) yapıldı; yazım sunucu yetkisiyle.
+    const admin = await createAdminClient();
+    await admin.from("organizations").update({ stripe_customer_id: customerId }).eq("id", member.org_id);
+  }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const visitorCurrency = getPricingCurrencyFromHeaders(req.headers).toLowerCase();
+  const locale = await getLocale();
+
+  const params: Stripe.Checkout.SessionCreateParams = {
+    customer: customerId,
+    payment_method_types: ["card"],
+    mode: "payment",
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: `${appUrl}/dashboard/abonelik?wa_pack=success`,
+    cancel_url: `${appUrl}/dashboard/abonelik?wa_pack=canceled`,
+    // Webhook org'u bu alandan okur (oturum nesnesinde top-level metadata bulunur).
+    metadata: { kind: "wa_pack", wa_kind: pack.kind, org_id: member.org_id, credits: String(pack.credits), consent_version: CONSENT_VERSION, consent_at: consentAt },
+    locale: STRIPE_LOCALE[locale] ?? "auto",
+  };
+
+  // Para birimi davranışı plan checkout'uyla aynı (bkz. api/stripe/checkout):
+  // önce ziyaretçinin para birimiyle denenir, yalnızca para biriminden
+  // kaynaklanan hatada Price'ın varsayılanına düşülür.
+  let session;
+  try {
+    session = await stripe.checkout.sessions.create({ ...params, currency: visitorCurrency });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (!/currency/i.test(message)) throw err;
+    console.error(`[stripe] WhatsApp paketi ${visitorCurrency.toUpperCase()} ile açılamadı, varsayılan para birimine düşülüyor: ${message}`);
+    session = await stripe.checkout.sessions.create(params);
+  }
+
+  // Onay kaydı (ispat). Hata ödemeyi engellemez.
+  try {
+    const admin = await createAdminClient();
+    await admin.from("audit_logs").insert({
+      org_id: member.org_id,
+      action: "consent.distance_sales",
+      table_name: "organizations",
+      new_data: {
+        version: CONSENT_VERSION,
+        at: consentAt,
+        user_id: user.id,
+        kind: "wa_pack",
+        pack: pack.id,
+        currency: visitorCurrency,
+        checkout_session_id: session.id,
+        distance_sales: true,
+        immediate_start: true,
+        ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+        user_agent: req.headers.get("user-agent")?.slice(0, 300) ?? null,
+      },
+    });
+  } catch (err) {
+    console.error("[stripe] WhatsApp paketi onay kaydı yazılamadı:", err);
+  }
+
+  return NextResponse.json({ url: session.url });
+}

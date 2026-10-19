@@ -731,9 +731,19 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
 **TEST EDİLECEK:**
 - [x] **Claude yedeği gerçek anahtarla — TAMAM (10 Eki 2026, yerel test):** normal çağrıda Gemini 200 yanıtladı; Gemini model adları bozulunca (404, 404) çağrı `api.anthropic.com` 200 ile Claude'dan geldi. Canlı ayarlara/env'e dokunulmadı. (Eski not:) Anthropic Console'da kredi **$0** — önce $5–10 yükle. Sonra `GEMINI_MODEL` ve `GEMINI_FALLBACK_MODEL` env'ini geçici olarak var olmayan bir adla ayarlayıp (ya da yerelde) bir AI yanıtı/site sohbet botu denemesi yap; yanıtın Claude'dan geldiğini doğrula, sonra env'i geri al. Şu ana kadar yalnızca sahte fetch ile doğrulandı.
 - [ ] **Gemini ücretli faturalama:** anahtar ücretsiz katmanda değil, faturalama hesabına bağlı olmalı (girdilerin model geliştirmede kullanılmaması için).
-- [ ] **Stripe webhook + ek paket uçtan uca (test modu):** `stripe listen`, `STRIPE_WEBHOOK_SECRET`; plan yükselt/düşür + AI Asistan/Ek Şube satın alma; DB (`organizations.plan`, `org_addons`, `org_branches`) + abonelik ekranı kontrol. Business checkout'ta artık deneme olmadığını da bu testte doğrula (Stripe oturumunda "trial" görünmemeli).
+- [x] **Stripe webhook + ek paket — TAMAM (10 Eki 2026, test modu):** `.env.local.example` test anahtarları + `stripe listen`; Pro oturumu 0 TRY (deneme var), Business 4752 TRY (deneme YOK); AI Asistan + 2 Ek Şube aboneliği webhook ile `org_addons`/`feature_ai`'yi açtı, iptalde kapattı, 200 dışı yanıt yok. Bilerek denenmedi: gerçek kartla satın alma ve plan aboneliği webhook yolu (karar: gerek yok).
 
 **MAĞAZALAR İÇİN KONTROL EDİLECEK (ayrı sohbet, yeni build GEREKMEZ):**
 - [ ] App Store Connect → App Privacy: sohbet/mesaj içeriği ve ses üçüncü taraf AI sağlayıcılara gidiyor; "User Content" (Other User Content) verisi toplanıyor ve üçüncü tarafla paylaşılıyor olarak işaretli mi? Gemini için zaten doğruysa Claude yedeği ek değişiklik gerektirmez.
 - [ ] Google Play → Data safety: "Messages" ve "Audio" verilerinin üçüncü taraflarla paylaşıldığı beyan edilmiş mi? Aynı mantık.
 - [ ] Mağaza gizlilik URL'si siriplan.com/gizlilik (güncellendi) — başka yerde kopya gizlilik metni varsa (store listing, e-posta imzası) orayı da güncelle.
+
+**Kalan işler (10 Eki 2026 kapanış):**
+- [ ] Commit'siz Reels / demo-video / App Store ekran görüntüsü paketi (~60 MB): commit mi, depo dışına taşıma mı — karar ver (paralel oturumlarda commit karışmasın).
+- [ ] §15 mesafeli satış: avukat + KDV teyidi; /iletisim'de TR ofis yazısı.
+- [ ] §6 yasal metinler ve §0 SEC maddeleri.
+- [ ] Meta işletme doğrulaması vakası (29013474461597889) takibi.
+- [ ] SMS sağlayıcı (ayrı sohbette yürüyor).
+- [ ] Anthropic kredisi $0 — Claude yedeği için $5–10 yükle; anahtar 30.09.2027'de biter.
+- [ ] Güvenlik: `.env.local.example` içindeki `sk_test` anahtarı bulut senkronunda; roll etmeyi düşün.
+- [ ] iOS 1.1 (build 4) taslağı: push (Firebase+APNs) bitince build 5 ile gönder.

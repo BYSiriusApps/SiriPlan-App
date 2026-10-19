@@ -3,8 +3,7 @@
 // WHATSAPP_PHONE_ID → Phone number ID in Meta Business account
 
 import { toWhatsAppNumber } from "@/lib/phone";
-
-const META_API = "https://graph.facebook.com/v19.0";
+import { getWaLine, postWaMessage } from "@/lib/wa-line";
 
 /**
  * Serbest metin WhatsApp mesajı gönderir.
@@ -16,28 +15,21 @@ const META_API = "https://graph.facebook.com/v19.0";
  * taraf kullanıcıya "linki elle iletin" seçeneği sunmalı.
  */
 export async function sendWhatsAppMessage(toNumber: string, text: string): Promise<boolean> {
-  const token = process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_META_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID;
+  // SiriPlan utility hattı (sağlayıcı: meta | 360dialog — bkz. lib/wa-line.ts).
+  const waLine = getWaLine("utility");
   const to = toWhatsAppNumber(toNumber);
-  if (!token || !phoneId || !to) {
+  if (!waLine || !to) {
     console.error(`[whatsapp-notify] whatsapp_not_configured — to=${to || "(boş)"}`);
     return false;
   }
 
   let res: Response;
   try {
-    res = await fetch(`${META_API}/${phoneId}/messages`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to,
-        type: "text",
-        text: { body: text },
-      }),
+    res = await postWaMessage(waLine, {
+      messaging_product: "whatsapp",
+      to,
+      type: "text",
+      text: { body: text },
     });
   } catch (e) {
     console.error(`[whatsapp-notify] ağ hatası — to=${to}`, e);

@@ -1,7 +1,6 @@
 import { toWhatsAppNumber } from "@/lib/phone";
+import { getWaLine, postWaMessage } from "@/lib/wa-line";
 import { WA_INTERNAL_TEMPLATES, type WaInternalPurpose } from "@/lib/wa-templates/internal-registry";
-
-const META_API = "https://graph.facebook.com/v19.0";
 
 /**
  * Personele/sahibe Meta onaylı ŞABLON mesajıyla bildirim göndermeyi dener.
@@ -27,10 +26,10 @@ export async function sendInternalTemplate(
 ): Promise<boolean> {
   const def = WA_INTERNAL_TEMPLATES[purpose];
 
-  const token = process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_META_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID;
+  // SiriPlan utility hattı (sağlayıcı: meta | 360dialog — bkz. lib/wa-line.ts).
+  const waLine = getWaLine("utility");
   const to = toWhatsAppNumber(toNumber);
-  if (!token || !phoneId || !to) return false;
+  if (!waLine || !to) return false;
 
   const bodyParameters = def.bodyParamOrder.map((key) => {
     const cleaned = (params[key] ?? "").replace(/\s+/g, " ").trim();
@@ -39,19 +38,15 @@ export async function sendInternalTemplate(
 
   async function attempt(name: string, languageCode: string): Promise<boolean> {
     try {
-      const res = await fetch(`${META_API}/${phoneId}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          messaging_product: "whatsapp",
-          to,
-          type: "template",
-          template: {
-            name,
-            language: { code: languageCode },
-            components: [{ type: "body", parameters: bodyParameters }],
-          },
-        }),
+      const res = await postWaMessage(waLine!, {
+        messaging_product: "whatsapp",
+        to,
+        type: "template",
+        template: {
+          name,
+          language: { code: languageCode },
+          components: [{ type: "body", parameters: bodyParameters }],
+        },
       });
       if (!res.ok) {
         const errText = await res.text().catch(() => "");

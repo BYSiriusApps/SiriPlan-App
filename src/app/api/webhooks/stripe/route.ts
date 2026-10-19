@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe, type PlanKey } from "@/lib/stripe/config";
 import { applyPlanToOrg, planFromPriceId } from "@/lib/stripe/apply-plan";
+import { recordWaCycleAnchor } from "@/lib/wa-quota";
 import { addonFromSubscription, syncAddonSubscription } from "@/lib/stripe/addons";
 import { syncBranchesFromParent } from "@/lib/branches";
 
@@ -80,6 +81,44 @@ export async function POST(req: NextRequest) {
         }
         break;
       }
+      // Tek seferlik WhatsApp mesaj kredisi (utility / kampanya). SMS paketiyle aynı kurallar:
+      // yalnızca ödeme alındıysa, org'un customer'ı oturumdakiyle eşleşiyorsa yüklenir;
+      // aynı oturum tekrar gelirse add_wa_credits idempotent olduğundan ikinci kez yüklenmez.
+      if (session.mode === "payment" && session.metadata?.kind === "wa_pack") {
+        const waOrgId = session.metadata.org_id;
+        const waKind = session.metadata.wa_kind;
+        const waCredits = Number(session.metadata.credits);
+        if (
+          session.payment_status === "paid" &&
+          waOrgId &&
+          (waKind === "utility" || waKind === "marketing") &&
+          Number.isInteger(waCredits) &&
+          waCredits > 0
+        ) {
+          const { data: waOrg } = await supabase
+            .from("organizations")
+            .select("id, stripe_customer_id")
+            .eq("id", waOrgId)
+            .single();
+          if (waOrg && waOrg.stripe_customer_id && waOrg.stripe_customer_id === session.customer) {
+            const { error } = await supabase.rpc("add_wa_credits", {
+              p_org: waOrg.id,
+              p_kind: waKind,
+              p_credits: waCredits,
+              p_session: session.id,
+              p_amount: session.amount_total,
+              p_currency: session.currency,
+            });
+            if (error) {
+              console.error("[stripe-webhook] WhatsApp kredisi yüklenemedi:", error.message);
+              // 500 → Stripe olayı yeniden dener; ödeme alınmış kredi kaybolmasın.
+              return NextResponse.json({ error: "wa_credit_failed" }, { status: 500 });
+            }
+            await writeAuditLog(waOrg.id, "wa_pack.purchased", { kind: waKind, credits: waCredits, session: session.id, event: event.id });
+          }
+        }
+        break;
+      }
       // Ek paket (AI Asistan / Ek Şube) aboneliği: plan aboneliği DEĞİLDİR.
       // Aşağıdaki kod stripe_subscription_id'yi ezerdi → plan değiştirme/iptal
       // akışı yanlış aboneliğe bakardı. Durum customer.subscription.* olaylarında
@@ -114,6 +153,8 @@ export async function POST(req: NextRequest) {
               const plan = (sub.metadata?.plan as PlanKey | undefined) || planFromPriceId(priceId);
               if (plan) {
                 await applyPlanToOrg(org.id, plan, sub.status);
+                // WhatsApp mesaj kotası yenilenmesi abonelik başlangıcına bağlı (hata akışı etkilemez).
+                await recordWaCycleAnchor(org.id, sub.billing_cycle_anchor);
                 await writeAuditLog(org.id, "subscription.plan_applied_on_checkout", { plan, status: sub.status, event: event.id });
               }
             }
@@ -167,6 +208,8 @@ export async function POST(req: NextRequest) {
         const plan = (sub.metadata?.plan as PlanKey | undefined) || planFromPriceId(priceId);
         if (plan) {
           await applyPlanToOrg(org.id, plan, sub.status);
+          // Yükseltmede faturalama çıpası "şimdi"ye kayar; kota dönemi de oradan başlar (hata akışı etkilemez).
+          await recordWaCycleAnchor(org.id, sub.billing_cycle_anchor);
         } else {
           await supabase.from("organizations").update({
             subscription_status: sub.status,
