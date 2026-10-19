@@ -7,8 +7,9 @@ import {
 } from "@/lib/wa-templates/registry";
 import { googleMapsLink } from "@/lib/wa-template";
 import { normalizePhone as toStoredPhoneFormat } from "@/lib/phone";
-import { monthlyWaMessageLimit } from "@/lib/entitlements";
-import { consumePlanUsage, getPlanUsage, releasePlanUsage } from "@/lib/plan-usage";
+import { isWaQuotaEnforced, monthlyUtilityQuota } from "@/lib/entitlements";
+import { consumeWaUtility, getWaUsageSummary, releaseWaUtility } from "@/lib/wa-quota";
+import { getWaLine, postWaMessage } from "@/lib/wa-line";
 import { notifyWaQuota, shouldNotifyWaQuota } from "@/lib/plan-limit-notify";
 
 /**
@@ -64,9 +65,9 @@ export async function sendPurposeTemplate({
     return { skipped: true, reason: "appointment_in_past" };
   }
 
-  const token = process.env.WHATSAPP_TOKEN || process.env.WHATSAPP_META_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_ID || process.env.WHATSAPP_PHONE_NUMBER_ID;
-  if (!token || !phoneId) {
+  // SiriPlan'ın utility hattı (sağlayıcı: meta | 360dialog — bkz. lib/wa-line.ts).
+  const waLine = getWaLine("utility");
+  if (!waLine) {
     console.error(`[wa-templates] whatsapp_not_configured — purpose=${purpose} orgId=${orgId}`);
     return { skipped: true, reason: "whatsapp_not_configured" };
   }
@@ -235,22 +236,15 @@ export async function sendPurposeTemplate({
     params: { type: string; text: string }[] = bodyParameters
   ): Promise<SendPurposeTemplateResult> {
     const components = buildComponents(params);
-    const res = await fetch(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+    const res = await postWaMessage(waLine!, {
+      messaging_product: "whatsapp",
+      to,
+      type: "template",
+      template: {
+        name: templateName,
+        language: { code: languageCode },
+        components,
       },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to,
-        type: "template",
-        template: {
-          name: templateName,
-          language: { code: languageCode },
-          components,
-        },
-      }),
     });
 
     if (!res.ok) {
@@ -264,31 +258,32 @@ export async function sendPurposeTemplate({
     return { sent: true, template: templateName };
   }
 
-  // Mini planın aylık müşteri mesajı sınırı (ödenen plan değilse / diğer planlarda
-  // limit null → bu blok hiç çalışmaz, davranış aynen eskisi gibidir). Hak, Meta'ya
-  // gitmeden ÖNCE atomik olarak tüketilir; dil yedeği denemeleri (EN→TR) tek mesajdır.
-  // Sayaç altyapısı hata verirse ("error") gönderim ENGELLENMEZ.
-  const waLimit = monthlyWaMessageLimit(org);
-  let usageConsumed = false;
-  if (waLimit !== null) {
-    const usage = await consumePlanUsage(orgId, "wa_message", waLimit);
-    if (usage === "exceeded") {
-      console.warn(`[wa-templates] aylık mesaj sınırı doldu — purpose=${purpose} orgId=${orgId} limit=${waLimit}`);
-      return { skipped: true, reason: "wa_quota_exceeded" };
-    }
-    usageConsumed = usage === "ok";
+  // Plana dahil aylık UTILITY hakkı (+ satın alınan ek utility kredisi). Hak, Meta'ya
+  // gitmeden ÖNCE atomik tüketilir; dil yedeği denemeleri (EN→TR) tek mesajdır. Kota dolunca
+  // mesaj YALNIZCA kotası "uygulanan" planlarda (varsayılan: Mini) durur; diğer planlarda
+  // yalnızca sayılır (bkz. isWaQuotaEnforced). Sayaç altyapısı hata verirse gönderim ENGELLENMEZ.
+  const consumed = await consumeWaUtility(orgId, org);
+  if (consumed.result === "exceeded") {
+    console.warn(`[wa-templates] aylık mesaj sınırı doldu — purpose=${purpose} orgId=${orgId} limit=${monthlyUtilityQuota(org)}`);
+    return { skipped: true, reason: "wa_quota_exceeded" };
   }
+  const usageSource = consumed.result === "ok" ? consumed.source : null;
+  const usagePeriod = consumed.result === "ok" ? consumed.period : null;
 
   const result = await sendWithLocaleFallback();
-  // Meta mesajı kabul etmediyse harcanan hak geri verilir (gitmeyen mesaj sayılmasın).
-  if (usageConsumed && !("sent" in result)) {
-    await releasePlanUsage(orgId, "wa_message");
+  // Mesaj kabul edilmediyse harcanan hak geri verilir (gitmeyen mesaj sayılmasın).
+  if (usageSource && usagePeriod && !("sent" in result)) {
+    await releaseWaUtility(orgId, usageSource, usagePeriod);
   }
-  // Hak %80 ve %100'e ulaşınca salon sahibine tek seferlik bildirim (hata gönderimi etkilemez).
-  if (usageConsumed && waLimit !== null && "sent" in result) {
-    const used = await getPlanUsage(orgId, "wa_message");
-    const level = shouldNotifyWaQuota(used, waLimit);
-    if (level) await notifyWaQuota(orgId, level, used, waLimit);
+  // Plan hakkı %80 ve %100'e ulaşınca salon sahibine tek seferlik bildirim (hata gönderimi etkilemez).
+  // Yalnızca mesajların gerçekten duracağı planlarda ve ek kredi yokken ("doldu" yanıltıcı olmasın).
+  const planQuota = monthlyUtilityQuota(org);
+  if (usageSource === "plan" && planQuota !== null && isWaQuotaEnforced(org) && "sent" in result) {
+    const summary = await getWaUsageSummary(orgId, org);
+    const level = shouldNotifyWaQuota(summary.utilityUsed, planQuota);
+    if (level && !(level === "full" && summary.utilityAddonBalance > 0)) {
+      await notifyWaQuota(orgId, level, summary.utilityUsed, planQuota);
+    }
   }
   return result;
 

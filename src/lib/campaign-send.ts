@@ -2,8 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveCampaignRecipients, renderCampaignMessage } from "@/lib/campaign-segment";
 import { sendSms } from "@/lib/sms";
 import { optOutFooter } from "@/lib/marketing-opt-out";
-import { campaignRecipientLimit, monthlyCampaignWaLimit } from "@/lib/entitlements";
-import { consumePlanUsage, getPlanUsage, releasePlanUsage } from "@/lib/plan-usage";
+import { campaignRecipientLimit } from "@/lib/entitlements";
+import { consumeWaMarketing, getWaUsageSummary, releaseWaMarketing } from "@/lib/wa-quota";
 import { campaignLang, getCampaignWaConfig, sendCampaignTemplate } from "@/lib/campaign-wa-template";
 import { getOffer, isOfferExpired, offerTermsLine } from "@/lib/campaign-offer";
 
@@ -128,17 +128,19 @@ export async function sendCampaignNow(
   // şablonuyla o numaradan gider (soğuk müşteriye serbest metin Meta'ca reddedilir).
   // Tanımlı değilse yukarıdaki eski akış aynen sürer.
   const campaignWa = channel === "whatsapp" ? getCampaignWaConfig() : null;
-  const waQuota = monthlyCampaignWaLimit(org);
-  let waQuotaExhausted = false;
+  // WhatsApp kampanya mesajı plana dahil DEĞİLDİR: yalnızca satın alınan kampanya kredisiyle gider.
+  // Kredi yetmiyorsa HİÇBİR mesaj gönderilmez (kısmi gönderim yok); SMS kanalı ve işletmenin kendi
+  // hesabından gönderim (kampanya hattı tanımsızken) bundan etkilenmez.
+  let waCreditsExhausted = false;
   if (campaignWa) {
-    const used = await getPlanUsage(campaign.org_id, "campaign_wa_message");
-    if (used + recipients.length > waQuota) {
+    const { marketingBalance } = await getWaUsageSummary(campaign.org_id, org);
+    if (marketingBalance < recipients.length) {
       if (campaign.status === "scheduled") {
         await supabase.from("campaigns").update({ status: "failed", sent_count: 0 }).eq("id", campaignId);
       }
       return {
         ok: false,
-        error: `Bu ayki WhatsApp kampanya mesaj hakkınız yetersiz (kalan ${Math.max(0, waQuota - used)}, gerekli ${recipients.length}). SMS kanalını kullanın veya segmenti daraltın.`,
+        error: `WhatsApp kampanya krediniz yetersiz (kalan ${marketingBalance}, gerekli ${recipients.length}). Abonelik sayfasından kampanya kredisi alın, SMS kanalını kullanın veya segmenti daraltın.`,
       };
     }
   }
@@ -170,15 +172,15 @@ export async function sendCampaignNow(
         logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: result.detail || result.error });
       }
     } else if (campaignWa) {
-      // Hak, Meta'ya gitmeden önce atomik tüketilir; gitmezse geri verilir.
-      if (waQuotaExhausted) {
-        logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: "Aylık WhatsApp kampanya mesaj hakkı doldu" });
+      // Kredi, Meta'ya gitmeden önce atomik tüketilir; gitmezse geri verilir.
+      if (waCreditsExhausted) {
+        logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: "WhatsApp kampanya kredisi bitti" });
         continue;
       }
-      const usage = await consumePlanUsage(campaign.org_id, "campaign_wa_message", waQuota);
-      if (usage === "exceeded") {
-        waQuotaExhausted = true;
-        logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: "Aylık WhatsApp kampanya mesaj hakkı doldu" });
+      const creditPeriod = await consumeWaMarketing(campaign.org_id);
+      if (!creditPeriod) {
+        waCreditsExhausted = true;
+        logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: "WhatsApp kampanya kredisi bitti" });
         continue;
       }
       const result = await sendCampaignTemplate(
@@ -202,7 +204,7 @@ export async function sendCampaignNow(
         sentCount++;
         logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "sent", error_msg: null });
       } else {
-        if (usage === "ok") await releasePlanUsage(campaign.org_id, "campaign_wa_message");
+        await releaseWaMarketing(campaign.org_id, creditPeriod);
         logs.push({ campaign_id: campaignId, customer_id: c.id, phone: c.phone, status: "failed", error_msg: result.error });
       }
     } else {

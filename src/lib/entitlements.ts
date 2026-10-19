@@ -90,13 +90,13 @@ export function getEntitlements(org: EntitlementOrg | null | undefined): Entitle
  * satın alınınca org satırına yazılan max_staff / max_appointments_monthly),
  * API kontrolleri ve arayüz buradan okur; böylece rakamlar birbirinden sapmaz.
  *
- * - mini: tek kullanıcı/personel, ayda 200 randevu, ayda 200 müşteri WhatsApp
- *   mesajı (platform şablon mesajları — bkz. lib/wa-templates/send.ts).
+ * - mini: tek kullanıcı/personel, ayda 200 randevu. WhatsApp mesaj hakkı artık
+ *   WA_UTILITY_QUOTAS'ta (tüm planlar için, aşağıda).
  * - starter: ayda 1 kampanya (kampanya modülü açık ama sayısı sınırlı).
  * Diğer planlar bu sınırlardan muaftır (null).
  */
 export const PLAN_USAGE_LIMITS = {
-  mini: { staff: 1, appointments: 200, waMessages: 200 },
+  mini: { staff: 1, appointments: 200 },
   starter: { campaigns: 1 },
 } as const;
 
@@ -106,9 +106,48 @@ function paidPlan(org: EntitlementOrg | null | undefined): string | null {
   return org.plan ?? null;
 }
 
-/** Ayda gönderilebilecek müşteri WhatsApp şablon mesajı sayısı; sınırsızsa null. */
-export function monthlyWaMessageLimit(org: EntitlementOrg | null | undefined): number | null {
-  return paidPlan(org) === "mini" ? PLAN_USAGE_LIMITS.mini.waMessages : null;
+/**
+ * Plana dahil aylık WhatsApp UTILITY mesaj hakkı (randevu onay/hatırlatma/iptal/
+ * revizyon/yeni saat önerisi) — TEK kaynak. Kampanya (marketing) mesajı plana dahil
+ * DEĞİLDİR; yalnızca satın alınan kampanya kredisiyle gider (bkz. lib/wa-quota.ts).
+ * Fiyatlar bu tablodan bağımsızdır (lib/pricing.ts).
+ */
+export const WA_UTILITY_QUOTAS = {
+  trial: 100,
+  mini: 400,
+  starter: 500,
+  pro: 1500,
+  business: 3000,
+} as const;
+
+/** Efektif plan anahtarı: aktif deneme "trial", aksi halde org.plan. */
+export function effectiveQuotaPlan(org: EntitlementOrg | null | undefined): keyof typeof WA_UTILITY_QUOTAS | null {
+  if (!org) return null;
+  if (isTrialActive(org)) return "trial";
+  const p = org.plan ?? null;
+  return p && p in WA_UTILITY_QUOTAS ? (p as keyof typeof WA_UTILITY_QUOTAS) : null;
+}
+
+/** Ayda plana dahil UTILITY mesaj sayısı; plan bilinmiyorsa null (yalnızca sayılır, sınır yok). */
+export function monthlyUtilityQuota(org: EntitlementOrg | null | undefined): number | null {
+  const plan = effectiveQuotaPlan(org);
+  return plan ? WA_UTILITY_QUOTAS[plan] : null;
+}
+
+/**
+ * Kota (ve ek kredi) dolunca müşteri mesajı GERÇEKTEN durdurulsun mu? Varsayılan: TÜM planlarda
+ * (mini, starter, pro, business, trial). Randevu kaydı her durumda sürer, yalnızca otomatik WhatsApp
+ * mesajı gitmez. Bir planda kesintiyi kapatıp yalnızca SAYMAK için Vercel'de WA_QUOTA_ENFORCE_PLANS
+ * virgüllü liste olarak daraltılır (ör. "mini" ya da boş string = hiçbir planda kesme).
+ */
+export function isWaQuotaEnforced(org: EntitlementOrg | null | undefined): boolean {
+  const plan = effectiveQuotaPlan(org);
+  if (!plan) return false;
+  const list = (process.env.WA_QUOTA_ENFORCE_PLANS ?? "mini,starter,pro,business,trial")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  return list.includes(plan);
 }
 
 /** Ayda oluşturulabilecek kampanya sayısı; sınırsızsa null. */
@@ -132,19 +171,6 @@ export function campaignRecipientLimit(org: EntitlementOrg | null | undefined): 
   return paidPlan(org) === "starter"
     ? CAMPAIGN_RECIPIENT_LIMITS.starter
     : CAMPAIGN_RECIPIENT_LIMITS.default;
-}
-
-/**
- * SiriPlan'ın AYRI kampanya numarasından (WHATSAPP_CAMPAIGN_*) gönderilen
- * pazarlama şablon mesajı için aylık işletme kotası. Meta ücreti SiriPlan'a
- * ait olduğundan sınırsız bırakılmaz; kendi hesabından gönderen akış etkilenmez.
- */
-export const CAMPAIGN_WA_MONTHLY_LIMITS = { starter: 500, default: 3000 } as const;
-
-export function monthlyCampaignWaLimit(org: EntitlementOrg | null | undefined): number {
-  return paidPlan(org) === "starter"
-    ? CAMPAIGN_WA_MONTHLY_LIMITS.starter
-    : CAMPAIGN_WA_MONTHLY_LIMITS.default;
 }
 
 /** Tek kullanıcılı plan mı? (Mini: ek personel/kullanıcı daveti yok.) */

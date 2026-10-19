@@ -4,8 +4,8 @@
     "approve": "Genehmigen →",
     "lowStock": "Warnung bei niedrigem Lagerbestand: {count, plural, one {# Produkt ist} other {# Produkte sind}} unter den festgelegten kritischen Stand gefallen!",
     "goStock": "Zur Lagerverwaltung →",
-    "waFull": "Ihr WhatsApp-Nachrichtenkontingent für diesen Monat ist aufgebraucht ({used}/{limit}) — automatische Bestätigungs-/Erinnerungsnachrichten an Kunden werden erst im nächsten Monat gesendet.",
-    "waWarn": "80 % Ihres WhatsApp-Nachrichtenkontingents für diesen Monat wurden verbraucht ({used}/{limit}).",
+    "waFull": "Ihr WhatsApp-Nachrichtenkontingent für diesen Zeitraum ist aufgebraucht ({used}/{limit}) — automatische Bestätigungs-/Erinnerungsnachrichten an Kunden werden bis zur Erneuerung (oder bis zum Kauf eines Zusatzpakets) nicht gesendet.",
+    "waWarn": "80 % Ihres WhatsApp-Nachrichtenkontingents für diesen Zeitraum wurden verbraucht ({used}/{limit}).",
     "upgrade": "Tarif upgraden →"
   },
   "homeVisual": {
@@ -239,7 +239,7 @@
       "features": [
         "1 Standort, 1 Mitarbeiter/in",
         "200 Termine pro Monat",
-        "200 WhatsApp-Nachrichten pro Monat (Bestätigungen + Erinnerungen)",
+        "400 WhatsApp-Nachrichten pro Monat (Bestätigungen + Erinnerungen)",
         "Persönlicher Buchungslink (siriplan.com/r/ihr-salon)",
         "Kundenkartei & -historie",
         "Lager- & Bestandsverwaltung (Barcode-Verkauf)",
@@ -267,7 +267,7 @@
         "Paket- / Sitzungsverfolgung",
         "Warteliste",
         "Einnahmen- & Ausgabenberichte & MwSt.-Berechnung",
-        "WhatsApp-Erinnerungen",
+        "500 WhatsApp-Nachrichten pro Monat inklusive (Bestätigungen + Erinnerungen)",
         "Treuekartensystem",
         "1 Kampagne pro Monat",
         "Datenexport (CSV)",
@@ -285,6 +285,7 @@
       "desc": "Komplettpaket für wachsende Salons",
       "features": [
         "1 Standort, unbegrenztes Personal",
+        "1.500 WhatsApp-Nachrichten pro Monat inklusive (Bestätigungen + Erinnerungen)",
         "Unbegrenzte Termine",
         "Sprachassistent für Buchungs- und Lagerbefehle",
         "Website-Modus — anpassbare Buchungsseite mit Farbpalette und Kategoriefotos",
@@ -302,6 +303,7 @@
       "desc": "Für Unternehmen mit mehreren Standorten",
       "features": [
         "Bis zu 5 Standorte",
+        "3.000 WhatsApp-Nachrichten pro Monat inklusive (Bestätigungen + Erinnerungen)",
         "Unbegrenztes Personal",
         "Alle Pro-Funktionen",
         "KI WhatsApp-/IG-Assistent",
@@ -317,11 +319,6 @@
       "name": "KI WhatsApp-Paket",
       "desc": "Erweiterter KI-Assistent, Stimmungsanalyse, intelligente Vorschläge",
       "price": "$49/Monat"
-    },
-    "sms": {
-      "name": "SMS-Paket",
-      "desc": "Ein Guthabenpaket mit 1.000 SMS, das sich beim Senden verbraucht; kaufen Sie ein neues, wenn es aufgebraucht ist. Kein Ablaufdatum. Versenden ohne eigenes SMS-Konto",
-      "price": "$55 · 1.000 SMS"
     },
     "multiBranch": {
       "name": "Zusätzliches Filialpaket",
@@ -562,7 +559,7 @@
       "sms": {
         "name": "SMS-Benachrichtigungen",
         "category": "Nachrichten",
-        "desc": "Senden Sie SMS-Erinnerungen und -Bestätigungen an Kunden, die kein WhatsApp nutzen. Funktioniert mit SiriPlan SMS-Guthaben (ein Paket von 1.000 SMS, das beim Senden abnimmt) oder Ihrem eigenen Netgsm-, VatanSMS- oder İletimerkezi-Konto."
+        "desc": "Senden Sie SMS-Erinnerungen und -Bestätigungen an Kunden, die kein WhatsApp nutzen. Funktioniert mit Ihrem eigenen Netgsm-, VatanSMS- oder İletimerkezi-Konto."
       },
       "qr": {
         "name": "QR-Code",
@@ -726,7 +723,7 @@
           },
           "q2": {
             "q": "Wie funktioniert die WhatsApp-Erinnerung?",
-            "a": "Terminbestätigungen, Erinnerungen, Stornierungen und Änderungsnachrichten werden von SiriPlan automatisch an den Kunden gesendet — Sie müssen niemandem selbst schreiben. Erinnerungen werden zu den von Ihnen gewählten Zeiten (z. B. 24 Stunden oder 2 Stunden vorher) versendet und können Ausfälle um bis zu 60 % reduzieren. Für SMS können Sie SiriPlan SMS-Guthaben kaufen oder Ihren eigenen SMS-Anbieter verbinden."
+            "a": "Terminbestätigungen, Erinnerungen, Stornierungen und Änderungsnachrichten werden von SiriPlan automatisch an den Kunden gesendet — Sie müssen niemandem selbst schreiben. Erinnerungen werden zu den von Ihnen gewählten Zeiten (z. B. 24 Stunden oder 2 Stunden vorher) versendet und können Ausfälle um bis zu 60 % reduzieren. Im Tarif enthaltene WhatsApp-Terminnachrichten pro Monat: Mini 400, Starter 500, Pro 1.500, Business 3.000; das Kontingent erneuert sich zum Datum Ihres Abostarts, bei Bedarf können Sie ein Zusatz-Nachrichtenpaket kaufen."
           },
           "q3": {
             "q": "Was bewirkt das Kunden-Score-System?",
@@ -1608,6 +1605,23 @@
     }
   },
   "dashboard": {
+    "waUsage": {
+      "title": "WhatsApp-Nachrichtenkontingent",
+      "utilityLabel": "Terminnachrichten (diesen Monat)",
+      "renews": "Ihr Tarifkontingent erneuert sich am {date}.",
+      "addonBalance": "Guthaben Zusatzpakete",
+      "campaignBalance": "Kampagnenguthaben",
+      "noteEnforced": "Terminbestätigungen, Erinnerungen, Stornierungen und Änderungen verbrauchen dieses Kontingent. Ist es aufgebraucht, wird das Guthaben der Zusatzpakete genutzt; ist auch das leer, werden keine automatischen WhatsApp-Nachrichten gesendet, Ihre Termine werden aber weiterhin ganz normal gespeichert.",
+      "noteMetered": "Terminbestätigungen, Erinnerungen, Stornierungen und Änderungen verbrauchen dieses Kontingent. Ist Ihr Tarifkontingent aufgebraucht, wird das Guthaben der Zusatzpakete genutzt.",
+      "campaignNote": "WhatsApp-Kampagnennachrichten sind nicht im Tarif enthalten und werden mit gekauftem Kampagnenguthaben gesendet. SMS-Kampagnen sind nicht betroffen.",
+      "buyUtility": "{count} zusätzliche Terminnachrichten",
+      "buyCampaign": "{count} Kampagnennachrichten",
+      "buyHint": "Zusatzpakete sind Einmalkäufe, werden nicht monatlich zurückgesetzt und nach der Zahlung automatisch gutgeschrieben.",
+      "buyError": "Die Zahlungsseite konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
+      "buySuccess": "Zahlung erhalten. Ihr Guthaben wird in Kürze aktualisiert.",
+      "buyCanceled": "Zahlung abgebrochen.",
+      "manageLink": "Zusatzpakete kaufen / Details"
+    },
     "menuLabel": "Menü",
     "calendarHourColumn": "UHRZEIT",
     "bookingLinkTitle": "Kunden-Buchungslink",
@@ -1728,11 +1742,6 @@
       "upgradeToPro": "Auf Pro upgraden",
       "changeToPlan": "Zu Tarif {plan} wechseln",
       "manageBilling": "Abrechnung & Zahlungsmethode verwalten",
-      "smsPackTitle": "SMS-Guthaben",
-      "smsPackDesc": "Senden Sie SMS an Ihre Kunden, ohne Ihr eigenes SMS-Konto zu verbinden. Pakete mit 1.000, 5.000 oder 10.000 SMS, die beim Senden abgebucht wird; kaufen Sie ein neues Paket, wenn es aufgebraucht ist. Kein Ablaufdatum.",
-      "smsPackBalance": "Verbleibende SMS",
-      "smsPackBuy": "{count} SMS-Guthaben kaufen",
-      "smsPackHint": "Guthaben wird verwendet, wenn SMS-Benachrichtigungen in den Einstellungen aktiviert sind und kein eigener SMS-Anbieter verbunden ist.",
       "addonsTitle": "Zusatzpakete",
       "addonBuyMonthly": "Monatlich · {price}",
       "addonBuyAnnual": "Jährlich · {price}",
@@ -1756,9 +1765,6 @@
       "branchLinkedTitle": "Filiale",
       "branchLinkedDesc": "Diese Filiale ist mit dem Abonnement von \"{parent}\" verknüpft. Tarif und Abrechnung werden vom Hauptgeschäft verwaltet.",
       "branchGoParent": "Zum Hauptgeschäft wechseln und Tarif verwalten",
-      "smsPackSuccess": "Zahlung erhalten. Ihr Guthaben wird Ihrem Konto in wenigen Sekunden gutgeschrieben.",
-      "smsPackCanceled": "Zahlung wurde nicht abgeschlossen.",
-      "smsPackError": "Die Zahlungsseite konnte nicht geöffnet werden.",
       "trialBottomNote": "Alle Pro-Funktionen sind während des Testzeitraums kostenlos – keine Kreditkarte erforderlich. Sie können Starter und Pro vor Ablauf der Testphase vergleichen und mit dem für Sie passenden Tarif fortfahren.",
       "cancelSubscription": "Abonnement kündigen",
       "cancelConfirmTitle": "Sind Sie sicher, dass Sie Ihr Abonnement kündigen möchten?",
@@ -2458,7 +2464,7 @@
           "items": [
             {
               "label": "Automatische WhatsApp-Nachrichten:",
-              "desc": "Terminbestätigungen, Erinnerungen, Stornierungen und Überarbeitungen werden von SiriPlan automatisch an Ihren Kunden gesendet — Sie müssen nichts schreiben oder senden. Unter Einstellungen → „Automatische WhatsApp-Nachrichten“ wählen Sie aus, welche Ereignisse eine Nachricht auslösen."
+              "desc": "Terminbestätigungen, Erinnerungen, Stornierungen und Überarbeitungen werden von SiriPlan automatisch an Ihren Kunden gesendet — Sie müssen nichts schreiben oder senden. Unter Einstellungen → „Automatische WhatsApp-Nachrichten“ wählen Sie aus, welche Ereignisse eine Nachricht auslösen. Enthaltenes Monatskontingent: Mini 400 · Starter 500 · Pro 1.500 · Business 3.000; es erneuert sich jeden Monat zum Datum Ihres Abostarts, bei Bedarf können Sie ein Zusatz-Nachrichtenpaket kaufen (Einstellungen → Abonnement)."
             },
             {
               "label": "Erinnerungszeitpunkt und Vorlage:",
@@ -2466,7 +2472,7 @@
             },
             {
               "label": "SMS (optional):",
-              "desc": "Es gibt zwei Wege: Kaufen Sie SiriPlan-SMS-Guthaben auf der Seite Einstellungen → Abonnement (ein Paket mit 1.000 SMS, das sich beim Senden verringert, kein Ablaufdatum, kein Anbieterkonto erforderlich) oder verbinden Sie Ihren eigenen Anbieter (Netgsm, VatanSMS, İletimerkezi). Wenn ein Anbieter verbunden ist, werden SMS über dessen Konto gesendet und es wird kein Guthaben verbraucht."
+              "desc": "Verbinden Sie Ihren eigenen SMS-Anbieter (Netgsm, VatanSMS, İletimerkezi) unter Einstellungen → SMS-Benachrichtigungen; die SMS werden über Ihr Konto gesendet."
             },
             {
               "label": "Manuelles WhatsApp (optional):",
@@ -2519,8 +2525,7 @@
             "Tarife: Die Tarife Mini, Starter, Pro und Business sind fest und transparent. Keine Angebotseinholungen oder Warten auf Vertreter. Jedes Konto beginnt mit einer 14-tägigen kostenlosen Testphase.",
             "Tarifdetails: Zeigen Sie Ihren aktuellen Tarif, Ihre Limits und Ihren Rechnungsverlauf unter Einstellungen → Abonnement an.",
             "Ihr Abonnement ist mit SiriPlan verknüpft und wird unabhängig von App-Stores verwaltet. Bei Fragen zu Upgrades oder zur Abrechnung wenden Sie sich an den Support: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Tarifunterschiede: Mini — 1 Mitarbeiter, 200 Termine und 200 WhatsApp-Nachrichten pro Monat, Buchungslink, Kundenkartei, Lagerbestand/Barcode, Pakete, Einnahmen-Ausgaben & MwSt., CSV-Export. Starter — 1 Filiale, 8 Mitarbeiter, unbegrenzte Termine, Buchungslink, Lagerbestand/Barcode, Pakete, Warteliste, Einnahmen-Ausgaben & MwSt., WhatsApp-Erinnerungen, Treuekarte, 1 Kampagne pro Monat, CSV-Export. Pro — unbegrenztes Personal, Sprachassistent, Website-Modus, PDF-Berichte, Kampagnen, Kunden-Score und Mitarbeiter der Woche. Business — bis zu 5 Filialen, alle Pro-Funktionen, KI-WhatsApp/IG-Assistent und individuelle Integrationen.",
-            "SMS-Guthaben: Um SMS ohne Verbindung eines eigenen SMS-Kontos zu senden, können Sie auf der Seite Einstellungen → Abonnement ein Paket mit 1.000 SMS-Guthaben kaufen, das sich beim Senden verringert (kaufen Sie ein neues, wenn es aufgebraucht ist) (kein Ablaufdatum; das verbleibende Guthaben wird auf derselben Seite angezeigt). Wenn Ihr eigener Anbieter verbunden ist, werden SMS über dessen Konto gesendet und es wird kein Guthaben verbraucht. Die Kaufoption wird in der mobilen App nicht angezeigt."
+            "Tarifunterschiede: Mini — 1 Mitarbeiter, 200 Termine und 400 WhatsApp-Nachrichten pro Monat, Buchungslink, Kundenkartei, Lagerbestand/Barcode, Pakete, Einnahmen-Ausgaben & MwSt., CSV-Export. Starter — 1 Filiale, 8 Mitarbeiter, unbegrenzte Termine, Buchungslink, Lagerbestand/Barcode, Pakete, Warteliste, Einnahmen-Ausgaben & MwSt., 500 WhatsApp-Nachrichten pro Monat inklusive (Bestätigungen + Erinnerungen), Treuekarte, 1 Kampagne pro Monat, CSV-Export. Pro — unbegrenztes Personal, 1.500 WhatsApp-Nachrichten pro Monat inklusive, Sprachassistent, Website-Modus, PDF-Berichte, Kampagnen, Kunden-Score und Mitarbeiter der Woche. Business — bis zu 5 Filialen, 3.000 WhatsApp-Nachrichten pro Monat inklusive, alle Pro-Funktionen, KI-WhatsApp/IG-Assistent und individuelle Integrationen. Das Kontingent für WhatsApp-Terminnachrichten erneuert sich monatlich zum Jahrestag Ihres Abostarts; ist es aufgebraucht, können Sie unter Einstellungen → Abonnement ein Zusatz-Nachrichtenpaket kaufen. WhatsApp-Kampagnennachrichten sind nicht im Tarif enthalten und werden mit Kampagnenguthaben gesendet."
           ]
         },
         "sadakat": {
@@ -2608,7 +2613,7 @@
             },
             {
               "q": "Was benötige ich zum Versenden von SMS?",
-              "a": "Kaufen Sie SiriPlan-SMS-Guthaben auf der Abonnementseite (kein Anbieterkonto erforderlich) oder verbinden Sie Ihren eigenen SMS-Anbieter in den Einstellungen; aktivieren Sie dann „SMS-Benachrichtigungen aktiviert“."
+              "a": "Verbinden Sie in den Einstellungen Ihren eigenen SMS-Anbieter (Netgsm, VatanSMS oder İletimerkezi) und aktivieren Sie dann „SMS-Benachrichtigungen aktiviert“."
             },
             {
               "q": "Ich möchte, dass beim Öffnen des Panels der Kalender angezeigt wird.",
@@ -3548,11 +3553,11 @@
       "templateStandard": "Standard",
       "templateVariant": "Variante {n}",
       "metaTemplatesFootnote": "Der Text dieser Vorlagen ist in Ihrem Meta WhatsApp Business-Panel vorab genehmigt und kann hier nicht bearbeitet werden — Sie können nur wählen, welche Variante verwendet wird. Die obigen Vorschauen sind ein ungefähres Beispiel für die Parameter, die gesendet werden (Name, Datum, Uhrzeit usw.); der genaue Text hängt von der genehmigten Vorlage in Ihrem Meta-Panel ab.",
-      "smsNotifDesc": "Sie können Terminbestätigungs-, Erinnerungs- und Stornierungsbenachrichtigungen auch per SMS senden. Es gibt zwei Möglichkeiten: Kaufen Sie SiriPlan SMS-Guthaben auf der Abonnementseite (kein Konto erforderlich) oder verbinden Sie Ihren eigenen SMS-Anbieter (Netgsm, VatanSMS oder İletimerkezi). Wenn ein Anbieter verbunden ist, werden SMS über dessen Konto gesendet und es wird kein Guthaben verbraucht.",
+      "smsNotifDesc": "Sie können Terminbestätigungs-, Erinnerungs- und Stornierungsbenachrichtigungen auch per SMS senden. Verbinden Sie dazu Ihren eigenen SMS-Anbieter (Netgsm, VatanSMS oder İletimerkezi); die SMS werden über Ihr Anbieterkonto gesendet.",
       "smsEnabledLabel": "SMS-Benachrichtigungen ein",
       "smsEnabledDesc": "Wenn deaktiviert, funktionieren die Schaltflächen \"SMS senden\" in den Termindetails nicht.",
       "smsProviderLabel": "SMS-Anbieter (optional)",
-      "smsProviderPlaceholder": "Wählen Sie einen aus — oder lassen Sie das Feld leer, um SiriPlan-Guthaben zu nutzen",
+      "smsProviderPlaceholder": "Anbieter auswählen",
       "smsProviderUserCode": "Benutzercode",
       "smsProviderPassword": "Passwort / API-Passwort",
       "smsProviderApiId": "API-ID",
@@ -3563,11 +3568,10 @@
       "smsSenderPlaceholder": "Ihr vom Betreiber genehmigter Markenkopf",
       "smsSenderHint": "Der Kopfzeilentext, den Sie über Ihr Anbieterpanel vom Betreiber genehmigen lassen haben — SMS werden abgelehnt, wenn sie ohne Genehmigung gesendet werden.",
       "smsCostTitle": "Über die Kosten",
-      "smsBuyPackLink": "SiriPlan SMS-Guthaben kaufen / Guthaben anzeigen →",
-      "smsProviderNone": "Kein eigener Anbieter (SiriPlan SMS-Guthaben)",
+      "smsProviderNone": "Kein Anbieter verbunden",
       "manualWaSummary": "Optional: wenn Sie eine Nachricht von Hand über Ihr eigenes WhatsApp senden möchten (für die meisten Unternehmen nicht erforderlich)",
       "waAutoBanner": "Nachrichten werden automatisch versendet: Wenn ein Kunde bucht, wenn sich ein Termin ändert oder ansteht, erreicht ihn die WhatsApp-Nachricht von selbst. Sie senden nichts.",
-      "smsCostText": "Mit Ihrem eigenen Anbieter beträgt es etwa 0.08–0.20 TRY pro SMS (je nach Paketgröße) ohne monatliche Gebühr; Sie kaufen das Guthabenpaket auf der Website des Anbieters. SiriPlan-Guthaben ist in Paketen von 1.000 SMS erhältlich, die beim Senden abnehmen, ohne Ablaufdatum (kaufen Sie ein neues Paket, wenn es aufgebraucht ist), gekauft auf der Abonnementseite.",
+      "smsCostText": "Mit Ihrem eigenen Anbieter beträgt es etwa 0.08–0.20 TRY pro SMS (je nach Paketgröße) ohne monatliche Gebühr; Sie kaufen das Guthabenpaket auf der Website des Anbieters.",
       "waBusinessConnTitle": "WhatsApp Business-Verbindung (Für Kampagnen)",
       "waBusinessConnDesc": "Terminbestätigungs-/-erinnerungs-/-stornierungsnachrichten werden automatisch über die eigene WhatsApp-Leitung von SiriPlan gesendet — Sie müssen dafür nichts tun. Die folgende Verbindung dient nur dazu, dass Marketingnachrichten aus dem Kampagnenmodul und automatische Antworten auf eingehende Nachrichten über Ihre eigene WhatsApp Business-Nummer gesendet werden.",
       "waAccessTokenLabel": "Dauerhafter Zugriffs-Token",
@@ -4207,7 +4211,7 @@
       "plan_mini_desc": "Für Einzelunternehmer",
       "plan_mini_f0": "1 Mitarbeiter",
       "plan_mini_f1": "200 Termine pro Monat",
-      "plan_mini_f2": "200 WhatsApp-Nachrichten pro Monat (Bestätigungen + Erinnerungen)",
+      "plan_mini_f2": "400 WhatsApp-Nachrichten pro Monat (Bestätigungen + Erinnerungen)",
       "plan_mini_f3": "Online-Buchungsseite",
       "plan_mini_f4": "Kundenkartei",
       "plan_mini_f5": "Lagerverwaltung (Barcode-Verkauf)",
@@ -4217,7 +4221,7 @@
       "plan_starter_f0": "8 Mitarbeiter",
       "plan_starter_f1": "Unbegrenzte Termine",
       "plan_starter_f2": "Online-Buchungsseite",
-      "plan_starter_f3": "WhatsApp-Erinnerungen",
+      "plan_starter_f3": "500 WhatsApp-Nachrichten pro Monat inklusive (Bestätigungen + Erinnerungen)",
       "plan_starter_f4": "Kundenverwaltung",
       "plan_starter_f5": "Lagerverwaltung (Barcode-Verkauf)",
       "plan_starter_f6": "Paket- / Sitzungsverfolgung",
@@ -4230,7 +4234,7 @@
       "best_seller": "Bestseller",
       "plan_pro_f0": "Unbegrenztes Personal",
       "plan_pro_f1": "Unbegrenzte Termine",
-      "plan_pro_f2": "Alle Starter-Funktionen",
+      "plan_pro_f2": "Alle Starter-Funktionen · 1.500 WhatsApp-Nachrichten/Monat inklusive",
       "plan_pro_f3": "Sprachassistent (Termin- & Lagerbefehle)",
       "plan_pro_f4": "Website-Modus (anpassbare Buchungsseite)",
       "plan_pro_f5": "PDF-Berichtsexport",
@@ -4239,7 +4243,7 @@
       "plan_pro_f8": "Gamification (Mitarbeiter der Woche)",
       "plan_pro_f9": "Datenmigration (aus bestehendem System)",
       "plan_business_desc": "Für Ketten und Großbetriebe",
-      "plan_business_f0": "Alle Pro-Funktionen",
+      "plan_business_f0": "Alle Pro-Funktionen · 3.000 WhatsApp-Nachrichten/Monat inklusive",
       "plan_business_f1": "Bis zu 5 Standorte",
       "plan_business_f2": "KI-Assistent (WA/IG Auto-Reply)",
       "plan_business_f3": "Prioritäts-Support",

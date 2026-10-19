@@ -1,6 +1,6 @@
 import { createClient, createAdminClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
-import { getEntitlements, isTrialActive, monthlyCampaignLimit, monthlyWaMessageLimit } from "@/lib/entitlements";
+import { getEntitlements, isTrialActive, monthlyCampaignLimit } from "@/lib/entitlements";
 import { getPlanUsage } from "@/lib/plan-usage";
 import { isMobileApp } from "@/lib/mobile-app";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
@@ -10,16 +10,14 @@ import { formatPrice, getPricingCurrencyFromHeaders } from "@/lib/pricing";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, CalendarDays, MessageCircle, MessageSquare, Megaphone, type LucideIcon } from "lucide-react";
+import { CheckCircle2, CreditCard, Zap, Sparkles, Building2, Mail, Users, CalendarDays, Megaphone, type LucideIcon } from "lucide-react";
 import { HomeButton } from "@/components/dashboard/HomeButton";
 import { ManageBillingButton } from "@/components/dashboard/ManageBillingButton";
 import { CancelSubscriptionButton } from "@/components/dashboard/CancelSubscriptionButton";
 import { ChangePlanButton } from "@/components/dashboard/ChangePlanButton";
-import { BuySmsPackButton } from "@/components/dashboard/BuySmsPackButton";
+import { WaUsageCard } from "@/components/dashboard/WaUsageCard";
 import { AddonsPanel } from "@/components/dashboard/AddonsPanel";
 import { getBranchInfo } from "@/lib/branches";
-import { getSmsCredits } from "@/lib/sms-credits";
-import { SMS_PACKS } from "@/lib/sms-packs";
 import Link from "next/link";
 
 const PLAN_ORDER: PlanKey[] = ["mini", "starter", "pro", "business"];
@@ -37,10 +35,10 @@ const PLAN_DETAILS = {
 export default async function AbonelikPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sms_pack?: string; addon?: string }>;
+  searchParams: Promise<{ wa_pack?: string; addon?: string }>;
 }) {
-  const { sms_pack: smsPackParam, addon: addonParam } = await searchParams;
-  const smsPackStatus = smsPackParam === "success" || smsPackParam === "canceled" ? smsPackParam : undefined;
+  const { wa_pack: waPackParam, addon: addonParam } = await searchParams;
+  const waPackStatus = waPackParam === "success" || waPackParam === "canceled" ? waPackParam : undefined;
   const t = await getTranslations();
   const locale = await getLocale();
   // Checkout (api/stripe/sms-pack) ile aynı para birimi tespiti → etiket ile tahsilat tutarı eşleşir.
@@ -82,16 +80,13 @@ export default async function AbonelikPage({
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
-  // Mini: ayda 200 müşteri WhatsApp mesajı · Starter: ayda 1 kampanya (diğer planlarda null → gösterge yok)
-  const waLimit = monthlyWaMessageLimit(org);
+  // Starter: ayda 1 kampanya (diğer planlarda null → gösterge yok). WhatsApp mesaj hakkı: <WaUsageCard>.
   const campaignLimit = monthlyCampaignLimit(org);
-  const [{ count: staffCount }, { count: appointmentCount }, waUsed, campaignUsed, smsCredits] = await Promise.all([
+  const [{ count: staffCount }, { count: appointmentCount }, campaignUsed] = await Promise.all([
     admin.from("staff").select("id", { count: "exact", head: true }).eq("org_id", member.org_id).eq("is_active", true),
     admin.from("appointments").select("id", { count: "exact", head: true }).eq("org_id", member.org_id)
       .gte("created_at", monthStart).lt("created_at", monthEnd),
-    waLimit !== null ? getPlanUsage(member.org_id, "wa_message") : Promise.resolve(0),
     campaignLimit !== null ? getPlanUsage(member.org_id, "campaign") : Promise.resolve(0),
-    getSmsCredits(member.org_id),
   ]);
 
   const currentPlanKey = org.plan === "trial" ? "pro" : (org.plan as PlanKey);
@@ -169,15 +164,6 @@ export default async function AbonelikPage({
               max={maxAppointments}
               unlimitedLabel={t("dashboard.subscriptionPage.unlimited")}
             />
-            {waLimit !== null && (
-              <UsageMeter
-                icon={MessageCircle}
-                label={t("dashboard.subscriptionPage.waMessagesLabel")}
-                used={Math.min(waUsed, waLimit)}
-                max={waLimit}
-                unlimitedLabel={t("dashboard.subscriptionPage.unlimited")}
-              />
-            )}
             {campaignLimit !== null && (
               <UsageMeter
                 icon={Megaphone}
@@ -291,41 +277,16 @@ export default async function AbonelikPage({
         </div>
       )}
 
-      {/* SMS kontörü: tek seferlik paket. Native uygulamada satın alma yüzeyi gösterilmez
-          (mağaza kuralları); bakiye yine de görünür. */}
-      {(smsCredits > 0 || !mobileApp) && (
-        <Card className="kpi-tile border-0 shadow-none">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-primary" />
-              {t("dashboard.subscriptionPage.smsPackTitle")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-baseline justify-between">
-              <span className="text-sm text-muted-foreground">{t("dashboard.subscriptionPage.smsPackBalance")}</span>
-              <span className="text-2xl font-bold tabular-nums">{smsCredits}</span>
-            </div>
-            {!mobileApp && (
-              <>
-                <p className="text-sm text-muted-foreground">{t("dashboard.subscriptionPage.smsPackDesc")}</p>
-                <BuySmsPackButton
-                  packs={SMS_PACKS.map((p) => ({
-                    id: p.id,
-                    label: t("dashboard.subscriptionPage.smsPackBuy", { count: new Intl.NumberFormat(locale).format(p.credits) }),
-                    priceLabel: formatPrice(p.prices[smsCurrency], smsCurrency),
-                  }))}
-                  errorText={t("dashboard.subscriptionPage.smsPackError")}
-                  successText={t("dashboard.subscriptionPage.smsPackSuccess")}
-                  canceledText={t("dashboard.subscriptionPage.smsPackCanceled")}
-                  returnStatus={smsPackStatus}
-                />
-                <p className="text-xs text-muted-foreground">{t("dashboard.subscriptionPage.smsPackHint")}</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      {/* WhatsApp mesaj hakkı + ek paketler (randevu mesajı / kampanya kredisi). Satın alma yalnızca web'de,
+          sahip/yönetici için; native uygulamada yalnızca bilgi. */}
+      <WaUsageCard
+        orgId={member.org_id}
+        org={org}
+        variant="full"
+        mobileApp={mobileApp}
+        canBuy={(member.role === "owner" || member.role === "manager") && !isBranch}
+        returnStatus={waPackStatus}
+      />
 
       <AddonsPanel
         orgId={member.org_id}

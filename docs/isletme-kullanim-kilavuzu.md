@@ -158,8 +158,16 @@ Müşterilerinizin randevuyu unutmasını engellemenin en pratik yolu!
    - **Randevu Hatırlatma**: Randevudan **2 saat önce** veya **1 gün önce** (işaretlediğiniz sürelerde) otomatik hatırlatıcı gönderir.
    - **İptal / Değişiklik**: Randevu saati değiştiğinde müşteriye bilgi verir.
 4. **Şablon Varyantı**: Mesaj metinleri Meta tarafından onaylıdır ve burada düzenlenemez; her mesaj türü için kartta varyantı (Standart / Varyant 2 vb.) seçersiniz, önizleme altında görünür.
-5. **SMS (isteğe bağlı)**: **Ayarlar → SMS Bildirimleri** kutusunu açın. İki yol vardır: **Ayarlar → Abonelik** sayfasından SiriPlan SMS kontörü satın almak (1.000 SMS'lik paket; gönderdikçe azalır, bitince yenisini alırsınız, süre sınırı yok; hesap açmanız gerekmez) ya da kendi sağlayıcınızı (Netgsm, VatanSMS, İletimerkezi) bağlamak. Sağlayıcı bağlıysa SMS onun hesabından gider ve kontör düşmez.
+5. **SMS (isteğe bağlı)**: **Ayarlar → SMS Bildirimleri** kutusunu açın. Kendi sağlayıcınızı (Netgsm, VatanSMS, İletimerkezi) bağlayın; SMS'ler sizin sağlayıcı hesabınızdan gider.
 6. **Elle WhatsApp mesajı (isteğe bağlı)**: Çoğu işletmenin buna ihtiyacı yoktur. Kendi WhatsApp'ınızdan elle mesaj göndermek isterseniz Ayarlar'da kartın altındaki ince çizgiye tıklayıp metinleri düzenleyin. Otomatik mesajlarla birlikte açık tutarsanız müşteri aynı bilgiyi iki kez alabilir.
+
+### WhatsApp mesaj hakkınız ve ek paketler
+
+- **İki tür WhatsApp mesajı vardır.** *Randevu mesajları* (onay, hatırlatma, iptal, revizyon, yeni saat önerisi) planınızdaki **aylık dahil mesaj hakkından** düşer. *Kampanya mesajları* (toplu tanıtım) plana dahil değildir; satın aldığınız **kampanya kredisiyle** gönderilir. SMS kampanyaları ve kendi sağlayıcınızla gönderdiğiniz SMS'ler bu hakkı kullanmaz.
+- **Aylık dahil randevu mesajı hakkı:** Mini 400 · Starter 500 · Pro 1.500 · Business 3.000. 14 günlük denemede 100 mesaj hakkı vardır. **Hak takvim ayının başında değil, abonelik başlangıç tarihinizin her ay yıldönümünde yenilenir** (örn. aboneliğiniz 17'sinde başladıysa her ayın 17'sinde; yıllık planlarda da kota aylık yenilenir). Planı yükselttiğinizde yeni dönem yükseltme anından başlar. Yenilenme tarihini Abonelik, Hesabım ve Ayarlar sayfalarında görürsünüz.
+- **Kalanı nereden görürüm?** **Hesabım**, **Ayarlar** ve **Ayarlar → Abonelik** sayfalarında: bu ay kullanılan/kalan randevu mesajı, ek paket bakiyesi, kampanya kredisi ve yenilenme tarihi görünür (yalnızca sahip ve yönetici görür).
+- **Hak dolarsa ne olur?** Önce satın aldığınız **ek paket bakiyesi** kullanılır. Bakiye de yoksa o ay için otomatik WhatsApp mesajı gönderilmez; **randevularınız her zaman normal şekilde kaydedilmeye devam eder.** Hakkın %80'ine ve %100'üne ulaşınca size bildirim gelir (tüm planlarda).
+- **Ek paket nasıl alınır?** **Ayarlar → Abonelik** sayfasındaki *WhatsApp mesaj hakkı* kartından (web'de; mobil uygulamada satın alma yoktur). Ek paketler tek seferliktir, aya göre sıfırlanmaz, ödeme sonrası hesabınıza otomatik yüklenir. Satın alma yalnızca sahip ve yönetici tarafından yapılabilir.
 
 ---
 
@@ -193,6 +201,7 @@ Salondaki boş günleri doldurmak veya özel günleri kutlamak için müşterile
 2. **+ Yeni Kampanya** başlatın.
 3. Mesaj metnini yazın. Değişkenleri kullanın: `Merhaba {{musteri_adi}}, {{salon_adi}} salonumuzda bu haftaya özel %20 indirim fırsatı!`
 4. Müşteri grubunu filtreleyin (Örn: *Son 30 gündür gelmeyen müşteriler*) ve **Gönder**'e basın.
+5. **WhatsApp kampanya kredisi:** WhatsApp ile gönderilen her kampanya mesajı bir **kampanya kredisi** harcar (plana dahil değildir). Kredi yetmiyorsa kampanya hiç gönderilmez ve size kalan/gerekli kredi gösterilir; **Ayarlar → Abonelik** sayfasından kredi alabilir ya da kampanyayı SMS kanalıyla gönderebilirsiniz. Tek kampanyada en fazla 500 alıcıya gönderilebilir; daha geniş listeleri birkaç kampanyaya bölün.
 
 ### İndirimli kampanya nasıl çalışır?
 
@@ -217,8 +226,8 @@ SiriPlan aboneliği ve faturalandırması SiriPlan hesabınıza bağlıdır ve u
 
 - **Şeffaf Planlar**:
   - **Mini**, **Starter**, **Pro** ve **Business** planlarının tamamı sabit ve şeffaf yapıdadır.
-  - **Mini (aylık ₺399)** tek kişilik işletmeler içindir: 1 personel (ek personel daveti yok), ayda 200 randevu ve 200 müşteri WhatsApp mesajı, randevu linki, stok/barkod, paket takibi, gelir-gider & KDV. WhatsApp hakkınızın %80'ine ve %100'üne ulaşınca bildirim alırsınız. Deneme bitince sesli asistan ve kampanya gibi Pro araçları Mini'de kapanır; ihtiyaç olursa Ayarlar → Abonelik'ten plan yükseltebilirsiniz.
-  - **SMS Kontörü (isteğe bağlı):** Kendi SMS sağlayıcınızı bağlamadan SMS göndermek için Ayarlar → Abonelik sayfasından 1.000 SMS'lik kontör paketi alabilirsiniz (gönderdikçe azalır, bitince yenisini alırsınız; süre sınırı yok; bakiye aynı sayfada görünür). Kendi sağlayıcınız bağlıysa SMS onun hesabından gider ve kontör düşmez. Mobil uygulamada satın alma yüzeyi gösterilmez.
+  - **Mini (aylık ₺399)** tek kişilik işletmeler içindir: 1 personel (ek personel daveti yok), ayda 200 randevu ve 400 müşteri WhatsApp mesajı, randevu linki, stok/barkod, paket takibi, gelir-gider & KDV. WhatsApp hakkınızın %80'ine ve %100'üne ulaşınca bildirim alırsınız. Deneme bitince sesli asistan ve kampanya gibi Pro araçları Mini'de kapanır; ihtiyaç olursa Ayarlar → Abonelik'ten plan yükseltebilirsiniz.
+  - **Dahil WhatsApp randevu mesajı (aylık):** Mini 400 · Starter 500 · Pro 1.500 · Business 3.000. İhtiyaç halinde Ayarlar → Abonelik'ten ek mesaj paketi alabilirsiniz (bkz. Bölüm 9). WhatsApp kampanya mesajları plana dahil değildir, kampanya kredisiyle gönderilir.
   - **Mobil uygulama:** [App Store](https://apps.apple.com/app/siriusplan/id6815322807) (iOS'ta **"SiriusPlan"** adıyla yayındadır; Apple'ın uygulama adlandırma kuralları nedeniyle farklı bir ad kullanılmıştır, uygulama aynıdır) ve [Google Play](https://play.google.com/store/apps/details?id=com.siriplan.app) üzerinden indirebilirsiniz; ayrıca tarayıcıdan "Ana Ekrana Ekle" ile de kurabilirsiniz.
   - **"Teklif Al" bekleme dönemi yoktur.** Her yeni hesap tüm özelliklerle **14 gün ücretsiz deneme** ile başlar.
 - **Plan Bilgileriniz**:
