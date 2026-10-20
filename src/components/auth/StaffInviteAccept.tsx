@@ -10,6 +10,7 @@ import { Loader2, CheckCircle2, XCircle, Users, Mail, Lock, User } from "lucide-
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 interface InviteInfo {
   role: string;
@@ -26,6 +27,7 @@ interface InviteInfo {
  * parametresi düşse bile token'ı korur.
  */
 export function StaffInviteAccept({ token }: { token: string | null }) {
+  const tp = useTranslations("panelPages.davetKabul");
   const [info, setInfo] = useState<InviteInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +46,7 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
   const [loginPassword, setLoginPassword] = useState("");
 
   useEffect(() => {
-    if (!token) { setError("Geçersiz davet bağlantısı"); setLoading(false); return; }
+    if (!token) { setError(tp("gecersiz_davet_baglantisi")); setLoading(false); return; }
 
     fetch(`/api/staff/invite/accept?token=${token}`)
       .then((r) => r.json())
@@ -56,7 +58,7 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
         // hesabı olması çok olası; doğrudan giriş sekmesini aç.
         if (!d.email) setMode("login");
       })
-      .catch(() => setError("Bağlantı hatası"))
+      .catch(() => setError(tp("baglanti_hatasi")))
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -83,7 +85,7 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
     const data = await res.json();
     if (!res.ok) {
       setSubmitting(false);
-      toast.error(data.error ?? "Hata oluştu");
+      toast.error(data.error ?? tp("hata_olustu"));
       return;
     }
     toast.success(tm("joinedOrg", { org: info?.org_name ?? "" }));
@@ -107,7 +109,7 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
     const data = await res.json();
     if (!res.ok) {
       setSubmitting(false);
-      toast.error(data.error ?? "Hesap oluşturulamadı");
+      toast.error(data.error ?? tp("hesap_olusturulamadi"));
       // "Zaten hesabınız var" hatasında kullanıcıyı giriş sekmesine al.
       if (typeof data.error === "string" && /zaten bir hesab/i.test(data.error)) {
         setMode("login");
@@ -149,14 +151,14 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
       <Card className="border-0 shadow-lg">
         <CardContent className="py-10 text-center">
           <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-lg font-semibold mb-2">Davet Geçersiz</h2>
+          <h2 className="text-lg font-semibold mb-2">{tp("davet_gecersiz")}</h2>
           <p className="text-muted-foreground text-sm">{error}</p>
         </CardContent>
       </Card>
     );
   }
 
-  const roleLabel = info?.role === "manager" ? "Yönetici" : "Personel";
+  const roleLabel = info?.role === "manager" ? tp("yonetici") : "Personel";
 
   return (
     <Card className="border-0 shadow-lg">
@@ -164,26 +166,26 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
           <Users className="h-7 w-7 text-primary" />
         </div>
-        <CardTitle className="text-xl">İşletmeye Katıl</CardTitle>
+        <CardTitle className="text-xl">{tp("isletmeye_katil")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 pt-2">
         <div className="rounded-xl bg-muted/50 p-4 space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">İşletme</span>
+            <span className="text-muted-foreground">{tp("isletme")}</span>
             <span className="font-semibold">{info?.org_name}</span>
           </div>
           {info?.staff_name && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Personel Kaydı</span>
+              <span className="text-muted-foreground">{tp("personel_kaydi")}</span>
               <span className="font-semibold">{info.staff_name}</span>
             </div>
           )}
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Rol</span>
+            <span className="text-muted-foreground">{tp("rol")}</span>
             <span className="font-semibold">{roleLabel}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Süre Bitiş</span>
+            <span className="text-muted-foreground">{tp("sure_bitis")}</span>
             <span className="text-xs">{new Date(info?.expires_at ?? "").toLocaleDateString("tr-TR")}</span>
           </div>
         </div>
@@ -191,13 +193,13 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
         {loggedIn ? (
           <>
             <p className="text-xs text-muted-foreground text-center">
-              Daveti kabul ederek{" "}
+              {tp("daveti_kabul_ederek")}{" "}
               <span className="font-medium">{info?.org_name}</span>{" "}
-              işletmesinin {roleLabel.toLowerCase()}ı olacaksınız.
+              {tp("isletmesinin")} {roleLabel.toLowerCase()}{tp("i_olacaksiniz")}
             </p>
             <Button className="w-full" onClick={acceptForLoggedInUser} disabled={submitting}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
-              Daveti Kabul Et
+              {tp("daveti_kabul_et")}
             </Button>
           </>
         ) : (
@@ -206,12 +208,12 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
                 çalışmaz; yalnızca giriş gösterilir. */}
             {info?.email ? (
               <TabsList className="w-full">
-                <TabsTrigger value="register" className="flex-1">Yeni Hesap Oluştur</TabsTrigger>
-                <TabsTrigger value="login" className="flex-1">Zaten Hesabım Var</TabsTrigger>
+                <TabsTrigger value="register" className="flex-1">{tp("yeni_hesap_olustur")}</TabsTrigger>
+                <TabsTrigger value="login" className="flex-1">{tp("zaten_hesabim_var")}</TabsTrigger>
               </TabsList>
             ) : (
               <p className="rounded-lg bg-muted/50 p-2.5 text-center text-xs text-muted-foreground">
-                Bu numaraya kayıtlı hesabınızla giriş yapıp daveti kabul edin.
+                {tp("bu_numaraya_kayitli_hesabini")}
               </p>
             )}
 
@@ -219,16 +221,16 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
               <form onSubmit={handleRegister} className="space-y-3">
                 {info?.email && (
                   <div className="space-y-1">
-                    <Label className="text-xs flex items-center gap-1"><Mail className="h-3 w-3" />E-posta</Label>
+                    <Label className="text-xs flex items-center gap-1"><Mail className="h-3 w-3" />{tp("e_posta")}</Label>
                     <Input value={info.email} readOnly disabled className="text-sm bg-muted/50" />
                   </div>
                 )}
                 <div className="space-y-1">
-                  <Label htmlFor="full_name" className="text-xs flex items-center gap-1"><User className="h-3 w-3" />Ad Soyad</Label>
+                  <Label htmlFor="full_name" className="text-xs flex items-center gap-1"><User className="h-3 w-3" />{tp("ad_soyad")}</Label>
                   <Input id="full_name" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="text-sm" />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="reg_password" className="text-xs flex items-center gap-1"><Lock className="h-3 w-3" />Şifre</Label>
+                  <Label htmlFor="reg_password" className="text-xs flex items-center gap-1"><Lock className="h-3 w-3" />{tp("sifre")}</Label>
                   <Input
                     id="reg_password"
                     type="password"
@@ -242,7 +244,7 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
                 </div>
                 <Button type="submit" className="w-full" disabled={submitting}>
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
-                  Hesap Oluştur & Katıl
+                  {tp("hesap_olustur_katil")}
                 </Button>
               </form>
             </TabsContent>
@@ -250,11 +252,11 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
             <TabsContent value="login" className="pt-4">
               <form onSubmit={handleLogin} className="space-y-3">
                 <div className="space-y-1">
-                  <Label htmlFor="identifier" className="text-xs">E-posta veya Telefon</Label>
+                  <Label htmlFor="identifier" className="text-xs">{tp("e_posta_veya_telefon")}</Label>
                   <Input id="identifier" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required className="text-sm" />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="login_password" className="text-xs">Şifre</Label>
+                  <Label htmlFor="login_password" className="text-xs">{tp("sifre")}</Label>
                   <Input
                     id="login_password"
                     type="password"
@@ -267,7 +269,7 @@ export function StaffInviteAccept({ token }: { token: string | null }) {
                 </div>
                 <Button type="submit" className="w-full" disabled={submitting}>
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
-                  Giriş Yap & Katıl
+                  {tp("giris_yap_katil")}
                 </Button>
               </form>
             </TabsContent>

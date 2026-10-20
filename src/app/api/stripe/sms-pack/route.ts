@@ -6,7 +6,7 @@ import { getStripe } from "@/lib/stripe/config";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
-import { SMS_PACK_CREDITS } from "@/lib/sms-credits";
+import { getSmsPack, getSmsPackPriceId } from "@/lib/sms-packs";
 import { CONSENT_VERSION } from "@/lib/legal/seller";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,7 @@ const STRIPE_LOCALE: Record<string, Stripe.Checkout.SessionCreateParams.Locale> 
 };
 
 /**
- * Tek seferlik SMS kontörü satın alma (1.000 SMS). Abonelikten bağımsızdır:
+ * Tek seferlik SMS kontörü satın alma (1.000 / 5.000 / 10.000 SMS). Abonelikten bağımsızdır:
  * Stripe Checkout `payment` modunda açılır; kontör, ödeme tamamlanınca
  * api/webhooks/stripe tarafından org'a yüklenir (burada ASLA yüklenmez).
  */
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   }
 
   // Mesafeli satış: ödeme öncesi iki açık onay zorunlu (bkz. api/stripe/checkout).
-  const body = (await req.json().catch(() => ({}))) as { consent?: { distanceSales?: boolean; immediateStart?: boolean } };
+  const body = (await req.json().catch(() => ({}))) as { pack?: string; consent?: { distanceSales?: boolean; immediateStart?: boolean } };
   if (body?.consent?.distanceSales !== true || body?.consent?.immediateStart !== true) {
     return NextResponse.json(
       { error: "Ödemeye geçmeden önce Mesafeli Satış Sözleşmesi ve hizmetin hemen başlaması onaylarını işaretlemeniz gerekir.", code: "CONSENT_REQUIRED" },
@@ -56,7 +56,10 @@ export async function POST(req: Request) {
   }
   const consentAt = new Date().toISOString();
 
-  const priceId = process.env.STRIPE_PRICE_SMS_PACK || "";
+  // Paket yalnızca sunucudaki katalogdan seçilir; kontör adedi istemciden alınmaz.
+  const pack = getSmsPack((body as { pack?: unknown })?.pack ?? "1000");
+  if (!pack) return NextResponse.json({ error: "Geçersiz SMS paketi" }, { status: 400 });
+  const priceId = getSmsPackPriceId(pack.id);
   if (!priceId) {
     return NextResponse.json({ error: "SMS paketi için fiyat tanımlı değil" }, { status: 500 });
   }
@@ -90,7 +93,7 @@ export async function POST(req: Request) {
     success_url: `${appUrl}/dashboard/abonelik?sms_pack=success`,
     cancel_url: `${appUrl}/dashboard/abonelik?sms_pack=canceled`,
     // Webhook org'u bu alandan okur (oturum nesnesinde top-level metadata bulunur).
-    metadata: { kind: "sms_pack", org_id: member.org_id, credits: String(SMS_PACK_CREDITS), consent_version: CONSENT_VERSION, consent_at: consentAt },
+    metadata: { kind: "sms_pack", org_id: member.org_id, credits: String(pack.credits), consent_version: CONSENT_VERSION, consent_at: consentAt },
     locale: STRIPE_LOCALE[locale] ?? "auto",
   };
 

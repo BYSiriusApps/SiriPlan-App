@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Bot, MessageSquare, Zap, Loader2 } from "lucide-react";
+import { Bot, Zap, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,6 @@ import {
 
 const ADDON_META = [
   { key: "whatsappAI", icon: Bot },
-  { key: "sms", icon: MessageSquare },
   { key: "multiBranch", icon: Zap },
 ] as const;
 
@@ -77,7 +76,7 @@ export function AddonsSection() {
           <h2 className="text-2xl md:text-3xl font-bold mb-3">{t("addons.title")}</h2>
           <p className="text-muted-foreground text-sm max-w-lg mx-auto">{t("addons.subtitle")}</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {ADDON_META.map((a) => (
             <div
               key={a.key}

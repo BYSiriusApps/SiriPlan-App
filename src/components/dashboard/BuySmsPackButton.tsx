@@ -8,24 +8,32 @@ import { useTranslations } from "next-intl";
 import { PurchaseConsent, EMPTY_CONSENT, isConsentComplete, type PurchaseConsentValue } from "@/components/legal/PurchaseConsent";
 
 /**
- * 1.000 SMS'lik tek seferlik kontör paketi için Stripe Checkout'u açar.
+ * Tek seferlik kontör paketleri (1.000 / 5.000 / 10.000 SMS) için Stripe Checkout'u açar.
  * Dönüşte (?sms_pack=success|canceled) kullanıcıya bilgi verir; kontör
  * webhook ile yüklenir, bu bileşen bakiyeye dokunmaz.
  */
 export function BuySmsPackButton({
-  label,
+  packs,
   errorText,
   successText,
   canceledText,
   returnStatus,
+  endpoint = "/api/stripe/sms-pack",
+  returnPath = "/dashboard/abonelik",
+  idPrefix = "pc-sms",
 }: {
-  label: string;
+  /** Satın alınabilir paketler; label sunucuda çevrilmiş/biçimlendirilmiş gelir. */
+  packs: { id: string; label: string; priceLabel?: string }[];
   errorText: string;
   successText: string;
   canceledText: string;
   returnStatus?: string;
+  /** Checkout ucu; varsayılan SMS kontörü. WhatsApp kredisi için /api/stripe/wa-pack. */
+  endpoint?: string;
+  returnPath?: string;
+  idPrefix?: string;
 }) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<string | null>(null);
   const router = useRouter();
   const tConsent = useTranslations("purchaseConsent");
   const [consent, setConsent] = useState<PurchaseConsentValue>(EMPTY_CONSENT);
@@ -34,55 +42,59 @@ export function BuySmsPackButton({
   useEffect(() => {
     if (returnStatus === "success") toast.success(successText);
     else if (returnStatus === "canceled") toast.info(canceledText);
-    if (returnStatus) router.replace("/dashboard/abonelik");
+    if (returnStatus) router.replace(returnPath);
     // Yalnızca ilk açılışta (dönüş parametresi varken) bir kez çalışır.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleClick() {
+  async function handleClick(packId: string) {
     // Mesafeli satış: ödeme öncesi iki açık onay zorunlu.
     if (!isConsentComplete(consent)) {
       setConsentWarn(true);
       toast.error(tConsent("missing"));
       return;
     }
-    setLoading(true);
+    setLoading(packId);
     try {
-      const res = await fetch("/api/stripe/sms-pack", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ consent }),
+        body: JSON.stringify({ pack: packId, consent }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) {
         toast.error(data.error ?? errorText);
-        setLoading(false);
+        setLoading(null);
         return;
       }
       window.location.href = data.url;
     } catch {
       toast.error(errorText);
-      setLoading(false);
+      setLoading(null);
     }
   }
 
   return (
     <div className="space-y-3">
       <PurchaseConsent
-        idPrefix="pc-sms"
+        idPrefix={idPrefix}
         value={consent}
         highlight={consentWarn && !isConsentComplete(consent)}
         onChange={(v) => { setConsent(v); if (isConsentComplete(v)) setConsentWarn(false); }}
       />
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={loading}
-      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
-    >
-      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
-      {label}
-    </button>
+      {packs.map((p) => (
+        <button
+          key={p.id}
+          type="button"
+          onClick={() => handleClick(p.id)}
+          disabled={loading !== null}
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+        >
+          {loading === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
+          {p.label}
+          {p.priceLabel ? <span className="opacity-80 font-normal">· {p.priceLabel}</span> : null}
+        </button>
+      ))}
     </div>
   );
 }

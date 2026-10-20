@@ -418,9 +418,9 @@ const refundTr: LegalDoc = {
       ],
     },
     {
-      h: "5. Ek Paketler (ör. SMS Kontörü)",
+      h: "5. Ek Paketler (ör. ek mesaj paketi)",
       p: [
-        "SMS kontörü gibi tek seferlik satın alınan dijital ek paketler, satın alındığı anda hesaba tanımlanır ve anında ifa edilen elektronik içerik niteliğindedir. Kullanılmış kısım iade edilmez. Tüketicinin onayına ve mevzuata bağlı olarak, hiç kullanılmamış kontör için yasal cayma/iade hakları saklıdır. Ticari Alıcılar için kullanılmamış kontör iadesi Satıcı'nın takdirindedir.",
+        "Ek mesaj paketi gibi tek seferlik satın alınan dijital ek paketler, satın alındığı anda hesaba tanımlanır ve anında ifa edilen elektronik içerik niteliğindedir. Kullanılmış kısım iade edilmez. Tüketicinin onayına ve mevzuata bağlı olarak, hiç kullanılmamış kontör için yasal cayma/iade hakları saklıdır. Ticari Alıcılar için kullanılmamış kontör iadesi Satıcı'nın takdirindedir.",
       ],
     },
     {
@@ -486,9 +486,9 @@ const refundEn: LegalDoc = {
       ],
     },
     {
-      h: "5. Add-ons (e.g. SMS Credits)",
+      h: "5. Add-ons (e.g. extra message packs)",
       p: [
-        "One-off digital add-ons such as SMS credits are assigned to the account at purchase and are electronic content performed instantly. Used credits are not refunded. Subject to the consumer's consent and the law, statutory withdrawal/refund rights for entirely unused credits are reserved. For Business Buyers, refunds for unused credits are at the Seller's discretion.",
+        "One-off digital add-ons such as extra message packs are assigned to the account at purchase and are electronic content performed instantly. Used credits are not refunded. Subject to the consumer's consent and the law, statutory withdrawal/refund rights for entirely unused credits are reserved. For Business Buyers, refunds for unused credits are at the Seller's discretion.",
       ],
     },
     {

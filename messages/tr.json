@@ -1,12 +1,85 @@
 {
-  "dashboardBanners": {"pending":"{count} randevu onayınızı bekliyor — dış kaynaktan gelen talepler.","approve":"Onayla →","lowStock":"Kritik Stok Uyarısı: {count} adet ürünün stoku belirlenen kritik seviyenin altına düşmüştür!","goStock":"Stok Yönetimine Git →","waFull":"Bu ayki WhatsApp mesaj hakkınız doldu ({used}/{limit}) — müşterilere otomatik onay/hatırlatma mesajı yeni aya kadar gönderilmiyor.","waWarn":"Bu ayki WhatsApp mesaj hakkınızın %80'i kullanıldı ({used}/{limit}).","upgrade":"Planı Yükselt →"},
+  "dashboardBanners": {
+    "pending": "{count} randevu onayınızı bekliyor — dış kaynaktan gelen talepler.",
+    "approve": "Onayla →",
+    "lowStock": "Kritik Stok Uyarısı: {count} adet ürünün stoku belirlenen kritik seviyenin altına düşmüştür!",
+    "goStock": "Stok Yönetimine Git →",
+    "waFull": "Bu dönemki WhatsApp mesaj hakkınız doldu ({used}/{limit}) — yenilenme tarihine kadar (ya da ek mesaj paketi alana kadar) müşterilere otomatik onay/hatırlatma mesajı gönderilmiyor.",
+    "waWarn": "Bu dönemki WhatsApp mesaj hakkınızın %80'i kullanıldı ({used}/{limit}).",
+    "upgrade": "Planı Yükselt →"
+  },
   "homeVisual": {
-    "website": {"badge":"Website Modu","title":"Randevu sayfanız, aynı zamanda web siteniz","subtitle":"Ayrı bir site yaptırmayın: randevu linkiniz salonunuzun vitrini olsun. Müşteriniz tek sayfada hem sizi tanır hem randevusunu alır.","social":"Sosyal medya hesaplarınız tek dokunuşla","location":"Konum ve yol tarifi","contact":"Telefon ve iletişim bilgileri","photos":"Yaptığınız hizmetlerin fotoğrafları","reviews":"Google yorum bağlantısı","cta":"Canlı demoyu inceleyin","planNote":"Pro ve Business planlarında","imgAlt":"Randevu sayfası web sitesi görünümü","demo":{"title":"Randevu al","service":"Saç Kesimi · 45 dk","tomorrow":"Yarın","pickTime":"Müsait saatler","pickStaff":"Uzman seçin","done":"Randevunuz oluşturuldu!","summary":"{staff} · Yarın {time}","wa":"Randevunuz onaylandı ✓ Yarın {time}'da görüşmek üzere!","tg":"Yeni randevu: Elif K. · Yarın {time}","reset":"Baştan dene","hint":"Deneyin: bir saate dokunun","back":"Geri","review":"“Çok şık bir salon, randevu almak çok kolaydı!”","directions":"Yol tarifi al"}},
-    "panel": {"badge":"Tek panel","title":"Tek panelde her şey","subtitle":"Randevudan stoğa, müşteriden kasaya — işletmenizin tamamı tek ekranda.","crm":"Müşteri (CRM) Yönetimi","staff":"Personel Yönetimi","stock":"Stok Yönetimi","finance":"Gelir-Gider Takibi","chip1":"Randevu","chip2":"WhatsApp & Telegram","salon":"Salon Yönetimi","campaign":"Kampanya Yönetimi"},
+    "website": {
+      "badge": "Website Modu",
+      "title": "Randevu sayfanız, aynı zamanda web siteniz",
+      "subtitle": "Ayrı bir site yaptırmayın: randevu linkiniz salonunuzun vitrini olsun. Müşteriniz tek sayfada hem sizi tanır hem randevusunu alır.",
+      "social": "Sosyal medya hesaplarınız tek dokunuşla",
+      "location": "Konum ve yol tarifi",
+      "contact": "Telefon ve iletişim bilgileri",
+      "photos": "Yaptığınız hizmetlerin fotoğrafları",
+      "reviews": "Google yorum bağlantısı",
+      "cta": "Canlı demoyu inceleyin",
+      "planNote": "Pro ve Business planlarında",
+      "imgAlt": "Randevu sayfası web sitesi görünümü",
+      "demo": {
+        "title": "Randevu al",
+        "service": "Saç Kesimi · 45 dk",
+        "tomorrow": "Yarın",
+        "pickTime": "Müsait saatler",
+        "pickStaff": "Uzman seçin",
+        "done": "Randevunuz oluşturuldu!",
+        "summary": "{staff} · Yarın {time}",
+        "wa": "Randevunuz onaylandı ✓ Yarın {time}'da görüşmek üzere!",
+        "tg": "Yeni randevu: Elif K. · Yarın {time}",
+        "reset": "Baştan dene",
+        "hint": "Deneyin: bir saate dokunun",
+        "back": "Geri",
+        "review": "“Çok şık bir salon, randevu almak çok kolaydı!”",
+        "directions": "Yol tarifi al"
+      }
+    },
+    "panel": {
+      "badge": "Tek panel",
+      "title": "Tek panelde her şey",
+      "subtitle": "Randevudan stoğa, müşteriden kasaya — işletmenizin tamamı tek ekranda.",
+      "crm": "Müşteri (CRM) Yönetimi",
+      "staff": "Personel Yönetimi",
+      "stock": "Stok Yönetimi",
+      "finance": "Gelir-Gider Takibi",
+      "chip1": "Randevu",
+      "chip2": "WhatsApp & Telegram",
+      "salon": "Salon Yönetimi",
+      "campaign": "Kampanya Yönetimi"
+    },
     "tickerLabel": "SiriPlan ile neler yapabilirsiniz",
-    "ticker": ["Stoklarını anlık takip et — kritik seviyenin altına düşerse anında haberin olsun.","İş listeni anlık gör: bugün kim geliyor, ne bekliyor?","Kaç müşterin var, kim ne kadar gelmiş, sana ne kazandırmış — özel notlarıyla hepsi elinin altında.","Müşterilerin kaybolmasın: müşteri erimesini durdur, sadakati artır.","Otomatik randevuyu aç, telefonla uğraşma.","İstersen randevu talepleri onayına düşsün, tek tıkla revize et.","Gelir-giderini anlık takip et: günlük, aylık, yıllık.","Hizmetlerini ve stratejini düzenle, verimliliği artır.","Personelini yönet, verimliliğini ölç, takip et.","Mikrofona konuş, randevu kendiliğinden oluşsun.","Randevu sayfan senin vitrinin: hizmet fotoğrafların, konumun, sosyal medyan ve Google yorum linkin tek sayfada.","Ayrı web sitesi yaptırma — randevu linkin aynı zamanda web siten.","Hepsi tek panelde."],
-    "mobile": {"title":"Cebinizdeki salon yönetimi","subtitle":"iOS ve Android uygulamasıyla takvim, stok, müşteri ve kasa her an elinizin altında.","calendar":"Personel takvimi","stock":"Anlık stok takibi","customers":"Müşteri geçmişi","finance":"Gelir - gider"},
-    "mini": {"badge":"Tek başına çalışanlar için","title":"Mini ile hemen başlayın","cta":"Mini'yi Ücretsiz Dene"},
+    "ticker": [
+      "Stoklarını anlık takip et — kritik seviyenin altına düşerse anında haberin olsun.",
+      "İş listeni anlık gör: bugün kim geliyor, ne bekliyor?",
+      "Kaç müşterin var, kim ne kadar gelmiş, sana ne kazandırmış — özel notlarıyla hepsi elinin altında.",
+      "Müşterilerin kaybolmasın: müşteri erimesini durdur, sadakati artır.",
+      "Otomatik randevuyu aç, telefonla uğraşma.",
+      "İstersen randevu talepleri onayına düşsün, tek tıkla revize et.",
+      "Gelir-giderini anlık takip et: günlük, aylık, yıllık.",
+      "Hizmetlerini ve stratejini düzenle, verimliliği artır.",
+      "Personelini yönet, verimliliğini ölç, takip et.",
+      "Mikrofona konuş, randevu kendiliğinden oluşsun.",
+      "Randevu sayfan senin vitrinin: hizmet fotoğrafların, konumun, sosyal medyan ve Google yorum linkin tek sayfada.",
+      "Ayrı web sitesi yaptırma — randevu linkin aynı zamanda web siten.",
+      "Hepsi tek panelde."
+    ],
+    "mobile": {
+      "title": "Cebinizdeki salon yönetimi",
+      "subtitle": "iOS ve Android uygulamasıyla takvim, stok, müşteri ve kasa her an elinizin altında.",
+      "calendar": "Personel takvimi",
+      "stock": "Anlık stok takibi",
+      "customers": "Müşteri geçmişi",
+      "finance": "Gelir - gider"
+    },
+    "mini": {
+      "badge": "Tek başına çalışanlar için",
+      "title": "Mini ile hemen başlayın",
+      "cta": "Mini'yi Ücretsiz Dene"
+    },
     "storeNote": "iOS: App Store üzerinde SiriusPlan adıyla · Android: SiriPlan",
     "mock": {
       "today": "Bugün",
@@ -166,7 +239,7 @@
       "features": [
         "1 şube, 1 personel",
         "Ayda 200 randevu",
-        "Ayda 200 WhatsApp mesajı (onay + hatırlatma)",
+        "Ayda 400 WhatsApp mesajı (onay + hatırlatma)",
         "Kişisel randevu linki (siriplan.com/r/salon-adin)",
         "Müşteri kaydı ve geçmişi",
         "Stok yönetimi (mal/ürün takibi, barkodla satış)",
@@ -194,7 +267,7 @@
         "Paket / seans takibi",
         "Bekleme listesi",
         "Gelir - gider raporları & KDV hesaplama",
-        "WhatsApp hatırlatmaları",
+        "Ayda 500 WhatsApp mesajı dahil (onay + hatırlatma)",
         "Sadakat kartı sistemi",
         "Ayda 1 kampanya",
         "Veri export (CSV)",
@@ -212,6 +285,7 @@
       "desc": "Büyüyen salonlar için tam set",
       "features": [
         "1 şube, sınırsız personel",
+        "Ayda 1.500 WhatsApp mesajı dahil (onay + hatırlatma)",
         "Sınırsız randevu",
         "Sesli asistan ile randevu ve stok komutları",
         "Website modu — renk paleti ve kategori fotoğraflarıyla özelleştirilmiş randevu sayfası",
@@ -229,6 +303,7 @@
       "desc": "Çok şubeli işletmeler için",
       "features": [
         "5 şubeye kadar",
+        "Ayda 3.000 WhatsApp mesajı dahil (onay + hatırlatma)",
         "Sınırsız personel",
         "Tüm Pro özellikleri",
         "AI WhatsApp/IG asistanı",
@@ -244,11 +319,6 @@
       "name": "AI WhatsApp Paketi",
       "desc": "Gelişmiş AI asistanı, duygu analizi, akıllı öneriler",
       "price": "$49/ay"
-    },
-    "sms": {
-      "name": "SMS Paketi",
-      "desc": "1.000 SMS'lik kontör; gönderdikçe azalır, bitince yenisini alırsınız, süre sınırı yok. Kendi SMS hesabınıza gerek kalmadan gönderin",
-      "price": "$55 · 1.000 SMS"
     },
     "multiBranch": {
       "name": "Ek Şube Paketi",
@@ -489,7 +559,7 @@
       "sms": {
         "name": "SMS Bildirimleri",
         "category": "Mesajlaşma",
-        "desc": "WhatsApp kullanmayan müşterilere SMS hatırlatma ve onay mesajı gönderin. SiriPlan SMS kontörüyle (1.000 SMS'lik paket; gönderdikçe azalır) ya da kendi Netgsm, VatanSMS veya İletimerkezi hesabınızla çalışır."
+        "desc": "WhatsApp kullanmayan müşterilere SMS hatırlatma ve onay mesajı gönderin. Kendi Netgsm, VatanSMS veya İletimerkezi hesabınızla çalışır."
       },
       "qr": {
         "name": "QR Kod",
@@ -653,7 +723,7 @@
           },
           "q2": {
             "q": "WhatsApp hatırlatması nasıl çalışıyor?",
-            "a": "Randevu onayı, hatırlatma, iptal ve değişiklik mesajları müşteriye SiriPlan tarafından otomatik gönderilir; sizin ayrıca mesaj atmanız gerekmez. Hatırlatma randevudan seçtiğiniz saatlerde (24 saat, 2 saat önce gibi) gider ve gelmeme (no-show) oranınızı %60'a kadar azaltır. SMS için SiriPlan SMS kontörü satın alabilir ya da kendi SMS sağlayıcınızı bağlayabilirsiniz."
+            "a": "Randevu onayı, hatırlatma, iptal ve değişiklik mesajları müşteriye SiriPlan tarafından otomatik gönderilir; sizin ayrıca mesaj atmanız gerekmez. Hatırlatma randevudan seçtiğiniz saatlerde (24 saat, 2 saat önce gibi) gider ve gelmeme (no-show) oranınızı %60'a kadar azaltır. Planınıza dahil aylık WhatsApp mesaj hakkı: Mini 400, Starter 500, Pro 1.500, Business 3.000; hak abonelik başlangıç tarihinizde yenilenir, gerekirse ek mesaj paketi alabilirsiniz."
           },
           "q3": {
             "q": "Müşteri skoru sistemi ne işe yarar?",
@@ -992,14 +1062,38 @@
     "featuresTitle": "{title} İşletmeleri İçin Özel Özellikler",
     "platformAdvantagesTitle": "Platform Avantajları",
     "platformFeatures": {
-      "channels": { "title": "Çok Kanallı Randevu", "desc": "Web, WA, IG, QR" },
-      "ai": { "title": "AI Asistanı", "desc": "7/24 otomatik yanıt" },
-      "customerScore": { "title": "Müşteri Skoru", "desc": "Sadakat programı" },
-      "revenue": { "title": "Ciro Analitik", "desc": "Gerçek zamanlı rapor" },
-      "gamification": { "title": "Gamification", "desc": "Haftanın Elemanı" },
-      "kvkk": { "title": "KVKK Uyumlu", "desc": "Güvenli veri saklama" },
-      "migration": { "title": "Kolay Göç", "desc": "Mevcut verilerinizi taşıyın" },
-      "uptime": { "title": "%99.9 Uptime", "desc": "Kesintisiz çalışma" }
+      "channels": {
+        "title": "Çok Kanallı Randevu",
+        "desc": "Web, WA, IG, QR"
+      },
+      "ai": {
+        "title": "AI Asistanı",
+        "desc": "7/24 otomatik yanıt"
+      },
+      "customerScore": {
+        "title": "Müşteri Skoru",
+        "desc": "Sadakat programı"
+      },
+      "revenue": {
+        "title": "Ciro Analitik",
+        "desc": "Gerçek zamanlı rapor"
+      },
+      "gamification": {
+        "title": "Gamification",
+        "desc": "Haftanın Elemanı"
+      },
+      "kvkk": {
+        "title": "KVKK Uyumlu",
+        "desc": "Güvenli veri saklama"
+      },
+      "migration": {
+        "title": "Kolay Göç",
+        "desc": "Mevcut verilerinizi taşıyın"
+      },
+      "uptime": {
+        "title": "%99.9 Uptime",
+        "desc": "Kesintisiz çalışma"
+      }
     },
     "tryFree": "14 Gün Ücretsiz Dene",
     "watchDemo": "Demo İzle",
@@ -1012,88 +1106,210 @@
         "title": "Kuaför",
         "headline": "Kuaför Salonunuz İçin Akıllı Randevu Sistemi",
         "desc": "Saç kesimi, boyama, bakım ve şekillendirme randevularını tek ekrandan yönetin. WhatsApp ile otomatik hatırlatma, müşteri sadakat programı ve ciro takibi.",
-        "features": ["Çok personelli randevu takibi", "Hizmet bazlı süre yönetimi", "WhatsApp & Instagram otomasyonu", "Sadakat puanı sistemi", "Personel komisyon raporları", "Ön ödeme toplama"],
+        "features": [
+          "Çok personelli randevu takibi",
+          "Hizmet bazlı süre yönetimi",
+          "WhatsApp & Instagram otomasyonu",
+          "Sadakat puanı sistemi",
+          "Personel komisyon raporları",
+          "Ön ödeme toplama"
+        ],
         "testimonialText": "SiriPlan'a geçtikten sonra no-show oranımız %70 düştü. WhatsApp hatırlatmaları sayesinde her randevumuz dolup taşıyor.",
-        "keywords": ["kuaför randevu sistemi", "kuaför programı", "online kuaför randevu"]
+        "keywords": [
+          "kuaför randevu sistemi",
+          "kuaför programı",
+          "online kuaför randevu"
+        ]
       },
       "berber": {
         "title": "Berber",
         "headline": "Berber Dükkanı İçin Randevu & Yönetim Yazılımı",
         "desc": "Saç kesimi, sakal düzeltme ve bakım randevularını kolayca yönetin. Müşteri geçmişi, kişisel tercihler ve hızlı checkout sistemi.",
-        "features": ["Hızlı randevu oluşturma", "Müşteri tercih notları", "QR kod ile self servis randevu", "Günlük ciro özeti", "SMS & WhatsApp hatırlatma", "Personel çalışma saati takibi"],
+        "features": [
+          "Hızlı randevu oluşturma",
+          "Müşteri tercih notları",
+          "QR kod ile self servis randevu",
+          "Günlük ciro özeti",
+          "SMS & WhatsApp hatırlatma",
+          "Personel çalışma saati takibi"
+        ],
         "testimonialText": "Haftanın Elemanı sistemi personelimi çok motive etti. Ciro takibi ve personel komisyon raporu artık çok kolay.",
-        "keywords": ["berber randevu sistemi", "berber programı", "online berber randevu"]
+        "keywords": [
+          "berber randevu sistemi",
+          "berber programı",
+          "online berber randevu"
+        ]
       },
       "guzellik": {
         "title": "Güzellik Salonu",
         "headline": "Güzellik Salonu Yönetiminde Yeni Standart",
         "desc": "Cilt bakımı, makyaj, lazer ve epilasyon hizmetlerini tek platformda yönetin. Müşteri kartı, ürün takibi ve kampanya modülü.",
-        "features": ["Hizmet & paket satışı", "Ürün stok takibi", "Müşteri geçmişi ve notları", "Instagram DM otomasyonu", "Toplu kampanya gönderimi", "KDV'li ciro raporları"],
-        "keywords": ["güzellik salonu randevu sistemi", "güzellik salonu programı"]
+        "features": [
+          "Hizmet & paket satışı",
+          "Ürün stok takibi",
+          "Müşteri geçmişi ve notları",
+          "Instagram DM otomasyonu",
+          "Toplu kampanya gönderimi",
+          "KDV'li ciro raporları"
+        ],
+        "keywords": [
+          "güzellik salonu randevu sistemi",
+          "güzellik salonu programı"
+        ]
       },
       "spa": {
         "title": "SPA & Masaj",
         "headline": "SPA Merkezi İçin Profesyonel Randevu Yönetimi",
         "desc": "Masaj, sauna, hamam, duş ve paket programlarını yönetin. Çift yönlü kabin takibi, personel uygunluk ve ön ödeme sistemi.",
-        "features": ["Kabin & oda bazlı rezervasyon", "Paket program satışı", "Otomatik hatırlatma", "Müşteri memnuniyet skoru", "Bekleme listesi", "Gelir & doluluk raporları"],
+        "features": [
+          "Kabin & oda bazlı rezervasyon",
+          "Paket program satışı",
+          "Otomatik hatırlatma",
+          "Müşteri memnuniyet skoru",
+          "Bekleme listesi",
+          "Gelir & doluluk raporları"
+        ],
         "testimonialText": "3 şube yönetimi artık tek ekrandan. Doluluk oranımız %40 arttı.",
-        "keywords": ["spa randevu sistemi", "masaj salonu programı"]
+        "keywords": [
+          "spa randevu sistemi",
+          "masaj salonu programı"
+        ]
       },
       "nail": {
         "title": "Nail Salon",
         "headline": "Nail Salon İçin Akıllı Randevu Sistemi",
         "desc": "Manikür, pedikür, jel, akrilik ve protez tırnak randevularını yönetin. Uzun süreli hizmetler için blok rezervasyon ve tekrar eden müşteri takibi.",
-        "features": ["Hizmet süresi bazlı blok rezervasyon", "Tekrar eden müşteri hatırlatma", "Before/after fotoğraf notları", "Sadakat kartı sistemi", "Online ön ödeme", "Kapasiteli slot yönetimi"],
-        "keywords": ["nail salon randevu sistemi", "tırnak salonu programı"]
+        "features": [
+          "Hizmet süresi bazlı blok rezervasyon",
+          "Tekrar eden müşteri hatırlatma",
+          "Before/after fotoğraf notları",
+          "Sadakat kartı sistemi",
+          "Online ön ödeme",
+          "Kapasiteli slot yönetimi"
+        ],
+        "keywords": [
+          "nail salon randevu sistemi",
+          "tırnak salonu programı"
+        ]
       },
       "estetik": {
         "title": "Estetik Klinik",
         "headline": "Estetik & Güzellik Kliniği Randevu Yönetimi",
         "desc": "Botoks, dolgu, lazer epilasyon, mezoterapi ve cilt bakımı randevularını KVKK uyumlu şekilde yönetin.",
-        "features": ["Hasta kartı & tedavi geçmişi", "KVKK uyumlu veri saklama", "Online onay formu", "Hekim uygunluk takvimi", "Takip randevusu hatırlatma", "Ön ödeme & taksit"],
-        "keywords": ["estetik klinik randevu sistemi", "klinik yönetim yazılımı"]
+        "features": [
+          "Hasta kartı & tedavi geçmişi",
+          "KVKK uyumlu veri saklama",
+          "Online onay formu",
+          "Hekim uygunluk takvimi",
+          "Takip randevusu hatırlatma",
+          "Ön ödeme & taksit"
+        ],
+        "keywords": [
+          "estetik klinik randevu sistemi",
+          "klinik yönetim yazılımı"
+        ]
       },
       "makyaj": {
         "title": "Makyaj Stüdyosu",
         "headline": "Makyaj Stüdyosu İçin Randevu & Müşteri Yönetimi",
         "desc": "Gelin makyajı, fotoğraf çekimi, özel gün ve günlük makyaj randevularını kolayca planlayın.",
-        "features": ["Etkinlik bazlı randevu", "Müşteri tercih profili", "Kaparo & ön ödeme sistemi", "Gelin randevu paketi", "Instagram entegrasyonu", "Fotoğraf notları"],
-        "keywords": ["makyaj stüdyosu randevu sistemi", "makyajcı randevu programı"]
+        "features": [
+          "Etkinlik bazlı randevu",
+          "Müşteri tercih profili",
+          "Kaparo & ön ödeme sistemi",
+          "Gelin randevu paketi",
+          "Instagram entegrasyonu",
+          "Fotoğraf notları"
+        ],
+        "keywords": [
+          "makyaj stüdyosu randevu sistemi",
+          "makyajcı randevu programı"
+        ]
       },
       "tattoo": {
         "title": "Tattoo Studio",
         "headline": "Tattoo Studio İçin Profesyonel Randevu Sistemi",
         "desc": "Dövme, piercing ve lazer seans randevularını yönetin. Tasarım onay süreci, kaparo ve çok seanslı proje takibi.",
-        "features": ["Proje bazlı çok seanslı randevu", "Kaparo & bakiye takibi", "Tasarım notları & fotoğraflar", "Müşteri onam belgesi", "Tattoo sanatçısı takvimi", "WA ile seans hatırlatma"],
-        "keywords": ["tattoo studio randevu sistemi", "dövmeci randevu programı"]
+        "features": [
+          "Proje bazlı çok seanslı randevu",
+          "Kaparo & bakiye takibi",
+          "Tasarım notları & fotoğraflar",
+          "Müşteri onam belgesi",
+          "Tattoo sanatçısı takvimi",
+          "WA ile seans hatırlatma"
+        ],
+        "keywords": [
+          "tattoo studio randevu sistemi",
+          "dövmeci randevu programı"
+        ]
       },
       "diyetisyen": {
         "title": "Diyetisyen",
         "headline": "Diyetisyen Kliniği İçin Randevu & Danışan Yönetimi",
         "desc": "Beslenme danışmanlığı, takip seansları ve online konsültasyon randevularını yönetin. Danışan kartı ve ilerleme takibi.",
-        "features": ["Online & yüz yüze seans", "Danışan takip profili", "Tekrar eden haftalık randevu", "E-posta & WA hatırlatma", "Ödeme & paket yönetimi", "Randevu geçmişi"],
-        "keywords": ["diyetisyen randevu sistemi", "beslenme danışmanı programı"]
+        "features": [
+          "Online & yüz yüze seans",
+          "Danışan takip profili",
+          "Tekrar eden haftalık randevu",
+          "E-posta & WA hatırlatma",
+          "Ödeme & paket yönetimi",
+          "Randevu geçmişi"
+        ],
+        "keywords": [
+          "diyetisyen randevu sistemi",
+          "beslenme danışmanı programı"
+        ]
       },
       "kas": {
         "title": "Kaş & Kirpik",
         "headline": "Kaş & Kirpik Stüdyosu İçin Randevu Sistemi",
         "desc": "Kaş tasarımı, microblading, kirpik uzatma ve laminasyon randevularını yönetin. Seans süresi ve doluluk optimizasyonu.",
-        "features": ["Seans süresi bazlı rezervasyon", "Tekrar eden müşteri hatırlatma", "Renk ve stil notları", "Müşteri fotoğraf galerisi", "Online ön ödeme", "Sadakat programı"],
-        "keywords": ["kaş kirpik randevu sistemi", "kirpik stüdyo programı"]
+        "features": [
+          "Seans süresi bazlı rezervasyon",
+          "Tekrar eden müşteri hatırlatma",
+          "Renk ve stil notları",
+          "Müşteri fotoğraf galerisi",
+          "Online ön ödeme",
+          "Sadakat programı"
+        ],
+        "keywords": [
+          "kaş kirpik randevu sistemi",
+          "kirpik stüdyo programı"
+        ]
       },
       "dis-klinigi": {
         "title": "Diş Kliniği",
         "headline": "Diş Kliniğiniz İçin Akıllı Randevu Yönetimi",
         "desc": "Muayene, kontrol ve tedavi randevularını tek sistemden yönetin. Hasta hatırlatmaları, doktor bazlı takvim ve bekleme listesiyle klinik akışınızı hızlandırın.",
-        "features": ["Doktor bazlı randevu takvimi", "Hasta hatırlatma (SMS/WhatsApp)", "Tedavi/kontrol randevusu ayrımı", "Bekleme listesi", "Hasta geçmişi ve notlar", "Çok şubeli klinik desteği"],
-        "keywords": ["diş kliniği randevu sistemi", "diş hekimi randevu programı"]
+        "features": [
+          "Doktor bazlı randevu takvimi",
+          "Hasta hatırlatma (SMS/WhatsApp)",
+          "Tedavi/kontrol randevusu ayrımı",
+          "Bekleme listesi",
+          "Hasta geçmişi ve notlar",
+          "Çok şubeli klinik desteği"
+        ],
+        "keywords": [
+          "diş kliniği randevu sistemi",
+          "diş hekimi randevu programı"
+        ]
       },
       "petkuafor": {
         "title": "Pet Kuaför",
         "headline": "Pet Kuaförünüz İçin Kolay Randevu Sistemi",
         "desc": "Tüy kesimi, banyo ve bakım randevularını tek takvimden yönetin. Hayvan sahiplerine otomatik hatırlatma gönderin, personel bazlı doluluk takip edin.",
-        "features": ["Hizmet bazlı randevu takvimi (tüy kesimi, banyo, tırnak bakımı)", "Otomatik hatırlatma (SMS/WhatsApp)", "Personel bazlı doluluk takibi", "Müşteri & evcil hayvan kayıtları", "Bekleme listesi", "Sadakat programı"],
-        "keywords": ["pet kuaför randevu sistemi", "evcil hayvan bakım randevusu"]
+        "features": [
+          "Hizmet bazlı randevu takvimi (tüy kesimi, banyo, tırnak bakımı)",
+          "Otomatik hatırlatma (SMS/WhatsApp)",
+          "Personel bazlı doluluk takibi",
+          "Müşteri & evcil hayvan kayıtları",
+          "Bekleme listesi",
+          "Sadakat programı"
+        ],
+        "keywords": [
+          "pet kuaför randevu sistemi",
+          "evcil hayvan bakım randevusu"
+        ]
       }
     }
   },
@@ -1270,6 +1486,23 @@
     }
   },
   "dashboard": {
+    "waUsage": {
+      "title": "WhatsApp mesaj hakkı",
+      "utilityLabel": "Randevu mesajları (bu ay)",
+      "renews": "Plan hakkınız {date} tarihinde yenilenir.",
+      "addonBalance": "Ek paket bakiyesi",
+      "campaignBalance": "Kampanya kredisi",
+      "noteEnforced": "Randevu onay, hatırlatma, iptal ve revizyon mesajları bu hakkı kullanır. Plan hakkı dolunca ek paket bakiyesi kullanılır; bakiye de yoksa otomatik WhatsApp mesajı gönderilmez, randevularınız normal şekilde kaydedilmeye devam eder.",
+      "noteMetered": "Randevu onay, hatırlatma, iptal ve revizyon mesajları bu hakkı kullanır. Plan hakkı dolunca ek paket bakiyeniz kullanılır.",
+      "campaignNote": "WhatsApp kampanya mesajları plana dahil değildir; satın alınan kampanya kredisiyle gönderilir. SMS kampanyaları bundan etkilenmez.",
+      "buyUtility": "{count} ek randevu mesajı",
+      "buyCampaign": "{count} kampanya mesajı",
+      "buyHint": "Ek paketler tek seferliktir, aya göre sıfırlanmaz ve ödeme sonrası hesabınıza otomatik yüklenir.",
+      "buyError": "Ödeme sayfası açılamadı. Lütfen tekrar deneyin.",
+      "buySuccess": "Ödemeniz alındı. Bakiyeniz kısa süre içinde güncellenir.",
+      "buyCanceled": "Ödeme iptal edildi.",
+      "manageLink": "Ek paket satın al / ayrıntılar"
+    },
     "menuLabel": "Menü",
     "calendarHourColumn": "SAAT",
     "bookingLinkTitle": "Müşteri Randevu Linki",
@@ -1390,11 +1623,6 @@
       "upgradeToPro": "Pro'ya Yükselt",
       "changeToPlan": "{plan} Planına Geç",
       "manageBilling": "Fatura & Ödeme Yöntemini Yönet",
-      "smsPackTitle": "SMS Kontörü",
-      "smsPackDesc": "Kendi SMS hesabınızı bağlamadan, müşterilerinize SMS gönderin. 1.000 SMS'lik paket: gönderdikçe azalır, bitince yenisini alabilirsiniz. Süre sınırı yok.",
-      "smsPackBalance": "Kalan SMS",
-      "smsPackBuy": "1.000 SMS Kontörü Satın Al",
-      "smsPackHint": "Kontör, Ayarlar'da SMS bildirimleri açıkken ve kendi SMS sağlayıcınız bağlı değilken kullanılır.",
       "addonsTitle": "Ek Paketler",
       "addonBuyMonthly": "Aylık al · {price}",
       "addonBuyAnnual": "Yıllık al · {price}",
@@ -1418,9 +1646,6 @@
       "branchLinkedTitle": "Şube",
       "branchLinkedDesc": "Bu şube \"{parent}\" işletmesinin aboneliğine bağlıdır. Plan ve ödeme işlemleri ana işletmeden yapılır.",
       "branchGoParent": "Ana işletmeye geç ve planı yönet",
-      "smsPackSuccess": "Ödemeniz alındı. Kontörünüz birkaç saniye içinde hesabınıza yüklenir.",
-      "smsPackCanceled": "Ödeme tamamlanmadı.",
-      "smsPackError": "Ödeme sayfası açılamadı.",
       "trialBottomNote": "Deneme süresinde tüm Pro özellikleri ücretsiz kullanılabilir — kredi kartı gerekmez. Süre bitmeden Starter ve Pro'yu karşılaştırıp size uygun planla devam edebilirsiniz.",
       "cancelSubscription": "Aboneliği İptal Et",
       "cancelConfirmTitle": "Aboneliği iptal etmek istediğinize emin misiniz?",
@@ -2120,7 +2345,7 @@
           "items": [
             {
               "label": "Otomatik WhatsApp Mesajları:",
-              "desc": "Randevu onayı, hatırlatma, iptal ve revize mesajları müşterinize SiriPlan tarafından otomatik gönderilir — siz yazmaz, göndermezsiniz. Ayarlar → \"Otomatik WhatsApp Mesajları\" kartından hangi olaylarda gideceğini seçersiniz."
+              "desc": "Randevu onayı, hatırlatma, iptal ve revize mesajları müşterinize SiriPlan tarafından otomatik gönderilir — siz yazmaz, göndermezsiniz. Ayarlar → \"Otomatik WhatsApp Mesajları\" kartından hangi olaylarda gideceğini seçersiniz. Planınıza dahil aylık mesaj hakkı: Mini 400 · Starter 500 · Pro 1.500 · Business 3.000; her ay abonelik başlangıç tarihinizde yenilenir, dolunca ek mesaj paketi alabilirsiniz (Ayarlar → Abonelik)."
             },
             {
               "label": "Hatırlatma Zamanı ve Şablon:",
@@ -2128,7 +2353,7 @@
             },
             {
               "label": "SMS (isteğe bağlı):",
-              "desc": "İki yol vardır: Ayarlar → Abonelik sayfasından SiriPlan SMS kontörü (1.000 SMS'lik paket; gönderdikçe azalır, süre sınırı yok, hesap açmanız gerekmez) satın alın ya da kendi sağlayıcınızı (Netgsm, VatanSMS, İletimerkezi) bağlayın. Sağlayıcı bağlıysa SMS onun hesabından gider ve kontör düşmez."
+              "desc": "Ayarlar → SMS Bildirimleri bölümünden kendi SMS sağlayıcınızı (Netgsm, VatanSMS, İletimerkezi) bağlayın; SMS'ler sizin hesabınızdan gider."
             },
             {
               "label": "Elle WhatsApp (isteğe bağlı):",
@@ -2181,8 +2406,7 @@
             "Planlar: Mini, Starter, Pro ve Business planlarının tamamı sabit ve şeffaf yapıdadır; teklif alma / temsilci bekleme adımı yoktur. Her yeni hesap 14 gün ücretsiz deneme ile başlar.",
             "Plan bilgileriniz: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.",
             "Aboneliğiniz SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir. Plan yükseltme, yenileme veya faturalandırmayla ilgili sorularınız için destek ekibimizle iletişime geçin: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Plan farkları: Mini — 1 personel, ayda 200 randevu ve 200 WhatsApp mesajı, randevu linki, müşteri kaydı, stok/barkod, paket takibi, gelir-gider ve KDV, CSV export. Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, bekleme listesi, gelir-gider ve KDV, WhatsApp hatırlatma, sadakat kartı, ayda 1 kampanya, CSV export. Pro — sınırsız personel, sesli asistan, website modu, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar.",
-            "SMS kontörü: Kendi SMS hesabınızı bağlamadan SMS göndermek için Ayarlar → Abonelik sayfasından 1.000 SMS'lik kontör paketi satın alabilirsiniz (gönderdikçe azalır, bitince yenisini alırsınız; süre sınırı yok; kalan bakiye aynı sayfada görünür). Kendi sağlayıcınız bağlıysa SMS onun hesabından gider ve kontör düşmez. Mobil uygulamada satın alma yüzeyi gösterilmez."
+            "Plan farkları: Mini — 1 personel, ayda 200 randevu ve 400 WhatsApp mesajı, randevu linki, müşteri kaydı, stok/barkod, paket takibi, gelir-gider ve KDV, CSV export. Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, bekleme listesi, gelir-gider ve KDV, ayda 500 WhatsApp mesajı dahil (onay + hatırlatma), sadakat kartı, ayda 1 kampanya, CSV export. Pro — sınırsız personel, ayda 1.500 WhatsApp mesajı dahil, sesli asistan, website modu, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, ayda 3.000 WhatsApp mesajı dahil, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar. WhatsApp randevu mesajı hakkı abonelik başlangıç tarihinizin aylık yıldönümünde yenilenir; dolunca Ayarlar → Abonelik'ten ek mesaj paketi alabilirsiniz. WhatsApp kampanya mesajları plana dahil değildir, kampanya kredisiyle gönderilir."
           ]
         },
         "sadakat": {
@@ -2270,7 +2494,7 @@
             },
             {
               "q": "SMS göndermek için ne yapmalıyım?",
-              "a": "Abonelik sayfasından SiriPlan SMS kontörü alın (hesap açmanız gerekmez) ya da Ayarlar'dan kendi SMS sağlayıcınızı bağlayın; ardından \"SMS bildirimleri açık\" kutusunu işaretleyin."
+              "a": "Ayarlar'dan kendi SMS sağlayıcınızı (Netgsm, VatanSMS veya İletimerkezi) bağlayın; ardından \"SMS bildirimleri açık\" kutusunu işaretleyin."
             },
             {
               "q": "Panel açıldığında Takvim görünsün istiyorum.",
@@ -3210,11 +3434,11 @@
       "templateStandard": "Standart",
       "templateVariant": "Varyant {n}",
       "metaTemplatesFootnote": "Bu şablonların metni Meta WhatsApp Business panelinizde önceden onaylı olduğu için burada düzenlenemez — yalnızca hangi varyantın kullanılacağını seçebilirsiniz. Yukarıdaki önizlemeler gönderilecek parametrelerin (isim, tarih, saat vb.) yaklaşık bir örneğidir; birebir metin Meta panelinizdeki onaylı şablona göre değişebilir.",
-      "smsNotifDesc": "Randevu onayı, hatırlatma ve iptal bildirimlerini SMS ile de gönderebilirsiniz. İki yol var: Abonelik sayfasından SiriPlan SMS kontörü satın alabilirsiniz (hesap açmanız gerekmez) ya da kendi SMS sağlayıcınızı (Netgsm, VatanSMS veya İletimerkezi) bağlayabilirsiniz. Sağlayıcı bağlıysa SMS'ler onun hesabından gider ve kontör düşmez.",
+      "smsNotifDesc": "Randevu onayı, hatırlatma ve iptal bildirimlerini SMS ile de gönderebilirsiniz. Bunun için kendi SMS sağlayıcınızı (Netgsm, VatanSMS veya İletimerkezi) bağlayın; SMS'ler sizin sağlayıcı hesabınızdan gider.",
       "smsEnabledLabel": "SMS bildirimleri açık",
       "smsEnabledDesc": "Kapalıyken randevu detayındaki \"SMS Gönder\" butonları çalışmaz.",
       "smsProviderLabel": "SMS Sağlayıcısı (isteğe bağlı)",
-      "smsProviderPlaceholder": "Seçin — ya da boş bırakıp SiriPlan kontörünü kullanın",
+      "smsProviderPlaceholder": "Sağlayıcı seçin",
       "smsProviderUserCode": "Kullanıcı Kodu",
       "smsProviderPassword": "Şifre / API Şifresi",
       "smsProviderApiId": "API ID",
@@ -3225,11 +3449,10 @@
       "smsSenderPlaceholder": "Operatörce onaylı marka başlığınız",
       "smsSenderHint": "Sağlayıcı panelinizden operatöre onaylattığınız başlık — onaysız gönderimde SMS reddedilir.",
       "smsCostTitle": "Maliyet hakkında",
-      "smsBuyPackLink": "SiriPlan SMS kontörü satın al / bakiyeyi gör →",
-      "smsProviderNone": "Kendi sağlayıcım yok (SiriPlan SMS kontörü)",
+      "smsProviderNone": "Sağlayıcı bağlı değil",
       "manualWaSummary": "İsteğe bağlı: kendi WhatsApp'ınızdan elle mesaj göndermek isterseniz (çoğu işletmenin buna ihtiyacı yok)",
       "waAutoBanner": "Mesajlar otomatik gider: müşteri randevu aldığında, randevusu değiştiğinde ya da yaklaştığında WhatsApp mesajı kendiliğinden ulaşır. Siz göndermezsiniz.",
-      "smsCostText": "Kendi sağlayıcınızda SMS başına yaklaşık 0,08–0,20 TL (paket boyutuna göre), aylık sabit ücret yok; kredi paketini sağlayıcı sitesinden alırsınız. SiriPlan kontörü ise 1.000 SMS'lik pakettir; gönderdikçe azalır, bitince yenisini alırsınız, süre sınırı yoktur ve Abonelik sayfasından alınır.",
+      "smsCostText": "Kendi sağlayıcınızda SMS başına yaklaşık 0,08–0,20 TL (paket boyutuna göre), aylık sabit ücret yok; kredi paketini sağlayıcı sitesinden alırsınız.",
       "waBusinessConnTitle": "WhatsApp Business Bağlantısı (Kampanyalar İçin)",
       "waBusinessConnDesc": "Randevu onay/hatırlatma/iptal mesajları SiriPlan'ın kendi WhatsApp hattından otomatik gider, bunun için bir şey yapmanıza gerek yok. Aşağıdaki bağlantı yalnızca Kampanyalar modülünden gönderdiğiniz pazarlama mesajlarının ve gelen mesajlara otomatik yanıtın kendi WhatsApp Business numaranızdan gitmesi içindir.",
       "waAccessTokenLabel": "Kalıcı Erişim Belirteci (Access Token)",
@@ -3515,6 +3738,43 @@
       "reddet": "Reddet",
       "kabul_et": "Kabul Et"
     },
+    "davetKabul": {
+      "gecersiz_davet_baglantisi": "Geçersiz davet bağlantısı",
+      "baglanti_hatasi": "Bağlantı hatası",
+      "hata_olustu": "Hata oluştu",
+      "hesap_olusturulamadi": "Hesap oluşturulamadı",
+      "davet_gecersiz": "Davet Geçersiz",
+      "yonetici": "Yönetici",
+      "isletmeye_katil": "İşletmeye Katıl",
+      "isletme": "İşletme",
+      "personel_kaydi": "Personel Kaydı",
+      "rol": "Rol",
+      "sure_bitis": "Süre Bitiş",
+      "daveti_kabul_ederek": "Daveti kabul ederek",
+      "isletmesinin": "işletmesinin",
+      "i_olacaksiniz": "ı olacaksınız.",
+      "daveti_kabul_et": "Daveti Kabul Et",
+      "yeni_hesap_olustur": "Yeni Hesap Oluştur",
+      "zaten_hesabim_var": "Zaten Hesabım Var",
+      "bu_numaraya_kayitli_hesabini": "Bu numaraya kayıtlı hesabınızla giriş yapıp daveti kabul edin.",
+      "e_posta": "E-posta",
+      "ad_soyad": "Ad Soyad",
+      "sifre": "Şifre",
+      "hesap_olustur_katil": "Hesap Oluştur & Katıl",
+      "e_posta_veya_telefon": "E-posta veya Telefon",
+      "giris_yap_katil": "Giriş Yap & Katıl"
+    },
+    "dogrula": {
+      "e_postanizi_dogrulayin": "E-postanızı Doğrulayın",
+      "kayit_oldugunuz_e_posta": "Kayıt olduğunuz e-posta adresine bir doğrulama linki gönderdik. Lütfen gelen kutunuzu kontrol edin ve linke tıklayın.",
+      "spam_junk_klasorunu_de": "• Spam/junk klasörünü de kontrol edin",
+      "link_24_saat_gecerlidir": "• Link 24 saat geçerlidir",
+      "dogrulama_yapilmadan_sisteme": "• Doğrulama yapılmadan sisteme giriş yapılamaz",
+      "dogrulama_e_postasi_tekrar": "Doğrulama e-postası tekrar gönderildi.",
+      "e_postayi_tekrar_gonder": "E-postayı Tekrar Gönder",
+      "farkli_bir_hesapla_giris": "Farklı bir hesapla giriş yapmak mı istiyorsunuz?",
+      "giris_sayfasi": "Giriş sayfası"
+    },
     "gelirGider": {
       "gelir": "Gelir",
       "gider": "Gider",
@@ -3536,6 +3796,36 @@
       "kum_net": "Küm. Net",
       "net_2": "Net:",
       "kumulatif": "Kümülatif:"
+    },
+    "giris": {
+      "hos_geldiniz": "Hoş Geldiniz",
+      "hesabiniza_giris_yapin": "Hesabınıza giriş yapın",
+      "demo_dashboard_i_gor": "Demo Dashboard'ı Gör",
+      "veya_hesabinizla_giris_yapin": "veya hesabınızla giriş yapın",
+      "e_posta_veya_telefon": "E-posta veya Telefon",
+      "personelseniz_sisteme_kayitl": "Personelseniz sisteme kayıtlı telefon numaranızla da giriş yapabilirsiniz.",
+      "sifre": "Şifre",
+      "sifremi_unuttum": "Şifremi unuttum",
+      "sifreyi_gizle": "Şifreyi gizle",
+      "sifreyi_goster": "Şifreyi göster",
+      "beni_hatirla": "Beni hatırla",
+      "giris_yap": "Giriş Yap",
+      "hesabiniz_yok_mu": "Hesabınız yok mu?",
+      "kayit_olun": "Kayıt olun",
+      "ucretsiz_deneyin": "Ücretsiz deneyin"
+    },
+    "iptal": {
+      "randevu_bulunamadi": "Randevu bulunamadı.",
+      "iptal_islemi_basarisiz_oldu": "İptal işlemi başarısız oldu.",
+      "bir_sorun_olustu": "Bir sorun oluştu",
+      "randevunuz_iptal_edildi": "Randevunuz İptal Edildi",
+      "bilgilendirildi_dilediginiz_": "bilgilendirildi. Dilediğiniz zaman yeni randevu alabilirsiniz.",
+      "randevu_iptali": "Randevu İptali",
+      "merhaba": "Merhaba",
+      "asagidaki_randevunuzu_iptal_": ", aşağıdaki randevunuzu iptal etmek üzeresiniz.",
+      "randevuyu_iptal_et": "Randevuyu İptal Et",
+      "bu_randevu_artik_iptal": "Bu randevu artık iptal edilemez. Lütfen",
+      "ile_iletisime_gecin": "ile iletişime geçin."
     },
     "kampanyaDetay": {
       "kampanya_gonderilemedi_bilin": "Kampanya gönderilemedi, bilinmeyen bir hata oluştu",
@@ -3770,6 +4060,31 @@
       "ozel_not_veya_bilgi": "Özel not veya bilgi...",
       "phone_registered": "Bu telefon <b>{name}</b> adına zaten kayıtlı."
     },
+    "onay": {
+      "baglanti_bulunamadi": "Bağlantı bulunamadı.",
+      "bir_sorun_olustu": "Bir sorun oluştu",
+      "onayiniz_alindi": "Onayınız Alındı",
+      "artik_size_randevu_bildiriml": "artık size randevu bildirimleri gönderebilir.",
+      "kvkk_aydinlatma_metni": "KVKK Aydınlatma Metni",
+      "kampanya_ve_firsatlardan_hab": "Kampanya ve fırsatlardan haberdar olmak istiyorum (opsiyonel)",
+      "okudum_onayliyorum": "Okudum, Onaylıyorum"
+    },
+    "oneri": {
+      "oneri_bulunamadi": "Öneri bulunamadı.",
+      "islem_gerceklestirilemedi": "İşlem gerçekleştirilemedi.",
+      "baglanti_sorunu_olustu_lutfe": "Bağlantı sorunu oluştu, lütfen tekrar deneyin.",
+      "bir_sorun_olustu": "Bir sorun oluştu",
+      "randevunuz_onaylandi": "Randevunuz onaylandı!",
+      "yeni_saatinizi_whatsapp_uzer": "Yeni saatinizi WhatsApp üzerinden de ayrıca aldınız.",
+      "bildirdiniz_tesekkurler": "Bildirdiniz, teşekkürler",
+      "isletmeye_iletildi_sizinle_t": "İşletmeye iletildi, sizinle tekrar iletişime geçecekler.",
+      "bu_oneriye_zaten_yanit": "Bu öneriye zaten yanıt verdiniz",
+      "isletme_size_yeni_bir": "İşletme size yeni bir saat önerdi",
+      "merhaba": "Merhaba",
+      "onerilen_yeni_saat": "Önerilen yeni saat",
+      "bu_onerinin_suresi_gecmis": "Bu önerinin süresi geçmiş.",
+      "kabul_et": "Kabul Et"
+    },
     "orgSwitcher": {
       "isletme_degistirilemedi": "İşletme değiştirilemedi",
       "isletme_degistir": "İşletme Değiştir",
@@ -3854,6 +4169,78 @@
       "no_charge_credit": "Şimdi ödeme alınmaz. Mevcut planınızın kullanılmayan kısmı ({amount}) hesabınıza kredi olarak yazılır ve sonraki faturanızdan düşülür. Fatura dönemi tarihiniz değişmez.",
       "confirm_and_pay": "Onayla ve {amount} öde"
     },
+    "planSec": {
+      "bir_hata_olustu": "Bir hata oluştu.",
+      "panele_don": "Panele Dön",
+      "deneme_sureniz_sona_erdi": "Deneme Süreniz Sona Erdi",
+      "14_gun_ucretsiz_deneme": "14 Gün Ücretsiz Deneme",
+      "hesabinizi_yeniden_etkinlest": "Hesabınızı yeniden etkinleştirmek için müşteri destek ekibimizle iletişime geçin.",
+      "panele_erismeye_hemen_baslay": "Panele erişmeye hemen başlayabilirsiniz. Plan yükseltme ve ödeme işlemleri web sitemiz üzerinden yapılır.",
+      "bizi_arayin": "Bizi Arayın",
+      "panele_git": "Panele Git",
+      "14_gunluk_ucretsiz_deneme": "14 günlük ücretsiz deneme süreniz doldu.",
+      "panele_erismeye_devam_etmek": "Panele erişmeye devam etmek için aşağıdan bir plan seçin — verileriniz güvende, hiçbir şey silinmedi.",
+      "planinizi_secin": "Planınızı Seçin",
+      "istediginiz_zaman_iptal": "İstediğiniz zaman iptal",
+      "14_gun_ucretsiz_deneme_2": "14 gün ücretsiz deneme • Kredi kartı gerekmez • İstediğiniz zaman iptal",
+      "su_an": "Şu an",
+      "pro_ozelliklerini_denemedesi": "Pro özelliklerini denemedesiniz",
+      "asagida_planlari_yan_yana": ". Aşağıda Planları yan yana karşılaştırıp size uygun olanla aboneliğinizi başlatabilirsiniz.",
+      "aylik": "Aylık",
+      "yillik": "Yıllık",
+      "18_tasarruf": "%18 tasarruf",
+      "ay": "/ay",
+      "yillik_tasarruf_pesin_fatura": "{savings} yıllık tasarruf · peşin faturalanır",
+      "aylik_faturalanir": "aylık faturalanır",
+      "starter_a_ek_olarak": "Starter'a ek olarak Pro Farkı",
+      "hemen_satin_al": "Hemen Satın Al",
+      "hemen_basla": "Hemen Başla",
+      "sec": "Seç",
+      "guvenli_odeme_stripe": "Güvenli ödeme (Stripe)",
+      "aninda_etkinlesir": "Anında etkinleşir",
+      "odeme_yurt_disinda_kurulu": "Ödeme yurt dışında kurulu üye işyerimiz üzerinden tahsil edilir; kartınızın bankası bu nedenle işlem tutarına genellikle %1-3 arası bir yurt dışı işlem komisyonu ekleyebilir. Fiyatlarımız bu komisyon göz önünde bulundurularak belirlenmiştir — komisyon bankanıza aittir, SiriPlan tarafından eklenmez.",
+      "simdilik_ucretsiz_denemeye_d": "Şimdilik ücretsiz denemeye devam et →",
+      "plan_mini_desc": "Tek başına çalışan uzmanlar için",
+      "plan_mini_f0": "1 personel",
+      "plan_mini_f1": "Ayda 200 randevu",
+      "plan_mini_f2": "Ayda 400 WhatsApp mesajı (onay + hatırlatma)",
+      "plan_mini_f3": "Online randevu sayfası",
+      "plan_mini_f4": "Müşteri kaydı",
+      "plan_mini_f5": "Stok yönetimi (barkodla satış)",
+      "plan_mini_f6": "Paket / seans takibi",
+      "plan_mini_f7": "Gelir-gider raporları & KDV hesaplama",
+      "plan_starter_desc": "Küçük işletmeler için ideal başlangıç",
+      "plan_starter_f0": "8 personel",
+      "plan_starter_f1": "Sınırsız randevu",
+      "plan_starter_f2": "Online randevu sayfası",
+      "plan_starter_f3": "Ayda 500 WhatsApp mesajı dahil (onay + hatırlatma)",
+      "plan_starter_f4": "Müşteri yönetimi",
+      "plan_starter_f5": "Stok yönetimi (barkodla satış)",
+      "plan_starter_f6": "Paket / seans takibi",
+      "plan_starter_f7": "Bekleme listesi",
+      "plan_starter_f8": "Gelir-gider raporları & KDV hesaplama",
+      "plan_starter_f9": "Sadakat kartı sistemi",
+      "plan_starter_f10": "Ayda 1 kampanya",
+      "plan_starter_f11": "Temel raporlar",
+      "plan_pro_desc": "Büyüyen işletmeler için eksiksiz araç seti",
+      "best_seller": "Çok Satan",
+      "plan_pro_f0": "Sınırsız personel",
+      "plan_pro_f1": "Sınırsız randevu",
+      "plan_pro_f2": "Tüm Starter özellikleri · ayda 1.500 WhatsApp mesajı dahil",
+      "plan_pro_f3": "Sesli asistan (randevu & stok komutları)",
+      "plan_pro_f4": "Website modu (özelleştirilebilir randevu sayfası)",
+      "plan_pro_f5": "PDF rapor export",
+      "plan_pro_f6": "Sınırsız kampanya",
+      "plan_pro_f7": "Müşteri skorlama",
+      "plan_pro_f8": "Gamification (Haftanın Elemanı)",
+      "plan_pro_f9": "Veri göçü (mevcut sistemden)",
+      "plan_business_desc": "Zincir ve büyük ölçekli işletmeler için",
+      "plan_business_f0": "Tüm Pro özellikleri · ayda 3.000 WhatsApp mesajı dahil",
+      "plan_business_f1": "5 şubeye kadar",
+      "plan_business_f2": "AI asistanı (WA/IG auto-reply)",
+      "plan_business_f3": "Öncelikli destek",
+      "plan_business_f4": "Özel entegrasyonlar"
+    },
     "pwaKart": {
       "uygulamayi_telefona_ekle_wid": "Uygulamayı Telefona Ekle (Widget)",
       "siriplan_i_magazadan_indireb": "SiriPlan'ı mağazadan indirebilir ya da ana ekranınıza ekleyip uygulama gibi tam ekran kullanabilirsiniz. Personelinize de önerin.",
@@ -3921,6 +4308,19 @@
       "web": "Web",
       "not": "Not",
       "opsiyonel_not": "Opsiyonel not..."
+    },
+    "randevuToken": {
+      "randevu_bulunamadi": "Randevu bulunamadı.",
+      "bir_sorun_olustu": "Bir sorun oluştu",
+      "randevu_detayi": "Randevu Detayı",
+      "merhaba": "Merhaba",
+      "konumu_goruntule": "Konumu Görüntüle",
+      "randevuyu_iptal_et": "Randevuyu İptal Et",
+      "st_talep": "Onay Bekliyor",
+      "st_onaylandi": "Onaylandı",
+      "st_tamamlandi": "Tamamlandı",
+      "st_iptal": "İptal Edildi",
+      "st_gelmedi": "Gelinmedi"
     },
     "randevuYeni": {
       "randevu_olusturulamadi": "Randevu oluşturulamadı",
@@ -4005,6 +4405,17 @@
       "pending_count": "{n} randevu hâlâ bekliyor.",
       "mark_done_hint": "Gün cirosuna ve Gelir-Gider ekranına yansıması için gerçekleşenleri randevu detayından <b>“Tamamlandı”</b> olarak işaretleyin."
     },
+    "sifreSifirla": {
+      "e_posta_gonderildi": "E-posta Gönderildi",
+      "adresine_sifre_sifirlama_bag": "adresine şifre sıfırlama bağlantısı gönderildi. Gelen kutunuzu (ve spam klasörünü) kontrol edin.",
+      "giris_sayfasina_don": "Giriş sayfasına dön",
+      "sifremi_unuttum": "Şifremi Unuttum",
+      "e_posta_adresinize_sifirlama": "E-posta adresinize sıfırlama bağlantısı göndereceğiz",
+      "e_posta": "E-posta",
+      "sifirlama_baglantisi_gonder": "Sıfırlama Bağlantısı Gönder",
+      "sifrenizi_hatirladiniz_mi": "Şifrenizi hatırladınız mı?",
+      "giris_yapin": "Giriş yapın"
+    },
     "stok": {
       "urun_guncellendi": "Ürün güncellendi",
       "yeni_urun_eklendi": "Yeni ürün eklendi",
@@ -4021,6 +4432,24 @@
       "izinli_2": "İzinli",
       "isletme_bugun_kapali": "İşletme bugün kapalı"
     },
+    "temaSecici": {
+      "renk_temasi_sec": "Renk teması seç",
+      "renk_temasi": "Renk Teması",
+      "theme_light": "Pembe Rose",
+      "theme_light_sectors": "Güzellik · Estetik · Manikür",
+      "theme_blue": "Klasik Mavi",
+      "theme_blue_sectors": "Kurumsal · Danışmanlık · Koçluk",
+      "theme_ocean": "Okyanus Mavisi",
+      "theme_ocean_sectors": "Klinik · Diş · Diyetisyen",
+      "theme_sage": "Doğa Yeşili",
+      "theme_sage_sectors": "Kuaför · Berber · Spa",
+      "theme_dark": "Gece Modu",
+      "theme_dark_sectors": "Tüm sektörler",
+      "theme_sunset": "Turuncu Gün Batımı",
+      "theme_sunset_sectors": "Tattoo · Makyaj · Nail",
+      "theme_midnight": "Gece Yarısı Mor",
+      "theme_midnight_sectors": "Premium · VIP · Lüks"
+    },
     "veriGocu": {
       "json": "JSON (",
       "csv": "CSV (",
@@ -4034,6 +4463,21 @@
       "gallery_hint_estetik": "Uygulama örneklerinizi hizmet kategorisine fotoğraf olarak ekleyebilirsiniz (müşteri onayı olmadan tanınabilir yüz fotoğrafı eklemeyin).",
       "gallery_hint_nail": "Tırnak tasarımlarınızın fotoğraflarını ilgili hizmet kategorisine ekleyin — vitrin niyetine kullanılabilir.",
       "gallery_hint_guzellik": "Salon çalışmalarınızın fotoğraflarını ilgili hizmet kategorisine ekleyerek müşterilere önizleme sunabilirsiniz."
+    },
+    "yeniSifre": {
+      "baglanti_dogrulaniyor": "Bağlantı doğrulanıyor...",
+      "baglanti_gecersiz_veya_sures": "Bağlantı geçersiz veya süresi dolmuş",
+      "sifre_sifirlama_baglantilari": "Şifre sıfırlama bağlantıları kısa süre geçerlidir ve yalnızca bir kez kullanılabilir. Yeni bir bağlantı isteyin.",
+      "yeni_sifirlama_baglantisi_is": "Yeni sıfırlama bağlantısı iste",
+      "sifre_guncellendi": "Şifre Güncellendi",
+      "panele_yonlendiriliyorsunuz": "Panele yönlendiriliyorsunuz...",
+      "yeni_sifre_belirle": "Yeni Şifre Belirle",
+      "en_az_8_karakter": "En az 8 karakter, güçlü bir şifre seçin",
+      "yeni_sifre": "Yeni Şifre",
+      "en_az_8_karakter_2": "En az 8 karakter",
+      "sifre_tekrar": "Şifre Tekrar",
+      "sifreyi_tekrar_girin": "Şifreyi tekrar girin",
+      "sifreyi_guncelle": "Şifreyi Güncelle"
     }
   }
 }

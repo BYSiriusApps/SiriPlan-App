@@ -27,7 +27,7 @@ const PLANS = [
     features: [
       "1 personel",
       "Ayda 200 randevu",
-      "Ayda 200 WhatsApp mesajı (onay + hatırlatma)",
+      "Ayda 400 WhatsApp mesajı (onay + hatırlatma)",
       "Online randevu sayfası",
       "Müşteri kaydı",
       "Stok yönetimi (barkodla satış)",
@@ -46,7 +46,7 @@ const PLANS = [
       "8 personel",
       "Sınırsız randevu",
       "Online randevu sayfası",
-      "WhatsApp hatırlatma",
+      "Ayda 500 WhatsApp mesajı dahil (onay + hatırlatma)",
       "Müşteri yönetimi",
       "Stok yönetimi (barkodla satış)",
       "Paket / seans takibi",
@@ -67,7 +67,7 @@ const PLANS = [
     features: [
       "Sınırsız personel",
       "Sınırsız randevu",
-      "Tüm Starter özellikleri",
+      "Tüm Starter özellikleri · ayda 1.500 WhatsApp mesajı dahil",
       "Sesli asistan (randevu & stok komutları)",
       "Website modu (özelleştirilebilir randevu sayfası)",
       "PDF rapor export",
@@ -86,7 +86,7 @@ const PLANS = [
     highlight: "",
     description: "Zincir ve büyük ölçekli işletmeler için",
     features: [
-      "Tüm Pro özellikleri",
+      "Tüm Pro özellikleri · ayda 3.000 WhatsApp mesajı dahil",
       "5 şubeye kadar",
       "AI asistanı (WA/IG auto-reply)",
       "Öncelikli destek",
@@ -96,6 +96,7 @@ const PLANS = [
 ] as const;
 
 export default function PlanSecPage() {
+  const tp = useTranslations("panelPages.planSec");
   const [annual, setAnnual] = useState(false);
   const [currency, setCurrency] = useState<PricingCurrency>("TRY");
   const [pricing, setPricing] = useState(DEFAULT_PRICING);
@@ -168,7 +169,7 @@ export default function PlanSecPage() {
       } else {
         // Sunucu anlaşılır bir neden döndürdüyse (ör. Mini için personel sınırı,
         // zaten aktif abonelik) onu göster; yoksa genel mesaj.
-        toast.error(typeof data?.error === "string" && data.error ? data.error : "Bir hata oluştu.");
+        toast.error(typeof data?.error === "string" && data.error ? data.error : tp("bir_hata_olustu"));
       }
     } catch {
       toast.error(tm("conn"));
@@ -215,16 +216,16 @@ export default function PlanSecPage() {
           className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Panele Dön
+          {tp("panele_don")}
         </Link>
         <div className="w-full max-w-sm text-center space-y-5">
           <h1 className="text-xl font-bold">
-            {trialEnded ? "Deneme Süreniz Sona Erdi" : "14 Gün Ücretsiz Deneme"}
+            {trialEnded ? tp("deneme_sureniz_sona_erdi") : tp("14_gun_ucretsiz_deneme")}
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {trialEnded
-              ? "Hesabınızı yeniden etkinleştirmek için müşteri destek ekibimizle iletişime geçin."
-              : "Panele erişmeye hemen başlayabilirsiniz. Plan yükseltme ve ödeme işlemleri web sitemiz üzerinden yapılır."}
+              ? tp("hesabinizi_yeniden_etkinlest")
+              : tp("panele_erismeye_hemen_baslay")}
           </p>
 
           {trialEnded ? (
@@ -234,7 +235,7 @@ export default function PlanSecPage() {
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
               >
                 <Phone className="h-4 w-4" />
-                Bizi Arayın
+                {tp("bizi_arayin")}
               </a>
               <a
                 href={`mailto:${SUPPORT_EMAIL}`}
@@ -251,7 +252,7 @@ export default function PlanSecPage() {
               className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               {trialLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              Panele Git
+              {tp("panele_git")}
             </button>
           )}
         </div>
@@ -271,28 +272,26 @@ export default function PlanSecPage() {
           className="inline-flex items-center gap-1.5 mb-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Panele Dön
+          {tp("panele_don")}
         </Link>
         <div className="text-center mb-10">
           {(expired || trialActive === false) && (
             <div className="max-w-lg mx-auto mb-6 flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 px-4 py-3 text-left">
               <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
               <p className="text-sm text-amber-800 dark:text-amber-300">
-                <strong>14 günlük ücretsiz deneme süreniz doldu.</strong> Panele erişmeye devam
-                etmek için aşağıdan bir plan seçin — verileriniz güvende, hiçbir şey silinmedi.
+                <strong>{tp("14_gunluk_ucretsiz_deneme")}</strong> {tp("panele_erismeye_devam_etmek")}
               </p>
             </div>
           )}
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2 brand-gradient-text">Planınızı Seçin</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2 brand-gradient-text">{tp("planinizi_secin")}</h1>
           <p className="text-muted-foreground">
             {expired || trialActive === false
-              ? "İstediğiniz zaman iptal"
-              : "14 gün ücretsiz deneme • Kredi kartı gerekmez • İstediğiniz zaman iptal"}
+              ? tp("istediginiz_zaman_iptal")
+              : tp("14_gun_ucretsiz_deneme_2")}
           </p>
           {trialActive === true && !expired && (
             <p className="mt-3 max-w-xl mx-auto text-sm text-muted-foreground">
-              Şu an <strong className="text-foreground">Pro özelliklerini denemedesiniz</strong>. Aşağıda
-              Planları yan yana karşılaştırıp size uygun olanla aboneliğinizi başlatabilirsiniz.
+              {tp("su_an")} <strong className="text-foreground">{tp("pro_ozelliklerini_denemedesi")}</strong>{tp("asagida_planlari_yan_yana")}
             </p>
           )}
 
@@ -301,14 +300,14 @@ export default function PlanSecPage() {
               onClick={() => setAnnual(false)}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${!annual ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
             >
-              Aylık
+              {tp("aylik")}
             </button>
             <button
               onClick={() => setAnnual(true)}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${annual ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
             >
-              Yıllık
-              <Badge variant="secondary" className={`text-[10px] ${annual ? "bg-white/20 text-primary-foreground" : ""}`}>%18 tasarruf</Badge>
+              {tp("yillik")}
+              <Badge variant="secondary" className={`text-[10px] ${annual ? "bg-white/20 text-primary-foreground" : ""}`}>{tp("18_tasarruf")}</Badge>
             </button>
           </div>
         </div>
@@ -335,7 +334,7 @@ export default function PlanSecPage() {
                 {plan.highlight && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
                     <Badge className="bg-primary text-primary-foreground px-3 py-1 shadow-md whitespace-nowrap">
-                      ⭐ {plan.highlight}
+                      ⭐ {tp("best_seller")}
                     </Badge>
                   </div>
                 )}
@@ -346,15 +345,15 @@ export default function PlanSecPage() {
                     </div>
                     <CardTitle className="text-lg truncate">{plan.name}</CardTitle>
                   </div>
-                  <CardDescription className="text-xs leading-relaxed">{plan.description}</CardDescription>
+                  <CardDescription className="text-xs leading-relaxed">{tp(`plan_${plan.key}_desc`)}</CardDescription>
                   <div className="mt-4 flex flex-wrap items-baseline gap-x-1 min-w-0">
                     <span className="text-3xl sm:text-4xl lg:text-5xl font-bold tabular-nums tracking-tight break-words">{price}</span>
-                    <span className="text-muted-foreground text-sm shrink-0">/ay</span>
+                    <span className="text-muted-foreground text-sm shrink-0">{tp("ay")}</span>
                   </div>
                   <p className="text-[11px] text-muted-foreground mt-1 h-4">
                     {annual
-                      ? `${savings} yıllık tasarruf · peşin faturalanır`
-                      : "aylık faturalanır"}
+                      ? tp("yillik_tasarruf_pesin_fatura", { savings })
+                      : tp("aylik_faturalanir")}
                   </p>
                 </CardHeader>
                 <CardContent className="flex flex-col flex-1 space-y-4">
@@ -369,13 +368,13 @@ export default function PlanSecPage() {
                             <div className="flex items-center gap-2 pt-2 pb-1">
                               <Sparkles className="h-3.5 w-3.5 text-primary" />
                               <span className="text-[11px] font-semibold uppercase tracking-wide text-primary">
-                                Starter'a ek olarak Pro Farkı
+                                {tp("starter_a_ek_olarak")}
                               </span>
                             </div>
                           )}
                           <li className={`flex items-start gap-2 text-sm ${isDelta ? "font-medium text-primary" : ""}`}>
                             <CheckCircle2 className={`h-4 w-4 mt-0.5 shrink-0 ${isDelta ? "text-primary" : "text-primary/70"}`} />
-                            {f}
+                            {tp(`plan_${plan.key}_f${i}`)}
                           </li>
                         </div>
                       );
@@ -389,7 +388,7 @@ export default function PlanSecPage() {
                     disabled={loading === plan.key}
                   >
                     {loading === plan.key ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                    {plan.key === "business" ? "Hemen Satın Al" : plan.highlight ? "Hemen Başla" : "Seç"}
+                    {plan.key === "business" ? tp("hemen_satin_al") : plan.highlight ? tp("hemen_basla") : tp("sec")}
                   </Button>
                 </CardContent>
               </Card>
@@ -398,16 +397,13 @@ export default function PlanSecPage() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground mb-3">
-          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Güvenli ödeme (Stripe)</span>
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Anında etkinleşir</span>
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> İstediğiniz zaman iptal</span>
+          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> {tp("guvenli_odeme_stripe")}</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> {tp("aninda_etkinlesir")}</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> {tp("istediginiz_zaman_iptal")}</span>
         </div>
         {currency === "TRY" && (
           <p className="text-center text-[11px] text-muted-foreground/80 mb-8 max-w-lg mx-auto">
-            Ödeme yurt dışında kurulu üye işyerimiz üzerinden tahsil edilir; kartınızın bankası bu nedenle
-            işlem tutarına genellikle %1-3 arası bir yurt dışı işlem komisyonu ekleyebilir. Fiyatlarımız
-            bu komisyon göz önünde bulundurularak belirlenmiştir — komisyon bankanıza aittir, SiriPlan
-            tarafından eklenmez.
+            {tp("odeme_yurt_disinda_kurulu")}
           </p>
         )}
 
@@ -419,7 +415,7 @@ export default function PlanSecPage() {
               className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors disabled:opacity-50"
             >
               {trialLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Şimdilik ücretsiz denemeye devam et →
+              {tp("simdilik_ucretsiz_denemeye_d")}
             </button>
           </div>
         )}

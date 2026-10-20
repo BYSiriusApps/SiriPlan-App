@@ -11,11 +11,13 @@ import { Loader2, Mail, Lock, Eye, EyeOff, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobileApp } from "@/lib/use-mobile-app";
 import { tm } from "@/lib/toast-i18n";
+import { useTranslations } from "next-intl";
 
 // Demo ortamı şu an yok — buton geçici olarak gizli, altyapı (handleDemoLogin) korunuyor.
 const DEMO_ENABLED = false;
 
 export default function GirisPage() {
+  const tp = useTranslations("panelPages.giris");
   // Native uygulamada (App Store/Play Store) kayıt bağlantısı VAR ama nötr
   // ("Kayıt olun"): /auth/kayit sadece hesap + deneme açar, fiyat/plan seçimi/
   // ödeme içermez (bkz. proxy.ts ve kayit/page.tsx). Web'deki "Ücretsiz
@@ -76,8 +78,8 @@ export default function GirisPage() {
   return (
     <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm">
       <CardHeader className="text-center pb-2">
-        <CardTitle className="text-2xl">Hoş Geldiniz</CardTitle>
-        <CardDescription>Hesabınıza giriş yapın</CardDescription>
+        <CardTitle className="text-2xl">{tp("hos_geldiniz")}</CardTitle>
+        <CardDescription>{tp("hesabiniza_giris_yapin")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {DEMO_ENABLED && (
@@ -99,7 +101,7 @@ export default function GirisPage() {
               ) : (
                 <Zap className="h-4 w-4" />
               )}
-              Demo Dashboard'ı Gör
+              {tp("demo_dashboard_i_gor")}
             </Button>
 
             {/* Separator */}
@@ -108,7 +110,7 @@ export default function GirisPage() {
                 <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">veya hesabınızla giriş yapın</span>
+                <span className="bg-card px-2 text-muted-foreground">{tp("veya_hesabinizla_giris_yapin")}</span>
               </div>
             </div>
           </>
@@ -116,7 +118,7 @@ export default function GirisPage() {
 
         <form onSubmit={handleLogin} className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="email">E-posta veya Telefon</Label>
+            <Label htmlFor="email">{tp("e_posta_veya_telefon")}</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -131,14 +133,14 @@ export default function GirisPage() {
               />
             </div>
             <p className="text-[11px] text-muted-foreground">
-              Personelseniz sisteme kayıtlı telefon numaranızla da giriş yapabilirsiniz.
+              {tp("personelseniz_sisteme_kayitl")}
             </p>
           </div>
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">
-              <Label htmlFor="password">Şifre</Label>
+              <Label htmlFor="password">{tp("sifre")}</Label>
               <Link href="/auth/sifre-sifirla" className="text-xs text-primary hover:underline">
-                Şifremi unuttum
+                {tp("sifremi_unuttum")}
               </Link>
             </div>
             <div className="relative">
@@ -156,7 +158,7 @@ export default function GirisPage() {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 tabIndex={-1}
-                aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"}
+                aria-label={showPassword ? tp("sifreyi_gizle") : tp("sifreyi_goster")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -170,19 +172,19 @@ export default function GirisPage() {
               onCheckedChange={setRememberMe}
             />
             <Label htmlFor="remember-me" className="text-sm font-normal cursor-pointer">
-              Beni hatırla
+              {tp("beni_hatirla")}
             </Label>
           </div>
           <Button type="submit" className="w-full" disabled={loading || demoLoading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Giriş Yap
+            {tp("giris_yap")}
           </Button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
-          Hesabınız yok mu?{" "}
+          {tp("hesabiniz_yok_mu")}{" "}
           <Link href="/auth/kayit" className="text-primary font-medium hover:underline">
-            {isMobileApp ? "Kayıt olun" : "Ücretsiz deneyin"}
+            {isMobileApp ? tp("kayit_olun") : tp("ucretsiz_deneyin")}
           </Link>
         </p>
       </CardContent>

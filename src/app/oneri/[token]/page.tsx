@@ -7,6 +7,7 @@ import { Loader2, XCircle, CheckCircle2, Calendar, Clock, ArrowRight } from "luc
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { PoweredByBadge } from "@/components/public/PoweredByBadge";
+import { useTranslations } from "next-intl";
 
 type Proposal = {
   status: string;
@@ -21,6 +22,7 @@ type Proposal = {
 };
 
 export default function ProposalResponsePage({ params }: { params: Promise<{ token: string }> }) {
+  const tp = useTranslations("panelPages.oneri");
   const { token } = use(params);
 
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,7 @@ export default function ProposalResponsePage({ params }: { params: Promise<{ tok
     fetch(`/api/public/appointment-proposal?token=${encodeURIComponent(token)}`)
       .then(async (r) => {
         const d = await r.json();
-        if (!r.ok) throw new Error(d.error || "Öneri bulunamadı.");
+        if (!r.ok) throw new Error(d.error || tp("oneri_bulunamadi"));
         setProposal(d.proposal);
       })
       .catch((e: Error) => setError(e.message))
@@ -52,10 +54,10 @@ export default function ProposalResponsePage({ params }: { params: Promise<{ tok
       if (res.ok) {
         setResult(action === "accept" ? "accepted" : "rejected");
       } else {
-        setError(d.error || "İşlem gerçekleştirilemedi.");
+        setError(d.error || tp("islem_gerceklestirilemedi"));
       }
     } catch {
-      setError("Bağlantı sorunu oluştu, lütfen tekrar deneyin.");
+      setError(tp("baglanti_sorunu_olustu_lutfe"));
     } finally {
       setResponding(false);
     }
@@ -74,31 +76,31 @@ export default function ProposalResponsePage({ params }: { params: Promise<{ tok
           ) : error && !result ? (
             <div className="text-center py-8 space-y-3">
               <XCircle className="h-12 w-12 text-red-500 mx-auto" />
-              <p className="font-semibold text-lg">Bir sorun oluştu</p>
+              <p className="font-semibold text-lg">{tp("bir_sorun_olustu")}</p>
               <p className="text-sm text-muted-foreground">{error}</p>
             </div>
           ) : result === "accepted" ? (
             <div className="text-center py-8 space-y-3">
               <CheckCircle2 className="h-12 w-12 text-emerald-500 mx-auto" />
-              <p className="font-semibold text-lg">Randevunuz onaylandı!</p>
-              <p className="text-sm text-muted-foreground">Yeni saatinizi WhatsApp üzerinden de ayrıca aldınız.</p>
+              <p className="font-semibold text-lg">{tp("randevunuz_onaylandi")}</p>
+              <p className="text-sm text-muted-foreground">{tp("yeni_saatinizi_whatsapp_uzer")}</p>
             </div>
           ) : result === "rejected" ? (
             <div className="text-center py-8 space-y-3">
               <XCircle className="h-12 w-12 text-muted-foreground mx-auto" />
-              <p className="font-semibold text-lg">Bildirdiniz, teşekkürler</p>
-              <p className="text-sm text-muted-foreground">İşletmeye iletildi, sizinle tekrar iletişime geçecekler.</p>
+              <p className="font-semibold text-lg">{tp("bildirdiniz_tesekkurler")}</p>
+              <p className="text-sm text-muted-foreground">{tp("isletmeye_iletildi_sizinle_t")}</p>
             </div>
           ) : alreadyAnswered ? (
             <div className="text-center py-8 space-y-3">
               <CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto" />
-              <p className="font-semibold text-lg">Bu öneriye zaten yanıt verdiniz</p>
+              <p className="font-semibold text-lg">{tp("bu_oneriye_zaten_yanit")}</p>
             </div>
           ) : proposal && proposal.proposed_appointment_at ? (
             <>
               <div className="text-center space-y-1">
-                <h1 className="text-xl font-bold">İşletme size yeni bir saat önerdi</h1>
-                <p className="text-sm text-muted-foreground">Merhaba {proposal.customer_name}</p>
+                <h1 className="text-xl font-bold">{tp("isletme_size_yeni_bir")}</h1>
+                <p className="text-sm text-muted-foreground">{tp("merhaba")} {proposal.customer_name}</p>
               </div>
 
               <div className="rounded-xl bg-muted/50 p-4 space-y-3 text-sm">
@@ -108,7 +110,7 @@ export default function ProposalResponsePage({ params }: { params: Promise<{ tok
                 </div>
                 <div className="flex items-center gap-2 text-blue-600">
                   <ArrowRight className="h-4 w-4 shrink-0" />
-                  <span className="text-xs uppercase tracking-wide font-medium">Önerilen yeni saat</span>
+                  <span className="text-xs uppercase tracking-wide font-medium">{tp("onerilen_yeni_saat")}</span>
                 </div>
                 <div className="flex items-center gap-3 font-semibold text-base">
                   <Calendar className="h-4 w-4 text-blue-500 shrink-0" />
@@ -123,7 +125,7 @@ export default function ProposalResponsePage({ params }: { params: Promise<{ tok
               </div>
 
               {!proposal.respondable ? (
-                <p className="text-center text-sm text-muted-foreground">Bu önerinin süresi geçmiş.</p>
+                <p className="text-center text-sm text-muted-foreground">{tp("bu_onerinin_suresi_gecmis")}</p>
               ) : (
                 <div className="flex gap-2">
                   <Button
@@ -139,7 +141,7 @@ export default function ProposalResponsePage({ params }: { params: Promise<{ tok
                     disabled={responding}
                     onClick={() => respond("accept")}
                   >
-                    {responding ? <Loader2 className="h-4 w-4 animate-spin" /> : "Kabul Et"}
+                    {responding ? <Loader2 className="h-4 w-4 animate-spin" /> : tp("kabul_et")}
                   </Button>
                 </div>
               )}

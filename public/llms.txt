@@ -9,10 +9,10 @@
 - Online randevu sayfası: müşteriler işletmenin kendi linkinden 7/24 randevu alır / customers book 24/7 from the business's own booking link.
 - Takvim, personel ve hizmet yönetimi / calendar, staff and service management.
 - Müşteri kayıtları, paket ve seans takibi / customer records, package and session tracking.
-- WhatsApp, SMS ve Telegram ile randevu onayı ve hatırlatma bildirimleri / appointment confirmations and reminders via WhatsApp, SMS and Telegram.
+- WhatsApp, SMS ve Telegram ile randevu onayı ve hatırlatma bildirimleri / appointment confirmations and reminders via WhatsApp, SMS and Telegram. Planlara dahil aylık WhatsApp randevu mesajı / WhatsApp appointment messages included per month: Mini 400, Starter 500, Pro 1,500, Business 3,000; abonelik başlangıç tarihinde yenilenir / renews on the subscription start date; ihtiyaç halinde ek mesaj paketi / extra message packs available if needed.
 - Stok (barkod desteği), gelir-gider ve raporlar / inventory (barcode support), income-expense and reports.
 - Kampanyalar ve bekleme listesi, sesli asistan (planlara göre) / campaigns, waitlist and voice assistant (depending on plan).
-- Diller / languages: Türkçe, English, Русский, العربية.
+- Diller / languages: Türkçe, English, Русский, العربية, Deutsch, Español.
 - Planlar / plans: Mini, Starter, Pro, Business; 14 gün ücretsiz deneme (Business hariç) / 14-day free trial (except Business). Güncel fiyatlar / current prices: https://siriplan.com/fiyatlar
 - Ek paketler / add-ons (yalnızca aylık, ödenen Starter/Pro/Business aboneleri web panelinden alır / monthly only, for paid Starter/Pro/Business subscribers via the web dashboard): AI WhatsApp/Instagram Asistanı (AI assistant), Ek Şube (extra branch). Fiyatlar / prices: https://siriplan.com/fiyatlar
 

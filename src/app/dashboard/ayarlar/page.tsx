@@ -28,6 +28,7 @@ import type { Organization } from "@/types/database";
 import { InstallPwaCard } from "@/components/dashboard/InstallPwaCard";
 import { useIsMobileApp } from "@/lib/use-mobile-app";
 import { HomeButton } from "@/components/dashboard/HomeButton";
+import { WaUsageSettingsCard } from "@/components/dashboard/WaUsageSettingsCard";
 import { LegalNoticeModal } from "@/components/dashboard/LegalNoticeModal";
 import { OnboardingTour, OnboardingRestartButton } from "@/components/dashboard/OnboardingTour";
 import { TIMEZONE_OPTIONS } from "@/lib/timezones";
@@ -468,6 +469,9 @@ export default function AyarlarPage() {
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
       </Link>
+
+      {/* WhatsApp mesaj kullanım özeti + ek paket girişi (yalnızca sahip/yönetici görür; yetkisizse render edilmez) */}
+      <WaUsageSettingsCard />
 
       {/* Basic info */}
       <SectionCard icon={Building2} title={t("settingsPage.basicInfoTitle")} dataTour="basic-info">
@@ -1366,11 +1370,6 @@ export default function AyarlarPage() {
           <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 text-xs text-muted-foreground space-y-1">
             <p className="font-medium text-blue-700 dark:text-blue-400">{t("settingsPage.smsCostTitle")}</p>
             <p>{t("settingsPage.smsCostText")}</p>
-            {!mobileApp && (
-              <Link href="/dashboard/abonelik" className="inline-block pt-0.5 font-medium text-primary hover:underline">
-                {t("settingsPage.smsBuyPackLink")}
-              </Link>
-            )}
           </div>
         </div>
       </SectionCard>

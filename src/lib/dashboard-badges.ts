@@ -1,7 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/server";
-import { monthlyWaMessageLimit } from "@/lib/entitlements";
-import { getPlanUsage } from "@/lib/plan-usage";
+import { isWaQuotaEnforced, monthlyUtilityQuota } from "@/lib/entitlements";
+import { getWaUsageSummary } from "@/lib/wa-quota";
 
 export interface DashboardBadgeCounts {
   /** Sidebar/MobileNav "Bekleyen İşler" rozeti — stok + talep + telefonsuz + gecikmiş toplamı. */
@@ -81,9 +81,14 @@ async function computeDashboardBadgeCounts(orgId: string): Promise<DashboardBadg
 
   let waQuota: DashboardBadgeCounts["waQuota"] = null;
   const { data: orgRow } = await orgPromise;
-  const waLimit = monthlyWaMessageLimit(orgRow);
-  if (waLimit !== null) {
-    waQuota = { used: Math.min(await getPlanUsage(orgId, "wa_message"), waLimit), limit: waLimit };
+  // Uyarı bandı yalnızca kota dolunca mesajın GERÇEKTEN duracağı planlarda (varsayılan: Mini) ve
+  // ek utility kredisi yokken gösterilir; aksi halde "doldu" yanıltıcı olurdu.
+  const waLimit = monthlyUtilityQuota(orgRow);
+  if (waLimit !== null && isWaQuotaEnforced(orgRow)) {
+    const summary = await getWaUsageSummary(orgId, orgRow);
+    if (summary.utilityAddonBalance === 0) {
+      waQuota = { used: Math.min(summary.utilityUsed, waLimit), limit: waLimit };
+    }
   }
 
   return { pendingWorkCount, pendingApprovalsCount, lowStockCount, waQuota };

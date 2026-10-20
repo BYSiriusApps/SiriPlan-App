@@ -10,8 +10,7 @@ import { createAdminClient } from "@/lib/supabase/server";
  * akışı bu modülden etkilenmez (bkz. sendSms).
  */
 
-/** Tek paketteki SMS adedi. */
-export const SMS_PACK_CREDITS = 1000;
+/* Paket kataloğu (1.000 / 5.000 / 10.000) için bkz. lib/sms-packs.ts. */
 
 /** Bakiye varsa 1 kontör düşer (atomik). */
 export async function consumeSmsCredit(orgId: string): Promise<boolean> {

@@ -731,9 +731,50 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
 **TEST EDİLECEK:**
 - [x] **Claude yedeği gerçek anahtarla — TAMAM (10 Eki 2026, yerel test):** normal çağrıda Gemini 200 yanıtladı; Gemini model adları bozulunca (404, 404) çağrı `api.anthropic.com` 200 ile Claude'dan geldi. Canlı ayarlara/env'e dokunulmadı. (Eski not:) Anthropic Console'da kredi **$0** — önce $5–10 yükle. Sonra `GEMINI_MODEL` ve `GEMINI_FALLBACK_MODEL` env'ini geçici olarak var olmayan bir adla ayarlayıp (ya da yerelde) bir AI yanıtı/site sohbet botu denemesi yap; yanıtın Claude'dan geldiğini doğrula, sonra env'i geri al. Şu ana kadar yalnızca sahte fetch ile doğrulandı.
 - [ ] **Gemini ücretli faturalama:** anahtar ücretsiz katmanda değil, faturalama hesabına bağlı olmalı (girdilerin model geliştirmede kullanılmaması için).
-- [ ] **Stripe webhook + ek paket uçtan uca (test modu):** `stripe listen`, `STRIPE_WEBHOOK_SECRET`; plan yükselt/düşür + AI Asistan/Ek Şube satın alma; DB (`organizations.plan`, `org_addons`, `org_branches`) + abonelik ekranı kontrol. Business checkout'ta artık deneme olmadığını da bu testte doğrula (Stripe oturumunda "trial" görünmemeli).
+- [x] **Stripe webhook + ek paket — TAMAM (10 Eki 2026, test modu):** `.env.local.example` test anahtarları + `stripe listen`; Pro oturumu 0 TRY (deneme var), Business 4752 TRY (deneme YOK); AI Asistan + 2 Ek Şube aboneliği webhook ile `org_addons`/`feature_ai`'yi açtı, iptalde kapattı, 200 dışı yanıt yok. Bilerek denenmedi: gerçek kartla satın alma ve plan aboneliği webhook yolu (karar: gerek yok).
 
 **MAĞAZALAR İÇİN KONTROL EDİLECEK (ayrı sohbet, yeni build GEREKMEZ):**
 - [ ] App Store Connect → App Privacy: sohbet/mesaj içeriği ve ses üçüncü taraf AI sağlayıcılara gidiyor; "User Content" (Other User Content) verisi toplanıyor ve üçüncü tarafla paylaşılıyor olarak işaretli mi? Gemini için zaten doğruysa Claude yedeği ek değişiklik gerektirmez.
 - [ ] Google Play → Data safety: "Messages" ve "Audio" verilerinin üçüncü taraflarla paylaşıldığı beyan edilmiş mi? Aynı mantık.
 - [ ] Mağaza gizlilik URL'si siriplan.com/gizlilik (güncellendi) — başka yerde kopya gizlilik metni varsa (store listing, e-posta imzası) orayı da güncelle.
+
+**Kalan işler (10 Eki 2026 kapanış):**
+- [ ] Commit'siz Reels / demo-video / App Store ekran görüntüsü paketi (~60 MB): commit mi, depo dışına taşıma mı — karar ver (paralel oturumlarda commit karışmasın).
+- [ ] §15 mesafeli satış: avukat + KDV teyidi; /iletisim'de TR ofis yazısı.
+- [ ] §6 yasal metinler ve §0 SEC maddeleri.
+- [ ] Meta işletme doğrulaması vakası (29013474461597889) takibi.
+- [ ] SMS sağlayıcı (ayrı sohbette yürüyor).
+- [ ] Anthropic kredisi $0 — Claude yedeği için $5–10 yükle; anahtar 30.09.2027'de biter.
+- [ ] Güvenlik: `.env.local.example` içindeki `sk_test` anahtarı bulut senkronunda; roll etmeyi düşün.
+- [ ] iOS 1.1 (build 4) taslağı: push (Firebase+APNs) bitince build 5 ile gönder.
+
+## 18. WhatsApp mesaj paketleri, SMS paketi satışının kapatılması, kota uyarıları (19-20 Eki 2026) — KODDA HAZIR, test + Stripe Price BEKLİYOR
+
+**Yapılanlar**
+- **SMS paketi artık satılmıyor / hiçbir yerde görünmüyor.** Abonelik sayfasındaki "SMS Kontörü" kartı, Ayarlar'daki
+  "SiriPlan SMS kontörü al" linki, pazarlama sitesindeki SMS ek paket kartı (+ `/api/addon-request` "sms"), 6 dildeki
+  (tr/en/ru/ar/de/es) SSS/rehber/entegrasyon/ayar metinleri, sohbet asistanı promptu, mesafeli satış örneği, `public/sunum.html`,
+  müşteri sunumu HTML'i ve kılavuzlar temizlendi. Müşteri yalnızca kendi SMS sağlayıcısını (Netgsm/VatanSMS/İletimerkezi) bağlar.
+  **Altyapı bilerek duruyor:** `api/stripe/sms-pack`, webhook `kind=sms_pack`, `sms-credits`, `sms-packs`, `sendSms` kontör düşümü.
+- **Ek WhatsApp bildirim (utility) paketleri: 500 / 1.000 / 5.000 / 10.000 mesaj** (`src/lib/wa-credit-packs.ts`).
+  Fiyatlar (TRY / USD / EUR): 400/8/7 · 800/16/14 · **3.800/76/66 · 7.200/144/126** (5 bin ve 10 bin paket fiyatları benim önerim —
+  iş kararı, Stripe Price ile BİREBİR aynı olmalı). Kampanya paketleri (m500/m1000/m2500) kataloğta duruyor.
+- **Kota uyarıları:** plan hakkı %80/%100 uyarısına web/uygulama **push** eklendi; **ek paket bitince** ("Ek mesaj paketiniz bitti")
+  sahibe Telegram + WhatsApp + push; Bekleyen İstekler ve Bekleme Listesi sayfalarının üstünde kırmızı kota şeridi
+  (`WaQuotaNotice`). Mesaj gönderim/kota düşüm kuralları DEĞİŞMEDİ.
+
+**Senin yapacakların (Stripe + yayın)**
+1. `supabase/migrations/20261017_wa_message_quotas.sql` → SQL Editor'de çalıştır (deploy'dan ÖNCE önerilir).
+2. Stripe'ta tek seferlik (one-time) Price'lar, varsayılan TRY + USD/EUR `currency_options` (tutarlar yukarıdaki gibi) →
+   env (Vercel + `.env.local`): `STRIPE_PRICE_WA_UTILITY_500`, `_1000`, `_5000`, `_10000`
+   (kampanya satılacaksa `STRIPE_PRICE_WA_CAMPAIGN_500/1000/2500`).
+3. Test: Abonelik sayfasında 4 paket → ödeme → kredi yüklenmesi; demo org'da kotayı doldurup bildirim/şerit/push kontrolü
+   (bildirimler yalnızca test numaralarına: sahip 5553287509, personel 5355032634).
+
+**Açık kararlar / notlar**
+- **Maliyet uyarısı:** randevu başına 5 WhatsApp mesajı gidiyor (müşteri 2 + sahip + personel), kotaya yalnızca müşterinin 2'si sayılıyor.
+  Meta TR utility ücreti ≈ $0,005 (DOĞRULANMADI) varsayımıyla kota birimi başına gerçek maliyet ≈ 0,66 TL; paketler yarı fiyata
+  inerse zarar edilir. Seçenekler: tüm mesajları kotaya saymak / sahip-personel bildirimini push-Telegram'a kaydırmak /
+  büyük pakette mesaj başı fiyatı kademeli düşürmek. Karar bekliyor; Meta + 360dialog güncel fiyatı teyit edilmeli.
+- `docs/musteri-sunumu/SiriPlan-Musteri-Sunumu.pdf` HTML'den yeniden üretilmedi (içinde SMS kontörü slaytı kalmış olabilir).
+- Slot-hold (`20261016_slot_holds.sql`, `api/public/slot-hold`, availability/BookingWizard) bu paketle ayrı tutuldu, commit'e girmedi.

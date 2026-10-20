@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type ConsentInfo = {
   org_name: string;
@@ -12,6 +13,7 @@ type ConsentInfo = {
 };
 
 export default function ConsentPage({ params }: { params: Promise<{ token: string }> }) {
+  const tp = useTranslations("panelPages.onay");
   const { token } = use(params);
 
   const [loading, setLoading] = useState(true);
@@ -25,7 +27,7 @@ export default function ConsentPage({ params }: { params: Promise<{ token: strin
     fetch(`/api/public/consent?token=${encodeURIComponent(token)}`)
       .then(async (r) => {
         const d = await r.json();
-        if (!r.ok) throw new Error(d.error || "Bağlantı bulunamadı.");
+        if (!r.ok) throw new Error(d.error || tp("baglanti_bulunamadi"));
         setInfo(d);
         if (d.completed) setDone(true);
       })
@@ -62,22 +64,22 @@ export default function ConsentPage({ params }: { params: Promise<{ token: strin
           ) : error ? (
             <div className="text-center py-8 space-y-3">
               <XCircle className="h-12 w-12 text-red-500 mx-auto" />
-              <p className="font-semibold text-lg">Bir sorun oluştu</p>
+              <p className="font-semibold text-lg">{tp("bir_sorun_olustu")}</p>
               <p className="text-sm text-muted-foreground">{error}</p>
             </div>
           ) : done ? (
             <div className="text-center py-8 space-y-3">
               <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto" />
-              <p className="font-semibold text-lg">Onayınız Alındı</p>
+              <p className="font-semibold text-lg">{tp("onayiniz_alindi")}</p>
               <p className="text-sm text-muted-foreground">
-                {info?.org_name} artık size randevu bildirimleri gönderebilir.
+                {info?.org_name} {tp("artik_size_randevu_bildiriml")}
               </p>
             </div>
           ) : info ? (
             <>
               <div className="text-center space-y-1">
                 <ShieldCheck className="h-8 w-8 text-primary mx-auto" />
-                <h1 className="text-xl font-bold">KVKK Aydınlatma Metni</h1>
+                <h1 className="text-xl font-bold">{tp("kvkk_aydinlatma_metni")}</h1>
                 <p className="text-sm text-muted-foreground">{info.org_name}</p>
               </div>
 
@@ -92,12 +94,12 @@ export default function ConsentPage({ params }: { params: Promise<{ token: strin
                   checked={marketing}
                   onChange={(e) => setMarketing(e.target.checked)}
                 />
-                <span>Kampanya ve fırsatlardan haberdar olmak istiyorum (opsiyonel)</span>
+                <span>{tp("kampanya_ve_firsatlardan_hab")}</span>
               </label>
 
               <Button className="w-full" onClick={handleAccept} disabled={submitting}>
                 {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                Okudum, Onaylıyorum
+                {tp("okudum_onayliyorum")}
               </Button>
             </>
           ) : null}

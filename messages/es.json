@@ -4,8 +4,8 @@
     "approve": "Aprobar →",
     "lowStock": "Alerta de stock bajo: {count, plural, one {# producto ha} other {# productos han}} caído por debajo del nivel crítico establecido!",
     "goStock": "Ir a Gestión de Stock →",
-    "waFull": "Tu cuota de mensajes de WhatsApp para este mes se ha agotado ({used}/{limit}) — los mensajes automáticos de confirmación/recordatorio a los clientes no se enviarán hasta el próximo mes.",
-    "waWarn": "Se ha utilizado el 80% de tu cuota de mensajes de WhatsApp de este mes ({used}/{limit}).",
+    "waFull": "Tu cuota de mensajes de WhatsApp de este periodo se ha agotado ({used}/{limit}) — los mensajes automáticos de confirmación/recordatorio a los clientes no se enviarán hasta que se renueve (o hasta que compres un paquete de mensajes adicional).",
+    "waWarn": "Se ha utilizado el 80% de tu cuota de mensajes de WhatsApp de este periodo ({used}/{limit}).",
     "upgrade": "Mejorar plan →"
   },
   "homeVisual": {
@@ -239,7 +239,7 @@
       "features": [
         "1 ubicación, 1 miembro del personal",
         "200 citas al mes",
-        "200 mensajes de WhatsApp al mes (confirmaciones + recordatorios)",
+        "400 mensajes de WhatsApp al mes (confirmaciones + recordatorios)",
         "Enlace de reserva personal (siriplan.com/r/tu-salon)",
         "Ficha e historial de clientes",
         "Gestión de inventario y stock (ventas con código de barras)",
@@ -267,7 +267,7 @@
         "Seguimiento de paquetes / sesiones",
         "Lista de espera",
         "Informes de ingresos y gastos y cálculo de IVA",
-        "Recordatorios de WhatsApp",
+        "500 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios)",
         "Sistema de tarjetas de fidelización",
         "1 campaña al mes",
         "Exportación de datos (CSV)",
@@ -285,6 +285,7 @@
       "desc": "Paquete completo para salones en crecimiento",
       "features": [
         "1 ubicación, personal ilimitado",
+        "1.500 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios)",
         "Citas ilimitadas",
         "Asistente de voz para comandos de citas e inventario",
         "Modo Sitio Web — página de reservas personalizable con paleta de colores y fotos por categoría",
@@ -302,6 +303,7 @@
       "desc": "Para negocios con varias ubicaciones",
       "features": [
         "Hasta 5 ubicaciones",
+        "3.000 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios)",
         "Personal ilimitado",
         "Todas las funciones de Pro",
         "Asistente de IA para WhatsApp e IG",
@@ -317,11 +319,6 @@
       "name": "Paquete de WhatsApp con IA",
       "desc": "Asistente de IA avanzado, análisis de sentimiento, sugerencias inteligentes",
       "price": "$49/mes"
-    },
-    "sms": {
-      "name": "Paquete de SMS",
-      "desc": "Un paquete de saldo de 1.000 SMS que disminuye conforme envías; compra uno nuevo cuando se agote. Sin caducidad. Envía sin necesidad de tu propia cuenta de SMS",
-      "price": "$55 · 1.000 SMS"
     },
     "multiBranch": {
       "name": "Paquete de sucursal adicional",
@@ -562,7 +559,7 @@
       "sms": {
         "name": "Notificaciones por SMS",
         "category": "Mensajería",
-        "desc": "Envía recordatorios y confirmaciones por SMS a clientes que no usan WhatsApp. Funciona con los créditos de SMS de SiriPlan (un paquete de 1.000 SMS que disminuye al enviar) o tu propia cuenta de Netgsm, VatanSMS o İletimerkezi."
+        "desc": "Envía recordatorios y confirmaciones por SMS a clientes que no usan WhatsApp. Funciona con tu propia cuenta de Netgsm, VatanSMS o İletimerkezi."
       },
       "qr": {
         "name": "Código QR",
@@ -726,7 +723,7 @@
           },
           "q2": {
             "q": "¿Cómo funciona el recordatorio de WhatsApp?",
-            "a": "Los mensajes de confirmación de cita, recordatorio, cancelación y cambio se envían al cliente de forma automática a través de SiriPlan — no necesitas enviar mensajes manualmente. Los recordatorios se envían en las horas que elijas (como 24 horas o 2 horas antes) y pueden reducir los no presentados hasta en un 60%. Para SMS puedes comprar créditos de SMS de SiriPlan o conectar tu propio proveedor de SMS."
+            "a": "Los mensajes de confirmación de cita, recordatorio, cancelación y cambio se envían al cliente de forma automática a través de SiriPlan — no necesitas enviar mensajes manualmente. Los recordatorios se envían en las horas que elijas (como 24 horas o 2 horas antes) y pueden reducir los no presentados hasta en un 60%. Mensajes de citas de WhatsApp incluidos al mes: Mini 400, Starter 500, Pro 1.500, Business 3.000; el cupo se renueva en la fecha de inicio de su suscripción y, si hace falta, puede comprar un paquete de mensajes adicional."
           },
           "q3": {
             "q": "¿Para qué sirve el sistema de puntuación del cliente?",
@@ -1596,10 +1593,31 @@
         "fri": "Viernes",
         "sat": "Sábado",
         "sun": "Domingo"
-      }
+      },
+      "slotBusy": "Ocupado",
+      "slotTakenNow": "Alguien acaba de elegir esta hora. Elige otra, por favor.",
+      "legendFree": "Disponible",
+      "legendBusy": "Ocupado"
     }
   },
   "dashboard": {
+    "waUsage": {
+      "title": "Cupo de mensajes de WhatsApp",
+      "utilityLabel": "Mensajes de citas (este mes)",
+      "renews": "El cupo de su plan se renueva el {date}.",
+      "addonBalance": "Saldo de paquetes adicionales",
+      "campaignBalance": "Créditos de campaña",
+      "noteEnforced": "Los mensajes de confirmación, recordatorio, cancelación y modificación de citas consumen este cupo. Cuando se agota, se usa el saldo de paquetes adicionales; si tampoco hay saldo, no se envían mensajes automáticos de WhatsApp y sus citas se siguen guardando con normalidad.",
+      "noteMetered": "Los mensajes de confirmación, recordatorio, cancelación y modificación de citas consumen este cupo. Cuando se agota el cupo del plan, se usa el saldo de paquetes adicionales.",
+      "campaignNote": "Los mensajes de campaña de WhatsApp no están incluidos en el plan; se envían con créditos de campaña comprados. Las campañas por SMS no se ven afectadas.",
+      "buyUtility": "{count} mensajes de citas adicionales",
+      "buyCampaign": "{count} mensajes de campaña",
+      "buyHint": "Los paquetes adicionales son de pago único, no se reinician cada mes y se acreditan automáticamente tras el pago.",
+      "buyError": "No se pudo abrir la página de pago. Inténtelo de nuevo.",
+      "buySuccess": "Pago recibido. Su saldo se actualizará en breve.",
+      "buyCanceled": "Pago cancelado.",
+      "manageLink": "Comprar paquetes adicionales / detalles"
+    },
     "menuLabel": "Menú",
     "calendarHourColumn": "HORA",
     "bookingLinkTitle": "Enlace de reserva de clientes",
@@ -1720,11 +1738,6 @@
       "upgradeToPro": "Actualizar a Pro",
       "changeToPlan": "Cambiar al plan {plan}",
       "manageBilling": "Gestionar facturación y método de pago",
-      "smsPackTitle": "Créditos SMS",
-      "smsPackDesc": "Envía SMS a tus clientes sin conectar tu propia cuenta de SMS. Un paquete de 1.000 SMS que se reduce a medida que envías; compra uno nuevo cuando se agote. Sin fecha de caducidad.",
-      "smsPackBalance": "SMS restantes",
-      "smsPackBuy": "Comprar 1.000 créditos SMS",
-      "smsPackHint": "Los créditos se usan cuando las notificaciones SMS están activadas en Configuración y no tienes un proveedor de SMS propio conectado.",
       "addonsTitle": "Complementos",
       "addonBuyMonthly": "Mensual · {price}",
       "addonBuyAnnual": "Anual · {price}",
@@ -1748,9 +1761,6 @@
       "branchLinkedTitle": "Sucursal",
       "branchLinkedDesc": "Esta sucursal está vinculada a la suscripción de \"{parent}\". El plan y la facturación se gestionan desde el negocio principal.",
       "branchGoParent": "Ir al negocio principal y gestionar el plan",
-      "smsPackSuccess": "Pago recibido. Tus créditos se añadirán a tu cuenta en unos segundos.",
-      "smsPackCanceled": "El pago no se completó.",
-      "smsPackError": "No se pudo abrir la página de pago.",
       "trialBottomNote": "Todas las funciones Pro son gratuitas durante el periodo de prueba; no se requiere tarjeta de crédito. Puedes comparar Starter y Pro antes de que finalice la prueba y continuar con el plan que más te convenga.",
       "cancelSubscription": "Cancelar suscripción",
       "cancelConfirmTitle": "¿Estás seguro de que deseas cancelar tu suscripción?",
@@ -2450,7 +2460,7 @@
           "items": [
             {
               "label": "Mensajes automáticos de WhatsApp:",
-              "desc": "SiriPlan envía automáticamente a tu cliente confirmaciones de citas, recordatorios, cancelaciones y modificaciones: no escribes ni envías nada. En Configuración → \"Mensajes automáticos de WhatsApp\" eliges qué eventos activan un mensaje."
+              "desc": "SiriPlan envía automáticamente a tu cliente confirmaciones de citas, recordatorios, cancelaciones y modificaciones: no escribes ni envías nada. En Configuración → \"Mensajes automáticos de WhatsApp\" eliges qué eventos activan un mensaje. Cupo mensual incluido: Mini 400 · Starter 500 · Pro 1.500 · Business 3.000; se renueva cada mes en la fecha de inicio de su suscripción y, si se agota, puede comprar un paquete de mensajes adicional (Configuración → Suscripción)."
             },
             {
               "label": "Momento del recordatorio y plantilla:",
@@ -2458,7 +2468,7 @@
             },
             {
               "label": "SMS (opcional):",
-              "desc": "Hay dos opciones: compra créditos de SMS de SiriPlan en la página Configuración → Suscripción (un paquete de 1,000 SMS que disminuye a medida que envías, sin vencimiento, sin necesidad de cuenta de proveedor) o conecta tu propio proveedor (Netgsm, VatanSMS, İletimerkezi). Si hay un proveedor conectado, los SMS se envían desde su cuenta y no se consumen créditos."
+              "desc": "Conecta tu propio proveedor de SMS (Netgsm, VatanSMS, İletimerkezi) en Configuración → Notificaciones SMS; los SMS se envían desde tu cuenta."
             },
             {
               "label": "WhatsApp manual (opcional):",
@@ -2511,8 +2521,7 @@
             "Planes: los planes Mini, Starter, Pro y Business son fijos y transparentes. Sin solicitudes de cotizaciones ni esperas de agentes. Cada cuenta comienza con una prueba gratuita de 14 días.",
             "Detalles del plan: consulta tu plan actual, límites e historial de facturación en Configuración → Suscripción.",
             "Tu suscripción está vinculada a SiriPlan y se gestiona independientemente de las tiendas de aplicaciones. Para preguntas sobre actualizaciones o facturación, contacta a soporte: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Diferencias de planes: Mini — 1 empleado, 200 citas y 200 mensajes de WhatsApp al mes, enlace de reserva, registros de clientes, inventario/código de barras, paquetes, ingresos-gastos e IVA, exportación CSV. Starter — 1 sucursal, 8 empleados, citas ilimitadas, enlace de reserva, inventario/código de barras, paquetes, lista de espera, ingresos-gastos e IVA, recordatorios de WhatsApp, tarjeta de fidelidad, 1 campaña al mes, exportación CSV. Pro — personal ilimitado, asistente de voz, modo sitio web, reportes PDF, campañas, puntuación de clientes y Empleado de la Semana. Business — hasta 5 sucursales, todas las funciones de Pro, asistente de IA para WhatsApp/IG e integraciones personalizadas.",
-            "Créditos de SMS: Para enviar SMS sin conectar tu propia cuenta de SMS, puedes comprar un paquete de 1,000 créditos de SMS que disminuye a medida que envías (compra uno nuevo cuando se agote) en la página Configuración → Suscripción (sin vencimiento; el saldo restante se muestra en la misma página). Si tu propio proveedor está conectado, los SMS se envían desde su cuenta y no se consumen créditos. La opción de compra no se muestra en la aplicación móvil."
+            "Diferencias de planes: Mini — 1 empleado, 200 citas y 400 mensajes de WhatsApp al mes, enlace de reserva, registros de clientes, inventario/código de barras, paquetes, ingresos-gastos e IVA, exportación CSV. Starter — 1 sucursal, 8 empleados, citas ilimitadas, enlace de reserva, inventario/código de barras, paquetes, lista de espera, ingresos-gastos e IVA, 500 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios), tarjeta de fidelidad, 1 campaña al mes, exportación CSV. Pro — personal ilimitado, 1.500 mensajes de WhatsApp al mes incluidos, asistente de voz, modo sitio web, reportes PDF, campañas, puntuación de clientes y Empleado de la Semana. Business — hasta 5 sucursales, 3.000 mensajes de WhatsApp al mes incluidos, todas las funciones de Pro, asistente de IA para WhatsApp/IG e integraciones personalizadas. El cupo de mensajes de citas de WhatsApp se renueva cada mes en el aniversario del inicio de su suscripción; cuando se agota, puede comprar un paquete de mensajes adicional en Configuración → Suscripción. Los mensajes de campaña de WhatsApp no están incluidos en el plan y se envían con créditos de campaña."
           ]
         },
         "sadakat": {
@@ -2600,7 +2609,7 @@
             },
             {
               "q": "¿Qué necesito para enviar SMS?",
-              "a": "Compra créditos de SMS de SiriPlan en la página Suscripción (no se requiere cuenta de proveedor) o conecta tu propio proveedor de SMS en Configuración; luego marca \"Notificaciones SMS activadas\"."
+              "a": "Conecta tu propio proveedor de SMS (Netgsm, VatanSMS o İletimerkezi) en Configuración y marca «Notificaciones SMS activadas»."
             },
             {
               "q": "Quiero que el Calendario se abra al entrar al panel.",
@@ -3540,11 +3549,11 @@
       "templateStandard": "Estándar",
       "templateVariant": "Variante {n}",
       "metaTemplatesFootnote": "El texto de estas plantillas está preaprobado en tu panel de WhatsApp Business de Meta, por lo que no se puede editar aquí — solo puedes elegir qué variante se utiliza. Las vistas previas anteriores son un ejemplo aproximado de los parámetros que se enviarán (nombre, fecha, hora, etc.); el texto exacto depende de la plantilla aprobada en tu panel de Meta.",
-      "smsNotifDesc": "También puedes enviar avisos de confirmación, recordatorio y cancelación de citas por SMS. Hay dos formas: comprar créditos de SMS de SiriPlan en la página de Suscripción (no se requiere cuenta) o conectar tu propio proveedor de SMS (Netgsm, VatanSMS o İletimerkezi). Si se conecta un proveedor, los SMS se envían desde su cuenta y no se consumen créditos.",
+      "smsNotifDesc": "También puedes enviar avisos de confirmación, recordatorio y cancelación de citas por SMS. Para ello conecta tu propio proveedor de SMS (Netgsm, VatanSMS o İletimerkezi); los SMS se envían desde tu cuenta del proveedor.",
       "smsEnabledLabel": "Notificaciones por SMS activas",
       "smsEnabledDesc": "Cuando está desactivado, los botones \"Enviar SMS\" en los detalles de la cita no funcionan.",
       "smsProviderLabel": "Proveedor de SMS (opcional)",
-      "smsProviderPlaceholder": "Selecciona uno — o déjalo vacío para usar créditos de SiriPlan",
+      "smsProviderPlaceholder": "Selecciona un proveedor",
       "smsProviderUserCode": "Código de usuario",
       "smsProviderPassword": "Contraseña / Contraseña API",
       "smsProviderApiId": "ID de API",
@@ -3555,11 +3564,10 @@
       "smsSenderPlaceholder": "Tu encabezado de marca aprobado por el operador",
       "smsSenderHint": "El encabezado que aprobó el operador desde el panel de tu proveedor — el SMS se rechaza si se envía sin aprobación.",
       "smsCostTitle": "Sobre el costo",
-      "smsBuyPackLink": "Comprar créditos de SMS de SiriPlan / ver saldo →",
-      "smsProviderNone": "Sin proveedor propio (créditos SMS de SiriPlan)",
+      "smsProviderNone": "Sin proveedor conectado",
       "manualWaSummary": "Opcional: si deseas enviar un mensaje a mano desde tu propio WhatsApp (la mayoría de las empresas no lo necesitan)",
       "waAutoBanner": "Los mensajes salen automáticamente: cuando un cliente reserva, cuando una cita cambia o se acerca, el mensaje de WhatsApp le llega por sí solo. Tú no envías nada.",
-      "smsCostText": "Con tu propio proveedor es de aproximadamente 0.08–0.20 TRY por SMS (según el tamaño del paquete) sin tarifa mensual; compras el paquete de crédito en el sitio del proveedor. Los créditos de SiriPlan vienen en paquetes de 1,000 SMS que disminuyen a medida que envías, sin vencimiento (compra un nuevo paquete cuando se agote), comprados en la página de Suscripción.",
+      "smsCostText": "Con tu propio proveedor es de aproximadamente 0.08–0.20 TRY por SMS (según el tamaño del paquete) sin tarifa mensual; compras el paquete de crédito en el sitio del proveedor.",
       "waBusinessConnTitle": "Conexión de WhatsApp Business (Para campañas)",
       "waBusinessConnDesc": "Los mensajes de confirmación/recordatorio/cancelación de citas se envían automáticamente desde la propia línea de WhatsApp de SiriPlan — no necesitas hacer nada para eso. La conexión a continuación es solo para que los mensajes de marketing enviados desde el módulo de Campañas y las respuestas automáticas a los mensajes entrantes salgan desde tu propio número de WhatsApp Business.",
       "waAccessTokenLabel": "Token de acceso permanente",
@@ -3734,6 +3742,43 @@
       "reddet": "Rechazar",
       "kabul_et": "Aceptar"
     },
+    "davetKabul": {
+      "gecersiz_davet_baglantisi": "Enlace de invitación no válido",
+      "baglanti_hatasi": "Error de conexión",
+      "hata_olustu": "Ocurrió un error",
+      "hesap_olusturulamadi": "No se pudo crear la cuenta",
+      "davet_gecersiz": "Invitación no válida",
+      "yonetici": "Gerente",
+      "isletmeye_katil": "Unirse al negocio",
+      "isletme": "Empresa",
+      "personel_kaydi": "Registro de personal",
+      "rol": "Rol",
+      "sure_bitis": "Vencimiento",
+      "daveti_kabul_ederek": "Al aceptar la invitación, te unirás a",
+      "isletmesinin": "como",
+      "i_olacaksiniz": ".",
+      "daveti_kabul_et": "Aceptar invitación",
+      "yeni_hesap_olustur": "Crear nueva cuenta",
+      "zaten_hesabim_var": "Ya tengo una cuenta",
+      "bu_numaraya_kayitli_hesabini": "Inicia sesión con la cuenta registrada en este número y acepta la invitación.",
+      "e_posta": "Correo electrónico",
+      "ad_soyad": "Nombre completo",
+      "sifre": "Contraseña",
+      "hesap_olustur_katil": "Crear cuenta y unirse",
+      "e_posta_veya_telefon": "Correo electrónico o teléfono",
+      "giris_yap_katil": "Iniciar sesión y unirse"
+    },
+    "dogrula": {
+      "e_postanizi_dogrulayin": "Verifica tu correo electrónico",
+      "kayit_oldugunuz_e_posta": "Hemos enviado un enlace de verificación a tu dirección de correo electrónico registrada. Por favor, revisa tu bandeja de entrada y haz clic en el enlace.",
+      "spam_junk_klasorunu_de": "• Revisa también la carpeta de spam o correo no deseado",
+      "link_24_saat_gecerlidir": "• El enlace es válido durante 24 horas",
+      "dogrulama_yapilmadan_sisteme": "• No se puede iniciar sesión en el sistema sin verificación",
+      "dogrulama_e_postasi_tekrar": "Correo de verificación reenviado.",
+      "e_postayi_tekrar_gonder": "Reenviar correo electrónico",
+      "farkli_bir_hesapla_giris": "¿Quieres iniciar sesión con otra cuenta?",
+      "giris_sayfasi": "Página de inicio de sesión"
+    },
     "gelirGider": {
       "gelir": "Ingreso",
       "gider": "Gasto",
@@ -3755,6 +3800,36 @@
       "kum_net": "Neto acum.",
       "net_2": "Neto:",
       "kumulatif": "Acumulado:"
+    },
+    "giris": {
+      "hos_geldiniz": "Bienvenido",
+      "hesabiniza_giris_yapin": "Inicia sesión en tu cuenta",
+      "demo_dashboard_i_gor": "Ver panel de demostración",
+      "veya_hesabinizla_giris_yapin": "o inicia sesión con tu cuenta",
+      "e_posta_veya_telefon": "Correo electrónico o teléfono",
+      "personelseniz_sisteme_kayitl": "Si eres miembro del personal, también puedes iniciar sesión con tu número de teléfono registrado en el sistema.",
+      "sifre": "Contraseña",
+      "sifremi_unuttum": "¿Olvidaste tu contraseña?",
+      "sifreyi_gizle": "Ocultar contraseña",
+      "sifreyi_goster": "Mostrar contraseña",
+      "beni_hatirla": "Recordarme",
+      "giris_yap": "Iniciar sesión",
+      "hesabiniz_yok_mu": "¿No tienes una cuenta?",
+      "kayit_olun": "Regístrate",
+      "ucretsiz_deneyin": "Pruébalo gratis"
+    },
+    "iptal": {
+      "randevu_bulunamadi": "Cita no encontrada.",
+      "iptal_islemi_basarisiz_oldu": "La cancelación ha fallado.",
+      "bir_sorun_olustu": "Ocurrió un problema",
+      "randevunuz_iptal_edildi": "Tu cita ha sido cancelada",
+      "bilgilendirildi_dilediginiz_": "ha sido informado. Puedes reservar una nueva cita en cualquier momento.",
+      "randevu_iptali": "Cancelación de cita",
+      "merhaba": "Hola,",
+      "asagidaki_randevunuzu_iptal_": ", estás a punto de cancelar la siguiente cita.",
+      "randevuyu_iptal_et": "Cancelar cita",
+      "bu_randevu_artik_iptal": "Esta cita ya no se puede cancelar. Por favor, ponte en contacto con",
+      "ile_iletisime_gecin": "."
     },
     "kampanyaDetay": {
       "kampanya_gonderilemedi_bilin": "No se pudo enviar la campaña, ocurrió un error desconocido",
@@ -3989,6 +4064,31 @@
       "ozel_not_veya_bilgi": "Nota o información especial...",
       "phone_registered": "Este teléfono ya está registrado a nombre de <b>{name}</b>."
     },
+    "onay": {
+      "baglanti_bulunamadi": "Enlace no encontrado.",
+      "bir_sorun_olustu": "Ocurrió un problema",
+      "onayiniz_alindi": "Tu consentimiento ha sido recibido",
+      "artik_size_randevu_bildiriml": "ahora puede enviarte notificaciones de citas.",
+      "kvkk_aydinlatma_metni": "Aviso de Privacidad KVKK",
+      "kampanya_ve_firsatlardan_hab": "Quiero recibir información sobre campañas y ofertas (opcional)",
+      "okudum_onayliyorum": "He leído y acepto"
+    },
+    "oneri": {
+      "oneri_bulunamadi": "Sugerencia no encontrada.",
+      "islem_gerceklestirilemedi": "No se pudo realizar la operación.",
+      "baglanti_sorunu_olustu_lutfe": "Ocurrió un problema de conexión, por favor inténtalo de nuevo.",
+      "bir_sorun_olustu": "Ocurrió un problema",
+      "randevunuz_onaylandi": "¡Tu cita ha sido confirmada!",
+      "yeni_saatinizi_whatsapp_uzer": "También recibiste tu nueva hora por WhatsApp.",
+      "bildirdiniz_tesekkurler": "Respuesta enviada, gracias",
+      "isletmeye_iletildi_sizinle_t": "Se envió al negocio, volverán a ponerse en contacto contigo.",
+      "bu_oneriye_zaten_yanit": "Ya has respondido a esta sugerencia",
+      "isletme_size_yeni_bir": "El negocio te propuso una nueva hora",
+      "merhaba": "Hola,",
+      "onerilen_yeni_saat": "Nueva hora propuesta",
+      "bu_onerinin_suresi_gecmis": "Esta propuesta ha caducado.",
+      "kabul_et": "Aceptar"
+    },
     "orgSwitcher": {
       "isletme_degistirilemedi": "No se pudo cambiar de negocio",
       "isletme_degistir": "Cambiar de negocio",
@@ -4073,6 +4173,78 @@
       "no_charge_credit": "No se cobrará nada ahora. La parte no utilizada de tu plan actual ({amount}) se abonará como crédito en tu cuenta y se deducirá de tu próxima factura. La fecha de tu ciclo de facturación no cambiará.",
       "confirm_and_pay": "Confirmar y pagar {amount}"
     },
+    "planSec": {
+      "bir_hata_olustu": "Ha ocurrido un error.",
+      "panele_don": "Volver al panel",
+      "deneme_sureniz_sona_erdi": "Tu período de prueba ha terminado",
+      "14_gun_ucretsiz_deneme": "Prueba gratuita de 14 días",
+      "hesabinizi_yeniden_etkinlest": "Contacta con nuestro equipo de soporte para reactivar tu cuenta.",
+      "panele_erismeye_hemen_baslay": "Puedes empezar a acceder al panel de inmediato. Las mejoras de plan y los pagos se realizan a través de nuestro sitio web.",
+      "bizi_arayin": "Llámanos",
+      "panele_git": "Ir al Panel de Control",
+      "14_gunluk_ucretsiz_deneme": "Tu prueba gratuita de 14 días ha caducado.",
+      "panele_erismeye_devam_etmek": "Elige un plan a continuación para seguir accediendo al panel — tus datos están seguros, no se ha eliminado nada.",
+      "planinizi_secin": "Elige tu plan",
+      "istediginiz_zaman_iptal": "Cancela cuando quieras",
+      "14_gun_ucretsiz_deneme_2": "14 días de prueba gratis • Sin tarjeta de crédito • Cancela cuando quieras",
+      "su_an": "Actualmente",
+      "pro_ozelliklerini_denemedesi": "estás probando las funciones Pro",
+      "asagida_planlari_yan_yana": ". Compara los planes uno al lado del otro a continuación e inicia tu suscripción con el que mejor se adapte a ti.",
+      "aylik": "Mensual",
+      "yillik": "Anual",
+      "18_tasarruf": "Ahorra un 18%",
+      "ay": "/mes",
+      "yillik_tasarruf_pesin_fatura": "Ahorra {savings}/año · facturación anual",
+      "aylik_faturalanir": "facturación mensual",
+      "starter_a_ek_olarak": "Ventajas de Pro respecto a Starter",
+      "hemen_satin_al": "Comprar ahora",
+      "hemen_basla": "Empezar ahora",
+      "sec": "Elegir",
+      "guvenli_odeme_stripe": "Pago seguro (Stripe)",
+      "aninda_etkinlesir": "Activación instantánea",
+      "odeme_yurt_disinda_kurulu": "El pago se procesa a través de nuestra cuenta de comercio registrada fuera de Turquía; tu banco puede añadir una comisión por transacción extranjera, normalmente de entre el 1% y el 3% del importe. Nuestros precios ya tienen en cuenta esta comisión — pertenece a tu banco, no a SiriPlan.",
+      "simdilik_ucretsiz_denemeye_d": "Continuar con la prueba gratuita por ahora →",
+      "plan_mini_desc": "Para profesionales independientes",
+      "plan_mini_f0": "1 empleado",
+      "plan_mini_f1": "200 citas al mes",
+      "plan_mini_f2": "400 mensajes de WhatsApp al mes (confirmaciones + recordatorios)",
+      "plan_mini_f3": "Página de reservas online",
+      "plan_mini_f4": "Registro de clientes",
+      "plan_mini_f5": "Gestión de inventario (ventas con código de barras)",
+      "plan_mini_f6": "Seguimiento de paquetes / sesiones",
+      "plan_mini_f7": "Informes de ingresos-gastos y cálculo de IVA",
+      "plan_starter_desc": "Inicio ideal para pequeños negocios",
+      "plan_starter_f0": "8 empleados",
+      "plan_starter_f1": "Citas ilimitadas",
+      "plan_starter_f2": "Página de reservas online",
+      "plan_starter_f3": "500 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios)",
+      "plan_starter_f4": "Gestión de clientes",
+      "plan_starter_f5": "Gestión de inventario (ventas con código de barras)",
+      "plan_starter_f6": "Seguimiento de paquetes / sesiones",
+      "plan_starter_f7": "Lista de espera",
+      "plan_starter_f8": "Informes de ingresos-gastos y cálculo de IVA",
+      "plan_starter_f9": "Sistema de tarjetas de fidelización",
+      "plan_starter_f10": "1 campaña al mes",
+      "plan_starter_f11": "Informes básicos",
+      "plan_pro_desc": "Kit completo de herramientas para negocios en crecimiento",
+      "best_seller": "Más vendido",
+      "plan_pro_f0": "Personal ilimitado",
+      "plan_pro_f1": "Citas ilimitadas",
+      "plan_pro_f2": "Todas las funciones de Starter · 1.500 mensajes de WhatsApp/mes incluidos",
+      "plan_pro_f3": "Asistente de voz (comandos de citas y stock)",
+      "plan_pro_f4": "Modo sitio web (página de reservas personalizable)",
+      "plan_pro_f5": "Exportación de informes a PDF",
+      "plan_pro_f6": "Campañas ilimitadas",
+      "plan_pro_f7": "Puntuación de clientes",
+      "plan_pro_f8": "Gamificación (Empleado de la semana)",
+      "plan_pro_f9": "Migración de datos (desde el sistema actual)",
+      "plan_business_desc": "Para cadenas y negocios a gran escala",
+      "plan_business_f0": "Todas las funciones de Pro · 3.000 mensajes de WhatsApp/mes incluidos",
+      "plan_business_f1": "Hasta 5 ubicaciones",
+      "plan_business_f2": "Asistente de IA (autorrespuesta WA/IG)",
+      "plan_business_f3": "Soporte prioritario",
+      "plan_business_f4": "Integraciones personalizadas"
+    },
     "pwaKart": {
       "uygulamayi_telefona_ekle_wid": "Añadir app al teléfono (Widget)",
       "siriplan_i_magazadan_indireb": "Puedes descargar SiriPlan de la tienda o añadirlo a tu pantalla de inicio para usarlo a pantalla completa como una app. Recomiéndalo también a tu personal.",
@@ -4140,6 +4312,19 @@
       "web": "Web",
       "not": "Nota",
       "opsiyonel_not": "Nota opcional..."
+    },
+    "randevuToken": {
+      "randevu_bulunamadi": "Cita no encontrada.",
+      "bir_sorun_olustu": "Ocurrió un problema",
+      "randevu_detayi": "Detalles de la cita",
+      "merhaba": "Hola,",
+      "konumu_goruntule": "Ver ubicación",
+      "randevuyu_iptal_et": "Cancelar cita",
+      "st_talep": "pendiente de aprobación",
+      "st_onaylandi": "Confirmado",
+      "st_tamamlandi": "Completada",
+      "st_iptal": "Cancelado",
+      "st_gelmedi": "No asistió"
     },
     "randevuYeni": {
       "randevu_olusturulamadi": "No se pudo crear la cita",
@@ -4224,6 +4409,17 @@
       "pending_count": "{n} citas siguen pendientes.",
       "mark_done_hint": "Marca las citas realizadas como <b>«Completado»</b> en el detalle de la cita para que se reflejen en la facturación del día y en la pantalla de Ingresos y Gastos."
     },
+    "sifreSifirla": {
+      "e_posta_gonderildi": "Correo electrónico enviado",
+      "adresine_sifre_sifirlama_bag": "enlace de restablecimiento de contraseña enviado a tu dirección. Revisa tu bandeja de entrada (y la carpeta de spam).",
+      "giris_sayfasina_don": "Volver a la página de inicio de sesión",
+      "sifremi_unuttum": "¿Olvidaste tu contraseña?",
+      "e_posta_adresinize_sifirlama": "Enviaremos un enlace de restablecimiento a tu correo electrónico",
+      "e_posta": "Correo electrónico",
+      "sifirlama_baglantisi_gonder": "Enviar enlace de restablecimiento",
+      "sifrenizi_hatirladiniz_mi": "¿Recordaste tu contraseña?",
+      "giris_yapin": "Iniciar sesión"
+    },
     "stok": {
       "urun_guncellendi": "Producto actualizado",
       "yeni_urun_eklendi": "Nuevo producto añadido",
@@ -4240,6 +4436,24 @@
       "izinli_2": "De permiso",
       "isletme_bugun_kapali": "El negocio está cerrado hoy"
     },
+    "temaSecici": {
+      "renk_temasi_sec": "Elegir tema de color",
+      "renk_temasi": "Tema de color",
+      "theme_light": "Rosa chicle",
+      "theme_light_sectors": "Belleza · Estética · Manicura",
+      "theme_blue": "Azul clásico",
+      "theme_blue_sectors": "Corporativo · Consultoría · Coaching",
+      "theme_ocean": "Azul océano",
+      "theme_ocean_sectors": "Clínica · Dental · Nutrición",
+      "theme_sage": "Verde naturaleza",
+      "theme_sage_sectors": "Peluquería · Barbería · Spa",
+      "theme_dark": "Modo oscuro",
+      "theme_dark_sectors": "Todos los sectores",
+      "theme_sunset": "Naranja atardecer",
+      "theme_sunset_sectors": "Tatuaje · Maquillaje · Uñas",
+      "theme_midnight": "Púrpura medianoche",
+      "theme_midnight_sectors": "Premium · VIP · Lujo"
+    },
     "veriGocu": {
       "json": "JSON (",
       "csv": "CSV (",
@@ -4253,6 +4467,21 @@
       "gallery_hint_estetik": "Puedes añadir fotos de ejemplos de tratamientos a la categoría de servicio (no subas fotos de caras reconocibles sin el consentimiento del cliente).",
       "gallery_hint_nail": "Añade fotos de tus diseños de uñas a la categoría de servicio correspondiente — se pueden usar como escaparate.",
       "gallery_hint_guzellik": "Ofrece a los clientes una vista previa añadiendo fotos de los trabajos de tu salón a la categoría de servicio correspondiente."
+    },
+    "yeniSifre": {
+      "baglanti_dogrulaniyor": "Verificando enlace...",
+      "baglanti_gecersiz_veya_sures": "El enlace no es válido o ha caducado",
+      "sifre_sifirlama_baglantilari": "Los enlaces de restablecimiento de contraseña son válidos por un corto período y solo se pueden usar una vez. Solicita un nuevo enlace.",
+      "yeni_sifirlama_baglantisi_is": "Solicitar nuevo enlace de restablecimiento",
+      "sifre_guncellendi": "Contraseña actualizada",
+      "panele_yonlendiriliyorsunuz": "Redirigiendo al panel...",
+      "yeni_sifre_belirle": "Establecer nueva contraseña",
+      "en_az_8_karakter": "Elige una contraseña segura de al menos 8 caracteres",
+      "yeni_sifre": "Nueva contraseña",
+      "en_az_8_karakter_2": "Al menos 8 caracteres",
+      "sifre_tekrar": "Confirmar contraseña",
+      "sifreyi_tekrar_girin": "Introduce la contraseña de nuevo",
+      "sifreyi_guncelle": "Actualizar contraseña"
     }
   }
 }

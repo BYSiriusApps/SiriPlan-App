@@ -11,7 +11,7 @@ import { notifyAdminAddonRequest } from "@/lib/notify-admin";
  * admin bildirimi tetikliyor, veri tabanına yazmıyor ve e-posta göndermiyor.
  */
 
-const ADDON_KEYS = ["whatsappAI", "sms", "multiBranch"] as const;
+const ADDON_KEYS = ["whatsappAI", "multiBranch"] as const;
 const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
 const LIMITS = { name: 80, email: 160, phone: 30, message: 500 } as const;

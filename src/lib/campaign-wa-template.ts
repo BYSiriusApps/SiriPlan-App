@@ -1,4 +1,5 @@
 import type { CampaignOffer } from "@/lib/campaign-offer";
+import { getWaLine, postWaMessage, type WaLine } from "@/lib/wa-line";
 
 /**
  * Kampanyaların Meta onaylı MARKETING şablonlarıyla, SiriPlan'ın AYRI kampanya
@@ -15,15 +16,11 @@ import type { CampaignOffer } from "@/lib/campaign-offer";
 export type CampaignLang = "tr" | "en" | "ru" | "ar" | "de" | "es";
 export type CampaignTemplateKind = "announcement" | "discount";
 
-export interface CampaignWaConfig {
-  token: string;
-  phoneId: string;
-}
+export type CampaignWaConfig = WaLine;
 
+/** Kampanya hattı (ayrı numara; sağlayıcı: meta | 360dialog — bkz. lib/wa-line.ts). Tanımsızsa null. */
 export function getCampaignWaConfig(): CampaignWaConfig | null {
-  const token = process.env.WHATSAPP_CAMPAIGN_TOKEN;
-  const phoneId = process.env.WHATSAPP_CAMPAIGN_PHONE_ID;
-  return token && phoneId ? { token, phoneId } : null;
+  return getWaLine("marketing");
 }
 
 export function campaignLang(preferred: string | null | undefined): CampaignLang {
@@ -129,15 +126,11 @@ async function postTemplate(
   }));
   let res: Response;
   try {
-    res = await fetch(`https://graph.facebook.com/v19.0/${cfg.phoneId}/messages`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${cfg.token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to,
-        type: "template",
-        template: { name, language: { code: lang }, components: [{ type: "body", parameters }] },
-      }),
+    res = await postWaMessage(cfg, {
+      messaging_product: "whatsapp",
+      to,
+      type: "template",
+      template: { name, language: { code: lang }, components: [{ type: "body", parameters }] },
     });
   } catch {
     return { ok: false, error: "WhatsApp API'sine ulaşılamadı" };
