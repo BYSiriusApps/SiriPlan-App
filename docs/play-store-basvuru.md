@@ -100,3 +100,12 @@ WhatsApp/SMS entegrasyonları isteğe bağlı ve varsayılan kapalı — yalnız
 - [ ] App access + reviewer notes (yukarıdaki metin)
 - [ ] Test uygulamasını yeniden kur → adres çubuğu yok / giriş çalışıyor / ödeme yüzeyi yok doğrula
 - [ ] Production'a çıkar → Send for review
+
+## Mağaza çevirileri — TAMAMLANDI (20 Ekim 2026)
+Play Console → Varsayılan mağaza girişi → "Dilleri yönetin" ile eklendi ve incelemeye gönderildi:
+**de-DE, es-ES, es-419, en-GB, en-US, ru-RU, ar** (varsayılan tr-TR). Her dilde ad (`SiriPlan`), kısa ve tam açıklama girildi;
+**özellik grafiği** (1024×500) her dil için yerelleştirilmiş sürümle yüklendi. Ekran görüntüleri şimdilik varsayılan (Türkçe) set.
+- Metinler: `docs/play-store/magaza-metinleri-de-es.md` (de/es) ve `docs/play-store/magaza-metinleri-en-ru-ar.md` (en/ru/ar).
+- Özellik grafikleri: `docs/play-store/feature-graphics/feature-graphic-{de,es,en,ru,ar}-1024x500.png`.
+- Yeni AAB gerekmedi (TWA; dil siteden gelir). Data safety/IARC değişmedi.
+- Açık (isteğe bağlı): dil bazlı ekran görüntüleri.
