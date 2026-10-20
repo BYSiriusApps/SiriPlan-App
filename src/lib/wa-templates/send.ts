@@ -285,6 +285,13 @@ export async function sendPurposeTemplate({
       await notifyWaQuota(orgId, level, summary.utilityUsed, planQuota);
     }
   }
+  // Satın alınan ek paketin SON kredisi harcandıysa (plan hakkı zaten dolu) sahibe "paket bitti" bildirimi.
+  if (usageSource === "addon" && planQuota !== null && isWaQuotaEnforced(org) && "sent" in result) {
+    const summary = await getWaUsageSummary(orgId, org);
+    if (summary.utilityAddonBalance === 0) {
+      await notifyWaQuota(orgId, "pack_empty", summary.utilityUsed, planQuota);
+    }
+  }
   return result;
 
   // İngilizce onaylı değilse/reddedilirse Türkçe'ye (zaten onaylı) düş —

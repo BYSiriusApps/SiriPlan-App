@@ -9,6 +9,7 @@ import {
   type StaffOption,
   type ServiceOption,
 } from "./BeklemeListesiClient";
+import { WaQuotaNotice } from "@/components/dashboard/WaQuotaNotice";
 
 /**
  * Eskiden bu sayfa tamamen client component'ti: mount olunca 6 ayrı API ucuna
@@ -78,6 +79,8 @@ export default async function BeklemeListesiPage() {
   const bookingSlotMinutes = [15, 30, 60].includes(rawSlotMinutes) ? rawSlotMinutes : 15;
 
   return (
+    <>
+    <WaQuotaNotice orgId={member.org_id} role={member.role} />
     <BeklemeListesiClient
       initialEntries={(waitlistRaw ?? []) as unknown as WaitlistEntry[]}
       initialPendingAppts={(talepRaw ?? []) as unknown as PendingAppt[]}
@@ -87,5 +90,6 @@ export default async function BeklemeListesiPage() {
       showPhone={showPhone}
       bookingSlotMinutes={bookingSlotMinutes}
     />
+    </>
   );
 }

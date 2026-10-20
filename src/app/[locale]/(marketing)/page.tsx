@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getVisitorPricing } from "@/lib/pricing";
 import { buildAlternates, localizedUrl } from "@/lib/seo/alternates";
@@ -61,30 +60,6 @@ const CATEGORY_META = [
   { key: "eyebrow",     icon: "👁"    },
   { key: "petGrooming", icon: "🐾"    },
 ] as const;
-
-const testimonials = [
-  {
-    name: "Ayşe Kaya",
-    role: "Elegans Kuaför — İstanbul",
-    avatar: "AK",
-    text: "Eski sistemimiz sürekli çöküyordu. SiriPlan'a geçtik, verilerimizi 20 dakikada aktardık. Artık WhatsApp'tan gelen sorulara AI yanıt veriyor, ben sadece hizmetimi sunuyorum.",
-    stars: 5,
-  },
-  {
-    name: "Mehmet Demir",
-    role: "Prestige Berber — Ankara",
-    avatar: "MD",
-    text: "Haftanın Elemanı sistemi personelimi çok motive etti. Ciro takibi ve personel komisyon raporu artık çok kolay. AI asistanı sayesinde mesai saatleri dışında bile randevu alıyoruz.",
-    stars: 5,
-  },
-  {
-    name: "Fatma Şahin",
-    role: "Lotus SPA — İzmir",
-    avatar: "FŞ",
-    text: "3 şube yönetimi artık tek ekrandan. Müşteri skorlama sistemi sayesinde sadık müşterilerimizi tanıyıp özel kampanyalar yapıyoruz. Doluluk oranımız %40 arttı.",
-    stars: 5,
-  },
-];
 
 export default async function HomePage() {
   const t = await getTranslations();
@@ -305,39 +280,6 @@ export default async function HomePage() {
       </section>
 
       <AddonsSection />
-
-      {/* Testimonials */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("testimonials.title")}</h2>
-            <p className="text-muted-foreground">{t("testimonials.subtitle")}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {testimonials.map((tv) => (
-              <Card key={tv.name} className="border-border/50">
-                <CardContent className="p-6">
-                  <div className="flex gap-0.5 mb-4">
-                    {Array.from({ length: tv.stars }).map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-5">&ldquo;{tv.text}&rdquo;</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center text-xs font-bold text-primary">
-                      {tv.avatar}
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold">{tv.name}</div>
-                      <div className="text-xs text-muted-foreground">{tv.role}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Mobil uygulama */}
       <section className="py-16 border-y border-border">

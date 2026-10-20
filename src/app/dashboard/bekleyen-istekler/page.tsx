@@ -2,6 +2,7 @@ import { createClient, getSessionUser } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import { BekleyenIsteklerClient } from "./BekleyenIsteklerClient";
+import { WaQuotaNotice } from "@/components/dashboard/WaQuotaNotice";
 
 export default async function BekleyenIsteklerPage() {
   const supabase = await createClient();
@@ -110,6 +111,8 @@ export default async function BekleyenIsteklerPage() {
   const talepAppointments = (talepRaw ?? []) as unknown as TalepRow[];
 
   return (
+    <>
+    <WaQuotaNotice orgId={member.org_id} role={member.role} />
     <BekleyenIsteklerClient
       initialRequests={requests || []}
       initialTalepAppointments={talepAppointments}
@@ -130,5 +133,6 @@ export default async function BekleyenIsteklerPage() {
         canAct: canActOnAll || a.staff_id === member.staff_id,
       }))}
     />
+    </>
   );
 }

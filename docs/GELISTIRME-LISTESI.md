@@ -747,3 +747,34 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
 - [ ] Anthropic kredisi $0 — Claude yedeği için $5–10 yükle; anahtar 30.09.2027'de biter.
 - [ ] Güvenlik: `.env.local.example` içindeki `sk_test` anahtarı bulut senkronunda; roll etmeyi düşün.
 - [ ] iOS 1.1 (build 4) taslağı: push (Firebase+APNs) bitince build 5 ile gönder.
+
+## 18. WhatsApp mesaj paketleri, SMS paketi satışının kapatılması, kota uyarıları (19-20 Eki 2026) — KODDA HAZIR, test + Stripe Price BEKLİYOR
+
+**Yapılanlar**
+- **SMS paketi artık satılmıyor / hiçbir yerde görünmüyor.** Abonelik sayfasındaki "SMS Kontörü" kartı, Ayarlar'daki
+  "SiriPlan SMS kontörü al" linki, pazarlama sitesindeki SMS ek paket kartı (+ `/api/addon-request` "sms"), 6 dildeki
+  (tr/en/ru/ar/de/es) SSS/rehber/entegrasyon/ayar metinleri, sohbet asistanı promptu, mesafeli satış örneği, `public/sunum.html`,
+  müşteri sunumu HTML'i ve kılavuzlar temizlendi. Müşteri yalnızca kendi SMS sağlayıcısını (Netgsm/VatanSMS/İletimerkezi) bağlar.
+  **Altyapı bilerek duruyor:** `api/stripe/sms-pack`, webhook `kind=sms_pack`, `sms-credits`, `sms-packs`, `sendSms` kontör düşümü.
+- **Ek WhatsApp bildirim (utility) paketleri: 500 / 1.000 / 5.000 / 10.000 mesaj** (`src/lib/wa-credit-packs.ts`).
+  Fiyatlar (TRY / USD / EUR): 400/8/7 · 800/16/14 · **3.800/76/66 · 7.200/144/126** (5 bin ve 10 bin paket fiyatları benim önerim —
+  iş kararı, Stripe Price ile BİREBİR aynı olmalı). Kampanya paketleri (m500/m1000/m2500) kataloğta duruyor.
+- **Kota uyarıları:** plan hakkı %80/%100 uyarısına web/uygulama **push** eklendi; **ek paket bitince** ("Ek mesaj paketiniz bitti")
+  sahibe Telegram + WhatsApp + push; Bekleyen İstekler ve Bekleme Listesi sayfalarının üstünde kırmızı kota şeridi
+  (`WaQuotaNotice`). Mesaj gönderim/kota düşüm kuralları DEĞİŞMEDİ.
+
+**Senin yapacakların (Stripe + yayın)**
+1. `supabase/migrations/20261017_wa_message_quotas.sql` → SQL Editor'de çalıştır (deploy'dan ÖNCE önerilir).
+2. Stripe'ta tek seferlik (one-time) Price'lar, varsayılan TRY + USD/EUR `currency_options` (tutarlar yukarıdaki gibi) →
+   env (Vercel + `.env.local`): `STRIPE_PRICE_WA_UTILITY_500`, `_1000`, `_5000`, `_10000`
+   (kampanya satılacaksa `STRIPE_PRICE_WA_CAMPAIGN_500/1000/2500`).
+3. Test: Abonelik sayfasında 4 paket → ödeme → kredi yüklenmesi; demo org'da kotayı doldurup bildirim/şerit/push kontrolü
+   (bildirimler yalnızca test numaralarına: sahip 5553287509, personel 5355032634).
+
+**Açık kararlar / notlar**
+- **Maliyet uyarısı:** randevu başına 5 WhatsApp mesajı gidiyor (müşteri 2 + sahip + personel), kotaya yalnızca müşterinin 2'si sayılıyor.
+  Meta TR utility ücreti ≈ $0,005 (DOĞRULANMADI) varsayımıyla kota birimi başına gerçek maliyet ≈ 0,66 TL; paketler yarı fiyata
+  inerse zarar edilir. Seçenekler: tüm mesajları kotaya saymak / sahip-personel bildirimini push-Telegram'a kaydırmak /
+  büyük pakette mesaj başı fiyatı kademeli düşürmek. Karar bekliyor; Meta + 360dialog güncel fiyatı teyit edilmeli.
+- `docs/musteri-sunumu/SiriPlan-Musteri-Sunumu.pdf` HTML'den yeniden üretilmedi (içinde SMS kontörü slaytı kalmış olabilir).
+- Slot-hold (`20261016_slot_holds.sql`, `api/public/slot-hold`, availability/BookingWizard) bu paketle ayrı tutuldu, commit'e girmedi.

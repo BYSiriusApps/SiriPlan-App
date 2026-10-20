@@ -7,15 +7,18 @@
  * değiştirilebilir (kod değişikliği gerekmez) ve bir model/sağlayıcı düşerse
  * sıradaki denenir.
  *
- * Sıra (düz metin): GEMINI_MODEL → GEMINI_FALLBACK_MODEL → Claude (YALNIZCA
- * ANTHROPIC_API_KEY tanımlıysa). Claude yedeği isteğe bağlıdır; anahtar
+ * Sıra (düz metin): Claude (YALNIZCA ANTHROPIC_API_KEY tanımlıysa; en ucuzu) → GEMINI_MODEL →
+ * GEMINI_FALLBACK_MODEL → gemini-3.8-flash. Claude isteğe bağlıdır; anahtar
  * tanımlanmadıkça hiçbir veri Anthropic'e gitmez (gizlilik metni / mağaza
  * beyanı güncellenmeden anahtar eklenmemeli).
  * Fonksiyon çağırma (sesli randevu) yalnızca Gemini modellerini dener.
  */
 
-export const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite";
-export const DEFAULT_GEMINI_FALLBACK_MODEL = "gemini-3.1-flash-lite";
+// Sıra en ucuzdan pahalıya (1M token giriş/çıkış $): 3.1 lite 0,25/1,50 → 3.5 lite 0,30/2,50 → 3.8 flash 0,75/3,75.
+export const DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-lite";
+export const DEFAULT_GEMINI_FALLBACK_MODEL = "gemini-3.5-flash-lite";
+// Google 3.7'yi zaten 3.8'e yönlendirdi; en pahalı olduğu için son Gemini yedeği.
+export const DEFAULT_GEMINI_NEXT_MODEL = "gemini-3.8-flash";
 export const DEFAULT_CLAUDE_FALLBACK_MODEL = "claude-haiku-5-5";
 
 const GEMINI_TIMEOUT_MS = 10_000;
@@ -49,7 +52,7 @@ export function hasLlmProvider(): boolean {
 export function geminiModels(): string[] {
   const primary = process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
   const fallback = process.env.GEMINI_FALLBACK_MODEL?.trim() || DEFAULT_GEMINI_FALLBACK_MODEL;
-  return primary === fallback ? [primary] : [primary, fallback];
+  return [...new Set([primary, fallback, DEFAULT_GEMINI_NEXT_MODEL])];
 }
 
 /**
@@ -146,12 +149,12 @@ async function claudeText(system: string, user: string, maxTokens: number): Prom
  */
 export async function generateText(opts: { system: string; user: string; maxTokens: number }): Promise<string> {
   if (!hasLlmProvider()) throw new Error("No LLM provider configured");
-  const viaGemini = await geminiText(opts.system, opts.user, opts.maxTokens);
-  if (viaGemini) return viaGemini;
   const viaClaude = await claudeText(opts.system, opts.user, opts.maxTokens);
-  if (viaClaude) {
-    notifyLlmDegraded("Gemini yanıt vermedi, Claude yedeği devrede");
-    return viaClaude;
+  if (viaClaude) return viaClaude;
+  const viaGemini = await geminiText(opts.system, opts.user, opts.maxTokens);
+  if (viaGemini) {
+    if (claudeKey()) notifyLlmDegraded("Claude yanıt vermedi, Gemini yedeği devrede");
+    return viaGemini;
   }
   notifyLlmDegraded("Gemini ve Claude yanıt vermedi — yapay zeka özellikleri statik yanıta düşüyor");
   throw new Error("LLM yanıt üretemedi");
