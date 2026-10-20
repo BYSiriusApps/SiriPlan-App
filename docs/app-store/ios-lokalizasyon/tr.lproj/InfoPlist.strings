@@ -1,0 +1,4 @@
+/* SiriusPlan - izin açıklamaları (tr). Yalnızca kullanıcıya gösterilen metin; anahtarlar değişmez. */
+"NSMicrophoneUsageDescription" = "SiriusPlan, mikrofonu yalnızca yazmak yerine konuşarak randevu oluşturmak veya stok eklemek için sesli düğmeye dokunduğunuzda kullanır.";
+"NSLocationWhenInUseUsageDescription" = "SiriusPlan, konumunuzu yalnızca Website Ayarları'nda \"Konumumu kullan\" düğmesine dokunduğunuzda, herkese açık randevu sayfanıza salonunuzun adresini ve harita bağlantısını eklemek için kullanır.";
+"NSCameraUsageDescription" = "SiriusPlan, kamerayı stok ve satış için ürün barkodlarını taramak ve hizmetlere, müşteri kayıtlarına ve işletme logonuza fotoğraf eklemenizi sağlamak için kullanır.";

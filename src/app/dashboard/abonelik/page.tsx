@@ -5,6 +5,8 @@ import { getPlanUsage } from "@/lib/plan-usage";
 import { isMobileApp } from "@/lib/mobile-app";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { formatPrice, getPricingCurrencyFromHeaders } from "@/lib/pricing";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +41,8 @@ export default async function AbonelikPage({
   const waPackStatus = waPackParam === "success" || waPackParam === "canceled" ? waPackParam : undefined;
   const t = await getTranslations();
   const locale = await getLocale();
+  // Checkout (api/stripe/sms-pack) ile aynı para birimi tespiti → etiket ile tahsilat tutarı eşleşir.
+  const smsCurrency = getPricingCurrencyFromHeaders(await headers());
   const supabase = await createClient();
   const user = await getSessionUser();
   if (!user) redirect("/auth/giris");
