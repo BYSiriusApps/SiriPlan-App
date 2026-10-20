@@ -778,3 +778,43 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
   büyük pakette mesaj başı fiyatı kademeli düşürmek. Karar bekliyor; Meta + 360dialog güncel fiyatı teyit edilmeli.
 - `docs/musteri-sunumu/SiriPlan-Musteri-Sunumu.pdf` HTML'den yeniden üretilmedi (içinde SMS kontörü slaytı kalmış olabilir).
 - Slot-hold (`20261016_slot_holds.sql`, `api/public/slot-hold`, availability/BookingWizard) bu paketle ayrı tutuldu, commit'e girmedi.
+
+## 19. ⏳ TEST EDİLECEKLER — WhatsApp kota / ek paket işi (20 Eki 2026)
+
+Kod canlıda (PR #191 + #196), ama aşağıdakiler **henüz uçtan uca test edilmedi**. Demo org (**Sirius Demo Güzellik Salonu**)
+üzerinde, mesajlar YALNIZCA test numaralarına gidecek şekilde yapılacak: sahip `5553287509`, personel `5355032634`
+(gerçek müşteri numarasına mesaj tetikleme). Test bitince test randevularını iptal/temizle (müşteri kaydı silinmez).
+
+**A. Plan kartı ve metinler**
+- [ ] siriplan.com fiyat kartları 6 dilde (TR/EN/RU/AR/DE/ES): Mini 400 · Starter 500 · Pro 1.500 · Business 3.000 mesaj (yalnızca TR canlıda görüldü).
+- [ ] Abonelik, plan-sec, SSS/rehber, sohbet asistanı ve sunum sayfası aynı rakamları söylüyor mu.
+- [ ] `docs/musteri-sunumu/SiriPlan-Musteri-Sunumu.pdf` HTML'den yeniden üretildi mi (SMS kontörü slaytı kalmış olabilir).
+
+**B. Kota sayımı ve kesinti**
+- [ ] Onay / hatırlatma / iptal / revize mesajı kotadan düşüyor (yalnızca müşterinin 2 mesajı sayılıyor).
+- [ ] Kota dolunca otomatik WhatsApp mesajı duruyor; **randevu kaydı ve düzenleme normal devam ediyor**.
+- [ ] Önce plan hakkı, bitince ek paket bakiyesi kullanılıyor; ikisi de bitince mesaj gitmiyor.
+- [ ] Yenilenme takvim ayı değil **abonelik başlangıç yıldönümünde** (`org_message_cycle`, Stripe `billing_cycle_anchor`).
+- [ ] Deneme (100) ve plan yükseltme/düşürme sonrası limit doğru güncelleniyor.
+- [ ] Personel seçili değilse yalnızca sahibe, seçiliyse sahip + personele bildirim gidiyor.
+
+**C. Ek paket satın alma (Stripe — önce TEST MODU, canlı anahtar yerelde!)**
+- [ ] Stripe'ta tek seferlik Price'lar + env (`STRIPE_PRICE_WA_UTILITY_500/1000/5000/10000`; kampanya satılacaksa `_CAMPAIGN_*`) tanımlı.
+- [ ] Abonelik sayfasında 4 paket → ödeme → `kind=wa_pack` webhook → kredi yükleniyor, çift yüklenme yok.
+- [ ] TRY/USD/EUR tutarları `wa-credit-packs.ts` ile Stripe Price'ta birebir aynı.
+- [ ] Mobil uygulamada (App Store/Play) paket satın alma yüzeyleri gizli.
+
+**D. Uyarılar ve kullanım kartları**
+- [ ] %80 ve %100 uyarısı: panel bandı + web/uygulama push; ek paket bitince sahibe Telegram + WhatsApp + push.
+- [ ] Bekleyen İstekler ve Bekleme Listesi üstündeki `WaQuotaNotice` şeridi.
+- [ ] `WaUsageCard` (Hesabım) ve `WaUsageSettingsCard` (Ayarlar) yalnızca sahip/yönetici görüyor; personel görmüyor.
+- [ ] Başka organizasyonun kullanım/kredi verisi hiçbir yerde görünmüyor (kiracı izolasyonu: `tenant-isolation.mjs`).
+
+**E. Kampanya ve sağlayıcı katmanı**
+- [ ] WhatsApp kampanya mesajı yalnızca satın alınmış kampanya kredisiyle gidiyor; kredi yoksa gitmiyor; SMS kampanyası etkilenmiyor.
+- [ ] `wa-line` varsayılan sağlayıcı = Meta (env boş): mevcut akış değişmedi.
+- [ ] 360dialog webhook'u gizli anahtar yokken/yanlışken reddediyor (fail-closed); yalnızca RET işliyor. (360dialog hesabı henüz yok.)
+
+**F. SMS paketi kapatıldıktan sonra**
+- [ ] Abonelik/Ayarlar/pazarlama sitesinde SMS kontör kartı ve linki yok; `/api/addon-request` "sms" reddediyor.
+- [ ] Müşterinin kendi SMS sağlayıcısı (Netgsm/VatanSMS/İletimerkezi) ile SMS bildirimi hâlâ çalışıyor.
