@@ -4483,5 +4483,36 @@
       "sifreyi_tekrar_girin": "Şifreyi tekrar girin",
       "sifreyi_guncelle": "Şifreyi Güncelle"
     }
+  },
+  "panelTour": {
+    "title": "Paneli yakından görün",
+    "subtitle": "Örnek verilerle hazırlanmış kısa bir gezinti: randevudan kasaya her şey tek yerde.",
+    "tabs": {
+      "calendar": "Takvim",
+      "approve": "Randevu onayı",
+      "whatsapp": "WhatsApp bildirimi",
+      "income": "Gelir raporu"
+    },
+    "desc": {
+      "calendar": "Tüm personelin günü tek ekranda.",
+      "approve": "Yeni talepleri tek dokunuşla onaylayın veya reddedin.",
+      "whatsapp": "Müşteriye onay mesajı otomatik gider.",
+      "income": "Günlük ve haftalık ciroyu anında görün."
+    },
+    "mock": {
+      "today": "Bugün",
+      "pending": "Bekliyor",
+      "confirmed": "Onaylandı",
+      "approve": "Onayla",
+      "reject": "Reddet",
+      "haircut": "Saç Kesimi",
+      "manicure": "Manikür",
+      "skincare": "Cilt Bakımı",
+      "revenue": "Gün cirosu",
+      "appointments": "Randevu",
+      "completed": "Tamamlanan",
+      "waName": "Güzellik Salonu",
+      "waMsg": "Merhaba Ayşe, yarın 14:00 Saç Kesimi randevunuz onaylandı. Görüşmek üzere!"
+    }
   }
 }
