@@ -103,9 +103,8 @@ export default async function IndirPage() {
       <div aria-hidden="true" className="pointer-events-none absolute top-[28rem] -right-24 h-72 w-72 rounded-full bg-pink-500/20 blur-3xl" />
 
       {/* Kayan mutlu esnaf kolajı */}
-      <div className="space-y-3 pt-6">
+      <div className="pt-6">
         <MarqueeRow items={SECTORS} className="indir-row-l" />
-        <MarqueeRow items={[...SECTORS].reverse()} className="indir-row-r" />
       </div>
 
       <div className="relative mx-auto flex w-full max-w-md flex-col items-center px-4 sm:max-w-xl">
