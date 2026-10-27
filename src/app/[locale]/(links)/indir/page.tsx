@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { PanelTourSection } from "@/components/marketing/PanelTourSection";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/store-links";
 
 // Instagram "bio'daki tek bağlantı" sayfası. Pazarlama layout'u (menü/footer)
@@ -151,6 +152,9 @@ export default async function IndirPage() {
             </li>
           ))}
         </ul>
+
+        {/* Panel gezintisi (sahte veriyle) */}
+        <PanelTourSection dark />
 
         {/* Sektör kartları */}
         <h2 className="mt-12 text-center text-xl font-bold">Hangi sektördesiniz?</h2>

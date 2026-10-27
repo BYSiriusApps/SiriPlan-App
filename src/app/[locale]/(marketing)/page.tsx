@@ -19,6 +19,7 @@ import { HeroMockup } from "@/components/marketing/HeroMockup";
 import { LiveTicker } from "@/components/marketing/LiveTicker";
 import { WebsiteShowcase } from "@/components/marketing/WebsiteShowcase";
 import { MobileShowcase } from "@/components/marketing/MobileShowcase";
+import { PanelTourSection } from "@/components/marketing/PanelTourSection";
 import { SectorShowcase } from "@/components/marketing/SectorShowcase";
 import { HeroPanelCard } from "@/components/marketing/HeroPanelCard";
 import { FeatureBento } from "@/components/marketing/FeatureBento";
@@ -241,6 +242,8 @@ export default async function HomePage() {
       </section>
 
       <WebsiteShowcase />
+
+      <PanelTourSection />
 
       <MobileShowcase />
 
