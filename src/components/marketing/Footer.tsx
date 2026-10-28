@@ -169,6 +169,17 @@ export async function Footer() {
                 {t("ipCopyright")}
               </Link>
             </p>
+            <p className="mt-1">
+              Powered by{" "}
+              <a
+                href="https://bysirius.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors font-medium"
+              >
+                BY Sirius Group AI and Technology Co Ltd.
+              </a>
+            </p>
             <p className="mt-1 text-muted-foreground/70">{t("companyReg")}</p>
           </div>
           <div className="flex items-center gap-5">
