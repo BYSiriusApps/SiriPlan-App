@@ -82,7 +82,10 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/:path*",
+        // assetlinks.json hariç: Android uygulama bağlantı doğrulaması (Play
+        // "Derin bağlantılar") yönlendirme takip etmez; manifest'te host
+        // www.siriplan.com olduğundan bu dosya www'da 200 ile sunulmalı.
+        source: "/:path((?!\\.well-known/assetlinks\\.json$).*)",
         has: [{ type: "host", value: "www.siriplan.com" }],
         destination: "https://siriplan.com/:path*",
         permanent: true,
