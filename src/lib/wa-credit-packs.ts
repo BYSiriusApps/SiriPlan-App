@@ -25,10 +25,10 @@ export interface WaCreditPack {
 }
 
 export const WA_CREDIT_PACKS: readonly WaCreditPack[] = [
-  { id: "u500", kind: "utility", credits: 500, prices: { TRY: 400, USD: 8, EUR: 7 } },
-  { id: "u1000", kind: "utility", credits: 1000, prices: { TRY: 800, USD: 16, EUR: 14 } },
-  { id: "u5000", kind: "utility", credits: 5000, prices: { TRY: 3800, USD: 76, EUR: 66 } },
-  { id: "u10000", kind: "utility", credits: 10000, prices: { TRY: 7200, USD: 144, EUR: 126 } },
+  { id: "u500", kind: "utility", credits: 500, prices: { TRY: 150, USD: 4, EUR: 3 } },
+  { id: "u1000", kind: "utility", credits: 1000, prices: { TRY: 250, USD: 5, EUR: 5 } },
+  { id: "u5000", kind: "utility", credits: 5000, prices: { TRY: 1000, USD: 20, EUR: 20 } },
+  { id: "u10000", kind: "utility", credits: 10000, prices: { TRY: 1800, USD: 40, EUR: 36 } },
   { id: "m500", kind: "marketing", credits: 500, prices: { TRY: 760, USD: 15, EUR: 13 } },
   { id: "m1000", kind: "marketing", credits: 1000, prices: { TRY: 1500, USD: 30, EUR: 26 } },
   { id: "m2500", kind: "marketing", credits: 2500, prices: { TRY: 3800, USD: 76, EUR: 66 } },
