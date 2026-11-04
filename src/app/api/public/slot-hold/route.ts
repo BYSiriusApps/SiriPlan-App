@@ -17,6 +17,9 @@ const HOLDER_RE = /^[A-Za-z0-9_-]{16,64}$/;
 /** Kilit ömrü; istemci seçili saatte yaklaşık 90 sn'de bir yeniler. */
 const SLOT_HOLD_TTL_MS = 4 * 60 * 1000;
 
+/** Bir salonda aynı anda tutulabilecek (başkalarına ait) canlı kilit üst sınırı. */
+const MAX_LIVE_HOLDS_PER_ORG = 40;
+
 export async function POST(req: NextRequest) {
   // Bir ziyaretçi seçim başına birkaç istek atar; tavan sahte holder_id ile
   // takvimi kilitlemeye çalışan botları keser.
@@ -79,14 +82,24 @@ export async function POST(req: NextRequest) {
     .eq("holder_id", holderId)
     .or(`hold_date.neq.${date},slot.neq.${slot},hold_key.neq.${holdKey}`);
 
-  // Süresi dolmuş kilitler bu anahtar için temizlenir ki yeni kilit alınabilsin.
+  // Süresi dolmuş kilitler (salon genelinde) temizlenir: yeni kilit alınabilsin, tablo şişmesin.
   await supabase
     .from("slot_holds")
     .delete()
     .eq("org_id", org.id)
-    .eq("hold_date", date)
-    .eq("slot", slot)
     .lt("expires_at", nowIso);
+
+  // Salon başına canlı kilit tavanı: sahte holder_id'lerle tüm takvimin kilitlenmesini önler.
+  // Tavan aşılırsa kilitsiz devam edilir (randevu akışı etkilenmez).
+  const { count: liveCount } = await supabase
+    .from("slot_holds")
+    .select("id", { count: "exact", head: true })
+    .eq("org_id", org.id)
+    .neq("holder_id", holderId)
+    .gt("expires_at", nowIso);
+  if ((liveCount ?? 0) >= MAX_LIVE_HOLDS_PER_ORG) {
+    return NextResponse.json({ ok: true, held: false, reason: "capacity" });
+  }
 
   const expiresAt = new Date(Date.now() + SLOT_HOLD_TTL_MS).toISOString();
   const { error } = await supabase.from("slot_holds").insert({

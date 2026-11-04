@@ -225,19 +225,26 @@ export function BookingWizard({
   // Müsait saatler — "Farketmez" seçiliyse tüm aday personelin müsaitliği birleştirilir.
   // Dolu saatler (randevu ya da başka ziyaretçinin geçici seçimi) ayrıca döner ve kırmızı gösterilir.
   const loadSlots = useCallback(async (silent: boolean) => {
-    if ((!selectedStaff && !anyStaff) || !selectedService || !selectedDate) return;
+    // Seçim eksikse de sayacı artır: önceki seçimden uçuşta kalan yanıtlar geçersiz sayılsın.
     const req = ++slotsReq.current;
+    if ((!selectedStaff && !anyStaff) || !selectedService || !selectedDate) {
+      setLoadingSlots(false);
+      return;
+    }
     if (!silent) setLoadingSlots(true);
     const candidateStaff = anyStaff ? eligibleStaff : selectedStaff ? [selectedStaff] : [];
     try {
-      const results = await Promise.all(
+      const raw = await Promise.all(
         candidateStaff.map((s) =>
           fetch(`/api/availability?slug=${org.slug}&staff_id=${s.id}&service_id=${selectedService.id}&date=${selectedDate}&holder=${holderId}`)
-            .then((r) => r.json() as Promise<AvailResp>)
-            .catch(() => ({}) as AvailResp)
+            .then((r) => (r.ok ? (r.json() as Promise<AvailResp>) : null)) // 429/5xx → başarısız
+            .catch(() => null)
         )
       );
       if (req !== slotsReq.current) return; // daha yeni bir istek var
+      // Sessiz yenilemede herhangi bir istek başarısızsa (ör. 429) mevcut listeyi bozma.
+      if (silent && raw.some((r) => r === null)) return;
+      const results = raw.map((r) => r ?? ({} as AvailResp));
       const { free, full } = mergeAvailability(results, anyStaff);
       setSlots(free);
       setFullSlots(full);
@@ -247,7 +254,8 @@ export function BookingWizard({
         toast.error(t("slotTakenNow"));
       }
     } finally {
-      if (!silent && req === slotsReq.current) setLoadingSlots(false);
+      // Güncel istek kim olursa olsun (sessiz dahil) yükleme göstergesini kapatır.
+      if (req === slotsReq.current) setLoadingSlots(false);
     }
   }, [selectedStaff, anyStaff, eligibleStaff, selectedService, selectedDate, org.slug, holderId, t]);
 
@@ -267,7 +275,13 @@ export function BookingWizard({
 
   // --- Geçici saat kilidi (soft hold) ---------------------------------------------------
   // Hata/ağ sorunu olursa kilitsiz devam edilir: randevu alma akışı buna bağımlı değildir.
-  const claimHold = useCallback(async (slot: string): Promise<boolean> => {
+  // İstekler sıraya dizilir: art arda seçimlerde sunucudaki "tek kilit" kuralı tıklama sırasına uyar.
+  const claimQueue = useRef<Promise<unknown>>(Promise.resolve());
+  const claimHold = useCallback((slot: string): Promise<boolean> => {
+    const run = claimQueue.current.then(() => doClaim(slot));
+    claimQueue.current = run.catch(() => {});
+    return run;
+    async function doClaim(slot: string): Promise<boolean> {
     try {
       const res = await fetch("/api/public/slot-hold", {
         method: "POST",
@@ -286,6 +300,7 @@ export function BookingWizard({
       return true;
     } catch {
       return true;
+    }
     }
   }, [org.slug, holderId, anyStaff, selectedStaff, selectedDate]);
 
