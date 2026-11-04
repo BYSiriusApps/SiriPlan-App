@@ -70,8 +70,10 @@ Katalog: `src/lib/wa-credit-packs.ts`. Kredi adedi yalnızca sunucudaki katalogd
 
 | Paket | id | Kredi | TRY | USD (öneri) | EUR (öneri) | Stripe env |
 |---|---|---|---|---|---|---|
-| Ek utility | `u500` | 500 | 400 | 8 | 7 | `STRIPE_PRICE_WA_UTILITY_500` |
-| Ek utility | `u1000` | 1.000 | 800 | 16 | 14 | `STRIPE_PRICE_WA_UTILITY_1000` |
+| Ek utility | `u500` | 500 | 150 | 4 | 3 | `STRIPE_PRICE_WA_UTILITY_500` |
+| Ek utility | `u1000` | 1.000 | 250 | 5 | 5 |
+| Ek utility | `u5000` | 5.000 | 1.000 | 20 | 20 | `STRIPE_PRICE_WA_UTILITY_5000` |
+| Ek utility | `u10000` | 10.000 | 1.800 | 40 | 36 | `STRIPE_PRICE_WA_UTILITY_10000` | `STRIPE_PRICE_WA_UTILITY_1000` |
 | Kampanya | `m500` | 500 | 760 | 15 | 13 | `STRIPE_PRICE_WA_CAMPAIGN_500` |
 | Kampanya | `m1000` | 1.000 | 1.500 | 30 | 26 | `STRIPE_PRICE_WA_CAMPAIGN_1000` |
 | Kampanya | `m2500` | 2.500 | 3.800 | 76 | 66 | `STRIPE_PRICE_WA_CAMPAIGN_2500` |

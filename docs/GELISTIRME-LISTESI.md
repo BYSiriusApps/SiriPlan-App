@@ -757,7 +757,7 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
   müşteri sunumu HTML'i ve kılavuzlar temizlendi. Müşteri yalnızca kendi SMS sağlayıcısını (Netgsm/VatanSMS/İletimerkezi) bağlar.
   **Altyapı bilerek duruyor:** `api/stripe/sms-pack`, webhook `kind=sms_pack`, `sms-credits`, `sms-packs`, `sendSms` kontör düşümü.
 - **Ek WhatsApp bildirim (utility) paketleri: 500 / 1.000 / 5.000 / 10.000 mesaj** (`src/lib/wa-credit-packs.ts`).
-  Fiyatlar (TRY / USD / EUR): 400/8/7 · 800/16/14 · **3.800/76/66 · 7.200/144/126** (5 bin ve 10 bin paket fiyatları benim önerim —
+  Fiyatlar (TRY / USD / EUR): 150/4/3 · 250/5/5 · 1.000/20/20 · 1.800/40/36 (4 Kas 2026: kullanıcı belirledi ve Stripe ürünlerini girdi; önceki 400/800/3.800/7.200 TL önerisi maliyet analiziyle düşürüldü —
   iş kararı, Stripe Price ile BİREBİR aynı olmalı). Kampanya paketleri (m500/m1000/m2500) kataloğta duruyor.
 - **Kota uyarıları:** plan hakkı %80/%100 uyarısına web/uygulama **push** eklendi; **ek paket bitince** ("Ek mesaj paketiniz bitti")
   sahibe Telegram + WhatsApp + push; Bekleyen İstekler ve Bekleme Listesi sayfalarının üstünde kırmızı kota şeridi
