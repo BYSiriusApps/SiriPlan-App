@@ -167,23 +167,26 @@ export async function GET(req: NextRequest) {
     return h * 60 + m > todayMinutes; // geçmiş saatler "dolu" diye gösterilmez
   });
 
-  const holder = searchParams.get("holder") || "";
+  const holderParam = searchParams.get("holder") || "";
+  const holder = /^[A-Za-z0-9_-]{16,64}$/.test(holderParam) ? holderParam : "";
   const held: string[] = [];
   const heldAny: Record<string, number> = {};
-  try {
-    const { data: holds } = await supabase
-      .from("slot_holds")
-      .select("slot, staff_id, holder_id")
-      .eq("org_id", orgRow.id)
-      .eq("hold_date", date)
-      .gt("expires_at", new Date().toISOString());
+  // supabase-js hata fırlatmaz, { data, error } döner: error açıkça kontrol edilir.
+  const { data: holds, error: holdsError } = await supabase
+    .from("slot_holds")
+    .select("slot, staff_id, holder_id")
+    .eq("org_id", orgRow.id)
+    .eq("hold_date", date)
+    .gt("expires_at", new Date().toISOString());
+  if (holdsError) {
+    // Tablo yok / geçici hata: kilitsiz devam, ama üretimde fark edilsin.
+    console.error("[availability] slot_holds sorgusu başarısız:", holdsError.message);
+  } else {
     for (const h of holds || []) {
-      if (h.holder_id === holder) continue; // kendi kilidimiz bize "dolu" görünmez
+      if (holder && h.holder_id === holder) continue; // kendi kilidimiz bize "dolu" görünmez
       if (h.staff_id === staffId) held.push(h.slot);
       else if (h.staff_id === null) heldAny[h.slot] = (heldAny[h.slot] || 0) + 1;
     }
-  } catch {
-    /* kilit tablosu yok: kilitsiz devam */
   }
 
   return NextResponse.json({ slots: finalSlots, busy, held, held_any: heldAny });
