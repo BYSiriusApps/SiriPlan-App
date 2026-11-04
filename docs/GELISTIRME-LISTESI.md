@@ -799,8 +799,13 @@ Kod canlıda (PR #191 + #196), ama aşağıdakiler **henüz uçtan uca test edil
 - [ ] Personel seçili değilse yalnızca sahibe, seçiliyse sahip + personele bildirim gidiyor.
 
 **C. Ek paket satın alma (Stripe — önce TEST MODU, canlı anahtar yerelde!)**
-- [ ] Stripe'ta tek seferlik Price'lar + env (`STRIPE_PRICE_WA_UTILITY_500/1000/5000/10000`; kampanya satılacaksa `_CAMPAIGN_*`) tanımlı.
+- [x] Stripe ürünleri/Price'lar açıldı, 4 env Vercel (Production) + `.env.local`'a girildi, redeploy yapıldı (4 Kas 2026). Kampanya Price'ları açılmadı (satışta değil).
 - [ ] Abonelik sayfasında 4 paket → ödeme → `kind=wa_pack` webhook → kredi yükleniyor, çift yüklenme yok.
+- [ ] Fiyatlar (KDV dahil): 500 → ₺150 / $4 / €3 · 1.000 → ₺250 / $5 / €5 · 5.000 → ₺1.000 / $20 / €20 · 10.000 → ₺1.800 / $40 / €36 (PR #211, 4 Kas 2026).
+- [ ] Abonelik, Hesabım ve Ayarlar kartlarında 4 paketin etiketi bu tutarlarla görünüyor (eski 400/800/3.800/7.200 kalmamış).
+- [ ] Checkout sayfasındaki tutar, panel etiketiyle ve Stripe Price ile birebir aynı (TRY, USD, EUR için ayrı ayrı).
+- [ ] Her Vercel env adı doğru ürünün Price kimliğine bağlı (ör. `_500` kimliği 500'lük ürüne ait; yanlış eşleşme yanlış kredi yükler).
+- [ ] Meta'nın USD rate card'ında Türkiye utility ücreti doğrulandı; paket fiyatları $0,0009 (A) senaryosuna göre belirlendi, B çıkarsa fiyatlar yeniden gözden geçirilecek.
 - [ ] TRY/USD/EUR tutarları `wa-credit-packs.ts` ile Stripe Price'ta birebir aynı.
 - [ ] Mobil uygulamada (App Store/Play) paket satın alma yüzeyleri gizli.
 
