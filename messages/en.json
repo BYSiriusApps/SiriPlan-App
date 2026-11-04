@@ -4483,5 +4483,36 @@
       "sifreyi_tekrar_girin": "Re-enter password",
       "sifreyi_guncelle": "Update Password"
     }
+  },
+  "panelTour": {
+    "title": "See the panel up close",
+    "subtitle": "A quick tour with sample data: from appointments to the till, all in one place.",
+    "tabs": {
+      "calendar": "Calendar",
+      "approve": "Booking approval",
+      "whatsapp": "WhatsApp notice",
+      "income": "Revenue report"
+    },
+    "desc": {
+      "calendar": "Your whole team's day on one screen.",
+      "approve": "Approve or decline new requests with one tap.",
+      "whatsapp": "The confirmation message goes out automatically.",
+      "income": "See daily and weekly revenue instantly."
+    },
+    "mock": {
+      "today": "Today",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "approve": "Approve",
+      "reject": "Decline",
+      "haircut": "Haircut",
+      "manicure": "Manicure",
+      "skincare": "Facial",
+      "revenue": "Today's revenue",
+      "appointments": "Bookings",
+      "completed": "Completed",
+      "waName": "Beauty Salon",
+      "waMsg": "Hi Ayse, your Haircut appointment tomorrow at 14:00 is confirmed. See you soon!"
+    }
   }
 }

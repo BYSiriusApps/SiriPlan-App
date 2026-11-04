@@ -1597,11 +1597,7 @@
         "fri": "Viernes",
         "sat": "Sábado",
         "sun": "Domingo"
-      },
-      "slotBusy": "Ocupado",
-      "slotTakenNow": "Alguien acaba de elegir esta hora. Elige otra, por favor.",
-      "legendFree": "Disponible",
-      "legendBusy": "Ocupado"
+      }
     }
   },
   "dashboard": {
@@ -4486,6 +4482,37 @@
       "sifre_tekrar": "Confirmar contraseña",
       "sifreyi_tekrar_girin": "Introduce la contraseña de nuevo",
       "sifreyi_guncelle": "Actualizar contraseña"
+    }
+  },
+  "panelTour": {
+    "title": "Conozca el panel de cerca",
+    "subtitle": "Un recorrido breve con datos de ejemplo: de la cita a la caja, todo en un solo lugar.",
+    "tabs": {
+      "calendar": "Calendario",
+      "approve": "Aprobar cita",
+      "whatsapp": "Aviso por WhatsApp",
+      "income": "Informe de ingresos"
+    },
+    "desc": {
+      "calendar": "El día de todo su equipo en una sola pantalla.",
+      "approve": "Apruebe o rechace solicitudes con un toque.",
+      "whatsapp": "El mensaje de confirmación sale automáticamente.",
+      "income": "Vea los ingresos diarios y semanales al instante."
+    },
+    "mock": {
+      "today": "Hoy",
+      "pending": "Pendiente",
+      "confirmed": "Confirmada",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "haircut": "Corte de pelo",
+      "manicure": "Manicura",
+      "skincare": "Limpieza facial",
+      "revenue": "Ingresos de hoy",
+      "appointments": "Citas",
+      "completed": "Completadas",
+      "waName": "Salón de belleza",
+      "waMsg": "Hola Ayse, su cita de corte de pelo mañana a las 14:00 está confirmada. ¡Hasta pronto!"
     }
   }
 }

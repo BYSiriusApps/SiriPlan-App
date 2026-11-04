@@ -1597,11 +1597,7 @@
         "fri": "Freitag",
         "sat": "Samstag",
         "sun": "Sonntag"
-      },
-      "slotBusy": "Belegt",
-      "slotTakenNow": "Diese Zeit wurde gerade von jemand anderem gewählt. Bitte wählen Sie eine andere.",
-      "legendFree": "Frei",
-      "legendBusy": "Belegt"
+      }
     }
   },
   "dashboard": {
@@ -4486,6 +4482,37 @@
       "sifre_tekrar": "Passwort bestätigen",
       "sifreyi_tekrar_girin": "Passwort erneut eingeben",
       "sifreyi_guncelle": "Passwort aktualisieren"
+    }
+  },
+  "panelTour": {
+    "title": "Das Panel aus der Nähe",
+    "subtitle": "Eine kurze Tour mit Beispieldaten: vom Termin bis zur Kasse an einem Ort.",
+    "tabs": {
+      "calendar": "Kalender",
+      "approve": "Terminbestätigung",
+      "whatsapp": "WhatsApp-Nachricht",
+      "income": "Umsatzbericht"
+    },
+    "desc": {
+      "calendar": "Der Tag Ihres ganzen Teams auf einem Bildschirm.",
+      "approve": "Neue Anfragen mit einem Tipp bestätigen oder ablehnen.",
+      "whatsapp": "Die Bestätigung geht automatisch an den Kunden.",
+      "income": "Tages- und Wochenumsatz sofort im Blick."
+    },
+    "mock": {
+      "today": "Heute",
+      "pending": "Offen",
+      "confirmed": "Bestätigt",
+      "approve": "Bestätigen",
+      "reject": "Ablehnen",
+      "haircut": "Haarschnitt",
+      "manicure": "Maniküre",
+      "skincare": "Gesichtspflege",
+      "revenue": "Tagesumsatz",
+      "appointments": "Termine",
+      "completed": "Abgeschlossen",
+      "waName": "Beauty-Salon",
+      "waMsg": "Hallo Ayse, Ihr Termin (Haarschnitt) morgen um 14:00 ist bestätigt. Bis bald!"
     }
   }
 }
