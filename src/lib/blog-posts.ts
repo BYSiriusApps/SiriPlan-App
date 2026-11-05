@@ -6,9 +6,13 @@ export interface BlogPost {
   date: string;
   /** ISO 8601 (YYYY-MM-DD) — JSON-LD `datePublished` için; `date` görüntü metnidir. */
   isoDate: string;
+  /** Son güncelleme (YYYY-MM-DD) — JSON-LD `dateModified`; yoksa isoDate kullanılır. */
+  updatedIso?: string;
   readTime: string;
   author: string;
   content: string;
+  /** Soru-cevap bölümü — sayfada görünür + FAQPage JSON-LD (GEO/SEO). */
+  faq?: { q: string; a: string }[];
 }
 
 export const blogPosts: BlogPost[] = [
@@ -690,6 +694,28 @@ Seans paketi, doğru takip edildiğinde salonun hem nakit akışını hem müşt
 
 **14 gün ücretsiz deneyin, ilk seans paketinizi birkaç dakikada tanımlayın.**
     `,
+    faq: [
+      {
+        q: "Seans paketi nedir?",
+        a: "Seans paketi, müşterinin birden fazla seansı peşin ve genellikle indirimli fiyatla satın aldığı hizmet paketidir. Örneğin 10 seans lazer epilasyon ya da 6 seans cilt bakımı. Salon peşin gelir elde eder, müşteri de seans başına daha az öder.",
+      },
+      {
+        q: "Seans paketi fiyatı nasıl hesaplanır?",
+        a: "Tek seans fiyatı seans sayısıyla çarpılır, ardından makul bir paket avantajı uygulanır. Örneğin tek seans 1.000 ₺ ise 10 seanslık paket 10.000 ₺ eder; %10 avantajla 9.000 ₺ olarak satılır. İndirim oranı hizmetin maliyetine göre belirlenmelidir.",
+      },
+      {
+        q: "Kalan seans sayısı nasıl takip edilir?",
+        a: "SiriPlan'da paket müşteri kartına kaydedilir. Randevu tamamlandığında paketten otomatik bir seans düşülür ve Paketler sayfasında kalan seans sayısı görünür. Böylece defter veya Excel gerekmez.",
+      },
+      {
+        q: "Seans paketi satışında ciro iki kez sayılır mı?",
+        a: "Hayır. SiriPlan'da seans paketten düşüldüğünde randevu ayrıca ücretlendirilmez; gelir yalnızca paket satışı sırasında kaydedilir.",
+      },
+      {
+        q: "SiriPlan'da paket özelliği hangi planlarda var?",
+        a: "Paket ve seans takibi tüm SiriPlan planlarında kullanılabilir. 14 gün ücretsiz deneme ile test edebilirsiniz.",
+      },
+    ],
   },
 ];
 
