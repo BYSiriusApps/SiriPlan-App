@@ -46,9 +46,7 @@ export function WaUsageSettingsCard() {
         <p className="font-semibold text-sm">{t("title")}</p>
         <p className="text-xs text-muted-foreground">
           {t("utilityLabel")}: {nf.format(s.utilityUsed)}
-          {s.utilityQuota !== null ? ` / ${nf.format(s.utilityQuota)}` : ""} · {t("addonBalance")}: {nf.format(s.utilityAddonBalance)}
-          {s.showCampaign ? ` · ${t("campaignBalance")}: ${nf.format(s.marketingBalance)}` : ""}
-        </p>
+          {s.utilityQuota !== null ? ` / ${nf.format(s.utilityQuota)}` : ""} · {t("addonBalance")}: {nf.format(s.utilityAddonBalance)}        </p>
       </div>
       <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
     </Link>

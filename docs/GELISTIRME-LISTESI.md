@@ -816,7 +816,7 @@ Kod canlıda (PR #191 + #196), ama aşağıdakiler **henüz uçtan uca test edil
 - [ ] Başka organizasyonun kullanım/kredi verisi hiçbir yerde görünmüyor (kiracı izolasyonu: `tenant-isolation.mjs`).
 
 **E. Kampanya ve sağlayıcı katmanı**
-- [ ] WhatsApp kampanya mesajı yalnızca satın alınmış kampanya kredisiyle gidiyor; kredi yoksa gitmiyor; SMS kampanyası etkilenmiyor.
+- [x] (5 Kas 2026: kampanya kredisi KALDIRILDI) WhatsApp kampanyası işletmenin kendi hesabından, SMS kampanyası SMS kanalından gider; kredi/ortak numara yok.
 - [ ] `wa-line` varsayılan sağlayıcı = Meta (env boş): mevcut akış değişmedi.
 - [ ] 360dialog webhook'u gizli anahtar yokken/yanlışken reddediyor (fail-closed); yalnızca RET işliyor. (360dialog hesabı henüz yok.)
 
