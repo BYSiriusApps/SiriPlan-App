@@ -59,10 +59,16 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   setRequestLocale(locale);
   const post = getBlogPost(slug);
   if (!post) return {};
+  // Yazı içeriği yalnızca Türkçe: diğer dillerdeki URL'ler kopya içerik olmasın
+  // diye canonical TR sürüme işaret eder, indekslenmez ve hreflang yayınlamaz.
+  const isTr = locale === "tr";
   return {
     title: post.title,
     description: post.excerpt,
-    alternates: await buildAlternates(`/blog/${slug}`),
+    alternates: isTr
+      ? await buildAlternates(`/blog/${slug}`)
+      : { canonical: localizedUrl(`/blog/${slug}`, "tr") },
+    ...(isTr ? {} : { robots: { index: false, follow: true } }),
     openGraph: {
       title: post.title,
       description: post.excerpt,
@@ -166,7 +172,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
     datePublished: post.isoDate,
     dateModified: post.updatedIso ?? post.isoDate,
     image: `${SITE_BASE_URL}/og-image.png`,
-    inLanguage: locale,
+    inLanguage: "tr",
     mainEntityOfPage: postUrl,
     articleSection: post.category,
     author: {
