@@ -161,7 +161,7 @@ export async function Footer() {
                 rel="noopener noreferrer"
                 className="hover:text-foreground transition-colors font-medium"
               >
-                BY Sirius Group AI and Technology Co. Ltd.
+                BY Sirius Group AI and Technology Co Ltd.
               </a>{" "}
               {t("rights")}{" "}
               <span className="text-muted-foreground/30">|</span>{" "}
