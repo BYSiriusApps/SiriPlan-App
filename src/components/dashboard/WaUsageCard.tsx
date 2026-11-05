@@ -11,7 +11,7 @@ import { formatPrice, getPricingCurrencyFromHeaders } from "@/lib/pricing";
 
 /**
  * WhatsApp mesaj kullanım özeti (sunucu bileşeni): plana dahil aylık randevu-mesajı hakkı,
- * ek paket bakiyesi, kampanya kredisi ve dönem bitişi.
+ * ek paket bakiyesi ve dönem bitişi.
  *
  *  - variant="full"   : Abonelik sayfası — özet + (web'de, sahip/yönetici için) satın alma.
  *  - variant="summary": Hesabım / Ayarlar — yalnızca özet + abonelik sayfasına bağlantı.

@@ -9,6 +9,7 @@ import { findAvailableStaff, isStaffOnTimeOff } from "@/lib/staff-availability";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 import { normalizePhone } from "@/lib/phone";
 import { isTrialActive } from "@/lib/entitlements";
+import { notifyApptQuota, shouldNotifyApptQuota } from "@/lib/plan-limit-notify";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
 import { isMobileApp } from "@/lib/mobile-app";
 import { limitByIp, hit, clientIp, tooManyRequests } from "@/lib/rate-limit";
@@ -608,6 +609,24 @@ async function handleCreateAppointment(req: NextRequest) {
     notifyAppointmentRequest({ ...notifyPayload, serviceName: service.name }).catch(() => {});
   } else {
     notifyAppointment(notifyPayload).catch(() => {});
+  }
+
+  // Aylık randevu limiti olan planlarda (ör. Mini 200) %80 / %100 eşiğinde sahibe bildirim
+  // (fire-and-forget; yanıtı ve randevu akışını etkilemez, hata yutulur).
+  if (org.max_appointments_monthly && org.max_appointments_monthly < 999999) {
+    const apptLimit = org.max_appointments_monthly;
+    void (async () => {
+      const n = new Date();
+      const { count } = await db
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("org_id", data.org_id)
+        .gte("created_at", new Date(n.getFullYear(), n.getMonth(), 1).toISOString())
+        .lt("created_at", new Date(n.getFullYear(), n.getMonth() + 1, 1).toISOString());
+      if (count === null) return;
+      const kind = shouldNotifyApptQuota(count, apptLimit);
+      if (kind) await notifyApptQuota(data.org_id, kind, count, apptLimit);
+    })().catch(() => {});
   }
 
   // Müşteriye anlık WhatsApp onay bildirimi — yalnızca telefon varsa (panelden

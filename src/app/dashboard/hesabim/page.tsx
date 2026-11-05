@@ -72,7 +72,7 @@ export default async function HesabimPage() {
         permissionsJson={member.permissions_json}
       />
 
-      {/* Kalan WhatsApp mesaj hakkı / kampanya kredisi — yalnızca sahip/yönetici (personel işletme kullanımını görmez). */}
+      {/* Kalan WhatsApp mesaj hakkı — yalnızca sahip/yönetici (personel işletme kullanımını görmez). */}
       {(member.role === "owner" || member.role === "manager") && member.organizations && (
         <WaUsageCard
           orgId={member.org_id}

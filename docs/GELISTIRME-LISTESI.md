@@ -823,3 +823,16 @@ Kod canlıda (PR #191 + #196), ama aşağıdakiler **henüz uçtan uca test edil
 **F. SMS paketi kapatıldıktan sonra**
 - [ ] Abonelik/Ayarlar/pazarlama sitesinde SMS kontör kartı ve linki yok; `/api/addon-request` "sms" reddediyor.
 - [ ] Müşterinin kendi SMS sağlayıcısı (Netgsm/VatanSMS/İletimerkezi) ile SMS bildirimi hâlâ çalışıyor.
+
+## 20. Durum güncellemesi (5 Kas 2026)
+
+- **Slot-hold** (geçici saat kilidi): tamamlandı, main'de (#184, #210); `slot_holds` tablosu canlı veritabanında var.
+- **WA kota / ek paket:** PR #196 (+ #211 fiyatlar, #216 kampanya kredisi kaldırıldı) main'de; kota uçtan uca test edildi.
+- **360dialog:** Meta işletme doğrulaması (business verification) bekleniyor; **7-8 Kasım'da takip edilecek**. Sonra PLBV + Regular plan + webhook bağlanacak.
+- **Kampanya MARKETING şablonları:** Meta'da onaylı; kod tarafına **sonra** eklenecek (şimdilik dokunulmayacak).
+- **Apple / Play:** yayında; yeni sürümler yalnızca AB uyum politikası işi (satıcı/trader bilgisinin doğrulanması) için bekliyor — devam ediyor.
+- **Anthropic API:** bakiye yüklendi; `llm.ts` Claude'u Gemini'den önce dener (Gemini yedek). Claude for Startups programı (1 yıl Claude Team + 1.000 $ API kredisi) başvurusu değerlendirilecek: anthropic.com/startups — koşullar resmi sayfadan doğrulanmalı.
+- **Stripe uçtan uca (gerçek satış yok):** ek paket satın alma akışı test modunda denenmedi — test-mode anahtar + test Price ID'leri ile `kind=wa_pack` webhook'u doğrulanacak (canlı anahtar yerelde, dikkat).
+- **Güvenlik rotasyonu (META_APP_SECRET, sms_password):** GEREKMİYOR — kiracı yoktu, tek kullanıcı sahibin kendisiydi, anahtarlar dışarı sızmadı.
+- **Mini 200 randevu limiti:** limitin %80'inde ve %100'ünde sahibe Telegram + WhatsApp + push bildirimi eklendi (`notifyApptQuota`); randevu akışı/yanıtı değişmedi.
+- Kampanya kredisi ifadeleri sohbet botu, panel sohbeti, kılavuz ve 6 dildeki mesajlardan temizlendi.

@@ -201,7 +201,7 @@ Salondaki boş günleri doldurmak veya özel günleri kutlamak için müşterile
 2. **+ Yeni Kampanya** başlatın.
 3. Mesaj metnini yazın. Değişkenleri kullanın: `Merhaba {{musteri_adi}}, {{salon_adi}} salonumuzda bu haftaya özel %20 indirim fırsatı!`
 4. Müşteri grubunu filtreleyin (Örn: *Son 30 gündür gelmeyen müşteriler*) ve **Gönder**'e basın.
-5. **WhatsApp kampanya kredisi:** WhatsApp ile gönderilen her kampanya mesajı bir **kampanya kredisi** harcar (plana dahil değildir). Kredi yetmiyorsa kampanya hiç gönderilmez ve size kalan/gerekli kredi gösterilir; kampanyayı SMS kanalıyla gönderebilirsiniz. Tek kampanyada en fazla 500 alıcıya gönderilebilir; daha geniş listeleri birkaç kampanyaya bölün.
+5. **Gönderim kanalı:** WhatsApp kampanyaları işletmenizin kendi WhatsApp Business hesabından, SMS kampanyaları SMS kanalınızdan gider; kampanya için ayrı bir kredi satın almanız gerekmez ve randevu mesaj hakkınızdan düşmez. Tek kampanyada en fazla 500 alıcıya gönderilebilir; daha geniş listeleri birkaç kampanyaya bölün.
 
 ### İndirimli kampanya nasıl çalışır?
 
@@ -227,7 +227,8 @@ SiriPlan aboneliği ve faturalandırması SiriPlan hesabınıza bağlıdır ve u
 - **Şeffaf Planlar**:
   - **Mini**, **Starter**, **Pro** ve **Business** planlarının tamamı sabit ve şeffaf yapıdadır.
   - **Mini (aylık ₺399)** tek kişilik işletmeler içindir: 1 personel (ek personel daveti yok), ayda 200 randevu ve 400 müşteri WhatsApp mesajı, randevu linki, stok/barkod, paket takibi, gelir-gider & KDV. WhatsApp hakkınızın %80'ine ve %100'üne ulaşınca bildirim alırsınız. Deneme bitince sesli asistan ve kampanya gibi Pro araçları Mini'de kapanır; ihtiyaç olursa Ayarlar → Abonelik'ten plan yükseltebilirsiniz.
-  - **Dahil WhatsApp randevu mesajı (aylık):** Mini 400 · Starter 500 · Pro 1.500 · Business 3.000. İhtiyaç halinde Ayarlar → Abonelik'ten ek mesaj paketi alabilirsiniz (bkz. Bölüm 9).  - **Mobil uygulama:** [App Store](https://apps.apple.com/app/siriusplan/id6815322807) (iOS'ta **"SiriusPlan"** adıyla yayındadır; Apple'ın uygulama adlandırma kuralları nedeniyle farklı bir ad kullanılmıştır, uygulama aynıdır) ve [Google Play](https://play.google.com/store/apps/details?id=com.siriplan.app) üzerinden indirebilirsiniz; ayrıca tarayıcıdan "Ana Ekrana Ekle" ile de kurabilirsiniz.
+  - **Dahil WhatsApp randevu mesajı (aylık):** Mini 400 · Starter 500 · Pro 1.500 · Business 3.000. İhtiyaç halinde Ayarlar → Abonelik'ten ek mesaj paketi alabilirsiniz (bkz. Bölüm 9).
+  - **Mobil uygulama:** [App Store](https://apps.apple.com/app/siriusplan/id6815322807) (iOS'ta **"SiriusPlan"** adıyla yayındadır; Apple'ın uygulama adlandırma kuralları nedeniyle farklı bir ad kullanılmıştır, uygulama aynıdır) ve [Google Play](https://play.google.com/store/apps/details?id=com.siriplan.app) üzerinden indirebilirsiniz; ayrıca tarayıcıdan "Ana Ekrana Ekle" ile de kurabilirsiniz.
   - **"Teklif Al" bekleme dönemi yoktur.** Her yeni hesap tüm özelliklerle **14 gün ücretsiz deneme** ile başlar.
 - **Plan Bilgileriniz**:
   - Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi **Ayarlar → Abonelik** sayfasından görüntüleyebilirsiniz.
