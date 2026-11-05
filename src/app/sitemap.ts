@@ -16,7 +16,7 @@ const sectorSlugs = [
  */
 const SITE_LAST_MODIFIED = new Date("2026-10-05");
 
-type PriorityEntry = { lastModified?: Date; pathname: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number };
+type PriorityEntry = { trOnly?: boolean; lastModified?: Date; pathname: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number };
 
 const STATIC_PATHS: PriorityEntry[] = [
   { pathname: "/", changeFrequency: "weekly", priority: 1.0 },
@@ -49,7 +49,8 @@ const BLOG_PATHS: PriorityEntry[] = blogPosts.map((post) => ({
   pathname: `/blog/${post.slug}`,
   changeFrequency: "monthly",
   priority: 0.6,
-  lastModified: new Date(post.isoDate),
+  lastModified: new Date(post.updatedIso ?? post.isoDate),
+  trOnly: true, // yazı içeriği yalnızca Türkçe — en/ru/ar/de/es sürümleri indekslenmez
 }));
 
 /**
@@ -62,6 +63,16 @@ const BLOG_PATHS: PriorityEntry[] = blogPosts.map((post) => ({
  * birbirinden sapmasını (klasik hreflang hatası) engelliyor.
  */
 function expandEntry(entry: PriorityEntry): MetadataRoute.Sitemap {
+  if (entry.trOnly) {
+    return [
+      {
+        url: localizedUrl(entry.pathname, "tr"),
+        lastModified: entry.lastModified ?? SITE_LAST_MODIFIED,
+        changeFrequency: entry.changeFrequency,
+        priority: entry.priority,
+      },
+    ];
+  }
   const languages: Record<string, string> = {};
   for (const l of LOCALES) languages[l] = localizedUrl(entry.pathname, l);
   languages["x-default"] = localizedUrl(entry.pathname, "tr");

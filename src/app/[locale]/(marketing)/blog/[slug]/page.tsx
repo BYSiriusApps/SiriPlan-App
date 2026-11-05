@@ -59,15 +59,30 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   setRequestLocale(locale);
   const post = getBlogPost(slug);
   if (!post) return {};
+  // Yazı içeriği yalnızca Türkçe: diğer dillerdeki URL'ler kopya içerik olmasın
+  // diye canonical TR sürüme işaret eder, indekslenmez ve hreflang yayınlamaz.
+  const isTr = locale === "tr";
   return {
     title: post.title,
     description: post.excerpt,
-    alternates: await buildAlternates(`/blog/${slug}`),
+    alternates: isTr
+      ? await buildAlternates(`/blog/${slug}`)
+      : { canonical: localizedUrl(`/blog/${slug}`, "tr") },
+    ...(isTr ? {} : { robots: { index: false, follow: true } }),
     openGraph: {
       title: post.title,
       description: post.excerpt,
       type: "article",
       publishedTime: post.isoDate,
+      modifiedTime: post.updatedIso ?? post.isoDate,
+      authors: [post.author],
+      images: [{ url: `${SITE_BASE_URL}/og-image.png`, width: 1200, height: 630, alt: post.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [`${SITE_BASE_URL}/og-image.png`],
     },
   };
 }
@@ -82,9 +97,36 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Personel Yönetimi": "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
 };
 
+/** Ardışık "| a | b |" satırlarını gerçek <table> olarak üretir (ayırıcı "|---|" satırı atlanır). */
+function renderTables(content: string): string {
+  const lines = content.split("\n");
+  const out: string[] = [];
+  let i = 0;
+  const isRow = (l: string) => /^\|.+\|\s*$/.test(l);
+  while (i < lines.length) {
+    if (isRow(lines[i])) {
+      const block: string[] = [];
+      while (i < lines.length && isRow(lines[i])) block.push(lines[i++]);
+      const rows = block
+        .filter((l) => !/^\|[\s:|-]+\|\s*$/.test(l))
+        .map((l) => l.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim()));
+      const [head, ...body] = rows;
+      const th = (c: string) => `<th class="border border-border bg-muted/40 px-3 py-2 text-left text-sm font-semibold">${c}</th>`;
+      const td = (c: string) => `<td class="border border-border px-3 py-2 text-sm">${c}</td>`;
+      out.push(
+        `<div class="overflow-x-auto my-4"><table class="w-full border-collapse"><thead><tr>${head.map(th).join("")}</tr></thead><tbody>${body
+          .map((r) => `<tr>${r.map(td).join("")}</tr>`)
+          .join("")}</tbody></table></div>`,
+      );
+    } else {
+      out.push(lines[i++]);
+    }
+  }
+  return out.join("\n");
+}
+
 function markdownToHtml(content: string): string {
-  return content
-    .trim()
+  return renderTables(content.trim())
     .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold mt-8 mb-3">$1</h2>')
     .replace(/^### (.+)$/gm, '<h3 class="text-lg font-semibold mt-6 mb-2">$1</h3>')
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>')
@@ -128,8 +170,9 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
     headline: post.title,
     description: post.excerpt,
     datePublished: post.isoDate,
-    dateModified: post.isoDate,
-    inLanguage: locale,
+    dateModified: post.updatedIso ?? post.isoDate,
+    image: `${SITE_BASE_URL}/og-image.png`,
+    inLanguage: "tr",
     mainEntityOfPage: postUrl,
     articleSection: post.category,
     author: {
@@ -148,12 +191,43 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
     },
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "SiriPlan", item: localizedUrl("/", locale) },
+      { "@type": "ListItem", position: 2, name: "Blog", item: localizedUrl("/blog", locale) },
+      { "@type": "ListItem", position: 3, name: post.title, item: postUrl },
+    ],
+  };
+  const faqJsonLd = post.faq?.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: post.faq.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      }
+    : null;
+
   return (
     <div className="flex flex-col">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       {/* Header */}
       <section className="py-12 md:py-16 border-b border-border bg-muted/20">
         <div className="container mx-auto px-4 max-w-3xl">
@@ -198,6 +272,19 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
               __html: markdownToHtml(post.content),
             }}
           />
+          {post.faq && post.faq.length > 0 && (
+            <div className="mt-10 pt-6 border-t border-border">
+              <h2 className="text-xl font-bold mb-4">Sık Sorulan Sorular</h2>
+              <dl className="space-y-4">
+                {post.faq.map((f) => (
+                  <div key={f.q}>
+                    <dt className="font-semibold text-sm">{f.q}</dt>
+                    <dd className="text-sm text-muted-foreground leading-relaxed mt-1">{f.a}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
           {internalLinks.length > 0 && (
             <div className="mt-8 pt-6 border-t border-border flex flex-wrap gap-3">
               {internalLinks.map((link) => (

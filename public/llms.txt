@@ -24,6 +24,16 @@
 - Entegrasyonlar / Integrations: https://siriplan.com/entegrasyonlar
 - Hakkımızda / About: https://siriplan.com/hakkimizda
 - Blog: https://siriplan.com/blog
+  - Seans paketi satışı ve kalan seans takibi: https://siriplan.com/blog/seans-paketi-satisi-takibi-guzellik-salonu
+  - Bekleme listesi ile boşalan saati doldurma: https://siriplan.com/blog/randevu-bekleme-listesi-bos-saat-doldurma
+  - Personel maaş ve prim hesaplama: https://siriplan.com/blog/salon-personel-prim-maas-hesaplama
+  - Randevu no-show oranını azaltma: https://siriplan.com/blog/randevu-no-show-azaltma
+  - KDV, komisyon ve raporlama otomasyonu: https://siriplan.com/blog/kdv-komisyon-raporlama-otomasyonu
+  - Instagram'dan otomatik randevu: https://siriplan.com/blog/instagram-otomatik-randevu-kurulum
+  - Sadakat programı ile müşteri kaybını önleme: https://siriplan.com/blog/sadakat-programi-musteri-kaybi-onleme
+  - Güzellik salonları için KVKK rehberi: https://siriplan.com/blog/kvkk-guzellik-salonlari-rehber
+  - WhatsApp AI asistan kurulumu: https://siriplan.com/blog/whatsapp-ai-asistan-kurulum
+  - Randevu doluluk oranını artırma: https://siriplan.com/blog/randevu-doluluk-orani-artirma
 - İletişim / Contact: https://siriplan.com/iletisim
 - SSS / FAQ: https://siriplan.com/sss
 - Uygulamayı indir / Download the app: https://siriplan.com/indir

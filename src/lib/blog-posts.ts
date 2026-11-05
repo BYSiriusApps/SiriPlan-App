@@ -6,9 +6,13 @@ export interface BlogPost {
   date: string;
   /** ISO 8601 (YYYY-MM-DD) — JSON-LD `datePublished` için; `date` görüntü metnidir. */
   isoDate: string;
+  /** Son güncelleme (YYYY-MM-DD) — JSON-LD `dateModified`; yoksa isoDate kullanılır. */
+  updatedIso?: string;
   readTime: string;
   author: string;
   content: string;
+  /** Soru-cevap bölümü — sayfada görünür + FAQPage JSON-LD (GEO/SEO). */
+  faq?: { q: string; a: string }[];
 }
 
 export const blogPosts: BlogPost[] = [
@@ -73,6 +77,11 @@ Bu 7 yöntemi birlikte uyguladığınızda doluluk oranınızın 4-8 haftada bel
 
 **14 gün ücretsiz deneyin, farkı kendiniz görün.**
     `,
+    faq: [
+      { q: "Randevu doluluk oranı nasıl artırılır?", a: "Otomatik WhatsApp hatırlatmaları, online randevu sayfası, bekleme listesi, sadakat programı, inaktif müşterilere kampanya ve son dakika boşluklarını doldurma gibi yöntemler birlikte uygulandığında doluluk oranı artar." },
+      { q: "Boş kalan randevu saatleri nasıl doldurulur?", a: "Bekleme listesindeki uygun müşterileri arayarak ya da kısa süreli kampanyalarla son dakika boşluklarını doldurabilirsiniz. SiriPlan'da bekleme listesi tüm planlarda kullanılabilir." },
+      { q: "İnaktif müşteri nedir, nasıl geri kazanılır?", a: "Belirli bir süredir randevu almayan müşteridir. Kişiye özel bir hatırlatma mesajı ve küçük bir indirimle geri kazanma kampanyası göndermek yaygın yöntemdir." },
+    ],
   },
   {
     slug: "whatsapp-ai-asistan-kurulum",
@@ -133,6 +142,11 @@ AI asistanı, yeni bir "personel" gibi düşünün — uyku uyumaz, asla hata ya
 
 **SiriPlan Pro ile bugün aktive edin.**
     `,
+    faq: [
+      { q: "WhatsApp AI asistanı ne yapar?", a: "Müşterinin mesajındaki uygunluk, fiyat ve personel sorularını yanıtlar, onay alınca randevuyu sisteme kaydeder. Yalnızca sizin sisteminizde tanımlı hizmet ve saatlerle çalışır." },
+      { q: "WhatsApp AI asistanı kurulumu için neler gerekir?", a: "Meta üzerinden WhatsApp Business Cloud API hesabı, SiriPlan Entegrasyonlar ekranında bağlantı ve girilmiş bir hizmet ve fiyat listesi gerekir. Meta onay süreci birkaç iş günü sürebilir." },
+      { q: "AI asistanı mesai dışında da randevu alabilir mi?", a: "Evet. Asistan 7/24 çalışır; müşteri gece mesaj atsa bile müsait saatleri gösterip randevu oluşturabilir." },
+    ],
   },
   {
     slug: "sadakat-programi-musteri-kaybi-onleme",
@@ -209,6 +223,11 @@ Sadakat programı aktif kullanan SiriPlan müşterilerinden elde edilen ortalama
 
 **Bugün başlayın — 14 gün ücretsiz.**
     `,
+    faq: [
+      { q: "Salon sadakat programı nasıl çalışır?", a: "Müşterilere ziyaret sıklığı, harcama ve bağlılık süresine göre bir skor verilir. Skora göre VIP, sadık, orta ve riskli gruplara ayrılan müşterilere farklı kampanyalar sunulur." },
+      { q: "Müşteri kaybı nasıl önlenir?", a: "Uzun süredir gelmeyen müşterileri tespit edip kişiselleştirilmiş mesaj göndermek, doğum günü teklifi sunmak ve referans programı işletmek müşteri kaybını azaltmanın yaygın yollarıdır." },
+      { q: "Doğum günü mesajı otomatik gönderilebilir mi?", a: "Evet. SiriPlan doğum günü mesajını ve kampanya teklifini otomatik gönderebilir." },
+    ],
   },
   {
     slug: "kvkk-guzellik-salonlari-rehber",
@@ -271,6 +290,11 @@ SiriPlan, KVKK uyumunu otomatize eder:
 
 *Bu rehber genel bilgi amaçlıdır. Hukuki danışmanlık için avukatınıza başvurun.*
     `,
+    faq: [
+      { q: "Güzellik salonları KVKK kapsamında mıdır?", a: "Evet. Müşteri adı, telefon, randevu geçmişi, ödeme bilgisi veya fotoğraf toplayan her salon 6698 sayılı KVKK kapsamında veri sorumlusudur." },
+      { q: "Pazarlama mesajı göndermek için onay gerekir mi?", a: "Evet. Pazarlama mesajları için açık rıza gerekir ve bu onay randevu onayından ayrı bir kutucukla alınmalıdır. Randevu hatırlatması gibi hizmetin kendisiyle ilgili mesajlar sözleşme ve meşru menfaat kapsamında değerlendirilir." },
+      { q: "Müşteri verisi ne kadar saklanabilir?", a: "Yasal bir zorunluluk yoksa veriler işleme amacı sona erdiğinde silinmeli ya da anonimleştirilmelidir. Kesin süreler için avukatınıza veya KVKK mevzuatına danışın." },
+    ],
   },
   {
     slug: "instagram-otomatik-randevu-kurulum",
@@ -344,6 +368,11 @@ Entegrasyonu aktif kullanan salonlarda:
 
 **SiriPlan Pro ile Instagram AI asistanınızı bugün aktive edin.**
     `,
+    faq: [
+      { q: "Instagram DM'den otomatik randevu nasıl alınır?", a: "Instagram işletme hesabınızı Meta üzerinden SiriPlan'a bağlarsınız. Gelen mesajlara fiyat, saat ve personel sorularının yanıtı otomatik verilir, randevu linki DM'de paylaşılır." },
+      { q: "Instagram entegrasyonu için hangi hesap türü gerekir?", a: "Kişisel hesap yerine Instagram İşletme (Professional) hesabı gerekir; Meta Business hesabına bağlı olmalıdır." },
+      { q: "Instagram AI asistanı fiyat sorularını yanıtlar mı?", a: "Evet. Asistan, SiriPlan'da tanımladığınız hizmet listesi ve fiyatlarla yanıt verir." },
+    ],
   },
   {
     slug: "kdv-komisyon-raporlama-otomasyonu",
@@ -416,6 +445,11 @@ El hesabı ve Excel yerine SiriPlan'ın otomatik raporlama sistemi ile her ay 3-
 
 **14 gün ücretsiz deneyin.**
     `,
+    faq: [
+      { q: "Salon için KDV raporu nasıl hazırlanır?", a: "SiriPlan her hizmet için KDV dahil ve hariç tutarları ayırır ve muhasebecinize gönderebileceğiniz PDF rapor üretir. Beyan için son kontrolü muhasebecinizle yapın." },
+      { q: "Personel komisyonu nasıl hesaplanır?", a: "Personelin verdiği hizmet cirosu komisyon oranıyla çarpılır. Örneğin 15.000 ₺ ciro ve %30 komisyonda komisyon 4.500 ₺ olur." },
+      { q: "Salon net karı nasıl bulunur?", a: "Net kâr, cirodan kira, malzeme, personel ve reklam gibi giderlerin çıkarılmasıyla bulunur. SiriPlan gelir ve giderleri birlikte tutarak bunu otomatik hesaplar." },
+    ],
   },
   {
     slug: "randevu-no-show-azaltma",
@@ -474,6 +508,11 @@ Bu 6 yöntem tek başına da fark yaratır, birlikte uygulandığında no-show o
 
 **14 gün ücretsiz deneyin, farkı kendiniz görün.**
     `,
+    faq: [
+      { q: "No-show nedir?", a: "No-show, müşterinin randevu alıp haber vermeden gelmemesidir. Boş kalan saat salonun geri alınamayan gelir kaybıdır." },
+      { q: "Randevuya gelmeme oranı nasıl azaltılır?", a: "Otomatik WhatsApp hatırlatması, onay gerektiren randevu akışı, ön ödeme (kaparo), müşteri skoru ile riskli müşterileri belirleme, bekleme listesi ve net bir iptal politikası en etkili yöntemlerdir." },
+      { q: "Ön ödeme (kaparo) no-show'u azaltır mı?", a: "Evet. Müşteri ön ödeme yaptığında randevuya bağlılığı artar; gelmeme riski belirgin biçimde düşer." },
+    ],
   },
   {
     slug: "salon-personel-prim-maas-hesaplama",
@@ -552,6 +591,11 @@ Adil ve şeffaf bir prim sistemi, personelin bağlılığını artırır ve ay s
 
 **14 gün ücretsiz deneyin, ilk ay sonu hesabınızı saniyeler içinde görün.**
     `,
+    faq: [
+      { q: "Salon personel maaşı nasıl hesaplanır?", a: "Taban maaş, komisyon ve bahşiş modelinde toplam ödeme şu formülle bulunur: Taban Maaş + (Aylık Ciro × Komisyon Oranı) + Bahşiş." },
+      { q: "Komisyon hangi randevulardan hesaplanmalı?", a: "Yalnızca tamamlanmış hizmetlerden. İptal edilen, gelmeyen veya ertelenen randevular cirodan sayılmamalıdır." },
+      { q: "SiriPlan'da personel maaş hesabı nasıl yapılır?", a: "Personel, Maaş Hesaplama ekranında ay ve yıl seçilir. Taban maaş, komisyon, tamamlanan randevu cirosu ve bahşiş otomatik listelenir; isterseniz tek tıkla gider kaydına işlenir." },
+    ],
   },
   {
     slug: "randevu-bekleme-listesi-bos-saat-doldurma",
@@ -622,6 +666,11 @@ Boş kalan saat, geri alınamayan bir gelirdir. Bekleme listesi sayesinde iptal,
 
 **14 gün ücretsiz deneyin, ilk iptal olan saati birlikte doldurun.**
     `,
+    faq: [
+      { q: "Randevu bekleme listesi nedir?", a: "İstediği saat dolu olan müşterinin adı, telefonu, hizmeti ve uygun zamanlarıyla kaydedildiği sıradır. Bir randevu iptal olduğunda uygun müşteri aranarak saat doldurulur." },
+      { q: "İptal olan randevu saati nasıl doldurulur?", a: "Boşluğu görün, bekleme listesinden aynı hizmeti isteyen uygun müşteriyi seçin, hızlıca arayın ya da mesaj yazın ve kabul ederse randevuyu oluşturup kaydı kapatın." },
+      { q: "SiriPlan'da bekleme listesi hangi planlarda var?", a: "Starter dahil tüm planlarda kullanılabilir. Liste müşteriyi otomatik aramaz; kayıt ve durum takibini sağlar." },
+    ],
   },
   {
     slug: "seans-paketi-satisi-takibi-guzellik-salonu",
@@ -690,6 +739,28 @@ Seans paketi, doğru takip edildiğinde salonun hem nakit akışını hem müşt
 
 **14 gün ücretsiz deneyin, ilk seans paketinizi birkaç dakikada tanımlayın.**
     `,
+    faq: [
+      {
+        q: "Seans paketi nedir?",
+        a: "Seans paketi, müşterinin birden fazla seansı peşin ve genellikle indirimli fiyatla satın aldığı hizmet paketidir. Örneğin 10 seans lazer epilasyon ya da 6 seans cilt bakımı. Salon peşin gelir elde eder, müşteri de seans başına daha az öder.",
+      },
+      {
+        q: "Seans paketi fiyatı nasıl hesaplanır?",
+        a: "Tek seans fiyatı seans sayısıyla çarpılır, ardından makul bir paket avantajı uygulanır. Örneğin tek seans 1.000 ₺ ise 10 seanslık paket 10.000 ₺ eder; %10 avantajla 9.000 ₺ olarak satılır. İndirim oranı hizmetin maliyetine göre belirlenmelidir.",
+      },
+      {
+        q: "Kalan seans sayısı nasıl takip edilir?",
+        a: "SiriPlan'da paket müşteri kartına kaydedilir. Randevu tamamlandığında paketten otomatik bir seans düşülür ve Paketler sayfasında kalan seans sayısı görünür. Böylece defter veya Excel gerekmez.",
+      },
+      {
+        q: "Seans paketi satışında ciro iki kez sayılır mı?",
+        a: "Hayır. SiriPlan'da seans paketten düşüldüğünde randevu ayrıca ücretlendirilmez; gelir yalnızca paket satışı sırasında kaydedilir.",
+      },
+      {
+        q: "SiriPlan'da paket özelliği hangi planlarda var?",
+        a: "Paket ve seans takibi tüm SiriPlan planlarında kullanılabilir. 14 gün ücretsiz deneme ile test edebilirsiniz.",
+      },
+    ],
   },
 ];
 
