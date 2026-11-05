@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
-import { MessageCircle, Megaphone } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BuySmsPackButton } from "@/components/dashboard/BuySmsPackButton";
-import { getEntitlements, isWaQuotaEnforced, type EntitlementOrg } from "@/lib/entitlements";
+import { isWaQuotaEnforced, type EntitlementOrg } from "@/lib/entitlements";
 import { getWaUsageSummary } from "@/lib/wa-quota";
 import { WA_CREDIT_PACKS } from "@/lib/wa-credit-packs";
 import { formatPrice, getPricingCurrencyFromHeaders } from "@/lib/pricing";
@@ -38,7 +38,6 @@ export async function WaUsageCard({
   const t = await getTranslations("dashboard.waUsage");
   const locale = await getLocale();
   const summary = await getWaUsageSummary(orgId, org);
-  const showCampaign = getEntitlements(org).feature_campaigns;
   const enforced = isWaQuotaEnforced(org);
   const nf = new Intl.NumberFormat(locale);
   const periodEnd = new Date(summary.periodEnd).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -50,9 +49,10 @@ export async function WaUsageCard({
   let buy: React.ReactNode = null;
   if (variant === "full" && canBuy && !mobileApp) {
     const currency = getPricingCurrencyFromHeaders(await headers());
-    const packs = WA_CREDIT_PACKS.filter((p) => p.kind === "utility" || showCampaign).map((p) => ({
+    // Kampanya kredisi paketleri şu an satışta DEĞİL; yalnızca randevu mesajı paketleri gösterilir.
+    const packs = WA_CREDIT_PACKS.filter((p) => p.kind === "utility").map((p) => ({
       id: p.id,
-      label: t(p.kind === "utility" ? "buyUtility" : "buyCampaign", { count: nf.format(p.credits) }),
+      label: t("buyUtility", { count: nf.format(p.credits) }),
       priceLabel: formatPrice(p.prices[currency], currency),
     }));
     buy = (
@@ -101,17 +101,7 @@ export async function WaUsageCard({
           <span className="text-sm font-bold tabular-nums">{nf.format(summary.utilityAddonBalance)}</span>
         </div>
 
-        {showCampaign && (
-          <div className="flex items-baseline justify-between">
-            <span className="text-sm text-muted-foreground flex items-center gap-1.5">
-              <Megaphone className="h-3.5 w-3.5" /> {t("campaignBalance")}
-            </span>
-            <span className="text-sm font-bold tabular-nums">{nf.format(summary.marketingBalance)}</span>
-          </div>
-        )}
-
         <p className="text-xs text-muted-foreground">{enforced ? t("noteEnforced") : t("noteMetered")}</p>
-        {showCampaign && <p className="text-xs text-muted-foreground">{t("campaignNote")}</p>}
 
         {buy}
 

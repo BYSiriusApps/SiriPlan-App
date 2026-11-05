@@ -3,6 +3,11 @@
 Durum: **Kodda hazır; migration uygulanıp env'ler girilene kadar mevcut davranış aynen sürer.**
 Brief: "SiriPlan — WhatsApp Kota, Ek Paket ve 360dialog Geçiş Brief'i" (Google Doc).
 
+> **Güncelleme (5 Kas 2026):** Ortak SiriPlan kampanya numarası ve kampanya kredisi paketleri (m500/m1000/m2500)
+> KALDIRILDI. Kampanyalar işletmenin kendi WhatsApp Business hesabından (serbest metin) ya da SMS kanalından gider;
+> `campaign-wa-template.ts` silindi, `campaign-send.ts` kredi kontrolü yapmaz. Aşağıdaki "marketing hattı", "kampanya kredisi"
+> ve kampanya paketi satırları tarihsel bilgidir. Geçerli satış: yalnızca 4 randevu (utility) mesajı paketi.
+
 ## 1. Temel ilke
 
 Tüm WhatsApp bildirimleri (müşteri + personel/sahip) ve kampanyalar **SiriPlan'ın kendi numaralarından** gider.
