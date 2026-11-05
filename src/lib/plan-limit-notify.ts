@@ -69,3 +69,55 @@ Satın aldığınız ek mesaj paketi tükendi ve bu dönemki plan hakkınız da 
     console.error(`[plan-limit-notify] hata — org=${orgId}:`, e);
   }
 }
+
+/**
+ * Planın AYLIK RANDEVU limiti (ör. Mini: 200) için sahibi bilgilendirir: %80'e ve %100'e ulaşınca.
+ * Limite ulaşınca herkese açık randevu sayfasından yeni randevu alınamaz (429); sahip bunu panele
+ * bakmadan da öğrensin. Yalnızca bildirimdir — randevu akışını/yanıtını hiçbir şekilde değiştirmez,
+ * hata fırlatmaz. Kanallar notifyWaQuota ile aynıdır (Telegram + WhatsApp serbest metin + push).
+ */
+export function shouldNotifyApptQuota(used: number, limit: number): "warn" | "full" | null {
+  if (used === limit) return "full";
+  if (used === Math.ceil(limit * 0.8)) return "warn";
+  return null;
+}
+
+export async function notifyApptQuota(orgId: string, kind: "warn" | "full", used: number, limit: number): Promise<void> {
+  try {
+    const admin = await createAdminClient();
+    const { data: org } = await admin
+      .from("organizations")
+      .select("telegram_chat_id, whatsapp_number, settings_json")
+      .eq("id", orgId)
+      .single();
+    if (!org) return;
+
+    const settings = ((org as { settings_json?: Record<string, unknown> | null }).settings_json ?? {}) as Record<string, unknown>;
+    const telegramOn = settings.notify_channel_telegram !== false;
+    const whatsappOn = settings.notify_channel_whatsapp !== false;
+
+    const message =
+      kind === "full"
+        ? `⚠️ <b>Aylık randevu limitiniz doldu</b>\n\nBu ay ${used}/${limit} randevuya ulaştınız. Ay sonuna ya da plan yükseltene kadar yeni randevu alınamaz.\n\n` +
+          `Planınızı yükseltmek için: siriplan.com/dashboard/abonelik`
+        : `⚠️ <b>Aylık randevu limitinizin %80'i doldu</b>\n\nBu ay ${used}/${limit} randevu aldınız. Limit dolunca ay sonuna ya da plan yükseltene kadar yeni randevu alınamaz.\n\n` +
+          `Planınızı yükseltmek için: siriplan.com/dashboard/abonelik`;
+
+    const tasks: Promise<unknown>[] = [];
+    const chatId = (org as { telegram_chat_id?: string | null }).telegram_chat_id;
+    if (chatId && telegramOn) tasks.push(sendTelegramMessage(chatId, message));
+    const wa = (org as { whatsapp_number?: string | null }).whatsapp_number;
+    if (wa && whatsappOn) tasks.push(sendWhatsAppMessage(wa, message.replace(/<[^>]+>/g, "")));
+    tasks.push(
+      sendPushToOrg(orgId, {
+        title: kind === "full" ? "Aylık randevu limitiniz doldu" : "Aylık randevu limitinizin %80'i doldu",
+        body: `Bu ay ${used}/${limit} randevu.`,
+        url: "/dashboard/abonelik",
+        tag: "appt-quota",
+      })
+    );
+    await Promise.allSettled(tasks);
+  } catch (e) {
+    console.error(`[plan-limit-notify] randevu limiti bildirimi hata — org=${orgId}:`, e);
+  }
+}

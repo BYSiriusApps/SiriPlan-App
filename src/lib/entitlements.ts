@@ -108,8 +108,8 @@ function paidPlan(org: EntitlementOrg | null | undefined): string | null {
 
 /**
  * Plana dahil aylık WhatsApp UTILITY mesaj hakkı (randevu onay/hatırlatma/iptal/
- * revizyon/yeni saat önerisi) — TEK kaynak. Kampanya (marketing) mesajı plana dahil
- * DEĞİLDİR; yalnızca satın alınan kampanya kredisiyle gider (bkz. lib/wa-quota.ts).
+ * revizyon/yeni saat önerisi) — TEK kaynak. Kampanya mesajları bu hakka
+ * sayılmaz; işletmenin kendi WhatsApp/SMS kanalından gider.
  * Fiyatlar bu tablodan bağımsızdır (lib/pricing.ts).
  */
 export const WA_UTILITY_QUOTAS = {

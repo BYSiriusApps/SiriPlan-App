@@ -277,7 +277,7 @@ export default async function AbonelikPage({
         </div>
       )}
 
-      {/* WhatsApp mesaj hakkı + ek paketler (randevu mesajı / kampanya kredisi). Satın alma yalnızca web'de,
+      {/* WhatsApp mesaj hakkı + ek paketler (randevu mesajı). Satın alma yalnızca web'de,
           sahip/yönetici için; native uygulamada yalnızca bilgi. */}
       <WaUsageCard
         orgId={member.org_id}
