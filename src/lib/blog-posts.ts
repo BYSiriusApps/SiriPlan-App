@@ -623,6 +623,74 @@ Boş kalan saat, geri alınamayan bir gelirdir. Bekleme listesi sayesinde iptal,
 **14 gün ücretsiz deneyin, ilk iptal olan saati birlikte doldurun.**
     `,
   },
+  {
+    slug: "seans-paketi-satisi-takibi-guzellik-salonu",
+    category: "Ciro",
+    title: "Seans Paketi Satışı: Peşin Gelir ve Kalan Seans Takibi",
+    excerpt: "10 seans lazer, 6 seans cilt bakımı gibi paketlerle peşin gelir elde edin; kalan seansı Excel'siz, müşteri bazlı takip edin.",
+    date: "5 Kasım 2026",
+    isoDate: "2026-11-05",
+    readTime: "6 dk",
+    author: "SiriPlan Ekibi",
+    content: `
+"10 seans lazer epilasyon alıyorum, kaç seansım kaldı?" sorusuna defterden cevap aramak hem vakit alır hem hataya açıktır. Seans paketi satmak salonlar için güçlü bir gelir yöntemidir; ama paketler düzenli takip edilmezse müşteri güveni de, ciro doğruluğu da zarar görür. Bu rehberde **seans paketi** satışını ve kalan seans takibini adım adım anlatıyoruz.
+
+## 1. Seans Paketi Salona Ne Kazandırır?
+
+- **Peşin gelir:** Paket bedeli satış anında tahsil edilir, nakit akışınız rahatlar.
+- **Müşteri bağlılığı:** Paketi olan müşteri bir sonraki seans için başka salona gitmez.
+- **Planlanabilir doluluk:** Kalan seansı olan müşteriler için ileri tarihli randevular alırsınız.
+- **Daha yüksek sepet:** Tek seans yerine paket önermek ortalama harcamayı artırır.
+
+Hangi hizmetler pakete uygundur? Tekrar gerektiren hizmetler: lazer epilasyon, cilt bakımı, bölgesel zayıflama, kalıcı makyaj dokunuşları, ağda serileri.
+
+## 2. Paket Fiyatını Nasıl Belirlersiniz?
+
+Basit bir yöntem: tek seans fiyatını seans sayısıyla çarpın, ardından makul bir paket avantajı uygulayın.
+
+**Örnek:** Tek seans 1.000 ₺ ise 10 seanslık paket 10.000 ₺ eder. %10 paket avantajıyla 9.000 ₺ olarak satarsanız, müşteri seans başına 900 ₺ öder ve siz tutarı peşin alırsınız.
+
+İndirim oranını hizmetin maliyetine göre belirleyin; çok yüksek indirim kârınızı eritir.
+
+## 3. Paket Takibinde En Sık Yapılan Hatalar
+
+- **Kalan seansı defterde tutmak:** Sayfa kaybolur, yazı okunmaz, sayı yanlış düşülür.
+- **Aynı seansı iki kez düşmek ya da hiç düşmemek:** İptal edilen randevu seans sayılır mı, karışır.
+- **Cirodan çifte sayım:** Paket satıldığında gelir yazılır, seans günü yine ücret girilirse ciro olduğundan yüksek görünür.
+- **Süre sonunu unutmak:** Paketin geçerlilik tarihi takip edilmezse anlaşmazlık çıkar.
+- **Biten paketi fark etmemek:** Son seansta yeni paket önerme fırsatı kaçar.
+
+## 4. SiriPlan'da Paket / Seans Takibi
+
+SiriPlan'ın **Paketler** özelliği bu süreci otomatikleştirir ve tüm planlarda kullanılabilir.
+
+- Müşteri kartından **"Paket Sat"** ile paket adını, toplam seans sayısını, ödenen tutarı ve isterseniz geçerlilik tarihini girersiniz.
+- Randevuyu **tamamladığınızda** ilgili paketten otomatik olarak bir seans düşülür. Tamamlama ekranındaki **"Paketten düş"** kutusu varsayılan olarak açıktır.
+- Seans paketten düşüldüğünde randevu ayrıca ücretlendirilmez, böylece **ciro iki kez sayılmaz.**
+- **Paketler** sayfasında tüm aktif paketler, kalan seansı az olandan çok olana doğru listelenir. "1 seans kaldı" uyarısı yeni paket satışı için size hatırlatma olur.
+- Paket satışı isterseniz Gelir-Gider sayfanıza **"Paket / Seans Satışı"** kategorisiyle gelir olarak işlenir.
+
+Paketi olmayan müşteriler için randevu akışı aynı şekilde çalışmaya devam eder; paket opsiyonel bir katmandır.
+
+## 5. Paket Satışını Başlatmak İçin 5 Adım
+
+1. Tekrar gerektiren 2-3 hizmetinizi seçin ve paket fiyatlarını belirleyin.
+2. Danışma ve seans bitişlerinde pakete dönüştürme önerisini standart hale getirin.
+3. Satışta paketi müşteri kartına kaydedin ve geçerlilik süresini net söyleyin.
+4. Her randevuyu tamamlarken seansın düşüldüğünü kontrol edin.
+5. Paket bitmeden bir önceki seansta yenileme teklifi yapın.
+
+*Not: Paket satışı ve ön ödemelere ilişkin vergi ve fatura yükümlülükleri için muhasebecinize danışmanız gerekir.*
+
+---
+
+## Sonuç
+
+Seans paketi, doğru takip edildiğinde salonun hem nakit akışını hem müşteri sadakatini güçlendirir. SiriPlan kalan seansı sizin yerinize sayar, ciroyu çifte saymaz ve paketi bitmek üzere olan müşteriyi önünüze getirir.
+
+**14 gün ücretsiz deneyin, ilk seans paketinizi birkaç dakikada tanımlayın.**
+    `,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
