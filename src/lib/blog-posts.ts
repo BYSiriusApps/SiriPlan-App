@@ -762,6 +762,107 @@ Seans paketi, doğru takip edildiğinde salonun hem nakit akışını hem müşt
       },
     ],
   },
+  {
+    slug: "nail-estetik-diyetisyen-randevu-sistemi-farklari",
+    category: "Sektörler",
+    title: "Nail, Estetik ve Diyetisyen İçin Randevu Sistemi Farkları",
+    excerpt: "Nail stüdyosu, estetik merkezi ve diyetisyen aynı randevu programını kullanamaz. Her sektörün ihtiyacı ve doğru ayarı bu rehberde.",
+    date: "21 Kasım 2026",
+    isoDate: "2026-11-21",
+    readTime: "6 dk",
+    author: "SiriPlan Ekibi",
+    content: `
+"Randevu programı hepsi aynı" diye düşünürseniz ilk ay içinde sorun çıkar. Nail stüdyosunda iki saatlik bir jel uygulaması, estetik merkezinde 20 dakikalık bir kontrol seansı, diyetisyende haftalık online görüşme: üçü de randevudur ama **süre, tekrar, ödeme ve gizlilik ihtiyacı** birbirinden çok farklıdır. Bu rehberde üç sektörün gerçek farklarını ve her biri için doğru kurulumu anlatıyoruz.
+
+## 1. Üç Sektör Arasındaki Temel Fark
+
+| | Nail stüdyosu | Estetik merkezi | Diyetisyen |
+|---|---|---|---|
+| Tipik süre | 45-150 dk | 15-60 dk | 20-45 dk |
+| Müşteri dönüşü | 3-4 haftada bir | Seans serisi + kontrol | Haftalık / 2 haftalık |
+| Ödeme biçimi | Tek seferlik | Paket veya peşin | Paket veya danışmanlık süresi |
+| Hassas veri | Düşük | Yüksek | Yüksek |
+| En büyük kayıp | Uzun hizmette gecikme | Seansı atlayan müşteri | Takibi bırakan danışan |
+
+Aynı programı üç sektörde kullanabilirsiniz, ama **ayarlar sektöre göre değişmelidir.** Aşağıda nasıl olduğunu görelim.
+
+## 2. Nail Stüdyosu: Süre Doğru Girilmezse Gün Kayar
+
+Nail işinde sorun genellikle takvimin doluluğu değil, **hizmet süresinin yanlış tanımlanmasıdır.** Manikür 45 dakika, protez tırnak 120 dakika sürer; ikisini aynı slot uzunluğuna koyarsanız arkadaki müşteri bekler.
+
+- **Her hizmeti gerçek süresiyle girin.** "Jel + nail art" ile "sadece jel" ayrı hizmet olsun. Takvim, süreye göre yer ayırır.
+- **Doldurma (bakım) hatırlatması planlayın.** Protez ve jel müşterisi yaklaşık 3-4 hafta sonra geri gelir. Bu müşteriye zamanında yazmak, gelirin en kolay kaynağıdır.
+- **Personel bazlı takvim kullanın.** Her ustanın kendi hızı ve uzmanlığı vardır; müşteri istediği ustayı seçebilir.
+- **Boşalan uzun slotları bekleme listesiyle doldurun.** İki saatlik bir boşluk, 30 dakikalık boşluktan çok daha pahalıdır.
+
+## 3. Estetik Merkezi: Seri Seans ve Gizlilik
+
+Estetik merkezlerinde müşteri tek seferde gelmez; lazer, cilt bakımı ve benzeri işlemler **seanslar halinde** yapılır. İki konu öne çıkar:
+
+**Seans takibi.** "10 seans" satan merkez, kaçıncı seansta olduğunu ve kaç seansı kaldığını anlık bilmelidir. Defter veya Excel'de bu takip bir süre sonra karışır. Paket satışı yapıp kalan seansı sistemden izlemek hem müşteriye güven verir hem peşin geliri güvenceye alır. Ayrıntısı için [seans paketi satışı rehberimize](/blog/seans-paketi-satisi-takibi-guzellik-salonu) bakabilirsiniz.
+
+**Kişisel veri.** Estetik işlemler hassas bilgi içerir. Müşteri verisinin nerede ve nasıl tutulduğu önemlidir; aydınlatma metni ve açık rıza süreçleri ihmal edilmemelidir. Genel çerçeve için [KVKK rehberimizi](/blog/kvkk-guzellik-salonlari-rehber) inceleyin. Not: Yazılım yasal sorumluluğu devretmez; süreçlerinizi bir hukuk danışmanıyla doğrulamanızı öneririz.
+
+Ek olarak, kontrol seansını atlayan müşteriye otomatik **randevu hatırlatması** gitmesi, atlanan seans oranını belirgin biçimde düşürür.
+
+## 4. Diyetisyen: Tekrar Eden Görüşme ve Takip
+
+Diyetisyende asıl gelir **ilk görüşmede değil, ikinci ve üçüncü görüşmede** oluşur. Danışanların büyük bölümü ilk haftalardan sonra takibi bırakır. Bu yüzden iki şey kritiktir:
+
+- **Bir sonraki randevuyu görüşme bitmeden verin.** "Haftaya aynı saatte görüşelim" demek, takibi kendiliğinden sürdürür.
+- **Hatırlatma gönderin.** Online veya yüz yüze fark etmeksizin, randevudan önce giden bir mesaj gelmeme oranını düşürür.
+- **Danışmanlık sürecini paket olarak satın.** "4 haftalık program" gibi peşin satılan bir süreç, hem gelir hem devamlılık sağlar.
+
+Diyetisyen için ayrıca randevu notlarını düzenli tutmak önemlidir: kime ne söylediğinizi bir sonraki görüşmede hatırlamak profesyonel görünmenizi sağlar.
+
+## 5. Ortak İhtiyaçlar: Hangi Sektör Olursanız Olun
+
+Üç sektörün de ortak ihtiyacı aynıdır:
+
+1. **Randevu hatırlatması:** Gelmeme (no-show) oranını düşürmenin en ucuz yolu. [Gelmeme oranını azaltma rehberimize](/blog/randevu-no-show-azaltma) göz atın.
+2. **Online randevu linki:** Müşteri gece 23:00'te de randevu alabilmeli.
+3. **Müşteri kaydı:** Geçmiş randevular ve notlar tek yerde.
+4. **Doğru raporlama:** Hangi hizmet kazandırıyor, hangi saat boş kalıyor?
+
+## 6. SiriPlan'da Sektörünüze Göre Kurulum
+
+SiriPlan'a kayıt olurken işletme türünüzü (nail salon, estetik klinik, diyetisyen ve diğerleri) seçersiniz. Sonrasında:
+
+- Hizmetlerinizi **gerçek sürelerle** tanımlayın.
+- Personelinizi ekleyin; çalışma saatlerini girin.
+- Randevu linkinizi Instagram biyografinize ve Google profilinize ekleyin.
+- Seans/paket satıyorsanız **Paketler** bölümünü kullanın.
+- Hatırlatmaları açık tutun.
+
+Sektörünüze özel sayfalarda ayrıntıları görebilirsiniz: [nail stüdyoları](/kategori/nail), [estetik merkezleri](/kategori/estetik) ve [diyetisyenler](/kategori/diyetisyen) için SiriPlan.
+
+---
+
+## Sonuç
+
+Doğru randevu sistemi, sektörünüzün ritmine uyan sistemdir: nail'de süre, estetikte seri seans ve gizlilik, diyetisyende takip sürekliliği. Aynı altyapıyı, ayarları sektörünüze göre yaparak kullanırsınız.
+
+**14 gün ücretsiz deneyin, sektörünüze göre kurulumu birlikte yapalım.**
+    `,
+    faq: [
+      {
+        q: "Nail stüdyosu için en uygun randevu sistemi hangisi?",
+        a: "Nail stüdyosunda hizmetleri gerçek süreleriyle tanımlayabilen, personel bazlı takvim sunan ve hatırlatma gönderebilen bir sistem uygundur. SiriPlan'da her hizmetin süresi ayrı girilir ve takvim buna göre yer ayırır.",
+      },
+      {
+        q: "Estetik merkezi için randevu programında neler olmalı?",
+        a: "Seans paketi ve kalan seans takibi, randevu hatırlatması, personel takvimi ve kişisel verilerin korunmasına dikkat eden bir yapı olmalıdır. Yasal uyum süreçleri için ayrıca hukuk danışmanından destek alınmalıdır.",
+      },
+      {
+        q: "Diyetisyenler randevu sistemi kullanmalı mı?",
+        a: "Evet. Diyetisyen gelirinin büyük kısmı tekrar eden görüşmelerden gelir. Hatırlatma ve bir sonraki randevuyu önceden verme, danışanın takibi bırakmasını azaltır.",
+      },
+      {
+        q: "SiriPlan hangi sektörlerde kullanılabilir?",
+        a: "Kuaför, güzellik salonu, nail stüdyosu, estetik merkezi ve diyetisyen gibi randevuyla çalışan hizmet işletmelerinde kullanılabilir. Kayıt sırasında işletme türünüzü seçersiniz.",
+      },
+    ],
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
