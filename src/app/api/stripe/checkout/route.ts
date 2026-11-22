@@ -7,6 +7,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
 import { activeStaffBlockingPlan, staffBlockingMessage } from "@/lib/stripe/plan-guard";
+import { isEphemeralPlan } from "@/lib/data-retention";
 import { isBranchOrg } from "@/lib/branches";
 import { CONSENT_VERSION } from "@/lib/legal/seller";
 
@@ -53,13 +54,22 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { plan, annual, consent } = await req.json() as {
+  const { plan, annual, consent, acknowledge_data_loss } = await req.json() as {
     plan: PlanKey;
     annual: boolean;
     consent?: { distanceSales?: boolean; immediateStart?: boolean };
+    acknowledge_data_loss?: boolean;
   };
   const planConfig = PLANS[plan];
   if (!planConfig) return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+
+  // Mini Lite (geçici veri modu): verinin randevu bitince silineceğinin açık onayı sunucuda da zorunlu.
+  if (isEphemeralPlan(plan) && acknowledge_data_loss !== true) {
+    return NextResponse.json(
+      { error: "Mini Lite planında müşteri kaydı tutulmaz; randevu tamamlanınca veya iptal edilince veriler otomatik silinir. Devam etmek için bunu onaylamanız gerekir.", code: "DATA_LOSS_ACK_REQUIRED" },
+      { status: 400 }
+    );
+  }
 
   // Mesafeli satış: ödeme öncesi iki açık onay zorunludur (sözleşme + ön bilgilendirme
   // formu okundu/kabul; hizmetin hemen başlaması / cayma hakkı bilgilendirmesi).

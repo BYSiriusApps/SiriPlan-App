@@ -7,6 +7,7 @@ import { logAppointmentStatusChange } from "@/lib/audit";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 import { isStaffOnTimeOff } from "@/lib/staff-availability";
 import { canChangeAppointmentStatus } from "@/lib/appointment-status";
+import { isEphemeralOrg, hardDeleteIfEphemeral } from "@/lib/data-retention";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -194,6 +195,16 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
   const previous = current;
 
+  // Mini Lite (geçici veri modu): tamamlanan randevu kalıcı silinir. Durumu 'tamamlandi'ya
+  // ÇEKMEDEN siliyoruz — aksi halde DB tetikleyicisi gelir satırına müşteri adını yazardı.
+  // Plan DB'den okunan org satırından gelir (istemciden değil). Persistent planlarda bu dal çalışmaz.
+  const ephemeral = isEphemeralOrg(member.organizations);
+  if (ephemeral && updates.status === "tamamlandi" && current.status !== "tamamlandi") {
+    const deleted = await hardDeleteIfEphemeral(member.org_id, id);
+    if (!deleted) return NextResponse.json({ error: "Randevu kapatılamadı" }, { status: 500 });
+    return NextResponse.json({ appointment: { id, status: "tamamlandi", deleted: true } });
+  }
+
   // Kampanya indirimiyle tamamlanmış randevuda fiyat zaten indirimli yazılıdır.
   // Aşağıdaki "hizmetten fiyat senkronu" bu tutarı katalog fiyatına çekip
   // indirimi sessizce bozardı (düzenleme formu aynı service_id'yi de gönderir).
@@ -260,7 +271,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: pgErr.message || "Randevu güncellenemedi" }, { status: 500 });
   }
 
-  if (previous && data && typeof updates.status === "string" && previous.status !== updates.status) {
+  if (!ephemeral && previous && data && typeof updates.status === "string" && previous.status !== updates.status) {
     logAppointmentStatusChange({
       orgId: member.org_id,
       userId: user.id,
@@ -352,6 +363,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     }
   }
 
+  // Mini Lite: iptal edilen randevu, müşteri bildirimi tetiklendikten sonra kalıcı silinir.
+  if (ephemeral && becameCancelled) {
+    await hardDeleteIfEphemeral(member.org_id, id);
+  }
+
   return NextResponse.json({ appointment: data });
 }
 
@@ -387,8 +403,9 @@ export async function DELETE(req: NextRequest, { params }: Params) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+  const ephemeralDelete = isEphemeralOrg(member.organizations);
   if (current.status !== "iptal") {
-    logAppointmentStatusChange({
+    if (!ephemeralDelete) logAppointmentStatusChange({
       orgId: member.org_id,
       userId: user.id,
       actorName: (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Bilinmiyor",
@@ -411,6 +428,11 @@ export async function DELETE(req: NextRequest, { params }: Params) {
         cancelToken: current.cancel_token,
       }).catch((err) => console.error("[appointments/[id]] sendPurposeTemplate(iptal/DELETE) hata:", err));
     }
+  }
+
+  // Mini Lite: iptal bildirimi tetiklendikten sonra satırı kalıcı sil.
+  if (ephemeralDelete) {
+    await hardDeleteIfEphemeral(member.org_id, id);
   }
 
   return NextResponse.json({ success: true });

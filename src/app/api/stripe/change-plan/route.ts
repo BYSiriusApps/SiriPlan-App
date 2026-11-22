@@ -5,10 +5,11 @@ import { applyPlanToOrg } from "@/lib/stripe/apply-plan";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
 import { activeStaffBlockingPlan, staffBlockingMessage } from "@/lib/stripe/plan-guard";
+import { isEphemeralPlan } from "@/lib/data-retention";
 
 export const dynamic = "force-dynamic";
 
-const PLAN_RANK: Record<string, number> = { mini: 1, starter: 2, pro: 3, business: 4 };
+const PLAN_RANK: Record<string, number> = { lite: 0, mini: 1, starter: 2, pro: 3, business: 4 };
 
 /**
  * Zaten ödeyen bir abone plan değiştirdiğinde (ör. yıllık Starter -> yıllık
@@ -63,6 +64,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "Aktif bir aboneliğiniz yok. Lütfen önce bir plan satın alın.", code: "NO_ACTIVE_SUBSCRIPTION" },
       { status: 404 }
+    );
+  }
+
+  // Mini Lite (geçici veri modu) geçişi geri döndürülemez veri silmesi içerir: persistent plandan
+  // geçerken açık onay (acknowledge_data_loss) sunucuda da zorunlu — yalnızca UI onayına güvenilmez.
+  if (isEphemeralPlan(plan) && !isEphemeralPlan(org.plan) && body?.acknowledge_data_loss !== true) {
+    return NextResponse.json(
+      { error: "Mini Lite planında müşteri kayıtları ve randevu geçmişi 30 gün sonra silinir. Devam etmek için bunu onaylamanız gerekir.", code: "DATA_LOSS_ACK_REQUIRED" },
+      { status: 400 }
     );
   }
 

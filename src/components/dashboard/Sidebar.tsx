@@ -54,6 +54,7 @@ function canSee(userRole: string, minRole: string) {
 
 const PLAN_COLORS: Record<string, string> = {
   trial:    "color-mix(in oklch, var(--sidebar-foreground) 12%, transparent)",
+  lite:     "rgba(20,184,166,0.25)",
   mini:     "rgba(14,165,233,0.25)",
   starter:  "rgba(99,102,241,0.25)",
   pro:      "color-mix(in oklch, var(--sidebar-primary) 25%, transparent)",
@@ -65,6 +66,18 @@ function trialDaysLeft(trialEndsAt?: string): number | null {
   const msLeft = new Date(trialEndsAt).getTime() - Date.now();
   return Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24)));
 }
+
+// Mini Lite (geçici veri modu): kalıcı veri tutan menüler gizlenir; asıl engel sunucu tarafında (API 403 + sayfa yönlendirmesi).
+const EPHEMERAL_HIDDEN_HREFS = new Set([
+  "/dashboard/musteriler",
+  "/dashboard/paketler",
+  "/dashboard/raporlar",
+  "/dashboard/gelir-gider",
+  "/dashboard/stok",
+  "/dashboard/veri-gocu",
+  "/dashboard/bekleme-listesi",
+  "/dashboard/kampanyalar",
+]);
 
 interface SidebarProps {
   orgName?: string;
@@ -98,6 +111,7 @@ export function Sidebar({
   const planLabel =
     plan === "trial"
       ? (daysLeft !== null ? t("trialDaysLeft", { days: daysLeft }) : t("trial"))
+      : plan === "lite"    ? "🍃 Mini Lite"
       : plan === "mini"    ? "🌱 Mini"
       : plan === "starter" ? "⚡ Starter"
       : plan === "pro"     ? "✨ Pro Plan"
@@ -106,6 +120,7 @@ export function Sidebar({
   const planColor = PLAN_COLORS[plan] ?? PLAN_COLORS.trial;
 
   const visibleItems = NAV_ITEMS.filter(item => {
+    if (plan === "lite" && EPHEMERAL_HIDDEN_HREFS.has(item.href)) return false;
     if (item.href === "/dashboard/ayarlar") {
       return hasPermission({ role, permissions_json: permissionsJson }, "manage_settings");
     }

@@ -310,7 +310,28 @@
         "Custom integrations"
       ],
       "notIncluded": []
-    }
+    },
+    "lite": {
+      "name": "Mini Lite",
+      "desc": "For solo businesses that don't want to keep records",
+      "features": [
+        "1 branch, 1 staff member",
+        "150 appointments per month",
+        "300 WhatsApp messages per month (confirmation + reminder)",
+        "Personal booking link (siriplan.com/r/your-salon)",
+        "Automatic messages: confirmation, reminder, cancellation",
+        "Data is deleted automatically once the appointment is done",
+        "Email support"
+      ],
+      "notIncluded": [
+        "Customer records and appointment history",
+        "Reports, income-expense and data export",
+        "Stock and package / session tracking",
+        "Extra staff / users",
+        "Website mode, campaigns, voice assistant"
+      ]
+    },
+    "liteDataNote": "Mini Lite: data is deleted automatically when the appointment is completed."
   },
   "addons": {
     "title": "Add-on Packages",
@@ -710,7 +731,7 @@
           },
           "q4": {
             "q": "How much do I save with the annual plan?",
-            "a": "An 18% discount applies with annual billing. For example, the Pro plan is $32/mo (billed $384/yr) instead of $39/mo. Current prices (monthly / yearly): Mini ₺399 / ₺3,926 · $14 / $138 · €13 / €128; Starter ₺1,199 / ₺11,798 · $29 / $285 · €26 / €256; Pro ₺1,699 / ₺16,718 · $39 / $384 · €33 / €325; Business ₺4,699 / ₺46,238 · $99 / $974 · €84 / €827."
+            "a": "An 18% discount applies with annual billing. For example, the Pro plan is $32/mo (billed $384/yr) instead of $39/mo. Current prices (monthly / yearly): Mini Lite ₺499 / ₺4,900 · $18 / $177 · €16 / €157; Mini ₺699 / ₺6,900 · $25 / $246 · €23 / €226; Starter ₺1,199 / ₺11,798 · $29 / $285 · €26 / €256; Pro ₺1,699 / ₺16,718 · $39 / $384 · €33 / €325; Business ₺4,699 / ₺46,238 · $99 / $974 · €84 / €827."
           }
         }
       },
@@ -2406,7 +2427,7 @@
             "Plans: Mini, Starter, Pro, and Business plans are fixed and transparent. No requests for quote or waiting for agents. Every account starts with a 14-day free trial.",
             "Plan Details: View your current plan, limits, and billing history under Settings → Subscription.",
             "Your subscription is linked to SiriPlan and managed independently of app stores. For questions about upgrades or billing, contact support: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Plan differences: Mini — 1 staff, 200 appointments and 400 WhatsApp messages per month, booking link, customer records, stock/barcode, packages, income-expense & VAT, CSV export. Starter — 1 branch, 8 staff, unlimited appointments, booking link, stock/barcode, packages, waitlist, income-expense & VAT, 500 WhatsApp messages per month included (confirmations + reminders), loyalty card, 1 campaign per month, CSV export. Pro — unlimited staff, 1,500 WhatsApp messages per month included, voice assistant, website mode, PDF reports, campaigns, customer score and Employee of the Week. Business — up to 5 branches, 3,000 WhatsApp messages per month included, all Pro features, AI WhatsApp/IG assistant and custom integrations. The WhatsApp appointment-message allowance renews on the monthly anniversary of your subscription start; when it runs out you can buy an add-on message pack in Settings → Subscription. WhatsApp campaign messages are not included in the plan and are sent with campaign credits."
+            "Plan differences: Mini — 1 staff, 200 appointments and 400 WhatsApp messages per month, booking link, customer records, stock/barcode, packages, income-expense & VAT, CSV export. Starter — 1 branch, 8 staff, unlimited appointments, booking link, stock/barcode, packages, waitlist, income-expense & VAT, 500 WhatsApp messages per month included (confirmations + reminders), loyalty card, 1 campaign per month, CSV export. Pro — unlimited staff, 1,500 WhatsApp messages per month included, voice assistant, website mode, PDF reports, campaigns, customer score and Employee of the Week. Business — up to 5 branches, 3,000 WhatsApp messages per month included, all Pro features, AI WhatsApp/IG assistant and custom integrations. The WhatsApp appointment-message allowance renews on the monthly anniversary of your subscription start; when it runs out you can buy an add-on message pack in Settings → Subscription. WhatsApp campaign messages are separate from this allowance and go out from the business's own WhatsApp Business account."
           ]
         },
         "sadakat": {
@@ -4171,7 +4192,10 @@
       "pay_now_upgrade": "You will pay <b>{amount}</b> now. This amount is calculated by deducting the unused portion of your current plan from the {planName} plan fee. The new {periodAdj} period starts today, and the next renewal is in {period}.",
       "pay_now_same_cycle": "You will pay <b>{amount}</b> now. Your current billing cycle date will not change.",
       "no_charge_credit": "No payment will be collected now. The unused portion of your current plan ({amount}) will be credited to your account and deducted from your next invoice. Your billing cycle date will not change.",
-      "confirm_and_pay": "Confirm and pay {amount}"
+      "confirm_and_pay": "Confirm and pay {amount}",
+      "lite_warning": "On Mini Lite, customer records and appointment history are not kept. You can export your existing history for 30 days; after that it is permanently deleted. This cannot be undone.",
+      "lite_ack": "I understand my data will be permanently deleted after 30 days and I accept this.",
+      "lite_upgrade_info": "Coming from Mini Lite there is no past appointment history; record keeping starts from the moment you switch."
     },
     "planSec": {
       "bir_hata_olustu": "An error occurred.",
@@ -4243,7 +4267,8 @@
       "plan_business_f1": "Up to 5 locations",
       "plan_business_f2": "AI assistant (WA/IG auto-reply)",
       "plan_business_f3": "Priority support",
-      "plan_business_f4": "Custom integrations"
+      "plan_business_f4": "Custom integrations",
+      "lite_confirm": "Mini Lite does not keep customer records; data is deleted automatically and permanently when an appointment is completed or cancelled. Do you want to continue?"
     },
     "pwaKart": {
       "uygulamayi_telefona_ekle_wid": "Add App to Phone (Widget)",

@@ -45,6 +45,7 @@ export interface AdminOrgRow {
 
 const PLAN_BADGES: Record<string, string> = {
   trial: "bg-gray-500/15 text-gray-600 dark:text-gray-300",
+  lite: "bg-teal-500/15 text-teal-600 dark:text-teal-300",
   mini: "bg-sky-500/15 text-sky-600 dark:text-sky-300",
   starter: "bg-indigo-500/15 text-indigo-600 dark:text-indigo-300",
   pro: "bg-pink-500/15 text-pink-600 dark:text-pink-300",
@@ -228,6 +229,7 @@ export function AdminOrgTable({ orgs }: { orgs: AdminOrgRow[] }) {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="trial">Trial</SelectItem>
+                    <SelectItem value="lite">Mini Lite</SelectItem>
                     <SelectItem value="mini">Mini</SelectItem>
                     <SelectItem value="starter">Starter</SelectItem>
                     <SelectItem value="pro">Pro</SelectItem>

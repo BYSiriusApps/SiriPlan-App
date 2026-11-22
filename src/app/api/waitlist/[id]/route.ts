@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ephemeralForbidden } from "@/lib/data-retention";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,6 +14,9 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member);
+  if (ephemeralBlock) return ephemeralBlock;
 
   const ALLOWED = ["status", "preferred_dates"];
   const updates: Record<string, unknown> = {};
@@ -47,6 +51,9 @@ export async function DELETE(req: NextRequest, { params }: Params) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member);
+  if (ephemeralBlock) return ephemeralBlock;
 
   const { error } = await supabase
     .from("waitlist")

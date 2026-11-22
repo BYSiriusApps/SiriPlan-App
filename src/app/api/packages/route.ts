@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ephemeralForbidden } from "@/lib/data-retention";
 import { z } from "zod";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
@@ -19,6 +20,9 @@ export async function GET(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member, { read: true });
+  if (ephemeralBlock) return ephemeralBlock;
 
   const { searchParams } = new URL(req.url);
   const customerId = searchParams.get("customer_id");
@@ -75,6 +79,9 @@ export async function POST(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member);
+  if (ephemeralBlock) return ephemeralBlock;
 
   const parsed = CreateSchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) {

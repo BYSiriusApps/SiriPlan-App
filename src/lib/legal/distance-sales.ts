@@ -57,7 +57,7 @@ const contractTr: LegalDoc = {
     {
       h: "2. Sözleşmenin Konusu",
       p: [
-        "Sözleşmenin konusu, Alıcı'nın siriplan.com üzerinden seçtiği SiriPlan planına (Mini, Starter, Pro, Business veya Satıcı'nın sunduğu diğer plan/ek paketler) ait çevrimiçi randevu ve işletme yönetimi yazılım hizmetine (SaaS) erişim hakkının, aşağıdaki şartlarla Alıcı'ya sağlanmasıdır.",
+        "Sözleşmenin konusu, Alıcı'nın siriplan.com üzerinden seçtiği SiriPlan planına (Mini Lite, Mini, Starter, Pro, Business veya Satıcı'nın sunduğu diğer plan/ek paketler) ait çevrimiçi randevu ve işletme yönetimi yazılım hizmetine (SaaS) erişim hakkının, aşağıdaki şartlarla Alıcı'ya sağlanmasıdır.",
         "Planların kapsamı, sınırları (ör. personel sayısı, aylık randevu/mesaj kotası) ve güncel ücretleri sipariş anında ve https://siriplan.com/fiyatlar adresinde gösterilir. Sipariş anında gösterilen plan, süre (aylık/yıllık) ve tutar bu sözleşmenin ayrılmaz parçasıdır.",
         "Hizmet, bir yazılıma çevrimiçi erişimdir; fiziksel bir ürün teslim edilmez.",
       ],
@@ -165,7 +165,7 @@ const contractEn: LegalDoc = {
     {
       h: "2. Subject Matter",
       p: [
-        "The Seller grants the Buyer access to the online appointment and business-management software service (SaaS) for the SiriPlan plan selected on siriplan.com (Mini, Starter, Pro, Business or other plans/add-ons offered by the Seller) under the terms below.",
+        "The Seller grants the Buyer access to the online appointment and business-management software service (SaaS) for the SiriPlan plan selected on siriplan.com (Mini Lite, Mini, Starter, Pro, Business or other plans/add-ons offered by the Seller) under the terms below.",
         "Plan scope, limits (e.g. staff count, monthly appointment/message quotas) and current prices are shown at checkout and at https://siriplan.com/fiyatlar. The plan, billing period (monthly/yearly) and amount shown at checkout form an integral part of this agreement.",
         "The service is online access to software; no physical product is delivered.",
       ],
@@ -268,7 +268,7 @@ const preinfoTr: LegalDoc = {
       h: "2. Hizmetin Temel Nitelikleri",
       p: [
         "SiriPlan; randevu, müşteri, personel, stok, kampanya, paket/seans, gelir-gider ve raporlama özelliklerini içeren, internet üzerinden erişilen bir randevu ve işletme yönetimi yazılım hizmetidir (SaaS).",
-        "Seçtiğiniz planın (Mini, Starter, Pro, Business) kapsamı ve sınırları sipariş ekranında ve https://siriplan.com/fiyatlar adresinde gösterilir. Hizmet bir yazılıma çevrimiçi erişimdir; fiziksel ürün teslim edilmez.",
+        "Seçtiğiniz planın (Mini Lite, Mini, Starter, Pro, Business) kapsamı ve sınırları sipariş ekranında ve https://siriplan.com/fiyatlar adresinde gösterilir. Hizmet bir yazılıma çevrimiçi erişimdir; fiziksel ürün teslim edilmez.",
       ],
     },
     {
@@ -327,7 +327,7 @@ const preinfoEn: LegalDoc = {
       h: "2. Main Characteristics of the Service",
       p: [
         "SiriPlan is an internet-accessed appointment and business-management software service (SaaS) with appointment, customer, staff, inventory, campaign, package/session, income-expense and reporting features.",
-        "The scope and limits of your selected plan (Mini, Starter, Pro, Business) are shown at checkout and at https://siriplan.com/fiyatlar. The service is online access to software; no physical product is delivered.",
+        "The scope and limits of your selected plan (Mini Lite, Mini, Starter, Pro, Business) are shown at checkout and at https://siriplan.com/fiyatlar. The service is online access to software; no physical product is delivered.",
       ],
     },
     {
@@ -414,7 +414,7 @@ const refundTr: LegalDoc = {
       p: [
         "Yükseltme: Mevcut dönemin kullanılmayan kısmı kredi olarak düşülür, aradaki fark hemen tahsil edilir ve yeni dönem yükseltme anında başlar.",
         "Düşürme: Mevcut dönem korunur; kullanılmayan fark, sonraki ödemelerden düşülmek üzere hesap kredisi olarak yansıtılır. Düşürme nakit iade doğurmaz.",
-        "Mini plan 1 aktif personelle sınırlıdır; Mini'ye geçmeden önce fazla personelin pasife alınması gerekir.",
+        "Mini ve Mini Lite planları 1 aktif personelle sınırlıdır; bu planlara geçmeden önce fazla personelin pasife alınması gerekir. Mini Lite planında müşteri kaydı ve randevu geçmişi tutulmaz; randevu tamamlandığında veya iptal edildiğinde randevu verileri otomatik ve kalıcı olarak silinir. Başka bir plandan Mini Lite'a geçişte mevcut geçmiş 30 gün boyunca dışa aktarılabilir, sonrasında kalıcı olarak silinir.",
       ],
     },
     {
@@ -482,7 +482,7 @@ const refundEn: LegalDoc = {
       p: [
         "Upgrade: the unused part of the current period is credited, the difference is charged immediately and a new period starts at the upgrade.",
         "Downgrade: the current period is kept; the unused difference is applied as account credit against future payments. A downgrade does not result in a cash refund.",
-        "The Mini plan is limited to 1 active staff member; extra staff must be deactivated before switching to Mini.",
+        "The Mini and Mini Lite plans are limited to 1 active staff member; extra staff must be deactivated before switching to them. The Mini Lite plan keeps no customer records or appointment history; appointment data is deleted automatically and permanently once an appointment is completed or cancelled. When switching to Mini Lite from another plan, existing history can be exported for 30 days and is permanently deleted afterwards.",
       ],
     },
     {

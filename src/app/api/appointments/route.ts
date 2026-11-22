@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isEphemeralOrg } from "@/lib/data-retention";
+import { consumePlanUsage, releasePlanUsage } from "@/lib/plan-usage";
+import { PLAN_USAGE_LIMITS } from "@/lib/entitlements";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendConfirmationEmail } from "@/lib/email/send";
@@ -9,6 +12,7 @@ import { findAvailableStaff, isStaffOnTimeOff } from "@/lib/staff-availability";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 import { normalizePhone } from "@/lib/phone";
 import { isTrialActive } from "@/lib/entitlements";
+import { notifyApptQuota, shouldNotifyApptQuota } from "@/lib/plan-limit-notify";
 import { getSubscriptionLock } from "@/lib/subscription-lock";
 import { isMobileApp } from "@/lib/mobile-app";
 import { limitByIp, hit, clientIp, tooManyRequests } from "@/lib/rate-limit";
@@ -126,6 +130,11 @@ async function handleCreateAppointment(req: NextRequest) {
     .single();
 
   if (!org) return NextResponse.json({ error: "Organizasyon bulunamadı" }, { status: 404 });
+
+  // Mini Lite (geçici veri modu): müşteri kaydı / rıza kaydı oluşturulmaz, randevu
+  // tamamlanınca ya da iptal edilince satır silinir (bkz. lib/data-retention.ts).
+  // Plan burada DB'den okunan org satırından gelir; persistent planlarda hiçbir şey değişmez.
+  const ephemeral = isEphemeralOrg(org);
 
   // Block booking if org is subscription-locked (trial dolmuş veya ödeme başarısız).
   // NOT: subscription_status kolonu kayıtta 'active' olarak yazılır ve trial bittiğinde
@@ -265,6 +274,11 @@ async function handleCreateAppointment(req: NextRequest) {
   // ── Otomatik Randevu Akışı ────────────────────────────────────
   // instagram/whatsapp/tiktok kaynağından gelen istekler has_auto_booking flag'ine göre
   // ya direkt appointments'a düşer ya da onay kuyruğuna gönderilir.
+  // Mini Lite: appointment_requests (ad/telefon kalıcı tutan onay kuyruğu) kullanılmaz; harici kaynak
+  // etiketi (anonim istemci gönderebilir) normal web akışına çevrilir — kalıcı PII tablosu oluşmaz.
+  if (ephemeral && (data.source === "instagram" || data.source === "whatsapp" || data.source === "tiktok")) {
+    data.source = "web";
+  }
   const isExternalSource = data.source === "instagram" || data.source === "whatsapp" || data.source === "tiktok";
   if (isExternalSource && !data.staff_id) {
     return NextResponse.json({ error: "Personel seçimi zorunlu" }, { status: 400 });
@@ -449,7 +463,7 @@ async function handleCreateAppointment(req: NextRequest) {
   // Telefon boşsa (panelden opsiyonel bırakılmış) "phone" alanına göre eşleşme
   // ARANMAZ — aksi halde telefonsuz her randevu phone='' üzerinden aynı tek
   // kayda ".single()" hatasıyla çarpar ya da rastgele bir müşteriyle eşleşir.
-  const { data: existingCustomer } = data.customer_phone
+  const { data: existingCustomer } = data.customer_phone && !ephemeral
     ? await adminSupabase
         .from("customers")
         .select("id, online_booking_blocked")
@@ -477,7 +491,10 @@ async function handleCreateAppointment(req: NextRequest) {
         }
       : null;
 
-  if (existingCustomer) {
+  if (ephemeral) {
+    // Mini Lite: ayrı müşteri kaydı yok; ad/telefon yalnızca randevu satırında durur.
+    customerId = null;
+  } else if (existingCustomer) {
     customerId = existingCustomer.id;
     const customerUpdates = {
       ...(consentFields ?? {}),
@@ -503,7 +520,7 @@ async function handleCreateAppointment(req: NextRequest) {
     if (newCustomer) customerId = newCustomer.id;
   }
 
-  if (consentFields) {
+  if (consentFields && !ephemeral) {
     const capturedVia = data.kvkk_captured_via ?? "inline_web";
     const consentRows = [
       {
@@ -536,6 +553,20 @@ async function handleCreateAppointment(req: NextRequest) {
         : []),
     ];
     await adminSupabase.from("customer_consents").insert(consentRows);
+  }
+
+  // Mini Lite: biten randevular silindiği için DB'deki COUNT(*) kotası yetmez; aylık hak
+  // atomik sayaçla uygulanır. Sayaç altyapısı hata verirse randevu ENGELLENMEZ (açık geç).
+  let apptQuotaConsumed = false;
+  if (ephemeral) {
+    const usage = await consumePlanUsage(data.org_id, "appointment", PLAN_USAGE_LIMITS.lite.appointments);
+    if (usage === "exceeded") {
+      return NextResponse.json(
+        { error: "Bu salonun bu ayki randevu hakkı doldu. Lütfen salonla iletişime geçin." },
+        { status: 409 }
+      );
+    }
+    apptQuotaConsumed = usage === "ok";
   }
 
   // Create appointment — use overrides when multiple services selected
@@ -581,6 +612,7 @@ async function handleCreateAppointment(req: NextRequest) {
     if (error) throw error;
     appt = insertedAppt;
   } catch (err) {
+    if (apptQuotaConsumed) await releasePlanUsage(data.org_id, "appointment");
     const pgErr = err as { code?: string; message?: string };
     if (pgErr.code === "23P01") {
       return NextResponse.json({ error: "Bu saatte personelin başka bir randevusu var." }, { status: 409 });
@@ -608,6 +640,24 @@ async function handleCreateAppointment(req: NextRequest) {
     notifyAppointmentRequest({ ...notifyPayload, serviceName: service.name }).catch(() => {});
   } else {
     notifyAppointment(notifyPayload).catch(() => {});
+  }
+
+  // Aylık randevu limiti olan planlarda (ör. Mini 200) %80 / %100 eşiğinde sahibe bildirim
+  // (fire-and-forget; yanıtı ve randevu akışını etkilemez, hata yutulur).
+  if (org.max_appointments_monthly && org.max_appointments_monthly < 999999) {
+    const apptLimit = org.max_appointments_monthly;
+    void (async () => {
+      const n = new Date();
+      const { count } = await db
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("org_id", data.org_id)
+        .gte("created_at", new Date(n.getFullYear(), n.getMonth(), 1).toISOString())
+        .lt("created_at", new Date(n.getFullYear(), n.getMonth() + 1, 1).toISOString());
+      if (count === null) return;
+      const kind = shouldNotifyApptQuota(count, apptLimit);
+      if (kind) await notifyApptQuota(data.org_id, kind, count, apptLimit);
+    })().catch(() => {});
   }
 
   // Müşteriye anlık WhatsApp onay bildirimi — yalnızca telefon varsa (panelden

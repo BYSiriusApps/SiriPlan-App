@@ -198,7 +198,7 @@ export default async function RootLayout({
                     ? {}
                     : {
                         // Tüm planlar × TL/USD/EUR aylık fiyat (tek kaynak: lib/pricing.ts)
-                        offers: (["mini", "starter", "pro", "business"] as const).flatMap((plan) =>
+                        offers: (["lite", "mini", "starter", "pro", "business"] as const).flatMap((plan) =>
                           (["TRY", "USD", "EUR"] as const).map((cur) => ({
                             "@type": "Offer",
                             name: plan.charAt(0).toUpperCase() + plan.slice(1),

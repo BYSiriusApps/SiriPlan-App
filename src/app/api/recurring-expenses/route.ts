@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMember } from "@/lib/active-org";
 import { hasPermission } from "@/lib/permissions";
+import { isEphemeralOrg } from "@/lib/data-retention";
 
 async function getOrgId(supabase: Awaited<ReturnType<typeof createClient>>, _userId: string) {
   const member = await getActiveMember(supabase);
   // Gelir-gider yalnızca view_financials izni olanlara (varsayılan: owner) açıktır
   if (!member || !hasPermission(member, "view_financials")) return null;
+  // Mini Lite (geçici veri modu): gelir-gider kaydı yok → 403 (çağıranlar null'ı 403'e çevirir).
+  if (isEphemeralOrg(member.organizations)) return null;
   return member.org_id;
 }
 

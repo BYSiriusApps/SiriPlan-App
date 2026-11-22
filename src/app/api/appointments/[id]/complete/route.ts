@@ -5,6 +5,7 @@ import { logAppointmentStatusChange, logAudit } from "@/lib/audit";
 import { findEligibleOffers, type EligibleOffer } from "@/lib/campaign-redeem";
 import { findActivePackageForService, recordPackageUsage } from "@/lib/package-tx";
 import { canChangeAppointmentStatus } from "@/lib/appointment-status";
+import { isEphemeralOrg, hardDeleteIfEphemeral } from "@/lib/data-retention";
 
 export async function POST(
   req: NextRequest,
@@ -56,6 +57,15 @@ export async function POST(
       { error: "Bu randevu kapatıldığı için (iptal/gelmedi) durumunu yalnızca yönetici veya salon sahibi değiştirebilir." },
       { status: 403 }
     );
+  }
+
+  // Mini Lite (geçici veri modu): müşteri kaydı, gelir satırı, sadakat, paket ve denetim kaydı
+  // YOK — tamamlanan randevu kalıcı silinir. Satırı 'tamamlandi'ya çekmeyiz (DB tetikleyicisi
+  // müşteri adını gelir satırına yazardı). Persistent planlarda bu dal hiç çalışmaz.
+  if (isEphemeralOrg(member.organizations)) {
+    const deleted = await hardDeleteIfEphemeral(member.org_id, id);
+    if (!deleted) return NextResponse.json({ error: "Randevu kapatılamadı" }, { status: 500 });
+    return NextResponse.json({ success: true, usedPackage: false, discount: null, package: null, deleted: true });
   }
 
   // ── Kampanya indirim hakkı (yalnızca kontrol; henüz hiçbir şey yazılmaz) ──

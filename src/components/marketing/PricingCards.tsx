@@ -18,6 +18,7 @@ import {
 type BillingCycle = "monthly" | "annual";
 
 const PLAN_ORDER = [
+  { key: "lite", highlight: false },
   { key: "mini", highlight: false },
   { key: "starter", highlight: false },
   { key: "pro", highlight: true },
@@ -86,7 +87,7 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
         🔒 {t("pricing.priceLock")}
       </p>
 
-      <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 ${isFull ? "" : "max-w-6xl mx-auto"}`}>
+      <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 ${isFull ? "" : "max-w-6xl mx-auto"}`}>
         {planMeta.map((plan) => {
           const features = t.raw(`pricing.${plan.key}.features`) as string[];
           const notIncluded = isFull
@@ -154,6 +155,11 @@ export function PricingCards({ currency, plans, variant = "home" }: PricingCards
                   )}
                 </div>
 
+                {plan.key === "lite" && (
+                  <p className="mb-3 rounded-md bg-primary/10 px-2.5 py-1.5 text-[11px] font-medium text-primary">
+                    {t("pricing.liteDataNote")}
+                  </p>
+                )}
                 <ul className={`space-y-2.5 ${isFull ? "flex-1" : ""}`}>
                   {features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-xs">

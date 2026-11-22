@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { hasProTools } from "@/lib/entitlements";
+import { ephemeralForbidden } from "@/lib/data-retention";
 import { hasPermission } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import * as XLSX from "xlsx";
@@ -141,6 +142,11 @@ export async function GET(req: NextRequest) {
   if (!member || !["owner", "manager"].includes(member.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+
+  // Mini Lite (geçici veri modu): dışa aktarma kapalı (403). Tek istisna: Pro/Mini → Lite geçişinden
+  // sonraki 30 günlük dışa aktarma süresi (bkz. lib/data-retention.ts). Persistent planlarda no-op.
+  const ephemeralBlock = await ephemeralForbidden(member, { read: true });
+  if (ephemeralBlock) return ephemeralBlock;
 
   // PDF rapor export Pro+ özelliğidir (fiyatlandırma: Starter "Veri export (CSV)"
   // içerir, PDF içermez). CSV / Excel / JSON her planda açık kalır.

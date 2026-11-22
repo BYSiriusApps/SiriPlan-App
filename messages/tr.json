@@ -310,7 +310,28 @@
         "Özel entegrasyonlar"
       ],
       "notIncluded": []
-    }
+    },
+    "lite": {
+      "name": "Mini Lite",
+      "desc": "Kayıt tutmak istemeyen tek kişilik işletmeler için",
+      "features": [
+        "1 şube, 1 personel",
+        "Ayda 150 randevu",
+        "Ayda 300 WhatsApp mesajı (onay + hatırlatma)",
+        "Kişisel randevu linki (siriplan.com/r/salon-adin)",
+        "Otomatik mesajlar: onay, hatırlatma, iptal",
+        "Randevu tamamlanınca veriler otomatik silinir",
+        "E-posta desteği"
+      ],
+      "notIncluded": [
+        "Müşteri kaydı ve randevu geçmişi",
+        "Raporlar, gelir-gider ve veri export",
+        "Stok ve paket / seans takibi",
+        "Ek personel / kullanıcı",
+        "Website modu, kampanya, sesli asistan"
+      ]
+    },
+    "liteDataNote": "Mini Lite: randevu tamamlanınca veriler otomatik silinir."
   },
   "addons": {
     "title": "Ek Paketler",
@@ -341,7 +362,7 @@
     }
   },
   "pricingPage": {
-    "metaDescription": "SiriPlan fiyatlandırma — Mini ₺399/ay, Starter ₺1.199/ay, Pro ₺1.699/ay, Business ₺4.699/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
+    "metaDescription": "SiriPlan fiyatlandırma — Mini Lite ₺499/ay, Mini ₺699/ay, Starter ₺1.199/ay, Pro ₺1.699/ay, Business ₺4.699/ay. 14 gün ücretsiz deneme, kredi kartı gerekmez.",
     "heroBadge": "14 Gün Ücretsiz — Kredi Kartı Gerekmez",
     "heroTitle": "Şeffaf Fiyatlandırma,",
     "heroTitleHighlight": "Sürpriz Yok",
@@ -710,7 +731,7 @@
           },
           "q4": {
             "q": "Yıllık planla ne kadar tasarruf ediyorum?",
-            "a": "Yıllık ödeme tercihinde %18 civarı indirim uygulanır. Örn. Starter plan ₺1.199/ay yerine yıllık ödemede ₺11.798/yıl (~₺983/ay) dengindedir. Güncel fiyatlar (aylık / yıllık): Mini ₺399 / ₺3.926 · $14 / $138 · €13 / €128; Starter ₺1.199 / ₺11.798 · $29 / $285 · €26 / €256; Pro ₺1.699 / ₺16.718 · $39 / $384 · €33 / €325; Business ₺4.699 / ₺46.238 · $99 / $974 · €84 / €827."
+            "a": "Yıllık ödeme tercihinde %18 civarı indirim uygulanır. Örn. Starter plan ₺1.199/ay yerine yıllık ödemede ₺11.798/yıl (~₺983/ay) dengindedir. Güncel fiyatlar (aylık / yıllık): Mini Lite ₺499 / ₺4.900 · $18 / $177 · €16 / €157; Mini ₺699 / ₺6.900 · $25 / $246 · €23 / €226; Starter ₺1.199 / ₺11.798 · $29 / $285 · €26 / €256; Pro ₺1.699 / ₺16.718 · $39 / $384 · €33 / €325; Business ₺4.699 / ₺46.238 · $99 / $974 · €84 / €827."
           }
         }
       },
@@ -2406,7 +2427,7 @@
             "Planlar: Mini, Starter, Pro ve Business planlarının tamamı sabit ve şeffaf yapıdadır; teklif alma / temsilci bekleme adımı yoktur. Her yeni hesap 14 gün ücretsiz deneme ile başlar.",
             "Plan bilgileriniz: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.",
             "Aboneliğiniz SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir. Plan yükseltme, yenileme veya faturalandırmayla ilgili sorularınız için destek ekibimizle iletişime geçin: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Plan farkları: Mini — 1 personel, ayda 200 randevu ve 400 WhatsApp mesajı, randevu linki, müşteri kaydı, stok/barkod, paket takibi, gelir-gider ve KDV, CSV export. Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, bekleme listesi, gelir-gider ve KDV, ayda 500 WhatsApp mesajı dahil (onay + hatırlatma), sadakat kartı, ayda 1 kampanya, CSV export. Pro — sınırsız personel, ayda 1.500 WhatsApp mesajı dahil, sesli asistan, website modu, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, ayda 3.000 WhatsApp mesajı dahil, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar. WhatsApp randevu mesajı hakkı abonelik başlangıç tarihinizin aylık yıldönümünde yenilenir; dolunca Ayarlar → Abonelik'ten ek mesaj paketi alabilirsiniz. WhatsApp kampanya mesajları plana dahil değildir, kampanya kredisiyle gönderilir."
+            "Plan farkları: Mini — 1 personel, ayda 200 randevu ve 400 WhatsApp mesajı, randevu linki, müşteri kaydı, stok/barkod, paket takibi, gelir-gider ve KDV, CSV export. Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, bekleme listesi, gelir-gider ve KDV, ayda 500 WhatsApp mesajı dahil (onay + hatırlatma), sadakat kartı, ayda 1 kampanya, CSV export. Pro — sınırsız personel, ayda 1.500 WhatsApp mesajı dahil, sesli asistan, website modu, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, ayda 3.000 WhatsApp mesajı dahil, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar. WhatsApp randevu mesajı hakkı abonelik başlangıç tarihinizin aylık yıldönümünde yenilenir; dolunca Ayarlar → Abonelik'ten ek mesaj paketi alabilirsiniz. WhatsApp kampanya mesajları bu haktan ayrıdır; işletmenin kendi WhatsApp Business hesabından gider."
           ]
         },
         "sadakat": {
@@ -3603,6 +3624,10 @@
       "anyStaffLabel": "Farketmez",
       "anyStaffDesc": "Uygun ilk personel",
       "chooseDateTitle": "Tarih Seçin",
+      "slotBusy": "Dolu",
+      "slotTakenNow": "Bu saati az önce başka biri seçti. Lütfen başka bir saat seçin.",
+      "legendFree": "Müsait",
+      "legendBusy": "Dolu",
       "chooseTimeTitle": "Saat Seçin",
       "loadingSlots": "Müsait saatler yükleniyor...",
       "noSlotsAvailable": "Bu tarihte müsait saat yok.",
@@ -4167,7 +4192,10 @@
       "pay_now_upgrade": "Şimdi <b>{amount}</b> ödeyeceksiniz. Bu tutar, {planName} plan ücretinden mevcut planınızın kullanılmayan kısmının düşülmesiyle hesaplanır. Yeni {periodAdj} dönem bugünden itibaren başlar ve sonraki yenileme {period} sonradır.",
       "pay_now_same_cycle": "Şimdi <b>{amount}</b> ödeyeceksiniz. Mevcut fatura dönemi tarihiniz değişmez.",
       "no_charge_credit": "Şimdi ödeme alınmaz. Mevcut planınızın kullanılmayan kısmı ({amount}) hesabınıza kredi olarak yazılır ve sonraki faturanızdan düşülür. Fatura dönemi tarihiniz değişmez.",
-      "confirm_and_pay": "Onayla ve {amount} öde"
+      "confirm_and_pay": "Onayla ve {amount} öde",
+      "lite_warning": "Mini Lite'a geçince müşteri kaydı ve randevu geçmişi tutulmaz. Mevcut geçmişinizi 30 gün boyunca dışa aktarabilirsiniz; sonrasında kalıcı olarak silinir. Bu işlem geri alınamaz.",
+      "lite_ack": "Verilerimin 30 gün sonra kalıcı olarak silineceğini anladım ve kabul ediyorum.",
+      "lite_upgrade_info": "Mini Lite'tan geçerken eski randevu geçmişi yoktur; kayıt tutma geçiş anından itibaren başlar."
     },
     "planSec": {
       "bir_hata_olustu": "Bir hata oluştu.",
@@ -4239,7 +4267,8 @@
       "plan_business_f1": "5 şubeye kadar",
       "plan_business_f2": "AI asistanı (WA/IG auto-reply)",
       "plan_business_f3": "Öncelikli destek",
-      "plan_business_f4": "Özel entegrasyonlar"
+      "plan_business_f4": "Özel entegrasyonlar",
+      "lite_confirm": "Mini Lite'ta müşteri kaydı tutulmaz; randevu tamamlanınca veya iptal edilince veriler otomatik ve kalıcı olarak silinir. Devam etmek istiyor musunuz?"
     },
     "pwaKart": {
       "uygulamayi_telefona_ekle_wid": "Uygulamayı Telefona Ekle (Widget)",

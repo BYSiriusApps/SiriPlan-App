@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendPurposeTemplate, formatApptDateTime } from "@/lib/wa-templates/send";
 import { limitByIp, tooManyRequests } from "@/lib/rate-limit";
+import { isEphemeralPlan, hardDeleteIfEphemeral } from "@/lib/data-retention";
 
 export const runtime = "nodejs";
 
@@ -16,7 +17,7 @@ type ApptRow = {
   customer_name: string;
   customer_phone: string;
   cancel_token: string;
-  organizations?: { name: string; timezone?: string | null } | null;
+  organizations?: { name: string; timezone?: string | null; plan?: string | null } | null;
   staff?: { full_name: string } | null;
   service?: { name: string } | null;
 };
@@ -25,7 +26,7 @@ async function findByToken(token: string) {
   const supabase = await createAdminClient();
   const { data } = await supabase
     .from("appointments")
-    .select("id, org_id, status, appointment_at, customer_name, customer_phone, cancel_token, organizations(name, timezone), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
+    .select("id, org_id, status, appointment_at, customer_name, customer_phone, cancel_token, organizations(name, timezone, plan), staff:staff!appointments_staff_id_fkey(full_name), service:services(name)")
     .eq("cancel_token", token)
     .single();
   return { supabase, appt: data as unknown as ApptRow | null };
@@ -110,6 +111,11 @@ export async function POST(req: NextRequest) {
       appointmentAt: appt.appointment_at,
       cancelToken: appt.cancel_token,
     }).catch(() => {});
+  }
+
+  // Mini Lite: iptal bildirimi tetiklendikten sonra satırı kalıcı sil.
+  if (isEphemeralPlan(appt.organizations?.plan)) {
+    await hardDeleteIfEphemeral(appt.org_id, appt.id);
   }
 
   return NextResponse.json({ success: true });

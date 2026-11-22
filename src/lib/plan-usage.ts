@@ -10,7 +10,7 @@ import { createAdminClient } from "@/lib/supabase/server";
  * randevu/mesaj akışını kırar. Sınır kasıtlı olarak yalnızca "exceeded" iken uygulanır.
  */
 
-export type UsageKind = "wa_message" | "campaign" | "campaign_wa_message";
+export type UsageKind = "wa_message" | "campaign" | "campaign_wa_message" | "appointment";
 
 export type ConsumeResult = "ok" | "exceeded" | "error";
 
