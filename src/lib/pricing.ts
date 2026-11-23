@@ -100,11 +100,13 @@ export function getAnnualSavings(monthly: number, annual: number): number {
 
 export function formatPrice(amount: number, currency: PricingCurrency): string {
   const locale = currency === "TRY" ? "tr-TR" : "en-US";
-  const displayAmount = Math.round(amount);
+  // Tam sayılar eskisi gibi ondalıksız; kesirli tutar (ör. €3,50) kuruşuyla gösterilir —
+  // yuvarlanırsa etiket Stripe'ta tahsil edilen tutardan farklı olurdu.
+  const hasFraction = !Number.isInteger(amount);
   const value = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(displayAmount);
+    minimumFractionDigits: hasFraction ? 2 : 0,
+    maximumFractionDigits: hasFraction ? 2 : 0,
+  }).format(hasFraction ? amount : Math.round(amount));
 
   const symbol = currency === "TRY" ? "₺" : currency === "USD" ? "$" : "€";
   return `${symbol}${value}`;

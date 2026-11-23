@@ -24,7 +24,7 @@ export interface WaCreditPack {
 }
 
 export const WA_CREDIT_PACKS: readonly WaCreditPack[] = [
-  { id: "u500", kind: "utility", credits: 500, prices: { TRY: 150, USD: 4, EUR: 3 } },
+  { id: "u500", kind: "utility", credits: 500, prices: { TRY: 150, USD: 4, EUR: 3.5 } },
   { id: "u1000", kind: "utility", credits: 1000, prices: { TRY: 250, USD: 5, EUR: 5 } },
   { id: "u5000", kind: "utility", credits: 5000, prices: { TRY: 1000, USD: 20, EUR: 20 } },
   { id: "u10000", kind: "utility", credits: 10000, prices: { TRY: 1800, USD: 40, EUR: 36 } },

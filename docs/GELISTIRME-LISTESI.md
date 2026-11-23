@@ -757,7 +757,7 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
   müşteri sunumu HTML'i ve kılavuzlar temizlendi. Müşteri yalnızca kendi SMS sağlayıcısını (Netgsm/VatanSMS/İletimerkezi) bağlar.
   **Altyapı bilerek duruyor:** `api/stripe/sms-pack`, webhook `kind=sms_pack`, `sms-credits`, `sms-packs`, `sendSms` kontör düşümü.
 - **Ek WhatsApp bildirim (utility) paketleri: 500 / 1.000 / 5.000 / 10.000 mesaj** (`src/lib/wa-credit-packs.ts`).
-  Fiyatlar (TRY / USD / EUR): 150/4/3 · 250/5/5 · 1.000/20/20 · 1.800/40/36 (4 Kas 2026: kullanıcı belirledi ve Stripe ürünlerini girdi; önceki 400/800/3.800/7.200 TL önerisi maliyet analiziyle düşürüldü —
+  Fiyatlar (TRY / USD / EUR): 150/4/3,50 · 250/5/5 · 1.000/20/20 · 1.800/40/36 (4 Kas 2026: kullanıcı belirledi ve Stripe ürünlerini girdi; önceki 400/800/3.800/7.200 TL önerisi maliyet analiziyle düşürüldü —
   iş kararı, Stripe Price ile BİREBİR aynı olmalı). Kampanya paketleri (m500/m1000/m2500) kataloğta duruyor.
 - **Kota uyarıları:** plan hakkı %80/%100 uyarısına web/uygulama **push** eklendi; **ek paket bitince** ("Ek mesaj paketiniz bitti")
   sahibe Telegram + WhatsApp + push; Bekleyen İstekler ve Bekleme Listesi sayfalarının üstünde kırmızı kota şeridi
@@ -800,8 +800,8 @@ Kod canlıda (PR #191 + #196), ama aşağıdakiler **henüz uçtan uca test edil
 
 **C. Ek paket satın alma (Stripe — önce TEST MODU, canlı anahtar yerelde!)**
 - [x] Stripe ürünleri/Price'lar açıldı, 4 env Vercel (Production) + `.env.local`'a girildi, redeploy yapıldı (4 Kas 2026). Kampanya Price'ları açılmadı (satışta değil).
-- [ ] Abonelik sayfasında 4 paket → ödeme → `kind=wa_pack` webhook → kredi yükleniyor, çift yüklenme yok.
-- [ ] **UYUMSUZ (23 Kas):** Stripe `_500` Price'ında EUR €3,50, katalogda €3 — karar bekliyor. Fiyatlar (KDV dahil): 500 → ₺150 / $4 / €3 · 1.000 → ₺250 / $5 / €5 · 5.000 → ₺1.000 / $20 / €20 · 10.000 → ₺1.800 / $40 / €36 (PR #211, 4 Kas 2026).
+- [x] (23 Kas: imzalı sahte checkout.session.completed ile — gerçek ödeme yok) Abonelik sayfasında 4 paket → ödeme → `kind=wa_pack` webhook → kredi yükleniyor (+500), aynı oturum tekrarında bakiye artmıyor, `unpaid` ve yanlış customer reddediliyor, imzasız istek 400. Not: tekrar olayı yinelenen `wa_pack.purchased` audit satırı yazıyor (kredi çift yüklenmiyor; demo'da 2 `evt_SIM_*` kaydı kaldı).
+- [x] (23 Kas: Stripe esas alındı, katalog €3,50'ye güncellendi; `formatPrice` kesirli tutarı gösterir) Fiyatlar (KDV dahil): 500 → ₺150 / $4 / €3,50 · 1.000 → ₺250 / $5 / €5 · 5.000 → ₺1.000 / $20 / €20 · 10.000 → ₺1.800 / $40 / €36 (PR #211, 4 Kas 2026).
 - [ ] Abonelik, Hesabım ve Ayarlar kartlarında 4 paketin etiketi bu tutarlarla görünüyor (eski 400/800/3.800/7.200 kalmamış).
 - [x] (23 Kas: 12 kombinasyon, yalnızca 500/EUR farklı; Mini/Mini Lite/Starter/Pro/Business planları da doğrulandı) Checkout sayfasındaki tutar, panel etiketiyle ve Stripe Price ile birebir aynı (TRY, USD, EUR için ayrı ayrı).
 - [x] Her Vercel env adı doğru ürünün Price kimliğine bağlı (ör. `_500` kimliği 500'lük ürüne ait; yanlış eşleşme yanlış kredi yükler).
@@ -836,3 +836,8 @@ Kod canlıda (PR #191 + #196), ama aşağıdakiler **henüz uçtan uca test edil
 - **Güvenlik rotasyonu (META_APP_SECRET, sms_password):** GEREKMİYOR — kiracı yoktu, tek kullanıcı sahibin kendisiydi, anahtarlar dışarı sızmadı.
 - **Mini 200 randevu limiti:** limitin %80'inde ve %100'ünde sahibe Telegram + WhatsApp + push bildirimi eklendi (`notifyApptQuota`); randevu akışı/yanıtı değişmedi.
 - Kampanya kredisi ifadeleri sohbet botu, panel sohbeti, kılavuz ve 6 dildeki mesajlardan temizlendi.
+
+## 21. Açık teknik borç: Stripe SDK tipleri (23 Kas 2026)
+
+- [ ] `stripe` 23.x tipleri API sürümü `2026-10-28/11-18.endive`'i bekliyor; kod `2026-08-26.dahlia`'ya sabit. `tsc` 7 hata veriyor (`lib/stripe/config.ts` apiVersion; `payment_method_types` → addon/checkout/sms-pack/wa-pack; `billing_cycle_anchor`/`payment_behavior` → change-plan + preview). `ignoreBuildErrors` açık olduğu için derleme/çalışma etkilenmiyor (başlık dahlia kalıyor, davranış aynı).
+  Düzeltme = API sürümünü yükseltmek (ödeme/plan değişimi/proration davranışı riski): AYRI oturumda, Stripe changelog okunup test-mode ile yapılmalı. Ödeme akışlarına bu yüzden dokunulmadı.
