@@ -219,7 +219,7 @@
     "contactUs": "Angebot anfordern / Kontakt aufnehmen",
     "contactForPrice": "Individuelles Angebot",
     "contactUsSub": "Maßgeschneiderte Pakete und Preise für Ihr Unternehmen",
-    "bottomNote": "14 Tage kostenlose Testphase für Mini, Starter & Pro · Keine Kreditkarte erforderlich · Jederzeit kündbar",
+    "bottomNote": "14 Tage kostenlose Testphase für Mini Lite, Mini, Starter & Pro · Keine Kreditkarte erforderlich · Jederzeit kündbar",
     "foreignFeeNote": "Die Zahlung wird über unser außerhalb der Türkei registriertes Händlerkonto abgewickelt; Ihre Bank kann eine Auslandseinsatzgebühr von üblicherweise ca. 1–3 % des Rechnungsbetrags erheben. Unsere Preise berücksichtigen diese Gebühr bereits — sie geht an Ihre Bank, nicht an SiriPlan.",
     "annualLabel": "oder {annual}/Monat · {total}/Jahr",
     "priceLock": "1 Jahr Preisgarantie",
@@ -230,7 +230,7 @@
       "monthly": "Monatlich",
       "annual": "Jährlich",
       "perMonthEquivalent": "≈ {amount}/Monat",
-      "note": "Bis zu 18 % Rabatt bei jährlicher Abrechnung · 14 Tage kostenlose Testphase für Mini, Starter & Pro · Keine Kreditkarte erforderlich · Jederzeit kündbar",
+      "note": "Bis zu 18 % Rabatt bei jährlicher Abrechnung · 14 Tage kostenlose Testphase für Mini Lite, Mini, Starter & Pro · Keine Kreditkarte erforderlich · Jederzeit kündbar",
       "seeAll": "Tarifmerkmale vergleichen"
     },
     "mini": {
@@ -842,7 +842,7 @@
       "Marketingkommunikation mit Ihrer ausdrücklichen Einwilligung (KVKK Art. 5/1)"
     ],
     "transferTitle": "Datenübermittlung",
-    "transferP": "Ihre personenbezogenen Daten können im Rahmen von Datenverarbeitungsverträgen und gemäß den Artikeln 8 und 9 des KVKK an Anbieter von Hosting- und Datenbankinfrastruktur, Anwendungsbereitstellung, Code-Repositories, E-Mail-Versand, Zahlungsabwicklung (Stripe), Messaging (WhatsApp/SMS) und KI-Sprachmodell-Diensten (Google Gemini; Anthropic Claude als Fallback) übermittelt werden. Einige dieser Anbieter befinden sich im Ausland (in der EU oder den USA); grenzüberschreitende Übermittlungen erfolgen mit angemessenen Schutzgarantien.",
+    "transferP": "Ihre personenbezogenen Daten können im Rahmen von Datenverarbeitungsverträgen und gemäß den Artikeln 8 und 9 des KVKK an Anbieter von Hosting- und Datenbankinfrastruktur, Anwendungsbereitstellung, Code-Repositories, E-Mail-Versand, Zahlungsabwicklung (Stripe), Messaging (WhatsApp/SMS) und KI-Sprachmodell-Diensten (Anthropic Claude; Google Gemini als Fallback) übermittelt werden. Einige dieser Anbieter befinden sich im Ausland (in der EU oder den USA); grenzüberschreitende Übermittlungen erfolgen mit angemessenen Schutzgarantien.",
     "rightsTitle": "Ihre Rechte gemäß KVKK Artikel 11",
     "rightsItems": [
       "Auskunft darüber verlangen, ob Ihre personenbezogenen Daten verarbeitet werden",
@@ -890,7 +890,7 @@
     "s4Title": "4. Datensicherheit",
     "s4P": "Ihre Daten werden mit SSL/TLS-Verschlüsselung geschützt. Unsere Serverinfrastruktur entspricht branchenüblichen Sicherheitsprotokollen. Ihre Zahlungsinformationen werden niemals auf unseren Servern gespeichert; alle Zahlungstransaktionen werden über die PCI-DSS-konforme Stripe-Infrastruktur abgewickelt.",
     "s5Title": "5. Weitergabe an Dritte",
-    "s5P": "Ihre personenbezogenen Daten werden nur in dem für die Dienstleistung erforderlichen Umfang und im Rahmen von Datenverarbeitungsverträgen an Dienstleister der folgenden Kategorien weitergegeben: Hosting- und Datenbankinfrastruktur, Anwendungsbereitstellung, Code-Repository und Versionskontrolle, E-Mail-Versand, Zahlungsabwicklung (Stripe), Messaging (WhatsApp/SMS), Push-Benachrichtigungen (Apple Push Notification service, Google Firebase Cloud Messaging) und KI-Sprachmodell-Dienste (Google Gemini; Anthropic Claude als Fallback). Wenn KI-Funktionen (KI-Assistenten-Antworten, Website-Chatbot, Sprachbuchung) genutzt werden, werden die relevanten Nachrichtentexte und die für die Antwort benötigten Unternehmensdetails an diese Anbieter übermittelt, um die Antwort zu generieren. Einige dieser Anbieter befinden sich außerhalb der Türkei (in der EU oder den USA); Übermittlungen erfolgen mit angemessenen Garantien und vertraglichen Verpflichtungen gemäß Artikel 9 des KVKK. Ihre Daten werden nicht an Dritte verkauft oder für Marketingzwecke weitergegeben.",
+    "s5P": "Ihre personenbezogenen Daten werden nur in dem für die Dienstleistung erforderlichen Umfang und im Rahmen von Datenverarbeitungsverträgen an Dienstleister der folgenden Kategorien weitergegeben: Hosting- und Datenbankinfrastruktur, Anwendungsbereitstellung, Code-Repository und Versionskontrolle, E-Mail-Versand, Zahlungsabwicklung (Stripe), Messaging (WhatsApp/SMS), Push-Benachrichtigungen (Apple Push Notification service, Google Firebase Cloud Messaging) und KI-Sprachmodell-Dienste (Anthropic Claude; Google Gemini als Fallback). Wenn KI-Funktionen (KI-Assistenten-Antworten, Website-Chatbot, Sprachbuchung) genutzt werden, werden die relevanten Nachrichtentexte und die für die Antwort benötigten Unternehmensdetails an diese Anbieter übermittelt, um die Antwort zu generieren. Einige dieser Anbieter befinden sich außerhalb der Türkei (in der EU oder den USA); Übermittlungen erfolgen mit angemessenen Garantien und vertraglichen Verpflichtungen gemäß Artikel 9 des KVKK. Ihre Daten werden nicht an Dritte verkauft oder für Marketingzwecke weitergegeben.",
     "s6Title": "6. Ihre Rechte",
     "s6Intro": "Gemäß Artikel 11 des KVKK haben Sie folgende Rechte:",
     "s6Items": [
@@ -1571,6 +1571,10 @@
       "chooseTimeTitle": "Uhrzeit wählen",
       "loadingSlots": "Verfügbare Zeiten werden geladen...",
       "noSlotsAvailable": "Keine verfügbaren Zeiten an diesem Datum.",
+      "slotBusy": "Belegt",
+      "slotTakenNow": "Diese Zeit wurde gerade von jemand anderem gewählt. Bitte wählen Sie eine andere.",
+      "legendFree": "Frei",
+      "legendBusy": "Belegt",
       "continueButton": "Weiter",
       "enterInfoTitle": "Geben Sie Ihre Informationen ein",
       "serviceLabel": "Dienstleistung:",
@@ -1614,11 +1618,7 @@
         "fri": "Freitag",
         "sat": "Samstag",
         "sun": "Sonntag"
-      },
-      "slotBusy": "Belegt",
-      "slotTakenNow": "Diese Zeit wurde gerade von jemand anderem gewählt. Bitte wählen Sie eine andere.",
-      "legendFree": "Frei",
-      "legendBusy": "Belegt"
+      }
     }
   },
   "dashboard": {
@@ -1627,12 +1627,9 @@
       "utilityLabel": "Terminnachrichten (diesen Monat)",
       "renews": "Ihr Tarifkontingent erneuert sich am {date}.",
       "addonBalance": "Guthaben Zusatzpakete",
-      "campaignBalance": "Kampagnenguthaben",
       "noteEnforced": "Terminbestätigungen, Erinnerungen, Stornierungen und Änderungen verbrauchen dieses Kontingent. Ist es aufgebraucht, wird das Guthaben der Zusatzpakete genutzt; ist auch das leer, werden keine automatischen WhatsApp-Nachrichten gesendet, Ihre Termine werden aber weiterhin ganz normal gespeichert.",
       "noteMetered": "Terminbestätigungen, Erinnerungen, Stornierungen und Änderungen verbrauchen dieses Kontingent. Ist Ihr Tarifkontingent aufgebraucht, wird das Guthaben der Zusatzpakete genutzt.",
-      "campaignNote": "WhatsApp-Kampagnennachrichten sind nicht im Tarif enthalten und werden mit gekauftem Kampagnenguthaben gesendet. SMS-Kampagnen sind nicht betroffen.",
       "buyUtility": "{count} zusätzliche Terminnachrichten",
-      "buyCampaign": "{count} Kampagnennachrichten",
       "buyHint": "Zusatzpakete sind Einmalkäufe, werden nicht monatlich zurückgesetzt und nach der Zahlung automatisch gutgeschrieben.",
       "buyError": "Die Zahlungsseite konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
       "buySuccess": "Zahlung erhalten. Ihr Guthaben wird in Kürze aktualisiert.",
@@ -2539,10 +2536,10 @@
         "abonelik": {
           "title": "21. Abonnement- & Tarifverwaltung",
           "paragraphs": [
-            "Tarife: Die Tarife Mini, Starter, Pro und Business sind fest und transparent. Keine Angebotseinholungen oder Warten auf Vertreter. Jedes Konto beginnt mit einer 14-tägigen kostenlosen Testphase.",
+            "Tarife: Die Tarife Mini Lite, Mini, Starter, Pro und Business sind fest und transparent. Keine Angebotseinholungen oder Warten auf Vertreter. Jedes Konto beginnt mit einer 14-tägigen kostenlosen Testphase.",
             "Tarifdetails: Zeigen Sie Ihren aktuellen Tarif, Ihre Limits und Ihren Rechnungsverlauf unter Einstellungen → Abonnement an.",
             "Ihr Abonnement ist mit SiriPlan verknüpft und wird unabhängig von App-Stores verwaltet. Bei Fragen zu Upgrades oder zur Abrechnung wenden Sie sich an den Support: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Tarifunterschiede: Mini — 1 Mitarbeiter, 200 Termine und 400 WhatsApp-Nachrichten pro Monat, Buchungslink, Kundenkartei, Lagerbestand/Barcode, Pakete, Einnahmen-Ausgaben & MwSt., CSV-Export. Starter — 1 Filiale, 8 Mitarbeiter, unbegrenzte Termine, Buchungslink, Lagerbestand/Barcode, Pakete, Warteliste, Einnahmen-Ausgaben & MwSt., 500 WhatsApp-Nachrichten pro Monat inklusive (Bestätigungen + Erinnerungen), Treuekarte, 1 Kampagne pro Monat, CSV-Export. Pro — unbegrenztes Personal, 1.500 WhatsApp-Nachrichten pro Monat inklusive, Sprachassistent, Website-Modus, PDF-Berichte, Kampagnen, Kunden-Score und Mitarbeiter der Woche. Business — bis zu 5 Filialen, 3.000 WhatsApp-Nachrichten pro Monat inklusive, alle Pro-Funktionen, KI-WhatsApp/IG-Assistent und individuelle Integrationen. Das Kontingent für WhatsApp-Terminnachrichten erneuert sich monatlich zum Jahrestag Ihres Abostarts; ist es aufgebraucht, können Sie unter Einstellungen → Abonnement ein Zusatz-Nachrichtenpaket kaufen. WhatsApp-Kampagnennachrichten sind von diesem Kontingent getrennt und werden über das eigene WhatsApp-Business-Konto des Betriebs gesendet."
+            "Tarifunterschiede: Mini Lite — 1 Mitarbeiter, 150 Termine und 300 WhatsApp-Nachrichten pro Monat, Buchungslink, automatische Nachrichten (Bestätigung/Erinnerung/Absage); keine Kundenkartei und kein Terminverlauf (Daten werden nach Abschluss des Termins automatisch gelöscht), keine Berichte/Lager/Pakete. Mini — 1 Mitarbeiter, 200 Termine und 400 WhatsApp-Nachrichten pro Monat, Buchungslink, Kundenkartei, Lagerbestand/Barcode, Pakete, Einnahmen-Ausgaben & MwSt., CSV-Export. Starter — 1 Filiale, 8 Mitarbeiter, unbegrenzte Termine, Buchungslink, Lagerbestand/Barcode, Pakete, Warteliste, Einnahmen-Ausgaben & MwSt., 500 WhatsApp-Nachrichten pro Monat inklusive (Bestätigungen + Erinnerungen), Treuekarte, 1 Kampagne pro Monat, CSV-Export. Pro — unbegrenztes Personal, 1.500 WhatsApp-Nachrichten pro Monat inklusive, Sprachassistent, Website-Modus, PDF-Berichte, Kampagnen, Kunden-Score und Mitarbeiter der Woche. Business — bis zu 5 Filialen, 3.000 WhatsApp-Nachrichten pro Monat inklusive, alle Pro-Funktionen, KI-WhatsApp/IG-Assistent und individuelle Integrationen. Das Kontingent für WhatsApp-Terminnachrichten erneuert sich monatlich zum Jahrestag Ihres Abostarts; ist es aufgebraucht, können Sie unter Einstellungen → Abonnement ein Zusatz-Nachrichtenpaket kaufen. WhatsApp-Kampagnennachrichten sind von diesem Kontingent getrennt und werden über das eigene WhatsApp-Business-Konto des Betriebs gesendet."
           ]
         },
         "sadakat": {
@@ -4507,6 +4504,37 @@
       "sifre_tekrar": "Passwort bestätigen",
       "sifreyi_tekrar_girin": "Passwort erneut eingeben",
       "sifreyi_guncelle": "Passwort aktualisieren"
+    }
+  },
+  "panelTour": {
+    "title": "Das Panel aus der Nähe",
+    "subtitle": "Eine kurze Tour mit Beispieldaten: vom Termin bis zur Kasse an einem Ort.",
+    "tabs": {
+      "calendar": "Kalender",
+      "approve": "Terminbestätigung",
+      "whatsapp": "WhatsApp-Nachricht",
+      "income": "Umsatzbericht"
+    },
+    "desc": {
+      "calendar": "Der Tag Ihres ganzen Teams auf einem Bildschirm.",
+      "approve": "Neue Anfragen mit einem Tipp bestätigen oder ablehnen.",
+      "whatsapp": "Die Bestätigung geht automatisch an den Kunden.",
+      "income": "Tages- und Wochenumsatz sofort im Blick."
+    },
+    "mock": {
+      "today": "Heute",
+      "pending": "Offen",
+      "confirmed": "Bestätigt",
+      "approve": "Bestätigen",
+      "reject": "Ablehnen",
+      "haircut": "Haarschnitt",
+      "manicure": "Maniküre",
+      "skincare": "Gesichtspflege",
+      "revenue": "Tagesumsatz",
+      "appointments": "Termine",
+      "completed": "Abgeschlossen",
+      "waName": "Beauty-Salon",
+      "waMsg": "Hallo Ayse, Ihr Termin (Haarschnitt) morgen um 14:00 ist bestätigt. Bis bald!"
     }
   }
 }

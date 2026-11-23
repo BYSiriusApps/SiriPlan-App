@@ -757,7 +757,7 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
   müşteri sunumu HTML'i ve kılavuzlar temizlendi. Müşteri yalnızca kendi SMS sağlayıcısını (Netgsm/VatanSMS/İletimerkezi) bağlar.
   **Altyapı bilerek duruyor:** `api/stripe/sms-pack`, webhook `kind=sms_pack`, `sms-credits`, `sms-packs`, `sendSms` kontör düşümü.
 - **Ek WhatsApp bildirim (utility) paketleri: 500 / 1.000 / 5.000 / 10.000 mesaj** (`src/lib/wa-credit-packs.ts`).
-  Fiyatlar (TRY / USD / EUR): 400/8/7 · 800/16/14 · **3.800/76/66 · 7.200/144/126** (5 bin ve 10 bin paket fiyatları benim önerim —
+  Fiyatlar (TRY / USD / EUR): 150/4/3 · 250/5/5 · 1.000/20/20 · 1.800/40/36 (4 Kas 2026: kullanıcı belirledi ve Stripe ürünlerini girdi; önceki 400/800/3.800/7.200 TL önerisi maliyet analiziyle düşürüldü —
   iş kararı, Stripe Price ile BİREBİR aynı olmalı). Kampanya paketleri (m500/m1000/m2500) kataloğta duruyor.
 - **Kota uyarıları:** plan hakkı %80/%100 uyarısına web/uygulama **push** eklendi; **ek paket bitince** ("Ek mesaj paketiniz bitti")
   sahibe Telegram + WhatsApp + push; Bekleyen İstekler ve Bekleme Listesi sayfalarının üstünde kırmızı kota şeridi
@@ -778,3 +778,61 @@ Not: §11'deki trial SMS'inde URL var — yurtdışı sağlayıcıdan gidecekse 
   büyük pakette mesaj başı fiyatı kademeli düşürmek. Karar bekliyor; Meta + 360dialog güncel fiyatı teyit edilmeli.
 - `docs/musteri-sunumu/SiriPlan-Musteri-Sunumu.pdf` HTML'den yeniden üretilmedi (içinde SMS kontörü slaytı kalmış olabilir).
 - Slot-hold (`20261016_slot_holds.sql`, `api/public/slot-hold`, availability/BookingWizard) bu paketle ayrı tutuldu, commit'e girmedi.
+
+## 19. ⏳ TEST EDİLECEKLER — WhatsApp kota / ek paket işi (20 Eki 2026)
+
+Kod canlıda (PR #191 + #196), ama aşağıdakiler **henüz uçtan uca test edilmedi**. Demo org (**Sirius Demo Güzellik Salonu**)
+üzerinde, mesajlar YALNIZCA test numaralarına gidecek şekilde yapılacak: sahip `5553287509`, personel `5355032634`
+(gerçek müşteri numarasına mesaj tetikleme). Test bitince test randevularını iptal/temizle (müşteri kaydı silinmez).
+
+**A. Plan kartı ve metinler**
+- [ ] siriplan.com fiyat kartları 6 dilde (TR/EN/RU/AR/DE/ES): Mini 400 · Starter 500 · Pro 1.500 · Business 3.000 mesaj (yalnızca TR canlıda görüldü).
+- [ ] Abonelik, plan-sec, SSS/rehber, sohbet asistanı ve sunum sayfası aynı rakamları söylüyor mu.
+- [ ] `docs/musteri-sunumu/SiriPlan-Musteri-Sunumu.pdf` HTML'den yeniden üretildi mi (SMS kontörü slaytı kalmış olabilir).
+
+**B. Kota sayımı ve kesinti**
+- [ ] Onay / hatırlatma / iptal / revize mesajı kotadan düşüyor (yalnızca müşterinin 2 mesajı sayılıyor).
+- [ ] Kota dolunca otomatik WhatsApp mesajı duruyor; **randevu kaydı ve düzenleme normal devam ediyor**.
+- [ ] Önce plan hakkı, bitince ek paket bakiyesi kullanılıyor; ikisi de bitince mesaj gitmiyor.
+- [ ] Yenilenme takvim ayı değil **abonelik başlangıç yıldönümünde** (`org_message_cycle`, Stripe `billing_cycle_anchor`).
+- [ ] Deneme (100) ve plan yükseltme/düşürme sonrası limit doğru güncelleniyor.
+- [ ] Personel seçili değilse yalnızca sahibe, seçiliyse sahip + personele bildirim gidiyor.
+
+**C. Ek paket satın alma (Stripe — önce TEST MODU, canlı anahtar yerelde!)**
+- [x] Stripe ürünleri/Price'lar açıldı, 4 env Vercel (Production) + `.env.local`'a girildi, redeploy yapıldı (4 Kas 2026). Kampanya Price'ları açılmadı (satışta değil).
+- [ ] Abonelik sayfasında 4 paket → ödeme → `kind=wa_pack` webhook → kredi yükleniyor, çift yüklenme yok.
+- [ ] Fiyatlar (KDV dahil): 500 → ₺150 / $4 / €3 · 1.000 → ₺250 / $5 / €5 · 5.000 → ₺1.000 / $20 / €20 · 10.000 → ₺1.800 / $40 / €36 (PR #211, 4 Kas 2026).
+- [ ] Abonelik, Hesabım ve Ayarlar kartlarında 4 paketin etiketi bu tutarlarla görünüyor (eski 400/800/3.800/7.200 kalmamış).
+- [ ] Checkout sayfasındaki tutar, panel etiketiyle ve Stripe Price ile birebir aynı (TRY, USD, EUR için ayrı ayrı).
+- [ ] Her Vercel env adı doğru ürünün Price kimliğine bağlı (ör. `_500` kimliği 500'lük ürüne ait; yanlış eşleşme yanlış kredi yükler).
+- [ ] Meta'nın USD rate card'ında Türkiye utility ücreti doğrulandı; paket fiyatları $0,0009 (A) senaryosuna göre belirlendi, B çıkarsa fiyatlar yeniden gözden geçirilecek.
+- [ ] TRY/USD/EUR tutarları `wa-credit-packs.ts` ile Stripe Price'ta birebir aynı.
+- [ ] Mobil uygulamada (App Store/Play) paket satın alma yüzeyleri gizli.
+
+**D. Uyarılar ve kullanım kartları**
+- [ ] %80 ve %100 uyarısı: panel bandı + web/uygulama push; ek paket bitince sahibe Telegram + WhatsApp + push.
+- [ ] Bekleyen İstekler ve Bekleme Listesi üstündeki `WaQuotaNotice` şeridi.
+- [ ] `WaUsageCard` (Hesabım) ve `WaUsageSettingsCard` (Ayarlar) yalnızca sahip/yönetici görüyor; personel görmüyor.
+- [ ] Başka organizasyonun kullanım/kredi verisi hiçbir yerde görünmüyor (kiracı izolasyonu: `tenant-isolation.mjs`).
+
+**E. Kampanya ve sağlayıcı katmanı**
+- [x] (5 Kas 2026: kampanya kredisi KALDIRILDI) WhatsApp kampanyası işletmenin kendi hesabından, SMS kampanyası SMS kanalından gider; kredi/ortak numara yok.
+- [ ] `wa-line` varsayılan sağlayıcı = Meta (env boş): mevcut akış değişmedi.
+- [ ] 360dialog webhook'u gizli anahtar yokken/yanlışken reddediyor (fail-closed); yalnızca RET işliyor. (360dialog hesabı henüz yok.)
+
+**F. SMS paketi kapatıldıktan sonra**
+- [ ] Abonelik/Ayarlar/pazarlama sitesinde SMS kontör kartı ve linki yok; `/api/addon-request` "sms" reddediyor.
+- [ ] Müşterinin kendi SMS sağlayıcısı (Netgsm/VatanSMS/İletimerkezi) ile SMS bildirimi hâlâ çalışıyor.
+
+## 20. Durum güncellemesi (5 Kas 2026)
+
+- **Slot-hold** (geçici saat kilidi): tamamlandı, main'de (#184, #210); `slot_holds` tablosu canlı veritabanında var.
+- **WA kota / ek paket:** PR #196 (+ #211 fiyatlar, #216 kampanya kredisi kaldırıldı) main'de; kota uçtan uca test edildi.
+- **360dialog:** Meta işletme doğrulaması (business verification) bekleniyor; **7-8 Kasım'da takip edilecek**. Sonra PLBV + Regular plan + webhook bağlanacak.
+- **Kampanya MARKETING şablonları:** Meta'da onaylı; kod tarafına **sonra** eklenecek (şimdilik dokunulmayacak).
+- **Apple / Play:** yayında; yeni sürümler yalnızca AB uyum politikası işi (satıcı/trader bilgisinin doğrulanması) için bekliyor — devam ediyor.
+- **Anthropic API:** bakiye yüklendi; `llm.ts` Claude'u Gemini'den önce dener (Gemini yedek). Claude for Startups programı (1 yıl Claude Team + 1.000 $ API kredisi) başvurusu değerlendirilecek: anthropic.com/startups — koşullar resmi sayfadan doğrulanmalı.
+- **Stripe uçtan uca (gerçek satış yok):** ek paket satın alma akışı test modunda denenmedi — test-mode anahtar + test Price ID'leri ile `kind=wa_pack` webhook'u doğrulanacak (canlı anahtar yerelde, dikkat).
+- **Güvenlik rotasyonu (META_APP_SECRET, sms_password):** GEREKMİYOR — kiracı yoktu, tek kullanıcı sahibin kendisiydi, anahtarlar dışarı sızmadı.
+- **Mini 200 randevu limiti:** limitin %80'inde ve %100'ünde sahibe Telegram + WhatsApp + push bildirimi eklendi (`notifyApptQuota`); randevu akışı/yanıtı değişmedi.
+- Kampanya kredisi ifadeleri sohbet botu, panel sohbeti, kılavuz ve 6 dildeki mesajlardan temizlendi.

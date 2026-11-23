@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { sendTrialEndingEmail } from "@/lib/email/send";
 import { sendPlatformSms } from "@/lib/sms";
 import { isCronAuthorized } from "@/lib/webhook-signature";
+import { sendOnboardingWa } from "@/lib/wa-templates/onboarding-send";
 
 export const runtime = "nodejs";
 
@@ -100,6 +101,18 @@ export async function POST(req: NextRequest) {
         await sendPlatformSms(org.phone, buildTwoDaySms(org.name, appUrl));
       } catch {}
     }
+    // WhatsApp (SiriPlan utility hattı; şablon onaylı değilse / numara yoksa sessizce atlanır)
+    await sendOnboardingWa(
+      org.phone,
+      "deneme_2gun",
+      {
+        business_name: org.name,
+        end_date: org.trial_ends_at
+          ? new Date(org.trial_ends_at).toLocaleDateString("tr-TR", { timeZone: "Europe/Istanbul" })
+          : "-",
+      },
+      org.locale
+    );
     await supabase.from("organizations").update({ trial_reminder_2d_sent_at: now.toISOString() }).eq("id", org.id);
     sent2d++;
   }
@@ -118,6 +131,7 @@ export async function POST(req: NextRequest) {
         );
       } catch {}
     }
+    await sendOnboardingWa(org.phone, "deneme_bitti", { business_name: org.name }, org.locale);
     await supabase.from("organizations").update({ trial_reminder_0d_sent_at: now.toISOString() }).eq("id", org.id);
     sent0d++;
   }

@@ -6,9 +6,13 @@ export interface BlogPost {
   date: string;
   /** ISO 8601 (YYYY-MM-DD) — JSON-LD `datePublished` için; `date` görüntü metnidir. */
   isoDate: string;
+  /** Son güncelleme (YYYY-MM-DD) — JSON-LD `dateModified`; yoksa isoDate kullanılır. */
+  updatedIso?: string;
   readTime: string;
   author: string;
   content: string;
+  /** Soru-cevap bölümü — sayfada görünür + FAQPage JSON-LD (GEO/SEO). */
+  faq?: { q: string; a: string }[];
 }
 
 export const blogPosts: BlogPost[] = [
@@ -73,6 +77,11 @@ Bu 7 yöntemi birlikte uyguladığınızda doluluk oranınızın 4-8 haftada bel
 
 **14 gün ücretsiz deneyin, farkı kendiniz görün.**
     `,
+    faq: [
+      { q: "Randevu doluluk oranı nasıl artırılır?", a: "Otomatik WhatsApp hatırlatmaları, online randevu sayfası, bekleme listesi, sadakat programı, inaktif müşterilere kampanya ve son dakika boşluklarını doldurma gibi yöntemler birlikte uygulandığında doluluk oranı artar." },
+      { q: "Boş kalan randevu saatleri nasıl doldurulur?", a: "Bekleme listesindeki uygun müşterileri arayarak ya da kısa süreli kampanyalarla son dakika boşluklarını doldurabilirsiniz. SiriPlan'da bekleme listesi tüm planlarda kullanılabilir." },
+      { q: "İnaktif müşteri nedir, nasıl geri kazanılır?", a: "Belirli bir süredir randevu almayan müşteridir. Kişiye özel bir hatırlatma mesajı ve küçük bir indirimle geri kazanma kampanyası göndermek yaygın yöntemdir." },
+    ],
   },
   {
     slug: "whatsapp-ai-asistan-kurulum",
@@ -133,6 +142,11 @@ AI asistanı, yeni bir "personel" gibi düşünün — uyku uyumaz, asla hata ya
 
 **SiriPlan Pro ile bugün aktive edin.**
     `,
+    faq: [
+      { q: "WhatsApp AI asistanı ne yapar?", a: "Müşterinin mesajındaki uygunluk, fiyat ve personel sorularını yanıtlar, onay alınca randevuyu sisteme kaydeder. Yalnızca sizin sisteminizde tanımlı hizmet ve saatlerle çalışır." },
+      { q: "WhatsApp AI asistanı kurulumu için neler gerekir?", a: "Meta üzerinden WhatsApp Business Cloud API hesabı, SiriPlan Entegrasyonlar ekranında bağlantı ve girilmiş bir hizmet ve fiyat listesi gerekir. Meta onay süreci birkaç iş günü sürebilir." },
+      { q: "AI asistanı mesai dışında da randevu alabilir mi?", a: "Evet. Asistan 7/24 çalışır; müşteri gece mesaj atsa bile müsait saatleri gösterip randevu oluşturabilir." },
+    ],
   },
   {
     slug: "sadakat-programi-musteri-kaybi-onleme",
@@ -209,6 +223,11 @@ Sadakat programı aktif kullanan SiriPlan müşterilerinden elde edilen ortalama
 
 **Bugün başlayın — 14 gün ücretsiz.**
     `,
+    faq: [
+      { q: "Salon sadakat programı nasıl çalışır?", a: "Müşterilere ziyaret sıklığı, harcama ve bağlılık süresine göre bir skor verilir. Skora göre VIP, sadık, orta ve riskli gruplara ayrılan müşterilere farklı kampanyalar sunulur." },
+      { q: "Müşteri kaybı nasıl önlenir?", a: "Uzun süredir gelmeyen müşterileri tespit edip kişiselleştirilmiş mesaj göndermek, doğum günü teklifi sunmak ve referans programı işletmek müşteri kaybını azaltmanın yaygın yollarıdır." },
+      { q: "Doğum günü mesajı otomatik gönderilebilir mi?", a: "Evet. SiriPlan doğum günü mesajını ve kampanya teklifini otomatik gönderebilir." },
+    ],
   },
   {
     slug: "kvkk-guzellik-salonlari-rehber",
@@ -271,6 +290,11 @@ SiriPlan, KVKK uyumunu otomatize eder:
 
 *Bu rehber genel bilgi amaçlıdır. Hukuki danışmanlık için avukatınıza başvurun.*
     `,
+    faq: [
+      { q: "Güzellik salonları KVKK kapsamında mıdır?", a: "Evet. Müşteri adı, telefon, randevu geçmişi, ödeme bilgisi veya fotoğraf toplayan her salon 6698 sayılı KVKK kapsamında veri sorumlusudur." },
+      { q: "Pazarlama mesajı göndermek için onay gerekir mi?", a: "Evet. Pazarlama mesajları için açık rıza gerekir ve bu onay randevu onayından ayrı bir kutucukla alınmalıdır. Randevu hatırlatması gibi hizmetin kendisiyle ilgili mesajlar sözleşme ve meşru menfaat kapsamında değerlendirilir." },
+      { q: "Müşteri verisi ne kadar saklanabilir?", a: "Yasal bir zorunluluk yoksa veriler işleme amacı sona erdiğinde silinmeli ya da anonimleştirilmelidir. Kesin süreler için avukatınıza veya KVKK mevzuatına danışın." },
+    ],
   },
   {
     slug: "instagram-otomatik-randevu-kurulum",
@@ -344,6 +368,11 @@ Entegrasyonu aktif kullanan salonlarda:
 
 **SiriPlan Pro ile Instagram AI asistanınızı bugün aktive edin.**
     `,
+    faq: [
+      { q: "Instagram DM'den otomatik randevu nasıl alınır?", a: "Instagram işletme hesabınızı Meta üzerinden SiriPlan'a bağlarsınız. Gelen mesajlara fiyat, saat ve personel sorularının yanıtı otomatik verilir, randevu linki DM'de paylaşılır." },
+      { q: "Instagram entegrasyonu için hangi hesap türü gerekir?", a: "Kişisel hesap yerine Instagram İşletme (Professional) hesabı gerekir; Meta Business hesabına bağlı olmalıdır." },
+      { q: "Instagram AI asistanı fiyat sorularını yanıtlar mı?", a: "Evet. Asistan, SiriPlan'da tanımladığınız hizmet listesi ve fiyatlarla yanıt verir." },
+    ],
   },
   {
     slug: "kdv-komisyon-raporlama-otomasyonu",
@@ -416,6 +445,11 @@ El hesabı ve Excel yerine SiriPlan'ın otomatik raporlama sistemi ile her ay 3-
 
 **14 gün ücretsiz deneyin.**
     `,
+    faq: [
+      { q: "Salon için KDV raporu nasıl hazırlanır?", a: "SiriPlan her hizmet için KDV dahil ve hariç tutarları ayırır ve muhasebecinize gönderebileceğiniz PDF rapor üretir. Beyan için son kontrolü muhasebecinizle yapın." },
+      { q: "Personel komisyonu nasıl hesaplanır?", a: "Personelin verdiği hizmet cirosu komisyon oranıyla çarpılır. Örneğin 15.000 ₺ ciro ve %30 komisyonda komisyon 4.500 ₺ olur." },
+      { q: "Salon net karı nasıl bulunur?", a: "Net kâr, cirodan kira, malzeme, personel ve reklam gibi giderlerin çıkarılmasıyla bulunur. SiriPlan gelir ve giderleri birlikte tutarak bunu otomatik hesaplar." },
+    ],
   },
   {
     slug: "randevu-no-show-azaltma",
@@ -474,6 +508,11 @@ Bu 6 yöntem tek başına da fark yaratır, birlikte uygulandığında no-show o
 
 **14 gün ücretsiz deneyin, farkı kendiniz görün.**
     `,
+    faq: [
+      { q: "No-show nedir?", a: "No-show, müşterinin randevu alıp haber vermeden gelmemesidir. Boş kalan saat salonun geri alınamayan gelir kaybıdır." },
+      { q: "Randevuya gelmeme oranı nasıl azaltılır?", a: "Otomatik WhatsApp hatırlatması, onay gerektiren randevu akışı, ön ödeme (kaparo), müşteri skoru ile riskli müşterileri belirleme, bekleme listesi ve net bir iptal politikası en etkili yöntemlerdir." },
+      { q: "Ön ödeme (kaparo) no-show'u azaltır mı?", a: "Evet. Müşteri ön ödeme yaptığında randevuya bağlılığı artar; gelmeme riski belirgin biçimde düşer." },
+    ],
   },
   {
     slug: "salon-personel-prim-maas-hesaplama",
@@ -552,6 +591,11 @@ Adil ve şeffaf bir prim sistemi, personelin bağlılığını artırır ve ay s
 
 **14 gün ücretsiz deneyin, ilk ay sonu hesabınızı saniyeler içinde görün.**
     `,
+    faq: [
+      { q: "Salon personel maaşı nasıl hesaplanır?", a: "Taban maaş, komisyon ve bahşiş modelinde toplam ödeme şu formülle bulunur: Taban Maaş + (Aylık Ciro × Komisyon Oranı) + Bahşiş." },
+      { q: "Komisyon hangi randevulardan hesaplanmalı?", a: "Yalnızca tamamlanmış hizmetlerden. İptal edilen, gelmeyen veya ertelenen randevular cirodan sayılmamalıdır." },
+      { q: "SiriPlan'da personel maaş hesabı nasıl yapılır?", a: "Personel, Maaş Hesaplama ekranında ay ve yıl seçilir. Taban maaş, komisyon, tamamlanan randevu cirosu ve bahşiş otomatik listelenir; isterseniz tek tıkla gider kaydına işlenir." },
+    ],
   },
   {
     slug: "randevu-bekleme-listesi-bos-saat-doldurma",
@@ -622,6 +666,202 @@ Boş kalan saat, geri alınamayan bir gelirdir. Bekleme listesi sayesinde iptal,
 
 **14 gün ücretsiz deneyin, ilk iptal olan saati birlikte doldurun.**
     `,
+    faq: [
+      { q: "Randevu bekleme listesi nedir?", a: "İstediği saat dolu olan müşterinin adı, telefonu, hizmeti ve uygun zamanlarıyla kaydedildiği sıradır. Bir randevu iptal olduğunda uygun müşteri aranarak saat doldurulur." },
+      { q: "İptal olan randevu saati nasıl doldurulur?", a: "Boşluğu görün, bekleme listesinden aynı hizmeti isteyen uygun müşteriyi seçin, hızlıca arayın ya da mesaj yazın ve kabul ederse randevuyu oluşturup kaydı kapatın." },
+      { q: "SiriPlan'da bekleme listesi hangi planlarda var?", a: "Starter dahil tüm planlarda kullanılabilir. Liste müşteriyi otomatik aramaz; kayıt ve durum takibini sağlar." },
+    ],
+  },
+  {
+    slug: "seans-paketi-satisi-takibi-guzellik-salonu",
+    category: "Ciro",
+    title: "Seans Paketi Satışı: Peşin Gelir ve Kalan Seans Takibi",
+    excerpt: "10 seans lazer, 6 seans cilt bakımı gibi paketlerle peşin gelir elde edin; kalan seansı Excel'siz, müşteri bazlı takip edin.",
+    date: "5 Kasım 2026",
+    isoDate: "2026-11-05",
+    readTime: "6 dk",
+    author: "SiriPlan Ekibi",
+    content: `
+"10 seans lazer epilasyon alıyorum, kaç seansım kaldı?" sorusuna defterden cevap aramak hem vakit alır hem hataya açıktır. Seans paketi satmak salonlar için güçlü bir gelir yöntemidir; ama paketler düzenli takip edilmezse müşteri güveni de, ciro doğruluğu da zarar görür. Bu rehberde **seans paketi** satışını ve kalan seans takibini adım adım anlatıyoruz.
+
+## 1. Seans Paketi Salona Ne Kazandırır?
+
+- **Peşin gelir:** Paket bedeli satış anında tahsil edilir, nakit akışınız rahatlar.
+- **Müşteri bağlılığı:** Paketi olan müşteri bir sonraki seans için başka salona gitmez.
+- **Planlanabilir doluluk:** Kalan seansı olan müşteriler için ileri tarihli randevular alırsınız.
+- **Daha yüksek sepet:** Tek seans yerine paket önermek ortalama harcamayı artırır.
+
+Hangi hizmetler pakete uygundur? Tekrar gerektiren hizmetler: lazer epilasyon, cilt bakımı, bölgesel zayıflama, kalıcı makyaj dokunuşları, ağda serileri.
+
+## 2. Paket Fiyatını Nasıl Belirlersiniz?
+
+Basit bir yöntem: tek seans fiyatını seans sayısıyla çarpın, ardından makul bir paket avantajı uygulayın.
+
+**Örnek:** Tek seans 1.000 ₺ ise 10 seanslık paket 10.000 ₺ eder. %10 paket avantajıyla 9.000 ₺ olarak satarsanız, müşteri seans başına 900 ₺ öder ve siz tutarı peşin alırsınız.
+
+İndirim oranını hizmetin maliyetine göre belirleyin; çok yüksek indirim kârınızı eritir.
+
+## 3. Paket Takibinde En Sık Yapılan Hatalar
+
+- **Kalan seansı defterde tutmak:** Sayfa kaybolur, yazı okunmaz, sayı yanlış düşülür.
+- **Aynı seansı iki kez düşmek ya da hiç düşmemek:** İptal edilen randevu seans sayılır mı, karışır.
+- **Cirodan çifte sayım:** Paket satıldığında gelir yazılır, seans günü yine ücret girilirse ciro olduğundan yüksek görünür.
+- **Süre sonunu unutmak:** Paketin geçerlilik tarihi takip edilmezse anlaşmazlık çıkar.
+- **Biten paketi fark etmemek:** Son seansta yeni paket önerme fırsatı kaçar.
+
+## 4. SiriPlan'da Paket / Seans Takibi
+
+SiriPlan'ın **Paketler** özelliği bu süreci otomatikleştirir ve tüm planlarda kullanılabilir.
+
+- Müşteri kartından **"Paket Sat"** ile paket adını, toplam seans sayısını, ödenen tutarı ve isterseniz geçerlilik tarihini girersiniz.
+- Randevuyu **tamamladığınızda** ilgili paketten otomatik olarak bir seans düşülür. Tamamlama ekranındaki **"Paketten düş"** kutusu varsayılan olarak açıktır.
+- Seans paketten düşüldüğünde randevu ayrıca ücretlendirilmez, böylece **ciro iki kez sayılmaz.**
+- **Paketler** sayfasında tüm aktif paketler, kalan seansı az olandan çok olana doğru listelenir. "1 seans kaldı" uyarısı yeni paket satışı için size hatırlatma olur.
+- Paket satışı isterseniz Gelir-Gider sayfanıza **"Paket / Seans Satışı"** kategorisiyle gelir olarak işlenir.
+
+Paketi olmayan müşteriler için randevu akışı aynı şekilde çalışmaya devam eder; paket opsiyonel bir katmandır.
+
+## 5. Paket Satışını Başlatmak İçin 5 Adım
+
+1. Tekrar gerektiren 2-3 hizmetinizi seçin ve paket fiyatlarını belirleyin.
+2. Danışma ve seans bitişlerinde pakete dönüştürme önerisini standart hale getirin.
+3. Satışta paketi müşteri kartına kaydedin ve geçerlilik süresini net söyleyin.
+4. Her randevuyu tamamlarken seansın düşüldüğünü kontrol edin.
+5. Paket bitmeden bir önceki seansta yenileme teklifi yapın.
+
+*Not: Paket satışı ve ön ödemelere ilişkin vergi ve fatura yükümlülükleri için muhasebecinize danışmanız gerekir.*
+
+---
+
+## Sonuç
+
+Seans paketi, doğru takip edildiğinde salonun hem nakit akışını hem müşteri sadakatini güçlendirir. SiriPlan kalan seansı sizin yerinize sayar, ciroyu çifte saymaz ve paketi bitmek üzere olan müşteriyi önünüze getirir.
+
+**14 gün ücretsiz deneyin, ilk seans paketinizi birkaç dakikada tanımlayın.**
+    `,
+    faq: [
+      {
+        q: "Seans paketi nedir?",
+        a: "Seans paketi, müşterinin birden fazla seansı peşin ve genellikle indirimli fiyatla satın aldığı hizmet paketidir. Örneğin 10 seans lazer epilasyon ya da 6 seans cilt bakımı. Salon peşin gelir elde eder, müşteri de seans başına daha az öder.",
+      },
+      {
+        q: "Seans paketi fiyatı nasıl hesaplanır?",
+        a: "Tek seans fiyatı seans sayısıyla çarpılır, ardından makul bir paket avantajı uygulanır. Örneğin tek seans 1.000 ₺ ise 10 seanslık paket 10.000 ₺ eder; %10 avantajla 9.000 ₺ olarak satılır. İndirim oranı hizmetin maliyetine göre belirlenmelidir.",
+      },
+      {
+        q: "Kalan seans sayısı nasıl takip edilir?",
+        a: "SiriPlan'da paket müşteri kartına kaydedilir. Randevu tamamlandığında paketten otomatik bir seans düşülür ve Paketler sayfasında kalan seans sayısı görünür. Böylece defter veya Excel gerekmez.",
+      },
+      {
+        q: "Seans paketi satışında ciro iki kez sayılır mı?",
+        a: "Hayır. SiriPlan'da seans paketten düşüldüğünde randevu ayrıca ücretlendirilmez; gelir yalnızca paket satışı sırasında kaydedilir.",
+      },
+      {
+        q: "SiriPlan'da paket özelliği hangi planlarda var?",
+        a: "Paket ve seans takibi tüm SiriPlan planlarında kullanılabilir. 14 gün ücretsiz deneme ile test edebilirsiniz.",
+      },
+    ],
+  },
+  {
+    slug: "nail-estetik-diyetisyen-randevu-sistemi-farklari",
+    category: "Sektörler",
+    title: "Nail, Estetik ve Diyetisyen İçin Randevu Sistemi Farkları",
+    excerpt: "Nail stüdyosu, estetik merkezi ve diyetisyen aynı randevu programını kullanamaz. Her sektörün ihtiyacı ve doğru ayarı bu rehberde.",
+    date: "21 Kasım 2026",
+    isoDate: "2026-11-21",
+    readTime: "6 dk",
+    author: "SiriPlan Ekibi",
+    content: `
+"Randevu programı hepsi aynı" diye düşünürseniz ilk ay içinde sorun çıkar. Nail stüdyosunda iki saatlik bir jel uygulaması, estetik merkezinde 20 dakikalık bir kontrol seansı, diyetisyende haftalık online görüşme: üçü de randevudur ama **süre, tekrar, ödeme ve gizlilik ihtiyacı** birbirinden çok farklıdır. Bu rehberde üç sektörün gerçek farklarını ve her biri için doğru kurulumu anlatıyoruz.
+
+## 1. Üç Sektör Arasındaki Temel Fark
+
+| | Nail stüdyosu | Estetik merkezi | Diyetisyen |
+|---|---|---|---|
+| Tipik süre | 45-150 dk | 15-60 dk | 20-45 dk |
+| Müşteri dönüşü | 3-4 haftada bir | Seans serisi + kontrol | Haftalık / 2 haftalık |
+| Ödeme biçimi | Tek seferlik | Paket veya peşin | Paket veya danışmanlık süresi |
+| Hassas veri | Düşük | Yüksek | Yüksek |
+| En büyük kayıp | Uzun hizmette gecikme | Seansı atlayan müşteri | Takibi bırakan danışan |
+
+Aynı programı üç sektörde kullanabilirsiniz, ama **ayarlar sektöre göre değişmelidir.** Aşağıda nasıl olduğunu görelim.
+
+## 2. Nail Stüdyosu: Süre Doğru Girilmezse Gün Kayar
+
+Nail işinde sorun genellikle takvimin doluluğu değil, **hizmet süresinin yanlış tanımlanmasıdır.** Manikür 45 dakika, protez tırnak 120 dakika sürer; ikisini aynı slot uzunluğuna koyarsanız arkadaki müşteri bekler.
+
+- **Her hizmeti gerçek süresiyle girin.** "Jel + nail art" ile "sadece jel" ayrı hizmet olsun. Takvim, süreye göre yer ayırır.
+- **Doldurma (bakım) hatırlatması planlayın.** Protez ve jel müşterisi yaklaşık 3-4 hafta sonra geri gelir. Bu müşteriye zamanında yazmak, gelirin en kolay kaynağıdır.
+- **Personel bazlı takvim kullanın.** Her ustanın kendi hızı ve uzmanlığı vardır; müşteri istediği ustayı seçebilir.
+- **Boşalan uzun slotları bekleme listesiyle doldurun.** İki saatlik bir boşluk, 30 dakikalık boşluktan çok daha pahalıdır.
+
+## 3. Estetik Merkezi: Seri Seans ve Gizlilik
+
+Estetik merkezlerinde müşteri tek seferde gelmez; lazer, cilt bakımı ve benzeri işlemler **seanslar halinde** yapılır. İki konu öne çıkar:
+
+**Seans takibi.** "10 seans" satan merkez, kaçıncı seansta olduğunu ve kaç seansı kaldığını anlık bilmelidir. Defter veya Excel'de bu takip bir süre sonra karışır. Paket satışı yapıp kalan seansı sistemden izlemek hem müşteriye güven verir hem peşin geliri güvenceye alır. Ayrıntısı için [seans paketi satışı rehberimize](/blog/seans-paketi-satisi-takibi-guzellik-salonu) bakabilirsiniz.
+
+**Kişisel veri.** Estetik işlemler hassas bilgi içerir. Müşteri verisinin nerede ve nasıl tutulduğu önemlidir; aydınlatma metni ve açık rıza süreçleri ihmal edilmemelidir. Genel çerçeve için [KVKK rehberimizi](/blog/kvkk-guzellik-salonlari-rehber) inceleyin. Not: Yazılım yasal sorumluluğu devretmez; süreçlerinizi bir hukuk danışmanıyla doğrulamanızı öneririz.
+
+Ek olarak, kontrol seansını atlayan müşteriye otomatik **randevu hatırlatması** gitmesi, atlanan seans oranını belirgin biçimde düşürür.
+
+## 4. Diyetisyen: Tekrar Eden Görüşme ve Takip
+
+Diyetisyende asıl gelir **ilk görüşmede değil, ikinci ve üçüncü görüşmede** oluşur. Danışanların büyük bölümü ilk haftalardan sonra takibi bırakır. Bu yüzden iki şey kritiktir:
+
+- **Bir sonraki randevuyu görüşme bitmeden verin.** "Haftaya aynı saatte görüşelim" demek, takibi kendiliğinden sürdürür.
+- **Hatırlatma gönderin.** Online veya yüz yüze fark etmeksizin, randevudan önce giden bir mesaj gelmeme oranını düşürür.
+- **Danışmanlık sürecini paket olarak satın.** "4 haftalık program" gibi peşin satılan bir süreç, hem gelir hem devamlılık sağlar.
+
+Diyetisyen için ayrıca randevu notlarını düzenli tutmak önemlidir: kime ne söylediğinizi bir sonraki görüşmede hatırlamak profesyonel görünmenizi sağlar.
+
+## 5. Ortak İhtiyaçlar: Hangi Sektör Olursanız Olun
+
+Üç sektörün de ortak ihtiyacı aynıdır:
+
+1. **Randevu hatırlatması:** Gelmeme (no-show) oranını düşürmenin en ucuz yolu. [Gelmeme oranını azaltma rehberimize](/blog/randevu-no-show-azaltma) göz atın.
+2. **Online randevu linki:** Müşteri gece 23:00'te de randevu alabilmeli.
+3. **Müşteri kaydı:** Geçmiş randevular ve notlar tek yerde.
+4. **Doğru raporlama:** Hangi hizmet kazandırıyor, hangi saat boş kalıyor?
+
+## 6. SiriPlan'da Sektörünüze Göre Kurulum
+
+SiriPlan'a kayıt olurken işletme türünüzü (nail salon, estetik klinik, diyetisyen ve diğerleri) seçersiniz. Sonrasında:
+
+- Hizmetlerinizi **gerçek sürelerle** tanımlayın.
+- Personelinizi ekleyin; çalışma saatlerini girin.
+- Randevu linkinizi Instagram biyografinize ve Google profilinize ekleyin.
+- Seans/paket satıyorsanız **Paketler** bölümünü kullanın.
+- Hatırlatmaları açık tutun.
+
+Sektörünüze özel sayfalarda ayrıntıları görebilirsiniz: [nail stüdyoları](/kategori/nail), [estetik merkezleri](/kategori/estetik) ve [diyetisyenler](/kategori/diyetisyen) için SiriPlan.
+
+---
+
+## Sonuç
+
+Doğru randevu sistemi, sektörünüzün ritmine uyan sistemdir: nail'de süre, estetikte seri seans ve gizlilik, diyetisyende takip sürekliliği. Aynı altyapıyı, ayarları sektörünüze göre yaparak kullanırsınız.
+
+**14 gün ücretsiz deneyin, sektörünüze göre kurulumu birlikte yapalım.**
+    `,
+    faq: [
+      {
+        q: "Nail stüdyosu için en uygun randevu sistemi hangisi?",
+        a: "Nail stüdyosunda hizmetleri gerçek süreleriyle tanımlayabilen, personel bazlı takvim sunan ve hatırlatma gönderebilen bir sistem uygundur. SiriPlan'da her hizmetin süresi ayrı girilir ve takvim buna göre yer ayırır.",
+      },
+      {
+        q: "Estetik merkezi için randevu programında neler olmalı?",
+        a: "Seans paketi ve kalan seans takibi, randevu hatırlatması, personel takvimi ve kişisel verilerin korunmasına dikkat eden bir yapı olmalıdır. Yasal uyum süreçleri için ayrıca hukuk danışmanından destek alınmalıdır.",
+      },
+      {
+        q: "Diyetisyenler randevu sistemi kullanmalı mı?",
+        a: "Evet. Diyetisyen gelirinin büyük kısmı tekrar eden görüşmelerden gelir. Hatırlatma ve bir sonraki randevuyu önceden verme, danışanın takibi bırakmasını azaltır.",
+      },
+      {
+        q: "SiriPlan hangi sektörlerde kullanılabilir?",
+        a: "Kuaför, güzellik salonu, nail stüdyosu, estetik merkezi ve diyetisyen gibi randevuyla çalışan hizmet işletmelerinde kullanılabilir. Kayıt sırasında işletme türünüzü seçersiniz.",
+      },
+    ],
   },
 ];
 

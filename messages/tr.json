@@ -219,7 +219,7 @@
     "contactUs": "Teklif Al / İletişime Geç",
     "contactForPrice": "Özel Teklif Alın",
     "contactUsSub": "İşletmenize özel paket ve fiyatlandırma",
-    "bottomNote": "Mini, Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
+    "bottomNote": "Mini Lite, Mini, Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğin zaman iptal",
     "foreignFeeNote": "Ödeme yurt dışında kurulu üye işyerimiz üzerinden tahsil edilir; kartınızın bankası bu nedenle işlem tutarına genellikle %1-3 arası bir yurt dışı işlem komisyonu ekleyebilir. Fiyatlarımız bu komisyon göz önünde bulundurularak belirlenmiştir — komisyon bankanıza aittir, SiriPlan tarafından eklenmez.",
     "annualLabel": "veya {annual}/ay · {total}/yıl",
     "priceLock": "1 yıl sabit fiyat garantisi",
@@ -230,7 +230,7 @@
       "monthly": "Aylık",
       "annual": "Yıllık",
       "perMonthEquivalent": "≈ {amount}/ay",
-      "note": "Yıllık ödemede %18'e varan indirim · Mini, Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğiniz zaman iptal",
+      "note": "Yıllık ödemede %18'e varan indirim · Mini Lite, Mini, Starter ve Pro için 14 gün ücretsiz deneme · Kredi kartı gerekmez · İstediğiniz zaman iptal",
       "seeAll": "Plan özelliklerini karşılaştırın"
     },
     "mini": {
@@ -842,7 +842,7 @@
       "Açık rızanız dahilinde pazarlama iletişimi (KVKK m. 5/1)"
     ],
     "transferTitle": "Verilerin Aktarılması",
-    "transferP": "Kişisel verileriniz; barındırma ve veritabanı altyapısı, uygulama dağıtımı, kod deposu, e-posta gönderimi, ödeme (Stripe), mesajlaşma (WhatsApp/SMS) ve yapay zeka (dil modeli; Google Gemini, yedek olarak Anthropic Claude) hizmet sağlayıcıları ile KVKK'nın 8. ve 9. maddeleri kapsamında, veri işleme sözleşmeleri çerçevesinde paylaşılabilir. Bu sağlayıcıların bir kısmı yurt dışında (AB veya ABD) yerleşiktir; yurt dışı aktarımlar uygun güvenceler sağlanarak gerçekleştirilir.",
+    "transferP": "Kişisel verileriniz; barındırma ve veritabanı altyapısı, uygulama dağıtımı, kod deposu, e-posta gönderimi, ödeme (Stripe), mesajlaşma (WhatsApp/SMS) ve yapay zeka (dil modeli; Anthropic Claude, yedek olarak Google Gemini) hizmet sağlayıcıları ile KVKK'nın 8. ve 9. maddeleri kapsamında, veri işleme sözleşmeleri çerçevesinde paylaşılabilir. Bu sağlayıcıların bir kısmı yurt dışında (AB veya ABD) yerleşiktir; yurt dışı aktarımlar uygun güvenceler sağlanarak gerçekleştirilir.",
     "rightsTitle": "KVKK Madde 11 Kapsamındaki Haklarınız",
     "rightsItems": [
       "Kişisel verilerinizin işlenip işlenmediğini öğrenme",
@@ -890,7 +890,7 @@
     "s4Title": "4. Veri Güvenliği",
     "s4P": "Verileriniz SSL/TLS şifrelemesi ile korunur. Sunucu altyapımız endüstri standardı güvenlik protokollerine uymaktadır. Ödeme bilgileriniz hiçbir zaman sunucularımızda saklanmaz; tüm ödeme işlemleri PCI-DSS uyumlu Stripe altyapısı üzerinden gerçekleşir.",
     "s5Title": "5. Üçüncü Taraf Paylaşımı",
-    "s5P": "Kişisel verileriniz, hizmetin sunulması için gerekli olduğu ölçüde ve veri işleme sözleşmeleri çerçevesinde şu kategorilerdeki hizmet sağlayıcılarla paylaşılabilir: barındırma ve veritabanı altyapısı, uygulama dağıtımı, kod deposu ve sürüm yönetimi, e-posta gönderimi, ödeme (Stripe), mesajlaşma (WhatsApp/SMS), anlık bildirim (Apple Push Notification service, Google Firebase Cloud Messaging) ve yapay zeka (dil modeli) hizmetleri (Google Gemini; yedek olarak Anthropic Claude). Yapay zeka özellikleri (AI asistan yanıtları, site sohbet botu, sesli randevu) kullanıldığında, yanıtı üretmek için ilgili yazışma metni ve yanıt için gereken işletme bilgileri bu sağlayıcılara iletilir. Bu sağlayıcıların bir kısmı Türkiye dışında (AB veya ABD) yerleşiktir; aktarım, KVKK'nın 9. maddesi kapsamında uygun güvenceler ve sözleşmesel yükümlülükler çerçevesinde yapılır. Verileriniz üçüncü taraflara satılmaz veya pazarlama amacıyla paylaşılmaz.",
+    "s5P": "Kişisel verileriniz, hizmetin sunulması için gerekli olduğu ölçüde ve veri işleme sözleşmeleri çerçevesinde şu kategorilerdeki hizmet sağlayıcılarla paylaşılabilir: barındırma ve veritabanı altyapısı, uygulama dağıtımı, kod deposu ve sürüm yönetimi, e-posta gönderimi, ödeme (Stripe), mesajlaşma (WhatsApp/SMS), anlık bildirim (Apple Push Notification service, Google Firebase Cloud Messaging) ve yapay zeka (dil modeli) hizmetleri (Anthropic Claude; yedek olarak Google Gemini). Yapay zeka özellikleri (AI asistan yanıtları, site sohbet botu, sesli randevu) kullanıldığında, yanıtı üretmek için ilgili yazışma metni ve yanıt için gereken işletme bilgileri bu sağlayıcılara iletilir. Bu sağlayıcıların bir kısmı Türkiye dışında (AB veya ABD) yerleşiktir; aktarım, KVKK'nın 9. maddesi kapsamında uygun güvenceler ve sözleşmesel yükümlülükler çerçevesinde yapılır. Verileriniz üçüncü taraflara satılmaz veya pazarlama amacıyla paylaşılmaz.",
     "s6Title": "6. Haklarınız",
     "s6Intro": "KVKK Madde 11 kapsamında aşağıdaki haklara sahipsiniz:",
     "s6Items": [
@@ -1512,12 +1512,9 @@
       "utilityLabel": "Randevu mesajları (bu ay)",
       "renews": "Plan hakkınız {date} tarihinde yenilenir.",
       "addonBalance": "Ek paket bakiyesi",
-      "campaignBalance": "Kampanya kredisi",
       "noteEnforced": "Randevu onay, hatırlatma, iptal ve revizyon mesajları bu hakkı kullanır. Plan hakkı dolunca ek paket bakiyesi kullanılır; bakiye de yoksa otomatik WhatsApp mesajı gönderilmez, randevularınız normal şekilde kaydedilmeye devam eder.",
       "noteMetered": "Randevu onay, hatırlatma, iptal ve revizyon mesajları bu hakkı kullanır. Plan hakkı dolunca ek paket bakiyeniz kullanılır.",
-      "campaignNote": "WhatsApp kampanya mesajları plana dahil değildir; satın alınan kampanya kredisiyle gönderilir. SMS kampanyaları bundan etkilenmez.",
       "buyUtility": "{count} ek randevu mesajı",
-      "buyCampaign": "{count} kampanya mesajı",
       "buyHint": "Ek paketler tek seferliktir, aya göre sıfırlanmaz ve ödeme sonrası hesabınıza otomatik yüklenir.",
       "buyError": "Ödeme sayfası açılamadı. Lütfen tekrar deneyin.",
       "buySuccess": "Ödemeniz alındı. Bakiyeniz kısa süre içinde güncellenir.",
@@ -2424,10 +2421,10 @@
         "abonelik": {
           "title": "21. Abonelik & Plan Yönetimi",
           "paragraphs": [
-            "Planlar: Mini, Starter, Pro ve Business planlarının tamamı sabit ve şeffaf yapıdadır; teklif alma / temsilci bekleme adımı yoktur. Her yeni hesap 14 gün ücretsiz deneme ile başlar.",
+            "Planlar: Mini Lite, Mini, Starter, Pro ve Business planlarının tamamı sabit ve şeffaf yapıdadır; teklif alma / temsilci bekleme adımı yoktur. Her yeni hesap 14 gün ücretsiz deneme ile başlar.",
             "Plan bilgileriniz: Mevcut planınızı, kullanım limitlerinizi ve fatura geçmişinizi Ayarlar → Abonelik sayfasından görüntüleyebilirsiniz.",
             "Aboneliğiniz SiriPlan hesabınıza bağlıdır ve uygulama mağazalarından bağımsız olarak yönetilir. Plan yükseltme, yenileme veya faturalandırmayla ilgili sorularınız için destek ekibimizle iletişime geçin: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Plan farkları: Mini — 1 personel, ayda 200 randevu ve 400 WhatsApp mesajı, randevu linki, müşteri kaydı, stok/barkod, paket takibi, gelir-gider ve KDV, CSV export. Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, bekleme listesi, gelir-gider ve KDV, ayda 500 WhatsApp mesajı dahil (onay + hatırlatma), sadakat kartı, ayda 1 kampanya, CSV export. Pro — sınırsız personel, ayda 1.500 WhatsApp mesajı dahil, sesli asistan, website modu, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, ayda 3.000 WhatsApp mesajı dahil, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar. WhatsApp randevu mesajı hakkı abonelik başlangıç tarihinizin aylık yıldönümünde yenilenir; dolunca Ayarlar → Abonelik'ten ek mesaj paketi alabilirsiniz. WhatsApp kampanya mesajları bu haktan ayrıdır; işletmenin kendi WhatsApp Business hesabından gider."
+            "Plan farkları: Mini Lite — 1 personel, ayda 150 randevu ve 300 WhatsApp mesajı, randevu linki, otomatik onay/hatırlatma/iptal mesajları; müşteri kaydı ve randevu geçmişi tutulmaz (randevu tamamlanınca veriler otomatik silinir), rapor/stok/paket takibi yoktur. Mini — 1 personel, ayda 200 randevu ve 400 WhatsApp mesajı, randevu linki, müşteri kaydı, stok/barkod, paket takibi, gelir-gider ve KDV, CSV export. Starter — 1 şube, 8 personel, sınırsız randevu, randevu linki, stok/barkod, paket takibi, bekleme listesi, gelir-gider ve KDV, ayda 500 WhatsApp mesajı dahil (onay + hatırlatma), sadakat kartı, ayda 1 kampanya, CSV export. Pro — sınırsız personel, ayda 1.500 WhatsApp mesajı dahil, sesli asistan, website modu, PDF rapor, kampanya, müşteri skoru ve Haftanın Elemanı. Business — 5 şubeye kadar, ayda 3.000 WhatsApp mesajı dahil, tüm Pro özellikleri, AI WhatsApp/IG asistanı ve özel entegrasyonlar. WhatsApp randevu mesajı hakkı abonelik başlangıç tarihinizin aylık yıldönümünde yenilenir; dolunca Ayarlar → Abonelik'ten ek mesaj paketi alabilirsiniz. WhatsApp kampanya mesajları bu haktan ayrıdır; işletmenin kendi WhatsApp Business hesabından gider."
           ]
         },
         "sadakat": {
@@ -3631,6 +3628,10 @@
       "chooseTimeTitle": "Saat Seçin",
       "loadingSlots": "Müsait saatler yükleniyor...",
       "noSlotsAvailable": "Bu tarihte müsait saat yok.",
+      "slotBusy": "Dolu",
+      "slotTakenNow": "Bu saat az önce başka biri tarafından seçildi. Lütfen başka bir saat seçin.",
+      "legendFree": "Müsait",
+      "legendBusy": "Dolu",
       "continueButton": "Devam Et",
       "enterInfoTitle": "Bilgilerinizi Girin",
       "serviceLabel": "Hizmet:",
@@ -4507,6 +4508,37 @@
       "sifre_tekrar": "Şifre Tekrar",
       "sifreyi_tekrar_girin": "Şifreyi tekrar girin",
       "sifreyi_guncelle": "Şifreyi Güncelle"
+    }
+  },
+  "panelTour": {
+    "title": "Paneli yakından görün",
+    "subtitle": "Örnek verilerle hazırlanmış kısa bir gezinti: randevudan kasaya her şey tek yerde.",
+    "tabs": {
+      "calendar": "Takvim",
+      "approve": "Randevu onayı",
+      "whatsapp": "WhatsApp bildirimi",
+      "income": "Gelir raporu"
+    },
+    "desc": {
+      "calendar": "Tüm personelin günü tek ekranda.",
+      "approve": "Yeni talepleri tek dokunuşla onaylayın veya reddedin.",
+      "whatsapp": "Müşteriye onay mesajı otomatik gider.",
+      "income": "Günlük ve haftalık ciroyu anında görün."
+    },
+    "mock": {
+      "today": "Bugün",
+      "pending": "Bekliyor",
+      "confirmed": "Onaylandı",
+      "approve": "Onayla",
+      "reject": "Reddet",
+      "haircut": "Saç Kesimi",
+      "manicure": "Manikür",
+      "skincare": "Cilt Bakımı",
+      "revenue": "Gün cirosu",
+      "appointments": "Randevu",
+      "completed": "Tamamlanan",
+      "waName": "Güzellik Salonu",
+      "waMsg": "Merhaba Ayşe, yarın 14:00 Saç Kesimi randevunuz onaylandı. Görüşmek üzere!"
     }
   }
 }

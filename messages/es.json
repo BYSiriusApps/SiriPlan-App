@@ -219,7 +219,7 @@
     "contactUs": "Solicitar presupuesto / Contactar",
     "contactForPrice": "Presupuesto personalizado",
     "contactUsSub": "Paquetes y precios adaptados a tu negocio",
-    "bottomNote": "Prueba gratuita de 14 días para Mini, Starter y Pro · Sin tarjeta de crédito · Cancela en cualquier momento",
+    "bottomNote": "Prueba gratuita de 14 días para Mini Lite, Mini, Starter y Pro · Sin tarjeta de crédito · Cancela en cualquier momento",
     "foreignFeeNote": "El pago se procesa a través de nuestra cuenta de comercio registrada fuera de Turquía; tu banco puede añadir una comisión por transacción extranjera, normalmente de entre el 1% y el 3% del importe. Nuestros precios ya tienen en cuenta esta comisión — pertenece a tu banco, no a SiriPlan.",
     "annualLabel": "o {annual}/mes · {total}/año",
     "priceLock": "Precio garantizado durante 1 año",
@@ -230,7 +230,7 @@
       "monthly": "Mensual",
       "annual": "Anual",
       "perMonthEquivalent": "≈ {amount}/mes",
-      "note": "Hasta un 18% de descuento con pago anual · Prueba gratuita de 14 días para Mini, Starter y Pro · Sin tarjeta de crédito · Cancela en cualquier momento",
+      "note": "Hasta un 18% de descuento con pago anual · Prueba gratuita de 14 días para Mini Lite, Mini, Starter y Pro · Sin tarjeta de crédito · Cancela en cualquier momento",
       "seeAll": "Comparar características de los planes"
     },
     "mini": {
@@ -842,7 +842,7 @@
       "Comunicaciones de marketing con tu consentimiento explícito (KVKK Art. 5/1)"
     ],
     "transferTitle": "Transferencia de Datos",
-    "transferP": "Tus datos personales pueden compartirse, bajo acuerdos de procesamiento de datos y en el marco de los Artículos 8 y 9 de la KVKK, con proveedores de infraestructura de alojamiento y bases de datos, despliegue de aplicaciones, repositorio de código, envío de correo electrónico, pagos (Stripe), mensajería (WhatsApp/SMS) y servicios de modelos de lenguaje de IA (Google Gemini; Anthropic Claude como respaldo). Algunos de estos proveedores se encuentran en el extranjero (en la UE o en EE. UU.); las transferencias internacionales se realizan con las salvaguardias adecuadas.",
+    "transferP": "Tus datos personales pueden compartirse, bajo acuerdos de procesamiento de datos y en el marco de los Artículos 8 y 9 de la KVKK, con proveedores de infraestructura de alojamiento y bases de datos, despliegue de aplicaciones, repositorio de código, envío de correo electrónico, pagos (Stripe), mensajería (WhatsApp/SMS) y servicios de modelos de lenguaje de IA (Anthropic Claude; Google Gemini como respaldo). Algunos de estos proveedores se encuentran en el extranjero (en la UE o en EE. UU.); las transferencias internacionales se realizan con las salvaguardias adecuadas.",
     "rightsTitle": "Tus Derechos según el Artículo 11 de la KVKK",
     "rightsItems": [
       "Saber si tus datos personales están siendo procesados",
@@ -890,7 +890,7 @@
     "s4Title": "4. Seguridad de los Datos",
     "s4P": "Tus datos están protegidos con cifrado SSL/TLS. Nuestra infraestructura de servidores cumple con los protocolos de seguridad estándar de la industria. Tu información de pago nunca se almacena en nuestros servidores; todas las transacciones de pago se procesan a través de la infraestructura de Stripe, compatible con PCI-DSS.",
     "s5Title": "5. Compartición con Terceros",
-    "s5P": "Tus datos personales se compartirán, únicamente en la medida necesaria para prestar el servicio y bajo acuerdos de procesamiento de datos, con proveedores de servicios en las siguientes categorías: infraestructura de alojamiento y bases de datos, despliegue de aplicaciones, repositorio de código y control de versiones, envío de correos electrónicos, pagos (Stripe), mensajería (WhatsApp/SMS), notificaciones push (Apple Push Notification service, Google Firebase Cloud Messaging) y servicios de modelos de lenguaje de IA (Google Gemini; Anthropic Claude como respaldo). Cuando se utilizan funciones de IA (respuestas del asistente de IA, chatbot del sitio web, reserva por voz), el texto del mensaje relevante y los detalles del negocio necesarios para la respuesta se envían a estos proveedores para generar la respuesta. Algunos de estos proveedores se encuentran fuera de Turquía (en la UE o en EE. UU.); las transferencias se realizan con las salvaguardias y obligaciones contractuales adecuadas conforme al Artículo 9 de la KVKK. Tus datos no se venden a terceros ni se comparten con fines de marketing.",
+    "s5P": "Tus datos personales se compartirán, únicamente en la medida necesaria para prestar el servicio y bajo acuerdos de procesamiento de datos, con proveedores de servicios en las siguientes categorías: infraestructura de alojamiento y bases de datos, despliegue de aplicaciones, repositorio de código y control de versiones, envío de correos electrónicos, pagos (Stripe), mensajería (WhatsApp/SMS), notificaciones push (Apple Push Notification service, Google Firebase Cloud Messaging) y servicios de modelos de lenguaje de IA (Anthropic Claude; Google Gemini como respaldo). Cuando se utilizan funciones de IA (respuestas del asistente de IA, chatbot del sitio web, reserva por voz), el texto del mensaje relevante y los detalles del negocio necesarios para la respuesta se envían a estos proveedores para generar la respuesta. Algunos de estos proveedores se encuentran fuera de Turquía (en la UE o en EE. UU.); las transferencias se realizan con las salvaguardias y obligaciones contractuales adecuadas conforme al Artículo 9 de la KVKK. Tus datos no se venden a terceros ni se comparten con fines de marketing.",
     "s6Title": "6. Tus Derechos",
     "s6Intro": "Según el Artículo 11 de la KVKK, tienes los siguientes derechos:",
     "s6Items": [
@@ -1571,6 +1571,10 @@
       "chooseTimeTitle": "Elige una Hora",
       "loadingSlots": "Cargando horarios disponibles...",
       "noSlotsAvailable": "No hay horarios disponibles en esta fecha.",
+      "slotBusy": "Ocupado",
+      "slotTakenNow": "Alguien acaba de elegir esta hora. Elige otra, por favor.",
+      "legendFree": "Disponible",
+      "legendBusy": "Ocupado",
       "continueButton": "Continuar",
       "enterInfoTitle": "Introduce tu Información",
       "serviceLabel": "Servicio:",
@@ -1614,11 +1618,7 @@
         "fri": "Viernes",
         "sat": "Sábado",
         "sun": "Domingo"
-      },
-      "slotBusy": "Ocupado",
-      "slotTakenNow": "Alguien acaba de elegir esta hora. Elige otra, por favor.",
-      "legendFree": "Disponible",
-      "legendBusy": "Ocupado"
+      }
     }
   },
   "dashboard": {
@@ -1627,12 +1627,9 @@
       "utilityLabel": "Mensajes de citas (este mes)",
       "renews": "El cupo de su plan se renueva el {date}.",
       "addonBalance": "Saldo de paquetes adicionales",
-      "campaignBalance": "Créditos de campaña",
       "noteEnforced": "Los mensajes de confirmación, recordatorio, cancelación y modificación de citas consumen este cupo. Cuando se agota, se usa el saldo de paquetes adicionales; si tampoco hay saldo, no se envían mensajes automáticos de WhatsApp y sus citas se siguen guardando con normalidad.",
       "noteMetered": "Los mensajes de confirmación, recordatorio, cancelación y modificación de citas consumen este cupo. Cuando se agota el cupo del plan, se usa el saldo de paquetes adicionales.",
-      "campaignNote": "Los mensajes de campaña de WhatsApp no están incluidos en el plan; se envían con créditos de campaña comprados. Las campañas por SMS no se ven afectadas.",
       "buyUtility": "{count} mensajes de citas adicionales",
-      "buyCampaign": "{count} mensajes de campaña",
       "buyHint": "Los paquetes adicionales son de pago único, no se reinician cada mes y se acreditan automáticamente tras el pago.",
       "buyError": "No se pudo abrir la página de pago. Inténtelo de nuevo.",
       "buySuccess": "Pago recibido. Su saldo se actualizará en breve.",
@@ -2539,10 +2536,10 @@
         "abonelik": {
           "title": "21. Gestión de suscripciones y planes",
           "paragraphs": [
-            "Planes: los planes Mini, Starter, Pro y Business son fijos y transparentes. Sin solicitudes de cotizaciones ni esperas de agentes. Cada cuenta comienza con una prueba gratuita de 14 días.",
+            "Planes: los planes Mini Lite, Mini, Starter, Pro y Business son fijos y transparentes. Sin solicitudes de cotizaciones ni esperas de agentes. Cada cuenta comienza con una prueba gratuita de 14 días.",
             "Detalles del plan: consulta tu plan actual, límites e historial de facturación en Configuración → Suscripción.",
             "Tu suscripción está vinculada a SiriPlan y se gestiona independientemente de las tiendas de aplicaciones. Para preguntas sobre actualizaciones o facturación, contacta a soporte: info@bysirius.com · WhatsApp +90 535 503 26 34.",
-            "Diferencias de planes: Mini — 1 empleado, 200 citas y 400 mensajes de WhatsApp al mes, enlace de reserva, registros de clientes, inventario/código de barras, paquetes, ingresos-gastos e IVA, exportación CSV. Starter — 1 sucursal, 8 empleados, citas ilimitadas, enlace de reserva, inventario/código de barras, paquetes, lista de espera, ingresos-gastos e IVA, 500 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios), tarjeta de fidelidad, 1 campaña al mes, exportación CSV. Pro — personal ilimitado, 1.500 mensajes de WhatsApp al mes incluidos, asistente de voz, modo sitio web, reportes PDF, campañas, puntuación de clientes y Empleado de la Semana. Business — hasta 5 sucursales, 3.000 mensajes de WhatsApp al mes incluidos, todas las funciones de Pro, asistente de IA para WhatsApp/IG e integraciones personalizadas. El cupo de mensajes de citas de WhatsApp se renueva cada mes en el aniversario del inicio de su suscripción; cuando se agota, puede comprar un paquete de mensajes adicional en Configuración → Suscripción. Los mensajes de campaña de WhatsApp son independientes de esta cuota y se envían desde la cuenta de WhatsApp Business del propio negocio."
+            "Diferencias de planes: Mini Lite — 1 empleado, 150 citas y 300 mensajes de WhatsApp al mes, enlace de reservas, mensajes automáticos (confirmación/recordatorio/cancelación); no se guardan fichas de clientes ni historial de citas (los datos se eliminan automáticamente al completar la cita), sin informes/inventario/paquetes. Mini — 1 empleado, 200 citas y 400 mensajes de WhatsApp al mes, enlace de reserva, registros de clientes, inventario/código de barras, paquetes, ingresos-gastos e IVA, exportación CSV. Starter — 1 sucursal, 8 empleados, citas ilimitadas, enlace de reserva, inventario/código de barras, paquetes, lista de espera, ingresos-gastos e IVA, 500 mensajes de WhatsApp al mes incluidos (confirmaciones + recordatorios), tarjeta de fidelidad, 1 campaña al mes, exportación CSV. Pro — personal ilimitado, 1.500 mensajes de WhatsApp al mes incluidos, asistente de voz, modo sitio web, reportes PDF, campañas, puntuación de clientes y Empleado de la Semana. Business — hasta 5 sucursales, 3.000 mensajes de WhatsApp al mes incluidos, todas las funciones de Pro, asistente de IA para WhatsApp/IG e integraciones personalizadas. El cupo de mensajes de citas de WhatsApp se renueva cada mes en el aniversario del inicio de su suscripción; cuando se agota, puede comprar un paquete de mensajes adicional en Configuración → Suscripción. Los mensajes de campaña de WhatsApp son independientes de esta cuota y se envían desde la cuenta de WhatsApp Business del propio negocio."
           ]
         },
         "sadakat": {
@@ -4507,6 +4504,37 @@
       "sifre_tekrar": "Confirmar contraseña",
       "sifreyi_tekrar_girin": "Introduce la contraseña de nuevo",
       "sifreyi_guncelle": "Actualizar contraseña"
+    }
+  },
+  "panelTour": {
+    "title": "Conozca el panel de cerca",
+    "subtitle": "Un recorrido breve con datos de ejemplo: de la cita a la caja, todo en un solo lugar.",
+    "tabs": {
+      "calendar": "Calendario",
+      "approve": "Aprobar cita",
+      "whatsapp": "Aviso por WhatsApp",
+      "income": "Informe de ingresos"
+    },
+    "desc": {
+      "calendar": "El día de todo su equipo en una sola pantalla.",
+      "approve": "Apruebe o rechace solicitudes con un toque.",
+      "whatsapp": "El mensaje de confirmación sale automáticamente.",
+      "income": "Vea los ingresos diarios y semanales al instante."
+    },
+    "mock": {
+      "today": "Hoy",
+      "pending": "Pendiente",
+      "confirmed": "Confirmada",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "haircut": "Corte de pelo",
+      "manicure": "Manicura",
+      "skincare": "Limpieza facial",
+      "revenue": "Ingresos de hoy",
+      "appointments": "Citas",
+      "completed": "Completadas",
+      "waName": "Salón de belleza",
+      "waMsg": "Hola Ayse, su cita de corte de pelo mañana a las 14:00 está confirmada. ¡Hasta pronto!"
     }
   }
 }

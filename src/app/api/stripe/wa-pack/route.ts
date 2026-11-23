@@ -7,7 +7,6 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isMobileApp } from "@/lib/mobile-app";
 import { getPricingCurrencyFromHeaders } from "@/lib/pricing";
 import { getWaCreditPack, getWaCreditPackPriceId } from "@/lib/wa-credit-packs";
-import { getEntitlements } from "@/lib/entitlements";
 import { CONSENT_VERSION } from "@/lib/legal/seller";
 
 export const dynamic = "force-dynamic";
@@ -74,10 +73,6 @@ export async function POST(req: Request) {
   };
   const org = (member as unknown as { org_id: string; organizations: OrgJoin }).organizations;
 
-  // Kampanya kredisi yalnızca kampanya modülü açık planlarda satılır (aksi halde kullanılamaz).
-  if (pack.kind === "marketing" && !getEntitlements(org).feature_campaigns) {
-    return NextResponse.json({ error: "Kampanya modülü mevcut planınıza dahil değil." }, { status: 403 });
-  }
 
   const stripe = getStripe();
   let customerId = org.stripe_customer_id;

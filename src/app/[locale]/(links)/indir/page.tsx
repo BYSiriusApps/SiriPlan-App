@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { PanelTourSection } from "@/components/marketing/PanelTourSection";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/store-links";
 
 // Instagram "bio'daki tek bağlantı" sayfası. Pazarlama layout'u (menü/footer)
@@ -103,9 +104,8 @@ export default async function IndirPage() {
       <div aria-hidden="true" className="pointer-events-none absolute top-[28rem] -right-24 h-72 w-72 rounded-full bg-pink-500/20 blur-3xl" />
 
       {/* Kayan mutlu esnaf kolajı */}
-      <div className="space-y-3 pt-6">
+      <div className="pt-6">
         <MarqueeRow items={SECTORS} className="indir-row-l" />
-        <MarqueeRow items={[...SECTORS].reverse()} className="indir-row-r" />
       </div>
 
       <div className="relative mx-auto flex w-full max-w-md flex-col items-center px-4 sm:max-w-xl">
@@ -152,6 +152,9 @@ export default async function IndirPage() {
             </li>
           ))}
         </ul>
+
+        {/* Panel gezintisi (sahte veriyle) */}
+        <PanelTourSection dark />
 
         {/* Sektör kartları */}
         <h2 className="mt-12 text-center text-xl font-bold">Hangi sektördesiniz?</h2>

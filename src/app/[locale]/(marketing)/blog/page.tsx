@@ -24,6 +24,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Büyüme": "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
   "Ciro": "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   "Personel Yönetimi": "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
+  "Sektörler": "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400",
 };
 
 const POST_IMAGES: Record<string, string> = {
