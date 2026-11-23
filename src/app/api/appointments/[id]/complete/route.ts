@@ -171,6 +171,16 @@ export async function POST(
       tip: tip || 0,
       payment_method: effectivePayment,
       ...(usedPackage ? { price: 0 } : {}),
+      // Daha önce paketle kapanıp (price 0, payment_method 'paket') geri açılan randevu bu kez
+      // normal ödemeyle tamamlanıyorsa fiyat hizmet fiyatına döner; yoksa ciro 0 kalırdı.
+      // Yalnızca 'paket' izli randevuda çalışır — elle 0 yapılmış/ücretsiz randevulara dokunmaz.
+      ...(!usedPackage &&
+      !offerChoice &&
+      appt.payment_method === "paket" &&
+      !(Number(appt.price) > 0) &&
+      Number(appt.service?.price) > 0
+        ? { price: Number(appt.service.price) }
+        : {}),
       ...(offerChoice
         ? { price: offerChoice.final_price, discount_amount: offerChoice.discount_amount, campaign_log_id: offerChoice.log_id }
         : {}),
