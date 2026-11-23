@@ -24,7 +24,10 @@ export type WaInternalPurpose =
   | "kritik_stok"
   | "hosgeldin"
   | "deneme_2gun"
-  | "deneme_bitti";
+  | "deneme_bitti"
+  | "wa_kota_uyari"
+  | "wa_kota_doldu"
+  | "wa_paket_bitti";
 
 export interface WaInternalTemplateDef {
   purpose: WaInternalPurpose;
@@ -96,5 +99,27 @@ export const WA_INTERNAL_TEMPLATES: Record<WaInternalPurpose, WaInternalTemplate
     metaName: "siriplan_deneme_bitti_v1",
     metaNameEn: null,
     bodyParamOrder: ["business_name"],
+  },
+  // WhatsApp mesaj kotası bildirimleri (işletme sahibine, SiriPlan utility hattından). Yalnızca TR
+  // (plan-limit-notify.ts yalnızca organizasyon dili "tr" iken dener; diğer diller Telegram/serbest
+  // metin/push ile devam eder). Gövde metinleri: docs/WA-ONBOARDING-SABLONLARI.md. Onaylanmadıysa
+  // gönderim sessizce başarısız olur ve eski serbest metin yoluna düşülür.
+  wa_kota_uyari: {
+    purpose: "wa_kota_uyari",
+    metaName: "siriplan_wa_kota_uyari_v1",
+    metaNameEn: null,
+    bodyParamOrder: ["business_name", "used", "limit"],
+  },
+  wa_kota_doldu: {
+    purpose: "wa_kota_doldu",
+    metaName: "siriplan_wa_kota_doldu_v1",
+    metaNameEn: null,
+    bodyParamOrder: ["business_name", "used", "limit"],
+  },
+  wa_paket_bitti: {
+    purpose: "wa_paket_bitti",
+    metaName: "siriplan_wa_paket_bitti_v1",
+    metaNameEn: null,
+    bodyParamOrder: ["business_name", "used", "limit"],
   },
 };

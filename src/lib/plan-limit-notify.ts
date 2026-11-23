@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { sendTelegramMessage } from "@/lib/telegram";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-notify";
 import { sendPushToOrg } from "@/lib/web-push";
+import { sendInternalTemplate } from "@/lib/wa-templates/internal-send";
 
 /**
  * Planın aylık müşteri WhatsApp mesajı hakkı dolmadan (%80) ve dolunca (%100)
@@ -24,7 +25,7 @@ export async function notifyWaQuota(orgId: string, kind: "warn" | "full" | "pack
     const admin = await createAdminClient();
     const { data: org } = await admin
       .from("organizations")
-      .select("telegram_chat_id, whatsapp_number, settings_json")
+      .select("name, locale, telegram_chat_id, whatsapp_number, settings_json")
       .eq("id", orgId)
       .single();
     if (!org) return;
@@ -54,7 +55,27 @@ Satın aldığınız ek mesaj paketi tükendi ve bu dönemki plan hakkınız da 
     const chatId = (org as { telegram_chat_id?: string | null }).telegram_chat_id;
     if (chatId && telegramOn) tasks.push(sendTelegramMessage(chatId, message));
     const wa = (org as { whatsapp_number?: string | null }).whatsapp_number;
-    if (wa && whatsappOn) tasks.push(sendWhatsAppMessage(wa, message.replace(/<[^>]+>/g, "")));
+    if (wa && whatsappOn) {
+      // Önce onaylı ŞABLON (24 saatlik pencereye takılmaz; yalnızca TR organizasyonlar), olmazsa/başarısızsa
+      // eski serbest metin (pencere açıksa teslim olur). Hiçbir adım diğerini kırmaz.
+      const tplPurpose = kind === "pack_empty" ? "wa_paket_bitti" : kind === "full" ? "wa_kota_doldu" : "wa_kota_uyari";
+      const orgInfo = org as { name?: string | null; locale?: string | null };
+      const plain = message.replace(/<[^>]+>/g, "");
+      tasks.push(
+        (async () => {
+          let sent = false;
+          if ((orgInfo.locale ?? "tr") === "tr") {
+            sent = await sendInternalTemplate(
+              wa,
+              tplPurpose,
+              { business_name: orgInfo.name ?? "", used: String(used), limit: String(limit) },
+              "tr"
+            ).catch(() => false);
+          }
+          if (!sent) await sendWhatsAppMessage(wa, plain);
+        })()
+      );
+    }
     // Uygulama/tarayıcı push: Telegram/WhatsApp bağlı olmayan ya da WhatsApp serbest metnin 24 saat
     // penceresi nedeniyle ulaşmadığı sahipler de görsün (sahip + yönetici; personele gitmez).
     const pushTitle =
