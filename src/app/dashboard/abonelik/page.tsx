@@ -2,6 +2,7 @@ import { createClient, createAdminClient, getSessionUser } from "@/lib/supabase/
 import { getActiveMember } from "@/lib/active-org";
 import { getEntitlements, isTrialActive, monthlyCampaignLimit } from "@/lib/entitlements";
 import { getPlanUsage } from "@/lib/plan-usage";
+import { isEphemeralOrg } from "@/lib/data-retention";
 import { isMobileApp } from "@/lib/mobile-app";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { redirect } from "next/navigation";
@@ -20,12 +21,13 @@ import { AddonsPanel } from "@/components/dashboard/AddonsPanel";
 import { getBranchInfo } from "@/lib/branches";
 import Link from "next/link";
 
-const PLAN_ORDER: PlanKey[] = ["mini", "starter", "pro", "business"];
+const PLAN_ORDER: PlanKey[] = ["lite", "mini", "starter", "pro", "business"];
 
 const SUPPORT_EMAIL = "info@bysirius.com";
 
 const PLAN_DETAILS = {
   trial: { icon: Zap, color: "text-gray-600" },
+  lite: { icon: Zap, color: "text-teal-600" },
   mini: { icon: Zap, color: "text-sky-600" },
   starter: { icon: Zap, color: "text-blue-600" },
   pro: { icon: Sparkles, color: "text-primary" },
@@ -82,12 +84,15 @@ export default async function AbonelikPage({
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
   // Starter: ayda 1 kampanya (diğer planlarda null → gösterge yok). WhatsApp mesaj hakkı: <WaUsageCard>.
   const campaignLimit = monthlyCampaignLimit(org);
-  const [{ count: staffCount }, { count: appointmentCount }, campaignUsed] = await Promise.all([
+  const ephemeralPlan = isEphemeralOrg(org);
+  const [{ count: staffCount }, { count: appointmentCountRaw }, campaignUsed, ephemeralApptUsed] = await Promise.all([
     admin.from("staff").select("id", { count: "exact", head: true }).eq("org_id", member.org_id).eq("is_active", true),
     admin.from("appointments").select("id", { count: "exact", head: true }).eq("org_id", member.org_id)
       .gte("created_at", monthStart).lt("created_at", monthEnd),
     campaignLimit !== null ? getPlanUsage(member.org_id, "campaign") : Promise.resolve(0),
+    ephemeralPlan ? getPlanUsage(member.org_id, "appointment") : Promise.resolve(0),
   ]);
+  const appointmentCount = ephemeralPlan ? ephemeralApptUsed : appointmentCountRaw;
 
   const currentPlanKey = org.plan === "trial" ? "pro" : (org.plan as PlanKey);
   const planFeatures = t.raw(`pricing.${currentPlanKey}.features`) as string[];
@@ -234,13 +239,14 @@ export default async function AbonelikPage({
                       key={target}
                       targetPlan={target}
                       planName={PLANS[target].name}
+                      currentPlan={org.plan}
                       label={t("dashboard.subscriptionPage.changeToPlan", { plan: PLANS[target].name })}
                       variant={target === nearestUpgrade ? "primary" : "outline"}
                     />
                   ));
               })()}
             </div>
-          ) : org.plan === "trial" || org.plan === "mini" || org.plan === "starter" ? (
+          ) : org.plan === "trial" || org.plan === "lite" || org.plan === "mini" || org.plan === "starter" ? (
             <Link
               href="/auth/plan-sec"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"

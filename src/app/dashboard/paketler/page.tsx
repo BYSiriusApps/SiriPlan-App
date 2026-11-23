@@ -1,4 +1,5 @@
 import { createClient, getSessionUser } from "@/lib/supabase/server";
+import { ephemeralBlocked } from "@/lib/data-retention";
 import { getActiveMember } from "@/lib/active-org";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -21,6 +22,8 @@ export default async function PaketlerPage() {
 
   const member = await getActiveMember(supabase);
   if (!member) redirect("/auth/kayit");
+  // Mini Lite (geçici veri modu): bu sayfa kalıcı veri gösterir → sunucuda yönlendir (UI gizlemek yetmez).
+  if (await ephemeralBlocked(member, { read: true })) redirect("/dashboard/abonelik");
 
   const currency =
     ((member.organizations?.settings_json as Record<string, unknown> | null)?.currency as string) || "TRY";

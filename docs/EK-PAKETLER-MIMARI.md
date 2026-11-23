@@ -4,7 +4,7 @@ Durum: **Faz 1 (altyapı) kodda, env'ler boşken tamamen devre dışı.** Faz 2 
 
 ## 1. Fiyat önerisi
 
-Mevcut: Mini 399₺/14$/13€ · Starter 1199₺/29$/26€ · Pro 1699₺/39$/33€ · Business 4699₺/99$/84€ (yıllık ≈ 9,84 ay).
+Mevcut: Mini Lite 499₺/18$/16€ · Mini 699₺/25$/23€ · Starter 1199₺/29$/26€ · Pro 1699₺/39$/33€ · Business 4699₺/99$/84€ (yıllık ≈ 9,84 ay).
 
 | Paket | Aylık TRY | Aylık USD | Aylık EUR |
 |---|---|---|---|

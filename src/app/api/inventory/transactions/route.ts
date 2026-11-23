@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ephemeralForbidden } from "@/lib/data-retention";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
 import { recordInventoryTransaction } from "@/lib/inventory-tx";
@@ -10,6 +11,9 @@ export async function GET(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member, { read: true });
+  if (ephemeralBlock) return ephemeralBlock;
 
   const { data: transactions, error } = await supabase
     .from("inventory_transactions")
@@ -29,6 +33,9 @@ export async function POST(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member);
+  if (ephemeralBlock) return ephemeralBlock;
 
   const body = await req.json();
   const { item_id, type, quantity, unit_price, note } = body;

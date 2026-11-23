@@ -1,6 +1,6 @@
 export const PRICING_CURRENCIES = ["TRY", "USD", "EUR"] as const;
 export type PricingCurrency = (typeof PRICING_CURRENCIES)[number];
-export type PlanKey = "mini" | "starter" | "pro" | "business";
+export type PlanKey = "lite" | "mini" | "starter" | "pro" | "business";
 
 export type PlanPricing = {
   monthly: number;
@@ -9,19 +9,22 @@ export type PlanPricing = {
 
 export const PRICING_BY_CURRENCY: Record<PricingCurrency, Record<PlanKey, PlanPricing>> = {
   TRY: {
-    mini: { monthly: 399, annual: 3926 },
+    lite: { monthly: 499, annual: 4900 },
+    mini: { monthly: 699, annual: 6900 },
     starter: { monthly: 1199, annual: 11798 },
     pro: { monthly: 1699, annual: 16718 },
     business: { monthly: 4699, annual: 46238 },
   },
   USD: {
-    mini: { monthly: 14, annual: 138 },
+    lite: { monthly: 18, annual: 177 },
+    mini: { monthly: 25, annual: 246 },
     starter: { monthly: 29, annual: 285 },
     pro: { monthly: 39, annual: 384 },
     business: { monthly: 99, annual: 974 },
   },
   EUR: {
-    mini: { monthly: 13, annual: 128 },
+    lite: { monthly: 16, annual: 157 },
+    mini: { monthly: 23, annual: 226 },
     starter: { monthly: 26, annual: 256 },
     pro: { monthly: 33, annual: 325 },
     business: { monthly: 84, annual: 827 },
@@ -48,8 +51,11 @@ export const ADDON_PRICING_BY_CURRENCY: Record<PricingCurrency, Record<AddonPric
   },
 };
 
-/** Mini aylık fiyatın indirim öncesi (üstü çizili) değeri; yalnızca eski fiyatı bilinen para birimleri. */
-export const MINI_LIST_PRICE: Partial<Record<PricingCurrency, number>> = { TRY: 499 };
+/**
+ * Mini aylık fiyatın indirim öncesi (üstü çizili) değeri. Mini ₺699'a çıktığı için eski ₺499 liste
+ * fiyatı artık geçerli değil (üstü çizili fiyat güncel fiyattan düşük kalırdı) — boş bırakıldı.
+ */
+export const MINI_LIST_PRICE: Partial<Record<PricingCurrency, number>> = {};
 
 export const DEFAULT_PRICING = {
   currency: "TRY" as PricingCurrency,
@@ -132,6 +138,7 @@ export function pricingSummaryForAssistant(
 ): string {
   const u = ASSISTANT_UNITS[lang];
   const plans: { key: PlanKey; name: string }[] = [
+    { key: "lite", name: "Mini Lite" },
     { key: "mini", name: "Mini" },
     { key: "starter", name: "Starter" },
     { key: "pro", name: "Pro" },

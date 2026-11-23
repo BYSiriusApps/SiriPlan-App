@@ -31,7 +31,7 @@
   .phone{flex:0 0 auto;width:262px;height:566px;border-radius:34px;overflow:hidden;border:7px solid #1B1530;box-shadow:0 30px 60px -18px rgba(60,20,90,.45);background:#fff;position:relative;}
   .phone img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;}
   .grid{display:grid;gap:18px;}
-  .g3{grid-template-columns:repeat(3,1fr);} .g2{grid-template-columns:repeat(2,1fr);} .g4{grid-template-columns:repeat(4,1fr);}
+  .g3{grid-template-columns:repeat(3,1fr);} .g2{grid-template-columns:repeat(2,1fr);} .g4{grid-template-columns:repeat(4,1fr);} .g5{grid-template-columns:repeat(5,1fr);gap:12px;} .g5 .plan{padding:16px;} .g5 .plan .price{font-size:30px;} .g5 .plan li{font-size:13px;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px 22px;box-shadow:0 8px 24px -14px rgba(60,20,90,.25);}
   .card h3{font-size:21px;margin-bottom:8px;} .card p{font-size:16px;line-height:1.5;color:var(--muted);}
   .card .em{font-size:32px;margin-bottom:10px;display:block;}
@@ -448,8 +448,10 @@
 <section class="slide">
   <div class="eyebrow">Şeffaf fiyat</div>
   <h2>Size uygun <span class="grad">plan</span></h2>
-  <div class="grid g4" style="margin-top:8px;">
-    <div class="card plan"><h3>Mini</h3><div class="price">₺399</div><div class="per">/ay · yıllık ₺3.926</div>
+  <div class="grid g5" style="margin-top:8px;">
+    <div class="card plan"><h3>Mini Lite</h3><div class="price">₺499</div><div class="per">/ay · yıllık ₺4.900</div>
+      <ul><li>Tek kişilik · 1 personel</li><li>Ayda 150 randevu &amp; 300 WhatsApp mesajı dahil</li><li>Randevu linki, otomatik onay/hatırlatma</li><li>Kayıt tutmaz: veriler randevu bitince silinir</li></ul></div>
+    <div class="card plan"><h3>Mini</h3><div class="price">₺699</div><div class="per">/ay · yıllık ₺6.900</div>
       <ul><li>Tek kişilik · 1 personel</li><li>Ayda 200 randevu &amp; 400 WhatsApp mesajı dahil</li><li>Randevu linki, stok/barkod</li><li>Paket takibi, gelir-gider &amp; KDV</li></ul></div>
     <div class="card plan"><h3>Starter</h3><div class="price">₺1.199</div><div class="per">/ay · yıllık ₺11.798</div>
       <ul><li>1 şube, 8 personel, sınırsız randevu</li><li>Ayda 500 WhatsApp mesajı dahil · bekleme listesi</li><li>Stok/barkod, paket takibi</li><li>Sadakat kartı, ayda 1 kampanya</li></ul></div>

@@ -9,13 +9,31 @@ export function getStripe() {
 }
 
 export const PLANS = {
+  lite: {
+    name: "Mini Lite",
+    monthly: process.env.STRIPE_PRICE_LITE_MONTHLY || "",
+    annual: process.env.STRIPE_PRICE_LITE_ANNUAL || "",
+    // price_* yalnızca plan sıralaması içindir (USD baz); gerçek fiyat lib/pricing.ts + Stripe'ta.
+    price_monthly: 18,
+    price_annual: 15,
+    max_staff: PLAN_USAGE_LIMITS.lite.staff,
+    max_appointments_monthly: PLAN_USAGE_LIMITS.lite.appointments,
+    features: {
+      feature_ai: false,
+      feature_campaigns: false,
+      feature_gamification: false,
+      feature_api: false,
+      feature_whitelabel: false,
+      feature_website: false,
+    },
+  },
   mini: {
     name: "Mini",
     monthly: process.env.STRIPE_PRICE_MINI_MONTHLY || "",
     annual: process.env.STRIPE_PRICE_MINI_ANNUAL || "",
     // price_* yalnızca plan sıralaması içindir (USD baz); gerçek fiyat lib/pricing.ts + Stripe'ta.
-    price_monthly: 12,
-    price_annual: 10,
+    price_monthly: 25,
+    price_annual: 20,
     max_staff: PLAN_USAGE_LIMITS.mini.staff,
     max_appointments_monthly: PLAN_USAGE_LIMITS.mini.appointments,
     features: {

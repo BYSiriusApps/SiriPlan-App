@@ -7,6 +7,7 @@ import { TRIAL_PLAN_LIMITS } from "@/lib/entitlements";
 import { limitByIp, clientIp, tooManyRequests } from "@/lib/rate-limit";
 import { detectBot, BOT_REJECTION_MESSAGE } from "@/lib/bot-guard";
 import { isMobileApp, getMobileAppPlatform } from "@/lib/mobile-app";
+import { sendOnboardingWaAfter } from "@/lib/wa-templates/onboarding-send";
 import { isValidTaxNumber, normalizeTaxNumber, TAX_NUMBER_ERROR } from "@/lib/tax-number";
 
 const VALID_BUSINESS_TYPES = new Set([
@@ -302,6 +303,9 @@ export async function POST(req: NextRequest) {
 
   // 5. Platform admine yeni kayıt bildirimi (fire-and-forget)
   notifyAdminNewSignup({ salonName, ownerName: fullName, email, phone, businessType: safeBusinessType }).catch(() => {});
+
+  // 6. Yeni kullanıcıya hoş geldin WhatsApp'ı (indirme/sunum/kılavuz + kurulum desteği)
+  sendOnboardingWaAfter(phone, "hosgeldin", { owner_name: fullName.split(" ")[0], business_name: salonName }, safeLocale);
 
   return NextResponse.json({ success: true });
 }

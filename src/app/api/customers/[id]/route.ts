@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ephemeralForbidden } from "@/lib/data-retention";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { hasPermission } from "@/lib/permissions";
@@ -61,6 +62,9 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member);
+  if (ephemeralBlock) return ephemeralBlock;
 
   const updates: Record<string, unknown> = {};
   for (const key of ALLOWED) {
@@ -143,6 +147,9 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member);
+  if (ephemeralBlock) return ephemeralBlock;
   if (!hasPermission(member, "delete_customers")) {
     return NextResponse.json(
       { error: "Müşteri silme yetkiniz yok — işletme sahibinden isteyin." },

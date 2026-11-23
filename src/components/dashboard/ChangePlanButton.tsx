@@ -38,15 +38,22 @@ export function ChangePlanButton({
   planName,
   label,
   variant = "primary",
+  currentPlan,
 }: {
   targetPlan: PlanKey;
   planName: string;
   label: string;
   variant?: "primary" | "outline";
+  /** Mevcut plan (sunucudan gelen org.plan) — Mini Lite geçiş uyarıları için. */
+  currentPlan?: string;
 }) {
   const tp = useTranslations("panelPages.planDegistir");
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState<Preview | null>(null);
+  // Mini Lite (geçici veri modu) geçişi: persistent → lite için açık onay kutusu zorunlu.
+  const toLite = targetPlan === "lite" && currentPlan !== "lite";
+  const fromLite = currentPlan === "lite" && targetPlan !== "lite";
+  const [liteAck, setLiteAck] = useState(false);
   const router = useRouter();
 
   async function handlePreview() {
@@ -72,7 +79,7 @@ export function ChangePlanButton({
       const res = await fetch("/api/stripe/change-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: targetPlan }),
+        body: JSON.stringify({ plan: targetPlan, ...(toLite ? { acknowledge_data_loss: liteAck } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
@@ -115,11 +122,21 @@ export function ChangePlanButton({
             {tp("no_charge_credit", { amount: money(Math.abs(preview.amountDue), preview.currency) })}
           </p>
         )}
+        {toLite && (
+          <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 p-3 space-y-2 text-xs">
+            <p>{tp("lite_warning")}</p>
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" className="mt-0.5" checked={liteAck} onChange={(e) => setLiteAck(e.target.checked)} />
+              <span className="font-medium">{tp("lite_ack")}</span>
+            </label>
+          </div>
+        )}
+        {fromLite && <p className="text-xs text-muted-foreground">{tp("lite_upgrade_info")}</p>}
         <div className="flex gap-2">
           <button
             type="button"
             onClick={handleChange}
-            disabled={loading}
+            disabled={loading || (toLite && !liteAck)}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}

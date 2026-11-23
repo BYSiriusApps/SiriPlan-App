@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ephemeralForbidden } from "@/lib/data-retention";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getActiveMember } from "@/lib/active-org";
 import { createClient } from "@/lib/supabase/server";
@@ -11,6 +12,9 @@ export async function GET(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member, { read: true });
+  if (ephemeralBlock) return ephemeralBlock;
 
   const { data: items, error } = await supabase
     .from("inventory_items")
@@ -87,6 +91,9 @@ export async function POST(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member);
+  if (ephemeralBlock) return ephemeralBlock;
 
   const body = await req.json();
   const { name, category, unit, current_stock, min_stock_alert, cost_price, sale_price } = body;
@@ -132,6 +139,9 @@ export async function PUT(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member);
+  if (ephemeralBlock) return ephemeralBlock;
 
   const body = await req.json();
   const { id, name, category, unit, current_stock, min_stock_alert, cost_price, sale_price } = body;
@@ -177,6 +187,9 @@ export async function DELETE(req: NextRequest) {
 
   const member = await getActiveMember(supabase);
   if (!member) return NextResponse.json({ error: "No org" }, { status: 403 });
+  // Mini Lite (geçici veri modu): bu uç kalıcı veri içerir → sunucu tarafında 403 (bkz. lib/data-retention.ts).
+  const ephemeralBlock = await ephemeralForbidden(member);
+  if (ephemeralBlock) return ephemeralBlock;
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");

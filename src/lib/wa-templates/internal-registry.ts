@@ -18,7 +18,13 @@
  * maddesine bakın.
  */
 
-export type WaInternalPurpose = "yeni_randevu" | "yeni_talep" | "kritik_stok";
+export type WaInternalPurpose =
+  | "yeni_randevu"
+  | "yeni_talep"
+  | "kritik_stok"
+  | "hosgeldin"
+  | "deneme_2gun"
+  | "deneme_bitti";
 
 export interface WaInternalTemplateDef {
   purpose: WaInternalPurpose;
@@ -68,5 +74,27 @@ export const WA_INTERNAL_TEMPLATES: Record<WaInternalPurpose, WaInternalTemplate
     metaName: null,
     metaNameEn: null,
     bodyParamOrder: ["business_name", "item_name", "current_stock", "unit"],
+  },
+  // Yeni kayıt / deneme hatırlatma mesajları (işletme sahibine, SiriPlan utility hattından).
+  // Meta gövde metinleri: docs/WA-ONBOARDING-SABLONLARI.md. Onaylanana kadar gönderim
+  // sessizce başarısız olur (hiçbir akış bozulmaz). Yalnızca TR; diğer diller onaylanınca
+  // metaNameEn/Ru/Ar/De/Es doldurulur (onboarding-send.ts dili olmayan şablona TR düşürmez).
+  hosgeldin: {
+    purpose: "hosgeldin",
+    metaName: "siriplan_hosgeldin_v1",
+    metaNameEn: null,
+    bodyParamOrder: ["owner_name", "business_name"],
+  },
+  deneme_2gun: {
+    purpose: "deneme_2gun",
+    metaName: "siriplan_deneme_2gun_v1",
+    metaNameEn: null,
+    bodyParamOrder: ["business_name", "end_date"],
+  },
+  deneme_bitti: {
+    purpose: "deneme_bitti",
+    metaName: "siriplan_deneme_bitti_v1",
+    metaNameEn: null,
+    bodyParamOrder: ["business_name"],
   },
 };

@@ -18,6 +18,21 @@ const SUPPORT_PHONE = "+905355032634";
 
 const PLANS = [
   {
+    key: "lite",
+    name: "Mini Lite",
+    icon: Zap,
+    color: "border-teal-200 dark:border-teal-800",
+    highlight: "",
+    description: "Kayıt tutmak istemeyen tek kişilik işletmeler için",
+    features: [
+      "1 personel",
+      "Ayda 150 randevu",
+      "Ayda 300 WhatsApp mesajı (onay + hatırlatma)",
+      "Online randevu sayfası",
+      "Randevu tamamlanınca veriler otomatik silinir",
+    ],
+  },
+  {
     key: "mini",
     name: "Mini",
     icon: Zap,
@@ -156,12 +171,14 @@ export default function PlanSecPage() {
       document.getElementById("pc-box")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+    // Mini Lite: veri randevu bitince silinir — açık onay olmadan ödeme açılmaz (sunucu da doğrular).
+    if (planKey === "lite" && !window.confirm(tp("lite_confirm"))) return;
     setLoading(planKey);
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planKey, annual, consent }),
+        body: JSON.stringify({ plan: planKey, annual, consent, ...(planKey === "lite" ? { acknowledge_data_loss: true } : {}) }),
       });
       const data = await res.json();
       if (data.url) {
@@ -320,7 +337,7 @@ export default function PlanSecPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 md:gap-7 mb-10 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 md:gap-7 mb-10 items-stretch">
           {PLANS.map((plan) => {
             const Icon = plan.icon;
             const planPricing = pricing.plans[plan.key];

@@ -96,6 +96,8 @@ export function getEntitlements(org: EntitlementOrg | null | undefined): Entitle
  * Diğer planlar bu sınırlardan muaftır (null).
  */
 export const PLAN_USAGE_LIMITS = {
+  // Mini Lite: tek kullanıcı, ayda 150 randevu; veri randevu bitince silinir (lib/data-retention.ts).
+  lite: { staff: 1, appointments: 150 },
   mini: { staff: 1, appointments: 200 },
   starter: { campaigns: 1 },
 } as const;
@@ -114,6 +116,7 @@ function paidPlan(org: EntitlementOrg | null | undefined): string | null {
  */
 export const WA_UTILITY_QUOTAS = {
   trial: 100,
+  lite: 300,
   mini: 400,
   starter: 500,
   pro: 1500,
@@ -143,7 +146,7 @@ export function monthlyUtilityQuota(org: EntitlementOrg | null | undefined): num
 export function isWaQuotaEnforced(org: EntitlementOrg | null | undefined): boolean {
   const plan = effectiveQuotaPlan(org);
   if (!plan) return false;
-  const list = (process.env.WA_QUOTA_ENFORCE_PLANS ?? "mini,starter,pro,business,trial")
+  const list = (process.env.WA_QUOTA_ENFORCE_PLANS ?? "lite,mini,starter,pro,business,trial")
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
@@ -173,9 +176,10 @@ export function campaignRecipientLimit(org: EntitlementOrg | null | undefined): 
     : CAMPAIGN_RECIPIENT_LIMITS.default;
 }
 
-/** Tek kullanıcılı plan mı? (Mini: ek personel/kullanıcı daveti yok.) */
+/** Tek kullanıcılı plan mı? (Mini / Mini Lite: ek personel/kullanıcı daveti yok.) */
 export function isSingleUserPlan(org: EntitlementOrg | null | undefined): boolean {
-  return paidPlan(org) === "mini";
+  const p = paidPlan(org);
+  return p === "mini" || p === "lite";
 }
 
 /**

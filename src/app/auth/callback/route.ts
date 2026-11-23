@@ -5,6 +5,7 @@ import { getMobileAppPlatform } from "@/lib/mobile-app";
 import { notifyAdminNewSignup } from "@/lib/notify-admin";
 import { seedDefaultServices } from "@/lib/services/seed";
 import { TRIAL_PLAN_LIMITS } from "@/lib/entitlements";
+import { sendOnboardingWaAfter } from "@/lib/wa-templates/onboarding-send";
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
@@ -80,6 +81,7 @@ export async function GET(req: NextRequest) {
           await admin.from("staff").insert({ org_id: org2.id, full_name: fullName, role: "Salon Sahibi", is_active: true });
           await seedDefaultServices(admin, org2.id, type, seedLocale);
           notifyAdminNewSignup({ salonName, ownerName: fullName, email: user.email!, phone, businessType: type }).catch(() => {});
+          sendOnboardingWaAfter(phone, "hosgeldin", { owner_name: fullName.split(" ")[0], business_name: salonName }, seedLocale);
         }
       } else if (org) {
         await admin.from("org_members").insert({ org_id: org.id, user_id: user.id, role: "owner" });
@@ -90,6 +92,7 @@ export async function GET(req: NextRequest) {
         const brand = platform === "ios" ? "siriusplan" : platform === "android" ? "siriplan" : undefined;
         sendWelcomeEmail({ to: user.email!, salonName, ownerName: fullName, brand }).catch(() => {});
         notifyAdminNewSignup({ salonName, ownerName: fullName, email: user.email!, phone, businessType: type }).catch(() => {});
+        sendOnboardingWaAfter(phone, "hosgeldin", { owner_name: fullName.split(" ")[0], business_name: salonName }, seedLocale);
       }
     }
   }
