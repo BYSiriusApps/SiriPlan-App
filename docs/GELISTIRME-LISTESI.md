@@ -589,7 +589,7 @@ dil seçici (Turkish ▾) → English ekle:
 - **Paketle kapanan randevu geri alınıp normal ödemeyle tamamlanırsa fiyat 0 kalıyor** (tasarım gerekir:
   geri açınca fiyat hizmet fiyatına dönsün mü, yoksa tamamlarken sorulsun mu?).
   _8 Eki 2026 kod kontrolü:_ `appointments/[id]/complete/route.ts` yalnızca paket kullanılınca `price: 0` yazıyor;
-  normal ödemeyle tamamlarken ya da geri açarken fiyatı hizmet fiyatına döndüren kod bulunamadı → HÂLÂ AÇIK
+  normal ödemeyle tamamlarken ya da geri açarken fiyatı hizmet fiyatına döndüren kod bulunamadı → 23 Kas 2026: ÇÖZÜLDÜ (`complete` rotası 'paket' izli randevu normal ödemeyle tamamlanırken fiyatı hizmet fiyatına döndürüyor; elle 0 yapılmış randevulara dokunmaz).
   görünüyor (canlıda denenip teyit edilirse kapatılabilir).
 
 Tamamlananlar (4 Eki 2026): RU/AR WhatsApp şablonları satır aralıklı `_2` sürümüne geçti ve Arapça
@@ -786,42 +786,42 @@ Kod canlıda (PR #191 + #196), ama aşağıdakiler **henüz uçtan uca test edil
 (gerçek müşteri numarasına mesaj tetikleme). Test bitince test randevularını iptal/temizle (müşteri kaydı silinmez).
 
 **A. Plan kartı ve metinler**
-- [ ] siriplan.com fiyat kartları 6 dilde (TR/EN/RU/AR/DE/ES): Mini 400 · Starter 500 · Pro 1.500 · Business 3.000 mesaj (yalnızca TR canlıda görüldü).
+- [x] siriplan.com fiyat kartları 6 dilde (TR/EN/RU/AR/DE/ES): Mini 400 · Starter 500 · Pro 1.500 · Business 3.000 mesaj — TEST EDİLDİ (23 Kas 2026): 6 dil dosyasında rakamlar tutarlı.
 - [ ] Abonelik, plan-sec, SSS/rehber, sohbet asistanı ve sunum sayfası aynı rakamları söylüyor mu.
 - [ ] `docs/musteri-sunumu/SiriPlan-Musteri-Sunumu.pdf` HTML'den yeniden üretildi mi (SMS kontörü slaytı kalmış olabilir).
 
 **B. Kota sayımı ve kesinti**
-- [ ] Onay / hatırlatma / iptal / revize mesajı kotadan düşüyor (yalnızca müşterinin 2 mesajı sayılıyor).
-- [ ] Kota dolunca otomatik WhatsApp mesajı duruyor; **randevu kaydı ve düzenleme normal devam ediyor**.
-- [ ] Önce plan hakkı, bitince ek paket bakiyesi kullanılıyor; ikisi de bitince mesaj gitmiyor.
-- [ ] Yenilenme takvim ayı değil **abonelik başlangıç yıldönümünde** (`org_message_cycle`, Stripe `billing_cycle_anchor`).
+- [x] (23 Kas: demo'da onay+revize+iptal = +3, talep bildirimi sayılmadı) Onay / hatırlatma / iptal / revize mesajı kotadan düşüyor (yalnızca müşterinin 2 mesajı sayılıyor).
+- [x] Kota dolunca otomatik WhatsApp mesajı duruyor; **randevu kaydı ve düzenleme normal devam ediyor**.
+- [x] (23 Kas: RPC testi plan×3, addon×2, sonra exceeded; release + enforce=false doğrulandı) Önce plan hakkı, bitince ek paket bakiyesi kullanılıyor; ikisi de bitince mesaj gitmiyor.
+- [x] (23 Kas: dönem hesabı 31 Oca/28 Şub/31 Mar kıstırma dahil doğrulandı) Yenilenme takvim ayı değil **abonelik başlangıç yıldönümünde** (`org_message_cycle`, Stripe `billing_cycle_anchor`).
 - [ ] Deneme (100) ve plan yükseltme/düşürme sonrası limit doğru güncelleniyor.
-- [ ] Personel seçili değilse yalnızca sahibe, seçiliyse sahip + personele bildirim gidiyor.
+- [x] (23 Kas: personel seçili akış test numaralarına gitti) Personel seçili değilse yalnızca sahibe, seçiliyse sahip + personele bildirim gidiyor.
 
 **C. Ek paket satın alma (Stripe — önce TEST MODU, canlı anahtar yerelde!)**
 - [x] Stripe ürünleri/Price'lar açıldı, 4 env Vercel (Production) + `.env.local`'a girildi, redeploy yapıldı (4 Kas 2026). Kampanya Price'ları açılmadı (satışta değil).
 - [ ] Abonelik sayfasında 4 paket → ödeme → `kind=wa_pack` webhook → kredi yükleniyor, çift yüklenme yok.
-- [ ] Fiyatlar (KDV dahil): 500 → ₺150 / $4 / €3 · 1.000 → ₺250 / $5 / €5 · 5.000 → ₺1.000 / $20 / €20 · 10.000 → ₺1.800 / $40 / €36 (PR #211, 4 Kas 2026).
+- [ ] **UYUMSUZ (23 Kas):** Stripe `_500` Price'ında EUR €3,50, katalogda €3 — karar bekliyor. Fiyatlar (KDV dahil): 500 → ₺150 / $4 / €3 · 1.000 → ₺250 / $5 / €5 · 5.000 → ₺1.000 / $20 / €20 · 10.000 → ₺1.800 / $40 / €36 (PR #211, 4 Kas 2026).
 - [ ] Abonelik, Hesabım ve Ayarlar kartlarında 4 paketin etiketi bu tutarlarla görünüyor (eski 400/800/3.800/7.200 kalmamış).
-- [ ] Checkout sayfasındaki tutar, panel etiketiyle ve Stripe Price ile birebir aynı (TRY, USD, EUR için ayrı ayrı).
-- [ ] Her Vercel env adı doğru ürünün Price kimliğine bağlı (ör. `_500` kimliği 500'lük ürüne ait; yanlış eşleşme yanlış kredi yükler).
+- [x] (23 Kas: 12 kombinasyon, yalnızca 500/EUR farklı; Mini/Mini Lite/Starter/Pro/Business planları da doğrulandı) Checkout sayfasındaki tutar, panel etiketiyle ve Stripe Price ile birebir aynı (TRY, USD, EUR için ayrı ayrı).
+- [x] Her Vercel env adı doğru ürünün Price kimliğine bağlı (ör. `_500` kimliği 500'lük ürüne ait; yanlış eşleşme yanlış kredi yükler).
 - [ ] Meta'nın USD rate card'ında Türkiye utility ücreti doğrulandı; paket fiyatları $0,0009 (A) senaryosuna göre belirlendi, B çıkarsa fiyatlar yeniden gözden geçirilecek.
 - [ ] TRY/USD/EUR tutarları `wa-credit-packs.ts` ile Stripe Price'ta birebir aynı.
-- [ ] Mobil uygulamada (App Store/Play) paket satın alma yüzeyleri gizli.
+- [x] Mobil uygulamada (App Store/Play) paket satın alma yüzeyleri gizli. (23 Kas: sp_app=1 ile wa-pack ve checkout 403)
 
 **D. Uyarılar ve kullanım kartları**
-- [ ] %80 ve %100 uyarısı: panel bandı + web/uygulama push; ek paket bitince sahibe Telegram + WhatsApp + push.
-- [ ] Bekleyen İstekler ve Bekleme Listesi üstündeki `WaQuotaNotice` şeridi.
-- [ ] `WaUsageCard` (Hesabım) ve `WaUsageSettingsCard` (Ayarlar) yalnızca sahip/yönetici görüyor; personel görmüyor.
-- [ ] Başka organizasyonun kullanım/kredi verisi hiçbir yerde görünmüyor (kiracı izolasyonu: `tenant-isolation.mjs`).
+- [x] (23 Kas: %80'de push tetiklendi, %100'de panel bandı sahip/yönetici görüyor, personel görmüyor) %80 ve %100 uyarısı: panel bandı + web/uygulama push; ek paket bitince sahibe Telegram + WhatsApp + push.
+- [x] Bekleyen İstekler ve Bekleme Listesi üstündeki `WaQuotaNotice` şeridi.
+- [x] `WaUsageCard` (Hesabım) ve `WaUsageSettingsCard` (Ayarlar) yalnızca sahip/yönetici görüyor; personel görmüyor.
+- [x] (23 Kas: security:isolation 107/107 + yeni tablolara/RPC'ye authenticated erişimi 42501) Başka organizasyonun kullanım/kredi verisi hiçbir yerde görünmüyor (kiracı izolasyonu: `tenant-isolation.mjs`).
 
 **E. Kampanya ve sağlayıcı katmanı**
 - [x] (5 Kas 2026: kampanya kredisi KALDIRILDI) WhatsApp kampanyası işletmenin kendi hesabından, SMS kampanyası SMS kanalından gider; kredi/ortak numara yok.
-- [ ] `wa-line` varsayılan sağlayıcı = Meta (env boş): mevcut akış değişmedi.
-- [ ] 360dialog webhook'u gizli anahtar yokken/yanlışken reddediyor (fail-closed); yalnızca RET işliyor. (360dialog hesabı henüz yok.)
+- [x] `wa-line` varsayılan sağlayıcı = Meta (env boş): mevcut akış değişmedi.
+- [x] (23 Kas: 401) 360dialog webhook'u gizli anahtar yokken/yanlışken reddediyor (fail-closed); yalnızca RET işliyor. (360dialog hesabı henüz yok.)
 
 **F. SMS paketi kapatıldıktan sonra**
-- [ ] Abonelik/Ayarlar/pazarlama sitesinde SMS kontör kartı ve linki yok; `/api/addon-request` "sms" reddediyor.
+- [x] Abonelik/Ayarlar/pazarlama sitesinde SMS kontör kartı ve linki yok; `/api/addon-request` "sms" reddediyor.
 - [ ] Müşterinin kendi SMS sağlayıcısı (Netgsm/VatanSMS/İletimerkezi) ile SMS bildirimi hâlâ çalışıyor.
 
 ## 20. Durum güncellemesi (5 Kas 2026)
